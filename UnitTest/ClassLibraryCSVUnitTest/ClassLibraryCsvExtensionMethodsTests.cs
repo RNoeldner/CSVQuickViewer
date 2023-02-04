@@ -21,14 +21,14 @@ namespace CsvTools.Tests
       Assert.AreEqual("Apostrophe: '", "'".GetDescription());
       Assert.AreEqual("Space", " ".GetDescription());
       Assert.AreEqual("Backslash: \\", "\\".GetDescription());
-      Assert.AreEqual("Slash: /", '/'.GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "US".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "Unit Separator".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "char(31)".WrittenPunctuation().GetDescription());
+      Assert.AreEqual("Slash: /", "/".GetDescription());
+      Assert.AreEqual("Unit Separator: Char 31", "US".WrittenPunctuation().ToStringHandle0().GetDescription());
+      Assert.AreEqual("Unit Separator: Char 31", "Unit Separator".WrittenPunctuation().ToStringHandle0().GetDescription());
+      Assert.AreEqual("Unit Separator: Char 31", "char(31)".WrittenPunctuation().ToStringHandle0().GetDescription());
 
-      Assert.AreEqual("Group Separator: Char 29", "GS".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Record Separator: Char 30", "RS".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("File Separator: Char 28", "FS".WrittenPunctuation().GetDescription());
+      Assert.AreEqual("Group Separator: Char 29", "GS".WrittenPunctuation().ToStringHandle0().GetDescription());
+      Assert.AreEqual("Record Separator: Char 30", "RS".WrittenPunctuation().ToStringHandle0().GetDescription());
+      Assert.AreEqual("File Separator: Char 28", "FS".WrittenPunctuation().ToStringHandle0().GetDescription());
     }
 
     [TestMethod]
@@ -186,10 +186,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetDescriptionTest()
     {
-      Assert.AreEqual("Horizontal Tab", '\t'.GetDescription());
-      Assert.AreEqual("Space", ' '.GetDescription());
-      Assert.IsTrue('\\'.GetDescription().Contains("Backslash"));
-      Assert.IsTrue('\''.GetDescription().Contains("\'"));
+      Assert.AreEqual("Horizontal Tab", '\t'.ToStringHandle0().GetDescription());
+      Assert.AreEqual("Space", ' '.GetDescriptionShort());
+      Assert.IsTrue('\\'.GetDescriptionShort().Contains("Backslash"));
+      Assert.IsTrue("'".GetDescription().Contains("\'"));
     }
 
     [TestMethod()]

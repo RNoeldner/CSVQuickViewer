@@ -10,6 +10,7 @@ namespace CsvTools.Tests
     public static void AssemblyInitialize(TestContext context)
     {
       Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
+      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));      
     }
   }
 }

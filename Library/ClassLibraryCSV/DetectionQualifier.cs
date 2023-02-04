@@ -18,8 +18,8 @@ namespace CsvTools
     ///   Try to determine quote character, by looking at the file and doing a quick analysis
     /// </summary>
     /// <param name="textReader">The opened TextReader</param>
-    /// <param name="delimiter">The char to be used as field delimiter</param>
-    /// <param name="escape">Used to escape a delimiter or quoting char</param>
+    /// <param name="fieldDelimiterChar">The char to be used as field delimiter</param>
+    /// <param name="escapePrefixChar">Used to escape a delimiter or quoting char</param>
     /// ///
     /// <param name="possibleQuotes">Possibles quotes to test, usually its ' and "</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
@@ -30,25 +30,23 @@ namespace CsvTools
     /// </remarks>
     public static QuoteTestResult InspectQualifier(
       this ImprovedTextReader textReader,
-      in string delimiter,
-      in string escape,
+      char fieldDelimiterChar,
+      char escapePrefixChar,
       char[] possibleQuotes,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      var delimiterChar = delimiter.WrittenPunctuationToChar();
-      var escapeChar = escape.WrittenPunctuationToChar();
-
+      
       var bestQuoteTestResults = new QuoteTestResult { QuoteChar = possibleQuotes[0] };
       foreach (var t in possibleQuotes)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var currentQuote = GetScoreForQuote(textReader, delimiterChar, escapeChar, t, cancellationToken);
+        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
       }
 
-      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescription()}");
+      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescriptionShort()}");
       return bestQuoteTestResults;
     }
 
@@ -58,23 +56,22 @@ namespace CsvTools
     /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifierAsync(
       this Stream stream,
       int codePageId,
       int skipRows,
-      string fieldDelimiter,
-      string fieldQualifier,
+      char fieldDelimiterChar,
+      char fieldQualifierChar,
       CancellationToken cancellationToken)
     {
       // if we do not have a quote defined it does not matter
-      if (string.IsNullOrEmpty(fieldQualifier) || cancellationToken.IsCancellationRequested)
+      if (fieldQualifierChar == '\0' || cancellationToken.IsCancellationRequested)
         return false;
-      var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      
       using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)

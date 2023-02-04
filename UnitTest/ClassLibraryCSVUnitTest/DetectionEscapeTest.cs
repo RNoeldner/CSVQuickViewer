@@ -15,12 +15,12 @@ namespace CsvTools.Tests
       using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
-        Assert.AreEqual("", await reader.InspectEscapePrefixAsync(",", "\"", UnitTestStatic.Token));
+        Assert.AreEqual('\0', await reader.InspectEscapePrefixAsync(',', '"', UnitTestStatic.Token));
       }
       using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       {
         using var textReader = await stream.GetTextReaderAsync(Encoding.UTF8.CodePage, 0, UnitTestStatic.Token);
-        Assert.AreEqual("",await textReader.InspectEscapePrefixAsync(",", "\"", UnitTestStatic.Token).ConfigureAwait(false));
+        Assert.AreEqual('\0',await textReader.InspectEscapePrefixAsync(',', '"', UnitTestStatic.Token).ConfigureAwait(false));
       }
     }
 
@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     {
       using var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")));
       using var reader = new ImprovedTextReader(stream);
-      Assert.AreEqual("", await reader.InspectEscapePrefixAsync(",", "\"", UnitTestStatic.Token));
+      Assert.AreEqual('\0', await reader.InspectEscapePrefixAsync(',', '"', UnitTestStatic.Token));
     }
 
 
@@ -39,13 +39,13 @@ namespace CsvTools.Tests
       using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"))))
       {
         using var reader = new ImprovedTextReader(stream);
-        Assert.AreEqual("\\", await reader.InspectEscapePrefixAsync(",", "\"", UnitTestStatic.Token));
+        Assert.AreEqual('\\', await reader.InspectEscapePrefixAsync(',', '"', UnitTestStatic.Token));
       }
 
       using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"))))
       {
         using var textReader = await stream.GetTextReaderAsync(Encoding.UTF8.CodePage, 0, UnitTestStatic.Token);
-        Assert.AreEqual("\\",await textReader.InspectEscapePrefixAsync(",", "\"", UnitTestStatic.Token).ConfigureAwait(false));
+        Assert.AreEqual('\\',await textReader.InspectEscapePrefixAsync(',', '"', UnitTestStatic.Token).ConfigureAwait(false));
       }
     }
   }

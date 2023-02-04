@@ -10,13 +10,13 @@ namespace CsvTools
     ///   Determine the new line sequence from TextReader
     /// </summary>
     /// <param name="textReader">The reader to read data from</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     /// <returns>The NewLine Combination used</returns>
     /// <exception cref="ArgumentNullException"></exception>
     public static RecordDelimiterTypeEnum InspectRecordDelimiter(
-          this ImprovedTextReader textReader, string fieldQualifier, CancellationToken cancellationToken)
+          this ImprovedTextReader textReader, char fieldQualifierChar, CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       const int numChars = 8192;
@@ -35,7 +35,6 @@ namespace CsvTools
       int[] count = { 0, 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
-      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       while (currentChar < numChars && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {

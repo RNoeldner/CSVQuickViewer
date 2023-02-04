@@ -5,7 +5,7 @@ namespace Maui
   public class DetectionViewModel : BaseViewModel, IQueryAttributable
   {
     private string m_FileName = string.Empty;
-    private InspectionResult m_DetectionResult = new InspectionResult("dummy");
+    private InspectionResult m_DetectionResult = new InspectionResult();
     private string m_Log = string.Empty;
 
     public InspectionResult InspectionResult
@@ -44,8 +44,8 @@ namespace Maui
           false,
           preference.GuessComment,
           preference.GetFillGuessSettings(), 
-          preference.DefaultCodePage, 
-          preference.DefaultByteOrderMark, CancellationTokenSource.Token);
+          preference.DefaultInspectionResult, 
+          CancellationTokenSource.Token);
       }
       finally
       {

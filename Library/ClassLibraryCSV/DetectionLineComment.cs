@@ -10,17 +10,17 @@ namespace CsvTools
     /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="delimiter">The delimiter.</param>
+    /// <param name="fieldDelimiterChar">The delimiter.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>true if the comment line seems to ne ok</returns>
     public static async Task<bool> InspectLineCommentIsValidAsync(
       this ImprovedTextReader textReader,
       string commentLine,
-      string delimiter,
+      char fieldDelimiterChar,
       CancellationToken cancellationToken)
     {
       // if there is no commentLine it can not be wrong if there is no delimiter it can not be wrong
-      if (string.IsNullOrEmpty(commentLine) || string.IsNullOrEmpty(delimiter))
+      if (string.IsNullOrEmpty(commentLine) || fieldDelimiterChar=='\0')
         return true;
 
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
@@ -28,7 +28,6 @@ namespace CsvTools
       const int maxRows = 100;
       var row = 0;
       var lineCommented = 0;
-      var delimiterChar = delimiter.WrittenPunctuationToChar();
       var parts = 0;
       var partsComment = -1;
       while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
@@ -41,13 +40,13 @@ namespace CsvTools
         {
           lineCommented++;
           if (partsComment == -1)
-            partsComment = line.Count(x => x == delimiterChar);
+            partsComment = line.Count(x => x == fieldDelimiterChar);
         }
         else
         {
-          if (line.IndexOf(delimiterChar) != -1)
+          if (line.IndexOf(fieldDelimiterChar) != -1)
           {
-            parts += line.Count(x => x == delimiterChar);
+            parts += line.Count(x => x == fieldDelimiterChar);
             row++;
           }
         }

@@ -11,6 +11,7 @@ namespace CsvTools.Tests
     public static void AssemblyInitialize(TestContext context)
     {
       UnitTestStatic.Token = context.CancellationTokenSource.Token;
+      
     }
   }
 }

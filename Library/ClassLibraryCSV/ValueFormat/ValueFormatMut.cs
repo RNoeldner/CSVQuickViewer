@@ -115,14 +115,14 @@ namespace CsvTools
       in string fileOutPutPlaceholder = "",
       in bool overwrite = ValueFormat.cOverwriteDefault)
     {
-      m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).WrittenPunctuation();
-      m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).WrittenPunctuation();
+      m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).WrittenPunctuation().ToStringHandle0();
+      m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).WrittenPunctuation().ToStringHandle0();
       if (!string.IsNullOrEmpty(m_DecimalSeparator) && m_DecimalSeparator.Equals(m_GroupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
       m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
-      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).WrittenPunctuation();
-      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).WrittenPunctuation();
+      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).WrittenPunctuation().ToStringHandle0();
+      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).WrittenPunctuation().ToStringHandle0();
 
       m_DisplayNullAs = displayNullAs ?? string.Empty;
       m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;
@@ -130,7 +130,7 @@ namespace CsvTools
       m_True = asTrue ?? ValueFormat.cTrueDefault;
       m_False = asFalse ?? ValueFormat.cFalseDefault;
       m_Part = part;
-      m_PartSplitter = (partSplitter ?? ValueFormat.cPartSplitterDefault).WrittenPunctuation();
+      m_PartSplitter = (partSplitter ?? ValueFormat.cPartSplitterDefault).WrittenPunctuation().ToStringHandle0();
       m_PartToEnd = partToEnd;
       m_RegexSearchPattern = regexSearchPattern ?? string.Empty;
       m_RegexReplacement = regexReplacement ?? string.Empty;
@@ -161,7 +161,7 @@ namespace CsvTools
     public string DateSeparator
     {
       get => m_DateSeparator;
-      set => SetProperty(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation());
+      set => SetProperty(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation().ToStringHandle0());
     }
 
     [XmlElement]
@@ -171,7 +171,7 @@ namespace CsvTools
       get => m_DecimalSeparator;
       set
       {
-        if (!SetProperty(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation()))
+        if (!SetProperty(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation().ToStringHandle0()))
           return;
         if (m_GroupSeparator.Equals(m_DecimalSeparator))
           SetProperty(ref m_GroupSeparator, string.Empty, StringComparer.Ordinal, nameof(GroupSeparator));
@@ -210,7 +210,7 @@ namespace CsvTools
       set
       {
         var oldGroup = m_GroupSeparator;
-        if (SetProperty(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation()))
+        if (SetProperty(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation().ToStringHandle0()))
         {
           if (m_GroupSeparator.Equals(m_DecimalSeparator))
             SetProperty(ref m_DecimalSeparator, oldGroup, StringComparer.Ordinal, nameof(DecimalSeparator));
@@ -251,7 +251,7 @@ namespace CsvTools
     public string PartSplitter
     {
       get => m_PartSplitter;
-      set => SetProperty(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation());
+      set => SetProperty(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation().ToStringHandle0());
     }
 
     [XmlAttribute]
@@ -291,7 +291,7 @@ namespace CsvTools
     public string TimeSeparator
     {
       get => m_TimeSeparator;
-      set => SetProperty(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation());
+      set => SetProperty(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation().ToStringHandle0());
     }
 
     [XmlElement]

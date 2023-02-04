@@ -10,7 +10,7 @@ namespace Maui
 
       return await fullPath.InspectFileAsync(false, preference.GuessCodePage,
         preference.GuessEscapePrefix, preference.GuessDelimiter, preference.GuessQualifier, preference.GuessStartRow, preference.GuessHasHeader, false,
-        preference.GuessComment, preference.GetFillGuessSettings(), preference.DefaultCodePage, preference.DefaultByteOrderMark, cancellationToken).ConfigureAwait(false);
+        preference.GuessComment, preference.GetFillGuessSettings(), preference.DefaultInspectionResult, cancellationToken).ConfigureAwait(false);
     }
   }
 }

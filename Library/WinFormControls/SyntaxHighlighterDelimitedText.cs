@@ -38,21 +38,19 @@ namespace CsvTools
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape,
       string comment) : base(textBox)
     {
-      var qualifierChar = (qualifier ?? string.Empty).WrittenPunctuation();
-      var delimiterChar = (delimiter ?? string.Empty).WrittenPunctuation();
-      if (string.IsNullOrEmpty(delimiterChar))
-        delimiterChar = "\t";
+      var qualifierChar = qualifier.WrittenPunctuation();
+      var delimiterChar = delimiter.WrittenPunctuation();
+      if (delimiterChar=='\0')
+        delimiterChar = '\t';
 
-      var escapeChar = (escape ?? string.Empty).WrittenPunctuation();
-
-      m_DelimiterRegex = new Regex(
-        string.IsNullOrEmpty(escapeChar) ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
+      var escapeChar = escape.WrittenPunctuation();
+      m_DelimiterRegex = new Regex(escapeChar=='\0' ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 
-      if (!string.IsNullOrEmpty(qualifierChar))
+      if (qualifierChar != '\0')
       {
         m_QuoteRegex = new Regex(
-          string.IsNullOrEmpty(escapeChar)
+          escapeChar=='\0'
             ? $"\\{qualifierChar}((?:\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}"
             : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
           RegexOptions.Multiline | RegexOptions.Compiled);
@@ -75,7 +73,7 @@ namespace CsvTools
         range.SetStyle(GrayStyle, m_CommentRegex);
 
       range.SetStyle(m_Space, m_SpaceRegex);
-     // range.SetStyle(m_Tab, m_TabRegex1);
+      // range.SetStyle(m_Tab, m_TabRegex1);
       range.SetStyle(m_Tab2, m_TabRegex2);
     }
 

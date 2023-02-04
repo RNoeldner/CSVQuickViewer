@@ -78,22 +78,19 @@ namespace CsvTools
 
     /// <summary>Guesses the has header from reader.</summary>
     /// <param name="reader">The reader.</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="lineComment">The lineComment.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>Explanation why there is no header, if empty the header was found</returns>
     public static async Task<string> InspectHasHeaderAsync(this ImprovedTextReader reader,
-      string fieldDelimiter,
-      string fieldQualifier,
-      string escapePrefix,
+      char fieldDelimiterChar,
+      char fieldQualifierChar,
+      char escapePrefixChar,
       string lineComment,
       CancellationToken cancellationToken)
     {
-      var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      var escapePrefixChar = escapePrefix.WrittenPunctuationToChar();
       var headers = DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment);
 
       // get the average field count looking at the header and 12 additional valid lines

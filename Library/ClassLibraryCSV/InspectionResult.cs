@@ -12,47 +12,57 @@
  *
  */
 #nullable enable
-using System;
+using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace CsvTools
 {
   /// <summary>
-  ///   Data store to pass back information retrieved from Inspection or parsing Manifest Information
+  ///   Data store to pass back information retrieved from inspection or parsing Manifest Information
   /// </summary>
-  public class InspectionResult
+  public sealed class InspectionResult
   {
-    public readonly string FileName;
-    public int SkipRows = 0;
-    public int CodePageId = -1;
-    public bool ByteOrderMark = false;
-    public string IdentifierInContainer = string.Empty;
-    public string CommentLine = "#";
-    public string EscapePrefix = "\\";
-    public string FieldDelimiter = ",";
-    public string FieldQualifier = "\"";
-    public bool ContextSensitiveQualifier = false;
-    public bool DuplicateQualifierToEscape = true;
-    public bool HasFieldHeader = true;
+    [DefaultValue(0)] public int SkipRows = 0;
+    [DefaultValue(65001)] public int CodePageId = 65001;
+    [DefaultValue(false)] public bool ByteOrderMark = false;
+    [DefaultValue("")] public string IdentifierInContainer = string.Empty;
+    [DefaultValue("#")] public string CommentLine = "#";
+    [DefaultValue('\\')] public char EscapePrefix = '\\';
+    [DefaultValue(',')] public char FieldDelimiter = ',';
+    [DefaultValue('"')] public char FieldQualifier = '"';
+    [DefaultValue(false)] public bool ContextSensitiveQualifier = false;
+    [DefaultValue(true)] public bool DuplicateQualifierToEscape = true;
+    [DefaultValue(true)] public bool HasFieldHeader = true;
+    [DefaultValue(RecordDelimiterTypeEnum.None)] public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
+
+    [JsonIgnore]
+    [DefaultValue("")]
+    public string FileName = string.Empty;
+    
+    [JsonIgnore]
+    [DefaultValue(false)]
     public bool IsJson = false;
+
+    [JsonIgnore]
+    [DefaultValue(false)]
     public bool NoDelimitedFile = false;
-    public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
+    
+    [JsonIgnore]
+    [DefaultValue("")]
     public string ColumnFile = string.Empty;
+
+    [JsonIgnore]
     public ColumnCollection Columns = new ColumnCollection();
 
-    public InspectionResult(string fileName)
-    {
-      FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-    }
-
 #if !QUICK
-    public virtual IFileSettingPhysicalFile PhysicalFile()
+    public IFileSettingPhysicalFile PhysicalFile()
     {
       var ret = (IsJson) ? new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer } as IFileSettingPhysicalFile : new CsvFile(id: string.Empty, fileName: FileName)
       {
         CommentLine = CommentLine,
-        EscapePrefix = GetShortDisplay(EscapePrefix),
-        FieldDelimiter = GetShortDisplay(FieldDelimiter),
-        FieldQualifier = GetShortDisplay(FieldQualifier),
+        EscapePrefix = EscapePrefix.ToStringHandle0(),
+        FieldDelimiter = FieldDelimiter.ToStringHandle0(),
+        FieldQualifier = FieldQualifier.ToStringHandle0(),
         ContextSensitiveQualifier = ContextSensitiveQualifier,
         DuplicateQualifierToEscape = DuplicateQualifierToEscape,
         NewLine = NewLine,
@@ -68,24 +78,6 @@ namespace CsvTools
       ret.ColumnFile = ColumnFile;
 
       return ret;
-    }
-
-
-    private static string GetShortDisplay(in string? input)
-    {
-      if (input is null)
-        return string.Empty;
-
-      return input.WrittenPunctuation() switch
-      {
-        "\t" => "Tab",
-        " " => "Space",
-        "\u00A0" => "NBSP",
-        "," => "Comma",
-        ";" => "Semicolon",
-        "|" => "Pipe",
-        _ => input
-      };
     }
 #endif
   }

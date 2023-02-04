@@ -308,7 +308,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(textBoxSplitText))
         return;
-      var split = textBoxSplitText.WrittenPunctuationToChar();
+      var split = textBoxSplitText.WrittenPunctuation();
       var sample = $"This{split}is a{split}concatenated{split}list";
 
       labelSamplePart.SafeInvoke(() =>

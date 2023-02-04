@@ -8,7 +8,7 @@ namespace Maui
   {
     private string m_FileName = string.Empty;
     private DataTable? m_DataTable;
-    private InspectionResult m_DetectionResult = new InspectionResult("dummy");
+    private InspectionResult m_DetectionResult = new InspectionResult();
 
     //private PagedFileReader? m_FileReader;
     //public IList<DynamicDataRecord> Items => m_FileReader!;

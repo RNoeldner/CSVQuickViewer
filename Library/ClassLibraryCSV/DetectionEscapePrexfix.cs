@@ -17,12 +17,12 @@ namespace CsvTools
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
     /// </summary>
     /// <param name="textReader">The improved text reader.</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The Escape Prefix used</returns>    
-    public static async Task<string> InspectEscapePrefixAsync(this ImprovedTextReader textReader, 
-      string fieldDelimiter, string fieldQualifier, CancellationToken cancellationToken)
+    public static async Task<char> InspectEscapePrefixAsync(this ImprovedTextReader textReader,
+      char fieldDelimiterChar, char fieldQualifierChar, CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
@@ -35,10 +35,10 @@ namespace CsvTools
       // build a list of all characters that would indicate a sequence
       var possibleEscaped = new HashSet<char>(checkedEscapeChars);
 
-      if (fieldDelimiter.Length>0)
-        possibleEscaped.Add(fieldDelimiter.WrittenPunctuationToChar());
-      if (fieldQualifier.Length>0)
-        possibleEscaped.Add(fieldQualifier.WrittenPunctuationToChar());
+      if (fieldDelimiterChar!= '\0')
+        possibleEscaped.Add(fieldDelimiterChar);
+      if (fieldQualifierChar!='\0')
+        possibleEscaped.Add(fieldQualifierChar);
       foreach (var escaped in DelimiterCounter.GetPossibleDelimiters())
         possibleEscaped.Add(escaped);
       foreach (var escaped in DetectionQualifier.GetPossibleQualifier())
@@ -65,15 +65,16 @@ namespace CsvTools
           counter[d[0]]++;
       }
 
+      // ReSharper disable once SimplifyLinqExpressionUseMinByAndMaxBy
       var bestScore = counter.OrderByDescending(x => x.Value).First();
       if (bestScore.Value > 0)
       {
-        Logger.Information("Escape : {comment}", bestScore.Key.GetDescription());
-        return bestScore.Key.ToString();
+        Logger.Information("Escape : {comment}", bestScore.Key.GetDescriptionShort());
+        return bestScore.Key;
       }
 
       Logger.Information("No Escape found");
-      return string.Empty;
+      return '\0';
     }
   }
 }

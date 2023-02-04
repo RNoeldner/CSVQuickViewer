@@ -103,6 +103,7 @@ namespace CsvTools
     [Browsable(false)]
     public ICsvFile CsvFile
     {
+      get { return m_CsvFile; }
       set
       {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -867,7 +868,7 @@ namespace CsvTools
 #pragma warning restore CS8605        
         }
 
-        var quote = m_TextBoxQuote.Text.WrittenPunctuationToChar();
+        var quote = m_TextBoxQuote.Text.WrittenPunctuation();
 
 
         m_FastColoredTextBox00!.Text = "This is";
