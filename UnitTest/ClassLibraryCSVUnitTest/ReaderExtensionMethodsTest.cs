@@ -25,7 +25,8 @@ namespace CsvTools.Tests
   {
     private readonly CsvFile m_ValidSetting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FieldDelimiter = ",", CommentLine = "#"
+      FieldDelimiter = ",",
+      CommentLine = "#"
     };
 
     [TestInitialize]
@@ -39,7 +40,7 @@ namespace CsvTools.Tests
       var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       m_ValidSetting.ColumnCollection.Add(cf);
     }
-    
+
     [TestMethod, Timeout(2000)]
     public async Task GetCombinedKey()
     {
@@ -48,9 +49,9 @@ namespace CsvTools.Tests
         true,
         null,
         TrimmingOptionEnum.Unquoted,
-        ",",
-        "\"",
-        "",
+        ',',
+        '"',
+        char.MinValue,
         0,
         false,
         false,
@@ -93,9 +94,9 @@ namespace CsvTools.Tests
         true,
         null,
         TrimmingOptionEnum.Unquoted,
-        ",",
-        "\"",
-        "",
+        ',',
+        '"',
+        char.MinValue,
         0,
         false,
         false,
@@ -130,9 +131,9 @@ namespace CsvTools.Tests
     {
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
-        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter,
-        m_ValidSetting.FieldQualifier,
-        m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
+        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
+        m_ValidSetting.FieldQualifierChar,
+        m_ValidSetting.EscapePrefixChar, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
         m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape,
         m_ValidSetting.NewLinePlaceholder,
@@ -157,7 +158,7 @@ namespace CsvTools.Tests
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader,
         test2.ColumnCollection, test2.TrimmingOption,
-        test2.FieldDelimiter, test2.FieldQualifier, test2.EscapePrefix, test2.RecordLimit, test2.AllowRowCombining,
+        test2.FieldDelimiterChar, test2.FieldQualifierChar, test2.EscapePrefixChar, test2.RecordLimit, test2.AllowRowCombining,
         test2.ContextSensitiveQualifier,
         test2.CommentLine, test2.NumWarnings, test2.DuplicateQualifierToEscape, test2.NewLinePlaceholder,
         test2.DelimiterPlaceholder,
@@ -183,7 +184,7 @@ namespace CsvTools.Tests
       test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,
-        test3.FieldDelimiter, test3.FieldQualifier, test3.EscapePrefix, test3.RecordLimit, test3.AllowRowCombining,
+        test3.FieldDelimiterChar, test3.FieldQualifierChar, test3.EscapePrefixChar, test3.RecordLimit, test3.AllowRowCombining,
         test3.ContextSensitiveQualifier,
         test3.CommentLine, test3.NumWarnings, test3.DuplicateQualifierToEscape, test3.NewLinePlaceholder,
         test3.DelimiterPlaceholder,

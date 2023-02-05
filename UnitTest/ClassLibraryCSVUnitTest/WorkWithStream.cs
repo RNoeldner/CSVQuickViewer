@@ -26,8 +26,8 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter.ToStringHandle0(), result.FieldQualifier.ToStringHandle0(),
-               result.EscapePrefix.ToStringHandle0(), 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
@@ -42,8 +42,8 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter.ToStringHandle0(), result.FieldQualifier.ToStringHandle0(),
-               result.EscapePrefix.ToStringHandle0(), 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
@@ -66,8 +66,8 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter.ToStringHandle0(), result.FieldQualifier.ToStringHandle0(),
-               result.EscapePrefix.ToStringHandle0(), 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
@@ -82,8 +82,8 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter.ToStringHandle0(), result.FieldQualifier.ToStringHandle0(),
-               result.EscapePrefix.ToStringHandle0(), 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {

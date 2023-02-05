@@ -39,9 +39,9 @@ namespace CsvTools.Tests
           new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, ignore: true),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 1)
         }, TrimmingOptionEnum.Unquoted,
-        "\t",
-        "\"",
-        "",
+        '\t',
+        '"',
+        char.MinValue,
         0,
         false,
         false,

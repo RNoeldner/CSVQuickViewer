@@ -135,8 +135,8 @@ namespace CsvTools.Tests
         };
       using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows,
         cvsSetting.HasFieldHeader,
-        cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier,
-        cvsSetting.EscapePrefix,
+        cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiterChar, cvsSetting.FieldQualifierChar,
+        cvsSetting.EscapePrefixChar,
         cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.ContextSensitiveQualifier,
         cvsSetting.CommentLine, cvsSetting.NumWarnings,
         cvsSetting.DuplicateQualifierToEscape, cvsSetting.NewLinePlaceholder, cvsSetting.DelimiterPlaceholder,
