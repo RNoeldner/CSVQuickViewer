@@ -11,8 +11,8 @@ namespace CsvTools.Tests
     {
       TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
       using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-               65001, 0, true, null, TrimmingOptionEnum.Unquoted, "TAB",
-               "\"", "", 0, false,
+               65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t','"'
+               , char.MinValue, 0, false,
                false, "", 0,
                true, "", "",
                "", true, false,
