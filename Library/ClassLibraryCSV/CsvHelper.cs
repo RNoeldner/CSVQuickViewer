@@ -498,8 +498,8 @@ namespace CsvTools
       return new CsvFileReader(
         fileName, inspectionResult.CodePageId,
         inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
-        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter.ToStringHandle0(),
-        inspectionResult.FieldQualifier.ToStringHandle0(), inspectionResult.EscapePrefix.ToStringHandle0(), 0L, false, false, inspectionResult.CommentLine, 0,
+        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter,
+        inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, 0L, false, false, inspectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
         false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
     }

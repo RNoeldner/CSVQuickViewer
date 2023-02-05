@@ -14,7 +14,7 @@ namespace CsvTools.Tests
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001,0,
         true, null, TrimmingOptionEnum.Unquoted,
-         fieldDelimiter: "\t", fieldQualifier: "\"", escapeCharacter: "",
+         fieldDelimiterChar: '\t', fieldQualifierChar: '"', escapeCharacterChar: char.MinValue,
         recordLimit: 0, allowRowCombining: false, contextSensitiveQualifier: false, commentLine: "", numWarning: 0,
         duplicateQualifierToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
         skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: true,

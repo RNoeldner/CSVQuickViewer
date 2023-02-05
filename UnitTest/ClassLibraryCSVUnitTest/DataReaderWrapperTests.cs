@@ -86,8 +86,8 @@ namespace CsvTools.Tests
     private static CsvFileReader GetReader(CsvFile setting)
     {
       return new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-        setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter,
-        setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
+        setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
+        setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
         setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
         setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,

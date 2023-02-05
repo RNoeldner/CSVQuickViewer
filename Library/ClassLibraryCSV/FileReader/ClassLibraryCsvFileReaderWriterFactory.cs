@@ -43,7 +43,7 @@ namespace CsvTools
           csv1.TrimmingOption == TrimmingOptionEnum.All, csv1.TreatTextAsNull, csv1.TreatNBSPAsSpace, m_TimeZoneAdjust,
           TimeZoneInfo.Local.Id),
         ICsvFile csv2 => new CsvFileReader(csv2.FullPath, csv2.CodePageId, csv2.SkipRows, csv2.HasFieldHeader,
-          csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiter, csv2.FieldQualifier, csv2.EscapePrefix,
+          csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiterChar, csv2.FieldQualifierChar, csv2.EscapePrefixChar,
           csv2.RecordLimit, csv2.AllowRowCombining, csv2.ContextSensitiveQualifier, csv2.CommentLine, csv2.NumWarnings,
           csv2.DuplicateQualifierToEscape, csv2.NewLinePlaceholder, csv2.DelimiterPlaceholder,
           csv2.QualifierPlaceholder, csv2.SkipDuplicateHeader, csv2.TreatLfAsSpace, csv2.TreatUnknownCharacterAsSpace,

@@ -531,8 +531,8 @@ namespace CsvTools.Tests
 
       using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader,
         test.ColumnCollection, test.TrimmingOption,
-        test.FieldDelimiter,
-        test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining,
+        test.FieldDelimiterChar,
+        test.FieldQualifierChar, test.EscapePrefixChar, test.RecordLimit, test.AllowRowCombining,
         test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
         test.DuplicateQualifierToEscape,
         test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader,

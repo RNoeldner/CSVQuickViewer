@@ -156,7 +156,7 @@ namespace CsvTools
 
     public CsvFileReader(in Stream stream, int codePageId, int skipRows,
       bool hasFieldHeader, in IEnumerable<Column>? columnDefinition, in TrimmingOptionEnum trimmingOption,
-      in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter,
+      char fieldDelimiter, char fieldQualifier, char escapeCharacter,
       long recordLimit, bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine,
       int numWarning, bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
       in string quotePlaceholder, bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace,
@@ -178,7 +178,7 @@ namespace CsvTools
     public CsvFileReader(in string fileName, int codePageId, int skipRows, bool hasFieldHeader,
       in IEnumerable<Column>? columnDefinition,
       in TrimmingOptionEnum trimmingOption,
-      in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter, long recordLimit,
+      char fieldDelimiterChar, char fieldQualifierChar, char escapeCharacterChar, long recordLimit,
       bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine, int numWarning,
       bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
       in string quotePlaceholder,
@@ -189,7 +189,7 @@ namespace CsvTools
       string destTimeZone, bool allowPercentage, bool removeCurrency)
       : this(
         columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
+        trimmingOption, fieldDelimiterChar, fieldQualifierChar, escapeCharacterChar, recordLimit, allowRowCombining,
         contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
         delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace,
         tryToSolveMoreColumns,
@@ -212,9 +212,9 @@ namespace CsvTools
       int skipRows,
       bool hasFieldHeader,
       TrimmingOptionEnum trimmingOption,
-      in string fieldDelimiter,
-      in string fieldQualifier,
-      in string escapePrefix,
+      char fieldDelimiterChar,
+      char fieldQualifierChar,
+      char escapePrefixChar,
       long recordLimit,
       bool allowRowCombining,
       bool contextSensitiveQualifier,
@@ -248,9 +248,9 @@ namespace CsvTools
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();
-      m_EscapePrefixChar = escapePrefix.WrittenPunctuation();
-      m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuation();
-      m_FieldQualifierChar = fieldQualifier.WrittenPunctuation();
+      m_EscapePrefixChar = escapePrefixChar;
+      m_FieldDelimiterChar = fieldDelimiterChar;
+      m_FieldQualifierChar = fieldQualifierChar;
 
       if (m_FieldDelimiterChar == char.MinValue)
         throw new FileReaderException("All delimited text files do need a delimiter.");
@@ -267,7 +267,7 @@ namespace CsvTools
           (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescriptionShort()}.");
-      
+
       m_HasQualifier = m_FieldQualifierChar != char.MinValue;
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
@@ -298,8 +298,8 @@ namespace CsvTools
       m_ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_TrimmingOption = trimmingOption;
-      m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
-      m_IdentifierInContainer = identifierInContainer ?? string.Empty;
+      m_TreatTextAsNull = treatTextAsNull;
+      m_IdentifierInContainer = identifierInContainer;
 
       // Either we report the issues regularly or at least log it
       if (warnEmptyTailingColumns)

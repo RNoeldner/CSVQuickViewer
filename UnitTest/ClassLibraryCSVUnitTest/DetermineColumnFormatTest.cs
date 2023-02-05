@@ -576,8 +576,8 @@ namespace CsvTools.Tests
         new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
-        setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
+        setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar,
+        setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
         setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
         setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
@@ -603,8 +603,8 @@ namespace CsvTools.Tests
           HasFieldHeader = true
         };
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
-        setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
+        setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar,
+        setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
         setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
         setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,

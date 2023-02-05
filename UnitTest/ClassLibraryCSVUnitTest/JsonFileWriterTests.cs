@@ -40,7 +40,7 @@ namespace CsvTools.Tests
         {
           new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
-        }, TrimmingOptionEnum.All, "\t", "\"", "",
+        }, TrimmingOptionEnum.All, '\t', '"', char.MinValue,
         0, false, false, "", 0,
         true, "", "", "", true,
         false, false, true, true, false,
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
         {
           new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
-        }, TrimmingOptionEnum.All, "\t", "\"", "",
+        }, TrimmingOptionEnum.All, '\t', '"', char.MinValue,
         0, false, false, "", 0,
         true, "", "", "", true,
         false, false, true, true, false,

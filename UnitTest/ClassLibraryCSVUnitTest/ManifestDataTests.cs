@@ -41,7 +41,7 @@ namespace CsvTools.Tests
 #pragma warning restore CS8602
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
+        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
         setting.NewLinePlaceholder,
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
 #pragma warning restore 8602
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
+        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
         setting.NewLinePlaceholder,
