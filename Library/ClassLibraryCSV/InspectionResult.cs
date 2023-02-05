@@ -38,7 +38,7 @@ namespace CsvTools
     [JsonIgnore]
     [DefaultValue("")]
     public string FileName = string.Empty;
-    
+
     [JsonIgnore]
     [DefaultValue(false)]
     public bool IsJson = false;
@@ -46,7 +46,7 @@ namespace CsvTools
     [JsonIgnore]
     [DefaultValue(false)]
     public bool NoDelimitedFile = false;
-    
+
     [JsonIgnore]
     [DefaultValue("")]
     public string ColumnFile = string.Empty;
@@ -60,9 +60,9 @@ namespace CsvTools
       var ret = (IsJson) ? new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer } as IFileSettingPhysicalFile : new CsvFile(id: string.Empty, fileName: FileName)
       {
         CommentLine = CommentLine,
-        EscapePrefix = EscapePrefix.ToStringHandle0(),
-        FieldDelimiter = FieldDelimiter.ToStringHandle0(),
-        FieldQualifier = FieldQualifier.ToStringHandle0(),
+        EscapePrefix = EscapePrefix.GetDescriptionShort(),
+        FieldDelimiter = FieldDelimiter.GetDescriptionShort(),
+        FieldQualifier = FieldQualifier.GetDescriptionShort(),
         ContextSensitiveQualifier = ContextSensitiveQualifier,
         DuplicateQualifierToEscape = DuplicateQualifierToEscape,
         NewLine = NewLine,

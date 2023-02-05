@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
+// ReSharper disable once CheckNamespace
 namespace CsvTools.Tests
 {
   [TestClass()]
@@ -15,8 +16,8 @@ namespace CsvTools.Tests
       const int numRec = 1065;
       // 1065 / 17
       using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-               65001, 0, true, null, TrimmingOptionEnum.Unquoted, "TAB",
-               "\"", "", 0, false,
+               65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+               '"', char.MinValue, 0, false,
                false, "", 0,
                true, "", "",
                "", true, false,
@@ -43,8 +44,8 @@ namespace CsvTools.Tests
       const int pageSize = 20;
       // 1065 / 17
       using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-               65001, 0, true, null, TrimmingOptionEnum.Unquoted, "TAB",
-               "\"", "", 0, false,
+               65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+               '"', char.MinValue, 0, false,
                false, "", 0,
                true, "", "",
                "", true, false,
@@ -71,8 +72,8 @@ namespace CsvTools.Tests
       const int pageSize = 33;
       // 1065 / 17
       using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-               65001, 0, true, null, TrimmingOptionEnum.Unquoted, "TAB",
-               "\"", "", 0, false,
+               65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+              '"', char.MinValue, 0, false,
                false, "", 0,
                true, "", "",
                "", true, false,
@@ -96,8 +97,8 @@ namespace CsvTools.Tests
     public async Task PagedFileReaderOpen()
     {
       using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-               65001, 0, true, null, TrimmingOptionEnum.Unquoted, "TAB",
-               "\"", "", 0, false,
+               65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+               '"', char.MinValue, 0, false,
                false, "", 0,
                true, "", "",
                "", true, false,
