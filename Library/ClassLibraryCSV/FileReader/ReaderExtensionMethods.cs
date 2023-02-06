@@ -89,9 +89,9 @@ namespace CsvTools
     {
       var res = new List<Column>();
 #if NET5_0_OR_GREATER
-          await
+      await
 #endif
-      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+  using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         res.Add(fileReader.GetColumn(colIndex));
@@ -118,8 +118,16 @@ namespace CsvTools
         {
           var currentValue = dataReader.GetValue(columnNo).ToString()!.Replace(combineWith, (char) 0);
           var trimmed = currentValue.Trim();
-          if (trimmed.Length != currentValue.Length)
-            trimming?.Invoke(columnNo);
+          if (trimmed.Length != currentValue.Length && trimming != null)
+            try
+            {
+              trimming.Invoke(columnNo);
+            }
+            catch (Exception ex)
+            {
+              Logger.Warning(ex, "Get Combined Keys Trimming Notification");
+            }
+
 
           stringBuilder.Append(trimmed);
         }
