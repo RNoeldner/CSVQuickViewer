@@ -1,11 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 
 namespace CsvTools
 {
   public class Punctuation
   {
-    private char m_Char = '\0';
+    private char m_Char = char.MinValue;
+
+    public bool IsEmpty
+    {
+      get => m_Char == char.MinValue;
+    }
 
     public char Char
     {

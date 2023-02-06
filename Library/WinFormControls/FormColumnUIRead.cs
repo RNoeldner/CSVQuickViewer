@@ -392,7 +392,7 @@ namespace CsvTools
     {
       try
       {
-        if (decimalSeparator.Char == '\0')
+        if (decimalSeparator.IsEmpty)
           return;
         var vf = new ValueFormat(numberFormat: numberFormat,
           groupSeparator: groupSeparator.Text,

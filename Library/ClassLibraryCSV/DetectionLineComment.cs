@@ -20,7 +20,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       // if there is no commentLine it can not be wrong if there is no delimiter it can not be wrong
-      if (string.IsNullOrEmpty(commentLine) || fieldDelimiterChar=='\0')
+      if (string.IsNullOrEmpty(commentLine) || fieldDelimiterChar==char.MinValue)
         return true;
 
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));

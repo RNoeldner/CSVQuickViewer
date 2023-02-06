@@ -91,7 +91,7 @@ namespace CsvTools.Tests
 
       m_CsvFile.FieldQualifier = "";
       Assert.AreEqual(m_CsvFile.FieldQualifier, "", true);
-      Assert.AreEqual(m_CsvFile.FieldQualifierChar, '\0');
+      Assert.AreEqual(m_CsvFile.FieldQualifierChar, char.MinValue);
     }
 
     [TestInitialize]

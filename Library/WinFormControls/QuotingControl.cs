@@ -233,19 +233,19 @@ namespace CsvTools
       this.m_LabelTrim = new System.Windows.Forms.Label();
       this.m_SplitContainer = new System.Windows.Forms.SplitContainer();
       this.m_TimerRebuilt = new System.Windows.Forms.Timer(this.components);
-      ((System.ComponentModel.ISupportInitialize)(this.m_CsvSettingBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox00)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox12)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox02)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox11)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox01)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox10)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_CsvSettingBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox00)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox12)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox02)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox11)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox01)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox10)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox)).BeginInit();
       this.m_TableLayoutPanelText.SuspendLayout();
       this.m_TableLayoutPanelColumns.SuspendLayout();
       this.m_TableLayoutPanel.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_SplitContainer)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_SplitContainer)).BeginInit();
       this.m_SplitContainer.Panel1.SuspendLayout();
       this.m_SplitContainer.Panel2.SuspendLayout();
       this.m_SplitContainer.SuspendLayout();
@@ -384,14 +384,14 @@ namespace CsvTools
       this.m_FastColoredTextBox00.CharHeight = 14;
       this.m_FastColoredTextBox00.CharWidth = 8;
       this.m_FastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox00.IsReplaceMode = false;
       this.m_FastColoredTextBox00.Location = new System.Drawing.Point(45, 16);
       this.m_FastColoredTextBox00.Multiline = false;
       this.m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
       this.m_FastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox00.ReadOnly = true;
-      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox00.ShowLineNumbers = false;
       this.m_FastColoredTextBox00.ShowScrollBars = false;
       this.m_FastColoredTextBox00.Size = new System.Drawing.Size(92, 18);
@@ -401,7 +401,7 @@ namespace CsvTools
       // 
       // m_Label1
       // 
-      this.m_Label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Label1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label1.AutoSize = true;
       this.m_Label1.ForeColor = System.Drawing.Color.Teal;
       this.m_Label1.Location = new System.Drawing.Point(3, 13);
@@ -432,13 +432,13 @@ namespace CsvTools
       this.m_FastColoredTextBox12.CharHeight = 14;
       this.m_FastColoredTextBox12.CharWidth = 8;
       this.m_FastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox12.IsReplaceMode = false;
       this.m_FastColoredTextBox12.Location = new System.Drawing.Point(143, 64);
       this.m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
       this.m_FastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox12.ReadOnly = true;
-      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox12.ShowLineNumbers = false;
       this.m_FastColoredTextBox12.Size = new System.Drawing.Size(197, 33);
       this.m_FastColoredTextBox12.TabIndex = 34;
@@ -466,14 +466,14 @@ namespace CsvTools
       this.m_FastColoredTextBox02.CharHeight = 14;
       this.m_FastColoredTextBox02.CharWidth = 8;
       this.m_FastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox02.IsReplaceMode = false;
       this.m_FastColoredTextBox02.Location = new System.Drawing.Point(45, 64);
       this.m_FastColoredTextBox02.Multiline = false;
       this.m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
       this.m_FastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox02.ReadOnly = true;
-      this.m_FastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox02.ShowLineNumbers = false;
       this.m_FastColoredTextBox02.ShowScrollBars = false;
       this.m_FastColoredTextBox02.Size = new System.Drawing.Size(92, 33);
@@ -502,14 +502,14 @@ namespace CsvTools
       this.m_FastColoredTextBox11.CharHeight = 14;
       this.m_FastColoredTextBox11.CharWidth = 8;
       this.m_FastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox11.IsReplaceMode = false;
       this.m_FastColoredTextBox11.Location = new System.Drawing.Point(143, 40);
       this.m_FastColoredTextBox11.Multiline = false;
       this.m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
       this.m_FastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox11.ReadOnly = true;
-      this.m_FastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox11.ShowLineNumbers = false;
       this.m_FastColoredTextBox11.ShowScrollBars = false;
       this.m_FastColoredTextBox11.Size = new System.Drawing.Size(197, 18);
@@ -538,14 +538,14 @@ namespace CsvTools
       this.m_FastColoredTextBox01.CharHeight = 14;
       this.m_FastColoredTextBox01.CharWidth = 8;
       this.m_FastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox01.IsReplaceMode = false;
       this.m_FastColoredTextBox01.Location = new System.Drawing.Point(45, 40);
       this.m_FastColoredTextBox01.Multiline = false;
       this.m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
       this.m_FastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox01.ReadOnly = true;
-      this.m_FastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox01.ShowLineNumbers = false;
       this.m_FastColoredTextBox01.ShowScrollBars = false;
       this.m_FastColoredTextBox01.Size = new System.Drawing.Size(92, 18);
@@ -574,14 +574,14 @@ namespace CsvTools
       this.m_FastColoredTextBox10.CharHeight = 14;
       this.m_FastColoredTextBox10.CharWidth = 8;
       this.m_FastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox10.IsReplaceMode = false;
       this.m_FastColoredTextBox10.Location = new System.Drawing.Point(143, 16);
       this.m_FastColoredTextBox10.Multiline = false;
       this.m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
       this.m_FastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox10.ReadOnly = true;
-      this.m_FastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox10.ShowLineNumbers = false;
       this.m_FastColoredTextBox10.ShowScrollBars = false;
       this.m_FastColoredTextBox10.Size = new System.Drawing.Size(197, 18);
@@ -612,7 +612,7 @@ namespace CsvTools
       this.m_FastColoredTextBox.CharHeight = 14;
       this.m_FastColoredTextBox.CharWidth = 8;
       this.m_FastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_FastColoredTextBox.IsReplaceMode = false;
       this.m_FastColoredTextBox.Location = new System.Drawing.Point(3, 16);
@@ -620,7 +620,7 @@ namespace CsvTools
       this.m_FastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox.ReadOnly = true;
       this.m_TableLayoutPanelText.SetRowSpan(this.m_FastColoredTextBox, 3);
-      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox.Size = new System.Drawing.Size(362, 95);
       this.m_FastColoredTextBox.TabIndex = 1;
       this.m_FastColoredTextBox.TabLength = 1;
@@ -631,7 +631,7 @@ namespace CsvTools
       // 
       // m_Label2
       // 
-      this.m_Label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Label2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label2.AutoSize = true;
       this.m_Label2.ForeColor = System.Drawing.Color.Teal;
       this.m_Label2.Location = new System.Drawing.Point(3, 37);
@@ -643,7 +643,7 @@ namespace CsvTools
       // 
       // m_Label3
       // 
-      this.m_Label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Label3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label3.AutoSize = true;
       this.m_Label3.ForeColor = System.Drawing.Color.Teal;
       this.m_Label3.Location = new System.Drawing.Point(3, 61);
@@ -824,15 +824,15 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(498, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(726, 220);
-      ((System.ComponentModel.ISupportInitialize)(this.m_CsvSettingBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox00)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox12)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox02)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox11)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox01)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox10)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FastColoredTextBox)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_CsvSettingBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox00)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox12)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox02)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox11)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox01)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox10)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox)).EndInit();
       this.m_TableLayoutPanelText.ResumeLayout(false);
       this.m_TableLayoutPanelText.PerformLayout();
       this.m_TableLayoutPanelColumns.ResumeLayout(false);
@@ -841,7 +841,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.PerformLayout();
       this.m_SplitContainer.Panel1.ResumeLayout(false);
       this.m_SplitContainer.Panel2.ResumeLayout(false);
-      ((System.ComponentModel.ISupportInitialize)(this.m_SplitContainer)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_SplitContainer)).EndInit();
       this.m_SplitContainer.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -910,14 +910,14 @@ namespace CsvTools
 
         var delimiter = m_CsvFile.FieldDelimiterChar;
 
-        if (quote.Char != '\0' && quote.Char != '\'' && quote.Char != '\"')
+        if (!quote.IsEmpty && quote.Char != '\'' && quote.Char != '\"')
           m_ErrorProvider.SetError(m_TextBoxQuote, "Unusual Quoting character");
 
         if (delimiter == quote.Char)
           m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
 
         var delim = (delimiter == '\t') ? m_DelimiterTab : m_Delimiter;
-        if (quote.Char == '\0')
+        if (quote.IsEmpty)
         {
           m_ErrorProvider.SetError(m_FastColoredTextBox10!,
             "Without quoting a delimiter can not be part of a column");
@@ -996,7 +996,7 @@ namespace CsvTools
         else
           m_ErrorProvider.SetError(m_FastColoredTextBox11, null);
 
-        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && quote.Char != '\0')
+        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !quote.IsEmpty)
         {
           newToolTip += m_IsWriteSetting
             ? $"\r\nhello {quote.Char} world ->{quote.Char}hello {m_TextBoxQuotePlaceHolder.Text} world{quote.Char}"
@@ -1005,7 +1005,7 @@ namespace CsvTools
         }
         else
         {
-          if (m_CheckBoxDuplicateQuotingToEscape.Checked && m_CsvFile.EscapePrefixChar != '\0' &&
+          if (m_CheckBoxDuplicateQuotingToEscape.Checked && m_CsvFile.EscapePrefixChar != char.MinValue &&
               !m_IsWriteSetting)
           {
             m_FastColoredTextBox.AppendText(new string(quote.Char, 2) + " or " + m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.Char.ToStringHandle0(),
@@ -1013,7 +1013,7 @@ namespace CsvTools
           }
           else if (m_CheckBoxDuplicateQuotingToEscape.Checked)
             m_FastColoredTextBox.AppendText(new string(quote.Char, 2), m_EscapedQuoteStyle);
-          else if (m_CsvFile.EscapePrefixChar != '\0')
+          else if (m_CsvFile.EscapePrefixChar != char.MinValue)
             m_FastColoredTextBox.AppendText(m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.Char.ToStringHandle0(), m_EscapedQuoteStyle);
           else
             m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_EscapedQuoteStyle);

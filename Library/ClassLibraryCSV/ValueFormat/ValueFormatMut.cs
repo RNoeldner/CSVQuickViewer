@@ -117,7 +117,7 @@ namespace CsvTools
     {
       m_DecimalSeparator = new Punctuation(decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault);
       m_GroupSeparator = new Punctuation(groupSeparator ?? ValueFormat.cGroupSeparatorDefault);
-      if (m_DecimalSeparator.Char !='\0' && m_DecimalSeparator.Char.Equals(m_GroupSeparator.Char))
+      if (!m_DecimalSeparator.IsEmpty && m_DecimalSeparator.Char.Equals(m_GroupSeparator.Char))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
       m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
@@ -304,11 +304,11 @@ namespace CsvTools
     public string TimeSeparator
     {
       get => m_TimeSeparator.Text;
-        set
+      set
       {
         if (m_TimeSeparator.SetText(value))
           NotifyPropertyChanged();
-      }      
+      }
     }
 
     [XmlElement]

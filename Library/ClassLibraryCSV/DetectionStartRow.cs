@@ -30,7 +30,7 @@ namespace CsvTools
       if (commentLine is null)
         throw new ArgumentNullException(nameof(commentLine));
       const int maxRows = 50;
-      
+
       textReader.ToBeginning();
       var columnCount = new List<int>(maxRows);
       var rowMapping = new Dictionary<int, int>(maxRows);
@@ -44,7 +44,7 @@ namespace CsvTools
       while (currentRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
-        if (readChar==' ' || readChar == '\0')
+        if (readChar==' ' || readChar == char.MinValue)
           continue;
 
         // Handle Commented lines
