@@ -147,13 +147,7 @@ namespace CsvTools
     ///    so it may contain the delimiter or a linefeed without breaking the structure of the columns
     /// </summary>
     /// <value>The field delimiter char.</value>
-    string FieldQualifier { get; set; }
-
-    /// <summary>
-    ///   Gets a value indicating whether this it is a fixed length file
-    /// </summary>
-    /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
-    bool IsFixedLength { get; }
+    string FieldQualifier { get; set; }    
 
     /// <summary>
     ///  Get or Sets a value determining the record separator used writing a delimited text file

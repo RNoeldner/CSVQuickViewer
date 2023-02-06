@@ -36,7 +36,7 @@ namespace CsvTools
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      
+
       var bestQuoteTestResults = new QuoteTestResult { QuoteChar = possibleQuotes[0] };
       foreach (var t in possibleQuotes)
       {
@@ -46,7 +46,7 @@ namespace CsvTools
           bestQuoteTestResults = currentQuote;
       }
 
-      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescriptionShort()}");
+      Logger.Information($"Column Qualifier: {new Punctuation(bestQuoteTestResults.QuoteChar).Text}");
       return bestQuoteTestResults;
     }
 
@@ -71,7 +71,7 @@ namespace CsvTools
       // if we do not have a quote defined it does not matter
       if (fieldQualifierChar == char.MinValue || cancellationToken.IsCancellationRequested)
         return false;
-      
+
       using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)

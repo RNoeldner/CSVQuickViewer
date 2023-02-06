@@ -69,7 +69,7 @@ namespace CsvTools
       var bestScore = counter.OrderByDescending(x => x.Value).First();
       if (bestScore.Value > 0)
       {
-        Logger.Information("Escape : {comment}", bestScore.Key.GetDescriptionShort());
+        Logger.Information("Escape : {comment}", new Punctuation(bestScore.Key).Text);
         return bestScore.Key;
       }
 

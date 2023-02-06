@@ -42,7 +42,7 @@ namespace CsvTools
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
           Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}");
-          return new DelimiterDetection(resultFl.WrittenPunctuation(), true, true);
+          return new DelimiterDetection(new Punctuation(resultFl).Char, true, true);
         }
 
         textReader.ToBeginning();
@@ -138,7 +138,7 @@ namespace CsvTools
         if (sums.Count > 1)
         {
           foreach (var kv in sums)
-            Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].ToString().GetDescription()}");
+            Logger.Information($"Multiple Possible Separator {new Punctuation(delimiterCounter.Separators[kv.Key]).Text}");
         }
         if (sums.Count!= 0)
           // get the best result by variance first then if equal by number of records
@@ -153,7 +153,7 @@ namespace CsvTools
         return new DelimiterDetection('\t', false, false);
       }
 
-      Logger.Information($"Column Delimiter: {match.GetDescriptionShort()}");
+      Logger.Information($"Column Delimiter: {new Punctuation(match).Text}");
       return new DelimiterDetection(match, true, false);
     }
 

@@ -27,9 +27,7 @@ namespace CsvTools
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
     private readonly bool m_TreatNbspAsSpace;
-
     private readonly string m_TreatTextAsNull;
-
     private readonly bool m_Trim;
     protected object?[] CurrentValues;
 

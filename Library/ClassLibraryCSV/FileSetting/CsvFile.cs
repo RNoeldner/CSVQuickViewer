@@ -54,46 +54,29 @@ namespace CsvTools
 
     private bool m_AllowRowCombining;
     private string m_CommentLine = cCommentLineDefault;
-
     private bool m_ContextSensitiveQualifier = cContextSensitiveQualifierDefault;
-
-    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
+    private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
-    private string m_EscapePrefix = cEscapePrefixDefault;
-    private char m_EscapePrefixChar = char.MinValue;
-    private string m_FieldDelimiter = cFieldDelimiterDefault;
-    private char m_FieldDelimiterChar = cFieldDelimiterDefault[0];
-    private string m_FieldQualifier = cFieldQualifierDefault;
-    private char m_FieldQualifierChar = cFieldQualifierDefault[0];
+    private readonly Punctuation m_EscapePrefixPunc = new Punctuation(cEscapePrefixDefault);
+    private readonly Punctuation m_FieldDelimiterPunc = new Punctuation(cFieldDelimiterDefault);
+    private readonly Punctuation m_FieldQualifierPunc = new Punctuation(cFieldQualifierDefault);
     private RecordDelimiterTypeEnum m_NewLine = cNewLineDefault;
     private string m_NewLinePlaceholder = cNewLinePlaceholderDefault;
-
-    private bool m_NoDelimitedFile;
-
+    private bool m_NoDelimitedFile;    
     private int m_NumWarnings;
     private string m_QualifierPlaceholder = cQuotePlaceholderDefault;
     private bool m_QualifyAlways = cQualifyAlwaysDefault;
     private bool m_QualifyOnlyIfNeeded = cQualifyOnlyIfNeededDefault;
-
     private bool m_TreatLfAsSpace;
-
     private bool m_TreatUnknownCharacterAsSpace;
-
     private bool m_TryToSolveMoreColumns;
-
     private bool m_WarnDelimiterInValue;
-
     private bool m_WarnEmptyTailingColumns = true;
-
     private bool m_WarnLineFeed;
-
     private bool m_WarnNbsp = true;
-
     private bool m_WarnQuotes;
-
     private bool m_WarnQuotesInQuotes = true;
-
     private bool m_WarnUnknownCharacter = true;
 
     /// <summary>
@@ -124,7 +107,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The current encoding.</value>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     public Encoding CurrentEncoding
@@ -135,7 +118,7 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cContextSensitiveQualifierDefault)]
     public bool ContextSensitiveQualifier
@@ -146,43 +129,29 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cCommentLineDefault)]
     public string CommentLine
     {
       get => m_CommentLine;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_CommentLine.Equals(value, StringComparison.Ordinal))
-          return;
-        m_CommentLine = newVal;
-        NotifyPropertyChanged();
-      }
+     set => SetProperty(ref m_CommentLine, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cDelimiterPlaceholderDefault)]
     public string DelimiterPlaceholder
     {
       get => m_DelimiterPlaceholder;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_DelimiterPlaceholder = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_DelimiterPlaceholder, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cDuplicateQualifierToEscapeDefault)]
     public bool DuplicateQualifierToEscape
@@ -192,131 +161,94 @@ namespace CsvTools
     }
 
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
-    [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixChar;
+    [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixPunc.Char;
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cEscapePrefixDefault)]
     public string EscapePrefix
     {
-      get => m_EscapePrefix;
+      get => m_EscapePrefixPunc.Text;
       set
       {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_EscapePrefix.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_EscapePrefixChar = newVal.WrittenPunctuation();
-        m_EscapePrefix = newVal;
-        NotifyPropertyChanged();
-        NotifyPropertyChanged(nameof(EscapePrefixChar));
+        if (m_EscapePrefixPunc.SetText(value))
+          NotifyPropertyChanged();
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cFieldDelimiterDefault)]
     public string FieldDelimiter
     {
-      get => m_FieldDelimiter;
+      get => m_FieldDelimiterPunc.Text;
       set
       {
-        var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
-        if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_FieldDelimiterChar = newVal.WrittenPunctuation();
-        m_FieldDelimiter = newVal;
-        NotifyPropertyChanged();
-        NotifyPropertyChanged(nameof(FieldDelimiterChar));
+        if (m_FieldDelimiterPunc.SetText(value))
+          NotifyPropertyChanged();
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
-    public char FieldDelimiterChar => m_FieldDelimiterChar;
+    public char FieldDelimiterChar => m_FieldDelimiterPunc.Char;
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cFieldQualifierDefault)]
     public string FieldQualifier
     {
-      get => m_FieldQualifier;
+      get => m_FieldQualifierPunc.Text;
       set
       {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_FieldQualifierChar = newVal.WrittenPunctuation();
-        m_FieldQualifier = newVal;
-        NotifyPropertyChanged();
-        NotifyPropertyChanged(nameof(m_FieldQualifierChar));
+        if (m_FieldQualifierPunc.SetText(value))
+          NotifyPropertyChanged();
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
-    public char FieldQualifierChar => m_FieldQualifierChar;
+    public char FieldQualifierChar => m_FieldQualifierPunc.Char;
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlIgnore]
-#endif
-    [JsonIgnore]
-    [Obsolete("Check FieldDelimiterChar instead")]
-    public bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
-
-    /// <inheritdoc />
-#if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cNewLineDefault)]
     public RecordDelimiterTypeEnum NewLine
     {
       get => m_NewLine;
-
-      set
-      {
-        if (m_NewLine.Equals(value))
-          return;
-        m_NewLine = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_NewLine, value);   
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cNewLinePlaceholderDefault)]
     public string NewLinePlaceholder
     {
       get => m_NewLinePlaceholder;
-      set
-      {
-        var newVal = value ?? cNewLinePlaceholderDefault;
-        if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase))
-          return;
-        m_NewLinePlaceholder = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_NewLinePlaceholder, value ?? cNewLinePlaceholderDefault);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cQualifyAlwaysDefault)]
     public bool QualifyAlways
@@ -324,18 +256,18 @@ namespace CsvTools
       get => m_QualifyAlways;
       set
       {
-        if (m_QualifyAlways.Equals(value))
-          return;
-        m_QualifyAlways = value;
-        if (m_QualifyAlways)
-          QualifyOnlyIfNeeded = false;
-        NotifyPropertyChanged();
+        if (SetProperty(ref m_QualifyAlways, value))
+        {
+          m_QualifyAlways = value;
+          if (m_QualifyAlways)
+            QualifyOnlyIfNeeded = false;
+        }
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cQualifyOnlyIfNeededDefault)]
     public bool QualifyOnlyIfNeeded
@@ -344,264 +276,166 @@ namespace CsvTools
 
       set
       {
-        if (m_QualifyOnlyIfNeeded.Equals(value))
-          return;
-        m_QualifyOnlyIfNeeded = value;
-        if (m_QualifyOnlyIfNeeded)
-          QualifyAlways = false;
-        NotifyPropertyChanged();
+        if (SetProperty(ref m_QualifyOnlyIfNeeded, value))
+        {
+          m_QualifyOnlyIfNeeded = value;
+          if (m_QualifyOnlyIfNeeded)
+            QualifyAlways = false;
+        }
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cQuotePlaceholderDefault)]
     public string QualifierPlaceholder
     {
       get => m_QualifierPlaceholder;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_QualifierPlaceholder.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_QualifierPlaceholder = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_QualifierPlaceholder, value);
     }
 
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool AllowRowCombining
     {
       get => m_AllowRowCombining;
-
-      set
-      {
-        if (m_AllowRowCombining.Equals(value))
-          return;
-        m_AllowRowCombining = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_AllowRowCombining, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     public bool NoDelimitedFile
     {
       get => m_NoDelimitedFile;
-
-      set
-      {
-        if (m_NoDelimitedFile.Equals(value))
-          return;
-        m_NoDelimitedFile = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_NoDelimitedFile, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(0)]
     public int NumWarnings
     {
       get => m_NumWarnings;
-
-      set
-      {
-        if (m_NumWarnings.Equals(value))
-          return;
-        m_NumWarnings = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_NumWarnings, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool TreatLfAsSpace
     {
       get => m_TreatLfAsSpace;
-
-      set
-      {
-        if (m_TreatLfAsSpace.Equals(value))
-          return;
-        m_TreatLfAsSpace = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_TreatLfAsSpace, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool TreatUnknownCharacterAsSpace
     {
       get => m_TreatUnknownCharacterAsSpace;
-
-      set
-      {
-        if (m_TreatUnknownCharacterAsSpace.Equals(value))
-          return;
-        m_TreatUnknownCharacterAsSpace = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_TreatUnknownCharacterAsSpace, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool TryToSolveMoreColumns
     {
       get => m_TryToSolveMoreColumns;
-
-      set
-      {
-        if (m_TryToSolveMoreColumns.Equals(value))
-          return;
-        m_TryToSolveMoreColumns = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_TryToSolveMoreColumns, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;
-
-      set
-      {
-        if (m_WarnDelimiterInValue.Equals(value))
-          return;
-        m_WarnDelimiterInValue = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnDelimiterInValue, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
+    [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
 #endif
     [DefaultValue(true)]
     public bool WarnEmptyTailingColumns
     {
       get => m_WarnEmptyTailingColumns;
-
-      set
-      {
-        if (m_WarnEmptyTailingColumns.Equals(value))
-          return;
-        m_WarnEmptyTailingColumns = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnEmptyTailingColumns, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool WarnLineFeed
     {
       get => m_WarnLineFeed;
-
-      set
-      {
-        if (m_WarnLineFeed.Equals(value))
-          return;
-        m_WarnLineFeed = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnLineFeed, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public bool WarnNBSP
     {
       get => m_WarnNbsp;
-
-      set
-      {
-        if (m_WarnNbsp.Equals(value))
-          return;
-        m_WarnNbsp = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnNbsp, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool WarnQuotes
     {
       get => m_WarnQuotes;
-
-      set
-      {
-        if (m_WarnQuotes.Equals(value))
-          return;
-        m_WarnQuotes = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnQuotes, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public bool WarnQuotesInQuotes
     {
       get => m_WarnQuotesInQuotes;
-
-      set
-      {
-        if (m_WarnQuotesInQuotes.Equals(value))
-          return;
-        m_WarnQuotesInQuotes = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnQuotesInQuotes, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
-
-      set
-      {
-        if (m_WarnUnknownCharacter.Equals(value))
-          return;
-        m_WarnUnknownCharacter = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_WarnUnknownCharacter, value);
     }
 
     /// <inheritdoc />

@@ -35,24 +35,24 @@ namespace CsvTools
     //private readonly Regex m_TabRegex1 = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled);
 
-    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape,
+    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifierText, string delimiterText, string escapeText,
       string comment) : base(textBox)
     {
-      var qualifierChar = qualifier.WrittenPunctuation();
-      var delimiterChar = delimiter.WrittenPunctuation();
-      if (delimiterChar=='\0')
-        delimiterChar = '\t';
+      var qualifier = new Punctuation(qualifierText);
+      var delimiter = new Punctuation(delimiterText);
+      if (delimiter.Char=='\0')
+        delimiter.Char = '\t';
 
-      var escapeChar = escape.WrittenPunctuation();
-      m_DelimiterRegex = new Regex(escapeChar=='\0' ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
+      var escape = new Punctuation(escapeText);
+      m_DelimiterRegex = new Regex(escape.Char=='\0' ? $"\\{delimiter.Char}" : $"(?<!\\{escape.Char})\\{delimiter.Char}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 
-      if (qualifierChar != '\0')
+      if (qualifier.Char != '\0')
       {
         m_QuoteRegex = new Regex(
-          escapeChar=='\0'
-            ? $"\\{qualifierChar}((?:\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}"
-            : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
+          escape.Char =='\0'
+            ? $"\\{qualifier.Char}((?:\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}"
+            : $"\\{qualifier.Char}((?:\\{escape.Char}\\{qualifier.Char}|\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}",
           RegexOptions.Multiline | RegexOptions.Compiled);
       }
 

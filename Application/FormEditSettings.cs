@@ -75,13 +75,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         m_ViewSettings.DefaultInspectionResult.ByteOrderMark = checkBoxBOM.Checked;
       }
       if (!m_ViewSettings.GuessEscapePrefix)
-        m_ViewSettings.DefaultInspectionResult.EscapePrefix = textBoxEscapeRead.Text.WrittenPunctuation();
+        m_ViewSettings.DefaultInspectionResult.EscapePrefix = new Punctuation(textBoxEscapeRead.Text).Char;
 
       if (!m_ViewSettings.GuessComment)
         m_ViewSettings.DefaultInspectionResult.CommentLine = textBoxComment.Text;
 
       if (!m_ViewSettings.GuessDelimiter)
-        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = textBoxDelimiter.Text.WrittenPunctuation();
+        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = new Punctuation(textBoxDelimiter.Text).Char;
       if (!m_ViewSettings.GuessHasHeader)
         m_ViewSettings.DefaultInspectionResult.HasFieldHeader = checkBoxHeader.Checked;
 
@@ -263,9 +263,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
 
-        textBoxEscapeRead.Text = m_ViewSettings.DefaultInspectionResult.EscapePrefix.GetDescriptionShort();
+        textBoxEscapeRead.Text = new Punctuation(m_ViewSettings.DefaultInspectionResult.EscapePrefix).Text;
         textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
-        textBoxDelimiter.Text = m_ViewSettings.DefaultInspectionResult.FieldDelimiter.GetDescriptionShort();
+        textBoxDelimiter.Text = new Punctuation(m_ViewSettings.DefaultInspectionResult.FieldDelimiter).Text;
 
         if (!m_ViewSettings.GuessHasHeader)
           checkBoxHeader.Checked = m_ViewSettings.DefaultInspectionResult.HasFieldHeader;
@@ -276,8 +276,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
           quotingControl.CsvFile.DuplicateQualifierToEscape =
             m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
-          quotingControl.CsvFile.FieldQualifier =
-            m_ViewSettings.DefaultInspectionResult.FieldQualifier.GetDescriptionShort();
+          quotingControl.CsvFile.FieldQualifier = new Punctuation(m_ViewSettings.DefaultInspectionResult.FieldQualifier).Text;
         }
         numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
       }
@@ -326,9 +325,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
       else
       {
-        var delimiter = textBoxDelimiter.Text.WrittenPunctuation();
+        var delimiter = new Punctuation(textBoxDelimiter.Text);
 
-        if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
+        if (delimiter.Char != ';' && delimiter.Char != ',' && delimiter.Char != '|' && delimiter.Char != ':' && delimiter.Char != '\t')
           errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");
         else
           errorProvider.SetError(textBoxDelimiter, string.Empty);
