@@ -166,15 +166,17 @@ namespace CsvTools
 
     private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)
     {
-      var content = data.SerializeIndentedJson();
+      var newContent = data.SerializeIndentedJson();
       if (!FileSystemUtils.FileExists(fileName))
-        return content;
+        return newContent;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
-      if (await sr.ReadToEndAsync().ConfigureAwait(false) != content) return content;
+      var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
+      if (oldContent != newContent) 
+        return newContent;
       Logger.Debug("No change to file {filename}", fileName);
       return null;
     }
@@ -253,6 +255,7 @@ namespace CsvTools
       saveSetting.ID = string.Empty;
       saveSetting.Header = string.Empty;
       saveSetting.Footer = string.Empty;
+      saveSetting.LastChange = DateTime.MinValue;
 
       // remove not needed Columns so they do not play into comparison
       saveSetting.ColumnCollection.Clear();
