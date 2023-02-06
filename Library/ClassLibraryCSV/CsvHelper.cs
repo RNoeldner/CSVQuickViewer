@@ -440,10 +440,10 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var improvedStream = FunctionalDI.OpenStream(sourceAccess);
+        using var stream = FunctionalDI.OpenStream(sourceAccess);
         inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
         // Determine from file
-        await improvedStream.UpdateInspectionResultAsync(
+        await stream.UpdateInspectionResultAsync(
           inspectionResult,
           guessJson,
           guessCodePage,
