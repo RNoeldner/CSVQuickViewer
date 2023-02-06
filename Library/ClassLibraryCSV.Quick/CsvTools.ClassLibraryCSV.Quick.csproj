@@ -44,6 +44,7 @@
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ColumnFormatter\ColumnFormatterFactory.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextReplaceFormatter.cs" Link="ColumnFormatter\TextReplaceFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />
+		<Compile Include="..\ClassLibraryCSV\Punctuation.cs" Link="Punctuation.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\FileReader\BaseFileReader.cs" Link="FileReader\BaseFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\BaseFileReaderTyped.cs" Link="FileReader\BaseFileReaderTyped.cs" />

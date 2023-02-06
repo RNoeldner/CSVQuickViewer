@@ -15,6 +15,7 @@
 #nullable enable
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -48,7 +49,10 @@ namespace CsvTools
 
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
-      m_FileName = FileNameFix(fileName);
+      if (fileName.Length>2 && fileName[0] == '.' &&  fileName[1] == Path.DirectorySeparatorChar)
+        m_FileName = fileName.Substring(2);
+      else
+        m_FileName = fileName;
     }
 
     public override void CalculateLatestSourceTime() =>
@@ -61,13 +65,13 @@ namespace CsvTools
     /// <value>The name of the file.</value>
 
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue("")]
     public virtual string ColumnFile
     {
       get => m_ColumnFile;
-      set => m_ColumnFile = value ?? string.Empty;
+      set => SetProperty(ref m_ColumnFile, value);
     }
 
     /// <inheritdoc />
@@ -131,7 +135,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     public virtual ValueFormat ValueFormatWrite
     {
@@ -143,7 +147,7 @@ namespace CsvTools
     /// Only used for Serialization
     /// </summary>
 #if XmlSerialization
-[XmlElement(ElementName = "DefaultValueFormatWrite")]
+    [XmlElement(ElementName = "DefaultValueFormatWrite")]
 #endif
     [JsonIgnore]
     public virtual ValueFormatMut ValueFormatMut
@@ -192,7 +196,7 @@ namespace CsvTools
     ///   PassPhrase for Decryption, will not be stored
     /// </summary>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     [DefaultValue("")]
@@ -220,7 +224,7 @@ namespace CsvTools
 #if XmlSerialization
     [XmlIgnore]
 #endif
-    [JsonIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
+    [JsonIgnore][DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
     /// <inheritdoc />
     /// <summary>
@@ -308,15 +312,6 @@ namespace CsvTools
       if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
         return false;
       return base.BaseSettingsEquals(other);
-    }
-
-    private static string FileNameFix(in string? value)
-    {
-      var newVal = value ?? string.Empty;
-
-      if (newVal.StartsWith("." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
-        newVal = newVal.Substring(2);
-      return newVal;
     }
 
     public override IEnumerable<string> GetDifferences(IFileSetting other)

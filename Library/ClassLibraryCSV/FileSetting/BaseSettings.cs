@@ -79,7 +79,7 @@ namespace CsvTools
     private FileStettingStatus m_Status = FileStettingStatus.None;
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
-    public  event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
+    public event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -162,10 +162,7 @@ namespace CsvTools
     public virtual bool DisplayRecordNo
     {
       get => m_DisplayRecordNo;
-      set
-      {
-        SetProperty(ref m_DisplayRecordNo, value);
-      }
+      set => SetProperty(ref m_DisplayRecordNo, value);
     }
 
     /// <inheritdoc />
@@ -219,16 +216,7 @@ namespace CsvTools
     public virtual int ConsecutiveEmptyRows
     {
       get => m_ConsecutiveEmptyRows;
-
-      set
-      {
-        if (m_ConsecutiveEmptyRows.Equals(value))
-          return;
-        if (value < 0)
-          value = 0;
-        m_ConsecutiveEmptyRows = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_ConsecutiveEmptyRows, (value<0) ? 0 : value);
     }
 
     /// <inheritdoc />
@@ -427,7 +415,7 @@ namespace CsvTools
     public virtual long RecordLimit
     {
       get => m_RecordLimit;
-      set => SetProperty(ref m_RecordLimit, value);
+      set => SetProperty(ref m_RecordLimit, value > 0 ? value : 0);
     }
 
     /// <inheritdoc />
@@ -471,7 +459,7 @@ namespace CsvTools
     public virtual int SkipRows
     {
       get => m_SkipRows;
-      set => SetProperty(ref m_SkipRows, value);
+      set => SetProperty(ref m_SkipRows, value > 0 ? value : 0);
     }
 
     /// <inheritdoc />
@@ -501,7 +489,7 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        if (!SetProperty(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations())) 
+        if (!SetProperty(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations()))
           return;
         // Need to assume we have new sources, it has to be recalculated
         SourceFileSettings = null;
@@ -589,7 +577,7 @@ namespace CsvTools
     public virtual long WarningCount
     {
       get => m_WarningCount;
-      set => SetProperty(ref m_WarningCount, value);
+      set => SetProperty(ref m_WarningCount, value > 0 ? value : 0);
     }
 
     /// <inheritdoc />

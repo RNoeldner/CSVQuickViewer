@@ -39,13 +39,7 @@ namespace CsvTools
     public bool EmptyAsNull
     {
       get => m_EmptyAsNull;
-      set
-      {
-        if (m_EmptyAsNull.Equals(value))
-          return;
-        m_EmptyAsNull = value;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_EmptyAsNull, value);      
     }
 
     /// <inheritdoc />
@@ -60,6 +54,7 @@ namespace CsvTools
       : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)
     {
     }
+
 #if XmlSerialization
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]

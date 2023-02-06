@@ -5,31 +5,10 @@ using System.Linq;
 
 namespace CsvTools.Tests
 {
+
   [TestClass()]
   public class ClassLibraryCsvExtensionMethodsTests
   {
-    [TestMethod]
-    public void GetDescription()
-    {
-      Assert.AreEqual(string.Empty, "".GetDescription());
-      Assert.AreEqual("Horizontal Tab", "\t".GetDescription());
-      Assert.AreEqual("Comma: ,", ",".GetDescription());
-      Assert.AreEqual("Pipe: |", "|".GetDescription());
-      Assert.AreEqual("Semicolon: ;", ";".GetDescription());
-      Assert.AreEqual("Colon: :", ":".GetDescription());
-      Assert.AreEqual("Quotation marks: \"", "\"".GetDescription());
-      Assert.AreEqual("Apostrophe: '", "'".GetDescription());
-      Assert.AreEqual("Space", " ".GetDescription());
-      Assert.AreEqual("Backslash: \\", "\\".GetDescription());
-      Assert.AreEqual("Slash: /", "/".GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "US".WrittenPunctuation().ToStringHandle0().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "Unit Separator".WrittenPunctuation().ToStringHandle0().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "char(31)".WrittenPunctuation().ToStringHandle0().GetDescription());
-
-      Assert.AreEqual("Group Separator: Char 29", "GS".WrittenPunctuation().ToStringHandle0().GetDescription());
-      Assert.AreEqual("Record Separator: Char 30", "RS".WrittenPunctuation().ToStringHandle0().GetDescription());
-      Assert.AreEqual("File Separator: Char 28", "FS".WrittenPunctuation().ToStringHandle0().GetDescription());
-    }
 
     [TestMethod]
     public void Move()
@@ -183,20 +162,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(DataTypeEnum.Boolean, typeof(bool).GetDataType());
     }
 
-    [TestMethod()]
-    public void GetDescriptionTest()
-    {
-      Assert.AreEqual("Horizontal Tab", '\t'.ToStringHandle0().GetDescription());
-      Assert.AreEqual("Space", ' '.GetDescriptionShort());
-      Assert.IsTrue("\\".GetDescription().Contains("Backslash"));
-      Assert.IsTrue("'".GetDescription().Contains("\'"));
-    }
-
-    [TestMethod()]
-    public void GetDescriptionTest1()
-    {
-      Assert.AreEqual("Horizontal Tab", "\t".GetDescription());
-    }
 
     [TestMethod()]
     public void GetIdFromFileNameTest()

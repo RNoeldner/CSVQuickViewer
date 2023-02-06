@@ -28,9 +28,6 @@ namespace CsvTools.Tests
         {
           nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
           nameof(test.LatestSourceTimeUtc), nameof(test.RecentlyLoaded), nameof(test.CollectionIdentifier),
-#pragma warning disable CS0618
-          nameof(test.FullPath), nameof(test.IsFixedLength)
-#pragma warning restore CS0618
         });
     }
 

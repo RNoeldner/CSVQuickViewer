@@ -62,7 +62,7 @@ namespace CsvTools
       bool guessNewLine,
       bool guessCommentLine,
       FillGuessSettings fillGuessSettings,
-      InspectionResult defaultInspectionResult, 
+      InspectionResult defaultInspectionResult,
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -119,7 +119,7 @@ namespace CsvTools
             ByteOrderMark = fileSettingSer.ByteOrderMark,
             IdentifierInContainer = fileSettingSer.IdentifierInContainer,
             CommentLine = fileSettingSer.CommentLine,
-            EscapePrefix = fileSettingSer.EscapePrefix.WrittenPunctuation(),
+            EscapePrefix = fileSettingSer.EscapePrefixChar,
             FieldDelimiter = fileSettingSer.FieldDelimiterChar,
             FieldQualifier= fileSettingSer.FieldQualifierChar,
             ContextSensitiveQualifier= fileSettingSer.ContextSensitiveQualifier,
@@ -175,7 +175,7 @@ namespace CsvTools
         guessStartRow,
         guessHasHeader,
         guessNewLine,
-        guessCommentLine, defaultInspectionResult, 
+        guessCommentLine, defaultInspectionResult,
         cancellationToken).ConfigureAwait(false);
 
       Logger.Information("Determining column format by reading samples");
@@ -246,7 +246,7 @@ namespace CsvTools
         inspectionResult.CodePageId = codePage;
         inspectionResult.ByteOrderMark = bom;
       }
-      
+
 
       if (guessJson)
       {
@@ -383,7 +383,7 @@ namespace CsvTools
 #if !QUICK
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, false, true, 
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, false, true,
         new InspectionResult(), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;

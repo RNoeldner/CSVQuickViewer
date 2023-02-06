@@ -50,15 +50,7 @@ namespace CsvTools
     public string Row
     {
       get => m_Row;
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_Row.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Row = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_Row, value);      
     }
 
     /// <summary>

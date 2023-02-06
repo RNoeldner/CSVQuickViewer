@@ -308,16 +308,16 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(textBoxSplitText))
         return;
-      var split = textBoxSplitText.WrittenPunctuation();
-      var sample = $"This{split}is a{split}concatenated{split}list";
+      var split = new Punctuation(textBoxSplitText);
+      var sample = $"This{split.Char}is a{split.Char}concatenated{split.Char}list";
 
       labelSamplePart.SafeInvoke(() =>
       {
-        toolTip.SetToolTip(textBoxSplit, textBoxSplitText.GetDescription());
+        toolTip.SetToolTip(textBoxSplit, split.Description);
         if (part == 1)
           checkBoxPartToEnd.Checked = false;
         labelSamplePart.Text = $@"Input: ""{sample}""";
-        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part, toEnd)}""";
+        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split.Char, part, toEnd)}""";
       });
     }
 
@@ -348,13 +348,13 @@ namespace CsvTools
           var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
           var timePartFormat = comboBoxTPFormat.Text;
           var timeZone = comboBoxTimeZone.Text;
-          var dateSeparator = textBoxDateSeparator.Text;
-          var timeSeparator = textBoxTimeSeparator.Text;
+          var dateSeparator = new Punctuation(textBoxDateSeparator.Text);
+          var timeSeparator = new Punctuation(textBoxTimeSeparator.Text);
 
           comboBoxTPFormat.Enabled = hasTimePart;
 
-          toolTip.SetToolTip(textBoxDateSeparator, dateSeparator.GetDescription());
-          toolTip.SetToolTip(textBoxTimeSeparator, timeSeparator.GetDescription());
+          toolTip.SetToolTip(textBoxDateSeparator, dateSeparator.Description);
+          toolTip.SetToolTip(textBoxTimeSeparator, timeSeparator.Description);
 
           var text = new HashSet<string>();
 
@@ -362,8 +362,10 @@ namespace CsvTools
           foreach (var dateFormat in dateFormats)
           {
             var fmt = (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat;
-            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
-            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
+            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
+              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator.Text, timeSeparator.Text, CultureInfo.InvariantCulture));
+            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
+              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator.Text, timeSeparator.Text, CultureInfo.CurrentCulture));
           }
           labelSampleDisplay.Text = text.Join();
 
@@ -386,20 +388,21 @@ namespace CsvTools
       }
     }
 
-    private void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
+    private void UpdateNumericLabel(Punctuation decimalSeparator, string numberFormat, Punctuation groupSeparator)
     {
       try
       {
-        if (string.IsNullOrEmpty(decimalSeparator))
+        if (decimalSeparator.Char == '\0')
           return;
-        var vf = new ValueFormat(numberFormat: numberFormat, groupSeparator: numberFormat,
-          decimalSeparator: groupSeparator);
+        var vf = new ValueFormat(numberFormat: numberFormat,
+          groupSeparator: groupSeparator.Text,
+          decimalSeparator: decimalSeparator.Text);
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
         labelNumber.SafeInvoke(() =>
         {
-          toolTip.SetToolTip(textBoxDecimalSeparator, vf.DecimalSeparator.GetDescription());
-          toolTip.SetToolTip(textBoxGroupSeparator, vf.GroupSeparator.GetDescription());
+          toolTip.SetToolTip(textBoxDecimalSeparator, decimalSeparator.Description);
+          toolTip.SetToolTip(textBoxGroupSeparator, groupSeparator.Description);
 
           labelNumber.Text = $@"Input: ""{sample}""";
           labelNumberOutput.Text =
@@ -724,8 +727,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void NumberFormatChanged(object? sender, EventArgs e) => UpdateNumericLabel(textBoxDecimalSeparator.Text,
-      comboBoxNumberFormat.Text, textBoxDecimalSeparator.Text);
+    private void NumberFormatChanged(object? sender, EventArgs e) => UpdateNumericLabel(new Punctuation(textBoxDecimalSeparator.Text),
+      comboBoxNumberFormat.Text, new Punctuation(textBoxDecimalSeparator.Text));
 
     private void PartValidating(object? sender, CancelEventArgs e)
     {

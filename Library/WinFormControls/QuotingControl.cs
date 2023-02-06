@@ -868,7 +868,7 @@ namespace CsvTools
 #pragma warning restore CS8605        
         }
 
-        var quote = m_TextBoxQuote.Text.WrittenPunctuation();
+        var quote = new Punctuation(m_TextBoxQuote.Text);
 
 
         m_FastColoredTextBox00!.Text = "This is";
@@ -910,14 +910,14 @@ namespace CsvTools
 
         var delimiter = m_CsvFile.FieldDelimiterChar;
 
-        if (quote != '\0' && quote != '\'' && quote != '\"')
+        if (quote.Char != '\0' && quote.Char != '\'' && quote.Char != '\"')
           m_ErrorProvider.SetError(m_TextBoxQuote, "Unusual Quoting character");
 
-        if (delimiter == quote)
+        if (delimiter == quote.Char)
           m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
 
         var delim = (delimiter == '\t') ? m_DelimiterTab : m_Delimiter;
-        if (quote == '\0')
+        if (quote.Char == '\0')
         {
           m_ErrorProvider.SetError(m_FastColoredTextBox10!,
             "Without quoting a delimiter can not be part of a column");
@@ -996,11 +996,11 @@ namespace CsvTools
         else
           m_ErrorProvider.SetError(m_FastColoredTextBox11, null);
 
-        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && quote != '\0')
+        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && quote.Char != '\0')
         {
           newToolTip += m_IsWriteSetting
-            ? $"\r\nhello {quote} world ->{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote}"
-            : $"\r\n{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote} -> hello {quote} world";
+            ? $"\r\nhello {quote.Char} world ->{quote.Char}hello {m_TextBoxQuotePlaceHolder.Text} world{quote}"
+            : $"\r\n{quote.Char}hello {m_TextBoxQuotePlaceHolder.Text} world{quote.Char} -> hello {quote.Char} world";
           m_FastColoredTextBox.AppendText(m_TextBoxQuotePlaceHolder.Text, m_EscapedQuote);
         }
         else
@@ -1008,15 +1008,15 @@ namespace CsvTools
           if (m_CheckBoxDuplicateQuotingToEscape.Checked && !string.IsNullOrEmpty(m_CsvFile.EscapePrefix) &&
               !m_IsWriteSetting)
           {
-            m_FastColoredTextBox.AppendText(new string(quote, 2) + " or " + m_CsvFile.EscapePrefix + quote,
+            m_FastColoredTextBox.AppendText(new string(quote.Char, 2) + " or " + m_CsvFile.EscapePrefix + quote,
               m_EscapedQuote);
           }
           else if (m_CheckBoxDuplicateQuotingToEscape.Checked)
-            m_FastColoredTextBox.AppendText(new string(quote, 2), m_EscapedQuote);
+            m_FastColoredTextBox.AppendText(new string(quote.Char, 2), m_EscapedQuote);
           else if (!string.IsNullOrEmpty(m_CsvFile.EscapePrefix))
             m_FastColoredTextBox.AppendText(m_CsvFile.EscapePrefix + quote, m_EscapedQuote);
           else
-            m_FastColoredTextBox.AppendText(new string(quote, 1), m_EscapedQuote);
+            m_FastColoredTextBox.AppendText(new string(quote.Char, 1), m_EscapedQuote);
         }
 
         m_FastColoredTextBox.AppendText(" Quote");
