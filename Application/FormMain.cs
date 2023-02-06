@@ -657,7 +657,7 @@ namespace CsvTools
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
         using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
         frm.ShowDialog(this);
-        await m_ViewSettings.SaveViewSettingsAsync();
+        await m_ViewSettings.SaveViewSettingsAsync();        
         if (m_FileSetting != null)
         {
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
@@ -675,6 +675,7 @@ namespace CsvTools
 
         await CheckPossibleChange();
         ApplyViewSettings();
+        await SaveIndividualFileSettingAsync();
       }, this);
     }
 

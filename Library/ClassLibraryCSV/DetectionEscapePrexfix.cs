@@ -27,8 +27,6 @@ namespace CsvTools
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
 
-      var dicLookFor = new List<string>();
-
       // The characters that could be an escape, most likely its a \ 
       var checkedEscapeChars = GetPossibleEscapePrefix().ToCharArray();
 
@@ -44,13 +42,7 @@ namespace CsvTools
       foreach (var escaped in DetectionQualifier.GetPossibleQualifier())
         possibleEscaped.Add(escaped);
 
-      var counter = new Dictionary<char, int>();
-      foreach (var escape in checkedEscapeChars)
-      {
-        counter.Add(escape, 0);
-        // Escaped chars are comments, quotes, linefeed or delimiters
-        dicLookFor.AddRange(possibleEscaped.Select(escaped => string.Empty + escape + escaped));
-      }
+      var score =new int[checkedEscapeChars.Length];
 
       // Start where we are currently but wrap around
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -60,19 +52,36 @@ namespace CsvTools
         // in case non of the possible escapes is in the line skip it...
         if (line.IndexOfAny(checkedEscapeChars)==-1)
           continue;
-        // look closer if its possible an real escaped sequence
-        foreach (var d in dicLookFor.Where(d => line.IndexOf(d, StringComparison.Ordinal)!=-1))
-          counter[d[0]]++;
+        // otherwise check each escape 
+        for (int i = 0; i < checkedEscapeChars.Length; i++)
+        {        
+          var pos = line.IndexOf(checkedEscapeChars[i]);                    
+          while (pos != -1 && pos < line.Length)
+          {
+            if (possibleEscaped.Contains(line[pos+1]))
+              score[i]++;
+            else
+              score[i]--;
+            pos = line.IndexOf(checkedEscapeChars[i], pos+1);
+          }
+        }        
       }
-
-      // ReSharper disable once SimplifyLinqExpressionUseMinByAndMaxBy
-      var bestScore = counter.OrderByDescending(x => x.Value).First();
-      if (bestScore.Value > 0)
-      {
-        Logger.Information("Escape : {comment}", new Punctuation(bestScore.Key).Text);
-        return bestScore.Key;
+      
+      var bestIndex = new Punctuation('\0');
+      var bestScore = 0;
+      for (int i = 0; i < checkedEscapeChars.Length; i++)
+      { 
+        if (bestScore<score[i] && score[i]>0)
+        {
+          bestIndex.Char = checkedEscapeChars[i];
+          bestScore=score[i];
+        }
       }
-
+      if (bestScore > 0)
+      {        
+        Logger.Information("Escape : {comment}", bestIndex.Text);
+        return bestIndex.Char;
+      }
       Logger.Information("No Escape found");
       return char.MinValue;
     }

@@ -1028,7 +1028,7 @@ namespace CsvTools
           }
         }
 
-        if (!m_FieldQualifier.IsEmpty && character == m_FieldQualifier.Char && quoted && !escaped)
+        if (character == m_FieldQualifier.Char && quoted && !escaped)
         {
           var peekNextChar = Peek();
 
