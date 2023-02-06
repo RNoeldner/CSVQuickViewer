@@ -40,17 +40,17 @@ namespace CsvTools
     {
       var qualifier = new Punctuation(qualifierText);
       var delimiter = new Punctuation(delimiterText);
-      if (delimiter.Char=='\0')
+      if (delimiter.IsEmpty)
         delimiter.Char = '\t';
 
       var escape = new Punctuation(escapeText);
-      m_DelimiterRegex = new Regex(escape.Char=='\0' ? $"\\{delimiter.Char}" : $"(?<!\\{escape.Char})\\{delimiter.Char}",
+      m_DelimiterRegex = new Regex(escape.IsEmpty ? $"\\{delimiter.Char}" : $"(?<!\\{escape.Char})\\{delimiter.Char}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 
-      if (qualifier.Char != '\0')
+      if (!qualifier.IsEmpty)
       {
         m_QuoteRegex = new Regex(
-          escape.Char =='\0'
+          escape.IsEmpty
             ? $"\\{qualifier.Char}((?:\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}"
             : $"\\{qualifier.Char}((?:\\{escape.Char}\\{qualifier.Char}|\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}",
           RegexOptions.Multiline | RegexOptions.Compiled);

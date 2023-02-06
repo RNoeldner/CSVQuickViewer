@@ -53,7 +53,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(50, i.NumRows);
       Assert.AreEqual(0, i.FilledRows);
 
-      Assert.IsFalse(i.CheckChar('\t', '\0'));
+      Assert.IsFalse(i.CheckChar('\t', char.MinValue));
       Assert.IsTrue(i.CheckChar(';', ';'));
     }
 
@@ -61,8 +61,8 @@ namespace CsvTools.Tests
     public void DelimiterCounterCheckCharTest()
     {
       var i = new DelimiterCounter(50, null, '"');
-      Assert.IsFalse(i.CheckChar('a', '\0'));
-      Assert.IsTrue(i.CheckChar(';', '\0'));
+      Assert.IsFalse(i.CheckChar('a', char.MinValue));
+      Assert.IsTrue(i.CheckChar(';', char.MinValue));
     }
   }
 }
