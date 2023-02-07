@@ -56,12 +56,15 @@ namespace CsvTools
         for (int i = 0; i < checkedEscapeChars.Length; i++)
         {        
           var pos = line.IndexOf(checkedEscapeChars[i]);                    
-          while (pos != -1 && pos < line.Length)
+          while (pos != -1 && pos < line.Length-1)
           {
             if (possibleEscaped.Contains(line[pos+1]))
-              score[i]++;
+              // points if being followed by a char that is usually escaped
+              score[i]+=2;
             else
+              // minus point for not needed escape , is worth less than a proper sequence
               score[i]--;
+            // look at next position
             pos = line.IndexOf(checkedEscapeChars[i], pos+1);
           }
         }        

@@ -42,7 +42,7 @@ namespace CsvTools
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
           Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}");
-          return new DelimiterDetection(new Punctuation(resultFl).Char, true, true);
+          return new DelimiterDetection(new Punctuation(resultFl), true, true);
         }
 
         textReader.ToBeginning();

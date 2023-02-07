@@ -2,58 +2,73 @@
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Class to represent a character but it does support recognition and conversion to written punctuation like "Tab"
+  /// </summary>
   public class Punctuation
   {
-    private char m_Char = char.MinValue;
-
-    public bool IsEmpty
+    public Punctuation(char character)
     {
-      get => m_Char == char.MinValue;
+      Char = character;
     }
 
-    public char Char
+    public Punctuation(string? text)
     {
-      get => m_Char;
-      set
-      {
-        if (m_Char != value)
-          m_Char = value;
-      }
-    }
-
-    public string Text
-    {
-      get => ToText(m_Char);
-      set => m_Char =  FromText(value);
+      Char = FromText(text);
     }
 
     /// <summary>
-    /// Set teh text if something did change return true
+    /// The character, this could be non printable like tab or Space
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns><c>true</c> if value is changed</returns>
-    public bool SetText(in string? value)
-    {
-      if (ToText(m_Char).Equals(value, StringComparison.Ordinal))
-        return false;
-      m_Char =  FromText(value);
-      return true;
-    }
+    public char Char { get; set; }
 
-    public Punctuation(char character)
+    /// <summary>
+    ///   Gets a descriptive text for a character
+    /// </summary>
+    public string Description
     {
-      m_Char = character;
-    }
-
-    public Punctuation(string text)
-    {
-      m_Char = FromText(text);
-    }
-
-    private static string ToText(char input)
-    {
-      return input switch
+      get => Char switch
       {
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
+        '\u00A0' => "Non-breaking space",
+        '\\' => "Backslash \\",
+        '/' => "Slash /",
+        ',' => "Comma ,",
+        ';' => "Semicolon ;",
+        ':' => "Colon :",
+        '.' => "Dot .",
+        '|' => "Pipe |",
+        '"' => "Quotation marks \"",
+        '\'' => "Apostrophe \'",
+        '&' => "Ampersand &",
+        '*' => "Asterisk *",
+        '`' => "Tick Mark `",
+        '✓' => "Check mark ✓",
+        '\u001C' => "File Separator Char 28",
+        '\u001D' => "Group Separator Char 29",
+        '\u001E' => "Record Separator ␞",
+        '\u001F' => "Unit Separator ␟",
+        _ => Char.ToString()
+      };
+    }
+
+    /// <summary>
+    /// Check if teh value is set
+    /// </summary>
+    public bool IsEmpty
+    {
+      get => Char == char.MinValue;
+    }
+
+    /// <summary>
+    /// The printable text representation of the character, a tab will be shown as "Tab"
+    /// </summary>
+    public string Text
+    {
+      get => Char switch
+      {
+        '\0' => string.Empty,
         '\t' => "Tab",
         ' ' => "Space",
         '\u00A0' => "NBSP",
@@ -61,36 +76,55 @@ namespace CsvTools
         '\u001E' => "RS",
         '\u001D' => "GS",
         '\u001C' => "FS",
-        _ => input.ToStringHandle0()
+        _ => Char.ToString()
       };
     }
 
+    public static implicit operator char(Punctuation punctuation) => punctuation.Char;
+
+    public static implicit operator string(Punctuation punctuation) => punctuation.Char.ToStringHandle0();
+
     /// <summary>
-    ///   Return a string resolving written punctuation
+    /// Set the text if something did change, return true
     /// </summary>
-    /// <param name="inputString"></param>
-    /// <returns>A string of length 1 or empty</returns>
+    /// <param name="value"></param>
+    /// <returns><c>true</c> if value is changed</returns>
+    public bool SetText(in string? value)
+    {
+      if (Text.Equals(value, StringComparison.Ordinal))
+        return false;
+      Char = FromText(value);
+      return true;
+    }
+
+    /// <inheritdoc />
+    public override string ToString() => Char.ToStringHandle0();
+
+    /// <summary>
+    ///   Return a character resolving written punctuation
+    /// </summary>
+    /// <param name="inputString">The text to check</param>
     private static char FromText(in string? inputString)
     {
       if (inputString == null)
         return char.MinValue;
-
-      var compareText = inputString.Trim();
-      if (compareText.Length==0)
-        return char.MinValue;
-
-      if (compareText.Length == 1)
+      if (inputString.Length == 1)
       {
-        if (compareText.Equals("␍", StringComparison.Ordinal))
+        if (inputString.Equals("␍", StringComparison.Ordinal))
           return '\r';
-        if (compareText.Equals("␊", StringComparison.Ordinal))
+        if (inputString.Equals("␊", StringComparison.Ordinal))
           return '\n';
-        return compareText[0];
+        return inputString[0];
       }
 
+      // Only do a trim if we do not have a single char, otherwise Space or Tab are removed
+      var compareText = inputString.Trim();
+      if (compareText.Length == 0)
+        return char.MinValue;
+
+      // if the text is longer we might have a text that represents a punctuation
       if (compareText.Equals("Tab", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Tabulator", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("\\t", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase))
         return '\t';
@@ -107,13 +141,14 @@ namespace CsvTools
           || compareText.Equals("monkey", StringComparison.OrdinalIgnoreCase))
         return '@';
 
+      // ReSharper disable once StringLiteralTypo
       if (compareText.Equals("underbar", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("underscore", StringComparison.OrdinalIgnoreCase)
+          // ReSharper disable once StringLiteralTypo
           || compareText.Equals("understrike", StringComparison.OrdinalIgnoreCase))
         return '_';
 
-      if (compareText.Equals("Comma", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase))
+      if (compareText.Equals("Comma", StringComparison.OrdinalIgnoreCase))
         return ',';
 
       if (compareText.Equals("Dot", StringComparison.OrdinalIgnoreCase)
@@ -121,16 +156,14 @@ namespace CsvTools
           || compareText.Equals("Full Stop", StringComparison.OrdinalIgnoreCase))
         return '.';
 
+      // ReSharper disable once StringLiteralTypo
       if (compareText.Equals("amper", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("ampersand", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "Ampersand: &",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("ampersand", StringComparison.OrdinalIgnoreCase))
         return '&';
 
       if (compareText.Equals("Pipe", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase))
         return '|';
 
       if (compareText.Equals("broken bar", StringComparison.OrdinalIgnoreCase)
@@ -142,39 +175,34 @@ namespace CsvTools
             StringComparison.OrdinalIgnoreCase))
         return '￤';
 
-      if (compareText.Equals("Semicolon", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase))
+      if (compareText.Equals("Semicolon", StringComparison.OrdinalIgnoreCase))
         return ';';
 
-      if (compareText.Equals("Colon", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Colon: :", StringComparison.OrdinalIgnoreCase))
+      if (compareText.Equals("Colon", StringComparison.OrdinalIgnoreCase))
         return ':';
 
+      // ReSharper disable once StringLiteralTypo
       if (compareText.Equals("Doublequote", StringComparison.OrdinalIgnoreCase)
+          // ReSharper disable once StringLiteralTypo
           || compareText.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Quote", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "Quotation marks: \"",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase))
         return '"';
 
       if (compareText.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase)
+          // ReSharper disable once StringLiteralTypo
           || compareText.Equals("Singlequote", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("tick", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "Apostrophe: \'",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("tick", StringComparison.OrdinalIgnoreCase))
         return '\'';
 
       if (compareText.Equals("Slash", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Stroke", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("forward slash", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Slash: /", StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("forward slash", StringComparison.OrdinalIgnoreCase))
         return '/';
 
       if (compareText.Equals("backslash", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("backslant", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "Backslash: \\",
-            StringComparison.OrdinalIgnoreCase))
+          // ReSharper disable once StringLiteralTypo
+          || compareText.Equals("backslant", StringComparison.OrdinalIgnoreCase))
         return '\\';
 
       if (compareText.Equals("Tick", StringComparison.OrdinalIgnoreCase)
@@ -182,24 +210,19 @@ namespace CsvTools
         return '`';
 
       if (compareText.Equals("Star", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "Asterisk: *",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Asterisk", StringComparison.OrdinalIgnoreCase))
         return '*';
 
       if (compareText.Equals("NBSP", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "NonBreakingSpace",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase)
+          || compareText.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase))
         return '\u00A0';
 
       if (compareText.Equals("Return", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("\\r", StringComparison.Ordinal)
           || compareText.Equals("CR", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("␍", StringComparison.Ordinal) || compareText.Equals(
-            "Carriage return",
+          || compareText.Equals("Carriage return",
             StringComparison.OrdinalIgnoreCase))
         return '\r';
 
@@ -209,63 +232,27 @@ namespace CsvTools
 
       if (compareText.Equals("Feed", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("LineFeed", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("\\n", StringComparison.Ordinal)
           || compareText.Equals("LF", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("␊", StringComparison.Ordinal) || compareText.Equals(
-            "Line feed",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
         return '\n';
 
-      if (compareText.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) || compareText.Contains("31")
-          || compareText.Equals("␟", StringComparison.Ordinal)
+      if (compareText.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) 
           || compareText.Equals("US", StringComparison.OrdinalIgnoreCase))
         return '\u001F';
 
-      if (compareText.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) || compareText.Contains("30")
-          || compareText.Equals("␞", StringComparison.Ordinal)
+      if (compareText.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) 
           || compareText.Equals("RS", StringComparison.OrdinalIgnoreCase))
         return '\u001E';
 
-      if (compareText.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) || compareText.Contains("29")
+      if (compareText.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) 
           || compareText.Equals("GS", StringComparison.OrdinalIgnoreCase))
         return '\u001D';
 
-      if (compareText.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) || compareText.Contains("28")
+      if (compareText.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) 
           || compareText.Equals("FS", StringComparison.OrdinalIgnoreCase))
         return '\u001C';
 
       return compareText[0];
-    }
-
-    /// <summary>
-    ///   Gets a descriptive text for a char
-    /// </summary>
-    /// <param name="input">The input string.</param>
-    public string Description
-    {
-      get => m_Char switch
-      {
-        '\t' => "Horizontal Tab",
-        ' ' => "Space",
-        (char) 0xA0 => "Non-breaking space",
-        '\\' => "Backslash: \\",
-        '/' => "Slash: /",
-        ',' => "Comma: ,",
-        ';' => "Semicolon: ;",
-        ':' => "Colon: :",
-        '|' => "Pipe: |",
-        '\"' => "Quotation marks: \"",
-        '\'' => "Apostrophe: \'",
-        '&' => "Ampersand: &",
-        '*' => "Asterisk: *",
-        '`' => "Tick Mark: `",
-        '✓' => "Check mark: ✓",
-        '\u001F' => "Unit Separator: Char 31",
-        '\u001E' => "Record Separator: Char 30",
-        '\u001D' => "Group Separator: Char 29",
-        '\u001C' => "File Separator: Char 28",
-        _ => m_Char.ToString()
-      };
     }
   }
 }

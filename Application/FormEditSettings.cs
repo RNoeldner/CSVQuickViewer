@@ -75,13 +75,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         m_ViewSettings.DefaultInspectionResult.ByteOrderMark = checkBoxBOM.Checked;
       }
       if (!m_ViewSettings.GuessEscapePrefix)
-        m_ViewSettings.DefaultInspectionResult.EscapePrefix = new Punctuation(textBoxEscapeRead.Text).Char;
+        m_ViewSettings.DefaultInspectionResult.EscapePrefix = new Punctuation(textBoxEscapeRead.Text);
 
       if (!m_ViewSettings.GuessComment)
         m_ViewSettings.DefaultInspectionResult.CommentLine = textBoxComment.Text;
 
       if (!m_ViewSettings.GuessDelimiter)
-        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = new Punctuation(textBoxDelimiter.Text).Char;
+        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = new Punctuation(textBoxDelimiter.Text);
       if (!m_ViewSettings.GuessHasHeader)
         m_ViewSettings.DefaultInspectionResult.HasFieldHeader = checkBoxHeader.Checked;
 
