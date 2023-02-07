@@ -676,11 +676,13 @@ namespace CsvTools
       // Hide any showing search
       m_Search.Visible = false;
 
-
       var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
+      {
+        m_UpdateVisibility = true;
         return;
+      }
 
       this.SafeInvokeNoHandleNeeded(() =>
       {
@@ -847,7 +849,7 @@ namespace CsvTools
         formProgress.Maximum = 100;
 
         await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), true,
-          dataTable => DataTable = dataTable,
+          dataTable => DataTable.Merge(dataTable),
           token => RefreshDisplay(GetCurrentFilter(), token), formProgress.CancellationToken);
       }, ParentForm);
     }
