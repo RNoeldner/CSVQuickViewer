@@ -21,6 +21,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+// ReSharper disable LocalizableElement
+// ReSharper disable StringLiteralTypo
 #pragma warning disable CA1416
 
 namespace CsvTools
@@ -35,6 +37,7 @@ namespace CsvTools
     private readonly Style m_DelimiterTab =
       new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
 
+    // ReSharper disable once IdentifierTypo
     private readonly Style m_PilcrowStyle = new TextStyle(Brushes.Orange, null, FontStyle.Bold);
     private readonly Style m_QuoteStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
     private readonly Style m_EscapedQuoteStyle = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
@@ -916,6 +919,7 @@ namespace CsvTools
         if (delimiter == quote.Char)
           m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
 
+        // ReSharper disable once IdentifierTypo
         var delim = (delimiter == '\t') ? m_DelimiterTab : m_Delimiter;
         if (quote.IsEmpty)
         {
