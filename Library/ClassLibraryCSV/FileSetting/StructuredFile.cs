@@ -50,7 +50,7 @@ namespace CsvTools
     public string Row
     {
       get => m_Row;
-      set => SetProperty(ref m_Row, value);      
+      set => SetProperty(ref m_Row, value ?? string.Empty);      
     }
 
     /// <summary>

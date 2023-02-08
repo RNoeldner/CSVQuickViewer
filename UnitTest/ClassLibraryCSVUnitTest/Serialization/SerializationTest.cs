@@ -26,7 +26,7 @@ namespace CsvTools.Tests
       UnitTestStatic.RunSerializeAllProps(test,
         new[]
         {
-          nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
+          nameof(test.FullPath), nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
           nameof(test.LatestSourceTimeUtc), nameof(test.RecentlyLoaded), nameof(test.CollectionIdentifier),
         });
     }

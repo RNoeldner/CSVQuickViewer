@@ -39,10 +39,10 @@ namespace CsvTools
         possibleEscaped.Add(fieldQualifierChar);
       foreach (var escaped in DelimiterCounter.GetPossibleDelimiters())
         possibleEscaped.Add(escaped);
-      foreach (var escaped in DetectionQualifier.GetPossibleQualifier())
+      foreach (var escaped in DetectionQualifier.GetPossibleQualifier)
         possibleEscaped.Add(escaped);
 
-      var score =new int[checkedEscapeChars.Length];
+      var score = new int[checkedEscapeChars.Length];
 
       // Start where we are currently but wrap around
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -54,8 +54,8 @@ namespace CsvTools
           continue;
         // otherwise check each escape 
         for (int i = 0; i < checkedEscapeChars.Length; i++)
-        {        
-          var pos = line.IndexOf(checkedEscapeChars[i]);                    
+        {
+          var pos = line.IndexOf(checkedEscapeChars[i]);
           while (pos != -1 && pos < line.Length-1)
           {
             if (possibleEscaped.Contains(line[pos+1]))
@@ -67,26 +67,24 @@ namespace CsvTools
             // look at next position
             pos = line.IndexOf(checkedEscapeChars[i], pos+1);
           }
-        }        
+        }
       }
-      
-      var bestIndex = new Punctuation('\0');
+
+      var bestIndex = char.MinValue;
       var bestScore = 0;
       for (int i = 0; i < checkedEscapeChars.Length; i++)
-      { 
+      {
         if (bestScore<score[i] && score[i]>0)
         {
-          bestIndex.Char = checkedEscapeChars[i];
+          bestIndex = checkedEscapeChars[i];
           bestScore=score[i];
         }
       }
       if (bestScore > 0)
-      {        
-        Logger.Information("Escape : {comment}", bestIndex.Text);
-        return bestIndex.Char;
-      }
-      Logger.Information("No Escape found");
-      return char.MinValue;
+        Logger.Information("Escape : {comment}", bestIndex.Text());
+      else
+        Logger.Information("No Escape found");
+      return bestIndex;
     }
   }
 }

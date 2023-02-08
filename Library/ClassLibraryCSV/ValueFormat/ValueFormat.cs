@@ -100,8 +100,8 @@ namespace CsvTools
       {
         // Dates
         DateFormat = dateFormat ?? cDateFormatDefault;
-        DateSeparator = new Punctuation(dateSeparator ?? cDateSeparatorDefault);
-        TimeSeparator = new Punctuation(timeSeparator ?? cTimeSeparatorDefault);
+        DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText().Text();
+        TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText().Text();
       }
       else if (DataTypeEnum.Integer.Equals(dataType))
       {
@@ -112,14 +112,14 @@ namespace CsvTools
       {
         // Numbers
         NumberFormat = numberFormat ?? cNumberFormatDefault;
-        DecimalSeparator = new Punctuation(decimalSeparator ?? cDecimalSeparatorDefault);
-        GroupSeparator = new Punctuation(groupSeparator ?? cGroupSeparatorDefault);
+        DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText().Text();
+        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText().Text();
       }
       else if (DataTypeEnum.TextPart.Equals(dataType))
       {
         // TextPart
         Part = part ?? cPartDefault;
-        PartSplitter =  new Punctuation(partSplitter ?? cPartSplitterDefault);
+        PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText().Text();
         PartToEnd = partToEnd ?? cPartToEndDefault;
       }
       else if (DataTypeEnum.Binary.Equals(dataType))

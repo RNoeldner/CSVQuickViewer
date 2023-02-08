@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -12,7 +13,7 @@ namespace CsvTools
     /// <summary>
     /// " and '
     /// </summary>
-    public static string GetPossibleQualifier() => "\"'";
+    public static readonly string GetPossibleQualifier = "\"'";
 
     /// <summary>
     ///   Try to determine quote character, by looking at the file and doing a quick analysis
@@ -32,12 +33,12 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       char fieldDelimiterChar,
       char escapePrefixChar,
-      char[] possibleQuotes,
+      IEnumerable<char> possibleQuotes,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-      var bestQuoteTestResults = new QuoteTestResult { QuoteChar = possibleQuotes[0] };
+      var bestQuoteTestResults = new QuoteTestResult();
       foreach (var t in possibleQuotes)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -46,7 +47,7 @@ namespace CsvTools
           bestQuoteTestResults = currentQuote;
       }
 
-      Logger.Information($"Column Qualifier: {new Punctuation(bestQuoteTestResults.QuoteChar).Text}");
+      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.Text()}");
       return bestQuoteTestResults;
     }
 

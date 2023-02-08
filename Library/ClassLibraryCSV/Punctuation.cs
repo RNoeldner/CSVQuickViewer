@@ -5,29 +5,14 @@ namespace CsvTools
   /// <summary>
   /// Class to represent a character but it does support recognition and conversion to written punctuation like "Tab"
   /// </summary>
-  public class Punctuation
+  public static class Punctuation
   {
-    public Punctuation(char character)
-    {
-      Char = character;
-    }
-
-    public Punctuation(string? text)
-    {
-      Char = FromText(text);
-    }
-
-    /// <summary>
-    /// The character, this could be non printable like tab or Space
-    /// </summary>
-    public char Char { get; set; }
 
     /// <summary>
     ///   Gets a descriptive text for a character
     /// </summary>
-    public string Description
-    {
-      get => Char switch
+    public static string Description(this char character)
+      => character switch
       {
         '\t' => "Horizontal Tab",
         ' ' => "Space",
@@ -49,62 +34,45 @@ namespace CsvTools
         '\u001D' => "Group Separator Char 29",
         '\u001E' => "Record Separator ␞",
         '\u001F' => "Unit Separator ␟",
-        _ => Char.ToString()
+        _ => character.ToString()
       };
-    }
 
-    /// <summary>
-    /// Check if teh value is set
-    /// </summary>
-    public bool IsEmpty
-    {
-      get => Char == char.MinValue;
-    }
 
     /// <summary>
     /// The printable text representation of the character, a tab will be shown as "Tab"
     /// </summary>
-    public string Text
+    public static string Text(this char character)
+    => character switch
     {
-      get => Char switch
-      {
-        '\0' => string.Empty,
-        '\t' => "Tab",
-        ' ' => "Space",
-        '\u00A0' => "NBSP",
-        '\u001F' => "US",
-        '\u001E' => "RS",
-        '\u001D' => "GS",
-        '\u001C' => "FS",
-        _ => Char.ToString()
-      };
-    }
-
-    public static implicit operator char(Punctuation punctuation) => punctuation.Char;
-
-    public static implicit operator string(Punctuation punctuation) => punctuation.Char.ToStringHandle0();
+      '\0' => string.Empty,
+      '\t' => "Tab",
+      ' ' => "Space",
+      '\u00A0' => "NBSP",
+      '\u001F' => "US",
+      '\u001E' => "RS",
+      '\u001D' => "GS",
+      '\u001C' => "FS",
+      _ => character.ToString()
+    };
 
     /// <summary>
     /// Set the text if something did change, return true
     /// </summary>
+    /// <param name="character">The storage</param>
     /// <param name="value"></param>
     /// <returns><c>true</c> if value is changed</returns>
-    public bool SetText(in string? value)
+    public static bool SetText(this ref char character, in string? value)
     {
-      if (Text.Equals(value, StringComparison.Ordinal))
+      if (character.Text().Equals(value, StringComparison.Ordinal))
         return false;
-      Char = FromText(value);
+      character = FromText(value);
       return true;
     }
-
-    /// <inheritdoc />
-    public override string ToString() => Char.ToStringHandle0();
-
     /// <summary>
     ///   Return a character resolving written punctuation
     /// </summary>
     /// <param name="inputString">The text to check</param>
-    private static char FromText(in string? inputString)
+    public static char FromText(this string? inputString)
     {
       if (inputString == null)
         return char.MinValue;
@@ -236,19 +204,19 @@ namespace CsvTools
           || compareText.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
         return '\n';
 
-      if (compareText.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) 
+      if (compareText.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("US", StringComparison.OrdinalIgnoreCase))
         return '\u001F';
 
-      if (compareText.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) 
+      if (compareText.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("RS", StringComparison.OrdinalIgnoreCase))
         return '\u001E';
 
-      if (compareText.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) 
+      if (compareText.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("GS", StringComparison.OrdinalIgnoreCase))
         return '\u001D';
 
-      if (compareText.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) 
+      if (compareText.StartsWith("File separator", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("FS", StringComparison.OrdinalIgnoreCase))
         return '\u001C';
 

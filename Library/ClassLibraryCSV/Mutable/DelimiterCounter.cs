@@ -86,6 +86,7 @@ namespace CsvTools
           separators = separators.Remove(separators.IndexOf(delimiter), 1);
       return separators;
     }
+
     /// <summary>
     /// Main method called with the current char and the last char
     /// </summary>
@@ -105,7 +106,7 @@ namespace CsvTools
       // A separator its worth more if the previous char was the quote
       if (last == m_FieldQualifier)
         SeparatorScore[index] += 2;
-      else if (last != read && last!=' ' && last!='\r'&& last!='\n')
+      else if (last != read && last!=' ' && last!='\r' && last!='\n')
         // its also worth something if previous char appears to be a text
         SeparatorScore[index]++;
 

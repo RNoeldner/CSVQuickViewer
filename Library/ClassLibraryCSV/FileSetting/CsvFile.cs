@@ -58,9 +58,9 @@ namespace CsvTools
     private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
-    private readonly Punctuation m_EscapePrefixPunc = new Punctuation(cEscapePrefixDefault);
-    private readonly Punctuation m_FieldDelimiterPunc = new Punctuation(cFieldDelimiterDefault);
-    private readonly Punctuation m_FieldQualifierPunc = new Punctuation(cFieldQualifierDefault);
+    private char m_EscapePrefixPunc = cEscapePrefixDefault.FromText();
+    private char m_FieldDelimiterPunc = cFieldDelimiterDefault.FromText();
+    private char m_FieldQualifierPunc = cFieldQualifierDefault.FromText();
     private RecordDelimiterTypeEnum m_NewLine = cNewLineDefault;
     private string m_NewLinePlaceholder = cNewLinePlaceholderDefault;
     private bool m_NoDelimitedFile;    
@@ -163,7 +163,7 @@ namespace CsvTools
 #if XmlSerialization
     [XmlIgnore]
 #endif
-    [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixPunc.Char;
+    [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixPunc;
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -172,7 +172,7 @@ namespace CsvTools
     [DefaultValue(cEscapePrefixDefault)]
     public string EscapePrefix
     {
-      get => m_EscapePrefixPunc.Text;
+      get => m_EscapePrefixPunc.Text();
       set
       {
         if (m_EscapePrefixPunc.SetText(value))
@@ -187,7 +187,7 @@ namespace CsvTools
     [DefaultValue(cFieldDelimiterDefault)]
     public string FieldDelimiter
     {
-      get => m_FieldDelimiterPunc.Text;
+      get => m_FieldDelimiterPunc.Text();
       set
       {
         if (m_FieldDelimiterPunc.SetText(value))
@@ -200,7 +200,7 @@ namespace CsvTools
     [XmlIgnore]
 #endif
     [JsonIgnore]
-    public char FieldDelimiterChar => m_FieldDelimiterPunc.Char;
+    public char FieldDelimiterChar => m_FieldDelimiterPunc;
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -209,7 +209,7 @@ namespace CsvTools
     [DefaultValue(cFieldQualifierDefault)]
     public string FieldQualifier
     {
-      get => m_FieldQualifierPunc.Text;
+      get => m_FieldQualifierPunc.Text();
       set
       {
         if (m_FieldQualifierPunc.SetText(value))
@@ -222,7 +222,7 @@ namespace CsvTools
     [XmlIgnore]
 #endif
     [JsonIgnore]
-    public char FieldQualifierChar => m_FieldQualifierPunc.Char;
+    public char FieldQualifierChar => m_FieldQualifierPunc;
 
     /// <inheritdoc />
 #if XmlSerialization

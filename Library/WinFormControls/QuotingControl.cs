@@ -871,7 +871,7 @@ namespace CsvTools
 #pragma warning restore CS8605        
         }
 
-        var quote = new Punctuation(m_TextBoxQuote.Text);
+        var quote = m_TextBoxQuote.Text.FromText();
 
 
         m_FastColoredTextBox00!.Text = "This is";
@@ -913,15 +913,15 @@ namespace CsvTools
 
         var delimiter = m_CsvFile.FieldDelimiterChar;
 
-        if (!quote.IsEmpty && quote.Char != '\'' && quote.Char != '\"')
+        if (quote != char.MinValue && quote != '\'' && quote != '\"')
           m_ErrorProvider.SetError(m_TextBoxQuote, "Unusual Quoting character");
 
-        if (delimiter == quote.Char)
+        if (delimiter == quote)
           m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
 
         // ReSharper disable once IdentifierTypo
         var delim = (delimiter == '\t') ? m_DelimiterTab : m_Delimiter;
-        if (quote.IsEmpty)
+        if (quote == char.MinValue)
         {
           m_ErrorProvider.SetError(m_FastColoredTextBox10!,
             "Without quoting a delimiter can not be part of a column");
@@ -944,7 +944,7 @@ namespace CsvTools
 
         m_FastColoredTextBox11!.Clear();
         m_FastColoredTextBox11.Text = "Column with: ";
-        m_FastColoredTextBox11.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox11.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox11.AppendText(" Quote");
 
         m_FastColoredTextBox!.Clear();
@@ -955,41 +955,41 @@ namespace CsvTools
 
         if (m_IsWriteSetting)
         {
-          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
           m_FastColoredTextBox.AppendText("This is");
-          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         }
         else
         {
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
           m_FastColoredTextBox.AppendText("This is ");
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         }
 
         m_FastColoredTextBox.AppendText(delimiter.ToString(), delim);
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox.AppendText("Column with:");
         m_FastColoredTextBox.AppendText(delimiter.ToString(), delim);
         m_FastColoredTextBox.AppendText(" Delimiter");
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox.AppendText("¶", m_PilcrowStyle);
         m_FastColoredTextBox.AppendText("\r\n");
 
         if (m_IsWriteSetting)
         {
-          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
           m_FastColoredTextBox.AppendText("a Trimming");
-          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          if (m_RadioButtonAlways.Checked) m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         }
         else
         {
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
           m_FastColoredTextBox.AppendText(" a Trimming ");
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         }
 
         m_FastColoredTextBox.AppendText(delimiter.ToString(), delim);
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox.AppendText("Column with: ");
 
         if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !m_CheckBoxDuplicateQuotingToEscape.Checked &&
@@ -1000,11 +1000,11 @@ namespace CsvTools
         else
           m_ErrorProvider.SetError(m_FastColoredTextBox11, null);
 
-        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !quote.IsEmpty)
+        if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && quote == char.MinValue)
         {
           newToolTip += m_IsWriteSetting
-            ? $"\r\nhello {quote.Char} world ->{quote.Char}hello {m_TextBoxQuotePlaceHolder.Text} world{quote.Char}"
-            : $"\r\n{quote.Char}hello {m_TextBoxQuotePlaceHolder.Text} world{quote.Char} -> hello {quote.Char} world";
+            ? $"\r\nhello {quote} world ->{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote}"
+            : $"\r\n{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote} -> hello {quote} world";
           m_FastColoredTextBox.AppendText(m_TextBoxQuotePlaceHolder.Text, m_EscapedQuoteStyle);
         }
         else
@@ -1012,36 +1012,36 @@ namespace CsvTools
           if (m_CheckBoxDuplicateQuotingToEscape.Checked && m_CsvFile.EscapePrefixChar != char.MinValue &&
               !m_IsWriteSetting)
           {
-            m_FastColoredTextBox.AppendText(new string(quote.Char, 2) + " or " + m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.Char.ToStringHandle0(),
+            m_FastColoredTextBox.AppendText(new string(quote, 2) + " or " + m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.ToStringHandle0(),
               m_EscapedQuoteStyle);
           }
           else if (m_CheckBoxDuplicateQuotingToEscape.Checked)
-            m_FastColoredTextBox.AppendText(new string(quote.Char, 2), m_EscapedQuoteStyle);
+            m_FastColoredTextBox.AppendText(new string(quote, 2), m_EscapedQuoteStyle);
           else if (m_CsvFile.EscapePrefixChar != char.MinValue)
-            m_FastColoredTextBox.AppendText(m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.Char.ToStringHandle0(), m_EscapedQuoteStyle);
+            m_FastColoredTextBox.AppendText(m_CsvFile.EscapePrefixChar.ToStringHandle0() + quote.ToStringHandle0(), m_EscapedQuoteStyle);
           else
-            m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_EscapedQuoteStyle);
+            m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_EscapedQuoteStyle);
         }
 
         m_FastColoredTextBox.AppendText(" Quote");
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox.AppendText("¶", m_PilcrowStyle);
         m_FastColoredTextBox.AppendText("\r\n");
         if (m_IsWriteSetting && m_RadioButtonAlways.Checked)
         {
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
           m_FastColoredTextBox.AppendText("Example");
-          m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+          m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         }
         else
           m_FastColoredTextBox.AppendText("Example ");
 
         m_FastColoredTextBox.AppendText(delimiter.ToString(), delim);
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
         m_FastColoredTextBox.AppendText("Column with ");
         m_FastColoredTextBox.AppendText("¶", m_PilcrowStyle);
         m_FastColoredTextBox.AppendText("\r\nLinefeed");
-        m_FastColoredTextBox.AppendText(quote.Char.ToStringHandle0(), m_QuoteStyle);
+        m_FastColoredTextBox.AppendText(quote.ToStringHandle0(), m_QuoteStyle);
 
         m_FastColoredTextBox.Range.SetStyle(m_SpaceStyle, m_SpaceRegex);
         m_FastColoredTextBox10.Range.SetStyle(m_SpaceStyle, m_SpaceRegex);

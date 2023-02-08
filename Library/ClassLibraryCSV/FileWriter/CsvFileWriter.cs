@@ -35,9 +35,9 @@ namespace CsvTools
     private readonly bool m_ColumnHeader;
     private readonly string m_DelimiterPlaceholder;
 
-    private readonly Punctuation m_FieldDelimiter;
-    private readonly Punctuation m_FieldQualifier;
-    private readonly Punctuation m_EscapePrefix;
+    private readonly char m_FieldDelimiter;
+    private readonly char m_FieldQualifier;
+    private readonly char m_EscapePrefix;
 
     private readonly string m_FieldDelimiterEscaped;
     private readonly string m_FieldQualifierEscaped;
@@ -117,34 +117,34 @@ namespace CsvTools
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
       m_ByteOrderMark = byteOrderMark;
-      m_FieldQualifier =  new Punctuation(fieldQualifierChar);
-      m_FieldDelimiter = new Punctuation(fieldDelimiterChar);
-      m_EscapePrefix = new Punctuation(escapePrefixChar);
+      m_FieldQualifier =  fieldQualifierChar;
+      m_FieldDelimiter = fieldDelimiterChar;
+      m_EscapePrefix = escapePrefixChar;
       m_QualifyAlways = qualifyAlways;
       m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
       if (m_QualifyOnlyIfNeeded && m_QualifyAlways)
         m_QualifyAlways = false;
       m_NewLine = newLine.NewLineString();
-      Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text);
+      Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text());
 
       m_NewLinePlaceholder = newLinePlaceholder;
       m_DelimiterPlaceholder = delimiterPlaceholder;
       m_QualifierPlaceholder = qualifierPlaceholder;
 
-      if (!m_EscapePrefix.IsEmpty)
+      if (m_EscapePrefix != char.MinValue)
       {
         m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = m_EscapePrefix.Char.ToString() + m_FieldQualifier.Char.ToString();
-        m_FieldDelimiterEscaped = m_EscapePrefix.Char.ToString() + m_FieldDelimiter.Char.ToString();
+        m_FieldQualifierEscaped = m_EscapePrefix.ToString() + m_FieldQualifier;
+        m_FieldDelimiterEscaped = m_EscapePrefix.ToString() + m_FieldDelimiter;
       }
       else
       {
-        m_FieldDelimiterEscaped = m_FieldDelimiter.Char.ToString();
+        m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
         // but require quoting
         m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, fieldDelimiterChar };
 
         // the Qualifier is repeated to so it can be recognized as not to be end the quoting
-        m_FieldQualifierEscaped = m_FieldQualifier.Char.ToString() + m_FieldQualifier.Char.ToString();
+        m_FieldQualifierEscaped = m_FieldQualifier.ToString() + m_FieldQualifier;
       }
     }
 
@@ -184,8 +184,8 @@ namespace CsvTools
         foreach (var columnInfo in columns)
         {
           sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText));
-          if (!m_FieldDelimiter.IsEmpty && !ReferenceEquals(columnInfo, lastCol))
-            sb.Append(m_FieldDelimiter.Char);
+          if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
+            sb.Append(m_FieldDelimiter);
         }
 
         sb.Append(m_NewLine);
@@ -213,8 +213,8 @@ namespace CsvTools
           else
             row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText));
 
-          if (!m_FieldDelimiter.IsEmpty && !ReferenceEquals(columnInfo, lastCol))
-            row.Append(m_FieldDelimiter.Char);
+          if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
+            row.Append(m_FieldDelimiter);
         }
 
         if (emptyColumns == columns.Count()) break;
@@ -251,7 +251,7 @@ namespace CsvTools
           // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
           // the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1
-                                                 || displayAs[0].Equals(m_FieldQualifier.Char)
+                                                 || displayAs[0].Equals(m_FieldQualifier)
                                                  || displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
@@ -259,11 +259,11 @@ namespace CsvTools
                                                         || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
-      if (!m_EscapePrefix.IsEmpty)
-        displayAs = displayAs.Replace(m_FieldDelimiter.Char.ToString(), m_FieldDelimiterEscaped);
+      if (m_EscapePrefix != char.MinValue)
+        displayAs = displayAs.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
 
       if (qualifyThis)
-        return m_FieldQualifier.Char + displayAs.Replace(m_FieldQualifier.Char.ToString(), m_FieldQualifierEscaped) + m_FieldQualifier.Char;
+        return m_FieldQualifier + displayAs.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped) + m_FieldQualifier;
 
       return displayAs;
     }
@@ -273,7 +273,7 @@ namespace CsvTools
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
 
-      if (m_FieldDelimiter.IsEmpty && columnInfo.FieldLength == 0)
+      if (m_FieldDelimiter == char.MinValue && columnInfo.FieldLength == 0)
         throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
 
       string displayAs;
@@ -292,18 +292,18 @@ namespace CsvTools
           if (m_NewLinePlaceholder.Length > 0)
             displayAs = displayAs.HandleCrlfCombinations(m_NewLinePlaceholder);
 
-          if (m_DelimiterPlaceholder.Length > 0 && !m_FieldDelimiter.IsEmpty)
-            displayAs = displayAs.Replace(m_FieldDelimiter.Char.ToString(),
+          if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
+            displayAs = displayAs.Replace(m_FieldDelimiter.ToString(),
               m_DelimiterPlaceholder);
 
-          if (m_QualifierPlaceholder.Length > 0 && !m_FieldQualifier.IsEmpty)
-            displayAs = displayAs.Replace(m_FieldQualifier.Char.ToString(),
+          if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
+            displayAs = displayAs.Replace(m_FieldQualifier.ToString(),
               m_QualifierPlaceholder);
         }
       }
 
       // Adjust the output in case its is fixed length
-      if (m_FieldQualifier.IsEmpty)
+      if (m_FieldQualifier == char.MinValue)
       {
         if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
           return displayAs.PadRight(columnInfo.FieldLength, ' ');
@@ -313,7 +313,7 @@ namespace CsvTools
       }
 
       // Qualify text if required
-      if (!m_FieldQualifier.IsEmpty && handleQualify != null)
+      if (m_FieldQualifier != char.MinValue && handleQualify != null)
         return handleQualify(displayAs, columnInfo.ValueFormat.DataType);
 
       return displayAs;

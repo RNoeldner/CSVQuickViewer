@@ -71,11 +71,11 @@ namespace CsvTools
 
     private readonly bool m_DuplicateQualifierToEscape;
 
-    private readonly Punctuation m_EscapePrefix;
+    private readonly char m_EscapePrefix;
 
-    private readonly Punctuation m_FieldDelimiter;
+    private readonly char m_FieldDelimiter;
 
-    private readonly Punctuation m_FieldQualifier;
+    private readonly char m_FieldQualifier;
 
     // This is used to report issues with columns
     private readonly Action<int, string> m_HandleMessageColumn;
@@ -246,28 +246,28 @@ namespace CsvTools
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();
-      m_EscapePrefix = new Punctuation(escapePrefixChar);
-      m_FieldDelimiter = new Punctuation(fieldDelimiterChar);
-      m_FieldQualifier = new Punctuation(fieldQualifierChar);
+      m_EscapePrefix = escapePrefixChar;
+      m_FieldDelimiter = fieldDelimiterChar;
+      m_FieldQualifier = fieldQualifierChar;
 
-      if (m_FieldDelimiter.Char == char.MinValue)
+      if (m_FieldDelimiter == char.MinValue)
         throw new FileReaderException("All delimited text files do need a delimiter.");
 
-      if (m_FieldQualifier.Char == cCr || m_FieldQualifier.Char == cLf)
+      if (m_FieldQualifier == cCr || m_FieldQualifier == cLf)
         throw new FileReaderException(
           "The text qualifier characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiter.Char == cCr || m_FieldDelimiter.Char == cLf || m_FieldDelimiter.Char == ' ')
+      if (m_FieldDelimiter == cCr || m_FieldDelimiter == cLf || m_FieldDelimiter == ' ')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (!m_EscapePrefix.IsEmpty && (m_FieldDelimiter.Char == m_EscapePrefix.Char || m_FieldQualifier.Char == m_EscapePrefix.Char))
+      if (m_EscapePrefix != char.MinValue && (m_FieldDelimiter == m_EscapePrefix || m_FieldQualifier == m_EscapePrefix))
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefix.Text}.");
+          $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefix.Text()}.");
 
-      if (!m_FieldQualifier.IsEmpty && m_FieldQualifier.Char == m_FieldDelimiter.Char)
+      if (m_FieldQualifier!= char.MinValue && m_FieldQualifier == m_FieldDelimiter)
         throw new ArgumentOutOfRangeException(
-          $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiter.Text}");
+          $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiter.Text()}");
 
       m_AllowRowCombining = allowRowCombining;
       m_ContextSensitiveQualifier = contextSensitiveQualifier;
@@ -429,7 +429,7 @@ namespace CsvTools
             if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
               unescapeFormatter.RaiseWarning = false;
 
-        if (m_TryToSolveMoreColumns && m_FieldDelimiter.Char != char.MinValue)
+        if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
           m_RealignColumns = new ReAlignColumns(FieldCount);
 
         if (m_TextReader.CanSeek)
@@ -699,21 +699,21 @@ namespace CsvTools
           // Handle replacements and warnings etc,
           var adjustedValue = HandleTextSpecials(
             CurrentRowColumnText[columnNo].ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter.Char)
-              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier.Char),
+              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter)
+              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier),
             columnNo);
 
           if (adjustedValue.Length > 0)
           {
-            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifier.Char) != -1 &&
+            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifier) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
               HandleWarning(columnNo,
-                $"Field qualifier '{m_FieldQualifier.Text}' found in field".AddWarningId());
+                $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
 
-            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiter.Char) != -1 &&
+            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiter) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
               HandleWarning(columnNo,
-                $"Field delimiter '{m_FieldDelimiter.Text}' found in field".AddWarningId());
+                $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
             if (m_WarnUnknownCharacter)
             {
@@ -769,7 +769,7 @@ namespace CsvTools
     private bool IsWhiteSpace(char c)
     {
       // Handle cases where the delimiter is a whitespace (e.g. tab)
-      if (c == m_FieldDelimiter.Char)
+      if (c == m_FieldDelimiter)
         return false;
 
       // See char.IsLatin1(char c) in Reflector
@@ -983,7 +983,7 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if ((character == m_FieldDelimiter.Char && !escaped && (postData || !quoted)) || EndOfFile)
+        if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || EndOfFile)
           break;
 
         // Finished with reading the column by Linefeed
@@ -1013,7 +1013,7 @@ namespace CsvTools
           preData = false;
 
           // Can not be escaped here
-          if (!m_FieldQualifier.IsEmpty && character == m_FieldQualifier.Char && !escaped)
+          if (character == m_FieldQualifier && !escaped)
           {
             if (m_TrimmingOption != TrimmingOptionEnum.None)
               stringBuilder.Length = 0;
@@ -1028,26 +1028,26 @@ namespace CsvTools
           }
         }
 
-        if (character == m_FieldQualifier.Char && quoted && !escaped)
+        if (character == m_FieldQualifier && quoted && !escaped)
         {
           var peekNextChar = Peek();
 
           // a "" should be regarded as " if the text is quoted
-          if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier.Char)
+          if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier)
           {
             // double quotes within quoted string means add a quote
-            stringBuilder.Append(m_FieldQualifier.Char);
+            stringBuilder.Append(m_FieldQualifier);
             MoveNext(peekNextChar);
 
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
-            if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter.Char
+            if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter
                                                 || peekNextChar == cCr || peekNextChar == cLf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
-          if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter.Char
+          if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter
                                               || peekNextChar == cCr || peekNextChar == cLf))
           {
             postData = true;
@@ -1063,15 +1063,15 @@ namespace CsvTools
         }
 
         append:
-        if (escaped && (character == m_FieldQualifier.Char || character == m_FieldDelimiter.Char ||
-                        character == m_EscapePrefix.Char))
+        if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter ||
+                        character == m_EscapePrefix))
           // remove the already added escape char
           stringBuilder.Length--;
 
         // all cases covered, character must be data
         stringBuilder.Append(character);
 
-        escaped = !escaped && character == m_EscapePrefix.Char;
+        escaped = !escaped && character == m_EscapePrefix;
       } // While
 
       var columnText = stringBuilder.ToString();
@@ -1160,7 +1160,7 @@ namespace CsvTools
         // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
         // might have an opening delimiter with a missing closing delimiter
         if (storeWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
-            && item.IndexOf(m_FieldDelimiter.Char) != -1)
+            && item.IndexOf(m_FieldDelimiter) != -1)
           HandleWarning(col, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters".AddWarningId());
         columns.Add(item);
 
