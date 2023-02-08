@@ -72,7 +72,7 @@ namespace CsvTools
     /// <summary>
     /// Loads teh next batch of data from a file setting into the data table from m_GetDataTable
     /// </summary>
-    /// <param name="actionSetDataTable">Action to pass on the data table</param>
+    /// <param name="actionSendNewDataTable">Action to pass on the data table, if called a second time make sure data is merged</param>
     /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -80,7 +80,7 @@ namespace CsvTools
     /// <param name="restoreError">Restore column and row errors from error columns</param>
     public async Task GetNextBatch(
       IProgress<ProgressInfo>? progress, TimeSpan duration, bool restoreError,
-      Action<DataTable> actionSetDataTable, Action<CancellationToken> setRefreshDisplayAsync,
+      Action<DataTable> actionSendNewDataTable, Action<CancellationToken> setRefreshDisplayAsync,
       CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
@@ -94,7 +94,7 @@ namespace CsvTools
       try
       {
         Logger.Debug("Setting DataTable");
-        actionSetDataTable.Invoke(dt);
+        actionSendNewDataTable.Invoke(dt);
       }
       catch (InvalidOperationException ex)
       {
