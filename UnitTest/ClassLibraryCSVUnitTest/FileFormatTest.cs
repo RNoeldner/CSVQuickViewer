@@ -69,11 +69,11 @@ namespace CsvTools.Tests
       Assert.AreEqual('\t', m_CsvFile.FieldDelimiterChar);
 
       m_CsvFile.FieldDelimiter = "comma";
-      Assert.AreEqual("comma", m_CsvFile.FieldDelimiter, true);
+      Assert.AreEqual(",", m_CsvFile.FieldDelimiter, true);
       Assert.AreEqual(',', m_CsvFile.FieldDelimiterChar);
 
       m_CsvFile.FieldDelimiter = "Pipe";
-      Assert.AreEqual("Pipe", m_CsvFile.FieldDelimiter, true);
+      Assert.AreEqual("|", m_CsvFile.FieldDelimiter, true);
       Assert.AreEqual('|', m_CsvFile.FieldDelimiterChar);
     }
 
@@ -160,7 +160,7 @@ namespace CsvTools.Tests
     public void FieldDelimiter()
     {
       var test = new CsvFile("id2") { FieldDelimiter = "Tabulator" };
-      Assert.AreEqual("Tabulator", test.FieldDelimiter);
+      Assert.AreEqual("Tab", test.FieldDelimiter);
       Assert.AreEqual('\t', test.FieldDelimiterChar);
 
       test.FieldDelimiter = "hash";

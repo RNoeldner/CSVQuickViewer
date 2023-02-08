@@ -38,21 +38,21 @@ namespace CsvTools
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifierText, string delimiterText, string escapeText,
       string comment) : base(textBox)
     {
-      var qualifier = new Punctuation(qualifierText);
-      var delimiter = new Punctuation(delimiterText);
-      if (delimiter.IsEmpty)
-        delimiter.Char = '\t';
+      var qualifier = qualifierText.FromText();
+      var delimiter = delimiterText.FromText();
+      if (delimiter == char.MinValue)
+        delimiter = '\t';
 
-      var escape = new Punctuation(escapeText);
-      m_DelimiterRegex = new Regex(escape.IsEmpty ? $"\\{delimiter.Char}" : $"(?<!\\{escape.Char})\\{delimiter.Char}",
+      var escape = escapeText.FromText();
+      m_DelimiterRegex = new Regex(escape == char.MinValue ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 
-      if (!qualifier.IsEmpty)
+      if (qualifier != char.MinValue)
       {
         m_QuoteRegex = new Regex(
-          escape.IsEmpty
-            ? $"\\{qualifier.Char}((?:\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}"
-            : $"\\{qualifier.Char}((?:\\{escape.Char}\\{qualifier.Char}|\\{qualifier.Char}\\{qualifier.Char}|(?:(?!\\{qualifier.Char})).)*)\\{qualifier.Char}",
+          escape == char.MinValue
+            ? $"\\{qualifier}((?:\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}"
+            : $"\\{qualifier}((?:\\{escape}\\{qualifier}|\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}",
           RegexOptions.Multiline | RegexOptions.Compiled);
       }
 

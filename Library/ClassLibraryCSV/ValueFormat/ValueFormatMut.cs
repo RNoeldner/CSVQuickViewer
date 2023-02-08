@@ -29,21 +29,21 @@ namespace CsvTools
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
-    private readonly Punctuation m_DateSeparator;
-    private readonly Punctuation m_DecimalSeparator;
+    private char m_DateSeparator;
+    private char m_DecimalSeparator;
     private string m_DisplayNullAs;
     private string m_False;
     private string m_FileOutPutPlaceholder;
-    private readonly Punctuation m_GroupSeparator;
+    private char m_GroupSeparator;
     private string m_NumberFormat;
     private bool m_Overwrite;
     private int m_Part;
-    private readonly Punctuation m_PartSplitter;
+    private char m_PartSplitter;
     private bool m_PartToEnd;
     private string m_ReadFolder;
     private string m_RegexReplacement;
     private string m_RegexSearchPattern;
-    private readonly Punctuation m_TimeSeparator;
+    private char m_TimeSeparator;
     private string m_True;
     private string m_WriteFolder;
 
@@ -115,14 +115,14 @@ namespace CsvTools
       in string fileOutPutPlaceholder = "",
       in bool overwrite = ValueFormat.cOverwriteDefault)
     {
-      m_DecimalSeparator = new Punctuation(decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault);
-      m_GroupSeparator = new Punctuation(groupSeparator ?? ValueFormat.cGroupSeparatorDefault);
-      if (!m_DecimalSeparator.IsEmpty && m_DecimalSeparator.Char.Equals(m_GroupSeparator.Char))
+      m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).FromText();
+      m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).FromText();
+      if (m_DecimalSeparator != char.MinValue && m_DecimalSeparator.Equals(m_GroupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
       m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
-      m_DateSeparator = new Punctuation(dateSeparator ?? ValueFormat.cDateSeparatorDefault);
-      m_TimeSeparator = new Punctuation(timeSeparator ?? ValueFormat.cTimeSeparatorDefault);
+      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).FromText(); 
+      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).FromText(); 
 
       m_DisplayNullAs = displayNullAs ?? string.Empty;
       m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;
@@ -130,7 +130,7 @@ namespace CsvTools
       m_True = asTrue ?? ValueFormat.cTrueDefault;
       m_False = asFalse ?? ValueFormat.cFalseDefault;
       m_Part = part;
-      m_PartSplitter = new Punctuation(partSplitter ?? ValueFormat.cPartSplitterDefault);
+      m_PartSplitter = (partSplitter ?? ValueFormat.cPartSplitterDefault).FromText();
       m_PartToEnd = partToEnd;
       m_RegexSearchPattern = regexSearchPattern ?? string.Empty;
       m_RegexReplacement = regexReplacement ?? string.Empty;
@@ -160,7 +160,7 @@ namespace CsvTools
     [DefaultValue(ValueFormat.cDateSeparatorDefault)]
     public string DateSeparator
     {
-      get => m_DateSeparator.Text;
+      get => m_DateSeparator.Text();
       set
       {
         if (m_DateSeparator.SetText(value))
@@ -172,13 +172,13 @@ namespace CsvTools
     [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
-      get => m_DecimalSeparator.Text;
+      get => m_DecimalSeparator.Text();
       set
       {
         if (!m_DecimalSeparator.SetText(value))
           return;
         NotifyPropertyChanged();
-        if (m_GroupSeparator.Char.Equals(m_DecimalSeparator.Char))
+        if (m_GroupSeparator.Equals(m_DecimalSeparator))
           GroupSeparator = string.Empty;
       }
     }
@@ -211,16 +211,16 @@ namespace CsvTools
     [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
-      get => m_GroupSeparator.Text;
+      get => m_GroupSeparator.Text();
       set
       {
-        var oldGroup = m_GroupSeparator.Char;
+        var oldGroup = m_GroupSeparator;
         if (m_GroupSeparator.SetText(value))
         {
           NotifyPropertyChanged();
-          if (m_GroupSeparator.Char.Equals(m_DecimalSeparator.Char))
+          if (m_GroupSeparator.Equals(m_DecimalSeparator))
           {
-            m_DecimalSeparator.Char= oldGroup;
+            m_DecimalSeparator= oldGroup;
             NotifyPropertyChanged(nameof(DecimalSeparator));
           }
         }
@@ -259,7 +259,7 @@ namespace CsvTools
     [DefaultValue(ValueFormat.cPartSplitterDefault)]
     public string PartSplitter
     {
-      get => m_PartSplitter.Text;
+      get => m_PartSplitter.Text();
       set
       {
         if (m_PartSplitter.SetText(value))
@@ -303,7 +303,7 @@ namespace CsvTools
     [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
-      get => m_TimeSeparator.Text;
+      get => m_TimeSeparator.Text();
       set
       {
         if (m_TimeSeparator.SetText(value))

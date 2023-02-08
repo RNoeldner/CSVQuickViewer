@@ -74,14 +74,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           m_ViewSettings.DefaultInspectionResult.CodePageId=  ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
         m_ViewSettings.DefaultInspectionResult.ByteOrderMark = checkBoxBOM.Checked;
       }
+
       if (!m_ViewSettings.GuessEscapePrefix)
-        m_ViewSettings.DefaultInspectionResult.EscapePrefix = new Punctuation(textBoxEscapeRead.Text);
+        m_ViewSettings.DefaultInspectionResult.EscapePrefix = textBoxEscapeRead.Text.FromText();
 
       if (!m_ViewSettings.GuessComment)
         m_ViewSettings.DefaultInspectionResult.CommentLine = textBoxComment.Text;
 
       if (!m_ViewSettings.GuessDelimiter)
-        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = new Punctuation(textBoxDelimiter.Text);
+        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = textBoxDelimiter.Text.FromText();
       if (!m_ViewSettings.GuessHasHeader)
         m_ViewSettings.DefaultInspectionResult.HasFieldHeader = checkBoxHeader.Checked;
 
@@ -198,7 +199,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
-          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.GetPossibleQualifier().ToCharArray(), m_CancellationTokenSource.Token);
+          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.GetPossibleQualifier.ToCharArray(), m_CancellationTokenSource.Token);
           csvFile.FieldQualifier = res.QuoteChar.ToString();
           if (res.DuplicateQualifier)
             csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
@@ -263,9 +264,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
 
-        textBoxEscapeRead.Text = new Punctuation(m_ViewSettings.DefaultInspectionResult.EscapePrefix).Text;
+        textBoxEscapeRead.Text = m_ViewSettings.DefaultInspectionResult.EscapePrefix.Text();
         textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
-        textBoxDelimiter.Text = new Punctuation(m_ViewSettings.DefaultInspectionResult.FieldDelimiter).Text;
+        textBoxDelimiter.Text = m_ViewSettings.DefaultInspectionResult.FieldDelimiter.Text();
 
         if (!m_ViewSettings.GuessHasHeader)
           checkBoxHeader.Checked = m_ViewSettings.DefaultInspectionResult.HasFieldHeader;
@@ -276,7 +277,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
           quotingControl.CsvFile.DuplicateQualifierToEscape =
             m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
-          quotingControl.CsvFile.FieldQualifier = new Punctuation(m_ViewSettings.DefaultInspectionResult.FieldQualifier).Text;
+          quotingControl.CsvFile.FieldQualifier = m_ViewSettings.DefaultInspectionResult.FieldQualifier.Text();
         }
         numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
       }
@@ -325,9 +326,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
       else
       {
-        var delimiter = new Punctuation(textBoxDelimiter.Text);
+        var delimiter = textBoxDelimiter.Text.FromText();
 
-        if (delimiter.Char != ';' && delimiter.Char != ',' && delimiter.Char != '|' && delimiter.Char != ':' && delimiter.Char != '\t')
+        if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
           errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");
         else
           errorProvider.SetError(textBoxDelimiter, string.Empty);

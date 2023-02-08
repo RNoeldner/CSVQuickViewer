@@ -112,7 +112,7 @@ namespace CsvTools.Tests
 #pragma warning disable CS8625
       m_JsonFile.Row = null;
 #pragma warning restore CS8625
-      Assert.AreEqual(string.Empty, m_JsonFile.Row);
+      Assert.AreEqual(string.Empty, m_JsonFile.Row , "Row");
 
       m_JsonFile.Footer = "Footer";
       Assert.AreEqual("Footer", m_JsonFile.Footer);

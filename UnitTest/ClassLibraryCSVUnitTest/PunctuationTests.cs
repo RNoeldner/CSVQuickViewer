@@ -8,33 +8,33 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DescriptionText()
     {
-      Assert.AreEqual(string.Empty, new Punctuation("").Text);
-      Assert.AreEqual("Horizontal Tab", new Punctuation("\t").Description);
-      Assert.AreEqual("Comma ,", new Punctuation(",").Description);
-      Assert.AreEqual("Pipe |", new Punctuation("|").Description);
-      Assert.AreEqual("Semicolon ;", new Punctuation(";").Description);
-      Assert.AreEqual("Colon :", new Punctuation(":").Description);
-      Assert.AreEqual("Quotation marks \"", new Punctuation("\"").Description);
-      Assert.AreEqual("Apostrophe '", new Punctuation("'").Description);
-      Assert.AreEqual("Space", new Punctuation(" ").Description);
-      Assert.AreEqual("Backslash \\", new Punctuation("\\").Description);
-      Assert.AreEqual("Slash /", new Punctuation("/").Description);
+      Assert.AreEqual(string.Empty, "".FromText().Text());
+      Assert.AreEqual("Horizontal Tab", "\t".FromText().Description());
+      Assert.AreEqual("Comma ,", ",".FromText().Description());
+      Assert.AreEqual("Pipe |", "|".FromText().Description());
+      Assert.AreEqual("Semicolon ;", ";".FromText().Description());
+      Assert.AreEqual("Colon :", ":".FromText().Description());
+      Assert.AreEqual("Quotation marks \"", "\"".FromText().Description());
+      Assert.AreEqual("Apostrophe '", "'".FromText().Description());
+      Assert.AreEqual("Space", " ".FromText().Description());
+      Assert.AreEqual("Backslash \\", "\\".FromText().Description());
+      Assert.AreEqual("Slash /", "/".FromText().Description());
 
-      Assert.IsTrue( new Punctuation("US").Description.StartsWith("Unit"));
-      Assert.IsTrue( new Punctuation("Unit Separator").Description.StartsWith("Unit"));
-      Assert.IsTrue(new Punctuation("GS").Description.StartsWith("Group"));
-      Assert.IsTrue(new Punctuation("RS").Description.StartsWith("Record"));
-      Assert.IsTrue(new Punctuation("FS").Description.StartsWith("File"));
+      Assert.IsTrue( "US".FromText().Description().StartsWith("Unit"));
+      Assert.IsTrue( "Unit Separator".FromText().Description().StartsWith("Unit"));
+      Assert.IsTrue("GS".FromText().Description().StartsWith("Group"));
+      Assert.IsTrue("RS".FromText().Description().StartsWith("Record"));
+      Assert.IsTrue("FS".FromText().Description().StartsWith("File"));
     }
 
     [TestMethod()]
     public void GetDescriptionTest()
     {
-      Assert.AreEqual("Horizontal Tab", new Punctuation('\t').Description);
-      Assert.AreEqual("Tab", new Punctuation('\t').Text);
-      Assert.AreEqual("Space", new Punctuation(' ').Description);
-      Assert.IsTrue(new Punctuation("\\").Description.Contains("Backslash"));
-      Assert.IsTrue(new Punctuation("'").Description.Contains("\'"));
+      Assert.AreEqual("Horizontal Tab", '\t'.Description());
+      Assert.AreEqual("Tab", '\t'.Text());
+      Assert.AreEqual("Space", ' '.Description());
+      Assert.IsTrue("\\".FromText().Description().Contains("Backslash"));
+      Assert.IsTrue("'".FromText().Description().Contains("\'"));
     }
 
   }

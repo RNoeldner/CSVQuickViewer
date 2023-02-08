@@ -60,9 +60,9 @@ namespace CsvTools
       var ret = (IsJson) ? new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer } as IFileSettingPhysicalFile : new CsvFile(id: string.Empty, fileName: FileName)
       {
         CommentLine = CommentLine,
-        EscapePrefix = new Punctuation(EscapePrefix),
-        FieldDelimiter = new Punctuation(FieldDelimiter),
-        FieldQualifier = new Punctuation(FieldQualifier),
+        EscapePrefix = EscapePrefix.Text(),
+        FieldDelimiter = FieldDelimiter.Text(),
+        FieldQualifier = FieldQualifier.Text(),
         ContextSensitiveQualifier = ContextSensitiveQualifier,
         DuplicateQualifierToEscape = DuplicateQualifierToEscape,
         NewLine = NewLine,

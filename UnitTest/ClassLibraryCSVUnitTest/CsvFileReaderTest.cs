@@ -2040,7 +2040,7 @@ Line "Test"", "22",23,"  24"
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LateStartRow.txt")));
       string escapePrefix = string.Empty;
       using var textReader = await improvedStream.GetTextReaderAsync(20127, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual(10,  textReader.InspectStartRow('|', '"', new Punctuation(escapePrefix), "#", UnitTestStatic.Token));
+      Assert.AreEqual(10,  textReader.InspectStartRow('|', '"', (escapePrefix).FromText(), "#", UnitTestStatic.Token));
     }
 
     [TestMethod]
