@@ -302,15 +302,15 @@ namespace CsvTools
 
       // Fix No Qualifier
       if (m_WriteSetting.FieldQualifierChar == 0)
-        m_WriteSetting.FieldQualifier = "\"";
+        m_WriteSetting.FieldQualifierChar = '"';
 
       // Fix No DuplicateQualifier
-      if (!m_WriteSetting.DuplicateQualifierToEscape && m_WriteSetting.FieldQualifierChar == '"' && m_WriteSetting.EscapePrefixChar== 0)
+      if (!m_WriteSetting.DuplicateQualifierToEscape && m_WriteSetting.FieldQualifierChar == '"' && m_WriteSetting.EscapePrefixChar== char.MinValue)
         m_WriteSetting.DuplicateQualifierToEscape = true;
 
       // Fix No Delimiter
       if (m_WriteSetting.FieldDelimiterChar == 0)
-        m_WriteSetting.FieldDelimiter = "\t";
+        m_WriteSetting.FieldDelimiterChar = '\t';
 
       // NewLine depending on Environment
       if (Environment.NewLine == "\r\n")

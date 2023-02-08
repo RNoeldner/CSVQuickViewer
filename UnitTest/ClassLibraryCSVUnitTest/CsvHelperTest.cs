@@ -165,7 +165,7 @@ namespace CsvTools.Tests
           SkipRows = 10,
           CodePageId = 20127
         };
-      test.FieldQualifier = "\"";
+      test.FieldQualifierChar = '"';
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       using var textReader = await improvedStream.GetTextReaderAsync(20127, 10, UnitTestStatic.Token);
       Assert.AreEqual('|', (await textReader.InspectDelimiterAsync('"', char.MinValue, null, UnitTestStatic.Token)).Delimiter);
@@ -205,7 +205,7 @@ namespace CsvTools.Tests
         new CsvFile(id: "Csv",
           fileName: UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))
         { CodePageId = -1 };
-      test.EscapePrefix = string.Empty;
+      test.EscapePrefixChar = string.Empty.FromText();
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
 
       using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
@@ -217,7 +217,7 @@ namespace CsvTools.Tests
     {
       ICsvFile test =
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
-      test.EscapePrefix = string.Empty;
+      test.EscapePrefixChar = string.Empty.FromText();
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       using var textReader = await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token);
       Assert.AreEqual(',', (await textReader.InspectDelimiterAsync(test.FieldQualifierChar, test.EscapePrefixChar, null, UnitTestStatic.Token)).Delimiter);
@@ -228,7 +228,7 @@ namespace CsvTools.Tests
     {
       ICsvFile test =
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
-      test.EscapePrefix = "\\";
+      test.EscapePrefixChar = '\\';
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       DetectionDelimiter.DelimiterDetection ret;
       using (var textReader = await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token))
@@ -291,7 +291,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
         }
 
-        var test = new CsvFile(id: "csv", fileName: path) { CodePageId = 65001, FieldQualifier = "\"" };
+        var test = new CsvFile(id: "csv", fileName: path) { CodePageId = 65001, FieldQualifierChar = '"' };
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
         {
           using var textReader = await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token).ConfigureAwait(false);
@@ -526,8 +526,8 @@ namespace CsvTools.Tests
           SkipRows = 10,
           CodePageId = 20127
         };
-      test.FieldDelimiter = "|";
-      test.FieldQualifier = "\"";
+      test.FieldDelimiterChar = '|';
+      test.FieldQualifierChar = '"';
 
       using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader,
         test.ColumnCollection, test.TrimmingOption,

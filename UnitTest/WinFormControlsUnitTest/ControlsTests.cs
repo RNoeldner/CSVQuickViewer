@@ -30,7 +30,7 @@ namespace CsvTools.Tests
     {
       UnitTestStaticForms.ShowFormAsync(
         () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), null), 
-        async frm => await frm.OpenFileAsync(false, "\"", "\t", "", 1200, 1, "##", UnitTestStatic.Token), .1);
+        async frm => await frm.OpenFileAsync(false, '"', '\t', char.MinValue, 1200, 1, "##", UnitTestStatic.Token), .1);
 
     }
 

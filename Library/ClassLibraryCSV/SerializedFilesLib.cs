@@ -255,7 +255,6 @@ namespace CsvTools
       saveSetting.ID = string.Empty;
       saveSetting.Header = string.Empty;
       saveSetting.Footer = string.Empty;
-      saveSetting.LastChange = DateTime.MinValue;
 
       // remove not needed Columns so they do not play into comparison
       saveSetting.ColumnCollection.Clear();

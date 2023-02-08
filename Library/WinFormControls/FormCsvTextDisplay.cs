@@ -142,7 +142,7 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public async Task OpenFileAsync(bool json, string qualifier, string delimiter, string escape, int codePage,
+    public async Task OpenFileAsync(bool json, char qualifier, char delimiter, char escape, int codePage,
       int skipLines, string comment, CancellationToken cancellationToken)
     {
       if (m_HighLighter is IDisposable disposable)

@@ -387,9 +387,9 @@ namespace CsvTools
         new InspectionResult(), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
-      csvFile.EscapePrefix= det.EscapePrefix.ToStringHandle0();
-      csvFile.FieldDelimiter = det.FieldDelimiter.ToStringHandle0();
-      csvFile.FieldQualifier = det.FieldQualifier.ToStringHandle0();
+      csvFile.EscapePrefixChar= det.EscapePrefix;
+      csvFile.FieldDelimiterChar = det.FieldDelimiter;
+      csvFile.FieldQualifierChar = det.FieldQualifier;
       csvFile.SkipRows = det.SkipRows;
       csvFile.HasFieldHeader = det.HasFieldHeader;
       csvFile.CommentLine = det.CommentLine;

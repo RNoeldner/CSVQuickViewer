@@ -151,7 +151,7 @@ namespace CsvTools.Tests
       var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
       {
         HasFieldHeader = true,
-        FieldDelimiter = "TAB"
+        FieldDelimiterChar = '\t'
       };
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]

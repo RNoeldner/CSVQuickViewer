@@ -35,8 +35,8 @@ namespace CsvTools.Tests
       var test = new CsvFile("1");
       //Assert.AreEqual("#", test.CommentLine, "CommentLine");
       Assert.AreEqual(string.Empty, test.DelimiterPlaceholder, "DelimiterPlaceholder");
-      Assert.AreEqual(",", test.FieldDelimiter, "FieldDelimiter");
-      Assert.AreEqual("\"", test.FieldQualifier, "FieldQualifier");
+      Assert.AreEqual(',', test.FieldDelimiterChar, "FieldDelimiterChar");
+      Assert.AreEqual('"', test.FieldQualifierChar, "FieldQualifierChar");
     }
 
     [TestMethod]
@@ -45,52 +45,46 @@ namespace CsvTools.Tests
       var target = new CsvFile("2");
       m_CsvFile.CopyTo(target);
       Assert.AreEqual("##", target.CommentLine, "CommentLine");
-      Assert.AreEqual("\\", m_CsvFile.EscapePrefix, "EscapeCharacter");
+      Assert.AreEqual('\\', m_CsvFile.EscapePrefixChar, "EscapeCharacter");
     }
 
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
-      m_CsvFile.EscapePrefix = "\\";
-      Assert.AreEqual("\\", m_CsvFile.EscapePrefix);
+      m_CsvFile.EscapePrefixChar = '\\';
+      Assert.AreEqual('\\', m_CsvFile.EscapePrefixChar);
 
-      m_CsvFile.EscapePrefix = "+";
-      Assert.AreEqual("+", m_CsvFile.EscapePrefix);
+      m_CsvFile.EscapePrefixChar = '+';
+      Assert.AreEqual('+', m_CsvFile.EscapePrefixChar);
 
-      m_CsvFile.EscapePrefix = "";
-      Assert.AreEqual("", m_CsvFile.EscapePrefix);
+      m_CsvFile.EscapePrefixChar = '\0';
+      Assert.AreEqual('\0', m_CsvFile.EscapePrefixChar);
     }
 
     [TestMethod]
     public void FileFormatFieldDelimiter()
     {
-      m_CsvFile.FieldDelimiter = "Tab";
-      Assert.AreEqual("tab", m_CsvFile.FieldDelimiter, true);
+      m_CsvFile.FieldDelimiterChar = '\t';      
       Assert.AreEqual('\t', m_CsvFile.FieldDelimiterChar);
 
-      m_CsvFile.FieldDelimiter = "comma";
-      Assert.AreEqual(",", m_CsvFile.FieldDelimiter, true);
+      m_CsvFile.FieldDelimiterChar = ',';
       Assert.AreEqual(',', m_CsvFile.FieldDelimiterChar);
 
-      m_CsvFile.FieldDelimiter = "Pipe";
-      Assert.AreEqual("|", m_CsvFile.FieldDelimiter, true);
+      m_CsvFile.FieldDelimiterChar = '|';
       Assert.AreEqual('|', m_CsvFile.FieldDelimiterChar);
     }
 
     [TestMethod]
     public void FileFormatFieldQualifier()
     {
-      m_CsvFile.FieldQualifier = "Tab";
-
-      Assert.AreEqual(m_CsvFile.FieldQualifier, "tab", true);
+      m_CsvFile.FieldQualifierChar = '\t';
+      
       Assert.AreEqual(m_CsvFile.FieldQualifierChar, '\t');
 
-      m_CsvFile.FieldQualifier = "+";
-      Assert.AreEqual(m_CsvFile.FieldQualifier, "+", true);
+      m_CsvFile.FieldQualifierChar = '+';
       Assert.AreEqual(m_CsvFile.FieldQualifierChar, '+');
 
-      m_CsvFile.FieldQualifier = "";
-      Assert.AreEqual(m_CsvFile.FieldQualifier, "", true);
+      m_CsvFile.FieldQualifierChar = char.MinValue;
       Assert.AreEqual(m_CsvFile.FieldQualifierChar, char.MinValue);
     }
 
@@ -100,10 +94,10 @@ namespace CsvTools.Tests
       //m_FileFormat.ColumnFormat = null;
       m_CsvFile.CommentLine = "##";
       m_CsvFile.DelimiterPlaceholder = "{d}";
-      m_CsvFile.EscapePrefix = "\\";
-      m_CsvFile.FieldDelimiter = "|";
-      m_CsvFile.FieldQualifier = "#";
-      m_CsvFile.EscapePrefix = "\\";
+      m_CsvFile.EscapePrefixChar = '\\';
+      m_CsvFile.FieldDelimiterChar = '|';
+      m_CsvFile.FieldQualifierChar = '#';
+      m_CsvFile.EscapePrefixChar = '\\';
       m_CsvFile.NewLine = RecordDelimiterTypeEnum.Lf;
       m_CsvFile.NewLinePlaceholder = "{n}";
       m_CsvFile.QualifyOnlyIfNeeded = false;
@@ -117,9 +111,9 @@ namespace CsvTools.Tests
       Assert.AreEqual("{d}", m_CsvFile.DelimiterPlaceholder, "DelimiterPlaceholder");
       Assert.AreEqual("{n}", m_CsvFile.NewLinePlaceholder, "NewLinePlaceholder");
       Assert.AreEqual("{q}", m_CsvFile.QualifierPlaceholder, "QuotePlaceholder");
-      Assert.AreEqual("|", m_CsvFile.FieldDelimiter, "FieldDelimiter");
-      Assert.AreEqual("#", m_CsvFile.FieldQualifier, "FieldQualifier");
-      Assert.AreEqual("\\", m_CsvFile.EscapePrefix, "EscapeCharacter");
+      Assert.AreEqual('|', m_CsvFile.FieldDelimiterChar, "FieldDelimiterChar");
+      Assert.AreEqual('#', m_CsvFile.FieldQualifierChar, "FieldQualifierChar");
+      Assert.AreEqual('\\', m_CsvFile.EscapePrefixChar, "EscapeCharacter");
     }
 
     [TestMethod]
@@ -159,32 +153,31 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FieldDelimiter()
     {
-      var test = new CsvFile("id2") { FieldDelimiter = "Tabulator" };
-      Assert.AreEqual("Tab", test.FieldDelimiter);
+      var test = new CsvFile("id2") { FieldDelimiterChar = '\t' };      
       Assert.AreEqual('\t', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "hash";
+      test.FieldDelimiterChar = "hash".FromText();
       Assert.AreEqual('#', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "@";
+      test.FieldDelimiterChar = "@".FromText();
       Assert.AreEqual('@', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "underscore";
+      test.FieldDelimiterChar = "underscore".FromText();
       Assert.AreEqual('_', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "dot";
+      test.FieldDelimiterChar = "dot".FromText();
       Assert.AreEqual('.', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "ampersand";
+      test.FieldDelimiterChar = "ampersand".FromText();
       Assert.AreEqual('&', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "Pipe";
+      test.FieldDelimiterChar = "Pipe".FromText();
       Assert.AreEqual('|', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "Semicolon";
+      test.FieldDelimiterChar = "Semicolon".FromText();
       Assert.AreEqual(';', test.FieldDelimiterChar);
 
-      test.FieldDelimiter = "Doublequotes";
+      test.FieldDelimiterChar = "Doublequotes".FromText();
       Assert.AreEqual('\"', test.FieldDelimiterChar);
     }
   }

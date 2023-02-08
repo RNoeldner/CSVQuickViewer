@@ -13,7 +13,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
       };
       setting.ColumnCollection.Add(new Column("Start Date", ValueFormat.Empty, ignore: true));
 

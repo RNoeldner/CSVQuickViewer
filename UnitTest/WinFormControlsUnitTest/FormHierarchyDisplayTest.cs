@@ -131,7 +131,7 @@ namespace CsvTools.Tests
       var cvsSetting =
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"))
         {
-          FieldDelimiter = "\t"
+          FieldDelimiterChar = '\t'
         };
       using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows,
         cvsSetting.HasFieldHeader,
