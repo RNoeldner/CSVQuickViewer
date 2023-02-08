@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       var readFile =
         new CsvFile(id: "Read", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
         {
-          FieldDelimiter = ",",
+          FieldDelimiterChar = ',',
           CommentLine = "#"
         };
 
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestStaticData.ReaderGetAllFormats();
 
-      writeFile.FieldDelimiter = "|";
+      writeFile.FieldDelimiterChar = '|';
       writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
           timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "TZ"));
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt");
       FileSystemUtils.FileDelete(writeFile.FileName);
-      writeFile.FieldDelimiter = "|";
+      writeFile.FieldDelimiterChar = '|';
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -108,7 +108,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestStaticData.ReaderGetAllFormats();
 
-      writeFile.FieldDelimiter = "|";
+      writeFile.FieldDelimiterChar = '|';
 
       var cf = new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, "yyyyMMdd"),
         timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "\"UTC\"");
@@ -243,7 +243,7 @@ namespace CsvTools.Tests
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz");
       FileSystemUtils.FileDelete(writeFile.FileName);
-      writeFile.FieldDelimiter = "|";
+      writeFile.FieldDelimiterChar = "|".FromText();
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,

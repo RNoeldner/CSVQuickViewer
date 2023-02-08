@@ -36,15 +36,15 @@ namespace CsvTools
   {
     private const bool cContextSensitiveQualifierDefault = false;
     private const bool cQualifyAlwaysDefault = false;
-    private const string cEscapePrefixDefault = "";
     private const RecordDelimiterTypeEnum cNewLineDefault = RecordDelimiterTypeEnum.Crlf;
     private const string cCommentLineDefault = "";
     private const string cDelimiterPlaceholderDefault = "";
-    private const string cFieldDelimiterDefault = ",";
-    private const string cFieldQualifierDefault = "\"";
     private const string cNewLinePlaceholderDefault = "";
-    private const bool cQualifyOnlyIfNeededDefault = true;
     private const string cQuotePlaceholderDefault = "";
+    private const char cFieldDelimiterDefault = ',';
+    private const char cFieldQualifierDefault = '"';
+    private const char cEscapePrefixDefault = '\0';
+    private const bool cQualifyOnlyIfNeededDefault = true;
     private const bool cDuplicateQualifierToEscapeDefault = true;
 
     /// <summary>
@@ -58,12 +58,12 @@ namespace CsvTools
     private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
-    private char m_EscapePrefixPunc = cEscapePrefixDefault.FromText();
-    private char m_FieldDelimiterPunc = cFieldDelimiterDefault.FromText();
-    private char m_FieldQualifierPunc = cFieldQualifierDefault.FromText();
+    private char m_EscapePrefixPunc = cEscapePrefixDefault;
+    private char m_FieldDelimiterPunc = cFieldDelimiterDefault;
+    private char m_FieldQualifierPunc = cFieldQualifierDefault;
     private RecordDelimiterTypeEnum m_NewLine = cNewLineDefault;
     private string m_NewLinePlaceholder = cNewLinePlaceholderDefault;
-    private bool m_NoDelimitedFile;    
+    private bool m_NoDelimitedFile;
     private int m_NumWarnings;
     private string m_QualifierPlaceholder = cQuotePlaceholderDefault;
     private bool m_QualifyAlways = cQualifyAlwaysDefault;
@@ -135,7 +135,7 @@ namespace CsvTools
     public string CommentLine
     {
       get => m_CommentLine;
-     set => SetProperty(ref m_CommentLine, value);
+      set => SetProperty(ref m_CommentLine, value);
     }
 
     /// <inheritdoc />
@@ -160,24 +160,32 @@ namespace CsvTools
       set => SetProperty(ref m_DuplicateQualifierToEscape, value);
     }
 
-#if XmlSerialization
-    [XmlIgnore]
-#endif
-    [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixPunc;
+   
+    [JsonIgnore]    
+    [Obsolete("Use EscapePrefixChar")]
+    public string EscapePrefix
+    {
+      get => m_EscapePrefixPunc.Text();
+      set => SetProperty(ref m_EscapePrefixPunc, value.FromText());
+    }
 
     /// <inheritdoc />
 #if XmlSerialization
     [XmlAttribute]
 #endif
     [DefaultValue(cEscapePrefixDefault)]
-    public string EscapePrefix
+    public char EscapePrefixChar
     {
-      get => m_EscapePrefixPunc.Text();
-      set
-      {
-        if (m_EscapePrefixPunc.SetText(value))
-          NotifyPropertyChanged();
-      }
+      get => m_EscapePrefixPunc;
+      set => SetProperty(ref m_EscapePrefixPunc, value);
+    }
+    
+    [JsonIgnore]    
+    [Obsolete("Use FieldDelimiterChar")]
+    public string FieldDelimiter
+    {
+      get => m_FieldDelimiterPunc.Text();
+      set => SetProperty(ref m_FieldDelimiterPunc, value.FromText());
     }
 
     /// <inheritdoc />
@@ -185,44 +193,30 @@ namespace CsvTools
     [XmlAttribute]
 #endif
     [DefaultValue(cFieldDelimiterDefault)]
-    public string FieldDelimiter
+    public char FieldDelimiterChar
     {
-      get => m_FieldDelimiterPunc.Text();
-      set
-      {
-        if (m_FieldDelimiterPunc.SetText(value))
-          NotifyPropertyChanged();
-      }
+      get => m_FieldDelimiterPunc;
+      set => SetProperty(ref m_FieldDelimiterPunc, value);
     }
-
-    /// <inheritdoc />
-#if XmlSerialization
-    [XmlIgnore]
-#endif
-    [JsonIgnore]
-    public char FieldDelimiterChar => m_FieldDelimiterPunc;
+    
+    [JsonIgnore]    
+    [Obsolete("Use FieldQualifierChar")]
+    public string FieldQualifier
+    {
+      get => m_FieldQualifierPunc.Text();
+      set => SetProperty(ref m_FieldQualifierPunc, value.FromText());
+    }
 
     /// <inheritdoc />
 #if XmlSerialization
     [XmlAttribute]
 #endif
     [DefaultValue(cFieldQualifierDefault)]
-    public string FieldQualifier
+    public char FieldQualifierChar
     {
-      get => m_FieldQualifierPunc.Text();
-      set
-      {
-        if (m_FieldQualifierPunc.SetText(value))
-          NotifyPropertyChanged();
-      }
+      get => m_FieldQualifierPunc;
+      set => SetProperty(ref m_FieldQualifierPunc, value);
     }
-
-    /// <inheritdoc />
-#if XmlSerialization
-    [XmlIgnore]
-#endif
-    [JsonIgnore]
-    public char FieldQualifierChar => m_FieldQualifierPunc;
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -232,7 +226,7 @@ namespace CsvTools
     public RecordDelimiterTypeEnum NewLine
     {
       get => m_NewLine;
-      set => SetProperty(ref m_NewLine, value);   
+      set => SetProperty(ref m_NewLine, value);
     }
 
     /// <inheritdoc />
@@ -474,16 +468,14 @@ namespace CsvTools
       csv.ContextSensitiveQualifier = ContextSensitiveQualifier;
       csv.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
       csv.DelimiterPlaceholder = DelimiterPlaceholder;
-      csv.EscapePrefix = EscapePrefix;
-      csv.FieldDelimiter = FieldDelimiter;
-      csv.FieldQualifier = FieldQualifier;
+      csv.EscapePrefixChar = EscapePrefixChar;
+      csv.FieldDelimiterChar = FieldDelimiterChar;
+      csv.FieldQualifierChar = FieldQualifierChar;
       csv.NewLine = NewLine;
       csv.NewLinePlaceholder = NewLinePlaceholder;
       csv.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       csv.QualifyAlways = QualifyAlways;
       csv.QualifierPlaceholder = QualifierPlaceholder;
-
-      csv.LastChange = LastChange;
     }
 
     /// <inheritdoc />

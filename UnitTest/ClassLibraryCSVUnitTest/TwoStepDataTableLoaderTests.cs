@@ -21,7 +21,7 @@ namespace CsvTools.Tests
       using var tsde = new SteppedDataTableLoader();
       var csv = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FieldDelimiter = ",",
+        FieldDelimiterChar = ',',
         CommentLine = "#"
       };
 

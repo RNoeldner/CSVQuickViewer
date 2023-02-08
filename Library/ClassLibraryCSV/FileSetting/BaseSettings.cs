@@ -579,17 +579,7 @@ namespace CsvTools
       get => m_WarningCount;
       set => SetProperty(ref m_WarningCount, value > 0 ? value : 0);
     }
-
-    /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
-    public virtual DateTime LastChange
-    {
-      get;
-      set;
-    } = DateTime.UtcNow;
-
+    
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
@@ -666,9 +656,7 @@ namespace CsvTools
       other.ID = ID;
       other.NumRecords = NumRecords;
       other.WarningCount = WarningCount;
-      other.ErrorCount = ErrorCount;
-      // should be done last... but it might well be trigger later
-      other.LastChange = LastChange;
+      other.ErrorCount = ErrorCount;      
     }
 
     /// <summary>
@@ -726,12 +714,6 @@ namespace CsvTools
         return false;
 
       return other.ColumnCollection.Equals(ColumnCollection);
-    }
-
-    protected override void NotifyPropertyChanged([CallerMemberName] string name = "")
-    {
-      LastChange = DateTime.UtcNow;
-      base.NotifyPropertyChanged(name);
     }
 
     /// <inheritdoc />

@@ -229,7 +229,7 @@ namespace CsvTools.Tests
     {
       var setting =
         new CsvFile(id: "DetermineColumnFormatFillGuessColumnFormatWriter",
-          fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true, FieldDelimiter = "," };
+          fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true, FieldDelimiterChar = ',' };
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true,
         ignoreIdColumns: false);
@@ -336,7 +336,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile("", UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FieldDelimiter = ",", HasFieldHeader = true
+        FieldDelimiterChar = ',', HasFieldHeader = true
       };
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true,
@@ -355,7 +355,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile("Sessions", UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
       };
 
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
@@ -380,7 +380,7 @@ namespace CsvTools.Tests
     public async Task FillGuessColumnFormatDoNotIgnoreIDAsync()
     {
       var setting =
-        new CsvFile("", UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiter = ",", HasFieldHeader = true };
+        new CsvFile("", UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiterChar = ',', HasFieldHeader = true };
 
 #pragma warning disable CS0618
       var fillGuessSettings = new FillGuessSettings
@@ -408,7 +408,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("DateAndNumber.csv"))
       {
-        HasFieldHeader = true, FieldQualifier = "Quote", FieldDelimiter = "Tab", CodePageId = 1252
+        HasFieldHeader = true, FieldQualifierChar = "Quote".FromText(), FieldDelimiterChar = "Tab".FromText(), CodePageId = 1252
       };
       var fillGuessSettings = new FillGuessSettings(true, true, true, true, true, true, true, true, false);
 
@@ -435,7 +435,7 @@ namespace CsvTools.Tests
     public async Task FillGuessColumnFormatIgnoreID()
     {
       var setting =
-        new CsvFile("id", UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiter = ",", HasFieldHeader = true };
+        new CsvFile("id", UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiterChar = ',', HasFieldHeader = true };
 
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true, ignoreIdColumns: true);
@@ -454,7 +454,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = ','
       };
       var fillGuessSettings = new FillGuessSettings(ignoreIdColumns: true);
 
@@ -478,7 +478,7 @@ namespace CsvTools.Tests
 
       var setting = new CsvFile("AllFor", UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = ','
       };
 
       try
@@ -534,7 +534,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile("AllForCol", UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = ','
       };
       setting.ColumnCollection.Clear();
 

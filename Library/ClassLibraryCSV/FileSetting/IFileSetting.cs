@@ -95,13 +95,6 @@ namespace CsvTools
     string ID { get; set; }
 
     /// <summary>
-    ///   Gets the time of the last change in the setting, this is not used for equality but its
-    ///   copied over.
-    /// </summary>
-    /// <value>Time of last change in UTC</value>
-    DateTime LastChange { get; set; }
-
-    /// <summary>
     ///   Gets or sets a value indicating whether this setting is critical for the export, meaning
     ///   the processing will throw an error in case of problems. You can flag a setting to not be
     ///   validated but it should show up as critical import step

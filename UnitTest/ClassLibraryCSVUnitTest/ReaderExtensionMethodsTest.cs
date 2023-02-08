@@ -25,7 +25,7 @@ namespace CsvTools.Tests
   {
     private readonly CsvFile m_ValidSetting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FieldDelimiter = ",",
+      FieldDelimiterChar = ',',
       CommentLine = "#"
     };
 
@@ -180,7 +180,7 @@ namespace CsvTools.Tests
     public async Task GetDataTableAsync3()
     {
       var test3 =
-        new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
+        new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiterChar = '\t' };
       test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,

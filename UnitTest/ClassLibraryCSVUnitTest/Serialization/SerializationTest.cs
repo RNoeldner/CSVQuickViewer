@@ -93,12 +93,12 @@ namespace CsvTools.Tests
     public void CsvFile()
     {
       var input = new CsvFile(id: "csv", fileName: "MyTest.txt");
-      input.FieldQualifier = "'";
+      input.FieldQualifierChar =  '\'';
 
       var output = UnitTestStatic.RunSerialize(input);
 
       Assert.AreEqual(input.FileName, output.FileName);
-      Assert.AreEqual(input.FieldQualifier, output.FieldQualifier);
+      Assert.AreEqual(input.FieldQualifierChar, output.FieldQualifierChar);
     }
 
     [TestMethod]

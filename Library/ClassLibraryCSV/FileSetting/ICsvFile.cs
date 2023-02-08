@@ -111,43 +111,23 @@ namespace CsvTools
     bool WarnUnknownCharacter { get; set; }
 
     /// <summary>
-    ///   Gets the escape prefix as character <see cref="EscapePrefix"/>
+    ///   Gets the escape prefix as character
     /// </summary>
     /// <value>The field delimiter char.</value>
     /// <remarks>If \0, the quote are often repeated to escape them</remarks>
-    char EscapePrefixChar { get; }
+    char EscapePrefixChar { get; set; }
 
     /// <summary>
-    ///   Get and Sets the text representation of the escape prefix, in order to include a delimiter or quote in the text, these could
-    ///   be escaped and would not be recognized a end of the text.
-    /// </summary>    
-    /// <remarks>Common values are "\"<br/>If not set, it is assumed no escaping is needed </remarks>
-    string EscapePrefix { get; set; }
-
-    /// <summary>
-    ///   Gets the field delimiter as character <see cref="FieldDelimiter"/>
+    ///   Gets the field delimiter as character
     /// </summary>
     /// <value>The field delimiter char.</value>
-    char FieldDelimiterChar { get; }
+    char FieldDelimiterChar { get; set; }
 
     /// <summary>
-    ///   Get and Sets the text representation of the the delimiter, this delimiter separates two columns.
+    ///  Gets the qualifier character as character
     /// </summary>
     /// <value>The field delimiter char.</value>
-    string FieldDelimiter { get; set; }
-
-    /// <summary>
-    ///  Gets the qualifier character as character <see cref="FieldQualifier"/>
-    /// </summary>
-    /// <value>The field delimiter char.</value>
-    char FieldQualifierChar { get; }
-
-    /// <summary>
-    ///   Get and Sets the text representation of the field qualifier character also called quoting character, this may surround a column
-    ///    so it may contain the delimiter or a linefeed without breaking the structure of the columns
-    /// </summary>
-    /// <value>The field delimiter char.</value>
-    string FieldQualifier { get; set; }    
+    char FieldQualifierChar { get; set; }
 
     /// <summary>
     ///  Get or Sets a value determining the record separator used writing a delimited text file

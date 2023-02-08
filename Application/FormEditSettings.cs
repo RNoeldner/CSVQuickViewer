@@ -76,13 +76,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
 
       if (!m_ViewSettings.GuessEscapePrefix)
-        m_ViewSettings.DefaultInspectionResult.EscapePrefix = textBoxEscapeRead.Text.FromText();
+        m_ViewSettings.DefaultInspectionResult.EscapePrefix = textBoxEscapeRead.Character;
 
       if (!m_ViewSettings.GuessComment)
         m_ViewSettings.DefaultInspectionResult.CommentLine = textBoxComment.Text;
 
       if (!m_ViewSettings.GuessDelimiter)
-        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = textBoxDelimiter.Text.FromText();
+        m_ViewSettings.DefaultInspectionResult.FieldDelimiter = textBoxDelimiter.Character;
       if (!m_ViewSettings.GuessHasHeader)
         m_ViewSettings.DefaultInspectionResult.HasFieldHeader = checkBoxHeader.Checked;
 
@@ -183,7 +183,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           var res = await textReader.InspectDelimiterAsync(csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, null, m_CancellationTokenSource.Token);
           if (res.IsDetected)
-            csvFile.FieldDelimiter = res.Delimiter.ToStringHandle0();
+            csvFile.FieldDelimiterChar = res.Delimiter;
         });
     }
 
@@ -200,7 +200,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.GetPossibleQualifier.ToCharArray(), m_CancellationTokenSource.Token);
-          csvFile.FieldQualifier = res.QuoteChar.ToString();
+          csvFile.FieldQualifierChar = res.QuoteChar;
           if (res.DuplicateQualifier)
             csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
           if (!csvFile.ContextSensitiveQualifier)
@@ -264,9 +264,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
 
-        textBoxEscapeRead.Text = m_ViewSettings.DefaultInspectionResult.EscapePrefix.Text();
+        textBoxDelimiter.Character = m_ViewSettings.DefaultInspectionResult.FieldDelimiter;
+        textBoxEscapeRead.Character = m_ViewSettings.DefaultInspectionResult.EscapePrefix;
         textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
-        textBoxDelimiter.Text = m_ViewSettings.DefaultInspectionResult.FieldDelimiter.Text();
 
         if (!m_ViewSettings.GuessHasHeader)
           checkBoxHeader.Checked = m_ViewSettings.DefaultInspectionResult.HasFieldHeader;
@@ -277,7 +277,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
           quotingControl.CsvFile.DuplicateQualifierToEscape =
             m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
-          quotingControl.CsvFile.FieldQualifier = m_ViewSettings.DefaultInspectionResult.FieldQualifier.Text();
+          quotingControl.CsvFile.FieldQualifierChar = m_ViewSettings.DefaultInspectionResult.FieldQualifier;
         }
         numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
       }
@@ -318,20 +318,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         });
     }
 
-    private void TextBoxDelimiter_TextChanged(object? sender, EventArgs e)
+    private void PunctuationTextBoxValidated(object? sender, EventArgs e)
     {
-      if (string.IsNullOrWhiteSpace(textBoxDelimiter.Text))
+      if (sender is PunctuationTextBox punctuation)
       {
-        errorProvider.SetError(textBoxDelimiter, "The delimiter must be set");
-      }
-      else
-      {
-        var delimiter = textBoxDelimiter.Text.FromText();
-
-        if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
-          errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");
+        if (punctuation.Character == '\0')
+          errorProvider.SetError(punctuation, "The delimiter must be set");
         else
-          errorProvider.SetError(textBoxDelimiter, string.Empty);
+        {
+          var delimiter = punctuation.Character;
+          if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
+            errorProvider.SetError(punctuation, "Unusual delimiter character");
+          else
+            errorProvider.SetError(punctuation, string.Empty);
+        }
       }
     }
 
@@ -420,8 +420,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           using var textReader = await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
-          csvFile.EscapePrefix = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar, m_CancellationTokenSource.Token)).ToStringHandle0();
+          csvFile.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar, m_CancellationTokenSource.Token));
         });
+    }
+
+    private void EscapeValidated(object sender, EventArgs e)
+    {
+      if (sender is PunctuationTextBox punctuation && punctuation.Character != '\0')
+      {
+        var delimiter = punctuation.Character;
+        if (delimiter != '/' && delimiter != '\\')
+          errorProvider.SetError(punctuation, "Unusual Escape character");
+        else
+          errorProvider.SetError(punctuation, string.Empty);
+      }
     }
   }
 }

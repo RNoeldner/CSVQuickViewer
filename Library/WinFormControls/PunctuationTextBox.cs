@@ -1,14 +1,12 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
-  [System.ComponentModel.DefaultBindingProperty("Character")]
-  public partial class PunctuationTextBox : UserControl
+  [DefaultBindingProperty(nameof(Character))]
+  public sealed class PunctuationTextBox : TextBox
   {
     private char m_Character;
-    
     [Browsable(true)]
     [Bindable(true)]
     [DefaultValue(char.MinValue)]
@@ -17,20 +15,20 @@ namespace CsvTools
       get => m_Character;
       set
       {
-        m_Character = value;
-        textBox.Text = m_Character.Text();
+        if (m_Character != value)
+        {
+          m_Character = value;
+          Text = m_Character.Text();
+        }
       }
     }
 
     public PunctuationTextBox()
     {
-      InitializeComponent();
-      TextChanged += (sender, args) => m_Character.SetText(Text);
+      Validating += PunctuationTextBox_Validating;
     }
 
-    private void textBox_TextChanged(object sender, EventArgs e)
-    {
-      m_Character.SetText(textBox.Text);
-    }
+    private void PunctuationTextBox_Validating(object? sender, CancelEventArgs e)
+      => Character = Text.FromText();
   }
 }

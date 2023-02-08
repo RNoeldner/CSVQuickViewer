@@ -33,7 +33,7 @@ namespace CsvTools.Tests
     private readonly CsvFile m_ValidSetting =
       new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FieldDelimiter = ",", CommentLine = "#"
+        FieldDelimiterChar = ',', CommentLine = "#"
       };
 
     [TestInitialize]
@@ -95,7 +95,7 @@ namespace CsvTools.Tests
       var setting =
         new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
         {
-          HasFieldHeader = true, FieldDelimiter = "|", FieldQualifier = "\"", SkipEmptyLines = false
+          HasFieldHeader = true, FieldDelimiterChar = '|', FieldQualifierChar = '"', SkipEmptyLines = false
         };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -148,8 +148,8 @@ namespace CsvTools.Tests
         TreatLfAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
-        FieldDelimiter = "Tab",
-        FieldQualifier = string.Empty
+        FieldDelimiterChar = '\t',
+        FieldQualifierChar = char.MinValue
       };
       basIssues.ColumnCollection.Add(new Column("effectiveDate",
         new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")));
@@ -455,7 +455,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("TestFile.txt"))
       {
-        CodePageId = 65001, FieldDelimiter = "tab"
+        CodePageId = 65001, FieldDelimiterChar = '\t'
       };
 
       csvFile.ColumnCollection.Add(new Column("Title", new ValueFormat(DataTypeEnum.DateTime)));
@@ -1410,9 +1410,8 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false, SkipRows = 1
       };
-      setting.FieldQualifier = "XX";
-      setting.FieldDelimiter = ",,";
-
+      setting.FieldQualifierChar = 'x';
+      setting.FieldDelimiterChar = ',';
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
@@ -1441,7 +1440,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = "\r"
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = '\r'
       };
       var exception = false;
       try
@@ -1483,7 +1482,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Carriage return"
+        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = "Carriage return".FromText()
       };
       var exception = false;
       try
@@ -1525,7 +1524,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Line feed"
+        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = "Line feed".FromText()
       };
       var exception = false;
       try
@@ -1569,7 +1568,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = true, CodePageId = 0
       };
-      setting.FieldDelimiter = ",";
+      setting.FieldDelimiterChar = ',';
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
                setting.HasFieldHeader, setting.ColumnCollection,
                setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
@@ -1595,7 +1594,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = "\n"
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = '\n'
       };
       var exception = false;
       try
@@ -1636,7 +1635,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile("id", UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = " "
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = " ".FromText()
       };
       var exception = false;
       try
@@ -1677,9 +1676,9 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "\""
+        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = '"'
       };
-      setting.FieldDelimiter = setting.FieldQualifier;
+      setting.FieldDelimiterChar = setting.FieldQualifierChar;
       var exception = false;
       try
       {
@@ -2235,7 +2234,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = ","
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,

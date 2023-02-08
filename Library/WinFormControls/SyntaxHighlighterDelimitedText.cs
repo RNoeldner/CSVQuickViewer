@@ -35,15 +35,12 @@ namespace CsvTools
     //private readonly Regex m_TabRegex1 = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled);
 
-    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifierText, string delimiterText, string escapeText,
+    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, char qualifier, char delimiter, char escape,
       string comment) : base(textBox)
-    {
-      var qualifier = qualifierText.FromText();
-      var delimiter = delimiterText.FromText();
+    {            
       if (delimiter == char.MinValue)
         delimiter = '\t';
-
-      var escape = escapeText.FromText();
+      
       m_DelimiterRegex = new Regex(escape == char.MinValue ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 

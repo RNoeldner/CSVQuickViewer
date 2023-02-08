@@ -976,11 +976,11 @@ namespace CsvTools
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
 
         if (FileSetting is ICsvFile csv)
-          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix,
+          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
             csv.CodePageId,
             FileSetting.SkipRows, csv.CommentLine, m_CancellationToken);
         else
-          await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, "", "", "", 65001, FileSetting.SkipRows, "",
+          await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, '\0', '\0', '\0', 65001, FileSetting.SkipRows, "",
             m_CancellationToken);
       }, ParentForm);
     }

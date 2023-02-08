@@ -15,7 +15,9 @@ namespace CsvTools
     {
     }
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public FindSkipRows(ICsvFile csvFile)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
       InitializeComponent();
       m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
@@ -24,9 +26,7 @@ namespace CsvTools
       if (sa.FileType != FileTypeEnum.Plain)
         throw new NotSupportedException("Any file that is not a plain text is not supported.");
 
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text,
-        m_CsvFile.EscapePrefixChar.ToStringHandle0(),
-        textBoxComment.Text);
+      DifferentSyntaxHighlighter(this, EventArgs.Empty);
     }
 
     private void HighlightVisibleRange(int skipRows)
@@ -56,8 +56,8 @@ namespace CsvTools
       formProgress.Maximum = 0;
       using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));
       using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
-      m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Text.FromText(), m_TextBoxQuote.Text.FromText(), 
-        textBoxEscape.Text.FromText(), textBoxComment.Text,
+      m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Character, m_TextBoxQuote.Character,
+        textBoxEscape.Character, textBoxComment.Text,
         formProgress.CancellationToken);
 
       HighlightVisibleRange(m_CsvFile.SkipRows);
@@ -66,8 +66,8 @@ namespace CsvTools
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
       m_HighLighter.Dispose();
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text,
-        m_CsvFile.EscapePrefix, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Character, textBoxDelimiter.Character,
+            textBoxEscape.Character, textBoxComment.Text);
       HighlightVisibleRange(m_CsvFile.SkipRows);
     }
 
