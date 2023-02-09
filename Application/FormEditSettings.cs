@@ -199,7 +199,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
-          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.GetPossibleQualifier.ToCharArray(), m_CancellationTokenSource.Token);
+          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.PossibleQualifier.ToCharArray(), m_CancellationTokenSource.Token);
           csvFile.FieldQualifierChar = res.QuoteChar;
           if (res.DuplicateQualifier)
             csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
@@ -318,22 +318,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         });
     }
 
-    private void PunctuationTextBoxValidated(object? sender, EventArgs e)
-    {
-      if (sender is PunctuationTextBox punctuation)
-      {
-        if (punctuation.Character == '\0')
-          errorProvider.SetError(punctuation, "The delimiter must be set");
-        else
-        {
-          var delimiter = punctuation.Character;
-          if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
-            errorProvider.SetError(punctuation, "Unusual delimiter character");
-          else
-            errorProvider.SetError(punctuation, string.Empty);
-        }
-      }
-    }
 
     private void TextBoxFile_Validating(object? sender, CancelEventArgs e)
     {
@@ -422,18 +406,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var textReader = await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           csvFile.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar, m_CancellationTokenSource.Token));
         });
-    }
-
-    private void EscapeValidated(object sender, EventArgs e)
-    {
-      if (sender is PunctuationTextBox punctuation && punctuation.Character != '\0')
-      {
-        var delimiter = punctuation.Character;
-        if (delimiter != '/' && delimiter != '\\')
-          errorProvider.SetError(punctuation, "Unusual Escape character");
-        else
-          errorProvider.SetError(punctuation, string.Empty);
-      }
-    }
+    } 
   }
 }

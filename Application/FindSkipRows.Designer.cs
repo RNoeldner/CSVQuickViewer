@@ -134,10 +134,6 @@
       // textBoxDelimiter
       // 
       this.textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab"});
-      this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldDelimiterChar", true));
       this.textBoxDelimiter.Location = new System.Drawing.Point(232, 3);
       this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
@@ -145,6 +141,7 @@
       this.textBoxDelimiter.Name = "textBoxDelimiter";
       this.textBoxDelimiter.Size = new System.Drawing.Size(67, 20);
       this.textBoxDelimiter.TabIndex = 123;
+      this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
       this.textBoxDelimiter.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
       // 
       // label5
@@ -186,14 +183,13 @@
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(2, 55);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);
       this.textBox.Name = "textBox";
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
       this.textBox.ReadOnly = true;
-      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));      
       this.textBox.Size = new System.Drawing.Size(609, 542);
       this.textBox.TabIndex = 126;
       this.textBox.WordWrap = true;
@@ -208,6 +204,7 @@
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
       this.m_TextBoxQuote.Size = new System.Drawing.Size(58, 20);
       this.m_TextBoxQuote.TabIndex = 129;
+      this.m_TextBoxQuote.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
       this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
       // 
       // numericUpDownSkipRows
@@ -232,11 +229,7 @@
       // 
       // textBoxEscape
       // 
-      this.textBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxEscape.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab"});
-      this.textBoxEscape.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxEscape.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      this.textBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;   
       this.textBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "EscapePrefixChar", true));
       this.textBoxEscape.Location = new System.Drawing.Point(353, 3);
       this.textBoxEscape.Margin = new System.Windows.Forms.Padding(2);
@@ -244,6 +237,7 @@
       this.textBoxEscape.Name = "textBoxEscape";
       this.textBoxEscape.Size = new System.Drawing.Size(67, 20);
       this.textBoxEscape.TabIndex = 123;
+      this.textBoxEscape.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
       this.textBoxEscape.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
       // 
       // buttonSkipLine

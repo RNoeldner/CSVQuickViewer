@@ -46,6 +46,8 @@ namespace CsvTools
     {
       '\0' => string.Empty,
       '\t' => "Tab",
+      '\r' => "CR",
+      '\n' => "LF",
       ' ' => "Space",
       '\u00A0' => "NBSP",
       '\u001F' => "US",

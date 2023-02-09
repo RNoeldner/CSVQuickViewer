@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +10,7 @@ namespace CsvTools
     /// <summary>
     /// \ / and ?
     /// </summary>
-    private static string GetPossibleEscapePrefix() => "\\/?";
+    public static string PossibleEscapePrefix = "\\/?";
 
     /// <summary>
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
@@ -28,7 +27,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(textReader));
 
       // The characters that could be an escape, most likely its a \ 
-      var checkedEscapeChars = GetPossibleEscapePrefix().ToCharArray();
+      var checkedEscapeChars = PossibleEscapePrefix.ToCharArray();
 
       // build a list of all characters that would indicate a sequence
       var possibleEscaped = new HashSet<char>(checkedEscapeChars);
@@ -39,7 +38,7 @@ namespace CsvTools
         possibleEscaped.Add(fieldQualifierChar);
       foreach (var escaped in DelimiterCounter.GetPossibleDelimiters())
         possibleEscaped.Add(escaped);
-      foreach (var escaped in DetectionQualifier.GetPossibleQualifier)
+      foreach (var escaped in DetectionQualifier.PossibleQualifier)
         possibleEscaped.Add(escaped);
 
       var score = new int[checkedEscapeChars.Length];

@@ -614,19 +614,16 @@ namespace CsvTools
       this.textBoxEscapeRead.TabIndex = 28;
       this.toolTip.SetToolTip(this.textBoxEscapeRead, "An escape character is used for escaping quotes and delimiters in the regular tex" +
         "t. ");
+      this.textBoxEscapeRead.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
       // 
       // textBoxDelimiter
       // 
-      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab"});
-      this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldDelimiterChar", true));
       this.textBoxDelimiter.Location = new System.Drawing.Point(111, 84);
       this.textBoxDelimiter.Name = "textBoxDelimiter";
       this.textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
       this.textBoxDelimiter.TabIndex = 11;
-      this.textBoxDelimiter.Validated += new System.EventHandler(this.PunctuationTextBoxValidated);
+      this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;      
       // 
       // checkBoxTreatNBSPAsSpace
       // 
@@ -1357,10 +1354,6 @@ namespace CsvTools
       // textBoxWriteDelim
       // 
       this.textBoxWriteDelim.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxWriteDelim.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab"});
-      this.textBoxWriteDelim.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxWriteDelim.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxWriteDelim.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceWrite, "FieldDelimiterChar", true));
       this.textBoxWriteDelim.Location = new System.Drawing.Point(115, 27);
       this.textBoxWriteDelim.Margin = new System.Windows.Forms.Padding(2);
@@ -1368,7 +1361,7 @@ namespace CsvTools
       this.textBoxWriteDelim.Name = "textBoxWriteDelim";
       this.textBoxWriteDelim.Size = new System.Drawing.Size(62, 20);
       this.textBoxWriteDelim.TabIndex = 4;
-      this.textBoxWriteDelim.Validated += new System.EventHandler(this.PunctuationTextBoxValidated);
+      this.textBoxWriteDelim.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;      
       // 
       // cboWriteCodePage
       // 
@@ -1418,7 +1411,7 @@ namespace CsvTools
       this.textBoxEscapeWrite.Name = "textBoxEscapeWrite";
       this.textBoxEscapeWrite.Size = new System.Drawing.Size(62, 20);
       this.textBoxEscapeWrite.TabIndex = 10;
-      this.textBoxEscapeWrite.Validated += new System.EventHandler(this.EscapeValidated);
+      this.textBoxEscapeWrite.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;      
       // 
       // FormEditSettings
       // 
