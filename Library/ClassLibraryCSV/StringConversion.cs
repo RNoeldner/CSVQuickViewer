@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public static class StringConversion
   {
-    internal static readonly IReadOnlyCollection<string> DateSeparators =
+    public static readonly IReadOnlyCollection<string> DateSeparators =
       new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" },
         StringComparer.Ordinal);
 
@@ -37,11 +37,11 @@ namespace CsvTools
       new HashSet<string>(new[] { CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol, "$", "€", "£", "¥", "¢", "₨" },
         StringComparer.Ordinal);
 
-    internal static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
+    public static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" },
       StringComparer.Ordinal);
 
-    internal static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
+    public static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
 
     // used to get rid of numeric suffixes like 12th or 3rd

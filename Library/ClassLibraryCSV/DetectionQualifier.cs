@@ -13,7 +13,7 @@ namespace CsvTools
     /// <summary>
     /// " and '
     /// </summary>
-    public static readonly string GetPossibleQualifier = "\"'";
+    public static readonly string PossibleQualifier = "\"'";
 
     /// <summary>
     ///   Try to determine quote character, by looking at the file and doing a quick analysis

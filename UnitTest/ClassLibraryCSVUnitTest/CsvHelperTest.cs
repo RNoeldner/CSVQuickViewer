@@ -479,7 +479,7 @@ namespace CsvTools.Tests
         FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("TextQualifiers.txt")));
 
       using var textReader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual('"', (textReader.InspectQualifier('\t', '\\', DetectionQualifier.GetPossibleQualifier, UnitTestStatic.Token)).QuoteChar);
+      Assert.AreEqual('"', (textReader.InspectQualifier('\t', '\\', DetectionQualifier.PossibleQualifier, UnitTestStatic.Token)).QuoteChar);
     }
 
     [TestMethod]
@@ -488,7 +488,7 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1.txt")));
 
       using var textReader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual('"', (textReader.InspectQualifier('\t', '\\', DetectionQualifier.GetPossibleQualifier, UnitTestStatic.Token)).QuoteChar);
+      Assert.AreEqual('"', (textReader.InspectQualifier('\t', '\\', DetectionQualifier.PossibleQualifier, UnitTestStatic.Token)).QuoteChar);
     }
 
     [TestMethod]
@@ -498,7 +498,7 @@ namespace CsvTools.Tests
         FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1Reverse.txt")));
 
       using var textReader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual("'", textReader.InspectQualifier('\t', '\\', DetectionQualifier.GetPossibleQualifier, UnitTestStatic.Token).QuoteChar.ToString());
+      Assert.AreEqual("'", textReader.InspectQualifier('\t', '\\', DetectionQualifier.PossibleQualifier, UnitTestStatic.Token).QuoteChar.ToString());
     }
 
     [TestMethod]
