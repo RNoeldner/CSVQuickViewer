@@ -25,7 +25,7 @@ namespace CsvTools
 {
   /// <summary>
   ///   Collection of static functions for string
-  /// </summary>
+  /// </summary>  
   [DebuggerStepThrough]
   public static class StringUtils
   {
@@ -38,7 +38,7 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
+    public static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -47,9 +47,9 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIDColumn(in string? columnName)
+    public static int AssumeIDColumn(in string columnName)
     {
-      if (columnName is null || columnName.TrimEnd().Length == 0)
+      if (columnName.TrimEnd().Length == 0)
         return 0;
 
       if (columnName.EndsWith(" Text", StringComparison.OrdinalIgnoreCase))
@@ -64,13 +64,36 @@ namespace CsvTools
 
       if (columnName.EndsWith(" ID", StringComparison.OrdinalIgnoreCase))
         return 3;
-      if ((columnName.EndsWith("ID", StringComparison.Ordinal) || columnName.EndsWith("Id", StringComparison.Ordinal)) && 
+      if ((columnName.EndsWith("ID", StringComparison.Ordinal) || columnName.EndsWith("Id", StringComparison.Ordinal)) &&
           !columnName.EndsWith("GUID", StringComparison.OrdinalIgnoreCase))
         return 2;
       return 0;
     }
 
-    /// <summary>
+    public static int AssumeIDColumn(in ReadOnlySpan<char> columnName)
+    {
+      if (columnName.TrimEnd().Length == 0)
+        return 0;
+
+      if (columnName.EndsWith(" Text".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return 5;
+      if (columnName.EndsWith("Text".AsSpan(), StringComparison.Ordinal))
+        return 4;
+
+      if (columnName.EndsWith(" Ref".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return 4;
+      if (columnName.EndsWith("Ref".AsSpan(), StringComparison.Ordinal))
+        return 3;
+
+      if (columnName.EndsWith(" ID".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return 3;
+      if ((columnName.EndsWith("ID".AsSpan(), StringComparison.Ordinal) || columnName.EndsWith("Id".AsSpan(), StringComparison.Ordinal)) &&
+          !columnName.EndsWith("GUID".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return 2;
+      return 0;
+    }
+
+    /// <summary> 
     ///   Determines whether this text contains the another text
     /// </summary>
     /// <param name="text">The text to be checked</param>
@@ -131,9 +154,9 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string?> parts, in string joinWith = ", ")
+    public static string Join(this IEnumerable<string> parts, in string joinWith)
     {
-      var sb = new StringBuilder();
+      var sb = new StringBuilder(100);
       foreach (var part in parts)
       {
         if (string.IsNullOrEmpty(part))
@@ -142,7 +165,6 @@ namespace CsvTools
           sb.Append(joinWith);
         sb.Append(part);
       }
-
       return sb.ToString();
     }
 
@@ -311,10 +333,23 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitByDelimiter(in string? inputValue) =>
-      inputValue is null || inputValue.Length == 0
-        ? Array.Empty<string>()
-        : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+    public static string[] SplitByDelimiter(in string inputValue) =>
+      inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+
+    //#if NET7_0_OR_GREATER
+    //    public static IEnumerable<ReadOnlySpan<char>> SplitByDelimiter(this ReadOnlySpan<char> inputValue)
+    //    {
+    //      var start = 0;
+    //      var end = inputValue.IndexOfAny(m_DelimiterChar);
+    //      while (end!=-1)
+    //      {
+    //        yield return inputValue.Slice(start, end-start-1);
+    //        start = end;
+    //      }
+    //      end = inputValue.Length;
+    //      yield return inputValue.Slice(start, end-start-1);
+    //    }
+    //#endif
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
@@ -325,12 +360,47 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
-    ///   SQLs the quote, does not include the outer quotes
+    ///   Escapes SQL names; does not include the brackets or quotes, working with ReadOnlySpan is not faster but memory effecient
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns>The names as it can be placed into brackets</returns>
+    public static ReadOnlySpan<char> SqlName(this ReadOnlySpan<char> contents)
+      => ReplaceDuplicate(contents, ']');
+
+    private static ReadOnlySpan<char> ReplaceDuplicate(this ReadOnlySpan<char> contents, char lookFor)
+    {
+      var counter = 0;
+      foreach (var chr in contents)
+        if (chr== lookFor) counter++;
+      if (counter==0)
+        return contents;
+      unsafe
+      {
+        Span<char> destination = stackalloc char[contents.Length + counter];
+        counter = 0;
+        for (var src = 0; src<contents.Length; src++)
+        {
+          destination[counter++] = contents[src];
+          if (contents[src] == lookFor)
+            destination[counter++] = lookFor;
+        }
+        return destination;
+      }
+    }
+
+    /// <summary>
+    ///   Handles quotes in SQLs, does not include the outer quotes
     /// </summary>
     /// <param name="contents">The contents.</param>
-    /// <returns></returns>
     public static string SqlQuote(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
+
+    /// <summary>
+    ///   Handles quotes in SQLs, does not include the outer quotes, working with ReadOnlySpan is not faster but memory effecient
+    /// </summary>
+    /// <param name="contents">The contents.</param>    
+    public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents)
+      => ReplaceDuplicate(contents, '\'');
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
@@ -339,15 +409,14 @@ namespace CsvTools
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
     /// <param name="result">The constant value without the " or '</param>
     /// <returns><c>true</c> if a constant was found</returns>
-    public static bool TryGetConstant(this string? entry, out string result)
+    public static bool TryGetConstant(this string entry, out string result)
     {
       result = string.Empty;
-      if (entry is null || entry.Length == 0)
+      if (entry.Length == 0)
         return false;
-
       if (entry.Length > 2
-          && ((entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal))
-              || (entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal))))
+          && ((entry[0] == '"' && entry[entry.Length-1]=='"')
+           || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;
@@ -359,5 +428,24 @@ namespace CsvTools
       result = entry;
       return true;
     }
+
+#if NET7_0_OR_GREATER
+    public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
+    {
+      result = entry;
+      if (entry.Length == 0)
+        return false;
+
+      if (entry.Length > 2
+          && ((entry[0] == '"' && entry[entry.Length-1]=='"')
+           || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
+      {
+        result = entry.Slice(1, entry.Length - 2);
+        return true;
+      }
+
+      return Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*");
+    }
+#endif
   }
 }

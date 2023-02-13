@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -83,10 +84,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="actual">The actual value.</param>
     /// <param name="dateFormat">The date format to check.</param>
-    /// <returns><c>true</c> if key was found</returns>
-    public bool DateLengthMatches(in string actual, in string dateFormat)
+    /// <returns><c>true</c> if key was found</returns>    
+    public bool DateLengthMatches(int actualLength, in string dateFormat)
     {
-      if (actual.Length<4)
+      if (actualLength<4)
         return false;
 
       if (Count==0)
@@ -98,7 +99,7 @@ namespace CsvTools
         base.Add(dateFormat, lengthMinMax);
       }
 
-      return actual.Length >= lengthMinMax.MinLength && actual.Length <= lengthMinMax.MaxLength;
+      return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
     }
   }
 }

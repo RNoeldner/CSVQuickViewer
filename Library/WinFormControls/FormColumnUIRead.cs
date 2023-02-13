@@ -367,7 +367,7 @@ namespace CsvTools
             text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
               dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator.ToStringHandle0(), timeSeparator.ToStringHandle0(), CultureInfo.CurrentCulture));
           }
-          labelSampleDisplay.Text = text.Join();
+          labelSampleDisplay.Text = text.Join(", ");
 
           if (timeZone.TryGetConstant(out var tz))
           {
@@ -489,13 +489,13 @@ namespace CsvTools
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(";");
+          m_ColumnEdit.ValueFormatMut.DateFormat = parts.JoinChar(';');
         }
 
         if (e.NewValue == CheckState.Checked || !isInList)
           return;
         parts.Remove(format);
-        m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(";");
+        m_ColumnEdit.ValueFormatMut.DateFormat = parts.JoinChar(';');
       }
     }
 
@@ -757,12 +757,12 @@ namespace CsvTools
     {
       comboBoxTPFormat.BeginUpdate();
       comboBoxTPFormat.Items.Clear();
-      comboBoxTPFormat.Items.AddRange(StringConversion.CommonTimeFormats().ToArray());
+      comboBoxTPFormat.Items.AddRange(DateTimeConstants.CommonTimeFormats().ToArray());
       comboBoxTPFormat.EndUpdate();
 
       checkedListBoxDateFormats.BeginUpdate();
       checkedListBoxDateFormats.Items.Clear();
-      checkedListBoxDateFormats.Items.AddRange(StringConversion.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
+      checkedListBoxDateFormats.Items.AddRange(DateTimeConstants.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
       checkedListBoxDateFormats.EndUpdate();
 
       // Check all items in parts

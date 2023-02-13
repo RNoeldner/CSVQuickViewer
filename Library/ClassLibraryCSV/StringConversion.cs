@@ -16,10 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace CsvTools
@@ -29,105 +27,6 @@ namespace CsvTools
   /// </summary>
   public static class StringConversion
   {
-    public static readonly IReadOnlyCollection<string> DateSeparators =
-      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" },
-        StringComparer.Ordinal);
-
-    internal static readonly IReadOnlyCollection<string> CurrencySymbols =
-      new HashSet<string>(new[] { CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol, "$", "€", "£", "¥", "¢", "₨" },
-        StringComparer.Ordinal);
-
-    public static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" },
-      StringComparer.Ordinal);
-
-    public static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
-
-    // used to get rid of numeric suffixes like 12th or 3rd
-    private static readonly Lazy<Regex> m_RegExNumberSuffixEnglish =
-      new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
-
-    /// <summary>
-    ///   The possible length of a date for a given format
-    /// </summary>
-    internal static readonly DateTimeFormatCollection StandardDateTimeFormats =
-      new DateTimeFormatCollection("DateTimeFormats.txt");
-
-    public static ICollection<string> CommonDateTimeFormats(string known)
-    {
-      var formatsTime = new HashSet<string>
-      {
-        CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern)
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        "MM/dd/yyyy",
-        "MM/dd/yyyy HH:mm:ss",
-        "M/d/yyyy",
-        "M/d/yyyy h:mm tt",
-        "M/d/yyyy h:mm:ss tt",
-        "dd/MM/yyyy",
-        "dd/MM/yyyy HH:mm:ss",
-        "d/MM/yyyy",
-        "yyyy/MM/dd",
-        "yyyy/MM/ddTHH:mm:ss",
-        "yyyy/MM/dd HH:mm:ss.FFF",
-        "yyyyMMdd",
-        "yyyyMMddTHH:mm:ss.FFF",
-      };
-      foreach (var format in CommonTimeFormats())
-        formatsTime.Add(format);
-      // gte the existing data as well
-      var parts = StringUtils.SplitByDelimiter(known);
-      foreach (var format in parts)
-        formatsTime.Add(format);
-
-      return formatsTime;
-    }
-
-
-    public static ICollection<string> CommonTimeFormats()
-    {
-      var formatsTime = new HashSet<string>
-      {
-        CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.FFF"};
-
-      return formatsTime;
-    }
-
-
-
-    [SuppressMessage("ReSharper", "StringLiteralTypo")]
-    private static readonly string[] m_FalseValues =
-    {
-      "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं", "झूठी", "نہيں", "نه", "نادرست", "لا",
-      "كاذبة", "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не", "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak",
-      "Sai", "Palsu", "nu", "Nr", "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive", "aus",
-      "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
-    };
-
-    /// <summary>
-    ///   A static value any time only value will have this date
-    /// </summary>
-    private static readonly DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
-
-    private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
-
-    [SuppressMessage("ReSharper", "StringLiteralTypo")]
-    private static readonly string[] m_TrueValues =
-    {
-      "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно", "Vero", "Veritable", "Vera", "Jah", "igen",
-      "真實", "真实", "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ", "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так",
-      "Ναι", "Αλήθεια", "Ya", "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant", "Sanna", "Sandt",
-      "Res", "Prawdziwe", "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano",
-      "Adevărat"
-    };
-
     /// <summary>
     ///   Check if a text does contains indications that suggest to use something else than DataType.String
     /// </summary>
@@ -417,19 +316,19 @@ namespace CsvTools
       in ValueFormat valueFormat,
       out bool timeColumnIssues)
     {
-      var dateValue = m_FirstDateTime;
+      var dateValue = DateTimeConstants.FirstDateTime;
       // We do have an associated column, with a proper date format
       if (dateColumn != null)
       {
         if (dateColumn is DateTime time)
           dateValue = time;
         else if (serialDateTime && dateColumn is double oaDate && oaDate > -657435.0 && oaDate < 2958466.0)
-          dateValue = m_FirstDateTime.AddDays(oaDate);
+          dateValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
       }
 
       // if we did not convert yet and we have a text use it
       // ReSharper disable once ReplaceWithStringIsNullOrEmpty
-      if (dateValue == m_FirstDateTime && dateColumnText != null && dateColumnText.Length > 0)
+      if (dateValue == DateTimeConstants.FirstDateTime && dateColumnText != null && dateColumnText.Length > 0)
       {
         var val = CombineStringsToDateTime(
           dateColumnText,
@@ -450,7 +349,7 @@ namespace CsvTools
           {
             if (oaDate > -657435.0 && oaDate < 2958466.0)
             {
-              var timeValue = m_FirstDateTime.AddDays(oaDate);
+              var timeValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
               timeSpanValue = new TimeSpan(
                 0,
                 timeValue.Hour,
@@ -482,10 +381,10 @@ namespace CsvTools
 
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
       // proper formatted value
-      if (dateValue == m_FirstDateTime && dateColumn is null
+      if (dateValue == DateTimeConstants.FirstDateTime && dateColumn is null
                                        && (dateColumnText is null || dateColumnText.Length == 0
                                                                   || !dateColumnText.Equals(
-                                                                    DateTimeToString(m_FirstDateTime, valueFormat),
+                                                                    DateTimeToString(DateTimeConstants.FirstDateTime, valueFormat),
                                                                     StringComparison.Ordinal)))
         return null;
 
@@ -524,7 +423,7 @@ namespace CsvTools
           // no date and no time, nothing to do
           if (timeP is null)
             return null;
-          return m_FirstDateTime.Add(timeP.Value);
+          return DateTimeConstants.FirstDateTime.Add(timeP.Value);
         }
         // In case a value is read that just is a time, need to adjust c# and Excel behavior the
         // application assumes all dates on cFirstDatetime is a time only
@@ -537,7 +436,7 @@ namespace CsvTools
       return time is null ? date : date.Value.Add(time.Value);
     }
 
-    public static string DateTimeToString(in DateTime dateTime, in ValueFormat format) =>
+    public static string DateTimeToString(this in DateTime dateTime, in ValueFormat format) =>
       DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
 
     /// <summary>
@@ -581,7 +480,7 @@ namespace CsvTools
 
       var strFormat = "{0:" + new string('0', pad) + "}".Replace("\\", "\uFFF9").Replace(":", "\uFFFA");
       return dateTime.ToString(
-        result.Replace("HH", string.Format(cultureInfo, strFormat, Math.Floor((dateTime - m_FirstDateTime).TotalHours))), cultureInfo)
+        result.Replace("HH", string.Format(cultureInfo, strFormat, Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours))), cultureInfo)
         .Replace("\uFFF9", dateSeparator).Replace("\uFFFA", timeSeparator);
     }
 
@@ -618,13 +517,13 @@ namespace CsvTools
         return dateTime.ToString("d", culture);
 
       if (IsDuration(dateTime))
-        return (dateTime - m_FirstDateTime).TotalHours.ToString(
-                 (dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00",
+        return (dateTime - DateTimeConstants.FirstDateTime).TotalHours.ToString(
+                 (dateTime - DateTimeConstants.FirstDateTime).TotalHours >= 100 ? "000" : "00",
                  CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - m_FirstDateTime).Minutes.ToString(
+                                               + (dateTime - DateTimeConstants.FirstDateTime).Minutes.ToString(
                                                  "00",
                                                  CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - m_FirstDateTime).Seconds.ToString(
+                                               + (dateTime - DateTimeConstants.FirstDateTime).Seconds.ToString(
                                                  "00",
                                                  CultureInfo.InvariantCulture);
       return dateTime.ToString("G", culture);
@@ -691,13 +590,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="ticks">The ticks.</param>
     /// <returns>A Time</returns>
-    public static DateTime GetTimeFromTicks(long ticks) => m_FirstDateTime.Add(new TimeSpan(ticks));
+    public static DateTime GetTimeFromTicks(this long ticks) => DateTimeConstants.FirstDateTime.Add(new TimeSpan(ticks));
 
     public static bool IsTimeOnly(this in DateTime dateTime) =>
-      dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay;
+      dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddDays(1);
 
     public static DateTime TimeOnly(this in DateTime dateTime) =>
-      m_FirstDateTime.Add(dateTime.TimeOfDay);
+      DateTimeConstants.FirstDateTime.Add(dateTime.TimeOfDay);
 
     /// <summary>
     ///   Parses a string to a boolean.
@@ -709,7 +608,7 @@ namespace CsvTools
     ///   <c>Null</c> if the value is empty, other wise <c>true</c> if identified as boolean or
     ///   <c>false</c> otherwise
     /// </returns>
-    public static bool? StringToBoolean(in string? value, in string? trueValue, in string? falseValue)
+    public static bool? StringToBoolean(in string? value, in string trueValue, in string falseValue)
     {
       if (value is null || value.Length == 0)
         return null;
@@ -718,6 +617,7 @@ namespace CsvTools
 
       return strictBool?.Item1;
     }
+
 
     /// <summary>
     ///   Check is a string is a boolean (strict).
@@ -729,7 +629,7 @@ namespace CsvTools
     ///   <c>Null</c> if the value can not be identified as boolean, other wise a tuple with
     ///   <c>true</c> or <c>false</c> and the value that had been used
     /// </returns>
-    internal static Tuple<bool, string>? StringToBooleanStrict(string? value, in string? trueValue, in string? falseValue)
+    internal static Tuple<bool, string>? StringToBooleanStrict(string? value, in string trueValue, in string falseValue)
     {
       if (value is null || value.Length == 0)
         return null;
@@ -740,13 +640,14 @@ namespace CsvTools
       if (StringUtils.SplitByDelimiter(falseValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
         return new Tuple<bool, string>(false, value);
 
-      if (m_TrueValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (StringCollections.m_TrueValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
         return new Tuple<bool, string>(true, value);
 
-      return m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase))
+      return StringCollections.m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase))
                ? new Tuple<bool, string>(false, value)
                : null;
     }
+
 
     /// <summary>
     ///   Parses a string to a date time value
@@ -820,7 +721,7 @@ namespace CsvTools
           || stringDateValue.IndexOf("nd ", StringComparison.OrdinalIgnoreCase) != -1
           || stringDateValue.IndexOf("st ", StringComparison.OrdinalIgnoreCase) != -1
           || stringDateValue.IndexOf("rd ", StringComparison.OrdinalIgnoreCase) != -1)
-        stringDateValue = m_RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
+        stringDateValue = StringCollections.m_RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
 
       // Quick check: If the entry is empty, or a constant string, or the length does not make
       // sense, we do not need to try and parse
@@ -830,7 +731,7 @@ namespace CsvTools
       var matchingDateTimeFormats = new List<string>();
       foreach (var dateTimeFormat in StringUtils.SplitByDelimiter((dateSeparator.Length == 0 && dateFormats.IndexOf('/') != -1) ? dateFormats.Replace("/", "") : dateFormats))
       {
-        if (StandardDateTimeFormats.DateLengthMatches(stringDateValue, dateTimeFormat))
+        if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormat))
           matchingDateTimeFormats.Add(dateTimeFormat);
         // In case of a date & time format add the date only format separately
         var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
@@ -838,7 +739,7 @@ namespace CsvTools
         if (indexHour > 4)
         {
           var dateOnlyFmt = dateTimeFormat.Substring(0, indexHour - 1).Trim();
-          if (StandardDateTimeFormats.DateLengthMatches(stringDateValue, dateOnlyFmt))
+          if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateOnlyFmt))
             matchingDateTimeFormats.Add(dateOnlyFmt);
         }
       }
@@ -853,6 +754,7 @@ namespace CsvTools
         timeSeparator,
         culture);
     }
+
 
     /// <summary>
     ///   Parses a string to a decimal
@@ -881,7 +783,7 @@ namespace CsvTools
 
       if (currencyRemoval)
       {
-        foreach (var currencySymbol in CurrencySymbols)
+        foreach (var currencySymbol in StringCollections.CurrencySymbols)
         {
           if (stringFieldValue.IndexOf(currencySymbol, StringComparison.OrdinalIgnoreCase) != -1)
             stringFieldValue = stringFieldValue.Replace(currencySymbol, string.Empty).Trim();
@@ -966,17 +868,10 @@ namespace CsvTools
     /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
     public static Guid? StringToGuid(in string? originalValue)
     {
-      // only try to do this if we have the right length
-      if (originalValue is null || originalValue.Length < 32 || originalValue.Length > 38)
+      if (Guid.TryParse(originalValue, out var result))
+        return result;
+      else
         return null;
-      try
-      {
-        return new Guid(originalValue);
-      }
-      catch (FormatException)
-      {
-        return null;
-      }
     }
 
     /// <summary>
@@ -1123,7 +1018,7 @@ namespace CsvTools
           return null;
         var dt = SerialStringToDateTime(stringTimeValue);
         if (dt.HasValue)
-          return new TimeSpan(dt.Value.Ticks - m_FirstDateTime.Ticks);
+          return new TimeSpan(dt.Value.Ticks - DateTimeConstants.FirstDateTime.Ticks);
 
         return null;
       }
@@ -1162,8 +1057,9 @@ namespace CsvTools
       return new TimeSpan(0, hours, min, sec);
     }
 
+
     private static bool IsDuration(in DateTime dateTime) =>
-      dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240);
+      dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddHours(240);
 
     /// <summary>
     ///   Tries to determine the date time assuming its an Excel serial date time, using regional
@@ -1178,7 +1074,7 @@ namespace CsvTools
       {
         var numberFormatProvider =
           new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
-        foreach (var decimalSeparator in DecimalSeparators)
+        foreach (var decimalSeparator in StringCollections.DecimalSeparators)
         {
           numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
           if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial))

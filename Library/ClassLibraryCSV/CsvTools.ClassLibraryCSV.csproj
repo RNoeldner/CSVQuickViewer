@@ -23,6 +23,7 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
 	  <DebugType>embedded</DebugType>
