@@ -17,7 +17,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class FormColumnUITests
+  public class FormColumnUITests : BasicMimic
+
   {
     [TestMethod]
     [Timeout(1000)]

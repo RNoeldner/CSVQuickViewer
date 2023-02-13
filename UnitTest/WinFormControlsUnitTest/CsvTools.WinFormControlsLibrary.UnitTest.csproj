@@ -22,6 +22,7 @@
 	  <None Remove=".runsettings" />
 	</ItemGroup>
 	<ItemGroup>
+		<Compile Include="..\..\..\FileValidator\UnitTest\ClassLibraryValidatorUnitTest\UnitTestInitialize.cs" Link="UnitTestInitialize.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />

@@ -25,6 +25,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable MergeIntoPattern
+// ReSharper disable ArrangeObjectCreationWhenTypeEvident
+// ReSharper disable VirtualMemberNeverOverridden.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable MemberCanBeProtected.Global
 
 namespace CsvTools
 {
@@ -81,8 +88,8 @@ namespace CsvTools
     /// </summary>
     private int m_FieldCount;
 
-    private bool m_AllowPercentage = true;
-    private bool m_RemoveCurrency = true;
+    private readonly bool m_AllowPercentage;
+    private readonly bool m_RemoveCurrency;
 
     /// <summary>
     ///   used to avoid reporting a fished execution twice it might be called on error before being
@@ -105,6 +112,8 @@ namespace CsvTools
     /// <param name="destTimeZone">
     ///   Name of the time zone datetime values that have a source time zone should be converted to
     /// </param>
+    /// <param name="allowPercentage">If <c>true</c> a percentage is converted to a decimal</param>
+    /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed top parse a currency value as decimal</param>
     protected BaseFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
@@ -285,7 +294,8 @@ namespace CsvTools
     /// </summary>
     public override void Close()
     {
-      EndOfFile = true;
+      if (!EndOfFile)
+        EndOfFile = true;
       base.Close();
     }
 
@@ -809,7 +819,6 @@ namespace CsvTools
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
     ///   ParseColumnName and last FinishOpen
     /// </summary>
-    /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
 
@@ -955,6 +964,7 @@ namespace CsvTools
         }
       }
 
+      // ReSharper disable once MergeIntoPattern
       if (dateTime.HasValue && dateTime.Value.Year > 1752 && dateTime.Value.Year <= 9999)
         return AdjustTz(dateTime.Value, column);
 
