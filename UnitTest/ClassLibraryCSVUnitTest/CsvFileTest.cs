@@ -243,7 +243,7 @@ namespace CsvTools.Tests
       var setting2 = new CsvFile(id: "ID2", fileName: "MyTest2.txt") { QualifyOnlyIfNeeded = false };
 
       setting1.ColumnCollection.Add(new Column("name", ValueFormat.Empty, 1));
-      var res = setting1.GetDifferences(setting2).Join();
+      var res = setting1.GetDifferences(setting2).Join(", ");
       Assert.IsNotNull(res);
 
       Assert.IsTrue(res.Contains("ID"), "ID");

@@ -726,7 +726,7 @@ namespace CsvTools
       // loop through the samples and filter out date separators that are not part of any sample
       var possibleDateSeparators = new List<string>();
       int best = int.MinValue;
-      foreach (var kv in StringConversion.DateSeparators.ToDictionary(sep => sep, sep =>
+      foreach (var kv in StringCollections.DateSeparators.ToDictionary(sep => sep, sep =>
                  samples.Count(entry => entry.IndexOf(sep, StringComparison.Ordinal) != -1)).OrderByDescending(x => x.Value))
       {
         // only take the separators that have been found, and then only takes the ones for the most rows
@@ -745,7 +745,7 @@ namespace CsvTools
           Logger.Warning("Multiple possible date separators : {dateSeparators}", possibleDateSeparators);
       }
 
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength))
+      foreach (var fmt in StringCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
           return checkResult;
@@ -803,11 +803,11 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(samples));
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
-      var possibleGrouping = StringConversion.DecimalGroupings.Where(
+      var possibleGrouping = StringCollections.DecimalGroupings.Where(
         decGroup => !string.IsNullOrEmpty(decGroup)
                     && samples.Any(smp => smp.IndexOf(decGroup, StringComparison.Ordinal) > -1)).ToList();
       possibleGrouping.Add(string.Empty);
-      var possibleDecimal = StringConversion.DecimalSeparators.Where(
+      var possibleDecimal = StringCollections.DecimalSeparators.Where(
         decSep => !string.IsNullOrEmpty(decSep)
                   && samples.Any(smp => smp.IndexOf(decSep, StringComparison.Ordinal) > -1)).ToList();
 
@@ -928,7 +928,7 @@ namespace CsvTools
       // Assume dates are of the same format across the files we check if the dates we have would
       // possibly match no matter how many samples we have this time we do not care about matching
       // length Check Date will cut off time information , this is independent from minRequiredSamples
-      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringConversion.StandardDateTimeFormats.DateLengthMatches(firstValue, othersValueFormatDate.DateFormat))
+      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringCollections.StandardDateTimeFormats.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = StringConversion.CheckDate(
           samples,

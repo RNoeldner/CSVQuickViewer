@@ -43,13 +43,13 @@ namespace CsvTools
           else if (m_Type == PunctuationType.List)
             m_Common=";,\t\r\n".ToCharArray();
           else if (m_Type == PunctuationType.Date)
-            m_Common=StringConversion.DateSeparators.Select(x => x.FromText()).ToArray();
+            m_Common=StringCollections.DateSeparators.Select(x => x.FromText()).ToArray();
           else if (m_Type == PunctuationType.Time)
             m_Common=":".ToCharArray();
           else if (m_Type == PunctuationType.Decimal)
-            m_Common=StringConversion.DecimalSeparators.Select(x => x.FromText()).ToArray();
+            m_Common=StringCollections.DecimalSeparators.Select(x => x.FromText()).ToArray();
           else if (m_Type == PunctuationType.Grouping)
-            m_Common=StringConversion.DecimalGroupings.Select(x => x.FromText()).ToArray();
+            m_Common=StringCollections.DecimalGroupings.Select(x => x.FromText()).ToArray();
         }
       }
     }
@@ -97,7 +97,7 @@ namespace CsvTools
       if (m_Common.Length>0 && !m_Common.Contains(Character) && Character != char.MinValue)
       {
         e.Cancel = true;
-        MessageBox.Show($"{Text} is not supported for {m_Type}\n\nChoose one of:\n{m_Common.Select(x => x.Text()).Join()}", $"Invalid {m_Type}", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, 1);
+        MessageBox.Show($"{Text} is not supported for {m_Type}\n\nChoose one of:\n{m_Common.Select(x => x.Text()).Join(", ")}", $"Invalid {m_Type}", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, 1);
       }
       else
       {

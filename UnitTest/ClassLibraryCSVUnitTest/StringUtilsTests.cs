@@ -17,17 +17,17 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace CsvTools.Tests
-{
+{   
   [TestClass]
   public class StringUtilsTests
   {
     [TestMethod]
     public void Join()
     {
-      var test = new[] { "this", "is", "a" }.Join();
+      var test = new[] { "this", "is", "a" }.Join(", ");
       Assert.AreEqual("this, is, a", test);
 
-      var test2 = new[] { "Hello", "World" }.Join("|");
+      var test2 = new[] { "Hello", "World" }.JoinChar('|');
       Assert.AreEqual("Hello|World", test2);
 
       var test3 = new List<string>().Join("*");
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnNameEndsOnID()
     {
-      Assert.AreEqual(0, StringUtils.AssumeIDColumn(null));
+      Assert.AreEqual(0, StringUtils.AssumeIDColumn((string) null));
       Assert.AreEqual(0, StringUtils.AssumeIDColumn(" "));
 
       Assert.AreEqual(3, StringUtils.AssumeIDColumn("Rating ID"));
@@ -174,6 +174,22 @@ namespace CsvTools.Tests
       Assert.AreEqual("aabb", "aabb".NoSpecials());
       Assert.AreEqual("12", "12_&§$".NoSpecials());
       Assert.AreEqual("aabb", " aa_bb  ".NoSpecials());
+    }
+
+    [TestMethod]
+    public void SqlName()
+    {
+      Assert.AreEqual(@"", @"".SqlName());
+      Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlName());
+      Assert.AreEqual(@"Validation]]Task", @"Validation]Task".SqlName());
+    }
+
+    [TestMethod]
+    public void SqlQuote()
+    {
+      Assert.AreEqual(@"", @"".SqlQuote());
+      Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlQuote());
+      Assert.AreEqual(@"Validation''Task", @"Validation'Task".SqlQuote());      
     }
 
     [TestMethod]

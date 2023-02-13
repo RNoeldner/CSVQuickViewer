@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net7.0</TargetFrameworks>
 		<RootNamespace>CsvTools</RootNamespace>
 		<ProductName>CsvTools</ProductName>
 		<OutputType>Library</OutputType>
@@ -17,6 +17,7 @@
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 		<IsPackable>false</IsPackable>
 		<NeutralLanguage>en</NeutralLanguage>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DefineConstants>TRACE;DEBUG;QUICK</DefineConstants>
@@ -106,7 +107,11 @@
 
 		<Compile Include="..\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ColumnErrorDictionary.cs" />
 		<Compile Include="..\ClassLibraryCSV\ErrorInformation.cs" Link="ErrorInformation.cs" />
+		<Compile Include="..\ClassLibraryCSV\DateTimeConstants.cs" Link="DateTimeConstants.cs" />
+		<Compile Include="..\ClassLibraryCSV\StringCollections.cs" Link="StringCollections.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringConversion.cs" Link="StringConversion.cs" />
+		<Compile Include="..\ClassLibraryCSV\StringConversionSpan.cs" Link="StringConversionSpan.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />
 		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="DateTimeFormatInformation.cs" />
 		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatLength.cs" Link="DateTimeFormatLength.cs" />
