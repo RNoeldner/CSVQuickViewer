@@ -25,7 +25,7 @@ namespace CsvTools
 {
   /// <summary>
   ///   Collection of static functions for string
-  /// </summary>  
+  /// </summary>
   [DebuggerStepThrough]
   public static class StringUtils
   {
@@ -38,7 +38,7 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    public static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
+    public static readonly char[] DelimiterChars = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -47,7 +47,7 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIDColumn(in string columnName)
+    public static int AssumeIdColumn(in string columnName)
     {
       if (columnName.TrimEnd().Length == 0)
         return 0;
@@ -92,16 +92,6 @@ namespace CsvTools
         return 2;
       return 0;
     }
-
-    /// <summary> 
-    ///   Determines whether this text contains the another text
-    /// </summary>
-    /// <param name="text">The text to be checked</param>
-    /// <param name="toCheck">To text find.</param>
-    /// <param name="comp">The comparison.</param>
-    /// <returns><c>true</c> if the text does contains the check; otherwise, <c>false</c>.</returns>
-    public static bool Contains(this string? text, in string toCheck, in StringComparison comp) =>
-      text?.IndexOf(toCheck, comp) >= 0;
 
     /// <summary>
     ///   Gets the a short representation of the text.
@@ -176,7 +166,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string JoinChar(this IEnumerable<string> parts, in char joinWith = ',')
+    public static string Join(this IEnumerable<string> parts, char joinWith = ',')
     {
       var sb = new StringBuilder();
       foreach (var part in parts)
@@ -264,28 +254,68 @@ namespace CsvTools
     public static bool PassesFilter(
       this string? item,
       in string? filter,
-      StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+      StringComparison stringComparison = StringComparison.CurrentCultureIgnoreCase)
     {
       if (filter is null || filter.Length == 0)
         return true;
       if (item is null || item.Length == 0)
         return false;
 
-      if (filter.IndexOf('+') <= -1)
-        return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-          .Any(part => item.IndexOf(part, stringComparison) != -1);
-      var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-      if (parts.Length == 0)
+      return item.AsSpan().PassesFilter(filter.AsSpan(), stringComparison);
+    }
+
+    /// <summary>
+    ///   Check if a text would match a filter value,
+    /// </summary>
+    /// <param name="item">The item of a list that should be checked</param>
+    /// <param name="filter">
+    ///   Filter value, for OR separate words by space for AND separate words by +
+    /// </param>
+    /// <param name="stringComparison"></param>
+    /// <Note>In case the filter is empty there is no filter it will always return true</Note>
+    /// <returns>True if text matches</returns>
+    public static bool PassesFilter(
+      this ReadOnlySpan<char> item,
+      ReadOnlySpan<char> filter,
+      StringComparison stringComparison)
+    {
+      if (filter.IsEmpty)
         return true;
+      if (item.IsEmpty)
+        return false;
 
-      // 1st part
-      var all = item.IndexOf(parts[0], stringComparison) > -1;
+      var slices = filter.GetSlices(new[] { '+', ' ', ',', ';' });
+      // Any part that was started with + is required
+      var requiredParts = new List<int>();
+      for (int i = 0; i < slices.Count; i++)
+      {
+        if (slices[i].length!=0 && slices[i].start > 0)
+        {
+          if (filter[slices[i].start-1]=='+')
+            requiredParts.Add(i);
+        }
+      }
 
-      // and all other parts
-      for (var index = 1; index < parts.Length && all; index++)
-        if (item.IndexOf(parts[index], stringComparison) == -1)
-          all = false;
-      return all;
+      var allRequiredFound = true;
+      foreach (var i in requiredParts)
+      {
+        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) == -1)
+        {
+          allRequiredFound = false;
+          break;
+        }
+      }
+
+      if (!allRequiredFound)
+        return allRequiredFound;
+      for (int i = 0; i < slices.Count; i++)
+      {
+        if (slices[i].length!=0 && !requiredParts.Contains(i))
+          if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1)
+            return true;
+      }
+
+      return allRequiredFound;
     }
 
     /// <summary>
@@ -324,32 +354,53 @@ namespace CsvTools
     {
       if (treatAsNull.Length == 0)
         return false;
-      return value is null || value.Length == 0 || SplitByDelimiter(treatAsNull)
-        .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+      return value is null || value.Length == 0 ||
+             treatAsNull.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
-    ///   Splits the given string at fixed delimiters.
+    ///   Checks if the provided text should be treated as NULL
+    /// </summary>
+    /// <param name="value">A span with the text</param>
+    /// <param name="treatAsNull">
+    ///   A semicolon separated list of that should be treated as NULL
+    /// </param>
+    /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
+    public static bool ShouldBeTreatedAsNull(this ReadOnlySpan<char> value, ReadOnlySpan<char> treatAsNull)
+    {
+      if (treatAsNull.IsEmpty)
+        return false;
+      if (value.Length == 0)
+        return true;
+      foreach (var valueTuple in treatAsNull.GetSlices(DelimiterChars))
+      {
+        if (value.Equals(treatAsNull.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    ///   Splits the given string at the given set of delimiters to be used as replacement for Split"/>
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
-    /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitByDelimiter(in string inputValue) =>
-      inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
-
-    //#if NET7_0_OR_GREATER
-    //    public static IEnumerable<ReadOnlySpan<char>> SplitByDelimiter(this ReadOnlySpan<char> inputValue)
-    //    {
-    //      var start = 0;
-    //      var end = inputValue.IndexOfAny(m_DelimiterChar);
-    //      while (end!=-1)
-    //      {
-    //        yield return inputValue.Slice(start, end-start-1);
-    //        start = end;
-    //      }
-    //      end = inputValue.Length;
-    //      yield return inputValue.Slice(start, end-start-1);
-    //    }
-    //#endif
+    /// <param name="splitter">The characters to split with</param>
+    /// <returns>List with the slit information empty elements are returned</returns>
+    public static IReadOnlyList<(int start, int length)> GetSlices(this ReadOnlySpan<char> inputValue, ReadOnlySpan<char> splitter)
+    {
+      var retList = new List<(int start, int length)>();
+      var start = 0;
+      var length = inputValue.IndexOfAny(splitter);
+      while (length != -1)
+      {
+        retList.Add((start, length));
+        start += length+1;
+        length = inputValue.Slice(start).IndexOfAny(splitter);
+      }
+      if (inputValue.Length != start)
+        retList.Add((start, inputValue.Length - start));
+      return retList;
+    }
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
@@ -360,7 +411,7 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
-    ///   Escapes SQL names; does not include the brackets or quotes, working with ReadOnlySpan is not faster but memory effecient
+    ///   Escapes SQL names; does not include the brackets or quotes, working with ReadOnlySpan is not faster but memory efficient
     /// </summary>
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names as it can be placed into brackets</returns>
@@ -384,7 +435,9 @@ namespace CsvTools
           if (contents[src] == lookFor)
             destination[counter++] = lookFor;
         }
+#pragma warning disable CS9080
         return destination;
+#pragma warning restore CS9080
       }
     }
 
@@ -396,7 +449,7 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
 
     /// <summary>
-    ///   Handles quotes in SQLs, does not include the outer quotes, working with ReadOnlySpan is not faster but memory effecient
+    ///   Handles quotes in SQLs, does not include the outer quotes, working with ReadOnlySpan is not faster but memory efficient
     /// </summary>
     /// <param name="contents">The contents.</param>    
     public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents)
@@ -429,7 +482,7 @@ namespace CsvTools
       return true;
     }
 
-#if NET7_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
       result = entry;
@@ -444,8 +497,13 @@ namespace CsvTools
         return true;
       }
 
+#if NET7_0_OR_GREATER
       return Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*");
+#else
+      return Regex.IsMatch(new string(entry), @"-?[0-9]+\.?[0-9]*");
+#endif
     }
 #endif
+
   }
 }

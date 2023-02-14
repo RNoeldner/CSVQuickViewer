@@ -24,16 +24,28 @@ namespace CsvTools
     /// <summary>
     ///   A static value any time only value will have this date
     /// </summary>
-    internal static readonly DateTime FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);    
+    internal static DateTime FirstDateTime { get; }
+    private static readonly HashSet<string> m_CommonDateTimeFormats;
+    private static readonly HashSet<string> m_CommonTimeFormats;
 
-    public static ICollection<string> CommonDateTimeFormats(string known)
+    static DateTimeConstants()
     {
-      var formatsTime = new HashSet<string>
+      FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
+      m_CommonTimeFormats = new HashSet<string>(StringComparer.Ordinal)
+      {
+        CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator[0], '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
+        CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator[0], '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
+        "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.FFF"
+      };
+
+      m_CommonDateTimeFormats = new HashSet<string>(StringComparer.Ordinal)
       {
         CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator[0], '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
         (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern)
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator[0], '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
         "MM/dd/yyyy",
         "MM/dd/yyyy HH:mm:ss",
         "M/d/yyyy",
@@ -48,29 +60,18 @@ namespace CsvTools
         "yyyyMMdd",
         "yyyyMMddTHH:mm:ss.FFF",
       };
-      foreach (var format in CommonTimeFormats())
-        formatsTime.Add(format);
-      // gte the existing data as well
-      var parts = StringUtils.SplitByDelimiter(known);
-      foreach (var format in parts)
-        formatsTime.Add(format);
-
-      return formatsTime;
+      foreach (var format in m_CommonTimeFormats)
+        m_CommonDateTimeFormats.Add(format);
     }
 
-    public static ICollection<string> CommonTimeFormats()
+    public static IEnumerable<string> CommonDateTimeFormats(string known)
     {
-      var formatsTime = new HashSet<string>
-      {
-        CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern
-          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-        "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.FFF"};
-
-      return formatsTime;
+      // add the existing data
+      foreach (var format in known.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries))
+        m_CommonDateTimeFormats.Add(format);
+      return m_CommonDateTimeFormats;
     }
 
-
+    public static IEnumerable<string> CommonTimeFormats() => m_CommonTimeFormats;
   }
 }

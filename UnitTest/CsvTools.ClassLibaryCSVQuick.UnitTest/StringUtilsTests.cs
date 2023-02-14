@@ -14,28 +14,42 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace CsvTools.Tests
-{  
+{
   [TestClass]
   public class StringUtilsTests
-  {    
+  {
     [TestMethod]
+    [Timeout(200)]
     public void SqlNameSpan()
     {
       Assert.IsTrue(@"".AsSpan().SequenceEqual(@"".AsSpan().SqlName()));
       Assert.IsTrue(@"ValidationTask".AsSpan().SequenceEqual(@"ValidationTask".AsSpan().SqlName()));
       Assert.IsTrue(@"Validation]]Task".AsSpan().SequenceEqual(@"Validation]Task".AsSpan().SqlName()));
     }
-    
+
     [TestMethod]
+    [Timeout(200)]
     public void SqlQuoteSpan()
     {
       Assert.IsTrue(@"".AsSpan().SequenceEqual(@"".AsSpan().SqlQuote()));
       Assert.IsTrue(@"ValidationTask".AsSpan().SequenceEqual(@"ValidationTask".AsSpan().SqlQuote()));
       Assert.IsTrue(@"Validation''Task".AsSpan().SequenceEqual(@"Validation'Task".AsSpan().SqlQuote()));
+    }
+
+
+    [TestMethod]
+    [Timeout(200)]
+    public void PassesFilter()
+    {
+      Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("The+test", StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(false, "This is a test".AsSpan().PassesFilter("+The+test", StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("This +test", StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(true, ReadOnlySpan<char>.Empty.PassesFilter(ReadOnlySpan<char>.Empty, StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("test", StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("This", StringComparison.OrdinalIgnoreCase));
+      Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("+", StringComparison.OrdinalIgnoreCase));
     }
   }
 }

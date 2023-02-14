@@ -634,10 +634,10 @@ namespace CsvTools
       if (value is null || value.Length == 0)
         return null;
 
-      if (StringUtils.SplitByDelimiter(trueValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (trueValue.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
         return new Tuple<bool, string>(true, value);
 
-      if (StringUtils.SplitByDelimiter(falseValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (falseValue.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
         return new Tuple<bool, string>(false, value);
 
       if (StringCollections.m_TrueValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
@@ -721,15 +721,16 @@ namespace CsvTools
           || stringDateValue.IndexOf("nd ", StringComparison.OrdinalIgnoreCase) != -1
           || stringDateValue.IndexOf("st ", StringComparison.OrdinalIgnoreCase) != -1
           || stringDateValue.IndexOf("rd ", StringComparison.OrdinalIgnoreCase) != -1)
-        stringDateValue = StringCollections.m_RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
+        stringDateValue = StringCollections.RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
 
       // Quick check: If the entry is empty, or a constant string, or the length does not make
       // sense, we do not need to try and parse
       if (stringDateValue == "00000000" || stringDateValue == "99999999" || stringDateValue.Length < 4)
         return null;
 
+      ;
       var matchingDateTimeFormats = new List<string>();
-      foreach (var dateTimeFormat in StringUtils.SplitByDelimiter((dateSeparator.Length == 0 && dateFormats.IndexOf('/') != -1) ? dateFormats.Replace("/", "") : dateFormats))
+      foreach (var dateTimeFormat in ((dateSeparator.Length == 0 && dateFormats.IndexOf('/') != -1) ? dateFormats.Replace("/", "") : dateFormats).Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries))
       {
         if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormat))
           matchingDateTimeFormats.Add(dateTimeFormat);

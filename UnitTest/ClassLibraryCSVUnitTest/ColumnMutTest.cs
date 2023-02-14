@@ -149,12 +149,12 @@ namespace CsvTools.Tests
       var target =
         new Column("Test", new ValueFormat(DataTypeEnum.DateTime), timePart: "TPart", timePartFormat: "YYYYMMDD",
           timeZonePart: "'UTC'");
-      Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("TPart", StringComparison.InvariantCultureIgnoreCase),
+      Assert.IsTrue(target.GetTypeAndFormatDescription().IndexOf("TPart", StringComparison.InvariantCultureIgnoreCase)!=-1,
         "TimePart");
       Assert.IsTrue(
-        target.GetTypeAndFormatDescription().Contains("YYYYMMDD", StringComparison.InvariantCultureIgnoreCase),
+        target.GetTypeAndFormatDescription().IndexOf("YYYYMMDD", StringComparison.InvariantCultureIgnoreCase)!=-1,
         "TimePartFormat");
-      Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("'UTC'", StringComparison.InvariantCultureIgnoreCase),
+      Assert.IsTrue(target.GetTypeAndFormatDescription().IndexOf("'UTC'", StringComparison.InvariantCultureIgnoreCase) != -1,
         "TimeZonePart");
     }
 

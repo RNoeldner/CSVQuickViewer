@@ -27,7 +27,7 @@ namespace CsvTools.Tests
       var test = new[] { "this", "is", "a" }.Join(", ");
       Assert.AreEqual("this, is, a", test);
 
-      var test2 = new[] { "Hello", "World" }.JoinChar('|');
+      var test2 = new[] { "Hello", "World" }.Join('|');
       Assert.AreEqual("Hello|World", test2);
 
       var test3 = new List<string>().Join("*");
@@ -46,26 +46,26 @@ namespace CsvTools.Tests
       Assert.AreEqual(true, "This is a test".PassesFilter("test"));
       Assert.AreEqual(true, "This is a test".PassesFilter("This"));
       Assert.AreEqual(true, "This is a test".PassesFilter("This +test"));
-      Assert.AreEqual(false, "This is a test".PassesFilter("The+test"));
+      Assert.AreEqual(true, "This is a test".PassesFilter("The+test"));
+      Assert.AreEqual(false, "This is a test".PassesFilter("+The+test"));
       Assert.AreEqual(true, "This is a test".PassesFilter("+"));
     }
 
     [TestMethod]
     public void ColumnNameEndsOnID()
     {
-      Assert.AreEqual(0, StringUtils.AssumeIDColumn((string) null));
-      Assert.AreEqual(0, StringUtils.AssumeIDColumn(" "));
+      Assert.AreEqual(0, StringUtils.AssumeIdColumn(" "));
 
-      Assert.AreEqual(3, StringUtils.AssumeIDColumn("Rating ID"));
-      Assert.AreEqual(2, StringUtils.AssumeIDColumn("RatingId"));
-      Assert.AreEqual(0, StringUtils.AssumeIDColumn("Acid"));
+      Assert.AreEqual(3, StringUtils.AssumeIdColumn("Rating ID"));
+      Assert.AreEqual(2, StringUtils.AssumeIdColumn("RatingId"));
+      Assert.AreEqual(0, StringUtils.AssumeIdColumn("Acid"));
 
-      Assert.AreEqual(4, StringUtils.AssumeIDColumn("Rating Ref"));
-      Assert.AreEqual(3, StringUtils.AssumeIDColumn("RatingRef"));
+      Assert.AreEqual(4, StringUtils.AssumeIdColumn("Rating Ref"));
+      Assert.AreEqual(3, StringUtils.AssumeIdColumn("RatingRef"));
 
-      Assert.AreEqual(5, StringUtils.AssumeIDColumn("Rating Text"));
-      Assert.AreEqual(4, StringUtils.AssumeIDColumn("RatingText"));
-      Assert.AreEqual(0, StringUtils.AssumeIDColumn("Videotext"));
+      Assert.AreEqual(5, StringUtils.AssumeIdColumn("Rating Text"));
+      Assert.AreEqual(4, StringUtils.AssumeIdColumn("RatingText"));
+      Assert.AreEqual(0, StringUtils.AssumeIdColumn("Videotext"));
     }
 
     [TestMethod]
@@ -160,14 +160,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MakeUniqueInCollectionTest()
     {
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625 
       var lst = new List<string> { "Value", null, "" };
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625 
       Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
       Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
     }
 
     [TestMethod]
+    [Timeout(200)]
     public void NoSpecials()
     {
       Assert.AreEqual(string.Empty, " ".NoSpecials());
@@ -177,6 +178,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(200)]
     public void SqlName()
     {
       Assert.AreEqual(@"", @"".SqlName());
@@ -185,6 +187,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(200)]
     public void SqlQuote()
     {
       Assert.AreEqual(@"", @"".SqlQuote());
@@ -193,12 +196,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(200)]
     public void SafeFileName()
     {
       Assert.AreEqual(@"", @"".SafePath());
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625 
       Assert.AreEqual(@"", FileSystemUtils.SafePath(null));
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625 
 
       Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
         @"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask".SafePath());

@@ -27,6 +27,16 @@ namespace CsvTools.Tests
   public sealed class StringConversionTests
   {
     [TestMethod]
+    [Timeout(500)]
+    public void StringToTextPart()
+    {
+      Assert.AreEqual("Part2;Part3;Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 2, true));
+      Assert.AreEqual("Part2;Part3;Part4;", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 3, true));
+      Assert.AreEqual("Part1", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 1, false));
+      Assert.AreEqual("Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 4, false));
+    }
+
+    [TestMethod]
     public void StringToDateTime()
     {
       Assert.AreEqual(new DateTime(2021, 5, 31, 14, 37, 0, 0, DateTimeKind.Unspecified),

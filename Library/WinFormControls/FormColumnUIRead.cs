@@ -483,19 +483,19 @@ namespace CsvTools
       if (string.IsNullOrEmpty(format))
         return;
       {
-        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat));
+        var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries));
         var isInList = parts.Contains(format);
 
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.ValueFormatMut.DateFormat = parts.JoinChar(';');
+          m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(';');
         }
 
         if (e.NewValue == CheckState.Checked || !isInList)
           return;
         parts.Remove(format);
-        m_ColumnEdit.ValueFormatMut.DateFormat = parts.JoinChar(';');
+        m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(';');
       }
     }
 
@@ -763,10 +763,11 @@ namespace CsvTools
       checkedListBoxDateFormats.BeginUpdate();
       checkedListBoxDateFormats.Items.Clear();
       checkedListBoxDateFormats.Items.AddRange(DateTimeConstants.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
+
       checkedListBoxDateFormats.EndUpdate();
 
       // Check all items in parts
-      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat);
+      var parts = (IEnumerable<string>)m_ColumnEdit.ValueFormatMut.DateFormat.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries);
       foreach (var format in parts)
       {
         var index = checkedListBoxDateFormats.Items.IndexOf(format);

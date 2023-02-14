@@ -39,7 +39,7 @@ namespace CsvTools
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
 
     // used to get rid of numeric suffixes like 12th or 3rd
-    internal static readonly Lazy<Regex> m_RegExNumberSuffixEnglish =
+    internal static readonly Lazy<Regex> RegExNumberSuffixEnglish =
       new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
 
     /// <summary>
