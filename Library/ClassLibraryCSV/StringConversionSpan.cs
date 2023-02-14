@@ -11,26 +11,28 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-#if NET7_0_OR_GREATER
 #nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading;
+// ReSharper disable UseIndexFromEndExpression
+#pragma warning disable IDE0056
 
 namespace CsvTools
 {
   public static class StringConversionSpan
   {
     public static CheckResult CheckDate(
-     in IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-     in string shortDateFormat,
-     char dateSeparator,
-     char timeSeparator,
-     in CultureInfo culture,
-     in CancellationToken cancellationToken)
+      IReadOnlyCollection<ReadOnlyMemory<char>> samples,
+      ReadOnlySpan<char> shortDateFormat,
+      char dateSeparator,
+      char timeSeparator,
+      in CultureInfo culture,
+      CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -52,7 +54,7 @@ namespace CsvTools
         if (!ret.HasValue)
         {
           allParsed = false;
-          checkResult.AddNonMatch(new string(value.Span));
+          checkResult.AddNonMatch(value.ToString());
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 5)
             break;
@@ -66,7 +68,7 @@ namespace CsvTools
           checkResult.PossibleMatch = true;
           checkResult.ValueFormatPossibleMatch = new ValueFormat(
             DataTypeEnum.DateTime,
-            shortDateFormat,
+            shortDateFormat.ToString(),
             dateSeparator.ToStringHandle0(),
             timeSeparator.ToStringHandle0());
         }
@@ -75,14 +77,14 @@ namespace CsvTools
       if (allParsed)
         checkResult.FoundValueFormat = new ValueFormat(
           DataTypeEnum.DateTime,
-          shortDateFormat,
+          shortDateFormat.ToString(),
           dateSeparator.ToStringHandle0(),
           timeSeparator.ToStringHandle0());
 
       return checkResult;
     }
 
-    public static bool CheckGuid(in IEnumerable<ReadOnlyMemory<char>> samples, in CancellationToken cancellationToken)
+    public static bool CheckGuid(in IEnumerable<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
     {
       var isEmpty = true;
       foreach (var value in samples)
@@ -99,14 +101,14 @@ namespace CsvTools
       return !isEmpty;
     }
 
-       public static CheckResult CheckNumber(
-      in IReadOnlyCollection<ReadOnlyMemory<char>> samples,
+    public static CheckResult CheckNumber(
+      IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       char decimalSeparator,
       char thousandSeparator,
       bool allowPercentage,
       bool allowStartingZero,
       bool removeCurrencySymbols,
-      in CancellationToken cancellationToken)
+      CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -119,14 +121,15 @@ namespace CsvTools
         if (cancellationToken.IsCancellationRequested)
           break;
 
-        var ret = StringToDecimal(value.Span, decimalSeparator, thousandSeparator, allowPercentage, removeCurrencySymbols);
+        var ret = StringToDecimal(value.Span, decimalSeparator, thousandSeparator, allowPercentage,
+          removeCurrencySymbols);
         // Any number with leading 0 should not be treated as numeric this is to avoid problems with
         // 0002 etc.
         if (!ret.HasValue || (!allowStartingZero && value.Span.StartsWith("0".AsSpan(), StringComparison.Ordinal)
                                                  && Math.Floor(ret.Value) != 0))
         {
           allParsed = false;
-          checkResult.AddNonMatch(new string(value.Span));
+          checkResult.AddNonMatch(value.ToString());
           // try to get some positive matches, in case the first record is invalid
           if (checkResult.ExampleNonMatch.Count > 2)
             break;
@@ -159,8 +162,8 @@ namespace CsvTools
       return checkResult;
     }
 
-    public static CheckResult CheckSerialDate(in IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow,
-                                              in CancellationToken cancellationToken)
+    public static CheckResult CheckSerialDate(IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow,
+      CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
 
@@ -177,7 +180,7 @@ namespace CsvTools
         if (!ret.HasValue)
         {
           allParsed = false;
-          checkResult.AddNonMatch(new string(value.Span));
+          checkResult.AddNonMatch(value.ToString());
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 3)
             break;
@@ -187,7 +190,7 @@ namespace CsvTools
           if (isCloseToNow && (ret.Value.Year < DateTime.Now.Year - 80 || ret.Value.Year > DateTime.Now.Year + 20))
           {
             allParsed = false;
-            checkResult.AddNonMatch(new string(value.Span));
+            checkResult.AddNonMatch(value.ToString());
             // try to get some positive matches, in case the first record is invalid
             if (counter > 3)
               break;
@@ -230,11 +233,11 @@ namespace CsvTools
 
       // if we did not convert yet and we have a text use it
       // ReSharper disable once ReplaceWithStringIsNullOrEmpty
-      if (dateValue == DateTimeConstants.FirstDateTime && dateColumnText != null && dateColumnText.Length > 0)
+      if (dateValue == DateTimeConstants.FirstDateTime && dateColumnText.Length > 0)
       {
         var val = CombineStringsToDateTime(
           dateColumnText,
-          valueFormat.DateFormat,
+          valueFormat.DateFormat.AsSpan(),
           ReadOnlySpan<char>.Empty,
           valueFormat.DateSeparator.FromText(),
           valueFormat.TimeSeparator.FromText(),
@@ -249,6 +252,7 @@ namespace CsvTools
         {
           case double oaDate when serialDateTime:
           {
+            // ReSharper disable once MergeIntoPattern
             if (oaDate > -657435.0 && oaDate < 2958466.0)
             {
               var timeValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
@@ -284,24 +288,24 @@ namespace CsvTools
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
       // proper formatted value
       if (dateValue == DateTimeConstants.FirstDateTime && dateColumn is null
-                                       && (dateColumnText.IsEmpty || dateColumnText.Length == 0
-                                                                  || !dateColumnText.Equals(
-                                                                    DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat),
-                                                                    StringComparison.Ordinal)))
+                                                       && (dateColumnText.IsEmpty || dateColumnText.Length == 0
+                                                         || !dateColumnText.Equals(
+                                                           DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat)
+                                                             .AsSpan(), StringComparison.Ordinal)))
         return null;
 
       return dateValue;
     }
 
     public static DateTime? CombineStringsToDateTime(
-     ReadOnlySpan<char> datePart,
-     in string? dateFormat,
-     ReadOnlySpan<char> timePart,
-     char dateSeparator,
-     char timeSeparator,
-     bool serialDateTime)
+      ReadOnlySpan<char> datePart,
+      ReadOnlySpan<char> dateFormat,
+      ReadOnlySpan<char> timePart,
+      char dateSeparator,
+      char timeSeparator,
+      bool serialDateTime)
     {
-      if (dateFormat is null || dateFormat.Length == 0)
+      if (dateFormat.IsEmpty)
         return null;
 
       var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
@@ -328,12 +332,127 @@ namespace CsvTools
       return time is null ? date : date.Value.Add(time.Value);
     }
 
+    [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+    public static bool? StringToBoolean(this ReadOnlySpan<char> value, ReadOnlySpan<char> trueValue,
+      ReadOnlySpan<char> falseValue)
+    {
+      if (value.Length == 0)
+        return null;
+
+      foreach ((int start, int length) valueTuple in trueValue.GetSlices(StringUtils.DelimiterChars))
+        if (value.Equals(trueValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
+          return true;
+      foreach (var text in StringCollections.m_TrueValues)
+        if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+          return true;
+
+      foreach ((int start, int length) valueTuple in falseValue.GetSlices(StringUtils.DelimiterChars))
+        if (value.Equals(falseValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
+          return false;
+      foreach (var text in StringCollections.m_FalseValues)
+        if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+          return false;
+
+      return null;
+    }
+
+    public static DateTime? StringToDateTime(
+      ReadOnlySpan<char> originalValue,
+      ReadOnlySpan<char> dateFormats,
+      char dateSeparator,
+      char timeSeparator,
+      bool serialDateTime)
+    {
+      var stringDateValue = originalValue.Trim();
+
+      var result = StringToDateTimeExact(originalValue, dateFormats, dateSeparator, timeSeparator,
+        CultureInfo.CurrentCulture);
+      if (result.HasValue)
+        return result.Value;
+
+      if (serialDateTime
+          && (stringDateValue.IndexOf(dateSeparator) == -1)
+          && (stringDateValue.IndexOf(timeSeparator) == -1))
+        return SerialStringToDateTime(stringDateValue);
+
+      // in case its time only and we do not have any date separator try a timespan
+      if (stringDateValue.IndexOf(dateSeparator) != -1 || dateFormats.IndexOf('/') != -1) return null;
+      var ts = StringToTimeSpan(stringDateValue, timeSeparator, false);
+      if (ts.HasValue)
+        return new DateTime(ts.Value.Ticks);
+
+      return null;
+    }
+
+    public static DateTime? StringToDateTimeExact(
+      ReadOnlySpan<char> originalValue,
+      ReadOnlySpan<char> dateFormats,
+      char dateSeparator,
+      char timeSeparator,
+      in CultureInfo culture)
+    {
+      var stringDateValue = originalValue.Trim().ToString().Replace("\t", " ").Replace("  ", " ").AsSpan();
+
+      if (stringDateValue.Length < 4)
+        return null;
+
+      // Quick check: If the entry is empty, or a constant string, or the length does not make
+      // sense, we do not need to try and parse
+      if (stringDateValue.Length < 4 || stringDateValue.SequenceEqual("00000000".AsSpan()) ||
+          stringDateValue.SequenceEqual("99999999".AsSpan()))
+        return null;
+
+      // get rid of numeric suffixes like 12th or 3rd for dates
+      if (stringDateValue.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || stringDateValue.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || stringDateValue.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || stringDateValue.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+        stringDateValue = StringCollections.RegExNumberSuffixEnglish.Value.Replace(stringDateValue.ToString(), "$1")
+          .AsSpan();
+      var matchingDateTimeFormats = new List<string>();
+
+      foreach (var (start, length) in dateFormats.GetSlices(StringUtils.DelimiterChars))
+      {
+        var dateTimeFormat =
+          (dateFormats.Slice(start, length).IndexOf('/') != -1)
+            ? dateFormats.Slice(start, length).ToString().Replace("/", "")
+            : dateFormats.Slice(start, length).ToString();
+
+        if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormat))
+          matchingDateTimeFormats.Add(dateTimeFormat);
+        // In case of a date & time format add the date only format separately
+        var indexHour =
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+          dateTimeFormat.IndexOf('h', StringComparison.OrdinalIgnoreCase);
+#else
+          dateTimeFormat.IndexOfAny(new[] { 'h', 'H' });
+#endif
+        // assuming there is a text before the hour that has a reasonable size take it as date
+        if (indexHour > 4)
+        {
+          string dateOnlyFmt = dateTimeFormat.Substring(0, indexHour - 1).Trim();
+          if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateOnlyFmt))
+            matchingDateTimeFormats.Add(dateOnlyFmt);
+        }
+      }
+
+      if (matchingDateTimeFormats.Count == 0)
+        return null;
+
+      return StringToDateTimeByCulture(
+        stringDateValue,
+        matchingDateTimeFormats.ToArray(),
+        dateSeparator,
+        timeSeparator,
+        culture);
+    }
+
     public static decimal? StringToDecimal(
-     ReadOnlySpan<char> value,
-     char decimalSeparatorChar,
-     char groupSeparatorChar,
-     bool allowPercentage,
-     bool currencyRemoval)
+      ReadOnlySpan<char> value,
+      char decimalSeparatorChar,
+      char groupSeparatorChar,
+      bool allowPercentage,
+      bool currencyRemoval)
     {
       // Remove any white space
       var fieldValueSpan = value.Trim();
@@ -345,8 +464,8 @@ namespace CsvTools
       {
         foreach (var currencySymbol in StringCollections.CurrencySymbols)
         {
-          if (fieldValueSpan.IndexOf(currencySymbol, StringComparison.OrdinalIgnoreCase) != -1)
-            fieldValueSpan = (new string(fieldValueSpan).Replace(currencySymbol, string.Empty)).AsSpan().Trim();
+          if (fieldValueSpan.IndexOf(currencySymbol.AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+            fieldValueSpan = (fieldValueSpan.ToString().Replace(currencySymbol, string.Empty)).AsSpan().Trim();
         }
       }
 
@@ -365,7 +484,7 @@ namespace CsvTools
         }
         else if (fieldValueSpan[pos] == groupSeparatorChar)
         {
-          if (lastPos >0 && pos != lastPos + 4)
+          if (lastPos > 0 && pos != lastPos + 4)
             // Distance between group is not correct
             return null;
           lastPos = pos;
@@ -373,7 +492,7 @@ namespace CsvTools
       }
 
       // if we have a decimal point the group seperator has to be 3 places from the right e.g. 63.467.8373 is not ok, but 634.678.373 is
-      if (lastPos > 0  && startDecimal != lastPos +4)
+      if (lastPos > 0 && startDecimal != lastPos + 4)
         return null;
 
       var numberFormatProvider = new NumberFormatInfo
@@ -383,48 +502,54 @@ namespace CsvTools
         NumberDecimalSeparator = decimalSeparatorChar.ToStringHandle0(),
         NumberGroupSeparator = groupSeparatorChar.ToStringHandle0()
       };
+      var roundBraces = fieldValueSpan[0] == '(' && fieldValueSpan[fieldValueSpan.Length - 1] == ')';
+      if (roundBraces)
+        fieldValueSpan = fieldValueSpan.Slice(1, fieldValueSpan.Length - 2).Trim();
 
-      if (fieldValueSpan.StartsWith("(", StringComparison.Ordinal)
-          && fieldValueSpan.EndsWith(")", StringComparison.Ordinal))
-      {
-        fieldValueSpan = ("-" + new string(fieldValueSpan.Slice(1, fieldValueSpan.Length - 2).Trim())).AsSpan();
-      }
-
-      var percentage = false;
+      var percentage = allowPercentage && fieldValueSpan[fieldValueSpan.Length - 1] == '%';
       // ReSharper disable once IdentifierTypo
-      var permille = false;
-      if (allowPercentage && fieldValueSpan.EndsWith("%", StringComparison.Ordinal))
-      {
-        percentage = true;
-        fieldValueSpan = fieldValueSpan.Slice(0, fieldValueSpan.Length - 1);
-      }
+      var permille = allowPercentage && fieldValueSpan[fieldValueSpan.Length - 1] == '‰';
 
-      if (allowPercentage && fieldValueSpan.EndsWith("‰", StringComparison.Ordinal))
-      {
-        permille = true;
-        fieldValueSpan = fieldValueSpan.Slice(0, fieldValueSpan.Length - 1);
-      }
+      if (percentage || permille)
+        fieldValueSpan = fieldValueSpan.Slice(0, fieldValueSpan.Length - 1).Trim();
 
+      //       Pattern 1:           -1,234.00
+      //       Pattern 2:           - 1,234.00
+      //       Pattern 3:           1,234.00-
       for (numberFormatProvider.NumberNegativePattern = 1;
            numberFormatProvider.NumberNegativePattern <= 3;
            numberFormatProvider.NumberNegativePattern++)
       {
-        // Try to convert this value to a decimal value. Try to convert this value to a decimal value.
-        if (!decimal.TryParse(fieldValueSpan, NumberStyles.Number, numberFormatProvider, out var result)) continue;
+        // Try to convert this value to a decimal value. 
+        if (!decimal.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              fieldValueSpan
+#else
+              fieldValueSpan.ToString()
+#endif
+              , NumberStyles.Number, numberFormatProvider, out var result))
+          continue;
+
+        // If this works, exit
         if (percentage)
-          return result / 100m;
-        if (permille)
-          return result / 1000m;
-        return result;
+          result /= 100m;
+        else if (permille)
+          result /= 1000m;
+        return (roundBraces) ? -result : result;
       }
-      // If this works, exit
 
       return null;
     }
 
     public static Guid? StringToGuid(ReadOnlySpan<char> originalValue)
     {
-      if (Guid.TryParse(originalValue, out var result))
+      if (Guid.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              originalValue
+#else
+            originalValue.ToString()
+#endif
+            , out var result))
         return result;
       else
         return null;
@@ -465,6 +590,7 @@ namespace CsvTools
 
       return null;
     }
+
     public static long? StringToInt64(ReadOnlySpan<char> value, char decimalSeparator, char thousandSeparator)
     {
       if (value.IsEmpty)
@@ -496,286 +622,18 @@ namespace CsvTools
     /// </returns>    
     public static ReadOnlySpan<char> StringToTextPart(ReadOnlySpan<char> value, char splitter, int part, bool toEnd)
     {
-      // ReSharper disable once ReplaceWithStringIsNullOrEmpty
       if (value.Length == 0 || part < 1)
-        return null;
+        return ReadOnlySpan<char>.Empty;
+      var list = value.GetSlices(new[] { splitter });
 
-      var indexOfSplitter = value.IndexOf(splitter);
-
-      // In case we want the first part but the splitter is not part of the text return the whole value
-      if (part == 1 && (indexOfSplitter == -1 || toEnd))
+      if (part == 1 && list.Count == 1 || toEnd)
         return value;
 
+      var slice = (part >= list.Count) ? list[list.Count - 1] : list[part - 1];
+
       if (!toEnd)
-      {
-        int start = 0;
-        int end = 0;
-        int partNo = 0;
-        for (int i = 0; i<value.Length; i++)
-        {
-          if (value[i]== splitter)
-          {
-            start = end;
-            end = i;
-            partNo++;
-            /// TODO: TEST this
-            if (part == partNo)
-              return value.Slice(start, end-start);
-          }
-        }
-        end = value.Length;
-        /// TODO: TEST this
-        return value.Slice(start, end-start);
-      }
-      else
-      {
-        while (indexOfSplitter != -1 && part > 2)
-        {
-          indexOfSplitter = value.IndexOf(splitter, indexOfSplitter + 1);
-          part--;
-        }
-
-        if (indexOfSplitter != -1)
-          return value.Slice(indexOfSplitter + 1);
-      }
-
-      return null;
-    }
-
-    private static DateTime? SerialStringToDateTime(ReadOnlySpan<char> value)
-    {
-      var stringDateValue = value.Trim();
-      try
-      {
-        var numberFormatProvider =
-          new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
-        foreach (var decimalSeparator in StringCollections.DecimalSeparators)
-        {
-          numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
-          if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial))
-            continue;
-          if (timeSerial >= -657435 && timeSerial < 2958466)
-            return DateTime.FromOADate(timeSerial);
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("{0} is not a serial date. Error: {1}", new string(value), ex.Message);
-      }
-
-      return null;
-    }
-
-    internal static DataTypeEnum CheckUnescaped(in IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples,
-                                               in CancellationToken cancellationToken)
-    {
-      var foundUnescaped = 0;
-      var foundHtml = 0;
-      foreach (var text in samples)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        if (text.Span.IndexOf("<br>".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1 ||
-            text.Span.StartsWith("<![CDATA[".AsSpan(), StringComparison.OrdinalIgnoreCase))
-          if (foundHtml++ > minRequiredSamples)
-            return DataTypeEnum.TextToHtml;
-        if (text.Span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) != -1)
-          if (foundUnescaped++ > minRequiredSamples)
-            return DataTypeEnum.TextUnescape;
-      }
-
-      return DataTypeEnum.String;
-    }
-
-
-    private static DateTime? StringToDateTimeByCulture(
-      ReadOnlySpan<char> stringDateValue,
-      in string[] dateTimeFormats,
-      in char dateSeparator,
-      in char timeSeparator,
-      in CultureInfo culture)
-    {
-      while (true)
-      {
-        var dateTimeFormatInfo = new DateTimeFormatInfo();
-
-        dateTimeFormatInfo.SetAllDateTimePatterns(dateTimeFormats, 'd');
-        dateTimeFormatInfo.DateSeparator = dateSeparator.ToStringHandle0();
-        dateTimeFormatInfo.TimeSeparator = timeSeparator.ToStringHandle0();
-
-        dateTimeFormatInfo.AbbreviatedDayNames = culture.DateTimeFormat.AbbreviatedDayNames;
-        dateTimeFormatInfo.DayNames = culture.DateTimeFormat.DayNames;
-        dateTimeFormatInfo.MonthNames = culture.DateTimeFormat.MonthNames;
-        dateTimeFormatInfo.AbbreviatedMonthNames = culture.DateTimeFormat.AbbreviatedMonthNames;
-
-        // Use ParseExact since Parse does not work if a date separator is set but the date
-        // separator is not part of the date format
-        // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." its still parsed
-        if (DateTime.TryParseExact(
-              stringDateValue,
-              dateTimeFormats,
-              dateTimeFormatInfo,
-              DateTimeStyles.NoCurrentDateDefault,
-              out var result)) return result;
-
-        // try InvariantCulture
-        if (culture.Name != "en-US" && !Equals(culture, CultureInfo.InvariantCulture))
-        {
-          dateTimeFormatInfo.AbbreviatedDayNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames;
-          dateTimeFormatInfo.DayNames = CultureInfo.InvariantCulture.DateTimeFormat.DayNames;
-          dateTimeFormatInfo.MonthNames = CultureInfo.InvariantCulture.DateTimeFormat.MonthNames;
-          dateTimeFormatInfo.AbbreviatedMonthNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames;
-
-          if (DateTime.TryParseExact(
-                stringDateValue,
-                dateTimeFormats,
-                dateTimeFormatInfo,
-                DateTimeStyles.NoCurrentDateDefault,
-                out result)) return result;
-        }
-
-        // In case a date with following time is passed in it would not be parsed, take the part of
-        // before the space and try again
-        var lastSpace = stringDateValue.LastIndexOf(' ');
-
-        // Only do this if we have at least 6 characters
-        if (lastSpace <= 6)
-          return null;
-        stringDateValue = stringDateValue.Slice(0, lastSpace);
-      }
-    }
-
-    public static bool? StringToBoolean(ReadOnlySpan<char> value, ReadOnlySpan<char> trueValue, ReadOnlySpan<char> falseValue)
-    => StringToBooleanStrict2(value, trueValue, falseValue);
-
-    internal static bool? StringToBooleanStrict2(ReadOnlySpan<char> value, ReadOnlySpan<char> trueValue, ReadOnlySpan<char> falseValue)
-    {
-      if (value.Length == 0)
-        return null;
-
-      var start = 0;
-      var end = trueValue.IndexOfAny(StringUtils.m_DelimiterChar);
-      while (end!=-1)
-      {
-        if (MemoryExtensions.Equals(value, trueValue.Slice(start, end-start-1), StringComparison.OrdinalIgnoreCase))
-          return true;
-        start = end;
-      }
-      end = trueValue.Length;
-      if (MemoryExtensions.Equals(value, trueValue.Slice(start, end-start-1), StringComparison.OrdinalIgnoreCase))
-        return true;
-
-      start = 0;
-      end = falseValue.IndexOfAny(StringUtils.m_DelimiterChar);
-      while (end!=-1)
-      {
-        if (MemoryExtensions.Equals(value, falseValue.Slice(start, end-start-1), StringComparison.OrdinalIgnoreCase))
-          return false;
-        start = end;
-      }
-      end = trueValue.Length;
-      if (MemoryExtensions.Equals(value, falseValue.Slice(start, end-start-1), StringComparison.OrdinalIgnoreCase))
-        return false;
-
-      foreach (var text in StringCollections.m_TrueValues)
-        if (MemoryExtensions.Equals(value, text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return true;
-
-      foreach (var text in StringCollections.m_FalseValues)
-        if (MemoryExtensions.Equals(value, text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return false;
-
-      return null;
-    }
-
-    public static DateTime? StringToDateTime(
-    ReadOnlySpan<char> originalValue,
-    string dateFormat,
-    char dateSeparator,
-    char timeSeparator,
-    bool serialDateTime)
-    {
-      var stringDateValue = originalValue.Trim();
-
-      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator,
-        CultureInfo.CurrentCulture);
-      if (result.HasValue)
-        return result.Value;
-
-      if (serialDateTime
-         && (stringDateValue.IndexOf(dateSeparator) == -1)
-         && (stringDateValue.IndexOf(timeSeparator) == -1))
-        return SerialStringToDateTime(stringDateValue);
-
-      // in case its time only and we do not have any date separator try a timespan
-      if (stringDateValue.IndexOf(dateSeparator) != -1 || dateFormat.IndexOf('/') != -1) return null;
-      var ts = StringToTimeSpan(stringDateValue, timeSeparator, false);
-      if (ts.HasValue)
-        return new DateTime(ts.Value.Ticks);
-
-      return null;
-    }
-
-    public static DateTime? StringToDateTimeExact(
-         ReadOnlySpan<char> originalValue,
-         in string dateFormats,
-         char dateSeparator,
-         char timeSeparator,
-         in CultureInfo culture)
-    {
-      var stringDateValue = new string(originalValue.Trim()).Replace("\t", " ").Replace("  ", " ").AsSpan();
-
-      if (stringDateValue.Length < 4)
-        return null;
-
-      // Quick check: If the entry is empty, or a constant string, or the length does not make
-      // sense, we do not need to try and parse
-      if (stringDateValue == "00000000" || stringDateValue == "99999999" || stringDateValue.Length < 4)
-        return null;
-
-      // get rid of numeric suffixes like 12th or 3rd for dates
-      if (stringDateValue.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
-        stringDateValue = StringCollections.m_RegExNumberSuffixEnglish.Value.Replace(new string(stringDateValue), "$1").AsSpan();
-      var matchingDateTimeFormats = new List<string>();
-      foreach (var dateTimeFormat in StringUtils.SplitByDelimiter((dateSeparator == char.MinValue && dateFormats.IndexOf('/') != -1) ? dateFormats.Replace("/", "") : dateFormats))
-      {
-        if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormat))
-          matchingDateTimeFormats.Add(dateTimeFormat);
-        // In case of a date & time format add the date only format separately
-        var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
-        // assuming there is a text before the hour that has a reasonable size take it as date
-        if (indexHour > 4)
-        {
-          var dateOnlyFmt = dateTimeFormat.Substring(0, indexHour - 1).Trim();
-          if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateOnlyFmt))
-            matchingDateTimeFormats.Add(dateOnlyFmt);
-        }
-      }
-
-      if (matchingDateTimeFormats.Count == 0)
-        return null;
-
-      return StringToDateTimeByCulture(
-        stringDateValue,
-        matchingDateTimeFormats.ToArray(),
-        dateSeparator,
-        timeSeparator,
-        culture);
-    }
-
-    private static int IndexOf(this ReadOnlySpan<char> originalValue, char separator, int start = 0)
-    {
-      for (int i = start; i < originalValue.Length; i++)
-        if (originalValue[i]==separator)
-          return i;
-      return -1;
+        return value.Slice(slice.start, slice.length);
+      return value.Slice(slice.start);
     }
 
     public static TimeSpan? StringToTimeSpan(ReadOnlySpan<char> originalValue, char separator, bool serialDateTime)
@@ -802,18 +660,42 @@ namespace CsvTools
       if (hrs.IndexOf(' ') != -1)
         return null;
 
-      if (int.TryParse(hrs, out var hours))
+      if (int.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              hrs
+#else
+            hrs.ToString()
+#endif
+            , out var hours))
       {
         hrsIndex++;
         var minIndex = stringTimeValue.IndexOf(separator, hrsIndex);
         if (minIndex > 0)
         {
-          if (int.TryParse(stringTimeValue.Slice(hrsIndex, minIndex - hrsIndex), out min))
-            int.TryParse(stringTimeValue.Slice(minIndex + 1), out sec);
+          if (int.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringTimeValue.Slice(hrsIndex, minIndex - hrsIndex)
+#else
+                stringTimeValue.Slice(hrsIndex, minIndex - hrsIndex).ToString()
+#endif
+    , out min))
+            int.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringTimeValue.Slice(minIndex + 1)
+#else
+              stringTimeValue.Slice(minIndex + 1).ToString()
+#endif
+              , out sec);
         }
         else
         {
-          int.TryParse(stringTimeValue.Slice(hrsIndex), out min);
+          int.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringTimeValue.Slice(hrsIndex)
+#else
+            stringTimeValue.Slice(hrsIndex).ToString()
+#endif
+            , out min);
         }
       }
 
@@ -831,6 +713,133 @@ namespace CsvTools
 
       return new TimeSpan(0, hours, min, sec);
     }
+
+    internal static DataTypeEnum CheckUnescaped(in IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples,
+      CancellationToken cancellationToken)
+    {
+      var foundUnescaped = 0;
+      var foundHtml = 0;
+      foreach (var text in samples)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+        if (text.Span.IndexOf("<br>".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1 ||
+            text.Span.StartsWith("<![CDATA[".AsSpan(), StringComparison.OrdinalIgnoreCase))
+          if (foundHtml++ > minRequiredSamples)
+            return DataTypeEnum.TextToHtml;
+        if (text.Span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) != -1 ||
+            text.Span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) != -1 ||
+            text.Span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) != -1 ||
+            text.Span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) != -1 ||
+            text.Span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) != -1)
+          if (foundUnescaped++ > minRequiredSamples)
+            return DataTypeEnum.TextUnescape;
+      }
+
+      return DataTypeEnum.String;
+    }
+
+    private static int IndexOf(this ReadOnlySpan<char> originalValue, char separator, int start = 0)
+    {
+      for (int i = start; i < originalValue.Length; i++)
+        if (originalValue[i] == separator)
+          return i;
+      return -1;
+    }
+
+    private static DateTime? SerialStringToDateTime(ReadOnlySpan<char> value)
+    {
+      var stringDateValue = value.Trim();
+      try
+      {
+        var numberFormatProvider =
+          new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
+        foreach (var decimalSeparator in StringCollections.DecimalSeparators)
+        {
+          numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
+          if (!double.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringDateValue
+#else
+                stringDateValue.ToString()
+#endif
+                , NumberStyles.Float, numberFormatProvider, out var timeSerial))
+            continue;
+          if (timeSerial >= -657435 && timeSerial < 2958466)
+            return DateTime.FromOADate(timeSerial);
+        }
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine("{0} is not a serial date. Error: {1}", value.ToString(), ex.Message);
+      }
+
+      return null;
+    }
+
+    private static DateTime? StringToDateTimeByCulture(
+      ReadOnlySpan<char> stringDateValue,
+      in string[] dateTimeFormats,
+      in char dateSeparator,
+      in char timeSeparator,
+      in CultureInfo culture)
+    {
+      while (true)
+      {
+        var dateTimeFormatInfo = new DateTimeFormatInfo();
+
+        dateTimeFormatInfo.SetAllDateTimePatterns(dateTimeFormats, 'd');
+        dateTimeFormatInfo.DateSeparator = dateSeparator.ToStringHandle0();
+        dateTimeFormatInfo.TimeSeparator = timeSeparator.ToStringHandle0();
+
+        dateTimeFormatInfo.AbbreviatedDayNames = culture.DateTimeFormat.AbbreviatedDayNames;
+        dateTimeFormatInfo.DayNames = culture.DateTimeFormat.DayNames;
+        dateTimeFormatInfo.MonthNames = culture.DateTimeFormat.MonthNames;
+        dateTimeFormatInfo.AbbreviatedMonthNames = culture.DateTimeFormat.AbbreviatedMonthNames;
+
+        // Use ParseExact since Parse does not work if a date separator is set but the date
+        // separator is not part of the date format
+        // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." its still parsed
+        if (DateTime.TryParseExact(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringDateValue
+#else
+              stringDateValue.ToString()
+#endif
+              , formats: dateTimeFormats,
+              provider: dateTimeFormatInfo,
+              style: DateTimeStyles.NoCurrentDateDefault,
+              out var result)) return result;
+
+        // try InvariantCulture
+        if (culture.Name != "en-US" && !Equals(culture, CultureInfo.InvariantCulture))
+        {
+          dateTimeFormatInfo.AbbreviatedDayNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames;
+          dateTimeFormatInfo.DayNames = CultureInfo.InvariantCulture.DateTimeFormat.DayNames;
+          dateTimeFormatInfo.MonthNames = CultureInfo.InvariantCulture.DateTimeFormat.MonthNames;
+          dateTimeFormatInfo.AbbreviatedMonthNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames;
+
+          if (DateTime.TryParseExact(
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+              stringDateValue
+#else
+                stringDateValue.ToString()
+#endif
+                , formats: dateTimeFormats,
+                provider: dateTimeFormatInfo,
+                style: DateTimeStyles.NoCurrentDateDefault,
+                out result)) return result;
+        }
+
+        // In case a date with following time is passed in it would not be parsed, take the part of
+        // before the space and try again
+        var lastSpace = stringDateValue.LastIndexOf(' ');
+
+        // Only do this if we have at least 6 characters
+        if (lastSpace <= 6)
+          return null;
+        stringDateValue = stringDateValue.Slice(0, lastSpace);
+      }
+    }
   }
 }
-#endif

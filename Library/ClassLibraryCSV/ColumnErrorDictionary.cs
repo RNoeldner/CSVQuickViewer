@@ -47,7 +47,7 @@ namespace CsvTools
     ///   Combines all messages in order to display them
     /// </summary>
     /// <value>One string with all messages</value>
-    public string Display => Values.JoinChar(ErrorInformation.cSeparator);
+    public string Display => Values.Join(ErrorInformation.cSeparator);
 
     /// <summary>
     ///   Adds the column error.

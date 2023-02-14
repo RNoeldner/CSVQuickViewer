@@ -48,7 +48,7 @@ namespace CsvTools
 
       // in case we have multiple arguments assume the path was split at space
       else if (args.Length > 1)
-        fileName = args.JoinChar(' ');
+        fileName = args.Join(' ');
 
       var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
 

@@ -82,7 +82,7 @@ namespace CsvTools
     /// <summary>
     ///   Check if the length of the provided string could fit to the date format
     /// </summary>
-    /// <param name="actual">The actual value.</param>
+    /// <param name="actualLength">The actual value.</param>
     /// <param name="dateFormat">The date format to check.</param>
     /// <returns><c>true</c> if key was found</returns>    
     public bool DateLengthMatches(int actualLength, in string dateFormat)

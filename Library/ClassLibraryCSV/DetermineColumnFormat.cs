@@ -136,7 +136,7 @@ namespace CsvTools
 
         columnNamesInFile.Add(readerColumn.Name);
 
-        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
+        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(readerColumn.Name) > 0)
         {
           Logger.Information("{column} – ID columns ignored", readerColumn.Name);
           result.Add($"{readerColumn.Name} – ID columns ignored");
