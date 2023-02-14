@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -24,7 +25,7 @@ namespace CsvTools
   public sealed class CheckResult
   {
     private readonly HashSet<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    public IReadOnlyCollection<string> ExampleNonMatch => m_ExampleNonMatch;
+    public IReadOnlyCollection<ReadOnlyMemory<char>> ExampleNonMatch => m_ExampleNonMatch.Select(x=> x.AsMemory()).ToArray();
 
     /// <summary>
     ///   The found value format
@@ -64,8 +65,8 @@ namespace CsvTools
       ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
       foreach (var ex in subResult.ExampleNonMatch)
-        if (!string.IsNullOrEmpty(ex))
-          m_ExampleNonMatch.Add(ex);
+        if (!ex.IsEmpty)
+          m_ExampleNonMatch.Add(ex.Span.ToString());
     }
   }
 }

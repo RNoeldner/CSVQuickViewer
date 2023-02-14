@@ -31,12 +31,11 @@ namespace CsvTools
       new HashSet<string>(new[] { CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol, "$", "€", "£", "¥", "¢", "₨" },
         StringComparer.Ordinal);
 
-    public static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" },
-      StringComparer.Ordinal);
+    public static readonly IReadOnlyCollection<char> DecimalGroupings = new HashSet<char>(
+      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0], '.', ',', ' ' });
 
-    public static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
+    public static readonly IReadOnlyCollection<char> DecimalSeparators = new HashSet<char>(
+      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ',' });
 
     // used to get rid of numeric suffixes like 12th or 3rd
     internal static readonly Lazy<Regex> RegExNumberSuffixEnglish =

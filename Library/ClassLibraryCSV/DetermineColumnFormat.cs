@@ -204,31 +204,18 @@ namespace CsvTools
         }
         else
         {
-          // var detect = true;
-          //if (samples.Values.Count() < fillGuessSettings.MinSamples && othersValueFormatDate)
-          //{
-          //  Logger.Information(
-          //    "{column} – {values} values found in {records} rows. Not enough sample values – Format : {format}",
-          //    readerColumn.Name,
-          //    samples.Values.Count(),
-          //    samples.RecordsRead,
-          //    readerColumn.GetTypeAndFormatDescription());
-          //  detect = false;
-          //}
-          //else
-          //{
+         
           Logger.Information(
             "{column} – {values} values found in {records} row.",
             readerColumn.Name,
             samples.Values.Count(),
             samples.RecordsRead);
-          //}
-
+         
           var checkResult = GuessValueFormat(
             samples.Values,
             fillGuessSettings.MinSamples,
-            fillGuessSettings.TrueValue,
-            fillGuessSettings.FalseValue,
+            fillGuessSettings.TrueValue.AsSpan(),
+            fillGuessSettings.FalseValue.AsSpan(),
             fillGuessSettings.DetectBoolean,
             fillGuessSettings.DetectGuid,
             fillGuessSettings.DetectNumbers,
@@ -458,7 +445,7 @@ namespace CsvTools
                   1,
                   treatTextAsNull, 80,
                   cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-              if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
+              if (!firstValueNewColumn.IsEmpty && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
                 columnCollection.Add(columnTime.ReplaceValueFormat(
                     new ValueFormat(DataTypeEnum.DateTime,
@@ -501,7 +488,7 @@ namespace CsvTools
             : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, 80,
                 cancellationToken)
               .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-          if (firstValueNewColumn2 != null && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
+          if (!firstValueNewColumn2.IsEmpty && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
             columnCollection.Replace(
               new Column(
@@ -711,7 +698,7 @@ namespace CsvTools
     ///   is give what did not match
     /// </returns>
     /// <exception cref="ArgumentNullException">samples</exception>
-    public static CheckResult GuessDateTime(IReadOnlyCollection<string> samples,
+    public static CheckResult GuessDateTime(IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
@@ -719,7 +706,7 @@ namespace CsvTools
 
       var checkResult = new CheckResult();
 
-      var length = samples.Aggregate<string, long>(0, (current, sample) => current + sample.Length);
+      var length = samples.Aggregate<ReadOnlyMemory<char>, long>(0, (current, sample) => current + sample.Length);
       var commonLength = (int) (length / samples.Count);
 
 
@@ -727,7 +714,7 @@ namespace CsvTools
       var possibleDateSeparators = new List<string>();
       int best = int.MinValue;
       foreach (var kv in StringCollections.DateSeparators.ToDictionary(sep => sep, sep =>
-                 samples.Count(entry => entry.IndexOf(sep, StringComparison.Ordinal) != -1)).OrderByDescending(x => x.Value))
+                 samples.Count(entry => entry.Span.IndexOf(sep.AsSpan()) != -1)).OrderByDescending(x => x.Value))
       {
         // only take the separators that have been found, and then only takes the ones for the most rows
         if (kv.Value < best)
@@ -754,7 +741,7 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture, cancellationToken);
+            var res = StringConversionSpan.CheckDate(samples, fmt.AsSpan(), sep.AsSpan(), ":".AsSpan(), CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -764,11 +751,11 @@ namespace CsvTools
         else
         {
           // we have no date separator in the format no need to test different separators
-          var res = StringConversion.CheckDate(
+          var res = StringConversionSpan.CheckDate(
             samples,
-            fmt,
-            string.Empty,
-            ":",
+            fmt.AsSpan(),
+            ReadOnlySpan<char>.Empty,
+            ":".AsSpan(),
             CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
@@ -793,7 +780,7 @@ namespace CsvTools
     /// </returns>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
     public static CheckResult GuessNumeric(
-      IReadOnlyCollection<string> samples,
+      IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       bool guessPercentage,
       bool allowStartingZero,
       bool removeCurrencySymbols,
@@ -804,16 +791,14 @@ namespace CsvTools
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
       var possibleGrouping = StringCollections.DecimalGroupings.Where(
-        decGroup => !string.IsNullOrEmpty(decGroup)
-                    && samples.Any(smp => smp.IndexOf(decGroup, StringComparison.Ordinal) > -1)).ToList();
-      possibleGrouping.Add(string.Empty);
+        decGroup =>  samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
+      possibleGrouping.Add('\0');
       var possibleDecimal = StringCollections.DecimalSeparators.Where(
-        decSep => !string.IsNullOrEmpty(decSep)
-                  && samples.Any(smp => smp.IndexOf(decSep, StringComparison.Ordinal) > -1)).ToList();
+        decSep => samples.Any(smp => smp.Span.IndexOf(decSep) > -1)).ToList();
 
       // Need to have at least one decimal separator
       if (possibleDecimal.Count == 0)
-        possibleDecimal.Add(".");
+        possibleDecimal.Add('.');
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal
@@ -823,7 +808,7 @@ namespace CsvTools
             return checkResult;
           if (decimalSeparator.Equals(thousandSeparator))
             continue;
-          var res = StringConversion.CheckNumber(
+          var res = StringConversionSpan.CheckNumber(
             samples,
             decimalSeparator,
             thousandSeparator,
@@ -859,10 +844,10 @@ namespace CsvTools
     /// </param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
-    public static CheckResult GuessValueFormat(IReadOnlyCollection<string> samples,
+    public static CheckResult GuessValueFormat(IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       int minRequiredSamples,
-      in string trueValue,
-      in string falseValue,
+      ReadOnlySpan<char> trueValue,
+      ReadOnlySpan<char> falseValue,
       bool guessBoolean,
       bool guessGuid,
       bool guessNumeric,
@@ -886,17 +871,19 @@ namespace CsvTools
         var usedFalseValue = ValueFormat.cFalseDefault;
         foreach (var value in samples)
         {
-          var resultBool = StringConversion.StringToBooleanStrict(value, trueValue, falseValue);
+          (var resultBool, string val) = value.Span.StringToBoolean(trueValue, falseValue);
           if (resultBool is null)
           {
             allParsed = false;
             break;
           }
-
-          if (resultBool.Item1)
-            usedTrueValue = resultBool.Item2;
           else
-            usedFalseValue = resultBool.Item2;
+          {
+            if (resultBool.Value)
+              usedTrueValue = val;
+            else
+              usedFalseValue = val;
+          }
         }
 
         if (allParsed)
@@ -912,7 +899,7 @@ namespace CsvTools
       cancellationToken.ThrowIfCancellationRequested();
 
       // ---------------- GUID --------------------------
-      if (guessGuid && StringConversion.CheckGuid(samples, cancellationToken))
+      if (guessGuid && StringConversionSpan.CheckGuid(samples, cancellationToken))
       {
         checkResult.FoundValueFormat = new ValueFormat(DataTypeEnum.Guid);
         return checkResult;
@@ -930,11 +917,11 @@ namespace CsvTools
       // length Check Date will cut off time information , this is independent from minRequiredSamples
       if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringCollections.StandardDateTimeFormats.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
-        var checkResultDateTime = StringConversion.CheckDate(
+        var checkResultDateTime = StringConversionSpan.CheckDate(
           samples,
-          othersValueFormatDate.DateFormat,
-          othersValueFormatDate.DateSeparator,
-          othersValueFormatDate.TimeSeparator,
+          othersValueFormatDate.DateFormat.AsSpan(),
+          othersValueFormatDate.DateSeparator.AsSpan(),
+          othersValueFormatDate.TimeSeparator.AsSpan(),
           CultureInfo.CurrentCulture, cancellationToken);
         if (checkResultDateTime.FoundValueFormat != null)
           return checkResultDateTime;
@@ -949,11 +936,11 @@ namespace CsvTools
         // Guess a date format that could be interpreted as number before testing numbers
         if (guessDateTime && firstValue.Length == 8)
         {
-          var checkResultDateTime = StringConversion.CheckDate(
+          var checkResultDateTime = StringConversionSpan.CheckDate(
             samples,
-            "yyyyMMdd",
-            string.Empty,
-            ":",
+            "yyyyMMdd".AsSpan(),
+            ReadOnlySpan<char>.Empty,
+            ":".AsSpan(),
             CultureInfo.InvariantCulture, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
@@ -965,7 +952,7 @@ namespace CsvTools
         // We need to have at least 10 sample values here its too dangerous to assume it is a date
         if (guessDateTime && serialDateTime && samples.Count > 10)
         {
-          var checkResultDateTime = StringConversion.CheckSerialDate(samples, true, cancellationToken);
+          var checkResultDateTime = StringConversionSpan.CheckSerialDate(samples, true, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -998,7 +985,7 @@ namespace CsvTools
 
       if (!checkResult.PossibleMatch)
       {
-        var res = StringConversion.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
+        var res = StringConversionSpan.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
         if (res != DataTypeEnum.String)
         {
           checkResult.PossibleMatch = true;
@@ -1018,7 +1005,7 @@ namespace CsvTools
       // ReSharper disable once InvertIf
       if (samples.Count >= minRequiredSamples)
       {
-        var res = StringConversion.CheckSerialDate(samples, false, cancellationToken);
+        var res = StringConversionSpan.CheckSerialDate(samples, false, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);
@@ -1048,7 +1035,7 @@ namespace CsvTools
           (items[i], items[pos]) = (items[pos], items[i]);
         }
 
-        Values = new ReadOnlyCollection<string>(items);
+        Values = new ReadOnlyCollection<ReadOnlyMemory<char>>(items.Select(x=> x.AsMemory()).ToList());
       }
 
       /// <summary>
@@ -1061,8 +1048,7 @@ namespace CsvTools
       ///   Gets the values.
       /// </summary>
       /// <value>The unique values read in random order</value>
-      public IReadOnlyCollection<string> Values { get; }
-
+      public IReadOnlyCollection<ReadOnlyMemory<char>> Values { get; }
     }
 
 #if !QUICK
@@ -1096,11 +1082,11 @@ namespace CsvTools
       // in case there is no delimiter but its a delimited file, do nothing
       if (fileSetting is ICsvFile { FieldDelimiterChar: char.MinValue })
         return (new List<string>(), fileSetting.ColumnCollection);
-     
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);      
+      using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);
       return await FillGuessColumnFormatReaderAsyncReader(
         fileReader,
         fillGuessSettings,

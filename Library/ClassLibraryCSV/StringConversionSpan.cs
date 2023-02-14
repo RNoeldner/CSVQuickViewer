@@ -29,8 +29,8 @@ namespace CsvTools
     public static CheckResult CheckDate(
       IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       ReadOnlySpan<char> shortDateFormat,
-      char dateSeparator,
-      char timeSeparator,
+      ReadOnlySpan<char> dateSeparator,
+      ReadOnlySpan<char> timeSeparator,
       in CultureInfo culture,
       CancellationToken cancellationToken)
     {
@@ -69,8 +69,8 @@ namespace CsvTools
           checkResult.ValueFormatPossibleMatch = new ValueFormat(
             DataTypeEnum.DateTime,
             shortDateFormat.ToString(),
-            dateSeparator.ToStringHandle0(),
-            timeSeparator.ToStringHandle0());
+            dateSeparator.ToString(),
+            timeSeparator.ToString());
         }
       }
 
@@ -78,8 +78,8 @@ namespace CsvTools
         checkResult.FoundValueFormat = new ValueFormat(
           DataTypeEnum.DateTime,
           shortDateFormat.ToString(),
-          dateSeparator.ToStringHandle0(),
-          timeSeparator.ToStringHandle0());
+          dateSeparator.ToString(),
+          timeSeparator.ToString());
 
       return checkResult;
     }
@@ -239,8 +239,8 @@ namespace CsvTools
           dateColumnText,
           valueFormat.DateFormat.AsSpan(),
           ReadOnlySpan<char>.Empty,
-          valueFormat.DateSeparator.FromText(),
-          valueFormat.TimeSeparator.FromText(),
+          valueFormat.DateSeparator.AsSpan(),
+          valueFormat.TimeSeparator.AsSpan(),
           serialDateTime);
         if (val.HasValue)
           dateValue = val.Value;
@@ -275,7 +275,7 @@ namespace CsvTools
             break;
         }
 
-      timeSpanValue ??= StringToTimeSpan(timeColumnText, ':', serialDateTime);
+      timeSpanValue ??= StringToTimeSpan(timeColumnText, ":".AsSpan(), serialDateTime);
 
       if (timeSpanValue.HasValue)
       {
@@ -301,8 +301,8 @@ namespace CsvTools
       ReadOnlySpan<char> datePart,
       ReadOnlySpan<char> dateFormat,
       ReadOnlySpan<char> timePart,
-      char dateSeparator,
-      char timeSeparator,
+      ReadOnlySpan<char> dateSeparator,
+      ReadOnlySpan<char> timeSeparator,
       bool serialDateTime)
     {
       if (dateFormat.IsEmpty)
@@ -333,34 +333,34 @@ namespace CsvTools
     }
 
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-    public static bool? StringToBoolean(this ReadOnlySpan<char> value, ReadOnlySpan<char> trueValue,
+    public static (bool?, string value) StringToBoolean(this ReadOnlySpan<char> value, ReadOnlySpan<char> trueValue,
       ReadOnlySpan<char> falseValue)
     {
       if (value.Length == 0)
-        return null;
+        return (null, string.Empty);
 
       foreach ((int start, int length) valueTuple in trueValue.GetSlices(StringUtils.DelimiterChars))
         if (value.Equals(trueValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
-          return true;
+          return (true, trueValue.Slice(valueTuple.start, valueTuple.length).ToString());
       foreach (var text in StringCollections.m_TrueValues)
         if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return true;
+          return (true, text);
 
       foreach ((int start, int length) valueTuple in falseValue.GetSlices(StringUtils.DelimiterChars))
         if (value.Equals(falseValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
-          return false;
+          return (false, falseValue.Slice(valueTuple.start, valueTuple.length).ToString());
       foreach (var text in StringCollections.m_FalseValues)
         if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return false;
+          return (false, text);
 
-      return null;
+      return (null, string.Empty);
     }
 
     public static DateTime? StringToDateTime(
       ReadOnlySpan<char> originalValue,
       ReadOnlySpan<char> dateFormats,
-      char dateSeparator,
-      char timeSeparator,
+      ReadOnlySpan<char> dateSeparator,
+      ReadOnlySpan<char> timeSeparator,
       bool serialDateTime)
     {
       var stringDateValue = originalValue.Trim();
@@ -387,8 +387,8 @@ namespace CsvTools
     public static DateTime? StringToDateTimeExact(
       ReadOnlySpan<char> originalValue,
       ReadOnlySpan<char> dateFormats,
-      char dateSeparator,
-      char timeSeparator,
+      ReadOnlySpan<char> dateSeparator,
+      ReadOnlySpan<char> timeSeparator,
       in CultureInfo culture)
     {
       var stringDateValue = originalValue.Trim().ToString().Replace("\t", " ").Replace("  ", " ").AsSpan();
@@ -636,7 +636,7 @@ namespace CsvTools
       return value.Slice(slice.start);
     }
 
-    public static TimeSpan? StringToTimeSpan(ReadOnlySpan<char> originalValue, char separator, bool serialDateTime)
+    public static TimeSpan? StringToTimeSpan(ReadOnlySpan<char> originalValue, ReadOnlySpan<char> separator, bool serialDateTime)
     {
       var stringTimeValue = originalValue.Trim();
       if (stringTimeValue.IsEmpty)
@@ -644,7 +644,7 @@ namespace CsvTools
 
       var min = 0;
       var sec = 0;
-      var hrsIndex = IndexOf(stringTimeValue, separator);
+      var hrsIndex = stringTimeValue.IndexOf(separator, StringComparison.Ordinal);
       if (hrsIndex < 0)
       {
         if (!serialDateTime)
@@ -669,7 +669,8 @@ namespace CsvTools
             , out var hours))
       {
         hrsIndex++;
-        var minIndex = stringTimeValue.IndexOf(separator, hrsIndex);
+        //TODO Check if this is working as we possbly need to add hrsIndex because it was moved
+        var minIndex = stringTimeValue.Slice(hrsIndex).IndexOf(separator);
         if (minIndex > 0)
         {
           if (int.TryParse(
@@ -780,8 +781,8 @@ namespace CsvTools
     private static DateTime? StringToDateTimeByCulture(
       ReadOnlySpan<char> stringDateValue,
       in string[] dateTimeFormats,
-      in char dateSeparator,
-      in char timeSeparator,
+      ReadOnlySpan<char> dateSeparator,
+      ReadOnlySpan<char> timeSeparator,
       in CultureInfo culture)
     {
       while (true)
@@ -789,8 +790,8 @@ namespace CsvTools
         var dateTimeFormatInfo = new DateTimeFormatInfo();
 
         dateTimeFormatInfo.SetAllDateTimePatterns(dateTimeFormats, 'd');
-        dateTimeFormatInfo.DateSeparator = dateSeparator.ToStringHandle0();
-        dateTimeFormatInfo.TimeSeparator = timeSeparator.ToStringHandle0();
+        dateTimeFormatInfo.DateSeparator = dateSeparator.ToString();
+        dateTimeFormatInfo.TimeSeparator = timeSeparator.ToString();
 
         dateTimeFormatInfo.AbbreviatedDayNames = culture.DateTimeFormat.AbbreviatedDayNames;
         dateTimeFormatInfo.DayNames = culture.DateTimeFormat.DayNames;
