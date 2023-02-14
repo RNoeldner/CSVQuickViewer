@@ -47,9 +47,9 @@ namespace CsvTools
           else if (m_Type == PunctuationType.Time)
             m_Common=":".ToCharArray();
           else if (m_Type == PunctuationType.Decimal)
-            m_Common=StringCollections.DecimalSeparators.Select(x => x.FromText()).ToArray();
+            m_Common=StringCollections.DecimalSeparators.ToArray();
           else if (m_Type == PunctuationType.Grouping)
-            m_Common=StringCollections.DecimalGroupings.Select(x => x.FromText()).ToArray();
+            m_Common=StringCollections.DecimalGroupings.ToArray();
         }
       }
     }

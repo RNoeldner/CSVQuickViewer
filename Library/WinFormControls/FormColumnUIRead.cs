@@ -187,8 +187,8 @@ namespace CsvTools
             var checkResult = DetermineColumnFormat.GuessValueFormat(
               samples: samples.Values,
               minRequiredSamples: 1,
-              trueValue: m_FillGuessSettings.TrueValue,
-              falseValue: m_FillGuessSettings.FalseValue,
+              trueValue: m_FillGuessSettings.TrueValue.AsSpan(),
+              falseValue: m_FillGuessSettings.FalseValue.AsSpan(),
               guessBoolean: true,
               guessGuid: true,
               guessNumeric: true,
@@ -257,8 +257,7 @@ namespace CsvTools
                     BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
                       checkResult.ExampleNonMatch),
                     $"Column: {columnName}",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    MessageBoxButtons.OK,MessageBoxIcon.Information);
                 }
 
                 RefreshData();
@@ -267,7 +266,7 @@ namespace CsvTools
               {
                 // add the regular samples to the invalids that are first
                 var displayMsg =
-                  $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Join("\t")}";
+                  $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Select(x=>x.Span.ToString()).Join("\t")}";
 
                 if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                 {
@@ -425,7 +424,7 @@ namespace CsvTools
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
-      IReadOnlyCollection<string> values1, int col1, string? headerList2 = null, IReadOnlyCollection<string>? values2 = null,
+      IReadOnlyCollection<ReadOnlyMemory<char>> values1, int col1, string? headerList2 = null, IReadOnlyCollection<ReadOnlyMemory<char>>? values2 = null,
       int col2 = 2)
     {
       var st = new HtmlStyle("<STYLE type=\"text/css\">\r\n" +
@@ -697,7 +696,7 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
-    private void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<string>? values, int col,
+    private void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<ReadOnlyMemory<char>>? values, int col,
       int rows)
     {
       if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
@@ -708,11 +707,11 @@ namespace CsvTools
       stringBuilder.AppendLine(HtmlStyle.TrOpen);
       for (var index = 1; index <= texts.Length; index++)
       {
-        if (string.IsNullOrEmpty(texts[index - 1]))
+        if (string.IsNullOrEmpty(texts[index - 1].Span.ToString()))
           stringBuilder.AppendLine(HtmlStyle.TdEmpty);
         else
           stringBuilder.AppendLine(string.Format(HtmlStyle.Td,
-            HtmlStyle.TextToHtmlEncode(texts[index - 1])));
+            HtmlStyle.TextToHtmlEncode(texts[index - 1].Span.ToString())));
         if (index % col == 0)
           stringBuilder.AppendLine(HtmlStyle.TrClose);
       }

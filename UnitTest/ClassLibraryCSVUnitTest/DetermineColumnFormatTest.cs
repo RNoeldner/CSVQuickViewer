@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -68,7 +69,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GuessDateTimeTest()
     {
-      var list = new List<string>();
+      var list = new List<ReadOnlyMemory<char>>();
       try
       {
         Assert.IsNull(DetermineColumnFormat.GuessDateTime(list, UnitTestStatic.Token).FoundValueFormat);
@@ -78,12 +79,12 @@ namespace CsvTools.Tests
         // fine passing an empty list can raise an error
       }
 
-      list.Add("09/09/2020");
-      list.Add("10/10/2020");
-      list.Add("11/11/2020");
+      list.Add("09/09/2020".AsMemory());
+      list.Add("10/10/2020".AsMemory());
+      list.Add("11/11/2020".AsMemory());
       var df = DetermineColumnFormat.GuessDateTime(list, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
       Assert.IsTrue(df == "MM/dd/yyyy" | df == "dd/MM/yyyy");
-      list.Add("24/12/2020");
+      list.Add("24/12/2020".AsMemory());
       Assert.IsTrue(new ValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat
         .GuessDateTime(list, UnitTestStatic.Token).FoundValueFormat!));
     }
@@ -91,7 +92,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GuessNumericTest()
     {
-      var list = new List<string>();
+      var list = new List<ReadOnlyMemory<char>>();
       try
       {
         Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, true, UnitTestStatic.Token).FoundValueFormat);
@@ -105,10 +106,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GuessValueFormatTest()
     {
-      var list = new List<string>();
+      var list = new List<ReadOnlyMemory<char>>();
       try
       {
-        Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true", "false",
+        Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true".AsSpan(), "false".AsSpan(),
             true, true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token)
           .FoundValueFormat);
       }
@@ -590,8 +591,8 @@ namespace CsvTools.Tests
         "NULL", 40, UnitTestStatic.Token);
       Assert.AreEqual(7, samples[0].Values.Count());
       Assert.IsTrue(samples[0].RecordsRead >= 7);
-      Assert.IsTrue(samples[0].Values.Contains("1"));
-      Assert.IsTrue(samples[0].Values.Contains("4"));
+      Assert.IsTrue(samples[0].Values.Select(x=>x.Span.ToString()).Contains("1"));
+      Assert.IsTrue(samples[0].Values.Select(x=>x.Span.ToString()).Contains("4"));
     }
 
     [TestMethod]
@@ -627,10 +628,10 @@ namespace CsvTools.Tests
       string[] values = { "True", "False" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
-        "True",
-        "False",
+        "True".AsSpan(),
+        "False".AsSpan(),
         true,
         false,
         true,
@@ -648,10 +649,10 @@ namespace CsvTools.Tests
       string[] values = { "Yes", "No" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         2,
         null,
-        "False",
+        "False".AsSpan(),
         true,
         false,
         true,
@@ -669,10 +670,10 @@ namespace CsvTools.Tests
       string[] values = { "01/02/2010", "14/02/2012", "02/14/2012" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+        "false".AsSpan(),
         true,
         false,
         true,
@@ -692,10 +693,10 @@ namespace CsvTools.Tests
       string[] values = { "01/02/2010", "14/02/2012", "01/02/2012", "12/12/2012", "16/12/2012" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+        "false".AsSpan(),
         true,
         false,
         true,
@@ -715,10 +716,10 @@ namespace CsvTools.Tests
       string[] values = { "01.02.2010", "14.02.2012", "16.02.2012", "01.04.2014", "31.12.2010" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+        "false".AsSpan(),
         true,
         false,
         true,
@@ -739,10 +740,10 @@ namespace CsvTools.Tests
       string[] values = { "{0799A029-8B85-4589-8341-C7038AFF5B48}", "99DDD263-2E2D-434F-9265-33CF893B02DF" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+       null,
         false,
         true,
         false,
@@ -761,10 +762,10 @@ namespace CsvTools.Tests
       string[] values = { "1", "2", "3", "4", "5" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "False",
+        null,
         true,
         false,
         true,
@@ -783,10 +784,10 @@ namespace CsvTools.Tests
       string[] values = { "-1", " 2", "3 ", "4", "100", "10" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "False",
+        null,
         true,
         false,
         true,
@@ -805,10 +806,10 @@ namespace CsvTools.Tests
       string[] values = { "01/02/2010", "02/14/2012", "02/17/2012", "02/22/2012", "03/01/2012" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+         null,
         true,
         false,
         true,
@@ -829,10 +830,10 @@ namespace CsvTools.Tests
       string[] values = { "20100929", "20120214", "20120217", "20120222", "20120301" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+         null,
         true,
         false,
         true,
@@ -851,10 +852,10 @@ namespace CsvTools.Tests
     {
       string[] values = { "01/02/2010", "02/12/2012" };
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+        values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+         null,
         true,
         false,
         true,
@@ -873,10 +874,10 @@ namespace CsvTools.Tests
       string[] values = { "01/02/2010", "02/12/2012" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+          values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "false",
+        null,
         true,
         false,
         true,
@@ -898,10 +899,10 @@ namespace CsvTools.Tests
       try
       {
         DetermineColumnFormat.GuessValueFormat(
-          values,
+          values.Select(x=>x.AsMemory()).ToArray(),
           4,
           null,
-          "False",
+          "False".AsSpan(),
           true,
           false,
           true,
@@ -934,10 +935,10 @@ namespace CsvTools.Tests
       };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+          values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "False",
+        null,
         false,
         false,
         false,
@@ -956,10 +957,10 @@ namespace CsvTools.Tests
       string[] values = { "1", "2.5", "3", "4", "5.3" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+         values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "False",
+        "False".AsSpan(),
         true,
         false,
         true,
@@ -979,10 +980,10 @@ namespace CsvTools.Tests
       string[] values = { "1", "2,5", "1.663", "4", "5,3" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+         values.Select(x=>x.AsMemory()).ToArray(),
         4,
-        null,
-        "False",
+         "True".AsSpan(),
+       "False".AsSpan(),
         true,
         false,
         true,
@@ -1005,10 +1006,10 @@ namespace CsvTools.Tests
       string[] values = { "1.0.1.2", "1.0.2.1", "1.0.2.2", "1.0.2.3", "1.0.2.3" };
 
       var res = DetermineColumnFormat.GuessValueFormat(
-        values,
+       values.Select(x=>x.AsMemory()).ToArray(),
         4,
         null,
-        "False",
+         "False".AsSpan(),
         false,
         false,
         true,
