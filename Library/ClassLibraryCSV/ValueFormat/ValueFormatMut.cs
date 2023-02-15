@@ -55,9 +55,9 @@ namespace CsvTools
     {
     }
 
-    public ValueFormatMut(ValueFormat source) : this(source.DataType, source.DateFormat, source.DateSeparator,
-      source.TimeSeparator, source.NumberFormat, source.GroupSeparator, source.DecimalSeparator, source.True,
-      source.False, source.DisplayNullAs, source.Part, source.PartSplitter, source.PartToEnd, source.RegexSearchPattern,
+    public ValueFormatMut(ValueFormat source) : this(source.DataType, source.DateFormat, source.DateSeparator.Text(),
+      source.TimeSeparator.Text(), source.NumberFormat, source.GroupSeparator.Text(), source.DecimalSeparator.Text(), source.True,
+      source.False, source.DisplayNullAs, source.Part, source.PartSplitter.Text(), source.PartToEnd, source.RegexSearchPattern,
       source.RegexReplacement, source.ReadFolder, source.WriteFolder, source.FileOutPutPlaceholder, source.Overwrite)
     {
     }
@@ -338,16 +338,16 @@ namespace CsvTools
         return;
       DataType = other.DataType;
       DateFormat = other.DateFormat;
-      DateSeparator = other.DateSeparator;
-      TimeSeparator = other.TimeSeparator;
+      DateSeparator = other.DateSeparator.Text();
+      TimeSeparator = other.TimeSeparator.Text();
       NumberFormat = other.NumberFormat;
-      GroupSeparator = other.GroupSeparator;
-      DecimalSeparator = other.DecimalSeparator;
+      GroupSeparator = other.GroupSeparator.Text();
+      DecimalSeparator = other.DecimalSeparator.Text();
       True = other.True;
       False = other.False;
       DisplayNullAs = other.DisplayNullAs;
       Part = other.Part;
-      PartSplitter = other.PartSplitter;
+      PartSplitter = other.PartSplitter.Text();
       PartToEnd = other.PartToEnd;
       RegexSearchPattern = other.RegexSearchPattern;
       RegexReplacement = other.RegexReplacement;

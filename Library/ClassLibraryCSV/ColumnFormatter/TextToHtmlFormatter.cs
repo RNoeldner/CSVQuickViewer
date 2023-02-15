@@ -36,5 +36,8 @@ namespace CsvTools
         handleWarning?.Invoke($"HTML encoding removed from {inputString}");
       return output;
     }
+
+    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+      => FormatInputText(inputString.ToString(), handleWarning);
   }
 }

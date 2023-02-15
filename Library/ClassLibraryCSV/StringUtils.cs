@@ -29,16 +29,6 @@ namespace CsvTools
   [DebuggerStepThrough]
   public static class StringUtils
   {
-    public static readonly char[] Spaces =
-    {
-      ' ', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007',
-      '\u2008', '\u2009', '\u200A', '\u200B', '\u202F', '\u205F', '\u3000', '\uFEFF'
-    };
-
-    /// <summary>
-    ///   ; | CR LF Tab
-    /// </summary>
-    public static readonly char[] DelimiterChars = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -306,16 +296,22 @@ namespace CsvTools
         }
       }
 
+      
       if (!allRequiredFound)
         return allRequiredFound;
+
+      bool hasTests = false;
       for (int i = 0; i < slices.Count; i++)
       {
-        if (slices[i].length!=0 && !requiredParts.Contains(i))
+        if (slices[i].length != 0 && !requiredParts.Contains(i))
+        {
+          hasTests = true;
           if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1)
             return true;
+        }
       }
 
-      return allRequiredFound && requiredParts.Count>1;
+      return (allRequiredFound && requiredParts.Count > 0) || !hasTests;
     }
 
     /// <summary>
@@ -355,7 +351,7 @@ namespace CsvTools
       if (treatAsNull.Length == 0)
         return false;
       return value is null || value.Length == 0 ||
-             treatAsNull.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+             treatAsNull.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -372,7 +368,7 @@ namespace CsvTools
         return false;
       if (value.Length == 0)
         return true;
-      foreach (var valueTuple in treatAsNull.GetSlices(DelimiterChars))
+      foreach (var valueTuple in treatAsNull.GetSlices(StaticCollections.ListDelimiterChars))
       {
         if (value.Equals(treatAsNull.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
           return true;
@@ -482,7 +478,6 @@ namespace CsvTools
       return true;
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
       result = entry;
@@ -500,10 +495,9 @@ namespace CsvTools
 #if NET7_0_OR_GREATER
       return Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*");
 #else
-      return Regex.IsMatch(new string(entry), @"-?[0-9]+\.?[0-9]*");
+      return Regex.IsMatch(entry.ToString(), @"-?[0-9]+\.?[0-9]*");
 #endif
     }
-#endif
 
   }
 }

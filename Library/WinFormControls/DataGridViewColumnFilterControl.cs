@@ -168,11 +168,10 @@ namespace CsvTools
         case TypeCode.UInt16:
         case TypeCode.UInt32:
         case TypeCode.UInt64:
-          var nvalue = StringConversion.StringToDecimal(
-                         textBoxValue.Text,
-                         CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
-                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
-                         false, false) ?? StringConversion.StringToDecimal(textBoxValue.Text, ".", "", false, false);
+          var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                         false, false) ?? 
+                       textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
           if (!nvalue.HasValue)
           {
             textBoxValue.Width = dateTimePickerValue.Width - 20;

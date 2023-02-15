@@ -27,13 +27,15 @@ namespace CsvTools.Tests
   {
 
     [TestMethod]
-    public void GetDelimiers()
+    [Ignore("Used to provide information")]
+    public void GetCultureInfo()
     {
       var dateSeparator = new HashSet<string>();
       var timeSeparator = new HashSet<string>();
       var decimalSeparator =new HashSet<string>();
       var groupSeperator =new HashSet<string>();
-
+      var currency =new HashSet<string>();
+      var listSep = new HashSet<string>();
       foreach (var ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
       {
         dateSeparator.Add(ci.DateTimeFormat.DateSeparator);
@@ -42,12 +44,22 @@ namespace CsvTools.Tests
         decimalSeparator.Add(ci.NumberFormat.NumberDecimalSeparator);
         //groupSeperator.Add(ci.NumberFormat.CurrencyGroupSeparator);
         groupSeperator.Add(ci.NumberFormat.NumberGroupSeparator);
-      }
-      Debug.WriteLine(dateSeparator.Select(x=>"'" + x + "'").Join(","));
-      Debug.WriteLine(timeSeparator.Select(x=>"'" + x + "'").Join(","));
-      Debug.WriteLine(decimalSeparator.Select(x=>"'" + x + "'").Join(","));
-      Debug.WriteLine(groupSeperator.Select(x=>"'" + x + "'").Join(","));
+        if (ci.NumberFormat.CurrencySymbol.Length == 1)
+        {
+          if ((ci.NumberFormat.CurrencySymbol[0]<'a' || ci.NumberFormat.CurrencySymbol[0]>'z') &&
+              (ci.NumberFormat.CurrencySymbol[0]<'A' || ci.NumberFormat.CurrencySymbol[0]>'Z'))
+          currency.Add(ci.NumberFormat.CurrencySymbol);
+        }
 
+        listSep.Add(ci.TextInfo.ListSeparator);
+      }
+      Debug.WriteLine(listSep.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
+      Debug.WriteLine(dateSeparator.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
+      Debug.WriteLine(timeSeparator.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
+      Debug.WriteLine(decimalSeparator.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
+      Debug.WriteLine(groupSeperator.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
+      
+      Debug.WriteLine(currency.Select(x=>"'" + x.SqlQuote() + "'").Join(","));
     }
     [TestMethod]
     public void GetSourceColumnInformation_OverwrittenType()

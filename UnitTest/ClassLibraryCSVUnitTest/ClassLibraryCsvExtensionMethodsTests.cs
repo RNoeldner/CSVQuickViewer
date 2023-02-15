@@ -120,8 +120,8 @@ namespace CsvTools.Tests
     public void CountTest()
     {
       var list = new List<int> { 1, 2, 3 };
-      Assert.AreEqual(2, ClassLibraryCsvExtensionMethods.Count(list.Where(x => x < 3)));
-      Assert.AreEqual(3, ClassLibraryCsvExtensionMethods.Count(list));
+      Assert.AreEqual(2, list.Where(x => x < 3).Count());
+      Assert.AreEqual(3, list.Count());
     }
 
     [TestMethod()]

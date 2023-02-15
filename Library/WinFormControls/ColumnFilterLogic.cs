@@ -275,7 +275,7 @@ namespace CsvTools
     {
       if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText, m_ColumnDataType));
+      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_ColumnDataType));
     }
 
 
@@ -307,9 +307,9 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>A string with the formatted value</returns>
-    private static string FormatValue(in string value, Type targetType)
+    private static string FormatValue(ReadOnlySpan<char> value, Type targetType)
     {
-      if (string.IsNullOrEmpty(value))
+      if (value.IsEmpty)
         return string.Empty;
       switch (Type.GetTypeCode(targetType))
       {
@@ -327,23 +327,21 @@ namespace CsvTools
         case TypeCode.UInt16:
         case TypeCode.UInt32:
         case TypeCode.UInt64:
-          var decValue = StringConversion.StringToDecimal(
-                           value,
-                           CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
-                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
-                           false, false) ?? 
-                           StringConversion.StringToDecimal(value, ".", "", false, false);
+          var decValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                           false, false) ??
+                         value.StringToDecimal('.', char.MinValue, false, false);
           return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
         case TypeCode.Boolean:
-          var boolValue = StringConversion.StringToBoolean(value, "x", null);
+          var boolValue = value.StringToBoolean("x".AsSpan(), ReadOnlySpan<char>.Empty);
           if (boolValue.HasValue)
             return boolValue.Value ? "1" : "0";
           break;
 
         case TypeCode.Object:
           if (targetType == typeof(Guid))
-            return $"'{value.SqlQuote()}'";
+            return $"'{value.SqlQuote().ToString()}'";
           break;
 
         case TypeCode.Empty:
@@ -351,7 +349,7 @@ namespace CsvTools
           break;
 
         default:
-          return $"'{value.SqlQuote()}'";
+          return $"'{value.SqlQuote().ToString()}'";
       }
 
       return string.Empty;
@@ -390,7 +388,7 @@ namespace CsvTools
         }
       }
 
-      return Convert.ToString(returnVal) ?? string.Empty;
+      return returnVal.ToString();
     }
 
     /// <summary>
@@ -449,12 +447,12 @@ namespace CsvTools
           break;
 
         case cOperatorLonger:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText, typeof(int))))
+          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), typeof(int))))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
         case cOperatorShorter:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText, typeof(int))))
+          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), typeof(int))))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
@@ -495,7 +493,7 @@ namespace CsvTools
           {
             if (string.IsNullOrEmpty(m_ValueText))
               return string.Empty;
-            filterValue = FormatValue(m_ValueText, m_ColumnDataType);
+            filterValue = FormatValue(m_ValueText.AsSpan(), m_ColumnDataType);
           }
 
           if (!string.IsNullOrEmpty(filterValue))
@@ -533,7 +531,7 @@ namespace CsvTools
 
       if (counter > 1)
         return "(" + sql + ")";
-      return counter == 1 ? Convert.ToString(sql) ?? string.Empty : string.Empty;
+      return counter == 1 ? sql.ToString() : string.Empty;
     }
 
     /// <summary>

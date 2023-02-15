@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     public void GetPartsEndingSepTest()
     {
       var span = "This;is;a;".AsSpan();
-      var list = span.GetSlices(StringUtils.DelimiterChars);
+      var list = span.GetSlices(StaticCollections.ListDelimiterChars);
       Assert.AreEqual(3, list.Count());
       var first = list.First();
       Assert.AreEqual("This", new string(span.Slice(first.start, first.length)));
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
     public void GetPartsOpenEnding()
     {
       var span = "This;is;a".AsSpan();
-      var list = span.GetSlices(StringUtils.DelimiterChars);
+      var list = span.GetSlices(StaticCollections.ListDelimiterChars);
       Assert.AreEqual(3, list.Count());
       var first = list.First();
       Assert.AreEqual("This", new string(span.Slice(first.start, first.length)));
@@ -54,7 +54,7 @@ namespace CsvTools.Tests
     public void GetPartsNoSep()
     {
       var span = "This is".AsSpan();
-      var list = span.GetSlices(StringUtils.DelimiterChars);
+      var list = span.GetSlices(StaticCollections.ListDelimiterChars);
       Assert.AreEqual(1, list.Count());
       var first = list.First();
       Assert.AreEqual("This is", new string(span.Slice(first.start, first.length)));
@@ -64,22 +64,24 @@ namespace CsvTools.Tests
     [Timeout(500)]
     public void StringToBooleanSpanTest()
     {
-      Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;", "?"));
-      Assert.IsTrue("*".AsSpan().StringToBoolean("*", "?"));
-      Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;", "?"));
-      Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty, ReadOnlySpan<char>.Empty));
-      Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty));
+#pragma warning disable CS8629 
+      Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Item1.Value);
+      Assert.IsTrue("*".AsSpan().StringToBoolean("*".AsSpan(), "?".AsSpan()).Item1.Value);
+      Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Item1.Value);
+      Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty.AsSpan(), ReadOnlySpan<char>.Empty).Item1);
+      Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).Item1.Value);
+#pragma warning restore CS8629 
     }
 
     [TestMethod]
     [Timeout(500)]
     public void StringToTextPartTest()
     {
-      Assert.AreEqual("Part2;Part3;Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 2, true));
-      Assert.AreEqual("Part2;Part3;Part4;", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 3, true));
-      Assert.AreEqual("Part1", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 1, false));
-      Assert.AreEqual("", StringConversion.StringToTextPart("Part1;;Part3;Part4", ';', 2, false));
-      Assert.AreEqual("Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 4, false));
+      Assert.AreEqual("Part2;Part3;Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 2, true).ToString());
+      Assert.AreEqual("Part2;Part3;Part4;", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 3, true).ToString());
+      Assert.AreEqual("Part1", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 1, false).ToString());
+      Assert.AreEqual("", "Part1;;Part3;Part4".AsSpan().StringToTextPart(';', 2, false).ToString());
+      Assert.AreEqual("Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 4, false).ToString());
     }
 
   }

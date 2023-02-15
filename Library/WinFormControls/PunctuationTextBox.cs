@@ -35,21 +35,21 @@ namespace CsvTools
         {
           m_Type = value;
           if (m_Type == PunctuationType.Delimiter)
-            m_Common=DelimiterCounter.GetPossibleDelimiters().ToArray();
+            m_Common=StaticCollections.DelimiterChars;
           else if (m_Type == PunctuationType.Qualifier)
-            m_Common=DetectionQualifier.PossibleQualifier.ToCharArray();
+            m_Common=StaticCollections.PossibleQualifiers;
           else if (m_Type == PunctuationType.Escape)
-            m_Common=DetectionEscapePrefix.PossibleEscapePrefix.ToCharArray().ToArray();
+            m_Common=StaticCollections.EscapePrefixChars;
           else if (m_Type == PunctuationType.List)
-            m_Common=";,\t\r\n".ToCharArray();
+            m_Common= StaticCollections.ListDelimiterChars;
           else if (m_Type == PunctuationType.Date)
-            m_Common=StringCollections.DateSeparators.Select(x => x.FromText()).ToArray();
+            m_Common=StaticCollections.DateSeparatorChars;
           else if (m_Type == PunctuationType.Time)
-            m_Common=":".ToCharArray();
+            m_Common=StaticCollections.TimeSeparators;
           else if (m_Type == PunctuationType.Decimal)
-            m_Common=StringCollections.DecimalSeparators.ToArray();
+            m_Common=StaticCollections.DecimalSeparatorChars;
           else if (m_Type == PunctuationType.Grouping)
-            m_Common=StringCollections.DecimalGroupings.ToArray();
+            m_Common=StaticCollections.DecimalGroupingChars;
         }
       }
     }

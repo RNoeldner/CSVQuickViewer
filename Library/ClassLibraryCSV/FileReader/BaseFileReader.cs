@@ -555,10 +555,9 @@ namespace CsvTools
     {
       var column = GetColumn(ordinal);
 
-      var parsed = StringConversionSpan.StringToInt32(
-        CurrentRowColumnText[ordinal].AsSpan(),
-        column.ValueFormat.DecimalSeparator.FromText(),
-        column.ValueFormat.GroupSeparator.FromText());
+      var parsed =
+        CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
@@ -573,10 +572,8 @@ namespace CsvTools
     /// <returns>a nullable integer</returns>
     public int? GetInt32Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = StringConversionSpan.StringToInt32(
-        inputValue,
-        column.ValueFormat.DecimalSeparator.FromText(),
-        column.ValueFormat.GroupSeparator.FromText());
+      var ret = inputValue.StringToInt32(column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (ret.HasValue) return ret.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an integer");
@@ -593,15 +590,12 @@ namespace CsvTools
     {
       var column = GetColumn(ordinal);
 
-      var parsed = StringConversion.StringToInt64(
-        CurrentRowColumnText[ordinal],
-        column.ValueFormat.DecimalSeparator,
+      var parsed = CurrentRowColumnText[ordinal].AsSpan().StringToInt64(column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
     }
-
     /// <summary>
     ///   Gets the int32 value or null.
     /// </summary>
@@ -610,10 +604,9 @@ namespace CsvTools
     /// <returns></returns>
     public long? GetInt64Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = StringConversionSpan.StringToInt64(
-        inputValue,
-        column.ValueFormat.DecimalSeparator.FromText(),
-        column.ValueFormat.GroupSeparator.FromText());
+      var ret = inputValue.StringToInt64(
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (ret.HasValue) return ret.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an long integer");
@@ -932,7 +925,7 @@ namespace CsvTools
       if (timeSpanLongerThanDay)
       {
         var passedIn = strInputTime;
-        if (inputTime != null) 
+        if (inputTime != null)
           passedIn = Convert.ToString(inputTime).AsSpan();
 
         HandleWarning(
@@ -945,18 +938,16 @@ namespace CsvTools
                              && strInputDate.Length > column.ValueFormat.DateFormat.Length)
       {
         var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
-        dateTime = StringConversionSpan.CombineStringsToDateTime(
-          inputDateNew,
-          column.ValueFormat.DateFormat.AsSpan(),
+        dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
           strInputTime,
-          column.ValueFormat.DateSeparator.AsSpan(),
-          column.ValueFormat.TimeSeparator.AsSpan(),
+          column.ValueFormat.DateSeparator,
+          column.ValueFormat.TimeSeparator,
           serialDateTime);
         if (dateTime.HasValue)
         {
           var display = column.ValueFormat.DateFormat.ReplaceDefaults(
-            "/", column.ValueFormat.DateSeparator,
-            ":", column.ValueFormat.TimeSeparator);
+            '/', column.ValueFormat.DateSeparator,
+            ':', column.ValueFormat.TimeSeparator);
           HandleWarning(
             column.ColumnOrdinal,
             strInputTime.Length > 0
@@ -978,17 +969,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <param name="ordinal">The column.</param>
-    /// <returns>
-    ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
-    ///   warnings is called
-    /// </returns>
     protected decimal? GetDecimalNull(ReadOnlySpan<char> inputValue, int ordinal)
     {
       var column = GetColumn(ordinal);
-      var decimalValue = StringConversionSpan.StringToDecimal(
-        inputValue,
-        column.ValueFormat.DecimalSeparator.FromText(),
-        column.ValueFormat.GroupSeparator.FromText(),
+      var decimalValue = inputValue.StringToDecimal(column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator,
         m_AllowPercentage, m_RemoveCurrency);
       if (decimalValue.HasValue) return decimalValue.Value;
 
@@ -1019,12 +1004,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <param name="ordinal">The column number.</param>
-    /// <returns></returns>
     protected Guid? GetGuidNull(ReadOnlySpan<char> inputValue, int ordinal)
     {
       if (inputValue.IsEmpty) return null;
 
-      var res = StringConversionSpan.StringToGuid(inputValue);
+      var res = inputValue.StringToGuid();
       if (res.HasValue)
         return res.Value;
       HandleError(ordinal, $"'{inputValue.ToString()}' is not a GUID");
@@ -1289,8 +1273,9 @@ namespace CsvTools
 
     private bool? GetBooleanNull(ReadOnlySpan<char> inputValue, in Column column)
     {
-      (var boolValue, var _) = inputValue.StringToBoolean(column.ValueFormat.True.AsSpan(), column.ValueFormat.False.AsSpan());
-      if (boolValue.HasValue) return boolValue.Value;
+      var boolValue = inputValue.StringToBoolean(column.ValueFormat.True.AsSpan(), column.ValueFormat.False.AsSpan());
+      if (boolValue.HasValue)
+        return boolValue.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a boolean");
       return null;
@@ -1310,10 +1295,8 @@ namespace CsvTools
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);
 
-      var parsed = StringConversionSpan.StringToInt16(
-        value,
-        column.ValueFormat.DecimalSeparator.FromText(),
-        column.ValueFormat.GroupSeparator.FromText());
+      var parsed = value.StringToInt16(column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
@@ -1333,8 +1316,8 @@ namespace CsvTools
       if (column.Ignore)
         return;
       var display = column.ValueFormat.DateFormat.ReplaceDefaults(
-        "/", column.ValueFormat.DateSeparator,
-        ":", column.ValueFormat.TimeSeparator);
+        '/', column.ValueFormat.DateSeparator,
+        ':', column.ValueFormat.TimeSeparator);
 
       HandleError(
         ordinal,

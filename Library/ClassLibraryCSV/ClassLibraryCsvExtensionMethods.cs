@@ -264,7 +264,7 @@ namespace CsvTools
           return DataTypeEnum.String;
       }
     }
-   
+
 
     /// <summary>
     ///   Gets a suitable ID for a filename
@@ -539,22 +539,39 @@ namespace CsvTools
       return new string(chars, 0, count);
     }
 
+    /// <summary>
+    /// Replaces characters, if the replacement is \0 the character will be removed
+    /// </summary>
+    /// <param name="inputValue"></param>
+    /// <param name="old1"></param>
+    /// <param name="new1"></param>
+    /// <param name="old2"></param>
+    /// <param name="new2"></param>
+    /// <returns></returns>
     public static string ReplaceDefaults(this string inputValue, in char old1, in char new1, in char old2,
       in char new2)
     {
       if (inputValue.Length==0)
         return string.Empty;
-      var result = new StringBuilder(inputValue.Length);
+      // Assume the text stays the same, it could only be shorter
+      var result = new char[inputValue.Length];
+      int pos = 0;
       for (int i = 0; i < inputValue.Length; i++)
       {
-        if (inputValue[i]== old1)
-          result.Append(new1);
-        else if (inputValue[i]== old2)
-          result.Append(new2);
+        if (inputValue[i] == old1)
+        {
+          if (new1 != char.MinValue)
+            result[pos++]=new1;
+        }
+        else if (inputValue[i] == old2)
+        {
+          if (new2 != char.MinValue)
+            result[pos++]=new2;
+        }
         else
-          result.Append(inputValue[i]);
+          result[pos++] = inputValue[i];
       }
-      return result.ToString();
+      return new string(result, 0, pos);
     }
 
     /// <summary>
@@ -740,10 +757,10 @@ namespace CsvTools
       return Convert.ToInt64(value);
     }
 
-    public static string ToStringHandle0(this char input) => 
+    public static string ToStringHandle0(this char input) =>
       input == char.MinValue ? string.Empty : input.ToString();
 
-      
+
 #if !GetHashByGUID
 
     /// <summary>

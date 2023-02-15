@@ -28,17 +28,23 @@ namespace CsvTools
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
     public const string cDateFormatDefault = "MM/dd/yyyy";
-    public const string cDateSeparatorDefault = "/";
+    private const char cDateSeparatorDefaultChar = '/';
+    internal const string cDateSeparatorDefault = "/";
+    private const char cDecimalSeparatorDefaultChar = '.';
     public const string cDecimalSeparatorDefault = ".";
-    public const string cFalseDefault = "False";
-    public const string cGroupSeparatorDefault = "";
-    public const string cNumberFormatDefault = "0.#####";
-    public const int cPartDefault = 2;
-    public const string cPartSplitterDefault = ":";
-    public const bool cPartToEndDefault = true;
-    public const string cTimeSeparatorDefault = ":";
-    public const string cTrueDefault = "True";
-    public const bool cOverwriteDefault = true;
+    private const char cGroupSeparatorDefaultChar = char.MinValue;
+    internal const string cGroupSeparatorDefault = "";
+    internal const string cFalseDefault = "False";
+    internal const string cNumberFormatDefault = "0.#####";
+    internal const int cPartDefault = 2;
+    private const char cPartSplitterDefaultChar = ':';
+    internal const string cPartSplitterDefault = ":";
+    internal const bool cPartToEndDefault = true;
+    private const char cTimeSeparatorDefaultChar = ':';
+    internal const string cTimeSeparatorDefault = ":";
+
+    internal const string cTrueDefault = "True";
+    internal const bool cOverwriteDefault = true;
 
     public static readonly ValueFormat Empty = new ValueFormat();
 
@@ -68,18 +74,18 @@ namespace CsvTools
       DataType = dataType ??  DataTypeEnum.String;
 
       DateFormat = cDateFormatDefault;
-      DateSeparator = cDateSeparatorDefault;
-      TimeSeparator = cTimeSeparatorDefault;
+      DateSeparator = cDateSeparatorDefaultChar;
+      TimeSeparator = cTimeSeparatorDefaultChar;
       NumberFormat = cNumberFormatDefault;
-      DecimalSeparator = cDecimalSeparatorDefault;
-      GroupSeparator = cGroupSeparatorDefault;
+      DecimalSeparator = cDecimalSeparatorDefaultChar;
+      GroupSeparator = cGroupSeparatorDefaultChar;
 
       // Boolean
       False = asFalse ?? cFalseDefault;
       True = asTrue ?? cTrueDefault;
 
       Part = cPartDefault;
-      PartSplitter = cPartSplitterDefault;
+      PartSplitter = cPartSplitterDefaultChar;
       PartToEnd = cPartToEndDefault;
       // Text
       DisplayNullAs = displayNullAs ?? string.Empty;
@@ -100,26 +106,26 @@ namespace CsvTools
       {
         // Dates
         DateFormat = dateFormat ?? cDateFormatDefault;
-        DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText().Text();
-        TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText().Text();
+        DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText();
+        TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText();
       }
       else if (DataTypeEnum.Integer.Equals(dataType))
       {
         NumberFormat = numberFormat ?? cNumberFormatDefault;
-        GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
+        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
       }
       else if (DataTypeEnum.Numeric.Equals(dataType) || DataTypeEnum.Double.Equals(dataType))
       {
         // Numbers
         NumberFormat = numberFormat ?? cNumberFormatDefault;
-        DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText().Text();
-        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText().Text();
+        DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText();
+        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
       }
       else if (DataTypeEnum.TextPart.Equals(dataType))
       {
         // TextPart
         Part = part ?? cPartDefault;
-        PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText().Text();
+        PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText();
         PartToEnd = partToEnd ?? cPartToEndDefault;
       }
       else if (DataTypeEnum.Binary.Equals(dataType))
@@ -146,15 +152,15 @@ namespace CsvTools
     /// <summary>
     ///   The value will return the resulted Separator, passing in "Colon" will return ":"
     /// </summary>
-    [DefaultValue(cDateSeparatorDefault)]
-    public string DateSeparator { get; }
+    [DefaultValue(cDateSeparatorDefaultChar)]
+    public char DateSeparator { get; }
 
     /// <summary>
     ///   Gets or sets the time separator.
     /// </summary>
     /// <value>The time separator.</value>
     [DefaultValue(cTimeSeparatorDefault)]
-    public string TimeSeparator { get; }
+    public char TimeSeparator { get; }
 
     /// <summary>
     ///   Gets or sets the number format.
@@ -166,14 +172,14 @@ namespace CsvTools
     /// <summary>
     ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
-    [DefaultValue(cDecimalSeparatorDefault)]
-    public string DecimalSeparator { get; }
+    [DefaultValue(cDecimalSeparatorDefaultChar)]
+    public char DecimalSeparator { get; }
 
     /// <summary>
     ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
-    [DefaultValue(cGroupSeparatorDefault)]
-    public string GroupSeparator { get; }
+    [DefaultValue(cGroupSeparatorDefaultChar)]
+    public char GroupSeparator { get; }
 
     /// <summary>
     ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
@@ -207,8 +213,8 @@ namespace CsvTools
     ///   Gets or sets the splitter. 
     /// </summary>
     /// <value>The splitter.</value>
-    [DefaultValue(cPartSplitterDefault)]
-    public string PartSplitter { get; }
+    [DefaultValue(cPartSplitterDefaultChar)]
+    public char PartSplitter { get; }
 
     /// <summary>
     ///   Determine if a part should end with the next splitter
@@ -341,11 +347,9 @@ namespace CsvTools
         case DataTypeEnum.DateTime when DataType == DataTypeEnum.DateTime:
           return expectedFormat.DateFormat.Equals(DateFormat, StringComparison.Ordinal)
                  && (DateFormat.IndexOf('/') == -1 || expectedFormat.DateSeparator.Equals(
-                   DateSeparator,
-                   StringComparison.Ordinal)) && (DateFormat.IndexOf(':') == -1
+                   DateSeparator)) && (DateFormat.IndexOf(':') == -1
                                                   || expectedFormat.TimeSeparator.Equals(
-                                                    TimeSeparator,
-                                                    StringComparison.Ordinal));
+                                                    TimeSeparator));
       }
 
       // if we have decimals, check the formats
@@ -365,15 +369,9 @@ namespace CsvTools
     public string GetFormatDescription() =>
       DataType switch
       {
-        DataTypeEnum.DateTime => DateFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator, DateSeparator,
-          CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, TimeSeparator),
-        DataTypeEnum.Numeric => NumberFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, DecimalSeparator,
-          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, GroupSeparator),
-        DataTypeEnum.Double => NumberFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, DecimalSeparator,
-          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, GroupSeparator),
+        DataTypeEnum.DateTime => DateFormat.ReplaceDefaults('/', DateSeparator, ':', TimeSeparator),
+        DataTypeEnum.Numeric => NumberFormat.ReplaceDefaults('.', DecimalSeparator, ',', GroupSeparator),
+        DataTypeEnum.Double => NumberFormat.ReplaceDefaults('.', DecimalSeparator, ',', GroupSeparator),
         DataTypeEnum.TextPart => $"{Part}" + (PartToEnd ? " To End" : string.Empty),
         DataTypeEnum.Binary => $"Read file from {ReadFolder}",
         DataTypeEnum.TextReplace =>

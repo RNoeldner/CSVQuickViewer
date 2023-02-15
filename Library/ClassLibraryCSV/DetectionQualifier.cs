@@ -11,11 +11,6 @@ namespace CsvTools
   public static class DetectionQualifier
   {
     /// <summary>
-    /// " and '
-    /// </summary>
-    public static readonly string PossibleQualifier = "\"'";
-
-    /// <summary>
     ///   Try to determine quote character, by looking at the file and doing a quick analysis
     /// </summary>
     /// <param name="textReader">The opened TextReader</param>

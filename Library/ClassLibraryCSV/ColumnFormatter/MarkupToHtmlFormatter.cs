@@ -43,6 +43,9 @@ namespace CsvTools
         handleWarning?.Invoke($"Markdown encoding");
       return output;
     }
+
+    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+      => FormatInputText(inputString.ToString(), handleWarning);
   }
 }
 #endif
