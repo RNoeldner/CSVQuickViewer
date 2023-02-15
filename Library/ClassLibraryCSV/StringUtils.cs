@@ -315,7 +315,7 @@ namespace CsvTools
             return true;
       }
 
-      return allRequiredFound;
+      return allRequiredFound && requiredParts.Count>1;
     }
 
     /// <summary>

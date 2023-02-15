@@ -106,8 +106,8 @@ namespace CsvTools
     {
       var val = GetCurrentValue(ordinal);
 
-      object? timePart = null;
-      string? timePartText = null;
+      object? timePart;
+      string timePartText;
       EnsureTextFilled(ordinal);
 
       if (AssociatedTimeCol[ordinal] > -1)
@@ -116,12 +116,17 @@ namespace CsvTools
         EnsureTextFilled(AssociatedTimeCol[ordinal]);
         timePartText = CurrentRowColumnText[AssociatedTimeCol[ordinal]];
       }
+      else
+      {
+        timePart = null;
+        timePartText = string.Empty;
+      }
 
       var dt = GetDateTimeNull(
           val,
-        CurrentRowColumnText[ordinal],
+        CurrentRowColumnText[ordinal].AsSpan(),
         timePart,
-        timePartText ?? string.Empty,
+        timePartText.AsSpan(),
         GetColumn(ordinal),
         false);
       if (dt.HasValue)

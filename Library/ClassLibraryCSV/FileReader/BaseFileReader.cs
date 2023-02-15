@@ -311,7 +311,7 @@ namespace CsvTools
     /// <returns></returns>
     public override bool GetBoolean(int ordinal)
     {
-      var parsed = GetBooleanNull(CurrentRowColumnText[ordinal], ordinal);
+      var parsed = GetBooleanNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetBooleanNull
@@ -454,9 +454,9 @@ namespace CsvTools
     {
       var dt = GetDateTimeNull(
         null,
-        CurrentRowColumnText[ordinal],
+        CurrentRowColumnText[ordinal].AsSpan(),
         null,
-        GetTimeValue(ordinal),
+        GetTimeValue(ordinal).Span,
         Column[ordinal],
         true);
       if (dt.HasValue) return dt.Value;
@@ -475,7 +475,7 @@ namespace CsvTools
     /// <returns></returns>
     public override decimal GetDecimal(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
       if (decimalValue.HasValue) return decimalValue.Value;
 
       // Warning was added by GetDecimalNull
@@ -490,7 +490,7 @@ namespace CsvTools
     /// <returns></returns>
     public override double GetDouble(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
       if (decimalValue.HasValue) return Convert.ToDouble(decimalValue.Value);
 
       // Warning was added by GetDecimalNull
@@ -515,7 +515,7 @@ namespace CsvTools
     /// <returns>The single-precision floating point number of the specified field.</returns>
     public override float GetFloat(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
       if (decimalValue.HasValue) return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
 
       // Warning was added by GetDecimalNull
@@ -530,7 +530,7 @@ namespace CsvTools
     /// <returns></returns>
     public override Guid GetGuid(int ordinal)
     {
-      var parsed = GetGuidNull(CurrentRowColumnText[ordinal], ordinal);
+      var parsed = GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
 
       if (parsed.HasValue) return parsed.Value;
 
@@ -543,7 +543,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    public override short GetInt16(int ordinal) => GetInt16(CurrentRowColumnText[ordinal], ordinal);
+    public override short GetInt16(int ordinal) => GetInt16(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
 
     /// <inheritdoc />
     /// <summary>
@@ -555,10 +555,10 @@ namespace CsvTools
     {
       var column = GetColumn(ordinal);
 
-      var parsed = StringConversion.StringToInt32(
-        CurrentRowColumnText[ordinal],
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+      var parsed = StringConversionSpan.StringToInt32(
+        CurrentRowColumnText[ordinal].AsSpan(),
+        column.ValueFormat.DecimalSeparator.FromText(),
+        column.ValueFormat.GroupSeparator.FromText());
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
@@ -571,15 +571,15 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns>a nullable integer</returns>
-    public int? GetInt32Null(in string inputValue, in Column column)
+    public int? GetInt32Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = StringConversion.StringToInt32(
+      var ret = StringConversionSpan.StringToInt32(
         inputValue,
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+        column.ValueFormat.DecimalSeparator.FromText(),
+        column.ValueFormat.GroupSeparator.FromText());
       if (ret.HasValue) return ret.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an integer");
+      HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an integer");
       return null;
     }
 
@@ -608,15 +608,15 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public long? GetInt64Null(in string inputValue, in Column column)
+    public long? GetInt64Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = StringConversion.StringToInt64(
+      var ret = StringConversionSpan.StringToInt64(
         inputValue,
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+        column.ValueFormat.DecimalSeparator.FromText(),
+        column.ValueFormat.GroupSeparator.FromText());
       if (ret.HasValue) return ret.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an long integer");
+      HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an long integer");
       return null;
     }
 
@@ -899,7 +899,7 @@ namespace CsvTools
     ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
     ///   is called
     /// </returns>
-    protected bool? GetBooleanNull(in string inputBoolean, int ordinal) =>
+    protected bool? GetBooleanNull(ReadOnlySpan<char> inputBoolean, int ordinal) =>
       GetBooleanNull(inputBoolean, GetColumn(ordinal));
 
     /// <summary>
@@ -915,13 +915,13 @@ namespace CsvTools
     /// <returns></returns>
     protected DateTime? GetDateTimeNull(
       in object? inputDate,
-      in string strInputDate,
+      ReadOnlySpan<char> strInputDate,
       in object? inputTime,
-      in string strInputTime,
+      ReadOnlySpan<char> strInputTime,
       in Column column,
       bool serialDateTime)
     {
-      var dateTime = StringConversion.CombineObjectsToDateTime(
+      var dateTime = StringConversionSpan.CombineObjectsToDateTime(
         inputDate,
         strInputDate,
         inputTime,
@@ -932,24 +932,25 @@ namespace CsvTools
       if (timeSpanLongerThanDay)
       {
         var passedIn = strInputTime;
-        if (inputTime != null) passedIn = Convert.ToString(inputTime);
+        if (inputTime != null) 
+          passedIn = Convert.ToString(inputTime).AsSpan();
 
         HandleWarning(
           column.ColumnOrdinal,
-          $"'{passedIn}' is outside expected range 00:00 - 23:59, the date has been adjusted");
+          $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
       }
 
-      if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate)
+      if (!dateTime.HasValue && !strInputDate.IsEmpty
                              && !string.IsNullOrEmpty(column.ValueFormat.DateFormat)
                              && strInputDate.Length > column.ValueFormat.DateFormat.Length)
       {
-        var inputDateNew = strInputDate.Substring(0, column.ValueFormat.DateFormat.Length);
-        dateTime = StringConversion.CombineStringsToDateTime(
+        var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
+        dateTime = StringConversionSpan.CombineStringsToDateTime(
           inputDateNew,
-          column.ValueFormat.DateFormat,
+          column.ValueFormat.DateFormat.AsSpan(),
           strInputTime,
-          column.ValueFormat.DateSeparator,
-          column.ValueFormat.TimeSeparator,
+          column.ValueFormat.DateSeparator.AsSpan(),
+          column.ValueFormat.TimeSeparator.AsSpan(),
           serialDateTime);
         if (dateTime.HasValue)
         {
@@ -959,8 +960,8 @@ namespace CsvTools
           HandleWarning(
             column.ColumnOrdinal,
             strInputTime.Length > 0
-              ? $"'{strInputDate} {strInputTime}' is not a date of the format '{display}' '{column.TimePartFormat}', used '{inputDateNew} {strInputTime}'"
-              : $"'{strInputDate}' is not a date of the format '{display}', used '{inputDateNew}' ");
+              ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
+              : $"'{strInputDate.ToString()}' is not a date of the format '{display}', used '{inputDateNew.ToString()}' ");
         }
       }
 
@@ -981,17 +982,17 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected decimal? GetDecimalNull(in string inputValue, int ordinal)
+    protected decimal? GetDecimalNull(ReadOnlySpan<char> inputValue, int ordinal)
     {
       var column = GetColumn(ordinal);
-      var decimalValue = StringConversion.StringToDecimal(
+      var decimalValue = StringConversionSpan.StringToDecimal(
         inputValue,
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator,
+        column.ValueFormat.DecimalSeparator.FromText(),
+        column.ValueFormat.GroupSeparator.FromText(),
         m_AllowPercentage, m_RemoveCurrency);
       if (decimalValue.HasValue) return decimalValue.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal");
+      HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a decimal");
       return null;
     }
 
@@ -1004,12 +1005,12 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected double? GetDoubleNull(in string inputValue, int ordinal)
+    protected double? GetDoubleNull(ReadOnlySpan<char> inputValue, int ordinal)
     {
       var decimalValue = GetDecimalNull(inputValue, ordinal);
       if (decimalValue.HasValue) return decimal.ToDouble(decimalValue.Value);
 
-      HandleError(ordinal, $"'{inputValue}' is not a double");
+      HandleError(ordinal, $"'{inputValue.ToString()}' is not a double");
       return null;
     }
 
@@ -1019,19 +1020,15 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="ordinal">The column number.</param>
     /// <returns></returns>
-    protected Guid? GetGuidNull(in string inputValue, int ordinal)
+    protected Guid? GetGuidNull(ReadOnlySpan<char> inputValue, int ordinal)
     {
-      if (string.IsNullOrEmpty(inputValue)) return null;
+      if (inputValue.IsEmpty) return null;
 
-      try
-      {
-        return new Guid(inputValue);
-      }
-      catch
-      {
-        HandleError(ordinal, $"'{inputValue}' is not a GUID");
-        return null;
-      }
+      var res = StringConversionSpan.StringToGuid(inputValue);
+      if (res.HasValue)
+        return res.Value;
+      HandleError(ordinal, $"'{inputValue.ToString()}' is not a GUID");
+      return null;
     }
 
     /// <summary>
@@ -1054,10 +1051,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    protected virtual string GetTimeValue(int i) =>
+    protected virtual ReadOnlyMemory<char> GetTimeValue(int i) =>
       AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
-        ? string.Empty
-        : CurrentRowColumnText[AssociatedTimeCol[i]];
+        ? ReadOnlyMemory<char>.Empty
+        : CurrentRowColumnText[AssociatedTimeCol[i]].AsMemory();
 
     protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
       new WarningEventArgs(
@@ -1290,12 +1287,12 @@ namespace CsvTools
         (message) => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    private bool? GetBooleanNull(in string inputValue, in Column column)
+    private bool? GetBooleanNull(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var boolValue = StringConversion.StringToBoolean(inputValue, column.ValueFormat.True, column.ValueFormat.False);
+      (var boolValue, var _) = inputValue.StringToBoolean(column.ValueFormat.True.AsSpan(), column.ValueFormat.False.AsSpan());
       if (boolValue.HasValue) return boolValue.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean");
+      HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a boolean");
       return null;
     }
 
@@ -1308,19 +1305,19 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    private short GetInt16(in string value, int ordinal)
+    private short GetInt16(ReadOnlySpan<char> value, int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);
 
-      var parsed = StringConversion.StringToInt16(
+      var parsed = StringConversionSpan.StringToInt16(
         value,
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+        column.ValueFormat.DecimalSeparator.FromText(),
+        column.ValueFormat.GroupSeparator.FromText());
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
-      throw WarnAddFormatException(ordinal, $"'{value}' is not a short");
+      throw WarnAddFormatException(ordinal, $"'{value.ToString()}' is not a short");
     }
 
     /// <summary>
@@ -1329,7 +1326,7 @@ namespace CsvTools
     /// <param name="inputDate">The input date.</param>
     /// <param name="inputTime">The input time.</param>
     /// <param name="ordinal">The column.</param>
-    private void HandleDateError(in string inputDate, in string inputTime, int ordinal)
+    private void HandleDateError(ReadOnlySpan<char> inputDate, ReadOnlySpan<char> inputTime, int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);
@@ -1341,9 +1338,9 @@ namespace CsvTools
 
       HandleError(
         ordinal,
-        !string.IsNullOrEmpty(inputTime)
-          ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
-          : $"'{inputDate}' is not a date of the format {display}");
+        !inputTime.IsEmpty
+          ? $"'{inputDate.ToString()} {inputTime.ToString()}' is not a date of the format {display} {column.TimePartFormat}"
+          : $"'{inputDate.ToString()}' is not a date of the format {display}");
     }
 
     public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;

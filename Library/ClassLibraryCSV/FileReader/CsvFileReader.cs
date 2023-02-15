@@ -366,19 +366,19 @@ namespace CsvTools
       if (IsDBNull(ordinal))
         return DBNull.Value;
 
-      var value = CurrentRowColumnText[ordinal];
+      var value = CurrentRowColumnText[ordinal].AsSpan();
       var column = Column[ordinal];
       if (column.Ignore)
         return DBNull.Value;
       object? ret = column.ValueFormat.DataType switch
       {
-        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
+        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal).Span, column, true),
         DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
         DataTypeEnum.Double => GetDoubleNull(value, ordinal),
         DataTypeEnum.Numeric => GetDecimalNull(value, ordinal),
         DataTypeEnum.Boolean => GetBooleanNull(value, ordinal),
         DataTypeEnum.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        _ => value
+        _ => CurrentRowColumnText[ordinal]
       };
       return ret ?? DBNull.Value;
     }
