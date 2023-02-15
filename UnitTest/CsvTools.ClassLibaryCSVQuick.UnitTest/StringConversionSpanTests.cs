@@ -78,7 +78,7 @@ namespace CsvTools.Tests
     public void StringToTextPartTest()
     {
       Assert.AreEqual("Part2;Part3;Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 2, true).ToString());
-      Assert.AreEqual("Part2;Part3;Part4;", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 3, true).ToString());
+      Assert.AreEqual("Part3;Part4;", "Part1;Part2;Part3;Part4;".AsSpan().StringToTextPart(';', 3, true).ToString());
       Assert.AreEqual("Part1", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 1, false).ToString());
       Assert.AreEqual("", "Part1;;Part3;Part4".AsSpan().StringToTextPart(';', 2, false).ToString());
       Assert.AreEqual("Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 4, false).ToString());
