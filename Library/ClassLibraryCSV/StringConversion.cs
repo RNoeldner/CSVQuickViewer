@@ -233,18 +233,6 @@ namespace CsvTools
       return checkResult;
     }
 
-    /// <summary>
-    ///   Checks if the values are times or serial dates
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="isCloseToNow">
-    ///   Only assume the number is a serial date if the resulting date is around the current date
-    ///   (-80 +20 years)
-    /// </param>
-    /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow,
                                               in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
