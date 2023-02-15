@@ -14,7 +14,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace CsvTools.Tests
@@ -22,6 +25,30 @@ namespace CsvTools.Tests
   [TestClass]
   public class ColumnInfoTest
   {
+
+    [TestMethod]
+    public void GetDelimiers()
+    {
+      var dateSeparator = new HashSet<string>();
+      var timeSeparator = new HashSet<string>();
+      var decimalSeparator =new HashSet<string>();
+      var groupSeperator =new HashSet<string>();
+
+      foreach (var ci in CultureInfo.GetCultures(CultureTypes.AllCultures))
+      {
+        dateSeparator.Add(ci.DateTimeFormat.DateSeparator);
+        timeSeparator.Add(ci.DateTimeFormat.TimeSeparator);
+        //decimalSeparator.Add(ci.NumberFormat.CurrencyDecimalSeparator);
+        decimalSeparator.Add(ci.NumberFormat.NumberDecimalSeparator);
+        //groupSeperator.Add(ci.NumberFormat.CurrencyGroupSeparator);
+        groupSeperator.Add(ci.NumberFormat.NumberGroupSeparator);
+      }
+      Debug.WriteLine(dateSeparator.Select(x=>"'" + x + "'").Join(","));
+      Debug.WriteLine(timeSeparator.Select(x=>"'" + x + "'").Join(","));
+      Debug.WriteLine(decimalSeparator.Select(x=>"'" + x + "'").Join(","));
+      Debug.WriteLine(groupSeperator.Select(x=>"'" + x + "'").Join(","));
+
+    }
     [TestMethod]
     public void GetSourceColumnInformation_OverwrittenType()
     {

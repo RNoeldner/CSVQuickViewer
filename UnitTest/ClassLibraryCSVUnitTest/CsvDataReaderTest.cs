@@ -348,7 +348,7 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines,
         m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
-      var inputValue = "17";
+      var inputValue = "17".AsSpan();
 
       var value32 = test.GetInt32Null(inputValue, column);
       Assert.IsTrue(value32.HasValue);

@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     public void StringToTextPart()
     {
       Assert.AreEqual("Part2;Part3;Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 2, true));
-      Assert.AreEqual("Part2;Part3;Part4;", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 3, true));
+      Assert.AreEqual("Part3;Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 3, true));
       Assert.AreEqual("Part1", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 1, false));
       Assert.AreEqual("Part4", StringConversion.StringToTextPart("Part1;Part2;Part3;Part4", ';', 4, false));
     }

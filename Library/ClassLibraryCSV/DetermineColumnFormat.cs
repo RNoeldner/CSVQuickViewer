@@ -741,7 +741,10 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = StringConversionSpan.CheckDate(samples, fmt.AsSpan(), sep.AsSpan(), ":".AsSpan(), CultureInfo.CurrentCulture, cancellationToken);
+            var res = StringConversionSpan.CheckDate(samples, 
+              fmt.AsSpan(),
+              sep.AsSpan(), 
+              ":".AsSpan(), CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -773,6 +776,7 @@ namespace CsvTools
     /// <param name="samples">The sample texts.</param>
     /// <param name="guessPercentage">True to find number between 0% and 100%</param>
     /// <param name="allowStartingZero">True if a leading zero should be considered as number</param>
+    /// <param name="removeCurrencySymbols"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   Result of a format check, if the samples match a value type this is set, if not an example
@@ -838,6 +842,7 @@ namespace CsvTools
     /// <param name="guessDateTime">Try to determine if it is a date time</param>
     /// <param name="guessPercentage">Accept percentage values</param>
     /// <param name="serialDateTime">Allow serial Date time</param>
+    /// <param name="removeCurrencySymbols"></param>
     /// <param name="othersValueFormatDate">
     ///   The date format found in prior columns, assuming the data format is the same in other
     ///   columns, we do not need that many samples

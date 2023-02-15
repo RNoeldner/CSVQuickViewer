@@ -410,27 +410,26 @@ namespace CsvTools
         stringDateValue = StringCollections.RegExNumberSuffixEnglish.Value.Replace(stringDateValue.ToString(), "$1")
           .AsSpan();
       var matchingDateTimeFormats = new List<string>();
-
-      foreach (var (start, length) in dateFormats.GetSlices(StringUtils.DelimiterChars))
+      foreach (var (start, length) in dateFormats.GetSlices(StringUtils.DelimiterChars.AsSpan()))
       {
-        var dateTimeFormat =
-          (dateFormats.Slice(start, length).IndexOf('/') != -1)
+        matchingDateTimeFormats.Add(dateFormats.Slice(start, length).ToString());
+        var dateTimeFormatString = (dateSeparator.IsEmpty && dateFormats.Slice(start, length).IndexOf('/') != -1)
             ? dateFormats.Slice(start, length).ToString().Replace("/", "")
             : dateFormats.Slice(start, length).ToString();
 
-        if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormat))
-          matchingDateTimeFormats.Add(dateTimeFormat);
+        if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormatString))
+          matchingDateTimeFormats.Add(dateTimeFormatString);
         // In case of a date & time format add the date only format separately
         var indexHour =
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-          dateTimeFormat.IndexOf('h', StringComparison.OrdinalIgnoreCase);
+          dateTimeFormatString.IndexOf('h', StringComparison.OrdinalIgnoreCase);
 #else
-          dateTimeFormat.IndexOfAny(new[] { 'h', 'H' });
+          dateTimeFormatString.IndexOfAny(new[] { 'h', 'H' });
 #endif
         // assuming there is a text before the hour that has a reasonable size take it as date
         if (indexHour > 4)
         {
-          string dateOnlyFmt = dateTimeFormat.Substring(0, indexHour - 1).Trim();
+          string dateOnlyFmt = dateTimeFormatString.Substring(0, indexHour - 1).Trim();
           if (StringCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateOnlyFmt))
             matchingDateTimeFormats.Add(dateOnlyFmt);
         }
