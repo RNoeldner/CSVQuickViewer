@@ -13,7 +13,6 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -36,7 +35,7 @@ namespace CsvTools.Tests
       var list = new List<Column>();
 
       var test1 = DetermineColumnFormat.CommonDateFormat(list, "dd.MM.yyyy");
-      Assert.AreEqual(".", test1.DateSeparator);
+      Assert.AreEqual('.', test1.DateSeparator);
       Assert.AreEqual("dd/MM/yyyy", test1.DateFormat);
 
       list.Add(new Column("Text1", ValueFormat.Empty, 3));
@@ -425,7 +424,7 @@ namespace CsvTools.Tests
         "Is Numeric");
 
       Assert.AreEqual(
-        ",",
+        ',',
         col.GetByName(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DecimalSeparator,
         "Decimal Separator found");
 
@@ -707,7 +706,7 @@ namespace CsvTools.Tests
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
-      Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
+      Assert.AreEqual('/', res.FoundValueFormat?.DateSeparator);
     }
 
     [TestMethod]
@@ -731,7 +730,7 @@ namespace CsvTools.Tests
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
-      Assert.AreEqual(".", res.FoundValueFormat?.DateSeparator);
+      Assert.AreEqual('.', res.FoundValueFormat?.DateSeparator);
     }
 
     [TestMethod]
@@ -821,7 +820,7 @@ namespace CsvTools.Tests
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
-      Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
+      Assert.AreEqual('/', res.FoundValueFormat?.DateSeparator);
     }
 
     [TestMethod]
@@ -889,7 +888,7 @@ namespace CsvTools.Tests
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
-      Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
+      Assert.AreEqual('/', res.FoundValueFormat?.DateSeparator);
     }
 
     [TestMethod]
@@ -971,7 +970,7 @@ namespace CsvTools.Tests
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
-      Assert.AreEqual(".", res.FoundValueFormat?.DecimalSeparator);
+      Assert.AreEqual('.', res.FoundValueFormat?.DecimalSeparator);
     }
 
     [TestMethod]
@@ -994,8 +993,8 @@ namespace CsvTools.Tests
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
-      Assert.AreEqual(".", res.FoundValueFormat?.GroupSeparator);
-      Assert.AreEqual(",", res.FoundValueFormat?.DecimalSeparator);
+      Assert.AreEqual('.', res.FoundValueFormat?.GroupSeparator);
+      Assert.AreEqual(',', res.FoundValueFormat?.DecimalSeparator);
     }
 
   

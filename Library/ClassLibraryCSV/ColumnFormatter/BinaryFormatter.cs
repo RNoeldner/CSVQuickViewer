@@ -68,6 +68,9 @@ namespace CsvTools
 
       return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
     }
+    
+    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+      => FormatInputText(inputString.ToString(), handleWarning);
 
     /// <inheritdoc/>
     public override string Write(in object? contentsWithFileName, in IDataRecord? dataRow, in Action<string>? handleWarning)

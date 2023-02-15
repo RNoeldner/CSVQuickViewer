@@ -316,7 +316,7 @@ namespace CsvTools
         if (part == 1)
           checkBoxPartToEnd.Checked = false;
         labelSamplePart.Text = $@"Input: ""{sample}""";
-        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part, toEnd)}""";
+        labelResultPart.Text = $@"Output: ""{sample.AsSpan().StringToTextPart(split, part, toEnd).ToString()}""";
       });
     }
 
@@ -362,9 +362,9 @@ namespace CsvTools
           {
             var fmt = (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat;
             text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
-              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator.ToStringHandle0(), timeSeparator.ToStringHandle0(), CultureInfo.InvariantCulture));
+              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
             text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
-              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator.ToStringHandle0(), timeSeparator.ToStringHandle0(), CultureInfo.CurrentCulture));
+              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
           }
           labelSampleDisplay.Text = text.Join(", ");
 
@@ -405,7 +405,7 @@ namespace CsvTools
 
           labelNumber.Text = $@"Input: ""{sample}""";
           labelNumberOutput.Text =
-            $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparator, vf.GroupSeparator, false, false):N}""";
+            $@"Output: ""{sample.AsSpan().StringToDecimal(vf.DecimalSeparator, vf.GroupSeparator, false, false):N}""";
         });
       }
       catch (Exception ex)
@@ -482,7 +482,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(format))
         return;
       {
-        var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries));
+        var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries));
         var isInList = parts.Contains(format);
 
         if (e.NewValue == CheckState.Checked && !isInList)
@@ -766,7 +766,7 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
 
       // Check all items in parts
-      var parts = (IEnumerable<string>)m_ColumnEdit.ValueFormatMut.DateFormat.Split(StringUtils.DelimiterChars, StringSplitOptions.RemoveEmptyEntries);
+      var parts = (IEnumerable<string>)m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries);
       foreach (var format in parts)
       {
         var index = checkedListBoxDateFormats.Items.IndexOf(format);

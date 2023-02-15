@@ -25,20 +25,20 @@ namespace CsvTools
     private readonly bool m_PartToEnd;
 
 
-    public TextPartFormatter(int part, in string partSplitter, bool partToEnd)
+    public TextPartFormatter(int part, char partSplitter, bool partToEnd)
     {
       m_Part = part;
-      m_PartSplitter = partSplitter.StringToChar();
+      m_PartSplitter = partSplitter;
       m_PartToEnd = partToEnd;
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
     {
-      var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
-      if (RaiseWarning && output is null)
-        handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
-      return output ?? string.Empty;
+      var output = inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+      if (RaiseWarning && output.IsEmpty)
+        handleWarning?.Invoke($"Part {m_Part} of text {inputString.ToString()} is empty.");
+      return output.ToString();
     }
   }
 }

@@ -154,8 +154,8 @@ namespace CsvTools
       if (clusterDay.Count == 1)
         foreach (var dic in clusterHour.OrderBy(x => x))
         {
-          var from = StringConversion.GetTimeFromTicks(dic * cTicksPerGroup);
-          var to = StringConversion.GetTimeFromTicks((dic + 1) * cTicksPerGroup);
+          var from = (dic * cTicksPerGroup).GetTimeFromTicks();
+          var to = ((dic + 1) * cTicksPerGroup).GetTimeFromTicks();
           var cluster = new ValueCluster($"{from:t} - {to:t}",
             $"({colNameEsc} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {colNameEsc} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
             dic.ToString("000000", CultureInfo.InvariantCulture),

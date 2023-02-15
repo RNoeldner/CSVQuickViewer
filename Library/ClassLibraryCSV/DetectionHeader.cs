@@ -140,7 +140,7 @@ namespace CsvTools
         }
 
         var numeric = headers.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
-        var boolHead = headers.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
+        var boolHead = headers.Where(header => header.AsSpan().StringToBoolean("1".AsSpan(), "0".AsSpan()).HasValue)
           .ToList();
         // allowed char are letters, digits and a predefined list of punctuation and symbols
         var specials = headers.Where(header =>

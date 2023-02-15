@@ -33,7 +33,7 @@ namespace CsvTools
       ValueFormat? best = null;
       var counterByFormat = new Dictionary<ValueFormat, int>();
       var maxValue = int.MinValue;
-      foreach (var valueFormat in columns.Where(x => !x.Ignore).Select(x => x.ValueFormat).Where(x => x?.DataType == DataTypeEnum.DateTime))
+      foreach (var valueFormat in columns.Where(x => !x.Ignore).Select(x => x.ValueFormat).Where(x => x.DataType == DataTypeEnum.DateTime))
       {
         var found = counterByFormat.Keys.FirstOrDefault(x => x.Equals(valueFormat));
         if (found is null)
@@ -711,10 +711,10 @@ namespace CsvTools
 
 
       // loop through the samples and filter out date separators that are not part of any sample
-      var possibleDateSeparators = new List<string>();
+      var possibleDateSeparators = new List<char>();
       int best = int.MinValue;
-      foreach (var kv in StringCollections.DateSeparators.ToDictionary(sep => sep, sep =>
-                 samples.Count(entry => entry.Span.IndexOf(sep.AsSpan()) != -1)).OrderByDescending(x => x.Value))
+      foreach (var kv in StaticCollections.DateSeparatorChars.ToDictionary(sep => sep, sep =>
+                 samples.Count(entry => entry.Span.IndexOf(sep) != -1)).OrderByDescending(x => x.Value))
       {
         // only take the separators that have been found, and then only takes the ones for the most rows
         if (kv.Value < best)
@@ -732,7 +732,7 @@ namespace CsvTools
           Logger.Warning("Multiple possible date separators : {dateSeparators}", possibleDateSeparators);
       }
 
-      foreach (var fmt in StringCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
+      foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
           return checkResult;
@@ -741,10 +741,10 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = StringConversionSpan.CheckDate(samples, 
+            var res = samples.CheckDate( 
               fmt.AsSpan(),
-              sep.AsSpan(), 
-              ":".AsSpan(), CultureInfo.CurrentCulture, cancellationToken);
+              sep, 
+              ':', CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -754,11 +754,10 @@ namespace CsvTools
         else
         {
           // we have no date separator in the format no need to test different separators
-          var res = StringConversionSpan.CheckDate(
-            samples,
+          var res = samples.CheckDate(
             fmt.AsSpan(),
-            ReadOnlySpan<char>.Empty,
-            ":".AsSpan(),
+            char.MinValue,
+            ':',
             CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
@@ -794,10 +793,10 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(samples));
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
-      var possibleGrouping = StringCollections.DecimalGroupings.Where(
+      var possibleGrouping = StaticCollections.DecimalGroupingChars.Where(
         decGroup =>  samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
       possibleGrouping.Add('\0');
-      var possibleDecimal = StringCollections.DecimalSeparators.Where(
+      var possibleDecimal = StaticCollections.DecimalSeparatorChars.Where(
         decSep => samples.Any(smp => smp.Span.IndexOf(decSep) > -1)).ToList();
 
       // Need to have at least one decimal separator
@@ -812,8 +811,7 @@ namespace CsvTools
             return checkResult;
           if (decimalSeparator.Equals(thousandSeparator))
             continue;
-          var res = StringConversionSpan.CheckNumber(
-            samples,
+          var res = samples.CheckNumber(
             decimalSeparator,
             thousandSeparator,
             guessPercentage,
@@ -876,7 +874,7 @@ namespace CsvTools
         var usedFalseValue = ValueFormat.cFalseDefault;
         foreach (var value in samples)
         {
-          (var resultBool, string val) = value.Span.StringToBoolean(trueValue, falseValue);
+          (var resultBool, string val) = value.Span.StringToBooleanWithMatch(trueValue, falseValue);
           if (resultBool is null)
           {
             allParsed = false;
@@ -904,7 +902,7 @@ namespace CsvTools
       cancellationToken.ThrowIfCancellationRequested();
 
       // ---------------- GUID --------------------------
-      if (guessGuid && StringConversionSpan.CheckGuid(samples, cancellationToken))
+      if (guessGuid && samples.CheckGuid(cancellationToken))
       {
         checkResult.FoundValueFormat = new ValueFormat(DataTypeEnum.Guid);
         return checkResult;
@@ -920,13 +918,12 @@ namespace CsvTools
       // Assume dates are of the same format across the files we check if the dates we have would
       // possibly match no matter how many samples we have this time we do not care about matching
       // length Check Date will cut off time information , this is independent from minRequiredSamples
-      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringCollections.StandardDateTimeFormats.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
+      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StaticCollections.StandardDateTimeFormats.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
-        var checkResultDateTime = StringConversionSpan.CheckDate(
-          samples,
-          othersValueFormatDate.DateFormat.AsSpan(),
-          othersValueFormatDate.DateSeparator.AsSpan(),
-          othersValueFormatDate.TimeSeparator.AsSpan(),
+        var checkResultDateTime = samples.CheckDate(
+           othersValueFormatDate.DateFormat.AsSpan(),
+          othersValueFormatDate.DateSeparator,
+          othersValueFormatDate.TimeSeparator,
           CultureInfo.CurrentCulture, cancellationToken);
         if (checkResultDateTime.FoundValueFormat != null)
           return checkResultDateTime;
@@ -941,12 +938,7 @@ namespace CsvTools
         // Guess a date format that could be interpreted as number before testing numbers
         if (guessDateTime && firstValue.Length == 8)
         {
-          var checkResultDateTime = StringConversionSpan.CheckDate(
-            samples,
-            "yyyyMMdd".AsSpan(),
-            ReadOnlySpan<char>.Empty,
-            ":".AsSpan(),
-            CultureInfo.InvariantCulture, cancellationToken);
+          var checkResultDateTime = samples.CheckDate("yyyyMMdd".AsSpan(), char.MinValue, ':', CultureInfo.InvariantCulture, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -957,7 +949,7 @@ namespace CsvTools
         // We need to have at least 10 sample values here its too dangerous to assume it is a date
         if (guessDateTime && serialDateTime && samples.Count > 10)
         {
-          var checkResultDateTime = StringConversionSpan.CheckSerialDate(samples, true, cancellationToken);
+          var checkResultDateTime = samples.CheckSerialDate(true, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -990,7 +982,7 @@ namespace CsvTools
 
       if (!checkResult.PossibleMatch)
       {
-        var res = StringConversionSpan.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
+        var res = samples.CheckUnescaped(minRequiredSamples, cancellationToken);
         if (res != DataTypeEnum.String)
         {
           checkResult.PossibleMatch = true;
@@ -1010,7 +1002,7 @@ namespace CsvTools
       // ReSharper disable once InvertIf
       if (samples.Count >= minRequiredSamples)
       {
-        var res = StringConversionSpan.CheckSerialDate(samples, false, cancellationToken);
+        var res = samples.CheckSerialDate(false, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);

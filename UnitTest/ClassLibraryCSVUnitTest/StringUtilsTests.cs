@@ -163,8 +163,8 @@ namespace CsvTools.Tests
 #pragma warning disable CS8625 
       var lst = new List<string> { "Value", null, "" };
 #pragma warning restore CS8625 
-      Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
-      Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
+      Assert.AreEqual("Value1", lst.MakeUniqueInCollection("Value"));
+      Assert.AreEqual("New", lst.MakeUniqueInCollection("New"));
     }
 
     [TestMethod]

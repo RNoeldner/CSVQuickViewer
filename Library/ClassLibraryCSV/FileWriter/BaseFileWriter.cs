@@ -123,7 +123,7 @@ namespace CsvTools
     ///   general value format for not explicitly specified columns format
     /// </param>
     /// <param name="columnDefinitions"></param>
-    /// <param name="schemaTable"></param>
+    /// <param name="reader"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
@@ -150,11 +150,11 @@ namespace CsvTools
           ? new ValueFormat(
             col.ValueFormat.DataType,
             generalFormat.DateFormat,
-            generalFormat.DateSeparator,
-            generalFormat.TimeSeparator,
+            generalFormat.DateSeparator.ToStringHandle0(),
+            generalFormat.TimeSeparator.ToStringHandle0(),
             generalFormat.NumberFormat,
-            generalFormat.GroupSeparator,
-            generalFormat.DecimalSeparator,
+            generalFormat.GroupSeparator.ToStringHandle0(),
+            generalFormat.DecimalSeparator.ToStringHandle0(),
             generalFormat.True,
             generalFormat.False,
             generalFormat.DisplayNullAs,
@@ -165,11 +165,11 @@ namespace CsvTools
           : new ValueFormat(
             column.ValueFormat.DataType,
             column.ValueFormat.DateFormat,
-            column.ValueFormat.DateSeparator,
-            column.ValueFormat.TimeSeparator,
+            column.ValueFormat.DateSeparator.ToStringHandle0(),
+            column.ValueFormat.TimeSeparator.ToStringHandle0(),
             column.ValueFormat.NumberFormat,
-            column.ValueFormat.GroupSeparator,
-            column.ValueFormat.DecimalSeparator,
+            column.ValueFormat.GroupSeparator.ToStringHandle0(),
+            column.ValueFormat.DecimalSeparator.ToStringHandle0(),
             column.ValueFormat.True,
             column.ValueFormat.False,
             column.ValueFormat.DisplayNullAs,
@@ -246,7 +246,7 @@ namespace CsvTools
             new ValueFormat(
               DataTypeEnum.DateTime,
               column.TimePartFormat,
-              timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"),
+              timeSeparator: column.ValueFormat?.TimeSeparator.ToStringHandle0() ),
             colNo,
             column.TimePartFormat.Length,
             constantTimeZone, columnOrdinalTimeZoneReader));
@@ -412,12 +412,12 @@ namespace CsvTools
           displayAs = convertedValue switch
           {
             long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-              CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+              ',',
               columnInfo.ValueFormat.GroupSeparator),
             bool aBol => aBol ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
             double aDbl => StringConversion.DoubleToString(aDbl, columnInfo.ValueFormat),
             decimal aDec => StringConversion.DecimalToString(aDec, columnInfo.ValueFormat),
-            DateTime aDTm => StringConversion.DateTimeToString(aDTm, columnInfo.ValueFormat),
+            DateTime aDTm => aDTm.DateTimeToString(columnInfo.ValueFormat),
             _ => convertedValue.ToString()
           };
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.

@@ -108,9 +108,10 @@
 		<Compile Include="..\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ColumnErrorDictionary.cs" />
 		<Compile Include="..\ClassLibraryCSV\ErrorInformation.cs" Link="ErrorInformation.cs" />
 		<Compile Include="..\ClassLibraryCSV\DateTimeConstants.cs" Link="DateTimeConstants.cs" />
-		<Compile Include="..\ClassLibraryCSV\StringCollections.cs" Link="StringCollections.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringConversion.cs" Link="StringConversion.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringConversionSpan.cs" Link="StringConversionSpan.cs" />
+		<Compile Include="..\ClassLibraryCSV\StaticCollections.cs" Link="StaticCollections.cs" />
+		<Compile Include="..\ClassLibraryCSV\CheckSamples.cs" Link="CheckSamples.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />
 		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="DateTimeFormatInformation.cs" />

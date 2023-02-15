@@ -13,7 +13,7 @@
  */
 #nullable enable
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -22,6 +22,7 @@ namespace CsvTools
   /// </summary>
   public sealed class DelimiterCounter
   {
+
     // Added INFORMATION SEPARATOR ONE to FOUR
     public readonly int NumRows;
     public readonly int[] SeparatorRows;
@@ -42,7 +43,7 @@ namespace CsvTools
     {
       NumRows = numRows;
       m_FieldQualifier = fieldQualifier;
-      Separators = GetPossibleDelimiters(disallowedDelimiter);
+      Separators = new string((disallowedDelimiter == null ? StaticCollections.DelimiterChars : StaticCollections.DelimiterChars.Where(x => !disallowedDelimiter.Contains(x))).ToArray());
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
       SeparatorScore= new int[Separators.Length];
@@ -61,30 +62,6 @@ namespace CsvTools
             res++;
         return res;
       }
-    }
-
-    /// <summary>
-    /// Get the checked Delimiters, decided to make this non configurable as the inspection process is very fast 
-    /// </summary>
-    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
-    /// if you know that a delimiter is defiantly not suitable.</param>
-    /// <returns>Tab, Comma, Semicolon, Various Pipes: |¦￤, Star, 
-    /// Single Quote, Unicode Information Seperator 1, Unicode Information Seperator 2, Unicode Information Seperator 3, 
-    /// Unicode Information Seperator 4 and whatever is defined in the current culture as ListSeparator
-    /// </returns>
-    public static string GetPossibleDelimiters(IEnumerable<char>? disallowedDelimiter = null)
-    {
-      var separators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
-      var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-      if (separators.IndexOf(listSeparator) == -1)
-        separators += listSeparator;
-      if (disallowedDelimiter == null)
-        return separators;
-
-      foreach (var delimiter in disallowedDelimiter)
-        if (separators.IndexOf(delimiter) != -1)
-          separators = separators.Remove(separators.IndexOf(delimiter), 1);
-      return separators;
     }
 
     /// <summary>

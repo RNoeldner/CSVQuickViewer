@@ -199,7 +199,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
-          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, DetectionQualifier.PossibleQualifier.ToCharArray(), m_CancellationTokenSource.Token);
+          var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar, StaticCollections.PossibleQualifiers, m_CancellationTokenSource.Token);
           csvFile.FieldQualifierChar = res.QuoteChar;
           if (res.DuplicateQualifier)
             csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
