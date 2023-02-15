@@ -65,11 +65,11 @@ namespace CsvTools.Tests
     public void StringToBooleanSpanTest()
     {
 #pragma warning disable CS8629 
-      Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Item1.Value);
-      Assert.IsTrue("*".AsSpan().StringToBoolean("*".AsSpan(), "?".AsSpan()).Item1.Value);
-      Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Item1.Value);
-      Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty.AsSpan(), ReadOnlySpan<char>.Empty).Item1);
-      Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).Item1.Value);
+      Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
+      Assert.IsTrue("*".AsSpan().StringToBoolean("*".AsSpan(), "?".AsSpan()).Value);
+      Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
+      Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty.AsSpan(), ReadOnlySpan<char>.Empty));
+      Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).Value);
 #pragma warning restore CS8629 
     }
 
