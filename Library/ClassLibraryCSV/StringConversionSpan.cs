@@ -19,6 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 // ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UseIndexFromEndExpression
 
 
 namespace CsvTools
