@@ -201,9 +201,21 @@ namespace CsvTools
         return Encoding.UTF8;
 
       var results = CharsetDetector.DetectFromBytes(buff);
-      if (results.Detected == null || results.Detected.Confidence < 0.2)
+      if (results.Detected == null)
         return Encoding.UTF8;
-      return results.Detected.Encoding;
+
+      if (results.Detected.Confidence > 0.75)
+        return results.Detected.Encoding;
+
+      Logger.Warning($"Confidance for detected charset {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
+      foreach (var res in results.Details)
+      {
+        if (res.Confidence>0.5 && res.Encoding == Encoding.UTF32)
+          return Encoding.UTF32;
+        if (res.Confidence>0.5 && res.Encoding == Encoding.Unicode)
+          return Encoding.Unicode;
+      }
+      return Encoding.UTF8;
     }
   }
 }
