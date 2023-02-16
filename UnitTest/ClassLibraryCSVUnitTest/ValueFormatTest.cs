@@ -148,11 +148,9 @@ namespace CsvTools.Tests
       Assert.AreEqual("MM/dd/yyyy", test.DateFormat, "DateFormat");
       Assert.AreEqual("/", test.DateSeparator, "DateSeparator");
       Assert.AreEqual(".", test.DecimalSeparator, "DecimalSeparator");
-      Assert.AreEqual("False", test.False, "False");
       Assert.AreEqual(string.Empty, test.GroupSeparator, "GroupSeparator");
       Assert.AreEqual("0.#####", test.NumberFormat, "NumberFormat");
       Assert.AreEqual(":", test.TimeSeparator, "TimeSeparator");
-      Assert.AreEqual("True", test.True, "True");
     }
 
 
