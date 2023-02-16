@@ -1,4 +1,4 @@
 ﻿using Benchmark;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<ReplaceDefaultsPerformance>();
+BenchmarkRunner.Run<BenchmarkCsvFilePerformance>();
