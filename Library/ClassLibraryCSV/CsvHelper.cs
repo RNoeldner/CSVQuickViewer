@@ -513,7 +513,10 @@ namespace CsvTools
     public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
     {
       // Read 256 kBytes
-      var buff = new byte[262144];
+      int maxlen = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
+      if (maxlen>262144)
+        maxlen =262144;
+      var buff = new byte[maxlen];
 
       var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
       if (length >= 2)
