@@ -246,16 +246,19 @@ namespace CsvTools
       if (value.Length == 0)
         return (null, string.Empty);
 
-      foreach ((int start, int length) valueTuple in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
-        if (value.Equals(trueValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
-          return (true, trueValue.Slice(valueTuple.start, valueTuple.length).ToString());
+      if (!trueValue.IsEmpty)
+        foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
+          if (value.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+            return (true, trueValue.Slice(start, length).ToString());
       foreach (var text in StaticCollections.TrueValues)
         if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
           return (true, text);
 
-      foreach ((int start, int length) valueTuple in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
-        if (value.Equals(falseValue.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
-          return (false, falseValue.Slice(valueTuple.start, valueTuple.length).ToString());
+      if (!falseValue.IsEmpty)
+        foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
+          if (value.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+            return (false, falseValue.Slice(start, length).ToString());
+
       foreach (var text in StaticCollections.FalseValues)
         if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
           return (false, text);
@@ -323,33 +326,31 @@ namespace CsvTools
       char timeSeparatorChar,
       in CultureInfo culture)
     {
-      var stringDateValue = text.Trim().ToString().Replace('\t', ' ').Replace("  ", " ").AsSpan();
-
-      if (stringDateValue.Length < 4)
-        return null;
-
       // Quick check: If the entry is empty, or a constant string, or the length does not make
       // sense, we do not need to try and parse
-      if (stringDateValue.Length < 4 || stringDateValue.SequenceEqual("00000000".AsSpan()) ||
-          stringDateValue.SequenceEqual("99999999".AsSpan()))
+      if (text.Length < 4 || text.SequenceEqual("00000000".AsSpan()) ||
+          text.SequenceEqual("99999999".AsSpan()))
         return null;
 
+      if (text.IndexOfAny('\t', ' ')!=-1)
+        text = text.ToString().Replace('\t', ' ').Replace("  ", " ").AsSpan();
+
       // get rid of numeric suffixes like 12th or 3rd for dates
-      if (stringDateValue.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || stringDateValue.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
-        stringDateValue = StaticCollections.RegExNumberSuffixEnglish.Value.Replace(stringDateValue.ToString(), "$1")
+      if (text.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || text.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || text.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+          || text.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+        text = StaticCollections.RegExNumberSuffixEnglish.Value.Replace(text.ToString(), "$1")
           .AsSpan();
+
       var matchingDateTimeFormats = new List<string>();
       foreach (var (start, length) in dateFormats.GetSlices(StaticCollections.ListDelimiterChars.AsSpan()))
       {
-        matchingDateTimeFormats.Add(dateFormats.Slice(start, length).ToString());
         var dateTimeFormatString = (dateSeparatorChar ==char.MinValue && dateFormats.Slice(start, length).IndexOf('/') != -1)
             ? dateFormats.Slice(start, length).ToString().Replace("/", "")
             : dateFormats.Slice(start, length).ToString();
 
-        if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateTimeFormatString))
+        if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(text.Length, dateTimeFormatString))
           matchingDateTimeFormats.Add(dateTimeFormatString);
         // In case of a date & time format add the date only format separately
         var indexHour =
@@ -362,7 +363,7 @@ namespace CsvTools
         if (indexHour > 4)
         {
           string dateOnlyFmt = dateTimeFormatString.Substring(0, indexHour - 1).Trim();
-          if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(stringDateValue.Length, dateOnlyFmt))
+          if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(text.Length, dateOnlyFmt))
             matchingDateTimeFormats.Add(dateOnlyFmt);
         }
       }
@@ -371,7 +372,7 @@ namespace CsvTools
         return null;
 
       return StringToDateTimeByCulture(
-        stringDateValue,
+        text,
         matchingDateTimeFormats.ToArray(),
         dateSeparatorChar,
         timeSeparatorChar,
@@ -393,39 +394,37 @@ namespace CsvTools
       char groupSeparatorChar,
       bool allowPercentage,
       bool currencyRemoval)
-    {
-      // Remove any white space
-      var fieldValueSpan = text.Trim();
+    {      
       // in case nothing is passed in we are already done here
-      if (fieldValueSpan.Length == 0)
+      if (text.IsEmpty)
         return null;
 
       if (currencyRemoval)
       {
-        var temp = fieldValueSpan.ToString();
+        var temp = text.ToString();
         foreach (var currencySymbol in StaticCollections.CurrencySymbols)
         {
           if (temp.IndexOf(currencySymbol) != -1)
             temp= temp.Replace(currencySymbol.ToString(), string.Empty);
         }
 
-        fieldValueSpan = temp.AsSpan().Trim();
+        text = temp.AsSpan().Trim();
       }
 
-      var startDecimal = fieldValueSpan.Length;
+      var startDecimal = text.Length;
       var lastPos = -3;
       // Sanity Check: In case the decimalSeparator occurs multiple times is not a number in case
       // the thousand separator are closer then 3 characters together
-      for (var pos = 0; pos < fieldValueSpan.Length; pos++)
+      for (var pos = 0; pos < text.Length; pos++)
       {
-        if (fieldValueSpan[pos] == decimalSeparatorChar)
+        if (text[pos] == decimalSeparatorChar)
         {
-          if (startDecimal < fieldValueSpan.Length)
+          if (startDecimal < text.Length)
             // Second decimal seperator
             return null;
           startDecimal = pos;
         }
-        else if (fieldValueSpan[pos] == groupSeparatorChar)
+        else if (text[pos] == groupSeparatorChar)
         {
           if (lastPos > 0 && pos != lastPos + 4)
             // Distance between group is not correct
@@ -445,16 +444,16 @@ namespace CsvTools
         NumberDecimalSeparator = decimalSeparatorChar.ToStringHandle0(),
         NumberGroupSeparator = groupSeparatorChar.ToStringHandle0()
       };
-      var roundBraces = fieldValueSpan[0] == '(' && fieldValueSpan[fieldValueSpan.Length - 1] == ')';
+      var roundBraces = text[0] == '(' && text[text.Length - 1] == ')';
       if (roundBraces)
-        fieldValueSpan = fieldValueSpan.Slice(1, fieldValueSpan.Length - 2).Trim();
+        text = text.Slice(1, text.Length - 2).Trim();
 
-      var percentage = allowPercentage && fieldValueSpan[fieldValueSpan.Length - 1] == '%';
+      var percentage = allowPercentage && text[text.Length - 1] == '%';
       // ReSharper disable once IdentifierTypo
-      var permille = allowPercentage && fieldValueSpan[fieldValueSpan.Length - 1] == '‰';
+      var permille = allowPercentage && text[text.Length - 1] == '‰';
 
       if (percentage || permille)
-        fieldValueSpan = fieldValueSpan.Slice(0, fieldValueSpan.Length - 1).Trim();
+        text = text.Slice(0, text.Length - 1).Trim();
 
       //       Pattern 1:           -1,234.00
       //       Pattern 2:           - 1,234.00
@@ -466,9 +465,9 @@ namespace CsvTools
         // Try to convert this value to a decimal value. 
         if (!decimal.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-              fieldValueSpan
+              text
 #else
-              fieldValueSpan.ToString()
+              text.ToString()
 #endif
               , NumberStyles.Number, numberFormatProvider, out var result))
           continue;
@@ -605,7 +604,7 @@ namespace CsvTools
       int part, 
       bool toEnd)
     {
-      if (text.Length == 0 || part < 1)
+      if (text.IsEmpty || part < 1)
         return ReadOnlySpan<char>.Empty;
       var list = text.GetSlices(new[] { splitter });
 
@@ -632,25 +631,24 @@ namespace CsvTools
       char timeSeparatorChar, 
       bool serialDateTime)
     {
-      var stringTimeValue = text.Trim();
-      if (stringTimeValue.IsEmpty)
+      if (text.IsEmpty)
         return null;
 
-      var slices = stringTimeValue.GetSlices(new[] { timeSeparatorChar, ' ', '.' }).Where(x => x.length>0).ToList();
+      var slices = text.GetSlices(new[] { timeSeparatorChar, ' ', '.' }).Where(x => x.length>0).ToList();
       // Either we only have one slice or its two slices but the two slices are separated by .
       if (slices.Count==1 || 
-          slices.Count==2 && stringTimeValue[slices[1].start-1] =='.' )
+          slices.Count==2 && text[slices[1].start-1] =='.' )
       {
         if (!serialDateTime)
           return null;
-        var dt = SerialStringToDateTime(stringTimeValue);
+        var dt = SerialStringToDateTime(text);
         if (dt.HasValue)
           return new TimeSpan(dt.Value.Ticks - DateTimeConstants.FirstDateTime.Ticks);
 
         return null;
       }
       
-      var slice = stringTimeValue.Slice(slices[0].start, slices[0].length);
+      var slice = text.Slice(slices[0].start, slices[0].length);
       int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         slice
@@ -661,7 +659,7 @@ namespace CsvTools
       var minutes = 0;
       if (slices.Count > 1)
       {
-        slice = stringTimeValue.Slice(slices[1].start, slices[1].length);
+        slice = text.Slice(slices[1].start, slices[1].length);
         int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
           slice
@@ -673,7 +671,7 @@ namespace CsvTools
       var seconds = 0;
       if (slices.Count > 2)
       {
-        slice = stringTimeValue.Slice(slices[2].start, slices[2].length);
+        slice = text.Slice(slices[2].start, slices[2].length);
         int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
           slice
@@ -686,7 +684,7 @@ namespace CsvTools
       var milliseconds = 0;
       if (slices.Count > 3)
       {
-        slice = stringTimeValue.Slice(slices[3].start, slices[3].length);
+        slice = text.Slice(slices[3].start, slices[3].length);
         int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
           slice
@@ -697,12 +695,12 @@ namespace CsvTools
       }
       // Handle am / pm to adjust hours
       // 12:00 AM - 12:59 AM --> 00:00 - 00:59
-      if (hours == 12 && slices.Count >2 && stringTimeValue.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
+      if (hours == 12 && slices.Count >2 && text.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
         hours -= 12;
 
       // 12:00 PM - 12:59 PM 12:00 - 12:59 No change
       // 01:00 pm - 11:59 PM --> 13:00 - 23:59
-      if (hours < 12 && slices.Count >2 && stringTimeValue.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
+      if (hours < 12 && slices.Count >2 && text.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
         hours += 12;
 
       return new TimeSpan(0, hours, minutes, seconds, milliseconds);

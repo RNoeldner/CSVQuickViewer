@@ -16,7 +16,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Text;
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -34,7 +33,7 @@ namespace CsvTools
     public const string cDecimalSeparatorDefault = ".";
     private const char cGroupSeparatorDefaultChar = char.MinValue;
     internal const string cGroupSeparatorDefault = "";
-    internal const string cFalseDefault = "False";
+    internal const string cFalseDefault = "";
     internal const string cNumberFormatDefault = "0.#####";
     internal const int cPartDefault = 2;
     private const char cPartSplitterDefaultChar = ':';
@@ -43,7 +42,7 @@ namespace CsvTools
     private const char cTimeSeparatorDefaultChar = ':';
     internal const string cTimeSeparatorDefault = ":";
 
-    internal const string cTrueDefault = "True";
+    internal const string cTrueDefault = "";
     internal const bool cOverwriteDefault = true;
 
     public static readonly ValueFormat Empty = new ValueFormat();
