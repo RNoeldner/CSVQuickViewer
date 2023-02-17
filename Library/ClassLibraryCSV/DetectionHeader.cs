@@ -124,7 +124,7 @@ namespace CsvTools
         var numEmpty = headers.Where(header => string.IsNullOrWhiteSpace(header)).Count();
         var notUnique = headers.Where(x => !headers.Distinct().Contains(x)).ToList();
         var numNotUnique = headers.Count - headers.Distinct().Count();
-        var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+-]?\d+([\.,]?\d+)?$")).ToList();
+        var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
         var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[-/.][0123]?\d[-/.][0123]?\d|[0123]?\d[-/.][0123]?\d[-/.]\d{2,4}?$")).ToList();
         var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
           .ToList();
@@ -133,7 +133,7 @@ namespace CsvTools
 
         // allowed char are letters, digits and a predefined list of punctuation and symbols
         var specials = headers.Where(header =>
-          Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$[]()+-=#'<>@.!?") + "]")).ToList();
+          Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
 
         if (numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count  >= halfTheColumns
           ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count > 3)
@@ -153,7 +153,7 @@ namespace CsvTools
             msg.Length--;
             msg.Append(" boolean");
           }
-          
+
           if (guidHeaders.Count > 0)
           {
             if (msg.Length > 0)
