@@ -342,7 +342,7 @@ namespace CsvTools
 
         case TypeCode.Object:
           if (targetType == typeof(Guid))
-            return $"'{value.SqlQuote().ToString()}'";
+            return $"'{value.ToString().SqlQuote()}'";
           break;
 
         case TypeCode.Empty:
@@ -350,7 +350,7 @@ namespace CsvTools
           break;
 
         default:
-          return $"'{value.SqlQuote().ToString()}'";
+          return $"'{value.ToString().SqlQuote()}'";
       }
 
       return string.Empty;
