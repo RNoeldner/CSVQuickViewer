@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj" />
-    <ProjectReference Include="..\..\Library\ClassLibraryCSVOld\CsvTools.ClassLibraryCSV.Old.csproj" />
+    
   </ItemGroup>
 
   <ItemGroup>
