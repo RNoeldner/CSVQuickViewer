@@ -234,7 +234,7 @@ namespace CsvTools
     {
       var retValues = new List<object>();
 
-      if (columnDataType == typeof(string))
+      if (columnDataType != typeof(DateTime))
         retValues.AddRange(new[] { cOperatorContains, cOperatorBegins, cOperatorEnds });
 
       // everyone gets = / <>
@@ -242,6 +242,7 @@ namespace CsvTools
 
       if (columnDataType == typeof(string))
         retValues.AddRange(new[] { cOperatorLonger, cOperatorShorter });
+
       else if (columnDataType == typeof(DateTime) || columnDataType == typeof(int) || columnDataType == typeof(long)
                || columnDataType == typeof(double) || columnDataType == typeof(float)
                || columnDataType == typeof(decimal) || columnDataType == typeof(byte)
@@ -437,11 +438,18 @@ namespace CsvTools
         case cOperatorContains:
           if (!string.IsNullOrEmpty(m_ValueText))
           {
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "{0} LIKE '%{1}%'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
+            if (m_ColumnDataType == typeof(string))
+              return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} LIKE '%{1}%'",
+                m_DataPropertyNameEscape,
+                StringEscapeLike(m_ValueText));
+            else
+              return string.Format(
+                CultureInfo.InvariantCulture,
+                "Convert({0},'System.String') LIKE '%{1}%'",
+                m_DataPropertyNameEscape,
+                StringEscapeLike(m_ValueText));
           }
 
           break;
@@ -457,18 +465,32 @@ namespace CsvTools
           break;
 
         case cOperatorBegins:
-          return string.Format(
-            CultureInfo.InvariantCulture,
-            "{0} LIKE '{1}%'",
-            m_DataPropertyNameEscape,
-            StringEscapeLike(m_ValueText));
+          if (m_ColumnDataType == typeof(string))
+            return string.Format(
+              CultureInfo.InvariantCulture,
+              "{0} LIKE '{1}%'",
+              m_DataPropertyNameEscape,
+              StringEscapeLike(m_ValueText));
+          else
+            return string.Format(
+              CultureInfo.InvariantCulture,
+              "Convert({0},'System.String') LIKE '{1}%'",
+              m_DataPropertyNameEscape,
+              StringEscapeLike(m_ValueText));
 
         case cOperatorEnds:
-          return string.Format(
-            CultureInfo.InvariantCulture,
-            "{0} LIKE '%{1}'",
-            m_DataPropertyNameEscape,
-            StringEscapeLike(m_ValueText));
+          if (m_ColumnDataType == typeof(string))
+            return string.Format(
+              CultureInfo.InvariantCulture,
+              "{0} LIKE '%{1}'",
+              m_DataPropertyNameEscape,
+              StringEscapeLike(m_ValueText));
+          else
+            return string.Format(
+              CultureInfo.InvariantCulture,
+              "Convert({0},'System.String') LIKE '%{1}'",
+              m_DataPropertyNameEscape,
+              StringEscapeLike(m_ValueText));
 
         default:
           string filterValue;

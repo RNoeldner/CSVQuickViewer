@@ -124,8 +124,8 @@ namespace CsvTools
         var numEmpty = headers.Where(header => string.IsNullOrWhiteSpace(header)).Count();
         var notUnique = headers.Where(x => !headers.Distinct().Contains(x)).ToList();
         var numNotUnique = headers.Count - headers.Distinct().Count();
-        var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
-        var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[-/.][0123]?\d[-/.][0123]?\d|[0123]?\d[-/.][0123]?\d[-/.]\d{2,4}?$")).ToList();
+        var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
+        var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();
         var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
           .ToList();
         var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue)
