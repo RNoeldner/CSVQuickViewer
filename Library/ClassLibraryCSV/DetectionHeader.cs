@@ -118,42 +118,66 @@ namespace CsvTools
           fieldCount += DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment).Count;
         }
 
-        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0);
-        if (counter > 3)
-        {
-          var avgFieldCount = fieldCount / (double) counter;
-          // The average should not be smaller than the columns in the initial row
-          if (avgFieldCount < headers.Count)
-            avgFieldCount = headers.Count;
-          halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
+        var halfTheColumns = (int) Math.Ceiling(fieldCount / counter / 2.0);
 
-          // Columns are only one or two char, does not look descriptive
-          if (headers.Count(x => x.Length < 3) > halfTheColumns)
-            return $"Headers '{string.Join("', '", headers.Where(x => x.Length < 3))}' very short";
-
-          // use the same routine that is used in readers to determine the names of the columns
-          var (_, numIssues) = BaseFileReader.AdjustColumnName(headers, (int) avgFieldCount, null);
-
-          // looking at the warnings raised
-          if (numIssues >= halfTheColumns || numIssues > 2)
-            return $"{numIssues} header where empty, duplicate or too long";
-        }
-
-        var numeric = headers.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
-        var boolHead = headers.Where(header => header.AsSpan().StringToBoolean("1".AsSpan(), "0".AsSpan()).HasValue)
+        var tooLong = headers.Where(header => header.Length > 128).ToList();
+        var numEmpty = headers.Where(header => string.IsNullOrWhiteSpace(header)).Count();
+        var notUnique = headers.Where(x => !headers.Distinct().Contains(x)).ToList();
+        var numNotUnique = headers.Count - headers.Distinct().Count();
+        var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+-]?\d+([\.,]?\d+)?$")).ToList();
+        var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[-/.][0123]?\d[-/.][0123]?\d|[0123]?\d[-/.][0123]?\d[-/.]\d{2,4}?$")).ToList();
+        var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
           .ToList();
+        var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue)
+          .ToList();
+
         // allowed char are letters, digits and a predefined list of punctuation and symbols
         var specials = headers.Where(header =>
           Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$[]()+-=#'<>@.!?") + "]")).ToList();
-        if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
+
+        if (numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count  >= halfTheColumns
+          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count > 3)
         {
           var msg = new StringBuilder();
+
+          if (boolHead.Count > 0)
+          {
+            msg.Append("Header(s) ");
+            foreach (var header in boolHead)
+            {
+              msg.Append('\'');
+              msg.Append(header.Trim('\"'));
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" boolean");
+          }
+          
+          if (guidHeaders.Count > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append('\n');
+            msg.Append("Header(s) ");
+            foreach (var header in guidHeaders)
+            {
+              msg.Append('\'');
+              msg.Append(header.Trim('\"'));
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" Guid");
+          }
+
           if (numeric.Count > 0)
           {
-            msg.Append("Headers ");
+            if (msg.Length > 0)
+              msg.Append('\n');
+            msg.Append("Header(s) ");
             foreach (var header in numeric)
             {
-              msg.Append("'");
+              msg.Append('\'');
               msg.Append(header.Trim('\"'));
               msg.Append("',");
             }
@@ -162,27 +186,27 @@ namespace CsvTools
             msg.Append(" numeric");
           }
 
-          if (boolHead.Count > 0)
+          if (dates.Count > 0)
           {
             if (msg.Length > 0)
-              msg.Append(" and ");
-            msg.Append("Headers ");
-            foreach (var header in boolHead)
+              msg.Append('\n');
+            msg.Append("Header(s) ");
+            foreach (var header in dates)
             {
-              msg.Append("'");
+              msg.Append('\'');
               msg.Append(header.Trim('\"'));
               msg.Append("',");
             }
 
             msg.Length--;
-            msg.Append(" boolean");
+            msg.Append(" dates");
           }
 
           if (specials.Count > 0)
           {
             if (msg.Length > 0)
-              msg.Append(" and ");
-            msg.Append("Headers ");
+              msg.Append('\n');
+            msg.Append("Header(s) ");
             foreach (var header in specials)
             {
               msg.Append("'");
@@ -192,6 +216,45 @@ namespace CsvTools
 
             msg.Length--;
             msg.Append(" with uncommon characters");
+          }
+
+          if (numEmpty > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append('\n');
+            msg.Append($"{numEmpty:N0} Header(s) empty");
+          }
+
+          if (notUnique.Count > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append('\n');
+            msg.Append("Header(s) ");
+            foreach (var header in notUnique.Distinct())
+            {
+              msg.Append('\'');
+              msg.Append(header);
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" duplicate");
+          }
+
+          if (tooLong.Count > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append('\n');
+            msg.Append("Header(s) ");
+            foreach (var header in tooLong)
+            {
+              msg.Append('\'');
+              msg.Append(header.Trim('\"').Substring(0, 10) +"…");
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" too long");
           }
 
           return msg.ToString();

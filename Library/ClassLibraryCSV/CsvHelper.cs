@@ -362,10 +362,11 @@ namespace CsvTools
           ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
             inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken).ConfigureAwait(false);
         }
-
-        var issue = ret;
-        Logger.Information(!string.IsNullOrEmpty(issue) ? $"Without Header Row {issue}" : "Has Header Row");
-        inspectionResult.HasFieldHeader = string.IsNullOrEmpty(issue);
+        inspectionResult.HasFieldHeader = string.IsNullOrEmpty(ret);
+        if (!inspectionResult.HasFieldHeader)
+          Logger.Information($"Without Header, Issues : {ret.HandleCrlfCombinations(", ")}");
+        else
+          Logger.Information("Has Header");
       }
     }
 
