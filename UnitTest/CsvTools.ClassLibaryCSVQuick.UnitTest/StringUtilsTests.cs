@@ -22,25 +22,6 @@ namespace CsvTools.Tests
   {
     [TestMethod]
     [Timeout(200)]
-    public void SqlNameSpan()
-    {
-      Assert.IsTrue(@"".AsSpan().SequenceEqual(@"".AsSpan().SqlName()));
-      Assert.IsTrue(@"ValidationTask".AsSpan().SequenceEqual(@"ValidationTask".AsSpan().SqlName()));
-      Assert.IsTrue(@"Validation]]Task".AsSpan().SequenceEqual(@"Validation]Task".AsSpan().SqlName()));
-    }
-
-    [TestMethod]
-    [Timeout(200)]
-    public void SqlQuoteSpan()
-    {
-      Assert.IsTrue(@"".AsSpan().SequenceEqual(@"".AsSpan().SqlQuote()));
-      Assert.IsTrue(@"ValidationTask".AsSpan().SequenceEqual(@"ValidationTask".AsSpan().SqlQuote()));
-      Assert.IsTrue(@"Validation''Task".AsSpan().SequenceEqual(@"Validation'Task".AsSpan().SqlQuote()));
-    }
-
-
-    [TestMethod]
-    [Timeout(200)]
     public void PassesFilter()
     {
       Assert.AreEqual(true, "This is a test".AsSpan().PassesFilter("The+test", StringComparison.OrdinalIgnoreCase));
