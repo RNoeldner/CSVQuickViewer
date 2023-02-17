@@ -247,7 +247,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboCodePage.SuspendLayout();
       cboWriteCodePage.SuspendLayout();
       var codePages = EncodingHelper.CommonCodePages
-        .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
+        .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp))).ToList();
       var preselect = codePages.FirstOrDefault(x => x.ID == (m_FileSetting?.CodePageId ?? m_ViewSettings.DefaultInspectionResult.CodePageId)) ?? codePages.First();
       cboCodePage.DataSource = codePages;
       cboWriteCodePage.DataSource = codePages;
@@ -406,6 +406,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var textReader = await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           csvFile.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar, m_CancellationTokenSource.Token));
         });
-    } 
+    }
   }
 }

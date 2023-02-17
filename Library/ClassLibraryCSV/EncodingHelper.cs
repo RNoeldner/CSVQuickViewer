@@ -29,18 +29,17 @@ namespace CsvTools
     /// </summary>
     public const string cSuffixWithoutBom = " without BOM";
 
-    private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(
-      () => new[]
+    private static readonly int[] m_CommonCodePages = new[]
       {
-        Encoding.UTF8.CodePage, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255,  850, 852, 437, 28591, 10029, 20127, 28597,
-        50220, 28592, 28595, 28598, 20866, 932, 54936
-      });
+        Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001,
+        1252, 437, 1250,  1253, 1255,  850, 852,  28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+      };
 
     /// <summary>
     ///   Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
-    public static int[] CommonCodePages => m_CommonCodePages.Value;
+    public static int[] CommonCodePages => m_CommonCodePages;
 
     // ReSharper disable once InconsistentNaming
     public static byte BOMLength(int codePage)
@@ -146,45 +145,45 @@ namespace CsvTools
     public static string GetEncodingName(int codePage)
     {
       string name;
-      try
+
+      switch (codePage)
       {
-        switch (codePage)
-        {
-          case -1:
-            return "<Determine code page>";
+        case -1:
+          return "<Determine code page>";
+        case 65001:
+          return "Unicode (UTF-8)";
 
-          case 1200:
-            name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian";
-            break;
+        case 1200:
+          return "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian";
 
-          case 1201:
-            name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian";
-            break;
+        case 1201:
+          return "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian";
 
-          case 1252:
-            name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
-            break;
+        case 12000:
+          return "Unicode (UTF-32) / UCS-4 / ISO 10646";
 
-          case 850:
-            name = "Western European (DOS) / MS-DOS Latin 1";
-            break;
+        case 12001:
+          return Encoding.GetEncoding(codePage).EncodingName;
 
-          case 852:
-            name = "Central European (DOS) / OEM Latin 2";
-            break;
+        case 1252:
+          name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
+          break;
 
-          case 437:
-            name = "OEM United States / IBM PC:default / MS-DOS";
-            break;
+        case 850:
+          name = "Western European (DOS) / MS-DOS Latin 1";
+          break;
 
-          default:
-            name = Encoding.GetEncoding(codePage).EncodingName;
-            break;
-        }
-      }
-      catch (NotSupportedException)
-      {
-        return $"CP {codePage}";
+        case 852:
+          name = "Central European (DOS) / OEM Latin 2";
+          break;
+
+        case 437:
+          name = "OEM United States / IBM PC:default / MS-DOS";
+          break;
+
+        default:
+          name = Encoding.GetEncoding(codePage).EncodingName;
+          break;
       }
 
       return $"CP {codePage} - {name}";
