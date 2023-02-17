@@ -234,14 +234,14 @@ namespace CsvTools
     {
       var retValues = new List<object>();
 
-      if (columnDataType != typeof(DateTime))
+      if (columnDataType != typeof(DateTime) && columnDataType != typeof(bool))
         retValues.AddRange(new[] { cOperatorContains, cOperatorBegins, cOperatorEnds });
 
       // everyone gets = / <>
       retValues.AddRange(new[] { cOperatorEquals, cOperatorNotEqual });
 
       if (columnDataType == typeof(string))
-        retValues.AddRange(new[] { cOperatorLonger, cOperatorShorter });
+        retValues.AddRange(new[] { cOperatorLonger, cOperatorShorter, cOperatorSmallerEqual, cOperatorBiggerEqual });
 
       else if (columnDataType == typeof(DateTime) || columnDataType == typeof(int) || columnDataType == typeof(long)
                || columnDataType == typeof(double) || columnDataType == typeof(float)
