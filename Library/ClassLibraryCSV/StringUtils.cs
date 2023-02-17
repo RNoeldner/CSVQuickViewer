@@ -407,49 +407,11 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
-    ///   Escapes SQL names; does not include the brackets or quotes, working with ReadOnlySpan is not faster but memory efficient
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns>The names as it can be placed into brackets</returns>
-    public static ReadOnlySpan<char> SqlName(this ReadOnlySpan<char> contents)
-      => ReplaceDuplicate(contents, ']');
-
-    private static ReadOnlySpan<char> ReplaceDuplicate(this ReadOnlySpan<char> contents, char lookFor)
-    {
-      var counter = 0;
-      foreach (var chr in contents)
-        if (chr== lookFor) counter++;
-      if (counter==0)
-        return contents;
-      unsafe
-      {
-        Span<char> destination = stackalloc char[contents.Length + counter];
-        counter = 0;
-        for (var src = 0; src<contents.Length; src++)
-        {
-          destination[counter++] = contents[src];
-          if (contents[src] == lookFor)
-            destination[counter++] = lookFor;
-        }
-#pragma warning disable CS9080
-        return destination;
-#pragma warning restore CS9080
-      }
-    }
-
-    /// <summary>
     ///   Handles quotes in SQLs, does not include the outer quotes
     /// </summary>
     /// <param name="contents">The contents.</param>
     public static string SqlQuote(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
-
-    /// <summary>
-    ///   Handles quotes in SQLs, does not include the outer quotes, working with ReadOnlySpan is not faster but memory efficient
-    /// </summary>
-    /// <param name="contents">The contents.</param>    
-    public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents)
-      => ReplaceDuplicate(contents, '\'');
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
