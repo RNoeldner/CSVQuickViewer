@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+// ReSharper disable CommentTypo
 
 namespace CsvTools
 {
@@ -450,8 +451,8 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return !regEx.IsMatch(input)
-        ? PlaceholderReplace(input, placeholder, dateTime.ToString())
-        : string.Format(regEx.Replace(input, "{0$2}"), dateTime.ToString());
+        ? PlaceholderReplace(input, placeholder, dateTime.ToString(CultureInfo.CurrentCulture))
+        : string.Format(regEx.Replace(input, "{0$2}"), dateTime.ToString(CultureInfo.CurrentCulture));
     }
 
     /// <summary>

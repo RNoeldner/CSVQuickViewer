@@ -91,7 +91,7 @@ namespace CsvTools
     {
       var output = Unescape(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"Unescaped text");
+        handleWarning?.Invoke("Unescaped text");
       return output;
     }
     public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)

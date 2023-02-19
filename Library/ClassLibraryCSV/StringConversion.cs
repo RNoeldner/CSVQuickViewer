@@ -13,10 +13,8 @@
  */
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 
 namespace CsvTools
 {
@@ -39,8 +37,7 @@ namespace CsvTools
     /// <returns>Formatted value</returns>
     public static string DateTimeToString(in DateTime dateTime, in string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
     {
-      if (cultureInfo==null)
-        cultureInfo = CultureInfo.InvariantCulture;
+      cultureInfo ??= CultureInfo.InvariantCulture;
 
       // replacing the format placeholder with constants, to be replaced back later
       if (!dateFormat.Contains("HHH"))
@@ -83,7 +80,7 @@ namespace CsvTools
     public static string DecimalToString(in decimal value, in ValueFormat format)
     => value.ToString(format.NumberFormat.Length == 0 ? ValueFormat.cNumberFormatDefault : format.NumberFormat, CultureInfo.InvariantCulture)
         .ReplaceDefaults('.', format.DecimalSeparator, ',', format.GroupSeparator);
-    
+
     /// <summary>
     ///   Displays the date time in local format
     /// </summary>

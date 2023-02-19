@@ -40,7 +40,7 @@ namespace CsvTools
     {
       var output = m_Markdown.Transform(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"Markdown encoding");
+        handleWarning?.Invoke("Markdown encoding");
       return output;
     }
 

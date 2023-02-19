@@ -139,10 +139,10 @@ namespace CsvTools.Tests
       return AppDomain.CurrentDomain.GetAssemblies()
         .Where(a => a.FullName.StartsWith("ClassLibraryCSV", StringComparison.Ordinal))
         .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
-        .Where(@t1 => @t1.t.IsClass && !@t1.t.IsAbstract)
-        .SelectMany(@t1 => @t1.t.GetInterfaces(), (@t1, i) => new { @t1, i })
-        .Where(@t1 => @t1.i.IsGenericType && @t1.i.GetGenericTypeDefinition() == typeof(IEquatable<>))
-        .Select(@t1 => @t1.@t1.t);
+        .Where(t1 => t1.t.IsClass && !t1.t.IsAbstract)
+        .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new { t1, i })
+        .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(IEquatable<>))
+        .Select(t1 => t1.t1.t);
     }
   }
 }

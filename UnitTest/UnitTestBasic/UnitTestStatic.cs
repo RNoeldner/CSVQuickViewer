@@ -371,7 +371,7 @@ namespace CsvTools.Tests
         }
         catch (Exception e)
         {
-          WriteToContext($"Issue with {@type} {e.Message}");
+          WriteToContext($"Issue with {type} {e.Message}");
           throw;
         }
     }

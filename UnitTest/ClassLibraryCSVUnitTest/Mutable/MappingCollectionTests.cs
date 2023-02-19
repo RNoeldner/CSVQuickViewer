@@ -9,13 +9,9 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void EqualsTest()
     {
-      var mc1 = new MappingCollection();
-      mc1.Add(new Mapping("fc1", "tf1"));
-      mc1.Add(new Mapping("fc2", "tf2"));
+      var mc1 = new MappingCollection { new Mapping("fc1", "tf1"), new Mapping("fc2", "tf2") };
 
-      var mc2 = new MappingCollection();
-      mc2.Add(new Mapping("fc1", "tf1"));
-      mc2.Add(new Mapping("fc2", "tf2"));
+      var mc2 = new MappingCollection { new Mapping("fc1", "tf1"), new Mapping("fc2", "tf2") };
 
       Assert.IsTrue(mc1.Equals(mc2));
     }

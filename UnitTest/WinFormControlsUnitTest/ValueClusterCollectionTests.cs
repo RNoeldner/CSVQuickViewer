@@ -74,24 +74,20 @@ namespace CsvTools.Tests
     {
       var test = new ValueClusterCollection(200);
 
-      using (var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") })
+      using var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") };
+      dataTable.Columns.Add("ID", typeof(long));
+      dataTable.Columns.Add("Text", typeof(string));
+      dataTable.Columns.Add("STart", typeof(DateTime));
+      for (long i = 1; i < 20; i++)
       {
-        dataTable.Columns.Add("ID", typeof(long));
-        dataTable.Columns.Add("Text", typeof(string));
-        dataTable.Columns.Add("STart", typeof(DateTime));
-        for (long i = 1; i < 20; i++)
-        {
-          var row = dataTable.NewRow();
-          dataTable.Rows.Add(row);
-        }
-
-        using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
-        {
-          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(long), 0));
-          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(string), 1));
-          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(DateTime), 2));
-        }
+        var row = dataTable.NewRow();
+        dataTable.Rows.Add(row);
       }
+
+      using var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows);
+      Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(long), 0));
+      Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(string), 1));
+      Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(DateTime), 2));
     }
 
     [TestMethod]

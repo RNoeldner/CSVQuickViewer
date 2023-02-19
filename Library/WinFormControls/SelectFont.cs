@@ -11,7 +11,7 @@ namespace CsvTools
   {
     [Category("Action")] public event EventHandler? ValueChanged;
 
-    private bool m_UIChange = true;
+    private bool m_UiChange = true;
 
     [Browsable(true)]
     [Bindable(true)]
@@ -31,12 +31,12 @@ namespace CsvTools
         if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent)
           if (Math.Abs(value - diCurrent.ID) < .1)
             return;
-        m_UIChange = false;
+        m_UiChange = false;
 
         comboBoxSize.SelectedItem = comboBoxSize.Items.OfType<DisplayItem<float>>().OrderBy(x => Math.Abs(x.ID - value))
           .First();
 
-        m_UIChange = true;
+        m_UiChange = true;
       }
     }
 
@@ -58,9 +58,9 @@ namespace CsvTools
 #pragma warning restore CA1416
         if (comboBoxFont.Text == newValue)
           return;
-        m_UIChange = false;
+        m_UiChange = false;
         comboBoxFont.Text = newValue;
-        m_UIChange = true;
+        m_UiChange = true;
       }
     }
 
@@ -94,13 +94,13 @@ namespace CsvTools
 
     private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
     {
-      if (m_UIChange)
+      if (m_UiChange)
         ValueChanged?.Invoke(this, e);
     }
 
     private void ComboBoxSize_SelectedIndexChanged(object sender, EventArgs e)
     {
-      if (m_UIChange)
+      if (m_UiChange)
         ValueChanged?.Invoke(this, e);
     }
 
