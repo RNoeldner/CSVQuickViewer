@@ -15,12 +15,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHasHeaderAsync()
     {
-      using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
-      {
-        using var reader = new ImprovedTextReader(stream);
-        Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token));
-      }
-
       using (var stream =
              FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       {
@@ -28,6 +22,14 @@ namespace CsvTools.Tests
         Assert.IsFalse(
           string.IsNullOrEmpty(await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token)));
       }
+
+      using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
+      {
+        using var reader = new ImprovedTextReader(stream);
+        Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token));
+      }
+
+
 
       using (var stream =
              FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
@@ -46,8 +48,7 @@ namespace CsvTools.Tests
       using (var stream = new FileStream(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), FileMode.Open))
       {
         using var reader = new ImprovedTextReader(stream);
-        var res = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token);
-        Assert.IsTrue(res.Contains("very short"), res);
+        Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token));
       }
     }
 
@@ -81,12 +82,7 @@ namespace CsvTools.Tests
       using var improvedStream =
         FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
-      var result = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsFalse(string.IsNullOrEmpty(result));
-      Assert.IsTrue(result.EndsWith("very short"));
-      // if is a or 'a\' does not matter
-      Assert.IsTrue(result.Contains("'b', 'c', 'd', 'e', 'f'"));
+      Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -98,8 +94,8 @@ namespace CsvTools.Tests
       var result = await reader.InspectHasHeaderAsync(',', '"', '\\', "#", UnitTestStatic.Token);
       Assert.IsNotNull(result);
       Assert.IsFalse(string.IsNullOrEmpty(result));
-      Assert.IsTrue(result.StartsWith("Headers", StringComparison.OrdinalIgnoreCase), result);
-      Assert.IsTrue(result.EndsWith("very short", StringComparison.OrdinalIgnoreCase), result);
+      Assert.IsTrue(result.StartsWith("Header", StringComparison.OrdinalIgnoreCase), result);
+      Assert.IsTrue(result.EndsWith("too long", StringComparison.OrdinalIgnoreCase), result);
     }
 
     [TestMethod]

@@ -27,7 +27,7 @@ namespace CsvTools
     public const string cIdLocal = "(local)";
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
-    private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
+    private static TimeZoneInfo FindTimeZoneInfo(in string timeZone)
     {
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;

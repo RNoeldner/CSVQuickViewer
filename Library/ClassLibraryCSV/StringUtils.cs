@@ -296,7 +296,7 @@ namespace CsvTools
         }
       }
 
-      
+
       if (!allRequiredFound)
         return allRequiredFound;
 
@@ -346,12 +346,19 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(string? value, in string treatAsNull)
+    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull)
     {
       if (treatAsNull.Length == 0)
         return false;
-      return value is null || value.Length == 0 ||
-             treatAsNull.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+
+      if (value is null || value.Length == 0)
+        return true;
+
+      foreach (var part in treatAsNull.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries))
+        if (value.Equals(part, StringComparison.OrdinalIgnoreCase))
+          return true;
+
+      return false;
     }
 
     /// <summary>
@@ -426,8 +433,10 @@ namespace CsvTools
       if (entry.Length == 0)
         return false;
       if (entry.Length > 2
+#pragma warning disable IDE0056
           && ((entry[0] == '"' && entry[entry.Length-1]=='"')
-           || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
+              || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
+#pragma warning restore IDE0056
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;
@@ -447,8 +456,10 @@ namespace CsvTools
         return false;
 
       if (entry.Length > 2
+#pragma warning disable IDE0056
           && ((entry[0] == '"' && entry[entry.Length-1]=='"')
            || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
+#pragma warning restore IDE0056
       {
         result = entry.Slice(1, entry.Length - 2);
         return true;

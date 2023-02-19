@@ -1377,7 +1377,7 @@ Line "Test"", "22",23,"  24"
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 
-      Assert.AreEqual($"A {Environment.NewLine}Line{Environment.NewLine}Break", test.GetString(1));
+      Assert.AreEqual($"A \nLine\nBreak", test.GetString(1));
 
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("Two ,Delimiter,", test.GetString(1));

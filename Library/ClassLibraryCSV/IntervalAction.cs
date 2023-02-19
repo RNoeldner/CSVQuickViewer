@@ -38,7 +38,7 @@ namespace CsvTools
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
 #endif
 
-    public static IntervalAction? ForProgress(IProgress<ProgressInfo> ? progress) => progress is null ? null : new IntervalAction();
+    public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) => progress is null ? null : new IntervalAction();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
@@ -73,6 +73,26 @@ namespace CsvTools
       }
     }
 
+    public void Invoke(in Action<string> action, in string txt)
+    {
+      // do nothing if the timespan between invokes is not reached
+      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+
+      m_LastNotification = DateTime.UtcNow;
+      try
+      {
+        action.Invoke(txt);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
+      }
+    }
     /// <summary>
     ///   Invoke progress on given interval
     /// </summary>

@@ -372,7 +372,7 @@ namespace CsvTools
         return DBNull.Value;
       object? ret = column.ValueFormat.DataType switch
       {
-        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal).Span, column, true),
+        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal).AsSpan(), column, true),
         DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
         DataTypeEnum.Double => GetDoubleNull(value, ordinal),
         DataTypeEnum.Numeric => GetDecimalNull(value, ordinal),
@@ -693,12 +693,14 @@ namespace CsvTools
         // now handle Text replacements and warning in the read columns
         for (var columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
         {
-          if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
+          if (GetColumn(columnNo).Ignore ||
+              string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
 
           // Handle replacements and warnings etc,
           var adjustedValue = HandleTextSpecials(
-            CurrentRowColumnText[columnNo].ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
+            CurrentRowColumnText[columnNo]
+              .ReplaceCaseInsensitive(m_NewLinePlaceholder, '\n')
               .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter)
               .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier),
             columnNo);
@@ -707,13 +709,11 @@ namespace CsvTools
           {
             if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifier) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
-              HandleWarning(columnNo,
-                $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
+              HandleWarning(columnNo, $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
 
             if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiter) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
-              HandleWarning(columnNo,
-                $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
+              HandleWarning(columnNo, $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
             if (m_WarnUnknownCharacter)
             {
@@ -740,7 +740,7 @@ namespace CsvTools
               }
             }
 
-            if (m_WarnLineFeed && (adjustedValue.IndexOf('\r') != -1 || adjustedValue.IndexOf('\n') != -1))
+            if (m_WarnLineFeed && (adjustedValue.IndexOfAny(new[] { '\r', '\n' }) != -1))
               WarnLinefeed(columnNo);
 
             if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
@@ -774,6 +774,7 @@ namespace CsvTools
 
       // See char.IsLatin1(char c) in Reflector
       if (c <= '\x00ff')
+        // ReSharper disable once MergeIntoLogicalPattern
         return c == ' ' || c == '\t';
 
       return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
@@ -836,10 +837,10 @@ namespace CsvTools
       }
 
       // ReSharper disable once InvertIf
+      // ReSharper disable once UseIndexFromEndExpression
       if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
       {
-        HandleWarning(
-          fields,
+        HandleWarning(fields,
           "The last column does not have a column name and seems to be empty, this column will be ignored."
             .AddWarningId());
         return fields - 1;

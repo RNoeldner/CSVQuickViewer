@@ -15,6 +15,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -24,6 +25,7 @@ namespace CsvTools
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
+  [DebuggerDisplay("Column {Name}")]
   public class Column : IEquatable<Column>, ICollectionIdentity
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";

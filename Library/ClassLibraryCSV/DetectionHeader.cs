@@ -114,16 +114,15 @@ namespace CsvTools
       {
         var counter = 1;
         while (counter++ < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
-        {
           fieldCount += DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment).Count;
-        }
 
-        var halfTheColumns = (int) Math.Ceiling(fieldCount / counter / 2.0);
+        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0 / counter);
 
         var tooLong = headers.Where(header => header.Length > 128).ToList();
-        var numEmpty = headers.Where(header => string.IsNullOrWhiteSpace(header)).Count();
-        var notUnique = headers.Where(x => !headers.Distinct().Contains(x)).ToList();
-        var numNotUnique = headers.Count - headers.Distinct().Count();
+        var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
+        var notUnique = headers.GroupBy(x => x)
+          .Where(x => x.Count()>1)
+          .ToDictionary(x => x.Key, x => x.Count());
         var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
         var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();
         var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
@@ -135,22 +134,16 @@ namespace CsvTools
         var specials = headers.Where(header =>
           Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
 
-        if (numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count  >= halfTheColumns
-          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + tooLong.Count + numEmpty + notUnique.Count + guidHeaders.Count > 3)
+        if (tooLong.Count>0
+          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Sum(x => x.Value) + guidHeaders.Count  >= halfTheColumns
+          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Sum(x => x.Value) + guidHeaders.Count > 3)
         {
           var msg = new StringBuilder();
 
           if (boolHead.Count > 0)
           {
             msg.Append("Header(s) ");
-            foreach (var header in boolHead)
-            {
-              msg.Append('\'');
-              msg.Append(header.Trim('\"'));
-              msg.Append("',");
-            }
-
-            msg.Length--;
+            msg.Append(boolHead.Join(", "));
             msg.Append(" boolean");
           }
 
@@ -159,14 +152,9 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in guidHeaders)
-            {
-              msg.Append('\'');
-              msg.Append(header.Trim('\"'));
-              msg.Append("',");
-            }
+            msg.Append(guidHeaders.Join(", "));
 
-            msg.Length--;
+
             msg.Append(" Guid");
           }
 
@@ -175,14 +163,8 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in numeric)
-            {
-              msg.Append('\'');
-              msg.Append(header.Trim('\"'));
-              msg.Append("',");
-            }
+            msg.Append(numeric.Join(", "));
 
-            msg.Length--;
             msg.Append(" numeric");
           }
 
@@ -191,14 +173,7 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in dates)
-            {
-              msg.Append('\'');
-              msg.Append(header.Trim('\"'));
-              msg.Append("',");
-            }
-
-            msg.Length--;
+            msg.Append(dates.Join(", "));
             msg.Append(" dates");
           }
 
@@ -207,14 +182,7 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in specials)
-            {
-              msg.Append("'");
-              msg.Append(header.Trim('\"'));
-              msg.Append("',");
-            }
-
-            msg.Length--;
+            msg.Append(specials.Join(", "));
             msg.Append(" with uncommon characters");
           }
 
@@ -230,14 +198,7 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in notUnique.Distinct())
-            {
-              msg.Append('\'');
-              msg.Append(header);
-              msg.Append("',");
-            }
-
-            msg.Length--;
+            msg.Append(notUnique.Select(x => x.Key).Join(", "));
             msg.Append(" duplicate");
           }
 
@@ -246,14 +207,7 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            foreach (var header in tooLong)
-            {
-              msg.Append('\'');
-              msg.Append(header.Trim('\"').Substring(0, 10) +"…");
-              msg.Append("',");
-            }
-
-            msg.Length--;
+            msg.Append(tooLong.Select(x => x.Substring(0, 128) +"…").Join(", "));
             msg.Append(" too long");
           }
 

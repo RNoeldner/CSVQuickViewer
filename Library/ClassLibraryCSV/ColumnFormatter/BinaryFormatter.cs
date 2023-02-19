@@ -68,7 +68,7 @@ namespace CsvTools
 
       return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
     }
-    
+
     public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
       => FormatInputText(inputString.ToString(), handleWarning);
 
@@ -97,9 +97,8 @@ namespace CsvTools
               continue;
             if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataTypeEnum.Binary)
               continue;
-
-            fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal),
-              dataRow.IsDBNull(colOrdinal) ? string.Empty : dataRow.GetValue(colOrdinal).ToString());
+            if (!dataRow.IsDBNull(colOrdinal))
+              fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal), dataRow.GetValue(colOrdinal).ToString()!);
           }
       }
 

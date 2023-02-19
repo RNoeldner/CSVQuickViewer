@@ -28,8 +28,7 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
-  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
-    in Action<string>? handleWarning);
+  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone, in Action<string>? handleWarning);
 
   /// <summary>
   ///   Class with extensions used in the class Library
@@ -402,7 +401,7 @@ namespace CsvTools
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
-    public static string PlaceholderReplace(this string input, string placeholder, string? replacement)
+    public static string PlaceholderReplace(this string input, in string placeholder, string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
 
@@ -437,9 +436,8 @@ namespace CsvTools
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, object? replacement)
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, DateTime dateTime)
     {
-      if (replacement is null) return input;
       // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
       // string.Format to process {0:...
 
@@ -452,8 +450,8 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return !regEx.IsMatch(input)
-        ? PlaceholderReplace(input, placeholder, Convert.ToString(replacement))
-        : string.Format(regEx.Replace(input, "{0$2}"), replacement);
+        ? PlaceholderReplace(input, placeholder, dateTime.ToString())
+        : string.Format(regEx.Replace(input, "{0$2}"), dateTime.ToString());
     }
 
     /// <summary>
@@ -464,21 +462,19 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string? pattern, char replacement)
+    public static string ReplaceCaseInsensitive(this string original, in string? pattern, char replacement)
     {
+      if (pattern is null || pattern.Length == 0)
+        return original;
+
       var count = 0;
       var position0 = 0;
       int position1;
 
-      if (pattern is null || pattern.Length == 0)
-        return original;
+      var chars = new char[original.Length + Math.Max(0, original.Length / pattern.Length * (1 - pattern.Length))];
 
       var upperString = original.ToUpperInvariant();
       var upperPattern = pattern.ToUpperInvariant();
-
-      var inc = original.Length / pattern.Length * (1 - pattern.Length);
-      var chars = new char[original.Length + Math.Max(0, inc)];
-
       while ((position1 = upperString.IndexOf(upperPattern, position0, StringComparison.Ordinal)) != -1)
       {
         for (var i = position0; i < position1; ++i)
@@ -502,12 +498,10 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string? pattern, string? replacement)
+    public static string ReplaceCaseInsensitive(this string original, in string? pattern, in string replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;
-
-      replacement ??= string.Empty;
 
       // if pattern matches replacement exit
       if (replacement.Equals(pattern, StringComparison.Ordinal))

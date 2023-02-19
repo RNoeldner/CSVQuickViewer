@@ -563,7 +563,7 @@ namespace CsvTools
     {
       if (fileReader is null)
         throw new ArgumentNullException(nameof(fileReader));
-
+      
       if (string.IsNullOrEmpty(treatAsNull))
         treatAsNull = "NULL;n/a";
 
