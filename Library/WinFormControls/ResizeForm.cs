@@ -32,7 +32,7 @@ namespace CsvTools
       }
     }
 
-    public ResizeForm(in IFontConfig? fontConfig)
+    protected ResizeForm(in IFontConfig? fontConfig)
     {
       InitializeComponent();
       FontConfig = fontConfig;
@@ -72,7 +72,7 @@ namespace CsvTools
 #pragma warning disable CS8600
     private void InitializeComponent()
     {
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
+      ComponentResourceManager resources = new ComponentResourceManager(typeof(ResizeForm));
       this.SuspendLayout();
       // 
       // ResizeForm

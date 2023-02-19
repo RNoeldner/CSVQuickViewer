@@ -16,7 +16,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
