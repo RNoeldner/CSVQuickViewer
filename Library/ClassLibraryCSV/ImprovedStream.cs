@@ -12,29 +12,26 @@
  *
  */
 #nullable enable
-
-using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace CsvTools
 {
   public class ImprovedStream : Stream, IImprovedStream
   {
+    protected readonly SourceAccess SourceAccess;
+
     /// <summary>
     /// Buffer for Compression Streams
     /// </summary>
     private const int cBufferSize = 8192;
-
-    protected readonly SourceAccess SourceAccess;
-
+    private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;
-
-    protected Stream BaseStream { get; private set; }
 
     public ImprovedStream(in SourceAccess sourceAccess)
     {
@@ -84,6 +81,7 @@ namespace CsvTools
     }
 
     protected Stream? AccessStream { get; set; }
+    protected Stream BaseStream { get; private set; }
 
     /// <inheritdoc cref="Stream.Close()"/>
     /// <summary>
@@ -183,6 +181,21 @@ namespace CsvTools
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (m_DisposedValue) return;
+      if (!disposing) return;
+
+      if (!ReferenceEquals(AccessStream, BaseStream))
+        AccessStream?.Dispose();
+
+      if (!SourceAccess.LeaveOpen)
+        BaseStream.Dispose();
+
+      m_DisposedValue = true;
+    }
+
     /// <summary>
     /// Depending on type call call other Methods to work with teh stream
     /// </summary>
@@ -206,23 +219,6 @@ namespace CsvTools
           AccessStream = BaseStream;
           break;
       }
-    }
-
-    private bool m_DisposedValue;
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      if (!disposing) return;
-
-      if (!ReferenceEquals(AccessStream, BaseStream))
-        AccessStream?.Dispose();
-
-      if (!SourceAccess.LeaveOpen)
-        BaseStream.Dispose();
-
-      m_DisposedValue = true;
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -253,15 +249,13 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
@@ -271,15 +265,13 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(
-          new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(
-          new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }

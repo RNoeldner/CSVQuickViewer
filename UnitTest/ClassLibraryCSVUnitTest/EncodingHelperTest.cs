@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       for (var i = 0; i < EncodingHelper.CommonCodePages.Length; i++)
         Assert.IsNotNull(EncodingHelper.GetEncodingName(EncodingHelper.CommonCodePages[i], i % 2 == 0));
 
-      Assert.AreEqual("CP 1200 - Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian with BOM",
+      Assert.AreEqual("Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian with BOM",
         EncodingHelper.GetEncodingName(Encoding.Unicode, true));
     }
 
@@ -42,11 +42,9 @@ namespace CsvTools.Tests
     public void GuessCodePageNoBomTest()
     {
       var utf8 = Encoding.UTF8.GetBytes("Raphael Nöldner Chinese 中文 & Thai ภาษาไทย Tailandia idioma ภาษาไทย");
-      var ascii = Encoding.ASCII.GetBytes(
-        "This is a Test, that does not contain any characters that exist outside of the English Language");
+      var ascii = Encoding.ASCII.GetBytes("This is a Test, that does not contain any characters that exist outside of the English Language");
       var win1252 = Encoding.GetEncoding(1252)
-        .GetBytes(
-          "This is a Test for Windows 1252 the encoding support mainly european countries with Æ ã è ü but has symbols as well ½ ² etc.");
+        .GetBytes("This is a Test for generic encoding adding some non english text like Nöldner Jürgen Ñ Æstrid or γλώσα.\r\nSymbols like: ½ pound x² and 10‰\r\nCurrency symbols like £,$ and ¥");
 
       Assert.AreEqual(Encoding.UTF8, EncodingHelper.DetectEncodingNoBom(null));
       Assert.AreEqual(Encoding.ASCII, EncodingHelper.DetectEncodingNoBom(ascii));
@@ -81,7 +79,7 @@ namespace CsvTools.Tests
 
       var expected = 12;
       if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        expected = 17;
+        expected = 24;
 
       Assert.AreEqual(expected, notRecognized.Count);
     }

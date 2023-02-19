@@ -363,10 +363,9 @@ namespace CsvTools
             inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken).ConfigureAwait(false);
         }
         inspectionResult.HasFieldHeader = string.IsNullOrEmpty(ret);
-        if (!inspectionResult.HasFieldHeader)
-          Logger.Information($"Without Header, Issues : {ret.HandleCrlfCombinations(", ")}");
-        else
-          Logger.Information("Has Header");
+        Logger.Information(!inspectionResult.HasFieldHeader
+          ? $"Without Header, Issues : {ret.HandleCrlfCombinations(", ")}"
+          : "Has Header");
       }
     }
 
@@ -379,6 +378,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
     public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)
+      // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
       => new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
 #if !QUICK
@@ -491,7 +491,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file as its not stored in the inspection results</param>
     /// <param name="inspectionResult">The inspection result.</param>
     /// <returns>Either a <see cref="JsonFileReader"/> or a <see cref="CsvFileReader"/></returns>
-    public static IFileReader GetReader(this InspectionResult inspectionResult, string fileName)
+    public static IFileReader GetReader(this InspectionResult inspectionResult, in string fileName)
     {
       if (inspectionResult.IsJson)
         return new JsonFileReader(fileName, inspectionResult.Columns, 0L, false, string.Empty, false,
@@ -514,10 +514,10 @@ namespace CsvTools
     public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
     {
       // Read 256 kBytes
-      int maxlen = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
-      if (maxlen>262144)
-        maxlen =262144;
-      var buff = new byte[maxlen];
+      int maxlength = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
+      if (maxlength>262144)
+        maxlength =262144;
+      var buff = new byte[maxlength];
 
       var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
       if (length >= 2)
@@ -551,6 +551,9 @@ namespace CsvTools
     {
       stream.Seek(0, SeekOrigin.Begin);
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      await
+#endif
       using var jsonTextReader = new JsonTextReader(streamReader);
       jsonTextReader.CloseInput = false;
       try

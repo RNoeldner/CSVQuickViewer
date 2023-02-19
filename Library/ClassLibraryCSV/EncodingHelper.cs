@@ -105,7 +105,9 @@ namespace CsvTools
           return Encoding.GetEncoding(54936);
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76
             && (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
+#pragma warning disable SYSLIB0001
           return Encoding.UTF7;
+#pragma warning restore SYSLIB0001
       }
 
       if (length >= 3 && buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
@@ -202,15 +204,15 @@ namespace CsvTools
       if (results.Detected == null)
         return Encoding.UTF8;
 
-      if (results.Detected.Confidence > 0.75)
+      if (results.Detected.Confidence > 0.56)
         return results.Detected.Encoding;
 
-      Logger.Warning($"Confidance for detected charset {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
+      Logger.Warning($"Confidence for detected charset {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
       foreach (var res in results.Details)
       {
-        if (res.Confidence>0.5 && res.Encoding == Encoding.UTF32)
+        if (res.Confidence>0.5 && res.Encoding.Equals(Encoding.UTF32))
           return Encoding.UTF32;
-        if (res.Confidence>0.5 && res.Encoding == Encoding.Unicode)
+        if (res.Confidence>0.5 && res.Encoding.Equals(Encoding.Unicode))
           return Encoding.Unicode;
       }
       return Encoding.UTF8;
