@@ -571,7 +571,7 @@ namespace CsvTools
         maxRecords = long.MaxValue;
 
       var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
-        .ToDictionary<int, int, IList<string>>(col => col, col => new List<string>());
+        .ToDictionary<int, int, IList<string>>(col => col, _ => new List<string>());
 
       if (samples.Keys.Count == 0)
         return new Dictionary<int, SampleResult>();
