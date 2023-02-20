@@ -76,7 +76,7 @@ namespace CsvTools
 
     // Count the warning rows, one row could have multiple issue and should only be once need to
     // track the rows
-    private HashSet<long> m_RowsWithIssue = new HashSet<long>();
+    private readonly HashSet<long> m_RowsWithIssue = new HashSet<long>();
     public long NumberRowWarnings => m_RowsWithIssue.Count;
 
     /// <inheritdoc />
