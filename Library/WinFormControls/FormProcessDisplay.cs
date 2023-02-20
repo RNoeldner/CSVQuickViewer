@@ -149,7 +149,7 @@ namespace CsvTools
           });
       }
     }
-
+    string lastText = string.Empty;
     /// <summary>
     /// Sets the process values in the UI
     /// </summary>
@@ -164,7 +164,9 @@ namespace CsvTools
       m_Progress.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
       ProgressChanged?.Invoke(this, args);
-
+      if (!lastText.Equals(text) && text.Length>0)
+        m_LoggerDisplay?.AppendText(text, true, LogLevel.Information);
+      lastText= text;
       // This might cause an issue
       m_LabelText.SafeBeginInvoke(
         () =>
@@ -315,9 +317,9 @@ namespace CsvTools
           //if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
           //    DialogResult.Yes)
           //{
-            CancellationTokenSource.Cancel();
-            // Give it time to stop
-            Thread.Sleep(200);
+          CancellationTokenSource.Cancel();
+          // Give it time to stop
+          Thread.Sleep(200);
           //}
           //else
           //  e.Cancel = true;
