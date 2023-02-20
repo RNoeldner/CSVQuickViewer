@@ -111,7 +111,7 @@ namespace CsvTools
                 col.DestinationName,
                 col.TimePart, col.TimePartFormat, col.TimeZonePart));
 
-          return new InspectionResult()
+          return new InspectionResult
           {
             FileName = fileNameFile,
             SkipRows = fileSettingSer.SkipRows,
@@ -129,7 +129,7 @@ namespace CsvTools
             NoDelimitedFile = fileSettingSer.NoDelimitedFile,
             NewLine = fileSettingSer.NewLine,
             Columns = columnCollection,
-            ColumnFile = fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty,
+            ColumnFile = fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty
           };
         }
         catch (Exception e)

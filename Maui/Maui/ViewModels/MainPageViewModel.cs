@@ -50,7 +50,7 @@ namespace Maui
       {
         SelectEnabled  = false;
 
-        var options = new PickOptions()
+        var options = new PickOptions
         {
           PickerTitle = "Delimited Text Files",
           FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>

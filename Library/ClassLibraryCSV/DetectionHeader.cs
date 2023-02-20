@@ -238,7 +238,6 @@ namespace CsvTools
       var stringBuilder = new StringBuilder(5);
       var quoted = false;
       var preData = true;
-      var postData = false;
       var escaped = false;
       while (!reader.EndOfStream)
       {
@@ -261,7 +260,7 @@ namespace CsvTools
             }
           }
 
-          if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
+          if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted)
           {
             stringBuilder.Append((char) character);
             stringBuilder.Append((char) nextChar);
@@ -270,19 +269,15 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if (character == fieldDelimiter && !escaped && (postData || !quoted))
+        if (character == fieldDelimiter && !escaped && (!quoted))
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
+        if ((character == cCr || character == cLf) && (preData || !quoted))
         {
           eol = true;
           break;
         }
-
-        // Only check the characters if not past end of data
-        if (postData)
-          continue;
 
         if (preData)
         {

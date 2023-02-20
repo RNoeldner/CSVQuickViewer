@@ -28,6 +28,7 @@ namespace CsvTools
 
     /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
+    /// <param name="fillGuessSettings">The guess settings</param>
     public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings)
     {
       m_TimeZoneAdjust = timeZoneAdjust;

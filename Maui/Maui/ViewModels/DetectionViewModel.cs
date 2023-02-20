@@ -31,7 +31,7 @@ namespace Maui
       try
       {
         var preference = new PreferenceViewModel();
-        Logger.LoggerInstance = new PassingLogger((s) =>
+        Logger.LoggerInstance = new PassingLogger(s =>
         {
           Log += s +"\n";
         });
