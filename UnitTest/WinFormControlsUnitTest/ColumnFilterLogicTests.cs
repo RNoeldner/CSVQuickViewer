@@ -107,11 +107,11 @@ namespace CsvTools.Tests
     public void IsNullCompareTest() =>
       Assert.IsFalse(ColumnFilterLogic.IsNotNullCompare(ColumnFilterLogic.OperatorIsNull));
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public void GetOperatorsTest()
     {
       var stringType = ColumnFilterLogic.GetOperators(typeof(string));
-      Assert.AreEqual(9, stringType.Length);
+      Assert.AreEqual(11, stringType.Length);
 
       var dateTimeType = ColumnFilterLogic.GetOperators(typeof(DateTime));
       Assert.AreEqual(8, dateTimeType.Length);

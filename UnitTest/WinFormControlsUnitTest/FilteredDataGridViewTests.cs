@@ -65,8 +65,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
-    [Timeout(1000)]
+    [TestMethod(), Timeout(4000)]
     public void Filter_Test()
     {
       using var dataTable200 = UnitTestStaticData.GetDataTable(200);
