@@ -13,6 +13,7 @@ namespace CsvTools
   {
     public readonly int DataTableEndLine;
     public readonly int DataTableErrorField;
+    public readonly int DataTableErrorFieldSource;
     public readonly int DataTableRecNum;
     public readonly int DataTableStartLine;
     private readonly ColumnErrorDictionary? m_ColumnErrorDictionary;
@@ -42,8 +43,13 @@ namespace CsvTools
       if (fileReader != null)
         m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 
+      // TODO: This is not good, artifical fields from source are ignored
+      // ----------------------------------------------------------------
+      // Better would be to pass them though, at least for Errors
+      // Problem is tht the position possibly needs to be adjusted as bulk copy need teh columns in the same order as the table
       var readerColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var fieldCount = 0;
+      DataTableErrorFieldSource = -1;
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
         Column column;
@@ -58,16 +64,25 @@ namespace CsvTools
             new ValueFormat(dataReader.GetFieldType(col).GetDataType()),
             col);
         }
-
         m_ReaderColumnsAll.Add(column.Name);
-        if (column.Ignore) continue;
+        if (!column.Ignore && column.Name.Equals(ReaderConstants.cErrorField))
+        {
+          DataTableErrorFieldSource = col;
+          addErrorField=true;
+        }         
+        if (column.Ignore
+           || column.Name.Equals(ReaderConstants.cErrorField)
+           || column.Name.Equals(ReaderConstants.cStartLineNumberFieldName)
+           || column.Name.Equals(ReaderConstants.cRecordNumberFieldName)
+           || column.Name.Equals(ReaderConstants.cEndLineNumberFieldName))
+          continue;
+               
         m_ReaderColumnNotIgnored.Add(column);
         readerColumns.Add(column.Name);
         m_Mapping.Add(col, fieldCount++);
       }
 
       // the order of artificial fields must match the order in IDbConnector.CreateTableSQL
-    
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {
         DataTableRecNum = fieldCount++;
@@ -107,7 +122,7 @@ namespace CsvTools
         DataTableErrorField = -1;
       }
 
-       // add fields
+      // add fields
       if (addStartLine && !readerColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
       {
         DataTableStartLine = fieldCount;
