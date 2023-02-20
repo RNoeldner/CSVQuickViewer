@@ -271,8 +271,14 @@ namespace CsvTools
       if (ordinal == ReaderMapping.DataTableRecNum)
         return RecordNumber;
       if (ordinal == ReaderMapping.DataTableErrorField)
-        return ReaderMapping.RowErrorInformation;
+      {
+        // in case the source did have an #Error column pass this on, in case empty use the error  Information
+        // TODO: this does not seem to work as intended, when storing to database the column is empty
+        if (ReaderMapping.DataTableErrorFieldSource != -1)
+          return DataReader.GetValue(ReaderMapping.DataTableErrorFieldSource) ?? ReaderMapping.RowErrorInformation;
 
+        return ReaderMapping.RowErrorInformation;
+      }
       return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal)) ?? DBNull.Value;
     }
     /// <inheritdoc />

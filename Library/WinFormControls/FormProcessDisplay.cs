@@ -149,7 +149,7 @@ namespace CsvTools
           });
       }
     }
-    string lastText = string.Empty;
+    //string lastText = string.Empty;
     /// <summary>
     /// Sets the process values in the UI
     /// </summary>
@@ -164,9 +164,9 @@ namespace CsvTools
       m_Progress.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
       ProgressChanged?.Invoke(this, args);
-      if (!lastText.Equals(text) && text.Length>0)
-        m_LoggerDisplay?.AppendText(text, true, LogLevel.Information);
-      lastText= text;
+      //if (!lastText.Equals(text) && text.Length>0)
+      //  m_LoggerDisplay?.AppendText(text.TrimEnd('\n') + '\n', true, LogLevel.Information);
+      //lastText= text;
       // This might cause an issue
       m_LabelText.SafeBeginInvoke(
         () =>
