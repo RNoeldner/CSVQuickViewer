@@ -79,7 +79,8 @@ namespace CsvTools
         return;
       var text = formatter(state, exception);
 
-      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) return;
+      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) 
+        return;
       try
       {
         var appended = false;
@@ -136,7 +137,7 @@ namespace CsvTools
       }
     }
 
-    private void AppendText(string text, bool timestamp, LogLevel level)
+    public void AppendText(string text, bool timestamp, LogLevel level)
     {
       this.SafeBeginInvoke(() =>
       {
