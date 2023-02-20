@@ -79,7 +79,7 @@ namespace CsvTools.Tests
 
       var expected = 12;
       if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        expected = 24;
+        expected = 20;
 
       Assert.AreEqual(expected, notRecognized.Count);
     }

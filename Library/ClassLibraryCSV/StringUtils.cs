@@ -465,10 +465,11 @@ namespace CsvTools
         return true;
       }
 
+      // Should be a english number
 #if NET7_0_OR_GREATER
-      return Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*");
+      return Regex.IsMatch(entry, @"[+\-]?[0-9]+\.?[0-9]*");
 #else
-      return Regex.IsMatch(entry.ToString(), @"-?[0-9]+\.?[0-9]*");
+      return Regex.IsMatch(entry.ToString(), @"[+\-]?[0-9]+\.?[0-9]*");
 #endif
     }
 

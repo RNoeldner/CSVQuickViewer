@@ -24,15 +24,13 @@ namespace CsvTools.Tests
   {
     [TestMethod]
     [Timeout(5100)]
-    public void ProgramMain()
-    {
-      var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-      Task.Run(() => Extensions.RunStaThread(()=>Program.Main(Array.Empty<string>())), tcs.Token);
+    public void ProgramMainNoArguments()
+    {      
+      Extensions.RunStaThread(() => Program.Main(Array.Empty<string>()), 5000);
     }
 
 
-    [TestMethod]
-    //[Timeout(8000)]
+    [TestMethod, Timeout(8000)]
     public void FormMain_LoadCsvFileAsync_CSV()
     {
       var fileToLoad = UnitTestStatic.GetTestPath("BasicCSV.txt.gz");
