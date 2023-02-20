@@ -746,10 +746,7 @@ namespace CsvTools
     {
       if (value > long.MaxValue)
         return long.MaxValue;
-      if (value < long.MinValue)
-        return long.MinValue;
-
-      return Convert.ToInt64(value);
+      return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
     }
 
     public static string ToStringHandle0(this char input) =>

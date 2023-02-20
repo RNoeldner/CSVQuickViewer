@@ -499,8 +499,7 @@ namespace CsvTools
 #endif
             , out var result))
         return result;
-      else
-        return null;
+      return null;
     }
 
     /// <summary>

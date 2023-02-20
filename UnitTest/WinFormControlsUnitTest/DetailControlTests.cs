@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     public void SearchText()
     {
       using var dt = UnitTestStaticData.RandomDataTable(1000);
-      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, (ctrl) =>
+      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, ctrl =>
       {
         ctrl.DataTable = dt;
         ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     {
       using var dt = UnitTestStaticData.RandomDataTable(500);
 
-      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, (ctrl) =>
+      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, ctrl =>
       {
         ctrl.DataTable = dt;
         ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);

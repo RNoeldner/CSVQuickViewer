@@ -204,13 +204,13 @@ namespace CsvTools
         }
         else
         {
-         
+
           Logger.Information(
             "{column} – {values} values found in {records} row.",
             readerColumn.Name,
             samples.Values.Count(),
             samples.RecordsRead);
-         
+
           var checkResult = GuessValueFormat(
             samples.Values,
             fillGuessSettings.MinSamples,
@@ -563,7 +563,7 @@ namespace CsvTools
     {
       if (fileReader is null)
         throw new ArgumentNullException(nameof(fileReader));
-      
+
       if (string.IsNullOrEmpty(treatAsNull))
         treatAsNull = "NULL;n/a";
 
@@ -741,9 +741,9 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = samples.CheckDate( 
+            var res = samples.CheckDate(
               fmt.AsSpan(),
-              sep, 
+              sep,
               ':', CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
@@ -794,7 +794,7 @@ namespace CsvTools
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
       var possibleGrouping = StaticCollections.DecimalGroupingChars.Where(
-        decGroup =>  samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
+        decGroup => samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
       possibleGrouping.Add('\0');
       var possibleDecimal = StaticCollections.DecimalSeparatorChars.Where(
         decSep => samples.Any(smp => smp.Span.IndexOf(decSep) > -1)).ToList();
@@ -875,17 +875,17 @@ namespace CsvTools
         foreach (var value in samples)
         {
           (var resultBool, string val) = value.Span.StringToBooleanWithMatch(trueValue, falseValue);
-          if (resultBool is null)
-          {
-            allParsed = false;
-            break;
-          }
-          else
+          if (resultBool.HasValue)
           {
             if (resultBool.Value)
               usedTrueValue = val;
             else
               usedFalseValue = val;
+          }
+          else
+          {
+            allParsed = false;
+            break;
           }
         }
 
@@ -1032,7 +1032,7 @@ namespace CsvTools
           (items[i], items[pos]) = (items[pos], items[i]);
         }
 
-        Values = new ReadOnlyCollection<ReadOnlyMemory<char>>(items.Select(x=> x.AsMemory()).ToList());
+        Values = new ReadOnlyCollection<ReadOnlyMemory<char>>(items.Select(x => x.AsMemory()).ToList());
       }
 
       /// <summary>

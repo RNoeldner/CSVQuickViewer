@@ -177,9 +177,7 @@ namespace CsvTools
         return $"{value:%s} sec";
       if (value.TotalHours < 1)
         return $"{value:m\\:ss} min";
-      if (value.TotalHours < 24)
-        return $"{value:h\\:mm} hrs";
-      return $"{value.TotalDays:F1} days";
+      return value.TotalHours < 24 ? $"{value:h\\:mm} hrs" : $"{value.TotalDays:F1} days";
     }
 
     private struct ValueOverTime

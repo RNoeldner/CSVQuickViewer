@@ -25,7 +25,7 @@ namespace CsvTools
     private readonly Markdown m_Markdown;
 
     public Markdown2HtmlFormatter() =>
-      m_Markdown = new Markdown(new MarkdownOptions()
+      m_Markdown = new Markdown(new MarkdownOptions
       {
         AllowEmptyLinkText = false,
         AutoHyperlink = true,

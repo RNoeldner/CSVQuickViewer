@@ -31,7 +31,6 @@
 		<SignAssembly>True</SignAssembly>
 		<Nullable>enable</Nullable>
 		<ApplicationIcon>csv_text.ico</ApplicationIcon>
-		<AssemblyOriginatorKeyFile>C:\Users\rnoldner\source\repos\CSVQuickViewer\Application\sgKey.snk</AssemblyOriginatorKeyFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>CSV;Delimited Text;Viewer</PackageTags>

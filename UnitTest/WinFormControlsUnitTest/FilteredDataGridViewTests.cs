@@ -87,7 +87,7 @@ namespace CsvTools.Tests
     {
       using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-          (control) =>
+          control =>
           {
             control.DataSource = dataTable200;
             control.SetFilterMenu(0);
@@ -116,7 +116,7 @@ namespace CsvTools.Tests
     {
       using var dataTable200 = UnitTestStaticData.GetDataTable(200);
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-        (control) =>
+        control =>
         {
           control.DataSource = dataTable200;
           control.FrozenColumns = 1;
@@ -130,7 +130,7 @@ namespace CsvTools.Tests
     {
       using var dataTable200 = UnitTestStaticData.GetDataTable(200);
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-        (control) =>
+        control =>
         {
           control.DataSource = dataTable200;
 
@@ -156,7 +156,7 @@ namespace CsvTools.Tests
     public void HideEmptyColumnsTest()
     {
       using var dt = UnitTestStaticData.GetDataTable();
-      UnitTestStaticForms.ShowControl(() => new FilteredDataGridView() { DataSource = dt }, 0.1,
+      UnitTestStaticForms.ShowControl(() => new FilteredDataGridView { DataSource = dt }, 0.1,
         c =>
         {
           var numCol = c.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
@@ -188,7 +188,7 @@ namespace CsvTools.Tests
     {
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-        (control) =>
+        control =>
         {
           control.DataSource = DataTable200;
           control.SetColumnFrozen(0, true);
@@ -201,7 +201,7 @@ namespace CsvTools.Tests
     {
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.2,
-          (control) =>
+          control =>
           {
             control.DataSource = DataTable200;
             control.SetRowHeight();
@@ -214,7 +214,7 @@ namespace CsvTools.Tests
     {
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-          (control) =>
+          control =>
           {
             control.DataSource = DataTable200;
             control.SetToolStripMenu(0, 0, MouseButtons.Right);
@@ -229,13 +229,13 @@ namespace CsvTools.Tests
 
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-          (control) =>
+          control =>
           {
             control.DataSource = DataTable200;
             control.ShowAllColumns();
             control.HideEmptyColumns();
 
-            control.SetColumnVisibility(new Dictionary<string, bool>()
+            control.SetColumnVisibility(new Dictionary<string, bool>
             {
               { DataTable200.Columns[0].ColumnName, true }, { DataTable200.Columns[1].ColumnName, false }
             });
