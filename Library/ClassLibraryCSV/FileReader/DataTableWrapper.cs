@@ -48,14 +48,7 @@ namespace CsvTools
 
     /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
-    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
-
-    /// <inheritdoc />
-    public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
-    {
-      if (cancellationToken.IsCancellationRequested || EndOfFile) return false;
-      return await base.ReadAsync(cancellationToken).ConfigureAwait(false);
-    }
+    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;   
 
     /// <inheritdoc />
     public override void ResetPositionToFirstDataRow()
