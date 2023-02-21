@@ -16,7 +16,7 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  /// Attributes for enums to have a shorter desciption
+  /// Attributes for enums to have a shorter description
   /// </summary>
   [AttributeUsage(AttributeTargets.All)]
   public class ShortDescriptionAttribute : Attribute

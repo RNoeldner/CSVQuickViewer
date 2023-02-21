@@ -79,7 +79,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Overwrite properties of a class with the properties of another class, allowing usage of
-    ///   readonly fields being set, the target field is not passed in as reference as we do not overwrte the field but properties in this field only 
+    ///   readonly fields being set, the target field is not passed in as reference as we do not overwrite the field but properties in this field only 
     /// </summary>
     /// <param name="field">The field to be overwritten</param>
     /// <param name="value">the class with the new values, supporting a copy to</param>

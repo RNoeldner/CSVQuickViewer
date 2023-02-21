@@ -69,14 +69,18 @@ namespace CsvTools
         {
           ColNumErrorFieldSource = col;
           addErrorField=true;
-        }         
+        }
+
         if (column.Ignore
-           || column.Name.Equals(ReaderConstants.cErrorField)
-           || column.Name.Equals(ReaderConstants.cStartLineNumberFieldName)
-           || column.Name.Equals(ReaderConstants.cRecordNumberFieldName)
-           || column.Name.Equals(ReaderConstants.cEndLineNumberFieldName))
+            // An Error field is ignore but then added from source at the right position
+            || column.Name.Equals(ReaderConstants.cErrorField)
+            // In case we do not add a line, accept the source data
+            || (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
+            || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName) && addEndLine)
+            // An Record number is ignore all the time
+            || column.Name.Equals(ReaderConstants.cRecordNumberFieldName) && addRecNum)
           continue;
-               
+
         m_ReaderColumnNotIgnored.Add(column);
         readerColumns.Add(column.Name);
         m_Mapping.Add(col, fieldCount++);
