@@ -44,7 +44,7 @@ namespace CsvTools
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
-    private long m_KeyID;
+    private long m_KeyId;
 
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
@@ -246,8 +246,8 @@ namespace CsvTools
     [DefaultValue(0)]
     public long KeyID
     {
-      get => m_KeyID;
-      set => SetProperty(ref m_KeyID, value);
+      get => m_KeyId;
+      set => SetProperty(ref m_KeyId, value);
     }
 
     public void ResetFullPath() => m_FullPathInitialized = false;

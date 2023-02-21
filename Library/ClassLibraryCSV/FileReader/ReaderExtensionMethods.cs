@@ -99,13 +99,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a text representing all columns of a reader in a way that its compareable 
+    /// Gets a text representing all columns of a reader in a way that its comparable 
     /// </summary>
     /// <param name="dataReader">The dataReader / row with the columns</param>
     /// <param name="columns">A collection of columns indexes to combine</param>
     /// <param name="combineWith">A seperator for the columns contend</param>
     /// <param name="trimming">The columns will be trimmed, if trimming happens, this action is to be performed</param>
-    /// <returns>An upper case text representaion</returns>
+    /// <returns>An upper case text representation</returns>
     public static string GetCombinedKey(this IDataReader dataReader, IReadOnlyCollection<int>? columns, char combineWith, Action<int>? trimming = null)
     {
       if (columns is null || columns.Count == 0)

@@ -118,7 +118,7 @@ namespace CsvTools
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
-      var detectionResult = new InspectionResult()
+      var detectionResult = new InspectionResult
       {
         FileName =  fileName,
         SkipRows = 0,

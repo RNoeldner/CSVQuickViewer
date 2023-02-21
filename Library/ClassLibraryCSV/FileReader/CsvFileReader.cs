@@ -593,8 +593,7 @@ namespace CsvTools
         } while (readRowAgain);
 
         RecordNumber++;
-        if (m_RealignColumns != null)
-          m_RealignColumns.AddRow(CurrentRowColumnText);
+        m_RealignColumns?.AddRow(CurrentRowColumnText);
 
         // Option a) Supported - We have a break in a middle column, the missing columns are pushed
         // in the next row(s) // Option b) Not Supported - We have a line break in the last column,
@@ -1023,10 +1022,8 @@ namespace CsvTools
             quoted = true;
             continue;
           }
-          else
-          {
-            goto append;
-          }
+
+          goto append;
         }
 
         if (character == m_FieldQualifier && quoted && !escaped)

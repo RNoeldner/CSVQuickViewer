@@ -92,11 +92,11 @@ namespace CsvTools
       if (Count==0)
         Load();
 
-      if (!TryGetValue(dateFormat, out var lengthMinMax))
-      {
-        lengthMinMax = new DateTimeFormatInformation(dateFormat);
-        base.Add(dateFormat, lengthMinMax);
-      }
+      if (TryGetValue(dateFormat, out var lengthMinMax))
+        return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
+
+      lengthMinMax = new DateTimeFormatInformation(dateFormat);
+      base.Add(dateFormat, lengthMinMax);
 
       return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
     }

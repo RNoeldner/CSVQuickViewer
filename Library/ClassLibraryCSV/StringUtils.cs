@@ -279,21 +279,19 @@ namespace CsvTools
       var requiredParts = new List<int>();
       for (int i = 0; i < slices.Count; i++)
       {
-        if (slices[i].length!=0 && slices[i].start > 0)
-        {
-          if (filter[slices[i].start-1]=='+')
-            requiredParts.Add(i);
-        }
+        if (slices[i].length == 0 || slices[i].start <= 0) 
+          continue;
+        if (filter[slices[i].start-1]=='+')
+          requiredParts.Add(i);
       }
 
       var allRequiredFound = true;
       foreach (var i in requiredParts)
       {
-        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) == -1)
-        {
-          allRequiredFound = false;
-          break;
-        }
+        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1) 
+          continue;
+        allRequiredFound = false;
+        break;
       }
 
 

@@ -368,7 +368,7 @@ namespace CsvTools
           var dtm = Convert.ToDateTime(dataObject);
           if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
             return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.ConstantTimeZone,
-              (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+              msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
           if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
             return dtm;
@@ -381,7 +381,7 @@ namespace CsvTools
           }
 
           return timeZoneAdjust(dtm, sourceTimeZone,
-            reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+            reader.GetString(columnInfo.ColumnOrdinalTimeZone), msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
@@ -390,7 +390,7 @@ namespace CsvTools
 
           if (columnInfo.ColumnFormatter != null)
             return columnInfo.ColumnFormatter.Write(dataObject, reader,
-              (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+              msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
           return Convert.ToString(dataObject) ?? string.Empty;
       }

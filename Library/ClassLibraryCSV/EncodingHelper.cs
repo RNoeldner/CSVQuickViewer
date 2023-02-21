@@ -28,17 +28,15 @@ namespace CsvTools
     /// </summary>
     public const string cSuffixWithoutBom = " without BOM";
 
-    private static readonly int[] m_CommonCodePages = new[]
-      {
-        Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001,
-        1252, 437, 1250,  1253, 1255,  850, 852,  28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
-      };
-
     /// <summary>
     ///   Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
-    public static int[] CommonCodePages => m_CommonCodePages;
+    public static int[] CommonCodePages => new[]
+    {
+      Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001,
+      1252, 437, 1250,  1253, 1255,  850, 852,  28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+    };
 
     // ReSharper disable once InconsistentNaming
     public static byte BOMLength(int codePage)

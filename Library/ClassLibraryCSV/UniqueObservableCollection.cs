@@ -192,10 +192,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
-      return this.CollectionEqualWithOrder(other);
+      return ReferenceEquals(this, other) || this.CollectionEqualWithOrder(other);
     }
 
     /// <inheritdoc cref="IList{T}" />

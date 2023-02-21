@@ -58,7 +58,7 @@ namespace CsvTools
         "yyyy/MM/ddTHH:mm:ss",
         "yyyy/MM/dd HH:mm:ss.FFF",
         "yyyyMMdd",
-        "yyyyMMddTHH:mm:ss.FFF",
+        "yyyyMMddTHH:mm:ss.FFF"
       };
       foreach (var format in m_CommonTimeFormats)
         m_CommonDateTimeFormats.Add(format);
