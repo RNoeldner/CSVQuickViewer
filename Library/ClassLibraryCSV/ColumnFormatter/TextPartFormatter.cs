@@ -24,7 +24,6 @@ namespace CsvTools
     private readonly char m_PartSplitter;
     private readonly bool m_PartToEnd;
 
-
     public TextPartFormatter(int part, char partSplitter, bool partToEnd)
     {
       m_Part = part;
@@ -33,11 +32,11 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
-      var output = inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+      var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
       if (RaiseWarning && output.IsEmpty)
-        handleWarning?.Invoke($"Part {m_Part} of text {inputString.ToString()} is empty.");
+        handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
       return output.ToString();
     }
   }

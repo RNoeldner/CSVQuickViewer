@@ -46,8 +46,5 @@ namespace CsvTools
       return inputString;
     }
 
-    public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
-      => FormatInputText(inputString.ToString(), handleWarning);
-
   }
 }

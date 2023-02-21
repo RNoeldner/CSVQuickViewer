@@ -223,7 +223,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
     {
-      using var dt = UnitTestStaticData.GetDataTable();
+      using var dt = UnitTestStaticData.GetDataTable(100,false);
       using var reader = new DataTableWrapper(dt);
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true,
@@ -231,16 +231,23 @@ namespace CsvTools.Tests
 
       var (information, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
         new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.Token);
-
-      Assert.AreEqual(7, columns.Count(), "Recognized columns");
-      Assert.AreEqual(8, information.Count, "Information Lines");
+      /*
+       *
+      dataTable.Columns.Add("int", typeof(int));
+      dataTable.Columns.Add("DateTime", typeof(DateTime));
+      dataTable.Columns.Add("bool", typeof(bool));
+      dataTable.Columns.Add("double", typeof(double));
+      dataTable.Columns.Add("numeric", typeof(decimal));
+       */
+      Assert.AreEqual(6, columns.Count(), "Recognized columns");
+      Assert.AreEqual(7, information.Count, "Information Lines");
 
       // with Text columns
       var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
         new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
-      Assert.AreEqual(11, columns2.Count());
+      Assert.AreEqual(9, columns2.Count());
       // Added 4 text columns,
-      Assert.AreEqual(11, information2.Count);
+      Assert.AreEqual(9, information2.Count);
     }
 
 
