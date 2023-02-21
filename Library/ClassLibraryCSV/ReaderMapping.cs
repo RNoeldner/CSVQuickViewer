@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 
 namespace CsvTools
 {
@@ -162,7 +163,10 @@ namespace CsvTools
         if (keyValuePair.Key == -1)
           dataRow.RowError = keyValuePair.Value;
         else
-          dataRow.SetColumnError(m_Mapping[keyValuePair.Key], keyValuePair.Value);
+        {
+          if (m_Mapping.TryGetValue(keyValuePair.Key, out var column))
+            dataRow.SetColumnError(column, keyValuePair.Value);
+        }          
     }
 
     public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);

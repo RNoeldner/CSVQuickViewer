@@ -38,6 +38,9 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
+        // Give " a large edge
+        if (currentQuote.QuoteChar == '"')
+          currentQuote.Score += 50;
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
       }
@@ -96,6 +99,7 @@ namespace CsvTools
 
       return false;
     }
+    
     private static QuoteTestResult GetScoreForQuote(
       in ImprovedTextReader textReader,
       char delimiterChar,
@@ -115,7 +119,7 @@ namespace CsvTools
 
       var res = new QuoteTestResult { QuoteChar = quoteChar };
       // Read simplified text from file
-      while (!textReaderPosition.AllRead() && filter.Length < 2000 && !cancellationToken.IsCancellationRequested)
+      while (!textReaderPosition.AllRead() && filter.Length < 8000 && !cancellationToken.IsCancellationRequested)
       {
         var c = (char) textReader.Read();
         // disregard spaces
@@ -186,6 +190,11 @@ namespace CsvTools
       else
         res.Score = counterTotal;
 
+      // Without score we did not see any record
+      // in this case assume DuplicateQualifier
+      if (res.Score < 10)
+        res.DuplicateQualifier = true;
+      
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers
       return res;
     }
