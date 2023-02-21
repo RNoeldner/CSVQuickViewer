@@ -44,16 +44,16 @@ namespace CsvTools
     ///   start and end Line or record number and handles the return of these artificial fields in GetValue
     /// </summary>
     /// <param name="reader">Regular framework IDataReader</param>
-    /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
+    /// <param name="addErrorField">Add artificial field Error</param>
     public DataReaderWrapper(
       in IDataReader reader,
-      bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
-      bool addRecNum = false)
+      bool addRecNum = false,
+      bool addErrorField = false)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
       FileReader = reader as IFileReader;
@@ -85,21 +85,20 @@ namespace CsvTools
     ///   and end Line or record number
     /// </summary>
     /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>
-    /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
+    /// <param name="addErrorField">Add artificial field Error</param>
     public DataReaderWrapper(
       in IFileReader fileReader,
-      bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
-      bool addRecNum = false) : this(fileReader as IDataReader, addErrorField, addStartLine, addEndLine, addRecNum)
+      bool addRecNum = false,
+      bool addErrorField = false) : this(fileReader as IDataReader, addStartLine, addEndLine, addRecNum, addErrorField)
     {
       if (addErrorField)
         fileReader.Warning += (sender, e) => m_RowsWithIssue.Add(e.RecordNumber);
     }
-
 
     /// <inheritdoc />
     public override bool HasRows => !DataReader.IsClosed;
@@ -199,11 +198,11 @@ namespace CsvTools
     /// <inheritdoc />
     public override long GetInt64(int ordinal)
     {
-      if (ordinal == ReaderMapping.DataTableStartLine)
+      if (ordinal == ReaderMapping.ColNumStartLine)
         return StartLineNumber;
-      if (ordinal == ReaderMapping.DataTableEndLine)
+      if (ordinal == ReaderMapping.ColNumEndLine)
         return EndLineNumber;
-      if (ordinal == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.ColNumRecNum)
         return RecordNumber;
 
       return DataReader.GetInt64(ReaderMapping.DataTableToReader(ordinal));
@@ -239,8 +238,7 @@ namespace CsvTools
         schemaRow[4] = column.Name; // Column name
         schemaRow[5] = col; // Column ordinal
 
-        if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
-                                                    || col == ReaderMapping.DataTableEndLine)
+        if (col == ReaderMapping.ColNumStartLine || col == ReaderMapping.ColNumRecNum || col == ReaderMapping.ColNumEndLine)
         {
           schemaRow[7] = typeof(long);
         }
@@ -264,35 +262,34 @@ namespace CsvTools
     /// <inheritdoc />
     public override object GetValue(int ordinal)
     {
-      if (ordinal == ReaderMapping.DataTableStartLine)
+      if (ordinal == ReaderMapping.ColNumStartLine)
         return StartLineNumber;
-      if (ordinal == ReaderMapping.DataTableEndLine)
+      if (ordinal == ReaderMapping.ColNumEndLine)
         return EndLineNumber;
-      if (ordinal == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.ColNumRecNum)
         return RecordNumber;
-      if (ordinal == ReaderMapping.DataTableErrorField)
+      if (ordinal == ReaderMapping.ColNumErrorField)
       {
-        // in case the source did have an #Error column pass this on, in case empty use the error  Information
-        // TODO: this does not seem to work as intended, when storing to database the column is empty
-        if (ReaderMapping.DataTableErrorFieldSource != -1)
-          return DataReader.GetValue(ReaderMapping.DataTableErrorFieldSource) ?? ReaderMapping.RowErrorInformation;
-
-        return ReaderMapping.RowErrorInformation;
+        // in case the source did have an #Error column pass this on, in case empty use the error  Information        
+        return (ReaderMapping.ColNumErrorFieldSource != -1) ? DataReader.GetValue(ReaderMapping.ColNumErrorFieldSource) : ReaderMapping.RowErrorInformation;
       }
       return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal)) ?? DBNull.Value;
     }
+
     /// <inheritdoc />
-    public override int GetValues(object[] values) => DataReader.GetValues(values);
+    public override int GetValues(object[] values)
+      => DataReader.GetValues(values);
+
     /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
     {
-      if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine ||
-          ordinal == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.ColNumStartLine || ordinal == ReaderMapping.ColNumEndLine ||
+          ordinal == ReaderMapping.ColNumRecNum)
         return false;
-
-      return ordinal == ReaderMapping.DataTableErrorField
-        ? !ReaderMapping.HasErrors
-        : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
+      if (ordinal == ReaderMapping.ColNumErrorField)
+        // in case the source did have an #Error column pass this on, in case empty use the error  Information
+        return (ReaderMapping.ColNumErrorFieldSource != -1) ? DataReader.IsDBNull(ReaderMapping.ColNumErrorFieldSource) : !ReaderMapping.HasErrors;
+      return DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
     }
 
     /// <inheritdoc cref="IFileReader" />
@@ -311,8 +308,11 @@ namespace CsvTools
     /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
+      if (cancellationToken.IsCancellationRequested)
+        return false;
       ReaderMapping.PrepareRead();
-      // IDataReader does not support preferred ReadAsync
+
+      // IDataReader does not support preferred ReadAsync but DbDataReader  does
       var couldRead = DataReader is DbDataReader dbDataReader
         ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
         : DataReader.Read();

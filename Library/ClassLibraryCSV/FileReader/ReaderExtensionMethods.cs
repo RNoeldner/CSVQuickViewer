@@ -153,7 +153,7 @@ namespace CsvTools
     /// <param name="restoreErrorsFromColumn">
     ///   if the source is a persisted table, restore the error information
     /// </param>
-    /// <param name="addStartLine">
+    /// <param name="includeStartLine">
     ///   if <c>true</c> add a column for the start line: <see
     ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
     ///   delimited text
@@ -181,7 +181,7 @@ namespace CsvTools
     public static async Task<DataTable> GetDataTableAsync(this IFileReader reader,
       TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
-      bool addStartLine,
+      bool includeStartLine,
       bool includeRecordNo,
       bool includeEndLineNo,
       bool includeErrorField,
@@ -199,10 +199,10 @@ namespace CsvTools
 #endif
       using var wrapper = new DataReaderWrapper(
         reader,
-        includeErrorField,
-        addStartLine,
+        includeStartLine,
         includeEndLineNo,
-        includeRecordNo);
+        includeRecordNo,
+        includeErrorField);
 
       return await wrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
         .ConfigureAwait(false);

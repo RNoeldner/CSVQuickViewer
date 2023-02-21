@@ -62,15 +62,15 @@ namespace CsvTools.Tests
 
       dr[3] = UnitTestStatic.Random.Next(0, 2) == 0;
 
-      dr[4] = UnitTestStatic.Random.NextDouble() * 123.78;
+      dr[4] = Math.Round(UnitTestStatic.Random.NextDouble() * 123.78, 4);
 
       if (recNum % 3 == 0)
-        dr[5] = UnitTestStatic.Random.NextDouble();
+        dr[5] = Math.Round(UnitTestStatic.Random.NextDouble(), 4);
 
-      if (UnitTestStatic.Random.NextDouble() > .4) dr[7] = UnitTestStatic.GetRandomText(100);
+      if (UnitTestStatic.Random.NextDouble() > .4) 
+        dr[7] = UnitTestStatic.GetRandomText(100);
 
       dr[8] = recNum; // ID
-
 
       // Add Errors and Warnings to Columns and Rows
       var rand = UnitTestStatic.Random.Next(0, 100);
@@ -117,7 +117,8 @@ namespace CsvTools.Tests
         dataTable.Columns.Add(ReaderConstants.cErrorField, typeof(string));
       dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
       dataTable.BeginLoadData();
-      for (var i = 1; i <= numRecords; i++) AddRowToDataTable(dataTable, i, addError);
+      for (var i = 1; i <= numRecords; i++) 
+        AddRowToDataTable(dataTable, i, addError);
       dataTable.EndLoadData();
       return dataTable;
     }

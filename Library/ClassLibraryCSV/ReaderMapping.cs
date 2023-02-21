@@ -11,11 +11,11 @@ namespace CsvTools
   /// </summary>
   public sealed class ReaderMapping
   {
-    public readonly int DataTableEndLine;
-    public readonly int DataTableErrorField;
-    public readonly int DataTableErrorFieldSource;
-    public readonly int DataTableRecNum;
-    public readonly int DataTableStartLine;
+    public readonly int ColNumEndLine;
+    public readonly int ColNumErrorField;
+    public readonly int ColNumErrorFieldSource;
+    public readonly int ColNumRecNum;
+    public readonly int ColNumStartLine;
     private readonly ColumnErrorDictionary? m_ColumnErrorDictionary;
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
     private readonly List<Column> m_ReaderColumnNotIgnored = new List<Column>();
@@ -49,7 +49,7 @@ namespace CsvTools
       // Problem is tht the position possibly needs to be adjusted as bulk copy need teh columns in the same order as the table
       var readerColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var fieldCount = 0;
-      DataTableErrorFieldSource = -1;
+      ColNumErrorFieldSource = -1;
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
         Column column;
@@ -67,7 +67,7 @@ namespace CsvTools
         m_ReaderColumnsAll.Add(column.Name);
         if (!column.Ignore && column.Name.Equals(ReaderConstants.cErrorField))
         {
-          DataTableErrorFieldSource = col;
+          ColNumErrorFieldSource = col;
           addErrorField=true;
         }         
         if (column.Ignore
@@ -85,56 +85,56 @@ namespace CsvTools
       // the order of artificial fields must match the order in IDbConnector.CreateTableSQL
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {
-        DataTableRecNum = fieldCount++;
+        ColNumRecNum = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
           new Column(
             ReaderConstants.cRecordNumberFieldName,
             new ValueFormat(DataTypeEnum.Integer),
-            DataTableRecNum));
+            ColNumRecNum));
       }
       else
       {
-        DataTableRecNum = -1;
+        ColNumRecNum = -1;
       }
 
       if (addEndLine && !readerColumns.Contains(ReaderConstants.cEndLineNumberFieldName))
       {
-        DataTableEndLine = fieldCount++;
+        ColNumEndLine = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
           new Column(
             ReaderConstants.cEndLineNumberFieldName,
             new ValueFormat(DataTypeEnum.Integer),
-            DataTableEndLine));
+            ColNumEndLine));
       }
       else
       {
-        DataTableEndLine = -1;
+        ColNumEndLine = -1;
       }
 
       if (addErrorField && !readerColumns.Contains(ReaderConstants.cErrorField))
       {
-        DataTableErrorField = fieldCount++;
+        ColNumErrorField = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
-          new Column(ReaderConstants.cErrorField, ValueFormat.Empty, DataTableErrorField));
+          new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField));
       }
       else
       {
-        DataTableErrorField = -1;
+        ColNumErrorField = -1;
       }
 
       // add fields
       if (addStartLine && !readerColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
       {
-        DataTableStartLine = fieldCount;
+        ColNumStartLine = fieldCount;
         m_ReaderColumnNotIgnored.Add(
           new Column(
             ReaderConstants.cStartLineNumberFieldName,
             new ValueFormat(DataTypeEnum.Integer),
-            DataTableStartLine));
+            ColNumStartLine));
       }
       else
       {
-        DataTableStartLine = -1;
+        ColNumStartLine = -1;
       }
     }
 

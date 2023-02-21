@@ -15,6 +15,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetColumnIndexFromErrorColumnTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       _ = new DataReaderWrapper(reader);
     }
@@ -39,11 +40,77 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task DepthTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       Assert.AreEqual(9, wrapper.Depth);
     }
+
+    [TestMethod()]
+    public async Task ArtificalFields()
+    {
+      using var reader = GetReader(m_Setting);
+      await reader.OpenAsync(UnitTestStatic.Token);
+      
+      var wrapper = new DataReaderWrapper(reader, true, true, true, true);
+      await wrapper.ReadAsync(UnitTestStatic.Token);
+
+      Assert.AreEqual((long) 2, wrapper.GetInt64(wrapper.ReaderMapping.ColNumStartLine), "StartLine");
+      Assert.AreEqual((long) 3, wrapper.GetInt64(wrapper.ReaderMapping.ColNumEndLine));
+      Assert.AreEqual((long) 1, wrapper.GetInt64(wrapper.ReaderMapping.ColNumRecNum));
+      Assert.AreEqual("", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+
+      await wrapper.ReadAsync(UnitTestStatic.Token);
+      Assert.AreEqual(reader.StartLineNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumStartLine), "StartLine");
+      Assert.AreEqual(reader.EndLineNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumEndLine));
+      Assert.AreEqual(reader.RecordNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumRecNum));
+      Assert.AreEqual("", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+    }
+    
+    [TestMethod()]
+    public async Task DataTableWrapperErrorPassthoughTest()
+    {
+      using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("Text", typeof(string));
+      dataTable.Columns.Add("#Error", typeof(string));
+      for (var i = 0; i < 100; i++)
+      {
+        var row = dataTable.NewRow();
+        row["ID"] = i;
+        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
+        row["#Error"] = "Error" + i.ToString(CultureInfo.CurrentCulture);
+        dataTable.Rows.Add(row);
+      }
+      using var reader = new DataTableWrapper(dataTable);
+      reader.Read();
+      Assert.AreEqual("Error0", reader.GetValue(2));
+    }
+    
+    [TestMethod()]
+    public async Task PassthroughErrorTest()
+    {
+      using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("Text", typeof(string));
+      dataTable.Columns.Add("#Error", typeof(string));
+      for (var i = 0; i < 100; i++)
+      {
+        var row = dataTable.NewRow();
+        row["ID"] = i;
+        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
+        row["#Error"] = "Error" + i.ToString(CultureInfo.CurrentCulture);
+        dataTable.Rows.Add(row);
+      }
+      using var reader = dataTable.CreateDataReader();
+      var wrapper = new DataReaderWrapper(reader, false, false, false, true);
+      await wrapper.ReadAsync(UnitTestStatic.Token);
+      Assert.AreEqual("Error0", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+      await wrapper.ReadAsync(UnitTestStatic.Token);
+
+      Assert.AreEqual("Error1", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+    }
+    
 
     [TestMethod()]
     public async Task GetIntegerTest()
@@ -60,21 +127,21 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetNumericTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
 
-      Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2),"float");
-      Assert.AreEqual(-12086.66, wrapper.GetDouble(2),"double");
-      Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2) , "decimal");
-      Assert.AreEqual((-12086.66).ToString(CultureInfo.CurrentCulture), wrapper.GetString(2) , "string");
+      Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2), "float");
+      Assert.AreEqual(-12086.66, wrapper.GetDouble(2), "double");
+      Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2), "decimal");
+      Assert.AreEqual((-12086.66).ToString(CultureInfo.CurrentCulture), wrapper.GetString(2), "string");
     }
 
     [TestMethod()]
     public async Task GetGuidTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -112,7 +179,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetNameTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -125,7 +192,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetOrdinalTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -138,7 +205,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetBooleanTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -153,7 +220,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetFieldTypeTestAsync()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -164,7 +231,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task MiscTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       Assert.IsTrue(wrapper.HasRows);
@@ -189,7 +256,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetValueTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -201,7 +268,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task IsDBNullTest()
     {
-      using var reader = GetReader(m_Setting); 
+      using var reader = GetReader(m_Setting);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);

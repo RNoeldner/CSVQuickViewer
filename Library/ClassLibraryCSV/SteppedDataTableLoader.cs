@@ -63,7 +63,7 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField);
 
       // the initial progress is set on the source reader
       await GetNextBatch(progress, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);

@@ -73,18 +73,18 @@ namespace CsvTools
     /// <summary>
     /// Opens the file reader and reads the first page
     /// </summary>
-    /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
+    /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public async Task OpenAsync(
-      bool addErrorField, bool addStartLine,
-      bool addEndLine, bool addRecNum, 
+      bool addStartLine, bool addEndLine,
+      bool addRecNum, bool addErrorField,
       CancellationToken cancellationToken)
     {
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, addStartLine, addEndLine, addRecNum);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addStartLine, addEndLine, addRecNum, addErrorField);
       await MoveToPageAsync(1, cancellationToken).ConfigureAwait(false);
     }
 
