@@ -31,13 +31,12 @@ namespace CsvTools
     {
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;
-      else
-        return m_IsWindows
-          ? TimeZoneInfo.FindSystemTimeZoneById(
-            TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
-          : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
-            ? inaraSrc
-            : timeZone);
+      return m_IsWindows
+        ? TimeZoneInfo.FindSystemTimeZoneById(
+          TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
+        : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
+          ? inaraSrc
+          : timeZone);
     }
 
     public static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone, in string destTimeZone,

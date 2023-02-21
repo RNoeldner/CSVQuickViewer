@@ -1067,7 +1067,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">Leading Text</param>
     protected virtual void HandleShowProgressPeriodic(in string text)
-        => m_IntervalAction.Invoke((t) => HandleShowProgress(t, GetRelativePosition()), text);
+        => m_IntervalAction.Invoke(t => HandleShowProgress(t, GetRelativePosition()), text);
 
     /// <summary>
     ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
@@ -1261,7 +1261,7 @@ namespace CsvTools
         timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
 
       return TimeZoneAdjust(input, timeZone, DestTimeZone,
-        (message) => HandleWarning(column.ColumnOrdinal, message));
+        message => HandleWarning(column.ColumnOrdinal, message));
     }
 
     private bool? GetBooleanNull(ReadOnlySpan<char> inputValue, Column column)

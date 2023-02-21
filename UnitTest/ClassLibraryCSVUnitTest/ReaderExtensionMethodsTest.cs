@@ -80,7 +80,7 @@ namespace CsvTools.Tests
       await csvFile.OpenAsync(UnitTestStatic.Token);
       await csvFile.ReadAsync(UnitTestStatic.Token);
       var trimmedCol = -1;
-      var result = csvFile.GetCombinedKey(new[] { 0, 1 }, '-', (col) => trimmedCol = col);
+      var result = csvFile.GetCombinedKey(new[] { 0, 1 }, '-', col => trimmedCol = col);
       Assert.AreEqual(-1, trimmedCol);
       Assert.AreEqual("1-GERMAN-", result);
     }

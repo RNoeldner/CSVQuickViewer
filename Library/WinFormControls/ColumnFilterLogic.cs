@@ -444,12 +444,11 @@ namespace CsvTools
                 "{0} LIKE '%{1}%'",
                 m_DataPropertyNameEscape,
                 StringEscapeLike(m_ValueText));
-            else
-              return string.Format(
-                CultureInfo.InvariantCulture,
-                "Convert({0},'System.String') LIKE '%{1}%'",
-                m_DataPropertyNameEscape,
-                StringEscapeLike(m_ValueText));
+            return string.Format(
+              CultureInfo.InvariantCulture,
+              "Convert({0},'System.String') LIKE '%{1}%'",
+              m_DataPropertyNameEscape,
+              StringEscapeLike(m_ValueText));
           }
 
           break;
@@ -471,12 +470,11 @@ namespace CsvTools
               "{0} LIKE '{1}%'",
               m_DataPropertyNameEscape,
               StringEscapeLike(m_ValueText));
-          else
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "Convert({0},'System.String') LIKE '{1}%'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
+          return string.Format(
+            CultureInfo.InvariantCulture,
+            "Convert({0},'System.String') LIKE '{1}%'",
+            m_DataPropertyNameEscape,
+            StringEscapeLike(m_ValueText));
 
         case cOperatorEnds:
           if (m_ColumnDataType == typeof(string))
@@ -485,12 +483,11 @@ namespace CsvTools
               "{0} LIKE '%{1}'",
               m_DataPropertyNameEscape,
               StringEscapeLike(m_ValueText));
-          else
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "Convert({0},'System.String') LIKE '%{1}'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
+          return string.Format(
+            CultureInfo.InvariantCulture,
+            "Convert({0},'System.String') LIKE '%{1}'",
+            m_DataPropertyNameEscape,
+            StringEscapeLike(m_ValueText));
 
         default:
           string filterValue;
@@ -511,12 +508,10 @@ namespace CsvTools
                 filterValue)
             };
           }
-          else
-          {
-            if (string.IsNullOrEmpty(m_ValueText))
-              return string.Empty;
-            filterValue = FormatValue(m_ValueText.AsSpan(), m_ColumnDataType);
-          }
+
+          if (string.IsNullOrEmpty(m_ValueText))
+            return string.Empty;
+          filterValue = FormatValue(m_ValueText.AsSpan(), m_ColumnDataType);
 
           if (!string.IsNullOrEmpty(filterValue))
           {

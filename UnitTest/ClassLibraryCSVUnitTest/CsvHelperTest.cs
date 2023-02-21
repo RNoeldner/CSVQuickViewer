@@ -33,7 +33,7 @@ namespace CsvTools.Tests
     public async Task GetDetectionResult()
     {
       var stream = File.OpenRead(UnitTestStatic.GetTestPath("MultipleDelimiter.txt"));
-      var res1 = new InspectionResult() { FileName = "MultipleDelimiter.txt" };
+      var res1 = new InspectionResult { FileName = "MultipleDelimiter.txt" };
       await stream.UpdateInspectionResultAsync(res1, false, false, false, false, false, false, false,
         false, false,
         new List<char>(), UnitTestStatic.Token);

@@ -155,14 +155,12 @@ namespace CsvTools
           else
             assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue
                             && ret.Value >= int.MinValue;
-          if (!checkResult.PossibleMatch)
-          {
-            checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormat(
-              assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
-              groupSeparator: thousandSeparator.ToStringHandle0(),
-              decimalSeparator: decimalSeparator.ToStringHandle0());
-          }
+          if (checkResult.PossibleMatch) continue;
+          checkResult.PossibleMatch = true;
+          checkResult.ValueFormatPossibleMatch = new ValueFormat(
+            assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
+            groupSeparator: thousandSeparator.ToStringHandle0(),
+            decimalSeparator: decimalSeparator.ToStringHandle0());
         }
       }
 
@@ -263,13 +261,13 @@ namespace CsvTools
             text.Span.StartsWith("<![CDATA[".AsSpan(), StringComparison.OrdinalIgnoreCase))
           if (foundHtml++ > minRequiredSamples)
             return DataTypeEnum.TextToHtml;
-        if (text.Span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) != -1 ||
-            text.Span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) != -1)
-          if (foundUnescaped++ > minRequiredSamples)
-            return DataTypeEnum.TextUnescape;
+        if (text.Span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) == -1 &&
+            text.Span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) == -1 &&
+            text.Span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) == -1 &&
+            text.Span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) == -1 &&
+            text.Span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) == -1) continue;
+        if (foundUnescaped++ > minRequiredSamples)
+          return DataTypeEnum.TextUnescape;
       }
 
       return DataTypeEnum.String;

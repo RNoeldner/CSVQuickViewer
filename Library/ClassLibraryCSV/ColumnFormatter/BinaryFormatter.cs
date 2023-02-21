@@ -59,14 +59,12 @@ namespace CsvTools
         return string.Empty;
       }
 
-      if (fi.Length > 256000)
-      {
-        if (RaiseWarning)
-          handleWarning?.Invoke($"File {inputString} too large {fi.Length:N0} > {256000:N0}");
-        return string.Empty;
-      }
+      if (fi.Length <= 256000) 
+        return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
+      if (RaiseWarning)
+        handleWarning?.Invoke($"File {inputString} too large {fi.Length:N0} > {256000:N0}");
+      return string.Empty;
 
-      return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
     }
 
     public override string FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
@@ -110,13 +108,12 @@ namespace CsvTools
           fileName = fileName.Remove(index);
       }
 
-      if (contentsWithFileName != null)
-      {
-        var fullPath = Path.Combine(m_RootFolderWrite, fileName);
-        if (m_Overwrite)
-          FileSystemUtils.FileDelete(fullPath);
-        FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString() ?? string.Empty));
-      }
+      if (contentsWithFileName == null) 
+        return fileName;
+      var fullPath = Path.Combine(m_RootFolderWrite, fileName);
+      if (m_Overwrite)
+        FileSystemUtils.FileDelete(fullPath);
+      FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString() ?? string.Empty));
 
       return fileName;
     }
