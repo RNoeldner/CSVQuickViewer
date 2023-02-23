@@ -66,17 +66,17 @@ namespace CsvTools
             col);
         }
         m_ReaderColumnsAll.Add(column.Name);
-        if (!column.Ignore && column.Name.Equals(ReaderConstants.cErrorField))
+        if (column.Ignore)
+          continue;
+
+        if (column.Name.Equals(ReaderConstants.cErrorField))
         {
           ColNumErrorFieldSource = col;
-          addErrorField=true;
+          ColNumErrorField = col;
         }
 
-        if (column.Ignore
-            // An Error field is ignore but then added from source at the right position
-            || column.Name.Equals(ReaderConstants.cErrorField)
-            // In case we do not add a line, accept the source data
-            || (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
+        if (// In case we do not add a line, accept the source data
+            (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
             || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName) && addEndLine)
             // An Record number is ignore all the time
             || column.Name.Equals(ReaderConstants.cRecordNumberFieldName) && addRecNum)
@@ -166,7 +166,7 @@ namespace CsvTools
         {
           if (m_Mapping.TryGetValue(keyValuePair.Key, out var column))
             dataRow.SetColumnError(column, keyValuePair.Value);
-        }          
+        }
     }
 
     public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
