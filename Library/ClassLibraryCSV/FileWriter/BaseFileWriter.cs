@@ -133,7 +133,9 @@ namespace CsvTools
 
       // Make names unique 
       var colNames = new BiDirectionalDictionary<int, string>();
-      foreach (var col in reader.GetColumnsOfReader())
+      var columns = reader.GetColumnsOfReader().ToList();
+
+      foreach (var col in columns)
       {
         var colName = col.Name;
         if (string.IsNullOrEmpty(colName.Trim()))
@@ -141,7 +143,7 @@ namespace CsvTools
         colNames.Add(col.ColumnOrdinal, colNames.Values.MakeUniqueInCollection(colName));
       }
 
-      foreach (var col in reader.GetColumnsOfReader())
+      foreach (var col in columns)
       {
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));

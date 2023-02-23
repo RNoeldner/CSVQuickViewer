@@ -215,7 +215,7 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(CancellationToken.None);
         var (information, columns) = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
-        new CsvTools.ColumnCollection(), false, true, "<NULL>", CancellationToken.None);        
+        new CsvTools.ColumnCollection(), false, true, "<NULL>", CancellationToken.None);
       }
     }
 
@@ -223,7 +223,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
     {
-      using var dt = UnitTestStaticData.GetDataTable(100,false);
+      using var dt = UnitTestStaticData.GetDataTable(100, false);
       using var reader = new DataTableWrapper(dt);
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true,
@@ -232,22 +232,23 @@ namespace CsvTools.Tests
       var (information, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
         new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.Token);
       /*
-       *
-      dataTable.Columns.Add("int", typeof(int));
-      dataTable.Columns.Add("DateTime", typeof(DateTime));
-      dataTable.Columns.Add("bool", typeof(bool));
-      dataTable.Columns.Add("double", typeof(double));
-      dataTable.Columns.Add("numeric", typeof(decimal));
+        "int (Integer)"
+        "DateTime (Date Time (MM/dd/yyyy))"
+        "bool (Boolean)"
+        "double (Money (High Precision) (0,#####))"
+        "numeric (Money (High Precision) (0,#####))"
+        "ID (Integer)"
+        "#Line (Integer)"
        */
-      Assert.AreEqual(6, columns.Count(), "Recognized columns");
-      Assert.AreEqual(7, information.Count, "Information Lines");
+      Assert.AreEqual(7, columns.Count(), "Recognized columns");
+      Assert.AreEqual(8, information.Count, "Information Lines");
 
       // with Text columns
       var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
         new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
-      Assert.AreEqual(9, columns2.Count());
+      Assert.AreEqual(10, columns2.Count());
       // Added 4 text columns,
-      Assert.AreEqual(9, information2.Count);
+      Assert.AreEqual(10, information2.Count);
     }
 
 

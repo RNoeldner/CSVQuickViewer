@@ -40,7 +40,7 @@ namespace CsvTools
         var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
         // Give " a large edge
         if (currentQuote.QuoteChar == '"')
-          currentQuote.Score += 50;
+          currentQuote.Score += 15;
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
       }
