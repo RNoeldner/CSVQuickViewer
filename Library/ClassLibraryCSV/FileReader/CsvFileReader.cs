@@ -1205,13 +1205,12 @@ namespace CsvTools
     {
       await DisposeAsyncCore();
 
-      Dispose(false);
-      GC.SuppressFinalize(this);
+      Dispose(false);      
     }
 
     protected async ValueTask DisposeAsyncCore()
     {
-      if (m_Stream != null)
+      if (m_Stream != null &&  SelfOpenedStream)
         await m_Stream.DisposeAsync().ConfigureAwait(false);
     }
 

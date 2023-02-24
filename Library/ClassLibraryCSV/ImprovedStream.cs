@@ -124,11 +124,7 @@ namespace CsvTools
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
-    public new void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
+    public new void Dispose() => Dispose(true);
 
     /// <inheritdoc cref="IImprovedStream" />
     public override void Flush()
