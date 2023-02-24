@@ -92,7 +92,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllSmallFile()
     {
       var det = await UnitTestStatic.GetTestPath("employee.txt")
-        .GetInspectionResultFromFileAsync(true, true, true, true, true, true, true, true, true, new InspectionResult(), UnitTestStatic.Token);
+        .GetInspectionResultFromFileAsync(true, true, true, true, true, true, true, true, true, new InspectionResult(), new FillGuessSettings(false), UnitTestStatic.Token);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
       Assert.AreEqual(RecordDelimiterTypeEnum.Crlf, det.NewLine);
     }
@@ -458,7 +458,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
-        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), UnitTestStatic.Token);
+        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), new FillGuessSettings(false), UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
       Assert.AreEqual(',', det.FieldDelimiter);
       Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
@@ -468,7 +468,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
       var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt")
-        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), UnitTestStatic.Token);
+        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), new FillGuessSettings(false), UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
     }
 
@@ -504,15 +504,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
+      var fgs = new FillGuessSettings(true);
+
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
-        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), UnitTestStatic.Token);
+        .GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), fgs, UnitTestStatic.Token);
       Assert.AreEqual(1200, det.CodePageId);
       Assert.AreEqual(',', det.FieldDelimiter);
 
       foreach (var fileName in Directory.EnumerateFiles(UnitTestStatic.ApplicationDirectory.LongPathPrefix(),
                  "AllFor*.txt", SearchOption.TopDirectoryOnly))
       {
-        await fileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(),
+        await fileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, true, true, new InspectionResult(), fgs,
           UnitTestStatic.Token);
       }
     }
@@ -565,7 +567,7 @@ namespace CsvTools.Tests
     public async Task TestGuessStartRow2Async()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
-      
+
       using var textReader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(0, textReader.InspectStartRow('\t', '"', char.MinValue, string.Empty, UnitTestStatic.Token));
     }

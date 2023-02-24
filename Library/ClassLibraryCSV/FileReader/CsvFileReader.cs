@@ -494,9 +494,11 @@ namespace CsvTools
     {
       if (disposing)
       {
-        m_Stream?.Dispose();
-        m_Stream = null;
-
+        if (SelfOpenedStream)
+        {
+          m_Stream?.Dispose();
+          m_Stream = null;
+        }
         m_TextReader?.Dispose();
         m_TextReader = null;
       }
