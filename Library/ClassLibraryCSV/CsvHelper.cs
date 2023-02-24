@@ -100,7 +100,7 @@ namespace CsvTools
 #endif
           using var reader = GetFileReader(inspectionResult, usedStream);
           await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-          if (reader.FieldCount == 1)
+          if (reader.FieldCount <= 1)
           {
             Logger.Information($"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
             disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
@@ -109,6 +109,8 @@ namespace CsvTools
             guessCommentLine = false;
             guessNewLine = false;
           }
+          else
+            break;
         }
 
         // no need to check for Json again
