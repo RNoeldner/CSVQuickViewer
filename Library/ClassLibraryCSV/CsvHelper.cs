@@ -20,8 +20,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 #if !QUICK
+
 using System.Linq;
+
 #endif
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -34,6 +37,193 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
+    /// <summary>
+    ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
+    ///   Row and Header
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
+    /// <param name="guessCodePage">if true, try to determine the code page</param>
+    /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
+    /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
+    /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
+    /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
+    /// <param name="guessHasHeader">
+    ///   if true, try to determine if the file does have a header row
+    /// </param>
+    /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
+    /// <param name="guessCommentLine"></param>
+    /// <param name="inspectionResult">Default in case inspection is wanted</param>
+    /// <param name="fillGuessSettings"></param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
+    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
+      bool guessJson, bool guessCodePage, bool guessEscapePrefix,
+      bool guessDelimiter, bool guessQualifier,
+      bool guessStartRow, bool guessHasHeader,
+      bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
+      FillGuessSettings fillGuessSettings,
+      CancellationToken cancellationToken)
+    {
+      if (string.IsNullOrEmpty(fileName))
+        throw new ArgumentException("File name can not be empty", nameof(fileName));
+
+      inspectionResult.FileName = fileName;
+      Logger.Information("Opening file");
+      var sourceAccess = new SourceAccess(fileName);
+      inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      await
+#endif
+      using var usedStream = await GetStreamInMemory(sourceAccess, cancellationToken).ConfigureAwait(false);
+      var disallowedDelimiter = new List<char>();
+      do
+      {
+        // IImprovedStream And MemoryStream do handle this properly
+        usedStream.Seek(0, SeekOrigin.Begin);
+
+        // Determine from file
+        await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
+          guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
+          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
+          disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+
+        // if its a delimited file but we do not have fields,
+        // the delimiter must have been wrong, pick another one, after 3 though give up
+        Logger.Information("Reading to check field delimiter");
+
+        if (!inspectionResult.IsJson)
+        {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await
+#endif
+          using var reader = GetFileReader(inspectionResult, usedStream);
+          await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+          if (reader.FieldCount == 1)
+          {
+            Logger.Information($"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
+            disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
+            // in case Delimiter is re-checked some test are less important
+            guessCodePage = false;
+            guessCommentLine = false;
+            guessNewLine = false;
+          }
+        }
+
+        // no need to check for Json again
+        guessJson = false;
+      } while (!inspectionResult.IsJson && disallowedDelimiter.Count < 3);
+
+      // in case there was a problem with the disallowed delimiters
+      if (disallowedDelimiter.Count == 3)
+      {
+        // assume the very first was correct
+        inspectionResult.FieldDelimiter = disallowedDelimiter[0];
+        // and rerun teh detection
+        await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
+          guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
+          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
+          null, cancellationToken).ConfigureAwait(false);
+      }
+
+      if (fillGuessSettings.Enabled)
+      {
+        Logger.Information("Determining column format by reading samples");
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        await
+#endif
+        using var reader2 = GetFileReader(inspectionResult, usedStream);
+        await reader2.OpenAsync(cancellationToken).ConfigureAwait(false);
+        var (_, b) = await reader2.FillGuessColumnFormatReaderAsyncReader(
+          fillGuessSettings, columnCollectionInput: null,
+          addTextColumns: false, checkDoubleToBeInteger: true, treatTextAsNull: string.Empty,
+          cancellationToken).ConfigureAwait(false);
+        inspectionResult.Columns.AddRangeNoClone(b);
+      }
+
+      return inspectionResult;
+    }
+
+    /// <summary>
+    /// Get a stream for the source access
+    /// </summary>
+    /// <param name="sourceAccess">The access information like filename or file type</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static async Task<Stream> GetStreamInMemory(this SourceAccess sourceAccess, CancellationToken cancellationToken)
+    {
+      // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
+      var stream = FunctionalDI.OpenStream(sourceAccess);
+      try
+      {
+        // if the file is very big, do not take part of it we might loose too much information
+        if (stream.Length >  268435456)
+          return stream;
+
+        // 2^26 Byte max Capacity : 64 MByte
+        int capacity = Math.Min(stream.Length.ToInt(), 67108864);
+        var memoryStream = new MemoryStream(capacity: stream.Length.ToInt());
+        await stream.CopyToAsync(memoryStream, capacity, cancellationToken);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        await stream.DisposeAsync();
+#else
+        stream.Dispose();
+#endif
+        return memoryStream;
+      }
+      catch (OutOfMemoryException)
+      {
+        return stream;
+      }
+    }
+
+    /// <summary>
+    /// Get a text reader form a stream, takes care of codePage and skip rows
+    /// </summary>
+    /// <param name="stream">The open read stream</param>
+    /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
+    /// <param name="skipRows">The number of ros in teh beginning of the stream to skip</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
+    public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)
+      // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
+      => new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+
+    /// <summary>
+    ///   Guesses the code page from a stream.
+    /// </summary>
+    /// <param name="stream">The stream to read data from</param>
+    /// <param name="token">The token.</param>
+    /// <returns></returns>
+    public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
+    {
+      // Read 256 kBytes
+      int maxlength = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
+      if (maxlength>262144)
+        maxlength =262144;
+      var buff = new byte[maxlength];
+
+#pragma warning disable CA1835
+      var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
+#pragma warning restore CA1835
+      if (length >= 2)
+      {
+        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
+        if (byBom != null)
+        {
+          Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(byBom, true)}");
+          return (byBom.CodePage, true);
+        }
+      }
+
+      var detected = EncodingHelper.DetectEncodingNoBom(buff);
+      if (detected.Equals(Encoding.ASCII))
+        detected = Encoding.UTF8;
+      Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(detected, false)}");
+      return (detected.CodePage, false);
+    }
+
     /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -52,16 +242,10 @@ namespace CsvTools
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
     /// </returns>
     public static async Task<InspectionResult> InspectFileAsync(
-      this string fileName,
-      bool guessJson,
-      bool guessCodePage,
-      bool guessEscapePrefix,
-      bool guessDelimiter,
-      bool guessQualifier,
-      bool guessStartRow,
-      bool guessHasHeader,
-      bool guessNewLine,
-      bool guessCommentLine,
+      this string fileName, bool guessJson,
+      bool guessCodePage, bool guessEscapePrefix,
+      bool guessDelimiter, bool guessQualifier, bool guessStartRow,
+      bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
       FillGuessSettings fillGuessSettings,
       InspectionResult defaultInspectionResult,
       CancellationToken cancellationToken)
@@ -88,7 +272,9 @@ namespace CsvTools
         var fileNameSetting = !fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
           ? fileName2 + CsvFile.cCsvSettingExtension
           : fileName2;
+#pragma warning disable IDE0057
         var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
+#pragma warning restore IDE0057
 
         try
         {
@@ -172,6 +358,49 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Determines whether data in the specified stream is a JSON
+    /// </summary>
+    /// <param name="stream">The stream to read data from</param>
+    /// <param name="encoding">The encoding.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
+    public static async Task<bool> InspectIsJsonReadableAsync(
+      this Stream stream,
+      Encoding encoding,
+      CancellationToken cancellationToken)
+    {
+      stream.Seek(0, SeekOrigin.Begin);
+      using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      await
+#endif
+      using var jsonTextReader = new JsonTextReader(streamReader);
+      jsonTextReader.CloseInput = false;
+      try
+      {
+        if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+          // ReSharper disable once MergeIntoLogicalPattern
+          if (jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
+                                                                || jsonTextReader.TokenType
+                                                                == JsonToken.StartConstructor)
+          {
+            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            Logger.Information("Detected Json file");
+            return true;
+          }
+        }
+      }
+      catch (JsonReaderException)
+      {
+        //ignore
+      }
+
+      return false;
+    }
+
+    /// <summary>
     ///   Updates the InspectionResult from stream.
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
@@ -209,7 +438,27 @@ namespace CsvTools
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
             guessCommentLine || guessNewLine))
         return;
+      /*
+       *  We have cyclic dependencies, so test are possibly repeated to get a better result:
+FieldDelimiter
+	CommentLine
+	FieldQualifier
+	EscapePrefix
 
+FieldQualifier
+	EscapePrefix
+	FieldDelimiter
+	NewLine
+
+EscapePrefix
+	SkipRows
+	FieldDelimiter
+	HasHeader
+
+CommentLine
+	HasHeader
+	SkipRows
+       */
       if (guessCodePage)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -220,7 +469,6 @@ namespace CsvTools
         inspectionResult.CodePageId = codePage;
         inspectionResult.ByteOrderMark = bom;
       }
-
 
       if (guessJson)
       {
@@ -296,7 +544,7 @@ namespace CsvTools
           Logger.Information("Checking Qualifier");
           var qualifier = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
 
-          inspectionResult.FieldQualifier= qualifier.QuoteChar;
+          inspectionResult.FieldQualifier = qualifier.QuoteChar;
           inspectionResult.ContextSensitiveQualifier= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
           inspectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
         }
@@ -307,9 +555,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Validating comment line");
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        if (!await textReader.InspectLineCommentIsValidAsync(inspectionResult.CommentLine,
-              inspectionResult.FieldDelimiter,
-              cancellationToken).ConfigureAwait(false))
+        if (!await textReader.InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter, cancellationToken).ConfigureAwait(false))
           inspectionResult.CommentLine  = string.Empty;
       }
 
@@ -343,23 +589,23 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    /// Get a text reader form a stream, takes care of codePage and skip rows
-    /// </summary>
-    /// <param name="stream">The open read stream</param>
-    /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
-    /// <param name="skipRows">The number of ros in teh beginning of the stream to skip</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
-    public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)
-      // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
-      => new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-
 #if !QUICK
+
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, false, true,
-        new InspectionResult(), new FillGuessSettings(false), cancellationToken).ConfigureAwait(false);
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true,
+        true, true, true, true, false, true,
+        new InspectionResult()
+        {
+          IdentifierInContainer = csvFile.IdentifierInContainer,
+          FileName = csvFile.FileName,
+          EscapePrefix = csvFile.EscapePrefixChar,
+          FieldDelimiter = csvFile.FieldDelimiterChar,
+          FieldQualifier = csvFile.FieldQualifierChar,
+          SkipRows =  csvFile.SkipRows,
+          CommentLine = csvFile.CommentLine
+        },
+        new FillGuessSettings(false), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;
@@ -369,152 +615,27 @@ namespace CsvTools
       csvFile.HasFieldHeader = det.HasFieldHeader;
       csvFile.CommentLine = det.CommentLine;
     }
-#endif    
 
-    /// <summary>
-    /// Get a stream for the source access
-    /// </summary>
-    /// <param name="sourceAccess">The access information like filename or filetype</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public static async Task<Stream> GetStreamInMemory(this SourceAccess sourceAccess, CancellationToken cancellationToken)
+#endif
+
+    internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId, CancellationToken cancellationToken)
     {
-      // even tough the defnition reads it will return a Stream all implemation do return IImprovedStream
-      var stream = FunctionalDI.OpenStream(sourceAccess);
-      try
-      {
-        // if the file is very big, do not take part of it we might loose too much information
-        if (stream.Length >  268435456)
-          return stream;
+      if (codePageId > 0)
+        return codePageId;
 
-        // 2^26 Byte max Capacity : 64 Mbyte
-        int capacity = Math.Min(stream.Length.ToInt(), 67108864);
-        var memoryStream = new MemoryStream(capacity: stream.Length.ToInt());
-        await stream.CopyToAsync(memoryStream, capacity, cancellationToken);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await stream.DisposeAsync();
-#else
-        stream.Dispose();
-#endif
-        return memoryStream;
-      }
-      catch (OutOfMemoryException)
-      {
-        return stream;
-      }
-    }
+      codePageId = (await stream.InspectCodePageAsync(cancellationToken).ConfigureAwait(false)).codePage;
+      stream.Seek(0, SeekOrigin.Begin);
 
-
-    /// <summary>
-    ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
-    ///   Row and Header
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
-    /// <param name="guessCodePage">if true, try to determine the code page</param>
-    /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
-    /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
-    /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
-    /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
-    /// <param name="guessHasHeader">
-    ///   if true, try to determine if the file does have a header row
-    /// </param>
-    /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
-    /// <param name="guessCommentLine"></param>
-    /// <param name="inspectionResult">Default in case inspection is wanted</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
-      bool guessJson, bool guessCodePage, bool guessEscapePrefix,
-      bool guessDelimiter, bool guessQualifier,
-      bool guessStartRow, bool guessHasHeader,
-      bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
-      FillGuessSettings fillGuessSettings,
-      CancellationToken cancellationToken)
-    {
-      if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("File name can not be empty", nameof(fileName));
-
-      var disallowedDelimiter = new List<char>();
-      bool hasFields;
-      var checks = GetNumberOfChecks(guessJson, guessCodePage, guessDelimiter, guessQualifier, guessStartRow,
-        guessHasHeader, guessNewLine, guessCommentLine);
-
-      inspectionResult.FileName = fileName;
-      Logger.Information("Opening file");
-      var sourceAccess = new SourceAccess(fileName);
-      inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
-      using (var usedStream = await GetStreamInMemory(sourceAccess, cancellationToken).ConfigureAwait(false))
-      {
-        do
-        {
-          // IImprovved Stream And MemoryStream do handle this properly
-          usedStream.Seek(0, SeekOrigin.Begin);
-
-          // Determine from file
-          await usedStream.UpdateInspectionResultAsync(
-            inspectionResult,
-            guessJson,
-            guessCodePage,
-            guessEscapePrefix,
-            guessDelimiter,
-            guessQualifier,
-            guessStartRow,
-            guessHasHeader,
-            guessNewLine,
-            guessCommentLine,
-            disallowedDelimiter,
-            cancellationToken).ConfigureAwait(false);
-
-          hasFields = true;
-          // if its a delimited file but we do not have fields,
-          // the delimiter must have been wrong, pick another one, after 3 though give up
-          if (!inspectionResult.IsJson && disallowedDelimiter.Count < 3)
-          {
-            Logger.Information("Reading to check field delimiter", checks+1, true);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            await
-#endif
-            using var reader = GetFileReader(inspectionResult, usedStream);
-            await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-            if (reader.FieldCount == 0)
-            {
-              Logger.Information(
-                $"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative", checks+2,
-                true);
-              hasFields = false;
-              disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
-              // no need to check for Json again
-              guessJson = false;
-            }
-          }
-        } while (!hasFields);
-        if (fillGuessSettings.Enabled)
-        {
-          Logger.Information("Determining column format by reading samples");
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-          using var reader2 = GetFileReader(inspectionResult, usedStream);
-          await reader2.OpenAsync(cancellationToken).ConfigureAwait(false);
-          var (_, b) = await reader2.FillGuessColumnFormatReaderAsyncReader(
-            fillGuessSettings, columnCollectionInput: null,
-            addTextColumns: false, checkDoubleToBeInteger: true, treatTextAsNull: string.Empty,
-            cancellationToken).ConfigureAwait(false);
-          inspectionResult.Columns.AddRangeNoClone(b);
-        }
-      }
-      return inspectionResult;
+      return codePageId;
     }
 
     /// <summary>
-    /// Get a filereader based on InspectionResult and stream
+    /// Get a file reader based on InspectionResult and stream
     /// </summary>
-    /// <param name="inspectionResult"></param>
-    /// <param name="stream"></param>
-    /// <returns></returns>
-    private static IFileReader GetFileReader(InspectionResult inspectionResult, Stream stream)
+    /// <param name="inspectionResult">The Inspection Results with file information</param>
+    /// <param name="stream">Optional: An already open memory stream</param>
+    /// <returns>A <see cref="IFileReader"/> usually a <see cref="CsvFileReader"/></returns>
+    public static IFileReader GetFileReader(this InspectionResult inspectionResult, in Stream? stream)
     {
       if (stream is MemoryStream memStream)
       {
@@ -528,8 +649,7 @@ namespace CsvTools
           fieldDelimiter: inspectionResult.FieldDelimiter,
           fieldQualifier: inspectionResult.FieldQualifier,
           escapeCharacter: inspectionResult.EscapePrefix,
-          recordLimit: 0L,
-          allowRowCombining: false,
+          recordLimit: 0L, allowRowCombining: false,
           contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier,
           commentLine: inspectionResult.CommentLine, numWarning: 0,
           duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape,
@@ -546,126 +666,16 @@ namespace CsvTools
         return new JsonFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
           StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
-      return new CsvFileReader(
-      inspectionResult.FileName, inspectionResult.CodePageId,
-      inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
-      inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter,
-      inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, 0L, false, inspectionResult.ContextSensitiveQualifier,
-      inspectionResult.CommentLine, 0, inspectionResult.DuplicateQualifierToEscape, string.Empty, string.Empty, string.Empty, true, false, false, false, false,
-      false, false, false, false, true, false, string.Empty, true, 4, string.Empty, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
-    }
-
-    /// <summary>
-    ///   Guesses the code page from a stream.
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="token">The token.</param>
-    /// <returns></returns>
-    public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
-    {
-      // Read 256 kBytes
-      int maxlength = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
-      if (maxlength>262144)
-        maxlength =262144;
-      var buff = new byte[maxlength];
-
-      var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
-      if (length >= 2)
-      {
-        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
-        if (byBom != null)
-        {
-          Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(byBom, true)}");
-          return (byBom.CodePage, true);
-        }
-      }
-
-      var detected = EncodingHelper.DetectEncodingNoBom(buff);
-      if (detected.Equals(Encoding.ASCII))
-        detected = Encoding.UTF8;
-      Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(detected, false)}");
-      return (detected.CodePage, false);
-    }
-
-    /// <summary>
-    ///   Determines whether data in the specified stream is a JSON
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="encoding">The encoding.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
-    public static async Task<bool> InspectIsJsonReadableAsync(
-      this Stream stream,
-      Encoding encoding,
-      CancellationToken cancellationToken)
-    {
-      stream.Seek(0, SeekOrigin.Begin);
-      using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-      using var jsonTextReader = new JsonTextReader(streamReader);
-      jsonTextReader.CloseInput = false;
-      try
-      {
-        if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
-        {
-          // ReSharper disable once MergeIntoLogicalPattern
-          if (jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
-                                                                || jsonTextReader.TokenType
-                                                                == JsonToken.StartConstructor)
-          {
-            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            Logger.Information("Detected Json file");
-            return true;
-          }
-        }
-      }
-      catch (JsonReaderException)
-      {
-        //ignore
-      }
-
-      return false;
-    }
-
-    internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId, CancellationToken cancellationToken)
-    {
-      if (codePageId > 0)
-        return codePageId;
-
-      codePageId = (await stream.InspectCodePageAsync(cancellationToken).ConfigureAwait(false)).codePage;
-      stream.Seek(0, SeekOrigin.Begin);
-
-      return codePageId;
-    }
-
-    private static int GetNumberOfChecks(bool guessJson, bool guessCodePage,
-      bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-      bool guessHasHeader, bool guessNewLine, bool guessCommentLine)
-    {
-      var checks = 0;
-      if (guessJson)
-        checks++;
-      if (guessCodePage)
-        checks++;
-      if (guessDelimiter)
-        checks++;
-      if (guessStartRow)
-        checks+=2;
-      if (guessQualifier)
-        checks++;
-      if (guessHasHeader)
-        checks++;
-      if (guessCommentLine)
-        checks++;
-      if (guessNewLine)
-        checks++;
-      // Re-Opening
-      if (guessQualifier || guessDelimiter || guessNewLine)
-        checks++;
-      return checks;
+      return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
+        skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
+        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, fieldDelimiterChar: inspectionResult.FieldDelimiter,
+        fieldQualifierChar: inspectionResult.FieldQualifier, escapeCharacterChar: inspectionResult.EscapePrefix, recordLimit: 0L, allowRowCombining: false,
+        contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier, commentLine: inspectionResult.CommentLine, numWarning: 0,
+        duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape, newLinePlaceholder: string.Empty, delimiterPlaceholder: string.Empty,
+        quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
+        warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false, warnUnknownCharacter: false, warnEmptyTailingColumns: true,
+        treatNbspAsSpace: false, treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4, identifierInContainer: inspectionResult.IdentifierInContainer,
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
     }
   }
 }
