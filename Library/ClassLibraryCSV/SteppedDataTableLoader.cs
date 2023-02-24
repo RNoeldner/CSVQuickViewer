@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class SteppedDataTableLoader : DisposableBase
+  public sealed class SteppedDataTableLoader : DisposableBase
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
@@ -129,9 +129,6 @@ namespace CsvTools
 
       if (m_FileReader != null)
         await m_FileReader.DisposeAsync().ConfigureAwait(false);
-
-      // Suppress finalization.
-      GC.SuppressFinalize(this);
     }
 #endif
 

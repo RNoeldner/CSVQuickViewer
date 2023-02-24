@@ -336,11 +336,7 @@ namespace CsvTools
     private bool m_DisposedValue; // To detect redundant calls
 
     /// <inheritdoc cref="Form" />
-    public new void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
+    public new void Dispose() => Dispose(true);
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
