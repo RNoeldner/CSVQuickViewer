@@ -40,6 +40,9 @@ namespace CsvTools.Tests
     public void CheckDefaults()
     {
       var test = new CsvFile(id: string.Empty, fileName: "Dummy");
+      Assert.AreEqual(FileStettingStatus.None, test.Status, "Status");
+      Assert.AreEqual(string.Empty, test.SqlStatementCData.InnerText, "SqlStatementCData");
+      test.CalculateLatestSourceTime();
       Assert.AreEqual(test.ByteOrderMark, true, "ByteOrderMark");
       Assert.AreEqual(test.CodePageId, 65001, "CodePageId");
       Assert.IsTrue(test.ConsecutiveEmptyRows > 1, "ConsecutiveEmptyRows");
