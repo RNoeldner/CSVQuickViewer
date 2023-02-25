@@ -39,6 +39,7 @@ namespace CsvTools
     private string m_TimePartFormat;
     private string m_TimeZonePart;
     private int m_ColumnOrdinal;
+
 #if XmlSerialization
     [Obsolete("Only needed for XML Serialization")]
     public ColumnMut()
