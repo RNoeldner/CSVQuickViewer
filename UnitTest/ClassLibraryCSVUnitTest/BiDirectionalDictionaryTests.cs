@@ -65,6 +65,26 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void BiDirectionalDictionaryXml()
+
+    {
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
+      //TODO: ReadXml and WriteXml Test
+
+      Assert.IsNull(bi.GetSchema());
+    }
+
+    [TestMethod]
+    public void BiDirectionalDictionaryRemove()
+
+    {
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
+      Assert.AreEqual(2, bi.Count);
+      bi.Remove(1);  
+      Assert.AreEqual(1, bi.Count);
+    }
+
+    [TestMethod]
     public void BiDirectionalDictionaryTryAdd()
 
     {
