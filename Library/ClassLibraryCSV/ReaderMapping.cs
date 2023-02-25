@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 
 namespace CsvTools
 {
@@ -29,10 +28,10 @@ namespace CsvTools
     /// <param name="dataReader">
     ///   <see cref="IDataRecord" /> usually a <see cref="IFileReader" /> or <see cref="IDataReader" />
     /// </param>
-    /// <param name="addStartLine">Add artificial field Start Line</param>
-    /// <param name="addRecNum">Add artificial field Records Number</param>
-    /// <param name="addEndLine">Add artificial field End Line</param>
-    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="addStartLine">Add artificial field Start Line, if false thw data will be passed on from the source (if existing)</param>
+    /// <param name="addRecNum">Add artificial field Records Number, if false thw data will be passed on from the source (if existing)</param>
+    /// <param name="addEndLine">Add artificial field End Line, if false thw data will be passed on from the source (if existing)</param>
+    /// <param name="addErrorField">Add artificial field Error but only if the source does not have the information</param>
     public ReaderMapping(
       in IDataRecord dataReader,
       bool addStartLine,
@@ -44,13 +43,15 @@ namespace CsvTools
       if (fileReader != null)
         m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 
-      // TODO: This is not good, artifical fields from source are ignored
-      // ----------------------------------------------------------------
-      // Better would be to pass them though, at least for Errors
-      // Problem is tht the position possibly needs to be adjusted as bulk copy need teh columns in the same order as the table
       var readerColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var fieldCount = 0;
+      
+      ColNumEndLine = -1;
+      ColNumErrorField = -1;
       ColNumErrorFieldSource = -1;
+      ColNumRecNum = -1;
+      ColNumStartLine = -1;
+      
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
         Column column;
@@ -75,11 +76,10 @@ namespace CsvTools
           ColNumErrorField = col;
         }
 
-        if (// In case we do not add a line, accept the source data
-            (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
-            || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName) && addEndLine)
-            // An Record number is ignore all the time
-            || column.Name.Equals(ReaderConstants.cRecordNumberFieldName) && addRecNum)
+        // In case we do not add an artificial fields, accept the source data
+        if ((column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
+         || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName) && addEndLine)
+         || (column.Name.Equals(ReaderConstants.cRecordNumberFieldName) && addRecNum))
           continue;
 
         m_ReaderColumnNotIgnored.Add(column);
@@ -87,7 +87,7 @@ namespace CsvTools
         m_Mapping.Add(col, fieldCount++);
       }
 
-      // the order of artificial fields must match the order in IDbConnector.CreateTableSQL
+      // Possibly add artificial fields
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {
         ColNumRecNum = fieldCount++;
@@ -96,10 +96,6 @@ namespace CsvTools
             ReaderConstants.cRecordNumberFieldName,
             new ValueFormat(DataTypeEnum.Integer),
             ColNumRecNum));
-      }
-      else
-      {
-        ColNumRecNum = -1;
       }
 
       if (addEndLine && !readerColumns.Contains(ReaderConstants.cEndLineNumberFieldName))
@@ -111,20 +107,12 @@ namespace CsvTools
             new ValueFormat(DataTypeEnum.Integer),
             ColNumEndLine));
       }
-      else
-      {
-        ColNumEndLine = -1;
-      }
 
       if (addErrorField && !readerColumns.Contains(ReaderConstants.cErrorField))
       {
         ColNumErrorField = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
           new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField));
-      }
-      else
-      {
-        ColNumErrorField = -1;
       }
 
       // add fields
@@ -136,10 +124,6 @@ namespace CsvTools
             ReaderConstants.cStartLineNumberFieldName,
             new ValueFormat(DataTypeEnum.Integer),
             ColNumStartLine));
-      }
-      else
-      {
-        ColNumStartLine = -1;
       }
     }
 
