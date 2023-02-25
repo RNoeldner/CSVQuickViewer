@@ -290,7 +290,12 @@ namespace CsvTools
 
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
-            dataRow.SetErrorInformation(dataRow[errorColumn].ToString(), onlyColumnErrors);
+          {
+            var text = dataRow[errorColumn].ToString();
+            if (!string.IsNullOrEmpty(text))
+              dataRow.SetErrorInformation(text, onlyColumnErrors);
+          }
+
           intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
           // This gets the errors from the fileReader

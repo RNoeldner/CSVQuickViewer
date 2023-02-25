@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -110,11 +109,12 @@ namespace CsvTools
     /// <param name="column">The column.</param>
     /// <param name="errorMessage">The error message.</param>
     /// <returns>An error message to be stored</returns>
-    public static string CombineColumnAndError(string? column, in string errorMessage)
+    public static string CombineColumnAndError(string column, in string errorMessage)
     {
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
-      if (string.IsNullOrEmpty(column) && errorMessage[0] == cOpenField)
+      // pass back messages that already have column information
+      if (column.Length==0 && errorMessage[0] == cOpenField)
         return errorMessage;
       return $"{cOpenField}{column}{cClosingField} {errorMessage}";
     }
@@ -129,8 +129,7 @@ namespace CsvTools
       var list = new List<ColumnAndMessage>();
       if (!string.IsNullOrEmpty(row.RowError))
         list.Add(new ColumnAndMessage(string.Empty, row.RowError));
-      list.AddRange(
-        row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
+      list.AddRange(row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
       return BuildList(list);
     }
 
@@ -208,9 +207,6 @@ namespace CsvTools
     /// </returns>
     public static bool IsWarningMessage(this string errorList)
     {
-      if (errorList.Length <= cWarningId.Length)
-        return false;
-
       if (errorList.StartsWith(cWarningId, StringComparison.Ordinal))
         return true;
 
@@ -224,10 +220,10 @@ namespace CsvTools
     /// <summary>
     ///   Stores the error information in a single string
     /// </summary>
-    /// <param name="columnErrors">The column errors.</param>
-    /// <param name="columns">The column names, for replacing the index to the name</param>
-    /// <returns></returns>
-    public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, in IReadOnlyList<string> columns)
+    /// <param name="columnErrors">The column errors by column number</param>
+    /// <param name="columnNames">The column names, for replacing the index to the name</param>
+    /// <returns>The error message with a resulting of the column number to the column name</returns>
+    public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, in IReadOnlyList<string> columnNames)
     {
       if (columnErrors is null || columnErrors.Count == 0)
         return string.Empty;
@@ -238,7 +234,7 @@ namespace CsvTools
       foreach (var entry in columnErrors)
       {
         if (entry.Key < -1) continue;
-        var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
+        var colName = entry.Key >= 0 && columnNames.Count > entry.Key ? columnNames[entry.Key] : string.Empty;
         var start = 0;
         while (start < entry.Value.Length)
         {
@@ -260,7 +256,7 @@ namespace CsvTools
     /// <param name="row">The DataRow that will get the error information</param>
     /// <param name="errorList"></param>
     /// <param name="onlyColumnErrors">If set true, row errors will not be set</param>
-    public static void SetErrorInformation(this DataRow row, string? errorList, bool onlyColumnErrors = false)
+    public static void SetErrorInformation(this DataRow row, string errorList, bool onlyColumnErrors = false)
     {
       row.ClearErrors();
 
@@ -315,25 +311,13 @@ namespace CsvTools
     private static string BuildList(in IEnumerable<ColumnAndMessage> errorList)
     {
       var errors = new StringBuilder();
-
-      // Errors first
-      foreach (var entry in errorList)
-        if (!entry.Message.IsWarningMessage())
-        {
-          if (errors.Length > 0)
-            errors.Append(cSeparator);
-          errors.Append(CombineColumnAndError(entry.Column, entry.Message));
-        }
-
-      foreach (var part in from part in errorList
-                           where part.Message.IsWarningMessage()
-                           select part)
+      // False before True in Linq order by
+      foreach (var entry in errorList.OrderBy(part => part.Message.IsWarningMessage()))
       {
         if (errors.Length > 0)
           errors.Append(cSeparator);
-        errors.Append(CombineColumnAndError(part.Column, part.Message));
+        errors.Append(CombineColumnAndError(entry.Column, entry.Message));
       }
-
       return errors.ToString();
     }
 
@@ -342,9 +326,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static IEnumerable<ColumnAndMessage> ParseList(string? errorList)
+    private static IEnumerable<ColumnAndMessage> ParseList(string errorList)
     {
-      if (errorList is null || errorList.Length == 0)
+      if (errorList.Length == 0)
         yield break;
       var start = 0;
       while (start < errorList.Length)

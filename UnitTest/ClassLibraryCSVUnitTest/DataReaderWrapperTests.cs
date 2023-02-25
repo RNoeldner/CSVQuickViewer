@@ -107,7 +107,6 @@ namespace CsvTools.Tests
       await wrapper.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Error0", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
       await wrapper.ReadAsync(UnitTestStatic.Token);
-
       Assert.AreEqual("Error1", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
     }
     
