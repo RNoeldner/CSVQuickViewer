@@ -4,20 +4,20 @@
 
 <p>@DateTime.Now</p>
 
-<InputFile OnChange="@LoadFiles" multiple />
+<SfUploader></SfUploader>
 
 <div id="wrapper" style="@(showResult ? "display:block" : "display:none")">
-        <table>
-            <tr>
-                <td>Delimiter:</td>
-                <td>@inspectionResult.FieldDelimiter</td>
-            </tr>
-            <tr>
-                <td>Qualifier:</td>
-                <td>@inspectionResult.FieldQualifier</td>
-            </tr>
-        </table>
-        </div>
+    <table>
+        <tr>
+            <td>Delimiter:</td>
+            <td>@inspectionResult.FieldDelimiter</td>
+        </tr>
+        <tr>
+            <td>Qualifier:</td>
+            <td>@inspectionResult.FieldQualifier</td>
+        </tr>
+    </table>
+</div>
 @code {
     InspectionResult inspectionResult = new InspectionResult();
     bool showResult = false;
@@ -26,7 +26,7 @@
     {
         if (e.File.Size < 67108864)
         {
-            using var stream = e.File.OpenReadStream(67108864);
+            await using var stream = e.File.OpenReadStream(67108864);
             using var memoryStream = new MemoryStream(capacity: stream.Length.ToInt());
             await stream.CopyToAsync(memoryStream);
             await memoryStream.UpdateInspectionResultAsync(
