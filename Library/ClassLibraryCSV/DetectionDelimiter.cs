@@ -214,7 +214,7 @@ namespace CsvTools
       return dc;
     }
 
-    public struct DelimiterDetection
+    public readonly struct DelimiterDetection
     {
       public readonly char Delimiter;
       public readonly bool IsDetected;

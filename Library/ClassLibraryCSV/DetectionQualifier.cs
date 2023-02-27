@@ -117,7 +117,7 @@ namespace CsvTools
       var filter = new StringBuilder();
       var last = -1;
 
-      var res = new QuoteTestResult { QuoteChar = quoteChar };
+      var res = new QuoteTestResult (quoteChar);
       // Read simplified text from file
       while (!textReaderPosition.AllRead() && filter.Length < 8000 && !cancellationToken.IsCancellationRequested)
       {
@@ -205,6 +205,14 @@ namespace CsvTools
       public bool EscapedQualifier;
       public char QuoteChar;
       public int Score;
+
+      public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier=false, bool escapedQualifier = false)
+      {
+        QuoteChar = quoteChar;
+        Score = score;
+        DuplicateQualifier = duplicateQualifier;
+        EscapedQualifier = escapedQualifier;
+      }
     }
   }
 }

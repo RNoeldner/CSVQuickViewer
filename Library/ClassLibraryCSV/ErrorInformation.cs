@@ -109,7 +109,7 @@ namespace CsvTools
     /// <param name="column">The column.</param>
     /// <param name="errorMessage">The error message.</param>
     /// <returns>An error message to be stored</returns>
-    public static string CombineColumnAndError(string column, in string errorMessage)
+    public static string CombineColumnAndError(in string column, in string errorMessage)
     {
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
@@ -341,7 +341,7 @@ namespace CsvTools
       }
     }
 
-    public struct ColumnAndMessage
+    public readonly struct ColumnAndMessage
     {
       public readonly string Column;
       public readonly string Message;

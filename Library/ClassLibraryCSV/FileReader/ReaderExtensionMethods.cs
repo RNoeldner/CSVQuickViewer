@@ -267,9 +267,9 @@ namespace CsvTools
         }
 
         if (maxDuration < TimeSpan.MaxValue)
-          Logger.Information("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
+          Logger.Debug("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
         else
-          Logger.Information("Reading all data");
+          Logger.Debug("Reading all data");
 
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
