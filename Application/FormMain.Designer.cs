@@ -253,6 +253,7 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(637, 152);
       this.Name = "FormMain";
       this.Activated += new System.EventHandler(this.FormMain_Activated);
+      this.Load += new System.EventHandler(this.FormMain_Loaded);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileDragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileDragEnter);
