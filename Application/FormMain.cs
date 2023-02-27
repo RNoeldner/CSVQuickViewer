@@ -64,7 +64,7 @@ namespace CsvTools
       InitializeComponent();
       Text = AssemblyTitle;
 
-      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);      
+      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);
 
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
@@ -72,25 +72,6 @@ namespace CsvTools
 
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      
-      ShowTextPanel(false);
-
-      // Handle Events
-      detailControl.BeforeFileStored += BeforeFileStored;
-      detailControl.FileStored += FileStored;
-
-      m_ViewSettings.PropertyChanged += (sender, args) =>
-      {
-        if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
-            args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
-          ApplyViewSettings();
-      };
-      ApplyViewSettings();
-
-      m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed +=
-        async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-      m_SettingsChangedTimerChange.Stop();
     }
 
     /// <summary>
@@ -483,6 +464,26 @@ namespace CsvTools
     private async void FormMain_Activated(object? sender, EventArgs e) =>
       await CheckPossibleChange();
 
+    private void FormMain_Loaded(object? sender, EventArgs e)
+    {
+      // Handle Events
+      detailControl.BeforeFileStored += BeforeFileStored;
+      detailControl.FileStored += FileStored;
+
+      m_ViewSettings.PropertyChanged += (sender, args) =>
+      {
+        if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
+            args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
+          ApplyViewSettings();
+      };
+      ApplyViewSettings();
+
+      m_SettingsChangedTimerChange.AutoReset = false;
+      m_SettingsChangedTimerChange.Elapsed +=
+        async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+      m_SettingsChangedTimerChange.Stop();
+      ShowTextPanel(false);
+    }
     private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
@@ -649,7 +650,7 @@ namespace CsvTools
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
         using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
         frm.ShowDialog(this);
-        await m_ViewSettings.SaveViewSettingsAsync();        
+        await m_ViewSettings.SaveViewSettingsAsync();
         if (m_FileSetting != null)
         {
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;

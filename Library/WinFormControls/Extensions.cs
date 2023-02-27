@@ -153,7 +153,8 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        await action.Invoke().ConfigureAwait(false);
+        // this should not use ConfigureAwait(false);
+        await action.Invoke();
       }
       finally
       {
@@ -326,8 +327,8 @@ namespace CsvTools
           catch (Exception)
           {
           }
-
-        await action.InvokeWithHourglassAsync().ConfigureAwait(false);
+        // this should not use ConfigureAwait(false);
+        await action.InvokeWithHourglassAsync();
       }
       catch (ObjectDisposedException)
       {
@@ -355,6 +356,13 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Disabled the control wile an async process is execution, handled mouse pointer and error handling
+    /// </summary>
+    /// <param name="control"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>        
     public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
     {
       if (control is null)
@@ -364,7 +372,8 @@ namespace CsvTools
       try
       {
         control.SafeInvoke(() => control.Enabled = false);
-        await action.InvokeWithHourglassAsync().ConfigureAwait(false);
+        // this should not use ConfigureAwait(false);
+        await action.InvokeWithHourglassAsync();
       }
       catch (ObjectDisposedException)
       {
