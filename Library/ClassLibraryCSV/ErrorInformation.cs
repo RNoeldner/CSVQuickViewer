@@ -47,6 +47,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <param name="newError">A new message that should be added to the list</param>
+    /// <param name="isWarning"><c>true</c> if this message is a warning</param>
     /// <returns>
     ///   A new error list text, if the message was already contained is not added a second time,
     ///   usually messages are appended, unless they are errors and the list contains only warnings
