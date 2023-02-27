@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Benchmark
 {
-
   [MemoryDiagnoser]
   [Orderer(BenchmarkDotNet.Order.SummaryOrderPolicy.FastestToSlowest)]
   [RankColumn]

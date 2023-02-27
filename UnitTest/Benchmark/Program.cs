@@ -1,4 +1,4 @@
 ﻿using Benchmark;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<BenchmarkCsvFilePerformance>();
+BenchmarkRunner.Run<BenchmarkAddRowLoadData>();
