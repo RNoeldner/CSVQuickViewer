@@ -52,6 +52,51 @@ namespace CsvTools
     ///   usually messages are appended, unless they are errors and the list contains only warnings
     ///   so far
     /// </returns>
+    public static string AddMessage(this string errorList, in string newError, bool isWarning)
+    {
+      if (string.IsNullOrEmpty(newError))
+        throw new ArgumentException("Error can not be empty", nameof(newError));
+
+      // no need to check for null
+      if (errorList.Length == 0)
+        return newError;
+
+      // if the message is already in the text do not do anything
+      if (errorList.Contains(newError))
+        return errorList;
+
+      var sb = new StringBuilder(errorList.Length + newError.Length +1);
+
+      // If the new message is considered an error put it in front, this way its easier to check if
+      // there is an error
+      if (isWarning)
+      {
+        // Append to previous messages
+        sb.Append(errorList);
+        sb.Append(cSeparator);
+        sb.Append(cWarningId);
+        sb.Append(newError);
+      }
+      else
+      {
+        // Put in front of previous messages, to have errors first
+        sb.Append(newError);
+        sb.Append(cSeparator);
+        sb.Append(errorList);
+      }
+
+      return sb.ToString();
+    }
+       /// <summary>
+    ///   String method to append a message an error list text
+    /// </summary>
+    /// <param name="errorList">A text containing different types of messages that are concatenated</param>
+    /// <param name="newError">A new message that should be added to the list</param>
+    /// <returns>
+    ///   A new error list text, if the message was already contained is not added a second time,
+    ///   usually messages are appended, unless they are errors and the list contains only warnings
+    ///   so far
+    /// </returns>
     public static string AddMessage(this string errorList, in string newError)
     {
       if (string.IsNullOrEmpty(newError))
