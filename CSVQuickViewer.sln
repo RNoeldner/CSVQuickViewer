@@ -50,7 +50,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI7", "Setu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maui", "Maui\Maui\Maui.csproj", "{99143B33-F33B-4E5C-9A40-72BF8F3C28A5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAssembly", "WebAssembly", "{A8D1F64F-D770-4E8D-8918-A8C143B74D5F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAssembly_Blazor", "WebAssembly_Blazor", "{A8D1F64F-D770-4E8D-8918-A8C143B74D5F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewerWebAssembly", "CSVQuickViewerWebAssembly\CSVQuickViewerWebAssembly.csproj", "{C370031D-C5C4-4741-937C-51914C1202B7}"
 EndProject

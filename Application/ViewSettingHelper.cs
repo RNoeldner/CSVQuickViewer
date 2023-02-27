@@ -9,7 +9,10 @@ namespace CsvTools
       m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 
     private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.json";
-
+    
+    /// <summary>
+    /// Load the ViewSettings in the fileSystem
+    /// </summary>
     public static async Task<ViewSettings> LoadViewSettingsAsync()
     {
       try
@@ -25,6 +28,7 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Store the ViewSettings in teh fileSystem
     /// </summary>
     public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
     {

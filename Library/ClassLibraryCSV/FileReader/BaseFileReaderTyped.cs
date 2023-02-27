@@ -39,6 +39,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
     /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
+    // ReSharper disable once MemberCanBePrivate.Global
     protected object? GetCurrentValue(int ordinal)
     {
       if (ordinal < 0 || ordinal >= FieldCount)

@@ -6,12 +6,12 @@ namespace CsvTools
   {
     None,
 
+    [ShortDescription("LF")]
     [Description("Line feed (Unix)")]
-    [ShortDescription("LF")] 
     Lf,
 
+    [ShortDescription("CR")]
     [Description("Carriage Return (rarly used)")]
-    [ShortDescription("CR")] 
     Cr = 2,
 
     [ShortDescription("CR LF")]
@@ -23,15 +23,15 @@ namespace CsvTools
     Lfcr = 4,
 
     [ShortDescription("RS")]
-    [Description("Record Seperator (QNX rarly used)")] 
+    [Description("Record Seperator (QNX rarly used)")]
     Rs = 5,
 
-    [ShortDescription("Us")]
-    [Description("Unit Seperator (rarly used)")] 
+    [ShortDescription("US")]
+    [Description("Unit Seperator (rarly used)")]
     Us = 6,
 
     [ShortDescription("NL")]
-    [Description("NewLine (IBM mainframe)")] 
+    [Description("NewLine (IBM mainframe)")]
     Nl = 7
   }
 }

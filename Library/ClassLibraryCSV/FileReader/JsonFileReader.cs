@@ -37,6 +37,7 @@ namespace CsvTools
 
     private StreamReader? m_StreamReader;
 
+    // ReSharper disable once UnusedMember.Global
     public JsonFileReader(
       in Stream stream,
       in IEnumerable<Column>? columnDefinition,
@@ -90,6 +91,15 @@ namespace CsvTools
 
     public new void Dispose() => Dispose(true);
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    public new async ValueTask DisposeAsync()
+    {
+      if (m_ImprovedStream != null)
+        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+      Dispose(false);
+    }
+#endif
+
     public override async Task OpenAsync(CancellationToken token)
     {
       HandleShowProgress($"Opening JSON file {FileName}", 0);
@@ -106,7 +116,7 @@ namespace CsvTools
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         // read additional rows to see if we have some extra columns
-        while (line != null)
+        while (line.Count != 0)
         {
           foreach (var keyValue in line)
             if (!colNames.ContainsKey(keyValue.Key))
@@ -138,18 +148,6 @@ namespace CsvTools
       }
     }
 
-    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
-
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing) m_ImprovedStream?.Dispose();
-
-      m_StreamReader?.Dispose();
-      (m_JsonTextReader as IDisposable)?.Dispose();
-      m_JsonTextReader = null;
-      m_ImprovedStream = null;
-    }
-
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
       if (!EndOfFile && !cancellationToken.IsCancellationRequested)
@@ -165,6 +163,18 @@ namespace CsvTools
       EndOfFile = true;
       HandleReadFinished();
       return false;
+    }
+
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing) m_ImprovedStream?.Dispose();
+
+      m_StreamReader?.Dispose();
+      (m_JsonTextReader as IDisposable)?.Dispose();
+      m_JsonTextReader = null;
+      m_ImprovedStream = null;
     }
 
     /// <inheritdoc />
@@ -185,7 +195,7 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private async Task<ICollection<KeyValuePair<string, object?>>> GetNextRecordAsync(CancellationToken token)
+    private async Task<IReadOnlyCollection<KeyValuePair<string, object?>>> GetNextRecordAsync(CancellationToken token)
     {
       if (m_JsonTextReader is null)
         throw new FileReaderOpenException();
@@ -306,6 +316,7 @@ namespace CsvTools
               var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 
+              // ReSharper disable once MergeIntoPattern
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
                 CurrentRowColumnText[columnNumber] =
@@ -376,13 +387,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new async ValueTask DisposeAsync()
-    {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
-      Dispose(false);
-    }
-#endif
+
   }
 }
