@@ -50,6 +50,7 @@ namespace CsvTools
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     protected long RecordLimit;
 
     private IProgress<ProgressInfo>? m_ReportProgress;

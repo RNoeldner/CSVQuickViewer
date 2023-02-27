@@ -33,11 +33,13 @@ namespace CsvTools
     /// <summary>
     ///   Constant: Line has fewer columns than expected
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public const string cLessColumns = " has fewer columns than expected";
 
     /// <summary>
     ///   Constant: Line has more columns than expected
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public const string cMoreColumns = " has more columns than expected";
 
     /// <summary>

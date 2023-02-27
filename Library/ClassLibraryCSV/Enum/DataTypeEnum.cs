@@ -71,14 +71,14 @@ namespace CsvTools
     ///   A String or VarChar, but do some basic HTML encoding, "Encode HTML (Linefeed only)"
     /// </summary>
     [Description("Encode HTML (CData, Linefeed, List)")]
-    [ShortDescription("HTML Basic")]
+    [ShortDescription("HTML Min")]
     TextToHtml = 11,
 
     /// <summary>
     ///   A String or VarChar, but do some advanced HTML encoding, "Encode HTML"
     /// </summary>
     [Description("Encode HTML ('<' -> '&lt;')")]
-    [ShortDescription("HTML Full")]
+    [ShortDescription("HTML")]
     TextToHtmlFull = 12,
 
     /// <summary>

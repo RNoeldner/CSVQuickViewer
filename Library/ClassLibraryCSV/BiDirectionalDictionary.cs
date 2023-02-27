@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 #if XmlSerialization
 using System.Xml.Serialization;
 #endif
@@ -49,9 +50,9 @@ namespace CsvTools
       while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
       {
         reader.ReadStartElement("item");
-        var key = (TKey) keySerializer.Deserialize(reader);
-        var value = (TValue) valueSerializer.Deserialize(reader);
-        Add(key!, value!);
+        var key = (TKey) (keySerializer.Deserialize(reader) ?? throw new InvalidOperationException("Deserializing Dictionary Key"));
+        var value = (TValue) (valueSerializer.Deserialize(reader) ?? throw new InvalidOperationException("Deserializing Dictionary Value"));
+        Add(key, value);
         reader.ReadEndElement();
         reader.MoveToContent();
       }

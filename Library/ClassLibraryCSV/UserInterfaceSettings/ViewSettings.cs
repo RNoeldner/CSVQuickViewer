@@ -15,7 +15,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace CsvTools
 {
@@ -23,7 +22,10 @@ namespace CsvTools
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
-  public sealed class ViewSettings : ObservableObject, IFontConfig
+  public sealed class ViewSettings : ObservableObject
+#if !QUICK
+    , IFontConfig
+#endif
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
@@ -40,29 +42,27 @@ namespace CsvTools
     private bool m_WarnEmptyTailingColumns = true;
     private bool m_WarnLineFeed = true;
     private bool m_WarnNbsp = true;
-    private bool m_WarnQuotes = true;    
+    private bool m_WarnQuotes = true;
     private bool m_WarnUnknownCharacter = true;
+#if !QUICK
+    // ReSharper disable once StringLiteralTypo
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
+#endif
     private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
-    private readonly ICsvFile m_WriteSetting = new CsvFile(id: "Write", fileName: string.Empty);
     private int m_ShowButtonAtLength = 2000;
 
     public enum Duration
     {
-      [Description("unlimited")] Unlimited,
-
-      [Description("1/2 second")] HalfSecond,
-
-      [Description("1 second")] Second,
-
-      [Description("2 seconds")] TwoSecond,
-
-      [Description("10 seconds")] TenSecond,
+      [Description("unlimited")][ShortDescription("∞")] Unlimited,
+      [Description("1/2 second")][ShortDescription("½ s")] HalfSecond,
+      [Description("1 second")][ShortDescription("1 s")] Second,
+      [Description("2 seconds")][ShortDescription("2 s")] TwoSecond,
+      [Description("10 seconds")][ShortDescription("10 s")] TenSecond,
     }
 
     [DefaultValue(".")]
@@ -72,6 +72,8 @@ namespace CsvTools
       set;
     } = ".";
 
+#if !QUICK
+    // ReSharper disable once StringLiteralTypo
     [DefaultValue("Tahoma")]
     public string Font
     {
@@ -85,9 +87,9 @@ namespace CsvTools
       get => m_FontSize;
       set => SetProperty(ref m_FontSize, value);
     }
+#endif
 
     public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
-
 
     [DefaultValue(false)]
     public bool DisplayRecordNo
@@ -103,13 +105,6 @@ namespace CsvTools
       set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
-    public WindowState WindowPosition
-    {
-      get;
-      set;
-    } = new WindowState(10, 10, 600, 600, FormWindowState.Normal, 0);
-
-
     [DefaultValue(true)]
     public bool AllowJson
     {
@@ -124,11 +119,10 @@ namespace CsvTools
       set => SetProperty(ref m_DetectFileChanges, value);
     }
 
+#if !QUICK
     [JsonIgnore]
-    public ICsvFile WriteSetting
-    {
-      get => m_WriteSetting;
-    }
+    public ICsvFile WriteSetting { get; } = new CsvFile(id: "Write", fileName: string.Empty);
+#endif
 
     [JsonIgnore]
     public TimeSpan DurationTimeSpan
@@ -296,29 +290,30 @@ namespace CsvTools
       set => SetProperty(ref m_ShowButtonAtLength, value);
     }
 
+#if !QUICK
     public void DeriveWriteSetting(IFileSetting fileSetting)
     {
-      fileSetting.CopyTo(m_WriteSetting);
+      fileSetting.CopyTo(WriteSetting);
 
       // Fix No Qualifier
-      if (m_WriteSetting.FieldQualifierChar == 0)
-        m_WriteSetting.FieldQualifierChar = '"';
+      if (WriteSetting.FieldQualifierChar == 0)
+        WriteSetting.FieldQualifierChar = '"';
 
       // Fix No DuplicateQualifier
-      if (!m_WriteSetting.DuplicateQualifierToEscape && m_WriteSetting.FieldQualifierChar == '"' && m_WriteSetting.EscapePrefixChar== char.MinValue)
-        m_WriteSetting.DuplicateQualifierToEscape = true;
+      if (!WriteSetting.DuplicateQualifierToEscape && WriteSetting.FieldQualifierChar == '"' && WriteSetting.EscapePrefixChar== char.MinValue)
+        WriteSetting.DuplicateQualifierToEscape = true;
 
       // Fix No Delimiter
-      if (m_WriteSetting.FieldDelimiterChar == 0)
-        m_WriteSetting.FieldDelimiterChar = '\t';
+      if (WriteSetting.FieldDelimiterChar == 0)
+        WriteSetting.FieldDelimiterChar = '\t';
 
       // NewLine depending on Environment
       if (Environment.NewLine == "\r\n")
-        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Crlf;
+        WriteSetting.NewLine = RecordDelimiterTypeEnum.Crlf;
       else if (Environment.NewLine == "\n")
-        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Lf;
+        WriteSetting.NewLine = RecordDelimiterTypeEnum.Lf;
       else if (Environment.NewLine == "\r")
-        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Cr;
+        WriteSetting.NewLine = RecordDelimiterTypeEnum.Cr;
     }
 
     public void PassOnConfiguration(in IFileSetting fileSetting)
@@ -335,6 +330,6 @@ namespace CsvTools
       fileSetting.DisplayStartLineNo = DisplayStartLineNo;
       fileSetting.DisplayRecordNo = DisplayRecordNo;
     }
-
+#endif
   }
 }

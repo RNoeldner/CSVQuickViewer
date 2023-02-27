@@ -14,7 +14,6 @@
 
 #nullable enable
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -73,8 +72,7 @@ namespace CsvTools
 
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-
+      
       ShowTextPanel(false);
 
       // Handle Events
@@ -89,10 +87,6 @@ namespace CsvTools
       };
       ApplyViewSettings();
 
-#pragma warning disable CA1416
-      SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
-#pragma warning restore CA1416
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
         async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
@@ -501,8 +495,6 @@ namespace CsvTools
       if (e.CloseReason != CloseReason.UserClosing) return;
       Logger.Debug("Closing Form");
 
-      var res = this.StoreWindowState();
-      m_ViewSettings.WindowPosition = res;
       await m_ViewSettings.SaveViewSettingsAsync();
       await SaveIndividualFileSettingAsync();
     }
@@ -696,34 +688,6 @@ namespace CsvTools
       }
     }
 
-
-#if !NETFRAMEWORK
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-#endif
-
-    private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-
-#if !NETFRAMEWORK
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-#endif
-
-    private void SystemEvents_PowerModeChanged(object? sender, PowerModeChangedEventArgs e)
-    {
-      switch (e.Mode)
-      {
-        case PowerModes.Suspend:
-          Logger.Debug("Power Event Suspend");
-          var res = this.StoreWindowState();
-          m_ViewSettings.WindowPosition = res;
-          break;
-
-        case PowerModes.Resume:
-          Logger.Debug("Power Event Resume");
-          this.LoadWindowState(m_ViewSettings.WindowPosition);
-          break;
-      }
-    }
 
     private void ButtonAsText(bool asText)
     {

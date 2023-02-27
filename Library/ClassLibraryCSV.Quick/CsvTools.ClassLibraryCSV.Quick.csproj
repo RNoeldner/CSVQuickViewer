@@ -56,7 +56,7 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="FileReader\ReaderExtensionMethods.cs" />
-
+		<Compile Include="..\ClassLibraryCSV\UserInterfaceSettings\ViewSettings.cs" Link="UserInterfaceSettings\ViewSettings.cs" />
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />

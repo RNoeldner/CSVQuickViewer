@@ -34,6 +34,7 @@ namespace CsvTools
   /// </remarks>
   public class DataReaderWrapper : DbDataReader, IFileReader
   {
+    // ReSharper disable once MemberCanBePrivate.Global
     protected readonly IFileReader? FileReader;
     public readonly ReaderMapping ReaderMapping;
     protected IDataReader DataReader;
@@ -48,6 +49,7 @@ namespace CsvTools
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     /// <param name="addErrorField">Add artificial field Error</param>
+    // ReSharper disable once MemberCanBeProtected.Global
     public DataReaderWrapper(
       in IDataReader reader,
       bool addStartLine = false,
@@ -97,7 +99,7 @@ namespace CsvTools
       bool addErrorField = false) : this(fileReader as IDataReader, addStartLine, addEndLine, addRecNum, addErrorField)
     {
       if (addErrorField)
-        fileReader.Warning += (sender, e) => m_RowsWithIssue.Add(e.RecordNumber);
+        fileReader.Warning += (_, e) => m_RowsWithIssue.Add(e.RecordNumber);
     }
 
     /// <inheritdoc />
@@ -224,6 +226,7 @@ namespace CsvTools
 
       return -1;
     }
+
     /// <inheritdoc />
     public override DataTable GetSchemaTable()
     {
@@ -256,6 +259,7 @@ namespace CsvTools
 
       return dataTable;
     }
+
     /// <inheritdoc />
     public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal)) ?? string.Empty;
 
@@ -273,7 +277,7 @@ namespace CsvTools
         // in case the source did have an #Error column pass this on, in case empty use the error  Information        
         return (ReaderMapping.ColNumErrorFieldSource != -1) ? DataReader.GetValue(ReaderMapping.ColNumErrorFieldSource) : ReaderMapping.RowErrorInformation;
       }
-      return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal)) ?? DBNull.Value;
+      return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal));
     }
 
     /// <inheritdoc />
