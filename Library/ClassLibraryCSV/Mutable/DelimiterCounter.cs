@@ -39,11 +39,11 @@ namespace CsvTools
     /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
     /// if you know that a delimiter is defiantly not suitable.</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter, char fieldQualifier)
+    public DelimiterCounter(int numRows, IEnumerable<char> disallowedDelimiter, char fieldQualifier)
     {
       NumRows = numRows;
       m_FieldQualifier = fieldQualifier;
-      Separators = new string((disallowedDelimiter == null ? StaticCollections.DelimiterChars : StaticCollections.DelimiterChars.Where(x => !disallowedDelimiter.Contains(x))).ToArray());
+      Separators = new string((StaticCollections.DelimiterChars.Where(x => !disallowedDelimiter.Contains(x))).ToArray());
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
       SeparatorScore= new int[Separators.Length];

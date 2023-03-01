@@ -40,7 +40,7 @@ namespace CsvTools
         m_IgnoredColumns.Add(col);
       }
 
-      reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
+      reader.Warning += (_, args) => { Add(args.ColumnNumber, args.Message); };
     }
 
     /// <summary>

@@ -126,7 +126,7 @@ namespace CsvTools
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
           guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-          null, cancellationToken).ConfigureAwait(false);
+          Array.Empty<char>(), cancellationToken).ConfigureAwait(false);
       }
 
       if (fillGuessSettings.Enabled)
@@ -431,7 +431,7 @@ namespace CsvTools
       bool guessHasHeader,
       bool guessNewLine,
       bool guessCommentLine,
-      IEnumerable<char>? disallowedDelimiter,
+      IReadOnlyCollection<char> disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (stream is null)
@@ -494,8 +494,8 @@ CommentLine
       tryCount++;
       bool changedEscapePrefix = false;
       bool changedDelimiter = false;
-      bool chnagedFieldQualifier = false;
-      bool chnagedSkipRows = false;
+      bool changedFieldQualifier = false;
+      bool changedSkipRows = false;
 
       if (guessCommentLine)  // Dependent on SkipRows
       {
@@ -510,9 +510,9 @@ CommentLine
       {
         Logger.Information("Checking Escape Prefix");
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        var newPrefiix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
-        changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefiix);
-        inspectionResult.EscapePrefix =  newPrefiix;
+        var newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
+        changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
+        inspectionResult.EscapePrefix =  newPrefix;
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
@@ -524,7 +524,7 @@ CommentLine
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
           var qualifier = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
-          chnagedFieldQualifier = inspectionResult.FieldQualifier != qualifier.QuoteChar;
+          changedFieldQualifier = inspectionResult.FieldQualifier != qualifier.QuoteChar;
           inspectionResult.FieldQualifier = qualifier.QuoteChar;
           inspectionResult.ContextSensitiveQualifier= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
           inspectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
@@ -534,7 +534,8 @@ CommentLine
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
-          var delimiterDet = await textReader.InspectDelimiterAsync(inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+          var delimiterDet = await textReader.InspectDelimiterAsync(
+            inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             inspectionResult.SkipRows++;
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
@@ -551,7 +552,7 @@ CommentLine
         }        
       }
 
-      if (guessEscapePrefix && (changedDelimiter || chnagedFieldQualifier) && tryCount<5)
+      if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount<5)
       {
         Logger.Information("Re-Checking: Field Delimiter or Field Qualifier changed");
         goto retest;
@@ -564,11 +565,11 @@ CommentLine
         // find start row again , with possibly changed FieldDelimiter
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
         var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
-        chnagedSkipRows = inspectionResult.SkipRows != newSkipRows;
+        changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;
       }
 
-      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) && (chnagedSkipRows || changedEscapePrefix || chnagedFieldQualifier) && tryCount<5)
+      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) && (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount<5)
       {
         Logger.Information("Re-Checking: Skip Rows, Escape Prefix or Field Qualifier changed");
         goto retest;
