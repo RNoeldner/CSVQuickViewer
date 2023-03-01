@@ -551,6 +551,7 @@ namespace CsvTools
       // Assume the text stays the same, it could only be shorter
       var result = new char[inputValue.Length];
       int pos = 0;
+      // ReSharper disable once ForCanBeConvertedToForeach
       for (int i = 0; i < inputValue.Length; i++)
       {
         if (inputValue[i] == old1)
@@ -785,8 +786,10 @@ namespace CsvTools
       }
 
       foreach (var ot in other)
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (ot is null)
         {
+          // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
           if (!selfCol.Any(x => x is null))
             return false;
         }

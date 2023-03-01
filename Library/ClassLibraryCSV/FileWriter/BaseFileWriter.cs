@@ -394,6 +394,7 @@ namespace CsvTools
             return columnInfo.ColumnFormatter.Write(dataObject, reader,
               msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
+          // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
           return Convert.ToString(dataObject) ?? string.Empty;
       }
     }
@@ -428,6 +429,7 @@ namespace CsvTools
       {
         // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
         // original value
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         displayAs = Convert.ToString(dataObject) ?? string.Empty;
         if (string.IsNullOrEmpty(displayAs))
           HandleError(columnInfo.Name, ex.Message);
@@ -439,6 +441,7 @@ namespace CsvTools
                                 + ex.Message);
       }
 
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       return displayAs ?? string.Empty;
     }
   }

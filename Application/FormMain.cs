@@ -470,7 +470,7 @@ namespace CsvTools
       detailControl.BeforeFileStored += BeforeFileStored;
       detailControl.FileStored += FileStored;
 
-      m_ViewSettings.PropertyChanged += (sender, args) =>
+      m_ViewSettings.PropertyChanged += (o, args) =>
       {
         if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
             args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
@@ -480,7 +480,7 @@ namespace CsvTools
 
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
-        async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+        async (o, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
       m_SettingsChangedTimerChange.Stop();
       ShowTextPanel(false);
     }

@@ -261,6 +261,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
     public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal)) ?? string.Empty;
 
     /// <inheritdoc />
