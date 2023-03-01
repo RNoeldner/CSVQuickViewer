@@ -169,7 +169,9 @@ namespace CsvTools
         //{
         // formProgress.Maximum = 0;
         // formProgress.ShowWithFont(this);
-
+        
+        // make sure old columns are removed
+        m_ViewSettings.DefaultInspectionResult.Columns.Clear();
         var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
           m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
