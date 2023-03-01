@@ -313,6 +313,7 @@ namespace CsvTools
             }
             else
             {
+              // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
               var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 

@@ -108,7 +108,7 @@ namespace CsvTools
     public static string ExecutableDirectoryName()
     {
       var directory = Assembly.GetExecutingAssembly().Location;
-      if (directory is null || directory.Length == 0)
+      if (directory.Length == 0)
         directory = Assembly.GetEntryAssembly()?.Location ?? string.Empty;
 
       return (directory.Length == 0

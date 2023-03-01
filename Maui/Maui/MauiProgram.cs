@@ -21,9 +21,7 @@ namespace Maui
       builder.UseMauiApp<App>().UseMauiCommunityToolkit();
       Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NzE1MjcyQDMyMzAyZTMyMmUzMGFGaTZnK0FmbDhhMjRZSlpGUVV0UmRoNGFwT3diRUxGZWZWM1JXcmFYRE09");
       builder.ConfigureSyncfusionCore();
-      
-      
-      
+
       return builder.Build();
     }
   }

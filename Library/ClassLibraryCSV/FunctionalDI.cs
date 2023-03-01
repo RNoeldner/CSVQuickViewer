@@ -35,7 +35,7 @@ namespace CsvTools
     /// Currently only used in <see cref="SourceAccess"/> to gte the passphrase for a PGP encrypted file
     /// </note>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
+    public static Func<string, string> GetEncryptedPassphraseForFile = _ => string.Empty;
 
     /// <summary>
     ///   Open a <see cref="SourceAccess"/> for reading in a stream, will take care of things like compression and encryption

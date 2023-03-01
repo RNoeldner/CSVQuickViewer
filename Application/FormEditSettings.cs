@@ -296,6 +296,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       if (cboCodePage.SelectedItem != null)
         codePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
       SetDefaultInspectionResult();
+      // ReSharper disable once ConvertTypeCheckPatternToNullCheck
       if (m_FileSetting is IFileSettingPhysicalFile physicalFile && codePageId!=null)
         physicalFile.CodePageId = codePageId.Value;
       ValidateChildren();
