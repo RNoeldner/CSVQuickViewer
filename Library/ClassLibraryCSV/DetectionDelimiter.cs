@@ -25,7 +25,7 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       char fieldQualifierChar,
       char escapePrefixChar,
-      IEnumerable<char>? disallowedDelimiter,
+      IEnumerable<char> disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null)
@@ -175,7 +175,7 @@ namespace CsvTools
       char quoteCharacter,
       char escapeCharacter,
       int numRows,
-      IEnumerable<char>? disallowedDelimiter,
+      IEnumerable<char> disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null)

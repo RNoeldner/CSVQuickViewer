@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace CsvTools.Tests
 {
@@ -22,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterTest()
     {
-      var i = new DelimiterCounter(100, null, '"');
+      var i = new DelimiterCounter(100, Array.Empty<char>(), '"');
       Assert.AreEqual(100, i.NumRows);
       Assert.AreEqual(0, i.FilledRows);
     }
@@ -30,7 +31,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterScore()
     {
-      var i = new DelimiterCounter(100, null, '"');
+      var i = new DelimiterCounter(100, Array.Empty<char>(), '"');
       Assert.AreEqual(100, i.NumRows);
       
       i.CheckChar(';', ';');
@@ -60,7 +61,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterCheckCharTest()
     {
-      var i = new DelimiterCounter(50, null, '"');
+      var i = new DelimiterCounter(50, Array.Empty<char>(), '"');
       Assert.IsFalse(i.CheckChar('a', char.MinValue));
       Assert.IsTrue(i.CheckChar(';', char.MinValue));
     }
