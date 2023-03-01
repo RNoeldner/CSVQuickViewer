@@ -207,7 +207,11 @@ namespace CsvTools
           continue;
 
         if (readChar == '\n' || readChar == '\r')
-          dc.LastRow++;
+        {
+          if (readChar == '\n' && lastChar != '\r' ||
+              readChar == '\r' && lastChar != '\n' )
+            dc.LastRow++;          
+        }          
         else
           dc.CheckChar(readChar, lastChar);
       }
