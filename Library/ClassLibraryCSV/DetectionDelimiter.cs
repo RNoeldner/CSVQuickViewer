@@ -109,7 +109,7 @@ namespace CsvTools
           }
 
           // if a lot rows do not have a columns disregard the delimiter
-          if (intEmptyRows  < totalRows * 2 /3)
+          if (intEmptyRows  > totalRows * 2 /3)
             continue;
 
           // Get the average of the rows
