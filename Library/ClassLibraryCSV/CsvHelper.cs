@@ -549,7 +549,7 @@ CommentLine
           Logger.Information("Checking Record Delimiter");
           stream.Seek(0, SeekOrigin.Begin);
           inspectionResult.NewLine = textReader.InspectRecordDelimiter(inspectionResult.FieldQualifier, cancellationToken);
-        }        
+        }
       }
 
       if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount<5)
@@ -563,13 +563,14 @@ CommentLine
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Start line");
         // find start row again , with possibly changed FieldDelimiter
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
         var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;
       }
 
-      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) && (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount<5)
+      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
+          (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount<5)
       {
         Logger.Information("Re-Checking: Skip Rows, Escape Prefix or Field Qualifier changed");
         goto retest;

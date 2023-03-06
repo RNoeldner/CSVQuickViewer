@@ -22,7 +22,7 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false, true,
-        null, UnitTestStatic.Token);
+        Array.Empty<char>(), UnitTestStatic.Token);
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false,
-       false, null, UnitTestStatic.Token);
+       false,         Array.Empty<char>(), UnitTestStatic.Token);
 
       impStream.Seek(0, SeekOrigin.Begin);
 
