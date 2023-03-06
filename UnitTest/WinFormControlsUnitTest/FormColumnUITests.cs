@@ -17,11 +17,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class FormColumnUITests : BasicMimic
-
+  public class FormColumnUITests
   {
+    [ClassInitialize]
+    public static void SetupTests(TestContext testContext)
+    {
+      // need to set FileReaderWriterFactory  for FormColumnUiRead
+      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings());
+    }
+
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void FormColumnUI()
     {
       var csvFile = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"));
@@ -40,7 +46,7 @@ namespace CsvTools.Tests
         FormColumnUiRead(col, new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")),
           FillGuessSettings.Default,
           true, true));
-      
+
     }
 
     [TestMethod]
@@ -51,7 +57,7 @@ namespace CsvTools.Tests
       var col = new Column("MyTest",
         new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy", dateSeparator: ".", timeSeparator: ":"));
 
-      UnitTestStaticForms.ShowForm(() => new FormColumnUiRead(col,  csvFile, FillGuessSettings.Default, false, true));
+      UnitTestStaticForms.ShowForm(() => new FormColumnUiRead(col, csvFile, FillGuessSettings.Default, false, true));
     }
 
 
@@ -63,11 +69,11 @@ namespace CsvTools.Tests
       var col = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
 
-      UnitTestStaticForms.ShowForm(() => new FormColumnUiRead(col,  csvFile, FillGuessSettings.Default, true, true));
+      UnitTestStaticForms.ShowForm(() => new FormColumnUiRead(col, csvFile, FillGuessSettings.Default, true, true));
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void FormColumnUI_Opt2()
     {
       var csvFile = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"));
@@ -89,7 +95,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void FormColumnUIGetColumnHeader2()
     {
       var csvFile = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"));

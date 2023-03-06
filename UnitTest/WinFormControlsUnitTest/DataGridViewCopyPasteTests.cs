@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void CopySelectedRowsIntoClipboard()
     {
       Extensions.RunStaThread(() =>

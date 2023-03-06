@@ -12,3 +12,5 @@
 Row Number|ID|Document version|Status|Extract ID|Status|Message
 1|7897034636|3|Effective|2368|Error|Cannot be modified now.^Date cannot be modified now
 15|9897034636|3|Planned|5|Warning|Date is in the future
+16|9897034636|4|Planned|5|Warning|Date is in the future
+17|9897034636|5|Planned|4|Warning|Date is in the future

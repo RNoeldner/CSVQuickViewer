@@ -22,7 +22,6 @@
 	  <None Remove=".runsettings" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Include="..\..\..\FileValidator\UnitTest\ClassLibraryValidatorUnitTest\UnitTestInitialize.cs" Link="UnitTestInitialize.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
@@ -33,8 +32,8 @@
 	  </Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.0.2" />		
-		<ProjectReference Include="..\..\..\FileValidator\Library\ClassLibraryValidator\CsvTools.ClassLibraryValidator.csproj" />
+		<PackageReference Include="MSTest" Version="3.0.2" />
+		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 	</ItemGroup>
 	<ItemGroup>
