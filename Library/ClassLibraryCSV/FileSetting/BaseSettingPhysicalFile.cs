@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Security;
 using System.Text;
 #if XmlSerialization
 using System.Xml.Serialization;
@@ -39,7 +40,7 @@ namespace CsvTools
     private string m_FullPath = string.Empty;
     private bool m_FullPathInitialized;
     private string m_IdentifierInContainer = string.Empty;
-    private string m_PassPhrase = string.Empty;
+    private SecureString m_PassPhrase = new SecureString();
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
@@ -214,11 +215,10 @@ namespace CsvTools
     [XmlIgnore]
 #endif
     [JsonIgnore]
-    [DefaultValue("")]
-    public virtual string Passphrase
+    public virtual SecureString Passphrase
     {
       get => m_PassPhrase;
-      set => SetProperty(ref m_PassPhrase, value ?? string.Empty);
+      set => SetProperty(ref m_PassPhrase, value);
     }
 
     /// <inheritdoc />
@@ -328,7 +328,7 @@ namespace CsvTools
           || fileSettingPhysicalFile.FileSize != FileSize)
         return false;
 
-      if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal)
+      if (!fileSettingPhysicalFile.Passphrase.GetText().Equals(Passphrase.GetText(), StringComparison.Ordinal)
           || fileSettingPhysicalFile.KeyID != KeyID)
         return false;
 

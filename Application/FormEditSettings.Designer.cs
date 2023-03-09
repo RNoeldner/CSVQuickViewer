@@ -33,27 +33,30 @@ namespace CsvTools
             this.buttonGuessCP = new System.Windows.Forms.Button();
             this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
             this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
-            this.label5 = new System.Windows.Forms.Label();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.buttonSkipLine = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBoxTextAsNull = new System.Windows.Forms.TextBox();
             this.checkBoxGuessDelimiter = new System.Windows.Forms.CheckBox();
             this.buttonGuessHeader = new System.Windows.Forms.Button();
             this.checkBoxBOM = new System.Windows.Forms.CheckBox();
             this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
-            this.buttonInteractiveSettings = new System.Windows.Forms.Button();
-            this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
             this.buttonGuessLineComment = new System.Windows.Forms.Button();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.buttonGuessTextQualifier = new System.Windows.Forms.Button();
-            this.checkBoxCheckQuote = new System.Windows.Forms.CheckBox();
             this.quotingControl = new CsvTools.QuotingControl();
-            this.checkBoxDetermineEscape = new System.Windows.Forms.CheckBox();
             this.buttonEscapeSequence = new System.Windows.Forms.Button();
+            this.textBoxDelimiter = new CsvTools.PunctuationTextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
+            this.buttonInteractiveSettings = new System.Windows.Forms.Button();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBoxTextAsNull = new System.Windows.Forms.TextBox();
+            this.checkBoxCheckQuote = new System.Windows.Forms.CheckBox();
             this.labelEscape = new System.Windows.Forms.Label();
             this.textBoxEscapeRead = new CsvTools.PunctuationTextBox();
-            this.textBoxDelimiter = new CsvTools.PunctuationTextBox();
+            this.checkBoxDetermineEscape = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBoxKeyFileRead = new System.Windows.Forms.TextBox();
+            this.buttonKeyFileRead = new System.Windows.Forms.Button();
             this.checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
             this.checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
             this.checkBoxTreatUnknowCharaterAsSpace = new System.Windows.Forms.CheckBox();
@@ -97,6 +100,7 @@ namespace CsvTools
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPageWrite = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelWrite = new System.Windows.Forms.TableLayoutPanel();
+            this.quotingControlWrite = new CsvTools.QuotingControl();
             this.label11 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -104,16 +108,12 @@ namespace CsvTools
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxWriteDelim = new CsvTools.PunctuationTextBox();
             this.cboWriteCodePage = new System.Windows.Forms.ComboBox();
-            this.buttonNewLine = new System.Windows.Forms.Button();
             this.labelEscapeWrite = new System.Windows.Forms.Label();
             this.textBoxEscapeWrite = new CsvTools.PunctuationTextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBoxKeyFileRead = new System.Windows.Forms.TextBox();
-            this.buttonKeyFileRead = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
+            this.buttonNewLine = new System.Windows.Forms.Button();
             this.buttonKeyFileWrite = new System.Windows.Forms.Button();
             this.textBoxKeyFileWrite = new System.Windows.Forms.TextBox();
-            this.quotingControlWrite = new CsvTools.QuotingControl();
             this.tableLayoutPanelFile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
@@ -193,7 +193,7 @@ namespace CsvTools
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelFile.Size = new System.Drawing.Size(762, 451);
+            this.tableLayoutPanelFile.Size = new System.Drawing.Size(737, 451);
             this.tableLayoutPanelFile.TabIndex = 0;
             // 
             // labelDelimitedFile
@@ -246,6 +246,7 @@ namespace CsvTools
             this.textBoxFile.Name = "textBoxFile";
             this.textBoxFile.Size = new System.Drawing.Size(466, 20);
             this.textBoxFile.TabIndex = 0;
+            this.textBoxFile.TextChanged += new System.EventHandler(this.textBoxFile_TextChanged);
             this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
             // 
             // buttonGuessDelimiter
@@ -256,7 +257,7 @@ namespace CsvTools
             this.buttonGuessDelimiter.Location = new System.Drawing.Point(580, 83);
             this.buttonGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-            this.buttonGuessDelimiter.Size = new System.Drawing.Size(180, 23);
+            this.buttonGuessDelimiter.Size = new System.Drawing.Size(155, 23);
             this.buttonGuessDelimiter.TabIndex = 13;
             this.buttonGuessDelimiter.Text = "Detect Delimiter";
             this.buttonGuessDelimiter.UseVisualStyleBackColor = true;
@@ -269,7 +270,7 @@ namespace CsvTools
             this.btnOpenFile.Location = new System.Drawing.Point(580, 2);
             this.btnOpenFile.Margin = new System.Windows.Forms.Padding(2);
             this.btnOpenFile.Name = "btnOpenFile";
-            this.btnOpenFile.Size = new System.Drawing.Size(180, 23);
+            this.btnOpenFile.Size = new System.Drawing.Size(155, 23);
             this.btnOpenFile.TabIndex = 1;
             this.btnOpenFile.Text = "Select File";
             this.btnOpenFile.UseVisualStyleBackColor = true;
@@ -334,7 +335,7 @@ namespace CsvTools
             this.buttonGuessCP.Location = new System.Drawing.Point(580, 56);
             this.buttonGuessCP.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessCP.Name = "buttonGuessCP";
-            this.buttonGuessCP.Size = new System.Drawing.Size(180, 23);
+            this.buttonGuessCP.Size = new System.Drawing.Size(155, 23);
             this.buttonGuessCP.TabIndex = 9;
             this.buttonGuessCP.Text = "Detect Code Page";
             this.buttonGuessCP.UseVisualStyleBackColor = true;
@@ -359,31 +360,6 @@ namespace CsvTools
             this.bindingSourceViewSetting.AllowNew = false;
             this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
             // 
-            // label5
-            // 
-            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(25, 143);
-            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(81, 13);
-            this.label5.TabIndex = 18;
-            this.label5.Text = "Skip First Lines:";
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessStartRow", true));
-            this.checkBox2.Location = new System.Drawing.Point(411, 141);
-            this.checkBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(111, 17);
-            this.checkBox2.TabIndex = 21;
-            this.checkBox2.Text = "Inspect Start Row";
-            this.toolTip.SetToolTip(this.checkBox2, "If checked inspect file to determine the start row");
-            this.checkBox2.UseVisualStyleBackColor = true;
-            // 
             // buttonSkipLine
             // 
             this.buttonSkipLine.AutoSize = true;
@@ -392,36 +368,11 @@ namespace CsvTools
             this.buttonSkipLine.Location = new System.Drawing.Point(580, 137);
             this.buttonSkipLine.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSkipLine.Name = "buttonSkipLine";
-            this.buttonSkipLine.Size = new System.Drawing.Size(180, 23);
+            this.buttonSkipLine.Size = new System.Drawing.Size(155, 23);
             this.buttonSkipLine.TabIndex = 22;
             this.buttonSkipLine.Text = "Detect Start Row";
             this.buttonSkipLine.UseVisualStyleBackColor = true;
             this.buttonSkipLine.Click += new System.EventHandler(this.ButtonSkipLine_ClickAsync);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(2, 172);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(104, 13);
-            this.label1.TabIndex = 23;
-            this.label1.Text = "Treat Text as NULL:";
-            // 
-            // textBoxTextAsNull
-            // 
-            this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {
-            "NULL",
-            "n.a.",
-            "n/a"});
-            this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "TreatTextAsNull", true));
-            this.textBoxTextAsNull.Location = new System.Drawing.Point(110, 166);
-            this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
-            this.textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
-            this.textBoxTextAsNull.Name = "textBoxTextAsNull";
-            this.textBoxTextAsNull.Size = new System.Drawing.Size(62, 20);
-            this.textBoxTextAsNull.TabIndex = 24;
             // 
             // checkBoxGuessDelimiter
             // 
@@ -445,7 +396,7 @@ namespace CsvTools
             this.buttonGuessHeader.Location = new System.Drawing.Point(580, 29);
             this.buttonGuessHeader.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessHeader.Name = "buttonGuessHeader";
-            this.buttonGuessHeader.Size = new System.Drawing.Size(180, 23);
+            this.buttonGuessHeader.Size = new System.Drawing.Size(155, 23);
             this.buttonGuessHeader.TabIndex = 4;
             this.buttonGuessHeader.Text = "Detect Header";
             this.buttonGuessHeader.UseVisualStyleBackColor = true;
@@ -479,30 +430,6 @@ namespace CsvTools
             this.toolTip.SetToolTip(this.checkBoxGuessCodePage, "If checked inspect file to determine character encoding");
             this.checkBoxGuessCodePage.UseVisualStyleBackColor = true;
             // 
-            // buttonInteractiveSettings
-            // 
-            this.buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonInteractiveSettings.Location = new System.Drawing.Point(335, 137);
-            this.buttonInteractiveSettings.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonInteractiveSettings.Name = "buttonInteractiveSettings";
-            this.buttonInteractiveSettings.Size = new System.Drawing.Size(62, 25);
-            this.buttonInteractiveSettings.TabIndex = 20;
-            this.buttonInteractiveSettings.Text = "...";
-            this.toolTip.SetToolTip(this.buttonInteractiveSettings, "Interactive Skip First Lines");
-            this.buttonInteractiveSettings.UseVisualStyleBackColor = true;
-            this.buttonInteractiveSettings.Click += new System.EventHandler(this.ButtonInteractiveSettings_Click);
-            // 
-            // numericUpDownSkipRows
-            // 
-            this.numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceCsvFile, "SkipRows", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.numericUpDownSkipRows.Location = new System.Drawing.Point(111, 139);
-            this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
-            this.numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
-            this.numericUpDownSkipRows.TabIndex = 19;
-            this.toolTip.SetToolTip(this.numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
-            this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
-            // 
             // buttonGuessLineComment
             // 
             this.buttonGuessLineComment.AutoSize = true;
@@ -511,7 +438,7 @@ namespace CsvTools
             this.buttonGuessLineComment.Location = new System.Drawing.Point(580, 110);
             this.buttonGuessLineComment.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessLineComment.Name = "buttonGuessLineComment";
-            this.buttonGuessLineComment.Size = new System.Drawing.Size(180, 23);
+            this.buttonGuessLineComment.Size = new System.Drawing.Size(155, 23);
             this.buttonGuessLineComment.TabIndex = 17;
             this.buttonGuessLineComment.Text = "Detect Comment";
             this.buttonGuessLineComment.UseVisualStyleBackColor = true;
@@ -539,11 +466,136 @@ namespace CsvTools
             this.buttonGuessTextQualifier.Location = new System.Drawing.Point(580, 166);
             this.buttonGuessTextQualifier.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-            this.buttonGuessTextQualifier.Size = new System.Drawing.Size(180, 25);
+            this.buttonGuessTextQualifier.Size = new System.Drawing.Size(155, 25);
             this.buttonGuessTextQualifier.TabIndex = 26;
             this.buttonGuessTextQualifier.Text = "Detect Text Qualifier";
             this.buttonGuessTextQualifier.UseVisualStyleBackColor = true;
             this.buttonGuessTextQualifier.Click += new System.EventHandler(this.ButtonGuessTextQualifier_Click);
+            // 
+            // quotingControl
+            // 
+            this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
+            this.tableLayoutPanelFile.SetColumnSpan(this.quotingControl, 6);
+            this.quotingControl.Location = new System.Drawing.Point(4, 252);
+            this.quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
+            this.quotingControl.Name = "quotingControl";
+            this.quotingControl.Size = new System.Drawing.Size(729, 194);
+            this.quotingControl.TabIndex = 34;
+            // 
+            // buttonEscapeSequence
+            // 
+            this.buttonEscapeSequence.AutoSize = true;
+            this.buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonEscapeSequence.Location = new System.Drawing.Point(580, 195);
+            this.buttonEscapeSequence.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonEscapeSequence.Name = "buttonEscapeSequence";
+            this.buttonEscapeSequence.Size = new System.Drawing.Size(155, 23);
+            this.buttonEscapeSequence.TabIndex = 30;
+            this.buttonEscapeSequence.Text = "Detect Escape";
+            this.buttonEscapeSequence.UseVisualStyleBackColor = true;
+            this.buttonEscapeSequence.Click += new System.EventHandler(this.buttonEscapeSequence_Click);
+            // 
+            // textBoxDelimiter
+            // 
+            this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
+            "Tab",
+            ",",
+            ";",
+            "،",
+            "؛",
+            "|",
+            "¦",
+            "￤",
+            "*",
+            "`",
+            "US",
+            "RS",
+            "GS",
+            "FS"});
+            this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+            this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldDelimiterChar", true));
+            this.textBoxDelimiter.Location = new System.Drawing.Point(111, 84);
+            this.textBoxDelimiter.Name = "textBoxDelimiter";
+            this.textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
+            this.textBoxDelimiter.TabIndex = 11;
+            this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(25, 143);
+            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(81, 13);
+            this.label5.TabIndex = 18;
+            this.label5.Text = "Skip First Lines:";
+            // 
+            // numericUpDownSkipRows
+            // 
+            this.numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceCsvFile, "SkipRows", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numericUpDownSkipRows.Location = new System.Drawing.Point(111, 139);
+            this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
+            this.numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
+            this.numericUpDownSkipRows.TabIndex = 19;
+            this.toolTip.SetToolTip(this.numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
+            this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
+            // 
+            // buttonInteractiveSettings
+            // 
+            this.buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonInteractiveSettings.Location = new System.Drawing.Point(335, 137);
+            this.buttonInteractiveSettings.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonInteractiveSettings.Name = "buttonInteractiveSettings";
+            this.buttonInteractiveSettings.Size = new System.Drawing.Size(62, 25);
+            this.buttonInteractiveSettings.TabIndex = 20;
+            this.buttonInteractiveSettings.Text = "...";
+            this.toolTip.SetToolTip(this.buttonInteractiveSettings, "Interactive Skip First Lines");
+            this.buttonInteractiveSettings.UseVisualStyleBackColor = true;
+            this.buttonInteractiveSettings.Click += new System.EventHandler(this.ButtonInteractiveSettings_Click);
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessStartRow", true));
+            this.checkBox2.Location = new System.Drawing.Point(411, 141);
+            this.checkBox2.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(111, 17);
+            this.checkBox2.TabIndex = 21;
+            this.checkBox2.Text = "Inspect Start Row";
+            this.toolTip.SetToolTip(this.checkBox2, "If checked inspect file to determine the start row");
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(2, 172);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 13);
+            this.label1.TabIndex = 23;
+            this.label1.Text = "Treat Text as NULL:";
+            // 
+            // textBoxTextAsNull
+            // 
+            this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {
+            "NULL",
+            "n.a.",
+            "n/a"});
+            this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "TreatTextAsNull", true));
+            this.textBoxTextAsNull.Location = new System.Drawing.Point(110, 166);
+            this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
+            this.textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
+            this.textBoxTextAsNull.Name = "textBoxTextAsNull";
+            this.textBoxTextAsNull.Size = new System.Drawing.Size(62, 20);
+            this.textBoxTextAsNull.TabIndex = 24;
             // 
             // checkBoxCheckQuote
             // 
@@ -557,44 +609,6 @@ namespace CsvTools
             this.checkBoxCheckQuote.TabIndex = 25;
             this.checkBoxCheckQuote.Text = "Inspect Text Qualifier";
             this.checkBoxCheckQuote.UseVisualStyleBackColor = true;
-            // 
-            // quotingControl
-            // 
-            this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
-            this.tableLayoutPanelFile.SetColumnSpan(this.quotingControl, 6);
-            this.quotingControl.Location = new System.Drawing.Point(4, 252);
-            this.quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
-            this.quotingControl.Name = "quotingControl";
-            this.quotingControl.Size = new System.Drawing.Size(754, 194);
-            this.quotingControl.TabIndex = 34;
-            // 
-            // checkBoxDetermineEscape
-            // 
-            this.checkBoxDetermineEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.checkBoxDetermineEscape.AutoSize = true;
-            this.checkBoxDetermineEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessEscapePrefix", true));
-            this.checkBoxDetermineEscape.Location = new System.Drawing.Point(411, 198);
-            this.checkBoxDetermineEscape.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBoxDetermineEscape.Name = "checkBoxDetermineEscape";
-            this.checkBoxDetermineEscape.Size = new System.Drawing.Size(152, 17);
-            this.checkBoxDetermineEscape.TabIndex = 29;
-            this.checkBoxDetermineEscape.Text = "Inspect Escape Sequence";
-            this.checkBoxDetermineEscape.UseVisualStyleBackColor = true;
-            // 
-            // buttonEscapeSequence
-            // 
-            this.buttonEscapeSequence.AutoSize = true;
-            this.buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonEscapeSequence.Location = new System.Drawing.Point(580, 195);
-            this.buttonEscapeSequence.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonEscapeSequence.Name = "buttonEscapeSequence";
-            this.buttonEscapeSequence.Size = new System.Drawing.Size(180, 23);
-            this.buttonEscapeSequence.TabIndex = 30;
-            this.buttonEscapeSequence.Text = "Detect Escape";
-            this.buttonEscapeSequence.UseVisualStyleBackColor = true;
-            this.buttonEscapeSequence.Click += new System.EventHandler(this.buttonEscapeSequence_Click);
             // 
             // labelEscape
             // 
@@ -626,31 +640,57 @@ namespace CsvTools
         "t. ");
             this.textBoxEscapeRead.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
             // 
-            // textBoxDelimiter
+            // checkBoxDetermineEscape
             // 
-            this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab",
-            ",",
-            ";",
-            "،",
-            "؛",
-            "|",
-            "¦",
-            "￤",
-            "*",
-            "`",
-            "US",
-            "RS",
-            "GS",
-            "FS"});
-            this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-            this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldDelimiterChar", true));
-            this.textBoxDelimiter.Location = new System.Drawing.Point(111, 84);
-            this.textBoxDelimiter.Name = "textBoxDelimiter";
-            this.textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
-            this.textBoxDelimiter.TabIndex = 11;
-            this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
+            this.checkBoxDetermineEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.checkBoxDetermineEscape.AutoSize = true;
+            this.checkBoxDetermineEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessEscapePrefix", true));
+            this.checkBoxDetermineEscape.Location = new System.Drawing.Point(411, 198);
+            this.checkBoxDetermineEscape.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxDetermineEscape.Name = "checkBoxDetermineEscape";
+            this.checkBoxDetermineEscape.Size = new System.Drawing.Size(152, 17);
+            this.checkBoxDetermineEscape.TabIndex = 29;
+            this.checkBoxDetermineEscape.Text = "Inspect Escape Sequence";
+            this.checkBoxDetermineEscape.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(53, 227);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(53, 13);
+            this.label3.TabIndex = 31;
+            this.label3.Text = "PGP Key:";
+            // 
+            // textBoxKeyFileRead
+            // 
+            this.textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+            this.tableLayoutPanelFile.SetColumnSpan(this.textBoxKeyFileRead, 4);
+            this.textBoxKeyFileRead.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "KeyFileRead", true));
+            this.textBoxKeyFileRead.Location = new System.Drawing.Point(110, 222);
+            this.textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
+            this.textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
+            this.textBoxKeyFileRead.Name = "textBoxKeyFileRead";
+            this.textBoxKeyFileRead.Size = new System.Drawing.Size(466, 20);
+            this.textBoxKeyFileRead.TabIndex = 32;
+            this.toolTip.SetToolTip(this.textBoxKeyFileRead, "For reading a PGP encrypted file you will need the location private key and the p" +
+        "assphrase, the passphrase will be check interactively");
+            // 
+            // buttonKeyFileRead
+            // 
+            this.buttonKeyFileRead.AutoSize = true;
+            this.buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonKeyFileRead.Location = new System.Drawing.Point(580, 222);
+            this.buttonKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonKeyFileRead.Name = "buttonKeyFileRead";
+            this.buttonKeyFileRead.Size = new System.Drawing.Size(155, 23);
+            this.buttonKeyFileRead.TabIndex = 33;
+            this.buttonKeyFileRead.Text = "Select File";
+            this.buttonKeyFileRead.UseVisualStyleBackColor = true;
+            this.buttonKeyFileRead.Click += new System.EventHandler(this.buttonKeyFileRead_Click);
             // 
             // checkBoxTreatNBSPAsSpace
             // 
@@ -1241,7 +1281,7 @@ namespace CsvTools
             this.tabPageFile.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFile.Name = "tabPageFile";
             this.tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFile.Size = new System.Drawing.Size(766, 454);
+            this.tabPageFile.Size = new System.Drawing.Size(741, 454);
             this.tabPageFile.TabIndex = 6;
             this.tabPageFile.Text = "Read Settings";
             // 
@@ -1256,7 +1296,7 @@ namespace CsvTools
             this.tabControl.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(774, 480);
+            this.tabControl.Size = new System.Drawing.Size(749, 480);
             this.tabControl.TabIndex = 0;
             // 
             // tabPageWrite
@@ -1266,7 +1306,7 @@ namespace CsvTools
             this.tabPageWrite.Location = new System.Drawing.Point(4, 22);
             this.tabPageWrite.Name = "tabPageWrite";
             this.tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageWrite.Size = new System.Drawing.Size(766, 454);
+            this.tabPageWrite.Size = new System.Drawing.Size(741, 454);
             this.tabPageWrite.TabIndex = 10;
             this.tabPageWrite.Text = "Write Settings";
             // 
@@ -1311,8 +1351,21 @@ namespace CsvTools
             this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelWrite.Size = new System.Drawing.Size(760, 339);
+            this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanelWrite.Size = new System.Drawing.Size(735, 359);
             this.tableLayoutPanelWrite.TabIndex = 0;
+            // 
+            // quotingControlWrite
+            // 
+            this.quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
+            this.tableLayoutPanelWrite.SetColumnSpan(this.quotingControlWrite, 5);
+            this.quotingControlWrite.IsWriteSetting = true;
+            this.quotingControlWrite.Location = new System.Drawing.Point(9, 158);
+            this.quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
+            this.quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
+            this.quotingControlWrite.Name = "quotingControlWrite";
+            this.quotingControlWrite.Size = new System.Drawing.Size(712, 176);
+            this.quotingControlWrite.TabIndex = 18;
             // 
             // label11
             // 
@@ -1413,18 +1466,6 @@ namespace CsvTools
             this.cboWriteCodePage.TabIndex = 1;
             this.cboWriteCodePage.ValueMember = "ID";
             // 
-            // buttonNewLine
-            // 
-            this.buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonNewLine.Location = new System.Drawing.Point(572, 51);
-            this.buttonNewLine.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonNewLine.Name = "buttonNewLine";
-            this.buttonNewLine.Size = new System.Drawing.Size(146, 25);
-            this.buttonNewLine.TabIndex = 8;
-            this.buttonNewLine.Text = "Source Record Seperation";
-            this.buttonNewLine.UseVisualStyleBackColor = true;
-            this.buttonNewLine.Click += new System.EventHandler(this.GuessNewline_Click);
-            // 
             // labelEscapeWrite
             // 
             this.labelEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -1454,55 +1495,28 @@ namespace CsvTools
             this.textBoxEscapeWrite.TabIndex = 10;
             this.textBoxEscapeWrite.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
             // 
-            // label3
-            // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(53, 227);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 13);
-            this.label3.TabIndex = 31;
-            this.label3.Text = "PGP Key:";
-            // 
-            // textBoxKeyFileRead
-            // 
-            this.textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-            this.tableLayoutPanelFile.SetColumnSpan(this.textBoxKeyFileRead, 4);
-            this.textBoxKeyFileRead.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "KeyFileRead", true));
-            this.textBoxKeyFileRead.Location = new System.Drawing.Point(110, 222);
-            this.textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
-            this.textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
-            this.textBoxKeyFileRead.Name = "textBoxKeyFileRead";
-            this.textBoxKeyFileRead.Size = new System.Drawing.Size(466, 20);
-            this.textBoxKeyFileRead.TabIndex = 32;
-            this.toolTip.SetToolTip(this.textBoxKeyFileRead, "For reading a PGP encrypted file you will need the private key and the passphrase" +
-        ", the passphrase will be check interactively");
-            // 
-            // buttonKeyFileRead
-            // 
-            this.buttonKeyFileRead.AutoSize = true;
-            this.buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonKeyFileRead.Location = new System.Drawing.Point(580, 222);
-            this.buttonKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonKeyFileRead.Name = "buttonKeyFileRead";
-            this.buttonKeyFileRead.Size = new System.Drawing.Size(180, 23);
-            this.buttonKeyFileRead.TabIndex = 33;
-            this.buttonKeyFileRead.Text = "Select File";
-            this.buttonKeyFileRead.UseVisualStyleBackColor = true;
-            this.buttonKeyFileRead.Click += new System.EventHandler(this.buttonKeyFileRead_Click);
-            // 
             // label7
             // 
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(58, 131);
+            this.label7.Location = new System.Drawing.Point(58, 133);
             this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(53, 13);
             this.label7.TabIndex = 15;
             this.label7.Text = "PGP Key:";
+            // 
+            // buttonNewLine
+            // 
+            this.buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonNewLine.Location = new System.Drawing.Point(572, 51);
+            this.buttonNewLine.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonNewLine.Name = "buttonNewLine";
+            this.buttonNewLine.Size = new System.Drawing.Size(149, 25);
+            this.buttonNewLine.TabIndex = 8;
+            this.buttonNewLine.Text = "Source Record Seperation";
+            this.buttonNewLine.UseVisualStyleBackColor = true;
+            this.buttonNewLine.Click += new System.EventHandler(this.GuessNewline_Click);
             // 
             // buttonKeyFileWrite
             // 
@@ -1510,7 +1524,7 @@ namespace CsvTools
             this.buttonKeyFileWrite.Location = new System.Drawing.Point(572, 128);
             this.buttonKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
             this.buttonKeyFileWrite.Name = "buttonKeyFileWrite";
-            this.buttonKeyFileWrite.Size = new System.Drawing.Size(149, 20);
+            this.buttonKeyFileWrite.Size = new System.Drawing.Size(149, 23);
             this.buttonKeyFileWrite.TabIndex = 17;
             this.buttonKeyFileWrite.Text = "Select File";
             this.buttonKeyFileWrite.UseVisualStyleBackColor = true;
@@ -1528,24 +1542,13 @@ namespace CsvTools
             this.textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
             this.textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
             this.textBoxKeyFileWrite.TabIndex = 33;
-            // 
-            // quotingControlWrite
-            // 
-            this.quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
-            this.tableLayoutPanelWrite.SetColumnSpan(this.quotingControlWrite, 5);
-            this.quotingControlWrite.IsWriteSetting = true;
-            this.quotingControlWrite.Location = new System.Drawing.Point(9, 155);
-            this.quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
-            this.quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
-            this.quotingControlWrite.Name = "quotingControlWrite";
-            this.quotingControlWrite.Size = new System.Drawing.Size(712, 176);
-            this.quotingControlWrite.TabIndex = 18;
+            this.toolTip.SetToolTip(this.textBoxKeyFileWrite, "Location of Public PGP key in case a PGP encrypted file should be written.");
             // 
             // FormEditSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(774, 480);
+            this.ClientSize = new System.Drawing.Size(749, 480);
             this.Controls.Add(this.tabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(2);

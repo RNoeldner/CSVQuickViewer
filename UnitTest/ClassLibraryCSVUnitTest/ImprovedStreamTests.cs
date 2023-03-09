@@ -171,7 +171,7 @@ namespace CsvTools.Tests
 
       var sourceAccess = new SourceAccess(fullname, false);
       if (string.IsNullOrEmpty(password))
-        sourceAccess.Passphrase = password;
+        sourceAccess.Passphrase = password.ToSecureString();
       if (!string.IsNullOrEmpty(internalName))
         sourceAccess.IdentifierInContainer = internalName;
 
@@ -192,7 +192,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
       sourceAccess = new SourceAccess(fullname);
       if (string.IsNullOrEmpty(password))
-        sourceAccess.Passphrase = password;
+        sourceAccess.Passphrase = password.ToSecureString();
 
       using (var improvedStream = new ImprovedStream(sourceAccess))
       {

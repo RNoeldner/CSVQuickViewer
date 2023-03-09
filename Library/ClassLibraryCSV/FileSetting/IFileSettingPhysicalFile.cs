@@ -12,7 +12,7 @@
  *
  */
 
-using System.ComponentModel;
+using System.Security;
 
 namespace CsvTools
 {
@@ -48,7 +48,7 @@ namespace CsvTools
     /// <summary>
     ///   Passphrase for Decryption
     /// </summary>
-    string Passphrase { get; set; }
+    SecureString Passphrase { get; set; }
 
     /// <summary>
     ///   Gets the PGP encryption Key ID

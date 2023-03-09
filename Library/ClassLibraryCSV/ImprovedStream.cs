@@ -143,10 +143,8 @@ namespace CsvTools
         if (!FileSystemUtils.FileExists(fn))
           throw new FileNotFoundException($"Could not find not encrypted file {fn} for encryption");
 
-        PgpHelper.EncryptFileAsync(fn, m_SourceAccess.FullPath, m_SourceAccess.PublicKey!,
-          null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+        m_SourceAccess.PublicKey!.EncryptFileAsync(fn, m_SourceAccess.FullPath, null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
       }
-
     }
 #endif
 
@@ -193,7 +191,7 @@ namespace CsvTools
     /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
-
+    
     public new void Dispose() => Dispose(true);
 
     /// <inheritdoc cref="Stream.Flush()"/>
@@ -223,7 +221,7 @@ namespace CsvTools
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
-    
+
     /// <summary>   Sets the position within the current stream.  IImprovedStream will allow you to seek to the beginning of a actually non seekable stream by re-opening the stream </summary>
     /// <param name="offset"> A byte offset relative to the origin parameter.</param>
     /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
@@ -306,7 +304,7 @@ namespace CsvTools
     /// <summary>
     /// Depending on type call call other Methods to work with teh stream
     /// </summary>
-    private  void OpenByFileType(FileTypeEnum fileType)
+    private void OpenByFileType(FileTypeEnum fileType)
     {
       switch (fileType)
       {
@@ -342,13 +340,12 @@ namespace CsvTools
       // Reading / Decrypting
       if (m_SourceAccess.Reading)
       {
-        
         try
         {
           Logger.Debug("Decrypt PGP file {filename}", m_SourceAccess.Identifier);
 
-          m_StreamClosedFirst = PgpHelper.GetReadStream(BaseStream, m_SourceAccess.PrivateKey!,
-          m_SourceAccess.Passphrase, out m_StreamClosedSecond, out m_StreamClosedThird);
+          m_StreamClosedFirst = m_SourceAccess.PrivateKey!.GetReadStream(m_SourceAccess.Passphrase, BaseStream,
+            out m_StreamClosedSecond, out m_StreamClosedThird);
           AccessStream = m_StreamClosedFirst;
         }
         catch (Exception ex)
@@ -367,7 +364,7 @@ namespace CsvTools
             m_SourceAccess.KeyID);
 
           // Access Stream will be the PgpLiteralDataGenerator (last stream opened)
-          m_StreamClosedFirst = PgpHelper.GetWriteStream(BaseStream, m_SourceAccess.PublicKey!, out m_StreamClosedSecond, out m_StreamClosedThird);
+          m_StreamClosedFirst = PgpHelper.GetWriteStream(m_SourceAccess.PublicKey!, BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
           AccessStream = m_StreamClosedFirst;
         }
         else
@@ -439,8 +436,8 @@ namespace CsvTools
       {
         m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, m_SourceAccess.LeaveOpen);
 
-        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
-          m_ZipFile.Password = m_SourceAccess.Passphrase;
+        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase.GetText()))
+          m_ZipFile.Password = m_SourceAccess.Passphrase.GetText();
         var hasFile = false;
         if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
         {
@@ -483,8 +480,8 @@ namespace CsvTools
       else
       {
         var zipOutputStream = new ZipOutputStream(BaseStream, cBufferSize);
-        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
-          zipOutputStream.Password = m_SourceAccess.Passphrase;
+        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase.GetText()))
+          zipOutputStream.Password = m_SourceAccess.Passphrase.GetText();
         zipOutputStream.IsStreamOwner = false;
         zipOutputStream.SetLevel(5);
         if (m_SourceAccess.IdentifierInContainer.Length == 0)

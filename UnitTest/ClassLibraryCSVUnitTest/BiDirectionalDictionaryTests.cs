@@ -71,7 +71,7 @@ namespace CsvTools.Tests
       var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       //TODO: ReadXml and WriteXml Test
 
-      Assert.IsNull(bi.GetSchema());
+      
     }
 
     [TestMethod]

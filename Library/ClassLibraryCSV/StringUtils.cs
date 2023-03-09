@@ -29,6 +29,32 @@ namespace CsvTools
   [DebuggerStepThrough]
   public static class StringUtils
   {
+    public static string GetText(this System.Security.SecureString secPassword)
+    {
+      var unmanagedString = IntPtr.Zero;
+      try
+      {
+        unmanagedString = System.Runtime.InteropServices.Marshal.SecureStringToGlobalAllocUnicode(secPassword);
+        return System.Runtime.InteropServices.Marshal.PtrToStringUni(unmanagedString) ?? string.Empty;
+      }
+      finally
+      {
+        System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+      }
+    }
+
+    public static System.Security.SecureString ToSecureString(this string text)
+    {
+      if (text is null)
+        throw new ArgumentNullException(nameof(text));
+      var securePassword = new System.Security.SecureString();
+
+      foreach (var c in text)
+        securePassword.AppendChar(c);
+
+      securePassword.MakeReadOnly();
+      return securePassword;
+    }
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref

@@ -54,6 +54,9 @@
 	  <Compile Update="FormColumnUIRead.cs">
 	    <SubType>Form</SubType>
 	  </Compile>
+	  <Compile Update="FormPassphrase.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
 		<Compile Update="FormTextDisplay.cs">
 	    <SubType>Form</SubType>
 	  </Compile>
