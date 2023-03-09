@@ -16,14 +16,14 @@ namespace CsvTools.Tests
     public async Task GuessHasHeaderAsync()
     {
       using (var stream =
-             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
+             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       {
         using var reader = new ImprovedTextReader(stream);
         Assert.IsFalse(
           string.IsNullOrEmpty(await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token)));
       }
 
-      using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
+      using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       {
         using var reader = new ImprovedTextReader(stream);
         Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token));
@@ -32,7 +32,7 @@ namespace CsvTools.Tests
 
 
       using (var stream =
-             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
+             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
       {
         using var reader = new ImprovedTextReader(stream);
         Assert.IsFalse(
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHeaderAllFormatsAsync()
     {
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
+      using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       using var reader = new ImprovedTextReader(improvedStream);
 
       var result = await reader.InspectHasHeaderAsync('\t', char.MinValue, char.MinValue, "", UnitTestStatic.Token);
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHeaderAllFormatsAsync2()
     {
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
+      using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       // this time skipping teh firs row we start wih a adata row
       using var reader = new ImprovedTextReader(improvedStream,skipLines:1);
 
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHeaderBasicCsv()
     {
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
+      using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(1200, 0, UnitTestStatic.Token);
       var result = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "", UnitTestStatic.Token);
       Assert.IsNotNull(result);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
     public async Task GuessHeaderBasicEscapedCharactersAsync()
     {
       using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
+        new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
       Assert.AreEqual("", await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token));
     }
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
     public async Task GuessHeaderLongHeadersAsync()
     {
       using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LongHeaders.txt")));
+        new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("LongHeaders.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
       var result = await reader.InspectHasHeaderAsync(',', '"', '\\', "#", UnitTestStatic.Token);
       Assert.IsNotNull(result);
@@ -110,7 +110,7 @@ namespace CsvTools.Tests
     public async Task GuessHeaderStrangeHeaders()
     {
       using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("StrangeHeaders.txt")));
+        new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("StrangeHeaders.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(1200, 0, UnitTestStatic.Token);
       var result = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "", UnitTestStatic.Token);
       Assert.IsNotNull(result);

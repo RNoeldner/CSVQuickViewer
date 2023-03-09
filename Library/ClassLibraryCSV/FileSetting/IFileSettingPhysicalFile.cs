@@ -12,6 +12,8 @@
  *
  */
 
+using System.ComponentModel;
+
 namespace CsvTools
 {
   public interface IFileSettingPhysicalFile : IFileSetting
@@ -52,6 +54,16 @@ namespace CsvTools
     ///   Gets the PGP encryption Key ID
     /// </summary>
     long KeyID { get; set; }
+
+    /// <summary>
+    ///   Path to the private PGP key used during decryption / read
+    /// </summary>
+    string KeyFileRead { get; set; }
+
+    /// <summary>
+    ///   Path to the public PGP key used during encryption / write
+    /// </summary>
+    string KeyFileWrite { get; set; }
 
     /// <summary>
     ///   Path to the file on sFTP Server

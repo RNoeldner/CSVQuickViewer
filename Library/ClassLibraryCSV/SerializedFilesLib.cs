@@ -110,7 +110,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -172,7 +172,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent) 
@@ -220,7 +220,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName, false));
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif

@@ -45,6 +45,8 @@ namespace CsvTools
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
     private long m_KeyId;
+    private string m_KeyFileRead = string.Empty;
+    private string m_KeyFileWrite = string.Empty;
 
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
@@ -56,6 +58,20 @@ namespace CsvTools
 
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
+
+    [DefaultValue("")]
+    public string KeyFileRead
+    {
+      get => m_KeyFileRead;
+      set => SetProperty(ref m_KeyFileRead, value);
+    }
+
+    [DefaultValue("")]
+    public string KeyFileWrite
+    {
+      get => m_KeyFileWrite;
+      set => SetProperty(ref m_KeyFileWrite, value);
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -265,6 +281,8 @@ namespace CsvTools
       fileSettingPhysicalFile.ColumnFile = ColumnFile;
       fileSettingPhysicalFile.FileName = FileName;
       fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
+      fileSettingPhysicalFile.KeyFileRead = KeyFileRead;
+      fileSettingPhysicalFile.KeyFileWrite = KeyFileWrite;
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
@@ -294,6 +312,12 @@ namespace CsvTools
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
+        return false;
+
+      if (!string.Equals(fileSettingPhysicalFile.KeyFileRead, KeyFileRead, StringComparison.OrdinalIgnoreCase))
+        return false;
+
+      if (!string.Equals(fileSettingPhysicalFile.KeyFileWrite, KeyFileWrite, StringComparison.OrdinalIgnoreCase))
         return false;
 
       if (fileSettingPhysicalFile.RemoteFileName != RemoteFileName
@@ -331,6 +355,12 @@ namespace CsvTools
 
         if (!physicalFile.RemoteFileName.Equals(RemoteFileName, StringComparison.OrdinalIgnoreCase))
           yield return $"{nameof(RemoteFileName)} : {RemoteFileName} {physicalFile.RemoteFileName}";
+
+        if (!physicalFile.KeyFileRead.Equals(KeyFileRead, StringComparison.OrdinalIgnoreCase))
+          yield return $"{nameof(KeyFileRead)} : {KeyFileRead} {physicalFile.KeyFileRead}";
+
+        if (!physicalFile.KeyFileWrite.Equals(KeyFileWrite, StringComparison.OrdinalIgnoreCase))
+          yield return $"{nameof(KeyFileWrite)} : {KeyFileWrite} {physicalFile.KeyFileWrite}";
 
         if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
           yield return

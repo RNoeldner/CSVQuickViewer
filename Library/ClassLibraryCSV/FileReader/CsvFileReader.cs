@@ -403,7 +403,7 @@ namespace CsvTools
 #else
             m_Stream.Dispose();
 #endif
-          m_Stream = FunctionalDI.OpenStream(new SourceAccess(FullPath)
+          m_Stream = new ImprovedStream(new SourceAccess(FullPath)
           {
             IdentifierInContainer = m_IdentifierInContainer
           });
@@ -513,7 +513,7 @@ namespace CsvTools
     /// <returns>A value between 0 and 1</returns>
     protected override double GetRelativePosition()
     {
-      if (m_Stream is IImprovedStream imp)
+      if (m_Stream is ImprovedStream imp)
         return imp.Percentage;
 
       return base.GetRelativePosition();

@@ -81,7 +81,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ImprovedTextReaderTestBomAsync()
     {
-      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
@@ -199,7 +199,7 @@ namespace CsvTools.Tests
           await fs2.WriteAsync(line2);
         }
 
-        using (var impStream = FunctionalDI.OpenStream(new SourceAccess(fileName)))
+        using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
         {
           using var test = new ImprovedTextReader(impStream, type.Item2);
 
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
     public async Task ToBeginningTestAsync()
     {
       // use a file with a BOM
-      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
 
       Assert.AreEqual(1, test.LineNumber);

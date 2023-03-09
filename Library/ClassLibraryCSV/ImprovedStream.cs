@@ -22,9 +22,34 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace CsvTools
 {
-  public class ImprovedStream : Stream, IImprovedStream
+  public sealed class ImprovedStream : Stream
   {
-    protected readonly SourceAccess SourceAccess;
+    private readonly SourceAccess m_SourceAccess;
+
+#if SupportPGP
+    /// <summary>
+    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
+    /// </summary>
+    /// <remarks>
+    /// This is usually the literal stream that is the Access stream as well</remarks>
+    private Stream? m_StreamClosedFirst;
+
+    /// <summary>
+    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
+    /// </summary>
+    /// <remarks>
+    /// This is usually the compress stream
+    /// </remarks>
+    private Stream? m_StreamClosedSecond;
+
+    /// <summary>
+    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
+    /// </summary>
+    /// <remarks>
+    /// This is usually the encryption stream
+    /// </remarks>
+    private Stream? m_StreamClosedThird;
+#endif
 
     /// <summary>
     /// Buffer for Compression Streams
@@ -35,10 +60,10 @@ namespace CsvTools
 
     public ImprovedStream(in SourceAccess sourceAccess)
     {
-      SourceAccess = sourceAccess;
-      BaseStream = SourceAccess.OpenStream();
+      m_SourceAccess = sourceAccess;
+      BaseStream = m_SourceAccess.OpenStream();
       // ReSharper disable once VirtualMemberCallInConstructor
-      OpenByFileType(SourceAccess.FileType);
+      OpenByFileType(m_SourceAccess.FileType);
     }
 
     /// <summary>
@@ -48,28 +73,31 @@ namespace CsvTools
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
+    // ReSharper disable once UnusedMember.Global
     public ImprovedStream(in Stream stream, FileTypeEnum type) : this(new SourceAccess(stream, type))
     {
     }
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.CanRead"/>
     public override bool CanRead => AccessStream!.CanRead && BaseStream.CanRead;
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.CanSeek"/>
     public override bool CanSeek => BaseStream.CanSeek;
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.CanWrite"/>
     public override bool CanWrite => AccessStream!.CanWrite && BaseStream.CanWrite;
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.Length"/>
     public override long Length => BaseStream.Length;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Percentage of read source as decimal between 0.0 and 1.0
+    /// </summary>
     public double Percentage => BaseStream.Length < 1 || BaseStream.Position >= BaseStream.Length
       ? 1d
       : (double) BaseStream.Position / BaseStream.Length;
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.Position"/>
     /// <summary>
     ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
     ///   support a position
@@ -80,8 +108,47 @@ namespace CsvTools
       set => BaseStream.Position = value;
     }
 
-    protected Stream? AccessStream { get; set; }
-    protected Stream BaseStream { get; private set; }
+    private Stream? AccessStream { get; set; }
+    private Stream BaseStream { get; set; }
+
+
+#if SupportPGP
+    /// <summary>
+    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
+    /// </summary>
+    private void ClosePgp(bool createdFile)
+    {
+
+      if (m_SourceAccess.FileType != FileTypeEnum.Pgp)
+        return;
+      if (m_StreamClosedFirst != null)
+      {
+        m_StreamClosedFirst!.Close();
+        m_StreamClosedSecond?.Close();
+        m_StreamClosedThird?.Close();
+        m_StreamClosedThird?.Dispose();
+        m_StreamClosedSecond?.Dispose();
+        m_StreamClosedFirst!.Dispose();
+        m_StreamClosedFirst = null;
+      }
+
+      if (m_SourceAccess.KeepEncrypted && createdFile)
+      {
+        // We have written to the encrypted file, now its time to make an encrypted copy.
+        BaseStream.Close();
+
+        var split = FileSystemUtils.SplitPath(m_SourceAccess.FullPath);
+        var fn = Path.Combine(split.DirectoryName, split.FileNameWithoutExtension);
+        // Encrypt the created not encrypted file file to an encrypted version
+        if (!FileSystemUtils.FileExists(fn))
+          throw new FileNotFoundException($"Could not find not encrypted file {fn} for encryption");
+
+        PgpHelper.EncryptFileAsync(fn, m_SourceAccess.FullPath, m_SourceAccess.PublicKey!,
+          null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+      }
+
+    }
+#endif
 
     /// <inheritdoc cref="Stream.Close()"/>
     /// <summary>
@@ -91,6 +158,9 @@ namespace CsvTools
     {
       try
       {
+#if SupportPGP
+        ClosePgp(true);
+#endif
         try
         {
           m_ZipFile?.Close();
@@ -111,7 +181,7 @@ namespace CsvTools
             // ignored
           }
 
-        if (!SourceAccess.LeaveOpen)
+        if (!m_SourceAccess.LeaveOpen)
           BaseStream.Close();
       }
       catch (Exception ex)
@@ -120,17 +190,21 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
     public new void Dispose() => Dispose(true);
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.Flush()"/>
     public override void Flush()
     {
       try
       {
+#if SupportPGP
+        m_StreamClosedThird?.Flush();
+        m_StreamClosedSecond?.Flush();
+#endif
         if (!ReferenceEquals(AccessStream, BaseStream))
           AccessStream?.Flush();
         BaseStream.Flush();
@@ -142,14 +216,21 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     public override int Read(byte[] buffer, int offset, int count) => AccessStream!.Read(buffer, offset, count);
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.ReadAsync(byte[], int, int, CancellationToken)"/>
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
-    /// <inheritdoc cref="IImprovedStream" />
+    
+    /// <summary>   Sets the position within the current stream.  IImprovedStream will allow you to seek to the beginning of a actually non seekable stream by re-opening the stream </summary>
+    /// <param name="offset"> A byte offset relative to the origin parameter.</param>
+    /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
+    /// <returns>The new position within the current stream.</returns>
+    /// <exception cref="IOException">An I/O error occurs.</exception>
+    /// <exception cref="NotSupportedException">The stream does not support seeking, only allowed seek would be to the beginning Offset:0 <see cref="SeekOrigin.Begin"/>.</exception>
+    /// <exception cref="ObjectDisposedException"> Methods were called after the stream was closed.</exception>
     public override long Seek(long offset, SeekOrigin origin)
     {
       // The stream must support seeking to get or set the position
@@ -161,8 +242,8 @@ namespace CsvTools
 
       // Reopen Completely      
       Close();
-      BaseStream = SourceAccess.OpenStream();
-      OpenByFileType(SourceAccess.FileType);
+      BaseStream = m_SourceAccess.OpenStream();
+      OpenByFileType(m_SourceAccess.FileType);
 
       return 0;
     }
@@ -170,10 +251,10 @@ namespace CsvTools
     /// <inheritdoc />
     public override void SetLength(long value) => AccessStream!.SetLength(value);
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
     public override void Write(byte[] buffer, int offset, int count) => AccessStream!.Write(buffer, offset, count);
 
-    /// <inheritdoc cref="IImprovedStream" />
+    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int, CancellationToken)"/>
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
@@ -182,11 +263,41 @@ namespace CsvTools
     {
       if (m_DisposedValue) return;
       if (!disposing) return;
+      try
+      {
+        AccessStream?.Dispose();
+      }
+      catch
+      {
+        // ignored
+      }
+      finally
+      {
+        AccessStream = null;
+      }
+#if SupportPGP
+      try
+      {
+        m_StreamClosedSecond?.Dispose();
+      }
+      finally
+      {
+        m_StreamClosedSecond = null;
+      }
 
+      try
+      {
+        m_StreamClosedThird?.Dispose();
+      }
+      finally
+      {
+        m_StreamClosedThird = null;
+      }
+#endif
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream?.Dispose();
 
-      if (!SourceAccess.LeaveOpen)
+      if (!m_SourceAccess.LeaveOpen)
         BaseStream.Dispose();
 
       m_DisposedValue = true;
@@ -195,10 +306,15 @@ namespace CsvTools
     /// <summary>
     /// Depending on type call call other Methods to work with teh stream
     /// </summary>
-    protected virtual void OpenByFileType(FileTypeEnum fileType)
+    private  void OpenByFileType(FileTypeEnum fileType)
     {
       switch (fileType)
       {
+#if SupportPGP
+        case FileTypeEnum.Pgp:
+          OpenPgpOverBase();
+          break;
+#endif
         case FileTypeEnum.GZip:
           OpenZGipOverBase();
           break;
@@ -217,8 +333,53 @@ namespace CsvTools
       }
     }
 
+#if SupportPGP
+    private void OpenPgpOverBase()
+    {
+
+      ClosePgp(false);
+
+      // Reading / Decrypting
+      if (m_SourceAccess.Reading)
+      {
+        
+        try
+        {
+          Logger.Debug("Decrypt PGP file {filename}", m_SourceAccess.Identifier);
+
+          m_StreamClosedFirst = PgpHelper.GetReadStream(BaseStream, m_SourceAccess.PrivateKey!,
+          m_SourceAccess.Passphrase, out m_StreamClosedSecond, out m_StreamClosedThird);
+          AccessStream = m_StreamClosedFirst;
+        }
+        catch (Exception ex)
+        {
+          throw new EncryptionException("Could not decrypt file", ex);
+        }
+      }
+
+      // Writing / Encrypting
+      else
+      {
+        // Do not write PGP file imitate but encrypt when closing...
+        if (!m_SourceAccess.KeepEncrypted)
+        {
+          Logger.Debug("Encrypt to PGP {filename} for recipient {recipient}", m_SourceAccess.Identifier,
+            m_SourceAccess.KeyID);
+
+          // Access Stream will be the PgpLiteralDataGenerator (last stream opened)
+          m_StreamClosedFirst = PgpHelper.GetWriteStream(BaseStream, m_SourceAccess.PublicKey!, out m_StreamClosedSecond, out m_StreamClosedThird);
+          AccessStream = m_StreamClosedFirst;
+        }
+        else
+        {
+          AccessStream = BaseStream;
+        }
+      }
+    }
+#endif
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    protected virtual async ValueTask DisposeAsyncCore()
+    private async ValueTask DisposeAsyncCore()
     {
       if (AccessStream != null &&  !ReferenceEquals(AccessStream, BaseStream))
       {
@@ -226,9 +387,9 @@ namespace CsvTools
         await AccessStream.DisposeAsync().ConfigureAwait(false);
         AccessStream = null;
       }
-      if (!SourceAccess.LeaveOpen)
+      if (!m_SourceAccess.LeaveOpen)
       {
-        await BaseStream.DisposeAsync().ConfigureAwait(false);        
+        await BaseStream.DisposeAsync().ConfigureAwait(false);
       }
     }
 
@@ -242,46 +403,46 @@ namespace CsvTools
 
     private void OpenDeflateOverBase()
     {
-      if (SourceAccess.Reading)
+      if (m_SourceAccess.Reading)
       {
-        Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+        Logger.Debug("Deflating {filename}", m_SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, m_SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+        Logger.Debug("Compressing {filename}", m_SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, m_SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
 
     private void OpenZGipOverBase()
     {
-      if (SourceAccess.Reading)
+      if (m_SourceAccess.Reading)
       {
-        Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+        Logger.Debug("Decompressing from GZip {filename}", m_SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, m_SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+        Logger.Debug("Compressing to GZip {filename}", m_SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, m_SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
 
     private void OpenZipOverBase()
     {
-      if (SourceAccess.Reading)
+      if (m_SourceAccess.Reading)
       {
-        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, SourceAccess.LeaveOpen);
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, m_SourceAccess.LeaveOpen);
 
-        if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
-          m_ZipFile.Password = SourceAccess.EncryptedPassphrase;
+        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
+          m_ZipFile.Password = m_SourceAccess.Passphrase;
         var hasFile = false;
-        if (string.IsNullOrEmpty(SourceAccess.IdentifierInContainer))
+        if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
         {
           var entryEnumerator = m_ZipFile.GetEnumerator();
           while (entryEnumerator.MoveNext())
@@ -289,11 +450,11 @@ namespace CsvTools
             var entry = entryEnumerator.Current as ZipEntry;
             if (entry?.IsFile ?? false)
             {
-              SourceAccess.IdentifierInContainer = entry.Name;
+              m_SourceAccess.IdentifierInContainer = entry.Name;
               Logger.Debug(
                 "Unzipping {filename} {container}",
-                SourceAccess.Identifier,
-                SourceAccess.IdentifierInContainer);
+                m_SourceAccess.Identifier,
+                m_SourceAccess.IdentifierInContainer);
               AccessStream = m_ZipFile.GetInputStream(entry);
               hasFile = true;
               break;
@@ -302,12 +463,12 @@ namespace CsvTools
         }
         else
         {
-          var entryIndex = m_ZipFile.FindEntry(SourceAccess.IdentifierInContainer, true);
+          var entryIndex = m_ZipFile.FindEntry(m_SourceAccess.IdentifierInContainer, true);
           if (entryIndex == -1)
             throw new FileNotFoundException(
-              $"Could not find {SourceAccess.IdentifierInContainer} in {SourceAccess.Identifier}");
+              $"Could not find {m_SourceAccess.IdentifierInContainer} in {m_SourceAccess.Identifier}");
 
-          Logger.Debug("Unzipping {filename} {container}", SourceAccess.Identifier, SourceAccess.IdentifierInContainer);
+          Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
           AccessStream = m_ZipFile.GetInputStream(entryIndex);
           hasFile = true;
         }
@@ -315,20 +476,20 @@ namespace CsvTools
         if (!hasFile)
           Logger.Warning(
             "No zip entry found in {filename} {container}",
-            SourceAccess.Identifier,
-            SourceAccess.IdentifierInContainer);
+            m_SourceAccess.Identifier,
+            m_SourceAccess.IdentifierInContainer);
       }
       // is writing
       else
       {
         var zipOutputStream = new ZipOutputStream(BaseStream, cBufferSize);
-        if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
-          zipOutputStream.Password = SourceAccess.EncryptedPassphrase;
+        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
+          zipOutputStream.Password = m_SourceAccess.Passphrase;
         zipOutputStream.IsStreamOwner = false;
         zipOutputStream.SetLevel(5);
-        if (SourceAccess.IdentifierInContainer.Length == 0)
-          SourceAccess.IdentifierInContainer = "File1.txt";
-        var cleanName = ZipEntry.CleanName(SourceAccess.IdentifierInContainer);
+        if (m_SourceAccess.IdentifierInContainer.Length == 0)
+          m_SourceAccess.IdentifierInContainer = "File1.txt";
+        var cleanName = ZipEntry.CleanName(m_SourceAccess.IdentifierInContainer);
         var copyOtherFiles = false;
         // Check the stream if it already contains the file; if so remove the old file
         using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
@@ -348,11 +509,11 @@ namespace CsvTools
 
         if (copyOtherFiles)
         {
-          Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);
+          Logger.Debug("Keeping already existing entries in {filename}", m_SourceAccess.Identifier);
           var tmpName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
           try
           {
-            File.Copy(SourceAccess.FullPath, tmpName, true);
+            File.Copy(m_SourceAccess.FullPath, tmpName, true);
 
             // build a new Zip file with the contend of the old one but export the file we are about
             // to write
@@ -380,8 +541,8 @@ namespace CsvTools
 
         Logger.Debug(
           "Zipping {container} into {filename}",
-          SourceAccess.IdentifierInContainer,
-          SourceAccess.Identifier);
+          m_SourceAccess.IdentifierInContainer,
+          m_SourceAccess.Identifier);
 
         zipOutputStream.PutNextEntry(new ZipEntry(cleanName));
         AccessStream = zipOutputStream;

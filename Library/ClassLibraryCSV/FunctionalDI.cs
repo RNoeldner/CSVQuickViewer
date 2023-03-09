@@ -32,16 +32,10 @@ namespace CsvTools
     ///   Retrieve the passphrase for a file, a passphrase store can be attached here
     /// </summary>
     /// <note>
-    /// Currently only used in <see cref="SourceAccess"/> to gte the passphrase for a PGP encrypted file
+    /// Currently only used in <see cref="SourceAccess"/> to get the passphrase for a PGP encrypted file
     /// </note>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, string> GetEncryptedPassphraseForFile = _ => string.Empty;
-
-    /// <summary>
-    ///   Open a <see cref="SourceAccess"/> for reading in a stream, will take care of things like compression and encryption
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
+    public static Func<string, Tuple<string, string>> GetPassphraseForFile = _ => new Tuple<string, string>(string.Empty, String.Empty);
 
 #if !QUICK
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

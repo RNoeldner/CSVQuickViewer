@@ -184,7 +184,7 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      if (m_ImprovedStream is IImprovedStream imp)
+      if (m_ImprovedStream is ImprovedStream imp)
         return imp.Percentage;
 
       return base.GetRelativePosition();
@@ -360,8 +360,7 @@ namespace CsvTools
       {
         // Better would bve DisposeAsync(), but method is synchronous
         m_ImprovedStream?.Dispose();
-
-        m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
+        m_ImprovedStream = new ImprovedStream(new SourceAccess(FullPath));
       }
       else
       {

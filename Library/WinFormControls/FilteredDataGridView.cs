@@ -1418,8 +1418,8 @@ namespace CsvTools
         await
 #endif
         // ReSharper disable once UseAwaitUsing
-        using var stream = FunctionalDI.OpenStream(new SourceAccess(fileName, false));
-#if NET5_0_OR_GREATER
+        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+#if NET5_0_OR_GREATER 
         await
 #endif
         using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
