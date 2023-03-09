@@ -42,6 +42,7 @@ namespace CsvTools
     ///   Determine if the access is for reading or writing
     /// </summary>
     public readonly bool Reading;
+
     /// <summary>
     ///   The Password or Passphrase information
     /// </summary>
@@ -56,6 +57,7 @@ namespace CsvTools
     /// <summary>
     /// Needed to provide the encryption key
     /// </summary>
+    /// TODO: This goes away and is replaced with PublicKey 
     public readonly long KeyID;
 
     /// <summary>
@@ -79,13 +81,14 @@ namespace CsvTools
     /// </summary>
     public string IdentifierInContainer;
 
+#if SupportPGP
     /// <summary>
     ///   Get a new SourceAccess helper class
     /// </summary>
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
-#if SupportPGP
+
     /// <param name="keyId">PGP encryption key identifier</param>
     /// <param name="keepEncrypted">
     ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
@@ -93,18 +96,23 @@ namespace CsvTools
     /// </param>
     /// <param name="privateKey"></param>
     /// <param name="publicKey"></param>
+    public SourceAccess(in string fileName, bool isReading = true,
+          in string? id = null, long keyId = 0, bool keepEncrypted = false, in string privateKey = "", in string publicKey = "")
+#else
+    /// <summary>
+    ///   Get a new SourceAccess helper class
+    /// </summary>
+    /// <param name="fileName">Name of the file</param>
+    /// <param name="isReading"><c>true</c> if the files is for reading</param>
+    /// <param name="id">The identifier for the file for logging etc</param>
+
+    /// <param name="keyId">PGP encryption key identifier</param>
+    /// <param name="keepEncrypted">
+    ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
+    ///   debugging in case the private key is not known and the file can not be decrypted
+    /// </param>
+    public SourceAccess(in string fileName,bool isReading = true,in string? id = null, long keyId = 0, bool keepEncrypted = false)
 #endif
-    public SourceAccess(
-      in string fileName,
-      bool isReading = true,
-      in string? id = null
-#if SupportPGP
-      , long keyId = 0
-      , bool keepEncrypted = false
-      , in string privateKey = ""
-      , in string publicKey = ""
-#endif
-      )
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));

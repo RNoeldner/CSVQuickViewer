@@ -33,6 +33,7 @@ namespace CsvTools
     protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string FullPath;
+    // TODO: pgpKeyId goes away replaced by Key
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
@@ -68,6 +69,7 @@ namespace CsvTools
       in string id,
       in string fullPath,
       in ValueFormat? valueFormatGeneral,
+      // TODO: pgpKeyId goes away replaced by Key
       long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
