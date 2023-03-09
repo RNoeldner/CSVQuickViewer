@@ -83,6 +83,7 @@ namespace CsvTools
       int codePageId,
       bool byteOrderMark,
       in IEnumerable<Column>? columnDefinition,
+      // TODO: pgpKeyId goes away replaced by Key
       in long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,

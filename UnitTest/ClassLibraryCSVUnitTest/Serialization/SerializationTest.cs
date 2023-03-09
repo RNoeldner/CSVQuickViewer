@@ -61,10 +61,10 @@ namespace CsvTools.Tests
       UnitTestStatic.RunSerializeAllProps(input,
         new[]
         {
-          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), 
-          /*nameof(input.DecimalSeparator), nameof(input.NumberFormat),
+          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal),
+          nameof(input.DecimalSeparator), nameof(input.NumberFormat),
           nameof(input.Part), nameof(input.PartSplitter),nameof(input.PartToEnd),
-          nameof(input.False), nameof(input.True)*/
+          nameof(input.False), nameof(input.True)
         });
 
       var input2 = new ColumnMut("Näme",
@@ -74,12 +74,10 @@ namespace CsvTools.Tests
       UnitTestStatic.RunSerializeAllProps(input2,
         new[]
         {
-          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), 
-          /*
-           nameof(input.DecimalSeparator), nameof(input.NumberFormat),
+          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal),
+          nameof(input.DecimalSeparator), nameof(input.NumberFormat),
           nameof(input.DateFormat), nameof(input.DateSeparator), nameof(input.TimeSeparator),
           nameof(input.False), nameof(input.True)
-          */
         });
     }
 
