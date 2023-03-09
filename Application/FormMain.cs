@@ -22,6 +22,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,13 +59,34 @@ namespace CsvTools
     {
     }
 
+    private readonly Dictionary<string, SecureString> m_KnownPassphrase = new Dictionary<string, SecureString>();
+
+    private (SecureString passphrase, string key) GetKnownPassphrase(string fileName)
+    {
+      return m_KnownPassphrase.TryGetValue(fileName, out var passphrase) 
+        ? (passphrase, string.Empty) 
+        : (new SecureString(), string.Empty);
+    }
+
     public FormMain(in ViewSettings viewSettings) : base(viewSettings)
     {
       m_ViewSettings = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
       FunctionalDI.GetPassphraseForFile =
-        fileName => Extensions.GetEncryptedPassphraseOpenFormForFile(fileName, m_FileSetting, null);
+        fileName => Extensions.GetEncryptedPassphraseOpenFormForFile(fileName, m_FileSetting, GetKnownPassphrase,
+          (pass) =>
+          {
+            if (m_FileSetting != null)
+              m_FileSetting.Passphrase = pass;
+            if (m_KnownPassphrase.ContainsKey(fileName))
+            {
+              m_KnownPassphrase[fileName].Dispose();
+              m_KnownPassphrase[fileName] = pass;
+            }
+            else
+              m_KnownPassphrase.Add(fileName, pass);
+          });
       FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);
 
       // add the not button not visible in designer to the detail control
@@ -91,16 +113,16 @@ namespace CsvTools
       {
         var assembly = Assembly.GetExecutingAssembly();
         var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length > 0)
-        {
-          var titleAttribute = (AssemblyTitleAttribute) attributes[0];
-          if (titleAttribute.Title.Length != 0)
-            return titleAttribute.Title + " " + assembly.GetName().Version
+        if (attributes.Length <= 0)
+          return Path.GetFileNameWithoutExtension(assembly.Location);
+
+        var titleAttribute = (AssemblyTitleAttribute) attributes[0];
+        if (titleAttribute.Title.Length != 0)
+          return titleAttribute.Title + " " + assembly.GetName().Version
 #if !NETFRAMEWORK
                    + "*"
 #endif
-              ;
-        }
+        ;
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
       }

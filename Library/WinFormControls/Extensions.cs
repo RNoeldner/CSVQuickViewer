@@ -35,7 +35,8 @@ namespace CsvTools
 
     public static (SecureString phasspharse, string key) GetEncryptedPassphraseOpenFormForFile(string fileName,
       IFileSettingPhysicalFile? fileSetting,
-      Func<string, (SecureString passphrase, string keyInformation)?>? getStoredPassphrase)
+      Func<string, (SecureString passphrase, string key)>? getStoredPassphrase,
+      Action<SecureString>? savePassphrase)
     {
       var passphrase = new SecureString();
       if (!fileName.AssumePgp())
@@ -55,12 +56,14 @@ namespace CsvTools
       // try to get the passphrase stored for the key
       if (passphrase.Length == 0 && getStoredPassphrase !=null)
       {
-        var res = getStoredPassphrase.Invoke(fileName);
-        if (res != null)
+        var (newPassphrase, keyInfo) = getStoredPassphrase.Invoke(fileName);
+        if (passphrase.Length!=0)
         {
-          passphrase = res.Value.passphrase;
-          key =  res.Value.keyInformation;
+          passphrase.Dispose();
+          passphrase = newPassphrase;
         }
+        if (!string.IsNullOrEmpty(keyInfo))
+          key =  keyInfo;
       }
 
       if (key.Length == 0)
@@ -77,8 +80,7 @@ namespace CsvTools
       if (passphrase.Length == 0)
         throw new EncryptionException("A passphrase is needed for decryption.");
 
-      if (fileSetting != null)
-        fileSetting.Passphrase = passphrase;
+      savePassphrase?.Invoke(passphrase);
 
       // when the passphrase is valid it will stored it with PGPKeyStorage
       return (passphrase, key);
@@ -406,6 +408,7 @@ namespace CsvTools
             }
             catch (Exception)
             {
+              // ignored
             }
         }
       }
