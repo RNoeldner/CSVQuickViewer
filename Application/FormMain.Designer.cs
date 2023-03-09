@@ -19,10 +19,14 @@ namespace CsvTools
       {
         m_DisposedValue = true;
         components?.Dispose();
+
+        foreach (var secureString in m_KnownPassphrase)
+          secureString.Value.Dispose();
+
         m_CancellationTokenSource?.Dispose();
         m_SettingsChangedTimerChange?.Dispose();
       }
-      this.SafeInvoke(()=>base.Dispose(disposing));
+      this.SafeInvoke(() => base.Dispose(disposing));
     }
 
 
@@ -49,8 +53,8 @@ namespace CsvTools
       this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
-      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileSystemWatcher)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.loggerDisplay)).BeginInit();
       this.toolStripLog.SuspendLayout();
       this.textPanel.BottomToolStripPanel.SuspendLayout();
       this.textPanel.ContentPanel.SuspendLayout();
@@ -61,7 +65,7 @@ namespace CsvTools
       // fileSystemWatcher
       // 
       this.fileSystemWatcher.EnableRaisingEvents = true;
-      this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
+      this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters) ((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
       this.fileSystemWatcher.SynchronizingObject = this;
       this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.FileSystemWatcher_Changed);
       // 
@@ -88,7 +92,7 @@ namespace CsvTools
       this.loggerDisplay.CharHeight = 14;
       this.loggerDisplay.CharWidth = 8;
       this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
       this.loggerDisplay.IsReplaceMode = false;
       this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
@@ -97,7 +101,7 @@ namespace CsvTools
       this.loggerDisplay.Name = "loggerDisplay";
       this.loggerDisplay.Paddings = new System.Windows.Forms.Padding(0);
       this.loggerDisplay.ReadOnly = true;
-      this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.loggerDisplay.ShowLineNumbers = false;
       this.loggerDisplay.Size = new System.Drawing.Size(900, 398);
       this.loggerDisplay.TabIndex = 2;
@@ -109,7 +113,7 @@ namespace CsvTools
       this.detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (254)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -258,8 +262,8 @@ namespace CsvTools
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileDragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileDragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
-      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileSystemWatcher)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.loggerDisplay)).EndInit();
       this.toolStripLog.ResumeLayout(false);
       this.toolStripLog.PerformLayout();
       this.textPanel.BottomToolStripPanel.ResumeLayout(false);

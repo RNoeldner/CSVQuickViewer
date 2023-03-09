@@ -218,7 +218,11 @@ namespace CsvTools
     public virtual SecureString Passphrase
     {
       get => m_PassPhrase;
-      set => SetProperty(ref m_PassPhrase, value);
+      set
+      {
+        m_PassPhrase.Dispose();
+        m_PassPhrase = value;
+      }
     }
 
     /// <inheritdoc />
