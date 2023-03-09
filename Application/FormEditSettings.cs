@@ -38,6 +38,7 @@ namespace CsvTools
       {
         bindingSourceCsvFile.DataSource = csvFile;
         quotingControl.CsvFile = csvFile;
+        textBoxFile_TextChanged(this,EventArgs.Empty);
       }
     }
 
@@ -95,11 +96,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       if (!m_ViewSettings.GuessStartRow)
         m_ViewSettings.DefaultInspectionResult.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
-      if (m_FileSetting == null)
-      {
-        m_ViewSettings.KeyFileRead = textBoxKeyFileRead.Text;
-        m_ViewSettings.KeyFileWrite = textBoxKeyFileWrite.Text;
-      }
+      // if this is not for a specific file store teh value in the defaults
+      if (m_FileSetting != null) 
+        return;
+      m_ViewSettings.KeyFileRead = textBoxKeyFileRead.Text;
+      m_ViewSettings.KeyFileWrite = textBoxKeyFileWrite.Text;
     }
 
     private async void BtnOpenFile_Click(object? sender, EventArgs e)
@@ -122,11 +123,14 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var formProgress = new FormProgress("Examining file", false, m_CancellationTokenSource.Token);
           formProgress.Maximum = 0;
           formProgress.ShowWithFont(this);
+
+
           SetFileSetting((await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-            m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, formProgress.CancellationToken)).PhysicalFile());
+            m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, 
+            CsvHelper.GetKeyInfo(newFileName,m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
@@ -444,6 +448,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       {
         this.ShowError(ex);
       }
+    }
+
+    private void textBoxFile_TextChanged(object sender, EventArgs e)
+    {
+      bool isPgp = textBoxFile.Text.AssumePgp();
+      textBoxKeyFileRead.Enabled = isPgp;
+      buttonKeyFileRead.Enabled = isPgp; 
     }
   }
 }

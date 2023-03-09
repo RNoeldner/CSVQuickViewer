@@ -63,7 +63,8 @@ namespace CsvTools
       m_ViewSettings = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
-
+      FunctionalDI.GetPassphraseForFile =
+        fileName => Extensions.GetEncryptedPassphraseOpenFormForFile(fileName, m_FileSetting, null);
       FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);
 
       // add the not button not visible in designer to the detail control
@@ -169,14 +170,15 @@ namespace CsvTools
         //{
         // formProgress.Maximum = 0;
         // formProgress.ShowWithFont(this);
-        
+
         // make sure old columns are removed
         m_ViewSettings.DefaultInspectionResult.Columns.Clear();
         var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
           m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, cancellationToken);
+          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult,
+          CsvHelper.GetKeyInfo(fileName, m_ViewSettings.KeyFileRead), cancellationToken);
 
         m_FileSetting = detection.PhysicalFile();
 

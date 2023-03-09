@@ -28,12 +28,12 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
 	  <DebugType>embedded</DebugType>
 	  <Optimize>False</Optimize>
-	  <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
+	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
 	  <DebugType>none</DebugType>
 	  <Optimize>False</Optimize>
-	  <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
+	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
 	  <DebugType>embedded</DebugType>
@@ -46,10 +46,10 @@
 	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0|AnyCPU'">
-	  <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
+	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0|AnyCPU'">
-	  <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
+	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />

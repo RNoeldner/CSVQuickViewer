@@ -36,6 +36,7 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+
     /// <summary>
     /// Move the field from on position in the list to another
     /// </summary>

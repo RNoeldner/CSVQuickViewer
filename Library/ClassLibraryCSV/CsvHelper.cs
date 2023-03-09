@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #if !QUICK
-
+using System.Globalization;
 using System.Linq;
 
 #endif
@@ -55,6 +55,7 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="inspectionResult">Default in case inspection is wanted</param>
     /// <param name="fillGuessSettings"></param>
+    /// <param name="privateKey">Private Key information for reading</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
@@ -63,15 +64,22 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
       bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
-      FillGuessSettings fillGuessSettings,
-      CancellationToken cancellationToken)
+      FillGuessSettings fillGuessSettings
+#if SupportPGP
+      , string privateKey
+#endif
+      , CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File name can not be empty", nameof(fileName));
 
       inspectionResult.FileName = fileName;
       Logger.Information("Opening file");
+#if SupportPGP
+      var sourceAccess = new SourceAccess(fileName, privateKey: privateKey);
+#else
       var sourceAccess = new SourceAccess(fileName);
+#endif
       inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
@@ -239,6 +247,7 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
+    /// <param name="privateKey">Private key for reading PGP encrypted Information</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
@@ -249,8 +258,11 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
       FillGuessSettings fillGuessSettings,
-      InspectionResult defaultInspectionResult,
-      CancellationToken cancellationToken)
+      InspectionResult defaultInspectionResult
+#if SupportPGP
+      , string privateKey
+#endif
+      , CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Argument can not be empty", nameof(fileName));
@@ -356,7 +368,11 @@ namespace CsvTools
       // Determine from file
       return await GetInspectionResultFromFileAsync(fileName2, guessJson, guessCodePage, guessEscapePrefix, guessDelimiter,
         guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-        defaultInspectionResult, fillGuessSettings, cancellationToken).ConfigureAwait(false);
+        defaultInspectionResult, fillGuessSettings
+#if SupportPGP
+        , privateKey
+#endif 
+        , cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -604,8 +620,13 @@ CommentLine
 
 #if !QUICK
 
+    public static string GetKeyInfo(string fileName, string keyFileRead)
+    => fileName.AssumePgp() && !string.IsNullOrEmpty(keyFileRead) &&FileSystemUtils.FileExists(keyFileRead)
+        ? FileSystemUtils.ReadAllText(keyFileRead) : string.Empty;
+
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
+
       var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true,
         true, true, true, true, false, true,
         new InspectionResult()
@@ -618,7 +639,7 @@ CommentLine
           SkipRows =  csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        new FillGuessSettings(false), cancellationToken).ConfigureAwait(false);
+        new FillGuessSettings(false), GetKeyInfo(csvFile.FileName, csvFile.KeyFileRead), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;

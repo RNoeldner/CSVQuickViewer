@@ -1,12 +1,13 @@
 ﻿using Org.BouncyCastle.Bcpg.OpenPgp;
+using System.Security;
 
 namespace CsvTools.Tests
 {
   public static class PGPKeyTestHelper
   {
     public static readonly long KeyID = -2973606277962788727;
-    public static readonly string Passphrase = "UGotMe";
-
+    public static readonly string ClearPassphrase = "UGotMe";
+    public static System.Security.SecureString Passphrase => ClearPassphrase.ToSecureString();
 
     public static PgpSecretKeyRingBundle PrivateKey
     {

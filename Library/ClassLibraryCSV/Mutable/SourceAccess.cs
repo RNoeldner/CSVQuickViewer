@@ -17,6 +17,7 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 #endif
 using System;
 using System.IO;
+using System.Security;
 
 namespace CsvTools
 {
@@ -44,7 +45,7 @@ namespace CsvTools
     /// <summary>
     ///   The Password or Passphrase information
     /// </summary>
-    public string Passphrase;
+    public SecureString Passphrase;
 
 #if SupportPGP
     /// <summary>
@@ -124,7 +125,7 @@ namespace CsvTools
 #endif
       LeaveOpen = false;
       FileType = FromExtension(fileName);
-      Passphrase = string.Empty;
+      Passphrase = new System.Security.SecureString();
       IdentifierInContainer = string.Empty;
       switch (FileType)
       {
@@ -136,12 +137,12 @@ namespace CsvTools
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp when isReading:
           var res = FunctionalDI.GetPassphraseForFile(fileName);
-          Passphrase = res.Item1;
-          PrivateKey = PgpHelper.ParsePrivateKey(privateKey.Length==0 ? res.Item2 : privateKey);
+          Passphrase = res.passphrase;
+          PrivateKey = PgpHelper.ParsePrivateKey(privateKey.Length==0 ? res.keyInfo : privateKey);
           break;
         case FileTypeEnum.Pgp when !isReading:
           if (!string.IsNullOrEmpty(publicKey))
-            PublicKey = PgpHelper.ParsePublicKey(publicKey!);
+            PublicKey = PgpHelper.ParsePublicKey(publicKey);
           break;
 #endif
       }
@@ -194,7 +195,7 @@ namespace CsvTools
       FileType = type;
       Reading = true;
       FullPath = string.Empty;
-      Passphrase = string.Empty;
+      Passphrase = new SecureString();
       IdentifierInContainer = string.Empty;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
