@@ -12,7 +12,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task ImprovedTextReaderPositionStoreTestAsync()
     {
-      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
       var store = new ImprovedTextReaderPositionStore(test);
       Assert.AreEqual(1, test.LineNumber);
@@ -29,7 +29,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task ImprovedTextReaderPositionStoreTestFromMiddleAsync()
     {
-      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream, 65001, 1);
       Assert.AreEqual(2, test.LineNumber);
       Assert.AreEqual(

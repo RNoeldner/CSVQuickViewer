@@ -45,9 +45,7 @@ namespace CsvTools
     private bool m_DateParts;
     private bool m_RemoveCurrencySymbols;
 
-#pragma warning disable CS0618
     public static FillGuessSettings Default = new FillGuessSettings();
-#pragma warning restore CS0618
 
 #if XmlSerialization
     [Obsolete("Used for XML Serialization")]

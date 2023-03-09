@@ -248,7 +248,7 @@ namespace CsvTools
             new ValueFormat(
               DataTypeEnum.DateTime,
               column.TimePartFormat,
-              timeSeparator: column.ValueFormat?.TimeSeparator.ToStringHandle0() ),
+              timeSeparator: column.ValueFormat?.TimeSeparator.ToStringHandle0()),
             colNo,
             column.TimePartFormat.Length,
             constantTimeZone, columnOrdinalTimeZoneReader));
@@ -266,13 +266,17 @@ namespace CsvTools
 
       try
       {
+#if QUICK
+        var sourceAccess = new SourceAccess(FullPath, false);
+#else
         var sourceAccess = new SourceAccess(FullPath, false, keyId: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
+#endif
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var stream = FunctionalDI.OpenStream(sourceAccess);
+        using var stream = new ImprovedStream(sourceAccess);
         await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)

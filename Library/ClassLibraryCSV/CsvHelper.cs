@@ -156,7 +156,7 @@ namespace CsvTools
     public static async Task<Stream> GetStreamInMemory(this SourceAccess sourceAccess, CancellationToken cancellationToken)
     {
       // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
-      var stream = FunctionalDI.OpenStream(sourceAccess);
+      var stream = new ImprovedStream(sourceAccess);
       try
       {
         // if the file is very big, do not take part of it we might loose too much information

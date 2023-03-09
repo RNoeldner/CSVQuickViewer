@@ -64,7 +64,24 @@ namespace CsvTools
       [Description("2 seconds")][ShortDescription("2 s")] TwoSecond,
       [Description("10 seconds")][ShortDescription("10 s")] TenSecond,
     }
+#if SupportPGP
+    private string m_KeyFileRead = string.Empty;
+    private string m_KeyFileWrite = string.Empty;
 
+    [DefaultValue("")]
+    public string KeyFileRead
+    {
+      get => m_KeyFileRead;
+      set => SetProperty(ref m_KeyFileRead, value);
+    }
+
+    [DefaultValue("")]
+    public string KeyFileWrite
+    {
+      get => m_KeyFileWrite;
+      set => SetProperty(ref m_KeyFileWrite, value);
+    }
+#endif
     [DefaultValue(".")]
     public string InitialFolder
     {
