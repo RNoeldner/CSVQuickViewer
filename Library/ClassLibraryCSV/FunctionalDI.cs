@@ -13,8 +13,6 @@
  */
 
 using System;
-using System.IO;
-using System.Security;
 #if !QUICK
 using System.Threading;
 #endif
@@ -36,7 +34,9 @@ namespace CsvTools
     /// Currently only used in <see cref="SourceAccess"/> to get the passphrase for a PGP encrypted file
     /// </note>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, (SecureString passphrase, string keyInfo)> GetPassphraseForFile = _ => (new SecureString(), string.Empty);
+    public static Func<string, string> GetPassphraseForFile = _ => string.Empty;
+    
+    public static Func<string, string> GetKeyForFile = _ => string.Empty;
 
 #if !QUICK
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

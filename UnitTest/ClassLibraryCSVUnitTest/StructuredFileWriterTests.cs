@@ -31,7 +31,7 @@ namespace CsvTools.Tests
         new JsonFile("Write", "StructuredFileOutputJSON.txt") { InOverview = true };
 
       var sb = new StringBuilder("{");
-      
+
       // ReSharper disable once StringLiteralTypo
       fileSetting.Header = "{\"rowset\":[\n";
 
@@ -57,8 +57,7 @@ namespace CsvTools.Tests
       fileSetting.Row = sb.ToString();
       var writer = new JsonFileWriter(
         fileSetting.ID,
-        fileSetting.FullPath,
-        0,
+        fileSetting.FullPath, 
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
@@ -69,7 +68,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
 
       var result = await writer.WriteAsync(reader, UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
@@ -81,7 +80,7 @@ namespace CsvTools.Tests
     {
       var fileSetting = new XmlFile("Write", "StructuredFileOutputXML.txt") { InOverview = true };
       var sb = new StringBuilder();
-      
+
       var readFile = new CsvFile("ID", UnitTestStatic.GetTestPath("BasicCSV.txt")) { CommentLine = "#" };
       readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
@@ -111,7 +110,6 @@ namespace CsvTools.Tests
       var writer = new XmlFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.KeyID,
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
@@ -121,7 +119,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
       await writer.WriteAsync(reader, UnitTestStatic.Token);
     }
   }

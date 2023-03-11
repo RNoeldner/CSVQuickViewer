@@ -59,7 +59,6 @@ namespace CsvTools
     /// <param name="codePageId">The Code Page for encoding of characters</param>
     /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
     /// <param name="columnDefinition">Individual definitions of columns and formats</param>
-    /// <param name="pgpKeyId">Passed on to SourceAccess allowing PGP encryption of teh written file (not implemented in all Libraries)</param>
     /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
@@ -76,6 +75,7 @@ namespace CsvTools
     /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> <see cref="fieldQualifierChar"/> is ignored</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     public CsvFileWriter(in string id,
       in string fullPath,
       bool hasFieldHeader,
@@ -83,8 +83,6 @@ namespace CsvTools
       int codePageId,
       bool byteOrderMark,
       in IEnumerable<Column>? columnDefinition,
-      // TODO: pgpKeyId goes away replaced by Key
-      in long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? header,
@@ -100,12 +98,12 @@ namespace CsvTools
       bool qualifyAlways,
       bool qualifyOnlyIfNeeded,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      string sourceTimeZone)
+      in string sourceTimeZone,
+      in string publicKey)
       : base(
         id,
         fullPath,
         valueFormat,
-        pgpKeyId,
         unencrypted,
         identifierInContainer,
         footer,
@@ -113,7 +111,8 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone)
+        sourceTimeZone,
+        publicKey)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
@@ -149,12 +148,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Writes the specified file reading from the given reader
-    /// </summary>
-    /// <param name="reader">A Data Reader with the data</param>
-    /// <param name="output">The output.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <inheritdoc cref="IFileWriter"/>
     public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
       var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);

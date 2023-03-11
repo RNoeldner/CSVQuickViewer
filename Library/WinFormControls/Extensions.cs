@@ -23,7 +23,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Security;
 
 namespace CsvTools
 {
@@ -32,60 +31,6 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-
-    public static (SecureString phasspharse, string key) GetEncryptedPassphraseOpenFormForFile(string fileName,
-      IFileSettingPhysicalFile? fileSetting,
-      Func<string, (SecureString passphrase, string key)>? getStoredPassphrase,
-      Action<SecureString>? savePassphrase)
-    {
-      var passphrase = new SecureString();
-      if (!fileName.AssumePgp())
-        return (passphrase, string.Empty);
-
-      var key = string.Empty;
-
-      // Passphrase // key file stored in Setting
-      if (fileSetting != null)
-      {
-        if (fileSetting.Passphrase.Length != 0)
-          passphrase = fileSetting.Passphrase;
-        if (string.IsNullOrEmpty(fileSetting.KeyFileRead))
-          key = FileSystemUtils.ReadAllText(fileSetting.KeyFileRead);
-      }
-
-      // try to get the passphrase stored for the key
-      if (passphrase.Length == 0 && getStoredPassphrase !=null)
-      {
-        var (newPassphrase, keyInfo) = getStoredPassphrase.Invoke(fileName);
-        if (passphrase.Length!=0)
-        {
-          passphrase.Dispose();
-          passphrase = newPassphrase;
-        }
-        if (!string.IsNullOrEmpty(keyInfo))
-          key =  keyInfo;
-      }
-
-      if (key.Length == 0)
-        throw new EncryptionException("A private key is needed for decryption.");
-
-      // Need to enter the Passphrase though UI
-      if (passphrase.Length == 0)
-      {
-        using var frm = new FormPassphrase();
-        if (frm.ShowDialog() == DialogResult.OK && frm.Passphrase.Length > 0)
-          passphrase = frm.Passphrase;
-      }
-
-      if (passphrase.Length == 0)
-        throw new EncryptionException("A passphrase is needed for decryption.");
-
-      savePassphrase?.Invoke(passphrase);
-
-      // when the passphrase is valid it will stored it with PGPKeyStorage
-      return (passphrase, key);
-    }
-
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)

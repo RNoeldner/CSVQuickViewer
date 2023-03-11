@@ -60,22 +60,27 @@ namespace CsvTools
     /// <inheritdoc />
     public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
+      var publicKey = string.Empty;
+#if SupportPGP
+      if (fileSetting is IFileSettingPhysicalFile physicalFile)
+        publicKey = PgpHelper.GetKeyAndValidate(physicalFile.FileName, physicalFile.KeyFile);
+#endif
       IFileWriter? writer = fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite,
-          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.KeyID, csv.KeepUnencrypted,
+          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.KeepUnencrypted,
           csv.IdentifierInContainer, csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar,
           csv.FieldQualifierChar, csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
           csv.QualifierPlaceholder, csv.QualifyAlways, csv.QualifyOnlyIfNeeded, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id),
-        IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath, jsonFile.KeyID,
+          TimeZoneInfo.Local.Id, publicKey),
+        IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
           jsonFile.KeepUnencrypted, jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header,
           jsonFile.EmptyAsNull, jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection,
-          jsonFile.ToString(), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id),
-        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.KeyID, xmlFile.KeepUnencrypted,
+          jsonFile.ToString(), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey),
+        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.KeepUnencrypted,
           xmlFile.IdentifierInContainer, xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark,
           xmlFile.ColumnCollection, xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id),
+          TimeZoneInfo.Local.Id, publicKey),
         _ => null
       };
 
@@ -85,8 +90,8 @@ namespace CsvTools
       writer.WriteFinished += (sender, args) =>
       {
         fileSetting.ProcessTimeUtc = DateTime.UtcNow;
-        if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physicalFile)
-          new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
+        if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
+          new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
       };
       return writer;
     }

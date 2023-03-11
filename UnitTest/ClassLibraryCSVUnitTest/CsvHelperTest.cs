@@ -29,6 +29,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvHelperTest
   {
+
     [TestMethod]
     public async Task GetDetectionResult()
     {

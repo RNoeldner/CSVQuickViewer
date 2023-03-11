@@ -53,9 +53,9 @@ namespace CsvTools.Tests
 
 
       // writer 
-      var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
+      var writer = new JsonFileWriter("id", fileName, false, string.Empty,
         "]", "[", false, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
 
@@ -92,9 +92,9 @@ namespace CsvTools.Tests
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
-      var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
+      var writer = new JsonFileWriter("id", fileName, false, string.Empty,
         "]", "[", true, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
 
@@ -118,9 +118,8 @@ namespace CsvTools.Tests
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
-      var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
-        "]", "[", false, Encoding.UTF8.CodePage, false, null, "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone,
-        TimeZoneInfo.Local.Id);
+      var writer = new JsonFileWriter("id", fileName, false, string.Empty,
+        "]", "[", false, Encoding.UTF8.CodePage, false, null, "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));

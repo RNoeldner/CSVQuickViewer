@@ -12,12 +12,8 @@
  *
  */
 #nullable enable
-#if SupportPGP
-using Org.BouncyCastle.Bcpg.OpenPgp;
-#endif
 using System;
 using System.IO;
-using System.Security;
 
 namespace CsvTools
 {
@@ -43,11 +39,6 @@ namespace CsvTools
     /// </summary>
     public readonly bool Reading;
 
-    /// <summary>
-    ///   The Password or Passphrase information
-    /// </summary>
-    public SecureString Passphrase;
-
 #if SupportPGP
     /// <summary>
     ///   Flag <c>true</c> if the not encrypted files should be kept after encryption
@@ -55,21 +46,12 @@ namespace CsvTools
     public readonly bool KeepEncrypted;
 
     /// <summary>
-    /// Needed to provide the encryption key
-    /// </summary>
-    /// TODO: This goes away and is replaced with PublicKey 
-    public readonly long KeyID;
-
-    /// <summary>
-    ///   The Public Key for writing PGP files
-    /// </summary>
-    public PgpPublicKey? PublicKey;
-
-    /// <summary>
     ///   The Private Key for reading PGP files
     /// </summary>
-    public PgpSecretKeyRingBundle? PrivateKey;
+    public string PgpKey;
 #endif
+
+    public string Passphrase;
 
     /// <summary>
     ///   Property used for informational purpose
@@ -88,16 +70,15 @@ namespace CsvTools
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
-
-    /// <param name="keyId">PGP encryption key identifier</param>
     /// <param name="keepEncrypted">
     ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
     ///   debugging in case the private key is not known and the file can not be decrypted
     /// </param>
+    /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
     /// <param name="privateKey"></param>
     /// <param name="publicKey"></param>
     public SourceAccess(in string fileName, bool isReading = true,
-          in string? id = null, long keyId = 0, bool keepEncrypted = false, in string privateKey = "", in string publicKey = "")
+          in string? id = null, bool keepEncrypted = false, in string passPhrase = "", in string privateKey = "", in string publicKey = "")
 #else
     /// <summary>
     ///   Get a new SourceAccess helper class
@@ -105,13 +86,8 @@ namespace CsvTools
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
-
-    /// <param name="keyId">PGP encryption key identifier</param>
-    /// <param name="keepEncrypted">
-    ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
-    ///   debugging in case the private key is not known and the file can not be decrypted
-    /// </param>
-    public SourceAccess(in string fileName,bool isReading = true,in string? id = null, long keyId = 0, bool keepEncrypted = false)
+    /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
+    public SourceAccess(in string fileName,bool isReading = true,in string? id = null, in string passPhrase = "")
 #endif
     {
       if (string.IsNullOrWhiteSpace(fileName))
@@ -126,35 +102,31 @@ namespace CsvTools
       FullPath = fileName;
       Reading = isReading;
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
-
-#if !QUICK
-      KeyID = keyId;
+      Passphrase = passPhrase;
+      
+#if SupportPGP
+      PgpKey = string.Empty;
       KeepEncrypted = keepEncrypted;
 #endif
       LeaveOpen = false;
       FileType = FromExtension(fileName);
-      Passphrase = new System.Security.SecureString();
       IdentifierInContainer = string.Empty;
       switch (FileType)
       {
         case FileTypeEnum.Zip when !isReading:
           IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
-
           break;
-#if !QUICK
+#if SupportPGP
         // for PGP we need a password/ pass phrase for Zip we might need one later
-        case FileTypeEnum.Pgp when isReading:
-          var res = FunctionalDI.GetPassphraseForFile(fileName);
-          Passphrase = res.passphrase;
-          PrivateKey = PgpHelper.ParsePrivateKey(privateKey.Length==0 ? res.keyInfo : privateKey);
-          break;
-        case FileTypeEnum.Pgp when !isReading:
-          if (!string.IsNullOrEmpty(publicKey))
-            PublicKey = PgpHelper.ParsePublicKey(publicKey);
+        case FileTypeEnum.Pgp:
+          if (isReading)
+            PgpKey = privateKey;
+          else
+            PgpKey = publicKey;
           break;
 #endif
       }
-#if !QUICK
+#if SupportPGP
       if (!isReading && KeepEncrypted && FileType == FileTypeEnum.Pgp)
       {
         // remove extension
@@ -171,7 +143,7 @@ namespace CsvTools
 #endif
     }
 
-#if !QUICK
+#if SupportPGP
     /// <inheritdoc />
     /// <summary>
     ///   Create a source access based on a setting, the setting might contain information for
@@ -180,13 +152,10 @@ namespace CsvTools
     /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
-      : this(setting.FullPath, isReading, setting.ID, 0, setting.KeepUnencrypted)
+      : this(setting.FullPath, isReading, setting.ID, setting.KeepUnencrypted)
     {
       if (FileType != FileTypeEnum.Pgp) return;
-      if (isReading)
-        PrivateKey = PgpHelper.ParsePrivateKey(FileSystemUtils.ReadAllText(setting.KeyFileRead));
-      else
-        PublicKey = PgpHelper.ParsePublicKey(FileSystemUtils.ReadAllText(setting.KeyFileWrite));
+      PgpKey = FileSystemUtils.ReadAllText(setting.KeyFile);
     }
 
 #endif
@@ -203,7 +172,10 @@ namespace CsvTools
       FileType = type;
       Reading = true;
       FullPath = string.Empty;
-      Passphrase = new SecureString();
+      Passphrase = string.Empty;
+#if SupportPGP
+      PgpKey = string.Empty;
+#endif
       IdentifierInContainer = string.Empty;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)

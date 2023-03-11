@@ -86,6 +86,7 @@ namespace CsvTools
             this.comboBoxLimitDuration = new System.Windows.Forms.ComboBox();
             this.numericUpDownLength = new System.Windows.Forms.NumericUpDown();
             this.checkBoxCopySkipped = new System.Windows.Forms.CheckBox();
+            this.textBoxKeyFileWrite = new System.Windows.Forms.TextBox();
             this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabPageBehaviour = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelBehaviour = new System.Windows.Forms.TableLayoutPanel();
@@ -113,7 +114,6 @@ namespace CsvTools
             this.label7 = new System.Windows.Forms.Label();
             this.buttonNewLine = new System.Windows.Forms.Button();
             this.buttonKeyFileWrite = new System.Windows.Forms.Button();
-            this.textBoxKeyFileWrite = new System.Windows.Forms.TextBox();
             this.tableLayoutPanelFile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
@@ -669,7 +669,7 @@ namespace CsvTools
             this.textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
             this.textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
             this.tableLayoutPanelFile.SetColumnSpan(this.textBoxKeyFileRead, 4);
-            this.textBoxKeyFileRead.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "KeyFileRead", true));
+            this.textBoxKeyFileRead.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "KeyFile", true));
             this.textBoxKeyFileRead.Location = new System.Drawing.Point(110, 222);
             this.textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
@@ -697,7 +697,7 @@ namespace CsvTools
             this.checkBoxTreatNBSPAsSpace.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 2);
             this.checkBoxTreatNBSPAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatNBSPAsSpace", true));
-            this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(332, 126);
+            this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(323, 126);
             this.checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
             this.checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
@@ -711,7 +711,7 @@ namespace CsvTools
             this.checkBoxSkipEmptyLines.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxSkipEmptyLines, 2);
             this.checkBoxSkipEmptyLines.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "SkipEmptyLines", true));
-            this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(332, 21);
+            this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(323, 21);
             this.checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
             this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
@@ -726,7 +726,7 @@ namespace CsvTools
             this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 2);
             this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatUnknownCharacterAsSpace", true));
-            this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(332, 105);
+            this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(323, 105);
             this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
             this.checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
@@ -740,7 +740,7 @@ namespace CsvTools
             this.checkBoxTreatLFasSpace.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatLFasSpace, 2);
             this.checkBoxTreatLFasSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatLFAsSpace", true));
-            this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(332, 84);
+            this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(323, 84);
             this.checkBoxTreatLFasSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatLFasSpace.Name = "checkBoxTreatLFasSpace";
             this.checkBoxTreatLFasSpace.Size = new System.Drawing.Size(143, 17);
@@ -754,10 +754,10 @@ namespace CsvTools
             this.checkBoxTryToSolveMoreColumns.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 2);
             this.checkBoxTryToSolveMoreColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TryToSolveMoreColumns", true));
-            this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(332, 63);
+            this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(323, 63);
             this.checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
-            this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(426, 17);
+            this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(412, 17);
             this.checkBoxTryToSolveMoreColumns.TabIndex = 7;
             this.checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns" +
     "";
@@ -772,7 +772,7 @@ namespace CsvTools
             this.checkBoxAllowRowCombining.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxAllowRowCombining, 2);
             this.checkBoxAllowRowCombining.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "AllowRowCombining", true));
-            this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(332, 42);
+            this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(323, 42);
             this.checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
             this.checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
@@ -1058,7 +1058,7 @@ namespace CsvTools
             0,
             0,
             0});
-            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(423, 237);
+            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(414, 237);
             this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
             200,
             0,
@@ -1117,6 +1117,20 @@ namespace CsvTools
             this.checkBoxCopySkipped.UseVisualStyleBackColor = true;
             this.checkBoxCopySkipped.MouseClick += new System.Windows.Forms.MouseEventHandler(this.checkBoxCopySkipped_MouseClick);
             // 
+            // textBoxKeyFileWrite
+            // 
+            this.textBoxKeyFileWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.textBoxKeyFileWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+            this.tableLayoutPanelWrite.SetColumnSpan(this.textBoxKeyFileWrite, 3);
+            this.textBoxKeyFileWrite.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceWrite, "KeyFile", true));
+            this.textBoxKeyFileWrite.Location = new System.Drawing.Point(115, 128);
+            this.textBoxKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
+            this.textBoxKeyFileWrite.MinimumSize = new System.Drawing.Size(46, 4);
+            this.textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
+            this.textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
+            this.textBoxKeyFileWrite.TabIndex = 33;
+            this.toolTip.SetToolTip(this.textBoxKeyFileWrite, "Location of Public PGP key in case a PGP encrypted file should be written.");
+            // 
             // errorProvider
             // 
             this.errorProvider.ContainerControl = this;
@@ -1129,7 +1143,7 @@ namespace CsvTools
             this.tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageBehaviour.Name = "tabPageBehaviour";
             this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageBehaviour.Size = new System.Drawing.Size(766, 454);
+            this.tabPageBehaviour.Size = new System.Drawing.Size(741, 454);
             this.tabPageBehaviour.TabIndex = 9;
             this.tabPageBehaviour.Text = "Behavior and Warnings";
             // 
@@ -1193,7 +1207,7 @@ namespace CsvTools
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(762, 391);
+            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(737, 391);
             this.tableLayoutPanelBehaviour.TabIndex = 3;
             // 
             // labelPersistentSettings
@@ -1210,7 +1224,7 @@ namespace CsvTools
             // labelByFile
             // 
             this.labelByFile.AutoSize = true;
-            this.labelByFile.Location = new System.Drawing.Point(333, 0);
+            this.labelByFile.Location = new System.Drawing.Point(324, 0);
             this.labelByFile.Name = "labelByFile";
             this.labelByFile.Padding = new System.Windows.Forms.Padding(3);
             this.labelByFile.Size = new System.Drawing.Size(84, 19);
@@ -1225,7 +1239,7 @@ namespace CsvTools
             this.selectFont.FontSize = 9.75F;
             this.selectFont.Location = new System.Drawing.Point(3, 175);
             this.selectFont.Name = "selectFont";
-            this.selectFont.Size = new System.Drawing.Size(324, 56);
+            this.selectFont.Size = new System.Drawing.Size(315, 56);
             this.selectFont.TabIndex = 16;
             this.selectFont.ValueChanged += new System.EventHandler(this.SelectFont_ValueChanged);
             // 
@@ -1244,7 +1258,7 @@ namespace CsvTools
             // 
             this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelWarningLimit.AutoSize = true;
-            this.labelWarningLimit.Location = new System.Drawing.Point(344, 239);
+            this.labelWarningLimit.Location = new System.Drawing.Point(335, 239);
             this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
             this.labelWarningLimit.Name = "labelWarningLimit";
             this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
@@ -1259,7 +1273,7 @@ namespace CsvTools
             this.tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFormat.Name = "tabPageFormat";
             this.tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFormat.Size = new System.Drawing.Size(766, 454);
+            this.tabPageFormat.Size = new System.Drawing.Size(741, 454);
             this.tabPageFormat.TabIndex = 0;
             this.tabPageFormat.Text = "Detection";
             // 
@@ -1270,7 +1284,7 @@ namespace CsvTools
             this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
             this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
             this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-            this.fillGuessSettingEdit.Size = new System.Drawing.Size(762, 450);
+            this.fillGuessSettingEdit.Size = new System.Drawing.Size(737, 450);
             this.fillGuessSettingEdit.TabIndex = 101;
             // 
             // tabPageFile
@@ -1524,25 +1538,11 @@ namespace CsvTools
             this.buttonKeyFileWrite.Location = new System.Drawing.Point(572, 128);
             this.buttonKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
             this.buttonKeyFileWrite.Name = "buttonKeyFileWrite";
-            this.buttonKeyFileWrite.Size = new System.Drawing.Size(149, 23);
+            this.buttonKeyFileWrite.Size = new System.Drawing.Size(66, 23);
             this.buttonKeyFileWrite.TabIndex = 17;
             this.buttonKeyFileWrite.Text = "Select File";
             this.buttonKeyFileWrite.UseVisualStyleBackColor = true;
             this.buttonKeyFileWrite.Click += new System.EventHandler(this.buttonKeyFileWrite_Click);
-            // 
-            // textBoxKeyFileWrite
-            // 
-            this.textBoxKeyFileWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.textBoxKeyFileWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-            this.tableLayoutPanelWrite.SetColumnSpan(this.textBoxKeyFileWrite, 3);
-            this.textBoxKeyFileWrite.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceWrite, "KeyFileWrite", true));
-            this.textBoxKeyFileWrite.Location = new System.Drawing.Point(115, 128);
-            this.textBoxKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
-            this.textBoxKeyFileWrite.MinimumSize = new System.Drawing.Size(46, 4);
-            this.textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
-            this.textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
-            this.textBoxKeyFileWrite.TabIndex = 33;
-            this.toolTip.SetToolTip(this.textBoxKeyFileWrite, "Location of Public PGP key in case a PGP encrypted file should be written.");
             // 
             // FormEditSettings
             // 

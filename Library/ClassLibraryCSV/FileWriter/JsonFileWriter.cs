@@ -33,7 +33,6 @@ namespace CsvTools
     /// </summary>
     public JsonFileWriter(in string id,
       in string fullPath,
-      long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
@@ -41,15 +40,15 @@ namespace CsvTools
       bool emptyAsNull,
       int codePageId,
       bool byteOrderMark,
-      in IEnumerable<Column>? columnDefinition,
+      IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
-      in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone)
+      TimeZoneChangeDelegate? timeZoneAdjust,
+      in string sourceTimeZone, 
+      in string publicKey)
       : base(
         id,
         fullPath,
-        pgpKeyId,
         unencrypted,
         identifierInContainer,
         footer,
@@ -60,7 +59,8 @@ namespace CsvTools
         fileSettingDisplay,
         row,
         timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone)
+        sourceTimeZone,
+        publicKey)
     {
       m_EmptyAsNull = emptyAsNull;
     }

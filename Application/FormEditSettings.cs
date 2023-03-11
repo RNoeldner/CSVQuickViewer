@@ -130,7 +130,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
             m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, 
-            CsvHelper.GetKeyInfo(newFileName,m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
+            PgpHelper.GetKeyAndValidate(newFileName,m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
