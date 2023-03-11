@@ -29,23 +29,23 @@ namespace CsvTools
     /// </summary>
     public XmlFileWriter(in string id,
       in string fullPath,
-      long pgpKeyId,
       bool unencrypted,
-      string? identifierInContainer,
-      string? footer,
-      string? header,
+      in string? identifierInContainer,
+      in string? footer,
+      in string? header,
       int codePageId,
       bool byteOrderMark,
       IEnumerable<Column>? columnDefinition,
-      string fileSettingDisplay,
-      string row,
+      in string fileSettingDisplay,
+      in string row,
       TimeZoneChangeDelegate timeZoneAdjust,
-      string sourceTimeZone)
+      in string sourceTimeZone,
+      in string publicKey)
       : base(
-        id, fullPath, pgpKeyId, unencrypted,
+        id, fullPath, unencrypted,
         identifierInContainer, footer, header, codePageId,
         byteOrderMark, columnDefinition, fileSettingDisplay, row,
-        timeZoneAdjust, sourceTimeZone)
+        timeZoneAdjust, sourceTimeZone, publicKey)
 
     {
     }

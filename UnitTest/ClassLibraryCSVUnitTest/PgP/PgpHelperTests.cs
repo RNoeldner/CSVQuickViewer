@@ -9,6 +9,12 @@ namespace CsvTools.Tests
   [TestClass]
   public class PgpHelperTests
   {
+    [TestMethod]
+    public void GetKey()
+    {
+      var contend = PgpHelper.GetKeyAndValidate("WriteMyPGP1.pgp", UnitTestStatic.GetTestPath("PrivateKey.asc"));
+      Assert.IsNotNull(contend);
+    }
 
     [TestMethod]
     public void WriteStream()

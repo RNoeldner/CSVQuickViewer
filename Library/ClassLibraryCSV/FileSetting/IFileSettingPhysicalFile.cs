@@ -46,24 +46,14 @@ namespace CsvTools
     string IdentifierInContainer { get; set; }
 
     /// <summary>
-    ///   Passphrase for Decryption
+    ///   Passphrase for Decryption of Zip or PGP
     /// </summary>
-    SecureString Passphrase { get; set; }
-
-    /// <summary>
-    ///   Gets the PGP encryption Key ID
-    /// </summary>
-    long KeyID { get; set; }
+    string Passphrase { get; set; }
 
     /// <summary>
     ///   Path to the private PGP key used during decryption / read
     /// </summary>
-    string KeyFileRead { get; set; }
-
-    /// <summary>
-    ///   Path to the public PGP key used during encryption / write
-    /// </summary>
-    string KeyFileWrite { get; set; }
+    string KeyFile { get; set; }
 
     /// <summary>
     ///   Path to the file on sFTP Server

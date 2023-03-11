@@ -33,13 +33,12 @@ namespace CsvTools
     protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string FullPath;
-    // TODO: pgpKeyId goes away replaced by Key
-    private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
     protected readonly ValueFormat ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
+    private readonly string m_PublicKey;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -55,7 +54,6 @@ namespace CsvTools
     /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of teh file to write</param>
     /// <param name="valueFormatGeneral">Fallback value format for typed values that do not have a column setup</param>
-    /// <param name="pgpKeyId">Passed on to SourceAccess allowing PGP encryption of teh written file (not implemented in all Libraries)</param>
     /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
@@ -64,13 +62,12 @@ namespace CsvTools
     /// <param name="fileSettingDisplay">Info text for logging and process report</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     /// <exception cref="ArgumentException"></exception>
     protected BaseFileWriter(
       in string id,
       in string fullPath,
       in ValueFormat? valueFormatGeneral,
-      // TODO: pgpKeyId goes away replaced by Key
-      long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
@@ -78,12 +75,12 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone)
+      in string sourceTimeZone,
+      in string publicKey)
     {
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust;
-      m_PgpKeyId = pgpKeyId;
-
+      m_PublicKey = publicKey;
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ?? string.Empty;
       var fileName = FileSystemUtils.GetFileName(FullPath);
       Header = ReplacePlaceHolder(
@@ -268,10 +265,12 @@ namespace CsvTools
 
       try
       {
-#if QUICK
-        var sourceAccess = new SourceAccess(FullPath, false);
+
+#if SupportPGP
+        var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, publicKey: m_PublicKey);
+
 #else
-        var sourceAccess = new SourceAccess(FullPath, false, keyId: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
+        var sourceAccess = new SourceAccess(FullPath, false);
 #endif
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
@@ -322,6 +321,7 @@ namespace CsvTools
       HandleProgress($"Record {Records:N0}");
     }
 
+    /// <inheritdoc cref="IFileWriter"/>
     public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
     private static string ReplacePlaceHolder(string? input, string fileName, string id) =>

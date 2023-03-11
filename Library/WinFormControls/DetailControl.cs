@@ -749,10 +749,11 @@ namespace CsvTools
       {
         formProgress.ShowWithFont(this);
         BeforeFileStored?.Invoke(this, WriteSetting);
+
         var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
           WriteSetting.ValueFormatWrite,
           WriteSetting.CodePageId,
-          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.KeyID, WriteSetting.KeepUnencrypted,
+          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.KeepUnencrypted,
           WriteSetting.IdentifierInContainer,
           skippedLines.ToString(), WriteSetting.Footer, string.Empty, WriteSetting.NewLine,
           WriteSetting.FieldDelimiterChar,
@@ -760,7 +761,7 @@ namespace CsvTools
           WriteSetting.EscapePrefixChar,
           WriteSetting.NewLinePlaceholder, WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder,
           WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone,
-          TimeZoneInfo.Local.Id);
+          TimeZoneInfo.Local.Id, PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile));
 
 #if NET5_0_OR_GREATER
         await

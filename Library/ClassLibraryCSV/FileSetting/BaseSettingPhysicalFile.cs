@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Security;
 using System.Text;
 #if XmlSerialization
 using System.Xml.Serialization;
@@ -40,14 +39,13 @@ namespace CsvTools
     private string m_FullPath = string.Empty;
     private bool m_FullPathInitialized;
     private string m_IdentifierInContainer = string.Empty;
-    private SecureString m_PassPhrase = new SecureString();
+    private string m_PassPhrase = string.Empty;
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
     private long m_KeyId;
-    private string m_KeyFileRead = string.Empty;
-    private string m_KeyFileWrite = string.Empty;
+    private string m_KeyFile = string.Empty;
 
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
@@ -61,17 +59,10 @@ namespace CsvTools
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 
     [DefaultValue("")]
-    public string KeyFileRead
+    public string KeyFile
     {
-      get => m_KeyFileRead;
-      set => SetProperty(ref m_KeyFileRead, value);
-    }
-
-    [DefaultValue("")]
-    public string KeyFileWrite
-    {
-      get => m_KeyFileWrite;
-      set => SetProperty(ref m_KeyFileWrite, value);
+      get => m_KeyFile;
+      set => SetProperty(ref m_KeyFile, value);
     }
 
     /// <inheritdoc />
@@ -215,14 +206,10 @@ namespace CsvTools
     [XmlIgnore]
 #endif
     [JsonIgnore]
-    public virtual SecureString Passphrase
+    public virtual string Passphrase
     {
       get => m_PassPhrase;
-      set
-      {
-        m_PassPhrase.Dispose();
-        m_PassPhrase = value;
-      }
+      set => SetProperty(ref m_PassPhrase, value ?? string.Empty);
     }
 
     /// <inheritdoc />
@@ -285,12 +272,10 @@ namespace CsvTools
       fileSettingPhysicalFile.ColumnFile = ColumnFile;
       fileSettingPhysicalFile.FileName = FileName;
       fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
-      fileSettingPhysicalFile.KeyFileRead = KeyFileRead;
-      fileSettingPhysicalFile.KeyFileWrite = KeyFileWrite;
+      fileSettingPhysicalFile.KeyFile = KeyFile;
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
-      fileSettingPhysicalFile.KeyID = KeyID;
       if (fileSettingPhysicalFile is BaseSettingPhysicalFile phy)
         phy.ValueFormatMut.CopyFrom(ValueFormatWrite);
     }
@@ -318,11 +303,9 @@ namespace CsvTools
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
         return false;
 
-      if (!string.Equals(fileSettingPhysicalFile.KeyFileRead, KeyFileRead, StringComparison.OrdinalIgnoreCase))
+      if (!string.Equals(fileSettingPhysicalFile.KeyFile, KeyFile, StringComparison.OrdinalIgnoreCase))
         return false;
 
-      if (!string.Equals(fileSettingPhysicalFile.KeyFileWrite, KeyFileWrite, StringComparison.OrdinalIgnoreCase))
-        return false;
 
       if (fileSettingPhysicalFile.RemoteFileName != RemoteFileName
           || fileSettingPhysicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
@@ -332,8 +315,7 @@ namespace CsvTools
           || fileSettingPhysicalFile.FileSize != FileSize)
         return false;
 
-      if (!fileSettingPhysicalFile.Passphrase.GetText().Equals(Passphrase.GetText(), StringComparison.Ordinal)
-          || fileSettingPhysicalFile.KeyID != KeyID)
+      if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal))
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
@@ -360,11 +342,8 @@ namespace CsvTools
         if (!physicalFile.RemoteFileName.Equals(RemoteFileName, StringComparison.OrdinalIgnoreCase))
           yield return $"{nameof(RemoteFileName)} : {RemoteFileName} {physicalFile.RemoteFileName}";
 
-        if (!physicalFile.KeyFileRead.Equals(KeyFileRead, StringComparison.OrdinalIgnoreCase))
-          yield return $"{nameof(KeyFileRead)} : {KeyFileRead} {physicalFile.KeyFileRead}";
-
-        if (!physicalFile.KeyFileWrite.Equals(KeyFileWrite, StringComparison.OrdinalIgnoreCase))
-          yield return $"{nameof(KeyFileWrite)} : {KeyFileWrite} {physicalFile.KeyFileWrite}";
+        if (!physicalFile.KeyFile.Equals(KeyFile, StringComparison.OrdinalIgnoreCase))
+          yield return $"{nameof(KeyFile)} : {KeyFile} {physicalFile.KeyFile}";
 
         if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
           yield return
@@ -376,9 +355,6 @@ namespace CsvTools
 
         if (physicalFile.Passphrase != Passphrase)
           yield return $"{nameof(Passphrase)}";
-
-        if (!physicalFile.KeyID.Equals(KeyID))
-          yield return $"{nameof(KeyID)} : {KeyID} {physicalFile.KeyID}";
 
         if (!physicalFile.ValueFormatWrite.Equals(ValueFormatWrite))
           yield return $"{nameof(ValueFormatWrite)}";

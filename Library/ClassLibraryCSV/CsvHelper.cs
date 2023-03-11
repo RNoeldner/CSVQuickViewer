@@ -55,7 +55,6 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="inspectionResult">Default in case inspection is wanted</param>
     /// <param name="fillGuessSettings"></param>
-    /// <param name="privateKey">Private Key information for reading</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
@@ -247,7 +246,6 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
-    /// <param name="privateKey">Private key for reading PGP encrypted Information</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
@@ -620,10 +618,7 @@ CommentLine
 
 #if !QUICK
 
-    public static string GetKeyInfo(string fileName, string keyFileRead)
-    => fileName.AssumePgp() && !string.IsNullOrEmpty(keyFileRead) &&FileSystemUtils.FileExists(keyFileRead)
-        ? FileSystemUtils.ReadAllText(keyFileRead) : string.Empty;
-
+    
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
 
@@ -639,7 +634,7 @@ CommentLine
           SkipRows =  csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        new FillGuessSettings(false), GetKeyInfo(csvFile.FileName, csvFile.KeyFileRead), cancellationToken).ConfigureAwait(false);
+        new FillGuessSettings(false), PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;

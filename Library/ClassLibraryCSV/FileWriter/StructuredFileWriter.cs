@@ -51,11 +51,24 @@ namespace CsvTools
     private readonly int m_CodePageId;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
+    ///   Initializes a new instance class used for <see cref="JsonFileWriter"/> and <see cref="XmlFileWriter"/>/>
     /// </summary>
+    /// <param name="id">Information for  Placeholder of ID</param>
+    /// <param name="fullPath">Fully qualified path of teh file to write</param>
+    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
+    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
+    /// <param name="footer">Footer to be written after all rows are written</param>
+    /// <param name="header">Header to be written before data and/or Header is written</param>
+    /// <param name="codePageId">The Code Page for encoding of characters</param>
+    /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
+    /// <param name="columnDefinition">Individual column definitions for formatting</param>
+    /// <param name="fileSettingDisplay">Info text for logging and process report</param>
+    /// <param name="row">Placeholder for a row</param>
+    /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
+    /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     protected StructuredFileWriter(in string id,
       in string fullPath,
-      in long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
@@ -66,12 +79,12 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone)
+      in string sourceTimeZone,
+      in string publicKey)
       : base(
         id,
         fullPath,
         null,
-        pgpKeyId,
         unencrypted,
         identifierInContainer,
         footer,
@@ -79,7 +92,8 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone)
+        sourceTimeZone,
+        publicKey)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
@@ -105,9 +119,9 @@ namespace CsvTools
       IFileReader reader,
       Stream output,
       CancellationToken cancellationToken)
-    {      
-      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);      
-      
+    {
+      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+
       var numColumns = columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");

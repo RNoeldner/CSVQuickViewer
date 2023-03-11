@@ -143,7 +143,12 @@ namespace CsvTools
         if (!FileSystemUtils.FileExists(fn))
           throw new FileNotFoundException($"Could not find not encrypted file {fn} for encryption");
 
-        m_SourceAccess.PublicKey!.EncryptFileAsync(fn, m_SourceAccess.FullPath, null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
+        var key = m_SourceAccess.PgpKey;
+        if (string.IsNullOrEmpty(key))
+          key =  FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
+
+        var publicKey = PgpHelper.ParsePublicKey(key);
+        publicKey.EncryptFileAsync(fn, m_SourceAccess.FullPath, null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
       }
     }
 #endif
@@ -191,7 +196,7 @@ namespace CsvTools
     /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
-    
+
     public new void Dispose() => Dispose(true);
 
     /// <inheritdoc cref="Stream.Flush()"/>
@@ -342,11 +347,24 @@ namespace CsvTools
       {
         try
         {
-          Logger.Debug("Decrypt PGP file {filename}", m_SourceAccess.Identifier);
+          Logger.Debug("Decrypt from PGP file {filename}", m_SourceAccess.Identifier);
 
-          m_StreamClosedFirst = m_SourceAccess.PrivateKey!.GetReadStream(m_SourceAccess.Passphrase, BaseStream,
-            out m_StreamClosedSecond, out m_StreamClosedThird);
+          var key = m_SourceAccess.PgpKey;
+          var passphrase = m_SourceAccess.Passphrase;
+
+          if (string.IsNullOrEmpty(key))
+            key = FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
+
+          if (string.IsNullOrEmpty(passphrase))
+            passphrase = FunctionalDI.GetPassphraseForFile(m_SourceAccess.FullPath);
+
+          var privateKey = PgpHelper.ParsePrivateKey(key);
+          m_StreamClosedFirst = privateKey.GetReadStream(passphrase, BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
           AccessStream = m_StreamClosedFirst;
+
+          // Opening the stream did work store the information for later use
+          PgpHelper.StorePassphrase(m_SourceAccess.FullPath, passphrase);
+          PgpHelper.StoreKey(m_SourceAccess.FullPath, key);
         }
         catch (Exception ex)
         {
@@ -360,12 +378,17 @@ namespace CsvTools
         // Do not write PGP file imitate but encrypt when closing...
         if (!m_SourceAccess.KeepEncrypted)
         {
-          Logger.Debug("Encrypt to PGP {filename} for recipient {recipient}", m_SourceAccess.Identifier,
-            m_SourceAccess.KeyID);
+          Logger.Debug("Encrypt to PGP {filename}", m_SourceAccess.Identifier);
 
+          var key = m_SourceAccess.PgpKey;
+          if (string.IsNullOrEmpty(key))
+            key = FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
+
+          var publicKey = PgpHelper.ParsePublicKey(key);
           // Access Stream will be the PgpLiteralDataGenerator (last stream opened)
-          m_StreamClosedFirst = PgpHelper.GetWriteStream(m_SourceAccess.PublicKey!, BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
+          m_StreamClosedFirst = publicKey.GetWriteStream(BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
           AccessStream = m_StreamClosedFirst;
+          PgpHelper.StoreKey(m_SourceAccess.FullPath, key);
         }
         else
         {
@@ -435,9 +458,27 @@ namespace CsvTools
       if (m_SourceAccess.Reading)
       {
         m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, m_SourceAccess.LeaveOpen);
+        var pass = m_SourceAccess.Passphrase;
 
-        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase.GetText()))
-          m_ZipFile.Password = m_SourceAccess.Passphrase.GetText();
+        retry:
+        m_ZipFile.Password = pass;
+        try
+        {
+          m_ZipFile.GetEnumerator();
+#if !QUICK
+          // store the password it is correct...
+          if (!string.IsNullOrEmpty(pass))
+            PgpHelper.StorePassphrase(m_SourceAccess.FullPath, pass);
+#endif
+        }
+        catch (ZipException)
+        {
+          pass = FunctionalDI.GetPassphraseForFile(m_SourceAccess.FullPath);
+          if (pass.Length > 0)
+            goto retry;
+          throw;
+        }
+
         var hasFile = false;
         if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
         {
@@ -480,8 +521,8 @@ namespace CsvTools
       else
       {
         var zipOutputStream = new ZipOutputStream(BaseStream, cBufferSize);
-        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase.GetText()))
-          zipOutputStream.Password = m_SourceAccess.Passphrase.GetText();
+        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
+          zipOutputStream.Password = m_SourceAccess.Passphrase;
         zipOutputStream.IsStreamOwner = false;
         zipOutputStream.SetLevel(5);
         if (m_SourceAccess.IdentifierInContainer.Length == 0)

@@ -17,11 +17,10 @@ namespace CsvTools
 
       if (disposing)
       {
+        PgpHelper.ClearPgpInfo();
+
         m_DisposedValue = true;
         components?.Dispose();
-
-        foreach (var secureString in m_KnownPassphrase)
-          secureString.Value.Dispose();
 
         m_CancellationTokenSource?.Dispose();
         m_SettingsChangedTimerChange?.Dispose();
