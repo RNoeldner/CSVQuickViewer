@@ -12,5 +12,15 @@ namespace CsvTools.Tests
       Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
       FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));      
     }
+
+    
+    public static void SetApplicationPGPSetting()
+    {
+      FunctionalDI.GetKeyForFile= _ =>  PGPKeyTestHelper.cPrivate;
+      FunctionalDI.GetPassphraseForFile = _ =>  PGPKeyTestHelper.Passphrase;
+      FunctionalDI.GetKeyAndPassphraseForFile =
+        _ => (PGPKeyTestHelper.Passphrase, string.Empty, PGPKeyTestHelper.cPrivate);
+    }
+
   }
 }
