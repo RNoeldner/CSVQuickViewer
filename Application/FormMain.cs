@@ -66,12 +66,32 @@ namespace CsvTools
       InitializeComponent();
       Text = AssemblyTitle;
 
+      FunctionalDI.GetKeyAndPassphraseForFile = fileName =>
+        fileName.GetKeyAndPassphraseForFile(
+          m_FileSetting?.Passphrase ?? string.Empty,
+          m_FileSetting?.KeyFile ?? m_ViewSettings.KeyFileRead,
+          () =>
+          {
+            using var frm = new FormPasswordAndKey();
+            frm.Passphrase = m_FileSetting?.Passphrase ?? string.Empty;
+            frm.FileName = m_FileSetting?.KeyFile ?? m_ViewSettings.KeyFileRead;
+            if (frm.ShowWithFont(this, true) == DialogResult.OK)
+            {
+              var key = PgpHelper.GetKeyAndValidate(fileName, frm.FileName);
+              if (key.Length > 0)
+                return (frm.Passphrase, frm.FileName, key);
+            }
+
+            return (string.Empty, string.Empty, string.Empty);
+          });
+      
       FunctionalDI.GetKeyForFile = fileName =>
         fileName.GetKeyForFile(m_FileSetting?.KeyFile ?? m_ViewSettings.KeyFileRead,
           () =>
           {
-            using var frm = new FormFileSelect();
-            if (frm.ShowDialog() == DialogResult.OK)
+            using var frm = new FormPasswordAndKey();
+            frm.ShowPassphrase = false;
+            if (frm.ShowWithFont(this, true) == DialogResult.OK)
             {
               var key = PgpHelper.GetKeyAndValidate(fileName, frm.FileName);
               if (key.Length > 0)
@@ -86,8 +106,9 @@ namespace CsvTools
       FunctionalDI.GetPassphraseForFile = fileName =>
         fileName.GetPassphraseForFile(m_FileSetting?.Passphrase ?? string.Empty, () =>
         {
-          using var frm = new FormPassphrase();
-          if (frm.ShowDialog() == DialogResult.OK && frm.Passphrase.Length > 0)
+          using var frm = new FormPasswordAndKey();
+          frm.ShowFileName = false;
+          if (frm.ShowWithFont(this, true) == DialogResult.OK && frm.Passphrase.Length > 0)
             return frm.Passphrase;
           return string.Empty;
         });

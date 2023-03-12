@@ -72,6 +72,35 @@ namespace CsvTools
     }
 
 #if SupportPGP
+    public static (string passphrase, string keyFile, string key) GetKeyAndPassphraseForFile(this string fileName, string passphrase,
+      string keyFile, Func<(string passphrase, string keyFile, string key)>? getKeyAndPassphraseInteractive)
+    {
+      if (!(fileName.AssumePgp()))
+        return (string.Empty, string.Empty, string.Empty);
+
+      // Passphrase stored in Setting
+      if (passphrase.Length == 0)
+        passphrase = PgpHelper.LookupPassphrase(fileName);
+
+      if (keyFile.Length==0)
+        keyFile = PgpHelper.LookupKeyFile(fileName);
+
+      var key = PgpHelper.GetKeyAndValidate(fileName, keyFile);
+      if ((key.Length == 0 || passphrase.Length == 0) && getKeyAndPassphraseInteractive!= null)
+      {
+        var res = getKeyAndPassphraseInteractive.Invoke();
+        key = res.key;
+        keyFile = res.keyFile;
+        passphrase= res.passphrase;
+      }
+      if (passphrase.Length == 0)
+        throw new FileReaderException("A passphrase is needed for decryption.");
+      if (key.Length == 0)
+        throw new EncryptionException("The key information is needed");
+
+      return (passphrase, keyFile, key);
+    }
+
     /// <summary>
     ///   Gets the key to use possibly using the UI when needed 
     /// </summary>
