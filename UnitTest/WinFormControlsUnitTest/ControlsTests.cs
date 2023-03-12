@@ -25,6 +25,19 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
+    [TestMethod, Timeout(1000)]
+    public void FormPasswordAndKey()
+    {
+      UnitTestStaticForms.ShowForm((Func<Form>) (() => new FormPasswordAndKey("Test")), 0, (f) =>
+      {
+        if (f is FormPasswordAndKey fpak)
+        {
+          fpak.Passphrase = "Test";
+          fpak.FileName = @"c:\Test.asc";
+        }
+      });
+    }
+
     [TestMethod, Timeout(10000)]
     public void CsvTextDisplayShowAsync()
     {
