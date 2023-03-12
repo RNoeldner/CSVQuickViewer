@@ -351,12 +351,15 @@ namespace CsvTools
 
           var key = m_SourceAccess.PgpKey;
           var passphrase = m_SourceAccess.Passphrase;
+          var keyFile = string.Empty;
 
-          if (string.IsNullOrEmpty(key))
-            key = FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
-
-          if (string.IsNullOrEmpty(passphrase))
-            passphrase = FunctionalDI.GetPassphraseForFile(m_SourceAccess.FullPath);
+          if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(passphrase))
+          {
+            var res = FunctionalDI.GetKeyAndPassphraseForFile(m_SourceAccess.FullPath);
+            key = res.key;
+            passphrase = res.passphrase;
+            keyFile = res.keyFile;
+          }
 
           var privateKey = PgpHelper.ParsePrivateKey(key);
           m_StreamClosedFirst = privateKey.GetReadStream(passphrase, BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
@@ -364,6 +367,7 @@ namespace CsvTools
 
           // Opening the stream did work store the information for later use
           PgpHelper.StorePassphrase(m_SourceAccess.FullPath, passphrase);
+          PgpHelper.StoreKeyFile(m_SourceAccess.FullPath, keyFile);
           PgpHelper.StoreKey(m_SourceAccess.FullPath, key);
         }
         catch (Exception ex)
