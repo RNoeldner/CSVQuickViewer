@@ -31,6 +31,8 @@ namespace CsvTools
     private Label m_LabelKeyFile;
     private CheckBox m_CheckBoxShowHide;
     private TableLayoutPanel m_TableLayoutPanel;
+    private bool m_ShowFileName = true;
+    private bool m_ShowPassphrase = true;
 
 #pragma warning disable CS8618
     public FormPasswordAndKey(string title = "")
@@ -75,18 +77,11 @@ namespace CsvTools
     [Browsable(true)]
     public bool ShowFileName
     {
-      get => m_TextBoxKeyFile.Visible;
+      get => m_ShowFileName;
       set
       {
-        if (m_ButtonKeyFile.Visible == value)
-          return;
-        m_ButtonKeyFile.Visible  = value;
-        //if (!m_ButtonKeyFile.Visible)
-        //  Height -= m_ButtonKeyFile.Height;
-        //else
-        //  Height -= m_ButtonKeyFile.Height;
-        m_TextBoxKeyFile.Visible = value;
-        m_LabelKeyFile.Visible = value;
+        m_ShowFileName=value;
+        FormPasswordAndKey_Shown(this, EventArgs.Empty);
       }
     }
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -95,18 +90,11 @@ namespace CsvTools
     [Browsable(true)]
     public bool ShowPassphrase
     {
-      get => m_TextBoxPassphrase.Visible;
+      get => m_ShowPassphrase;
       set
       {
-        if (m_TextBoxPassphrase.Visible == value)
-          return;
-        m_TextBoxPassphrase.Visible  = value;
-        m_LabelPassphrase.Visible  = value;
-        m_CheckBoxShowHide.Visible  = value;
-        //if (!m_TextBoxPassphrase.Visible)
-        //  Height -= m_TextBoxPassphrase.Height;
-        //else
-        //  Height -= m_TextBoxPassphrase.Height;
+        m_ShowPassphrase=value;
+        FormPasswordAndKey_Shown(this, EventArgs.Empty);
       }
     }
     private void BtnCancel_Click(object? sender, EventArgs e)
@@ -117,7 +105,9 @@ namespace CsvTools
 
     private void BtnOK_Click(object? sender, EventArgs e)
     {
-      DialogResult = FileSystemUtils.FileExists(FileName) ? DialogResult.OK : DialogResult.Cancel;
+      DialogResult = !m_TextBoxKeyFile.Visible || string.IsNullOrEmpty(FileName) || FileSystemUtils.FileExists(FileName) ?
+        DialogResult.OK :
+        DialogResult.Cancel;
       Close();
     }
 
@@ -277,6 +267,7 @@ namespace CsvTools
       this.ShowIcon = false;
       this.Text = "Security";
       this.TopMost = true;
+      this.Shown += new System.EventHandler(this.FormPasswordAndKey_Shown);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FormPasswordAndKey_DragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FormPasswordAndKey_DragEnter);
       this.m_TableLayoutPanel.ResumeLayout(false);
@@ -343,6 +334,17 @@ namespace CsvTools
       {
         this.ShowError(ex, "Drag Drop");
       }
+    }
+
+    private void FormPasswordAndKey_Shown(object sender, EventArgs e)
+    {
+      m_TextBoxPassphrase.Visible  = ShowPassphrase;
+      m_LabelPassphrase.Visible  = ShowPassphrase;
+      m_CheckBoxShowHide.Visible  = ShowPassphrase;
+
+      m_ButtonKeyFile.Visible  = ShowFileName;
+      m_TextBoxKeyFile.Visible = ShowFileName;
+      m_LabelKeyFile.Visible = ShowFileName;
     }
   }
 }
