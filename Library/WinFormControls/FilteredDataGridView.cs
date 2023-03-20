@@ -82,10 +82,8 @@ namespace CsvTools
 #pragma warning restore CA1416
       FontChanged += PassOnFontChanges;
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
-      //Workaround as Text on Windows 8 is too small
-      //if (Environment.OSVersion.Version is { Major: 6, Minor: > 1 })
-      //  Paint += FilteredDataGridView_Paint;
 
+      Scroll += (_,_) => SetRowHeight();
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItem2.Image") as Image) ??
                              throw new InvalidOperationException("Resource not found");
@@ -125,8 +123,8 @@ namespace CsvTools
 
       FontChanged += (_, _) =>
       {
-        AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
         AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        SetRowHeight();
       };
     }
 
@@ -503,26 +501,23 @@ namespace CsvTools
     /// <summary>
     ///   Sets the height of the row.
     /// </summary>
-    public void SetRowHeight()
+    private void SetRowHeight()
     {
-      // Determine each column that could contain a text and is not hidden
-      var visible = Columns.Cast<DataGridViewColumn>()
-        .Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
-
-      // Need to stop after some time, this can take a long time
-      var start = DateTime.Now;
-      var lastRefresh = start;
-      foreach (DataGridViewRow row in Rows)
+      try
       {
-        if ((DateTime.Now - start).Ticks > 20000000)
-          break;
-        if ((DateTime.Now - lastRefresh).TotalSeconds > 0.2)
-        {
-          lastRefresh = DateTime.Now;
-          Extensions.ProcessUIElements();
-        }
+        // Determine each column that could contain a text and is not hidden
+        var visible = Columns.Cast<DataGridViewColumn>()
+          .Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
 
-        row.Height = GetDesiredRowHeight(row, visible);
+        var visibleRowsCount = DisplayedRowCount(true);
+        var firstDisplayedRowIndex = FirstDisplayedCell.RowIndex;
+
+        for (int rowIndex = firstDisplayedRowIndex; rowIndex < firstDisplayedRowIndex + visibleRowsCount; rowIndex++)
+          Rows[rowIndex].Height = GetDesiredRowHeight(Rows[rowIndex], visible);
+      }
+      catch
+      {
+        // ignore        
       }
     }
 
@@ -655,81 +650,69 @@ namespace CsvTools
       return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
     }
 
+    private static int Measure(Graphics grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
+      Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
+    {
+      var max = Math.Min(
+        TextRenderer.MeasureText(grap, col.ColumnName, font).Width,
+        maxWidth);
+      var counter = 0;
+      var lastIncrease = 0;
+      foreach (DataRow dataRow in rows)
+      {
+        if (max >= maxWidth)
+          return maxWidth;
+        if (token.IsCancellationRequested)
+          break;
+        var check = checkValue(dataRow[col]);
+        if (check.Stop)
+          break;
+        if (check.Text.Length>0)
+        {
+          var width = TextRenderer.MeasureText(grap, check.Text, font).Width;
+          if (width > max)
+          {
+            lastIncrease= counter;
+            max = width;
+          }
+        }
+        if (counter++ > 20000 || counter - lastIncrease > 500)
+          break;
+      }
+      return max;
+    }
+
     /// <summary>
     ///   Determine a default column with based on the data type and the values in provided
     /// </summary>
     /// <param name="col"></param>
     /// <param name="rowCollection"></param>
     /// <returns>A number for DataGridViewColumn.With</returns>
-    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
+    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection, CancellationToken token)
     {
       using var grap = CreateGraphics();
 
       if (col.DataType == typeof(Guid))
         return Math.Max(TextRenderer.MeasureText(grap, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
-                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
-      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long))
+      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) || col.DataType == typeof(decimal))
         return Math.Max(TextRenderer.MeasureText(grap, "626727278", Font).Width,
-                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
-
-      if (col.DataType == typeof(decimal))
-        return Math.Max(TextRenderer.MeasureText(grap, "626727278.4664", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(DateTime))
-      {
-        var maxLen = TextRenderer.MeasureText(grap, col.ColumnName, Font).Width;
-        var counter = 0;
-        var lastIncrease = 0;
-        foreach (DataRow dataRow in rowCollection)
-        {
-          if (dataRow[col] is DateTime dtm)
-          {
-            var len = TextRenderer.MeasureText(grap, StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture), Font).Width;
-            if (len>maxLen)
-            {
-              lastIncrease= counter;
-              maxLen = len;
-            }
-
-          }
-          if (counter > 20000 || counter-lastIncrease > 500)
-            break;
-          counter++;
-          
-        }
-        return maxLen + 5;
-      }
-
+        return Measure(grap, Font, Width /2, col, rowCollection,
+          value => ((value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty, false), token);
 
       if (col.DataType == typeof(string))
-      {
-        var maxLen = TextRenderer.MeasureText(grap, col.ColumnName, Font).Width;
-        var counter = 0;
-        var lastIncrease = 0;
-        foreach (DataRow dataRow in rowCollection)
-        {
-          var textLen = dataRow[col]?.ToString()?.Length ?? 0;
-          if (textLen ==0)
-            continue;
-          if (textLen > m_ShowButtonAtLength)
-            return Math.Max(TextRenderer.MeasureText(grap, "Button", Font).Width,
-                            TextRenderer.MeasureText(grap, col.ColumnName, Font).Width) + 5;
-
-          var len = TextRenderer.MeasureText(grap, dataRow[col]!.ToString(), Font).Width;
-          if (len>maxLen)
+        return Measure(grap, Font, Width /2, col, rowCollection,
+          value =>
           {
-            lastIncrease= counter;
-            maxLen = len;
-          }
-          if (counter > 20000 || counter-lastIncrease > 500  || maxLen>Width/2)
-            break;
-          counter++;
-        }
-        return Math.Min(maxLen, Width/2) + 5;
-      }
+            var txt = value?.ToString() ?? string.Empty;
+            return (txt, txt.Length > m_ShowButtonAtLength);
+          }, token);
 
-      return Math.Max(TextRenderer.MeasureText(grap, "dummy", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
+      return Math.Min(Width /2, Math.Max(TextRenderer.MeasureText(grap, "dummy", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width));
     }
 
     public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
@@ -738,13 +721,13 @@ namespace CsvTools
         base.AutoResizeColumns(autoSizeColumnsMode);
       else
       {
-        foreach (DataColumn col in DataView!.Table.Columns)
+        foreach (DataColumn col in DataView.Table.Columns)
         {
           foreach (DataGridViewColumn newColumn in Columns)
           {
             if (newColumn.DataPropertyName == col.ColumnName)
             {
-              newColumn.Width = GetColumnWith(col, DataView!.Table.Rows);
+              newColumn.Width = GetColumnWith(col, DataView!.Table.Rows, m_CancellationTokenSource.Token) + 5;
               break;
             }
           }
@@ -1038,7 +1021,7 @@ namespace CsvTools
           newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
           newColumn.Width =
             oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
-            GetColumnWith(col, DataView.Table.Rows);
+            GetColumnWith(col, DataView.Table.Rows, m_CancellationTokenSource.Token);
           Columns.Add(newColumn);
         }
       }
@@ -1475,12 +1458,12 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once UseAwaitUsing
-        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+      // ReSharper disable once UseAwaitUsing
+      using var stream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+      using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(GetViewStatus);
         await writer.FlushAsync();
 
