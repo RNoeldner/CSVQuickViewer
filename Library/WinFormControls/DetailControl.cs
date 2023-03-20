@@ -98,7 +98,7 @@ namespace CsvTools
 
     [Bindable(false)]
     [Browsable(true)]
-    [DefaultValue(2000)]
+    [DefaultValue(500)]
     public int ShowButtonAtLength { get => FilteredDataGridView.ShowButtonAtLength; set => FilteredDataGridView.ShowButtonAtLength = value; }
 
     /// <summary>
@@ -402,13 +402,9 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private void AutoResizeColumns(DataTable source)
+    private void AutoResizeColumns()
     {
-      if (source.Rows.Count < 10000 && source.Columns.Count < 50)
-        FilteredDataGridView.AutoResizeColumns(
-          source.Rows.Count < 1000 && source.Columns.Count < 20
-            ? DataGridViewAutoSizeColumnsMode.AllCells
-            : DataGridViewAutoSizeColumnsMode.DisplayedCells);
+      FilteredDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);      
     }
 
     private void searchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)

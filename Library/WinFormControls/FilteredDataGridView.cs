@@ -45,7 +45,7 @@ namespace CsvTools
 
     private bool m_DisposedValue;
     private IFileSetting? m_FileSetting;
-    private int m_ShowButtonAtLength = 2000;
+    private int m_ShowButtonAtLength = 1000;
     private int m_MenuItemColumnIndex;
 
     private void PassOnFontChanges(object? sender, EventArgs e)
@@ -126,8 +126,7 @@ namespace CsvTools
       FontChanged += (_, _) =>
       {
         AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
-        AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-        AutoSize = true;
+        AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
       };
     }
 
@@ -150,14 +149,13 @@ namespace CsvTools
 
     [Bindable(true)]
     [Browsable(true)]
-    [DefaultValue(2000)]
+    [DefaultValue(500)]
     public int ShowButtonAtLength
     {
       get => m_ShowButtonAtLength;
       set
       {
-        var newVal = value < 0 ? 0 : value;
-
+        var newVal = value < 10 ? 10 : value;
         if (m_ShowButtonAtLength == newVal)
           return;
         m_ShowButtonAtLength = newVal;
@@ -663,35 +661,95 @@ namespace CsvTools
     /// <param name="col"></param>
     /// <param name="rowCollection"></param>
     /// <returns>A number for DataGridViewColumn.With</returns>
-    private static int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
+    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
     {
+      using var grap = CreateGraphics();
+
+      if (col.DataType == typeof(Guid))
+        return Math.Max(TextRenderer.MeasureText(grap, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
+
       if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long))
-        return 25;
+        return Math.Max(TextRenderer.MeasureText(grap, "626727278", Font).Width,
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
+
       if (col.DataType == typeof(decimal))
-        return 50;
+        return Math.Max(TextRenderer.MeasureText(grap, "626727278.4664", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width)+ 5;
+
       if (col.DataType == typeof(DateTime))
-        return 110;
-      if (col.DataType == typeof(string))
       {
+        var maxLen = TextRenderer.MeasureText(grap, col.ColumnName, Font).Width;
+        var counter = 0;
+        var lastIncrease = 0;
         foreach (DataRow dataRow in rowCollection)
         {
-          var value = dataRow[col];
-          // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-          if (value is null)
-            continue;
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-          switch (value.ToString().Length)
+          if (dataRow[col] is DateTime dtm)
           {
-            case > 80:
-              return 350;
-            case > 15:
-              return 225;
+            var len = TextRenderer.MeasureText(grap, StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture), Font).Width;
+            if (len>maxLen)
+            {
+              lastIncrease= counter;
+              maxLen = len;
+            }
+
           }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+          if (counter > 20000 || counter-lastIncrease > 500)
+            break;
+          counter++;
+          
         }
+        return maxLen + 5;
       }
 
-      return 100;
+
+      if (col.DataType == typeof(string))
+      {
+        var maxLen = TextRenderer.MeasureText(grap, col.ColumnName, Font).Width;
+        var counter = 0;
+        var lastIncrease = 0;
+        foreach (DataRow dataRow in rowCollection)
+        {
+          var textLen = dataRow[col]?.ToString()?.Length ?? 0;
+          if (textLen ==0)
+            continue;
+          if (textLen > m_ShowButtonAtLength)
+            return Math.Max(TextRenderer.MeasureText(grap, "Button", Font).Width,
+                            TextRenderer.MeasureText(grap, col.ColumnName, Font).Width) + 5;
+
+          var len = TextRenderer.MeasureText(grap, dataRow[col]!.ToString(), Font).Width;
+          if (len>maxLen)
+          {
+            lastIncrease= counter;
+            maxLen = len;
+          }
+          if (counter > 20000 || counter-lastIncrease > 500  || maxLen>Width/2)
+            break;
+          counter++;
+        }
+        return Math.Min(maxLen, Width/2) + 5;
+      }
+
+      return Math.Max(TextRenderer.MeasureText(grap, "dummy", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
+    }
+
+    public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
+    {
+      if (DataView == null)
+        base.AutoResizeColumns(autoSizeColumnsMode);
+      else
+      {
+        foreach (DataColumn col in DataView!.Table.Columns)
+        {
+          foreach (DataGridViewColumn newColumn in Columns)
+          {
+            if (newColumn.DataPropertyName == col.ColumnName)
+            {
+              newColumn.Width = GetColumnWith(col, DataView!.Table.Rows);
+              break;
+            }
+          }
+        }
+      }
     }
 
     // To detect redundant calls
@@ -977,10 +1035,10 @@ namespace CsvTools
 
           if (wrapColumns.Contains(col))
             newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-          newColumn.Width = oldWith.TryGetValue(newColumn.DataPropertyName, out var value) && !showAsButton.Contains(col) ?
-            value : showAsButton.Contains(col) ? 25 : GetColumnWith(col, DataView.Table.Rows);
-
+          newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+          newColumn.Width =
+            oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
+            GetColumnWith(col, DataView.Table.Rows);
           Columns.Add(newColumn);
         }
       }
@@ -1419,7 +1477,7 @@ namespace CsvTools
 #endif
         // ReSharper disable once UseAwaitUsing
         using var stream = new ImprovedStream(new SourceAccess(fileName, false));
-#if NET5_0_OR_GREATER 
+#if NET5_0_OR_GREATER
         await
 #endif
         using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);

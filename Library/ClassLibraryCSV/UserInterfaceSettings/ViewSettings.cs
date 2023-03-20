@@ -300,7 +300,7 @@ namespace CsvTools
       set => SetProperty(ref m_WarnEmptyTailingColumns, value);
     }
 
-    [DefaultValue(2000)]
+    [DefaultValue(500)]
     public int ShowButtonAtLength
     {
       get => m_ShowButtonAtLength;
