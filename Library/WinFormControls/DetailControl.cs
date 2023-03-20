@@ -404,7 +404,7 @@ namespace CsvTools
 
     private void AutoResizeColumns()
     {
-      FilteredDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);      
+      FilteredDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
     }
 
     private void searchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -606,6 +606,7 @@ namespace CsvTools
     /// </summary>
     private void FilterColumns(FilterTypeEnum filterType)
     {
+      
       if (filterType == FilterTypeEnum.All || filterType== FilterTypeEnum.None)
       {
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
@@ -614,6 +615,7 @@ namespace CsvTools
             col.Visible = true;
           // col.MinimumWidth = 64;
         }
+
         return;
       }
 
@@ -689,10 +691,7 @@ namespace CsvTools
         FilteredDataGridView.DataSource = m_BindingSource;
 
         FilterColumns(filterType);
-
-        AutoResizeColumns(newDt);
         FilteredDataGridView.ColumnVisibilityChanged();
-        FilteredDataGridView.SetRowHeight();
 
         if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
           Sort(oldSortedColumn,

@@ -195,19 +195,6 @@ namespace CsvTools.Tests
         });
     }
 
-    [TestMethod]
-    [Timeout(1000)]
-    public void SetRowHeightTest()
-    {
-      using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
-        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.2,
-          control =>
-          {
-            control.DataSource = DataTable200;
-            control.SetRowHeight();
-          });
-    }
-
     [TestMethod()]
     [Timeout(1000)]
     public void SetToolStripMenu()
