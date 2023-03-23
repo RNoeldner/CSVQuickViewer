@@ -14,6 +14,7 @@
 #nullable enable
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -563,8 +564,10 @@ namespace CsvTools
         return string.Empty;
 
       // Handle date Placeholders
-      fileName = fileName.PlaceholderReplaceFormat("date", DateTime.Now)
-        .PlaceholderReplaceFormat("utc", DateTime.UtcNow);
+      fileName = fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
+                         .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
+                         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;                         
 
       // only if we have wildcards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
