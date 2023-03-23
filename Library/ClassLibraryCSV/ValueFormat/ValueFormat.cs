@@ -69,69 +69,25 @@ namespace CsvTools
       string? fileOutPutPlaceholder = "",
       bool? overwrite = cOverwriteDefault)
     {
-      // Set defaults
       DataType = dataType ??  DataTypeEnum.String;
-
-      DateFormat = cDateFormatDefault;
-      DateSeparator = cDateSeparatorDefaultChar;
-      TimeSeparator = cTimeSeparatorDefaultChar;
-      NumberFormat = cNumberFormatDefault;
-      DecimalSeparator = cDecimalSeparatorDefaultChar;
-      GroupSeparator = cGroupSeparatorDefaultChar;
-
-      // Boolean
       False = asFalse ?? cFalseDefault;
       True = asTrue ?? cTrueDefault;
-
-      Part = cPartDefault;
-      PartSplitter = cPartSplitterDefaultChar;
-      PartToEnd = cPartToEndDefault;
-      // Text
       DisplayNullAs = displayNullAs ?? string.Empty;
-
-      // Regex
       RegexSearchPattern = regexSearchPattern ?? string.Empty;
       RegexReplacement = regexReplacement ?? string.Empty;
-
-      // Binary writer
       ReadFolder = readFolder ?? string.Empty;
       WriteFolder = writeFolder ?? string.Empty;
       FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
-      Overwrite = cOverwriteDefault;
-
-      // Depending on type set the other corresponding values
-      // Json Serializer does ignore defaults in ctor
-      if (DataTypeEnum.DateTime.Equals(dataType))
-      {
-        // Dates
-        DateFormat = dateFormat ?? cDateFormatDefault;
-        DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText();
-        TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText();
-      }
-      else if (DataTypeEnum.Integer.Equals(dataType))
-      {
-        NumberFormat = numberFormat ?? cNumberFormatDefault;
-        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
-      }
-      else if (DataTypeEnum.Numeric.Equals(dataType) || DataTypeEnum.Double.Equals(dataType))
-      {
-        // Numbers
-        NumberFormat = numberFormat ?? cNumberFormatDefault;
-        DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText();
-        GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
-      }
-      else if (DataTypeEnum.TextPart.Equals(dataType))
-      {
-        // TextPart
-        Part = part ?? cPartDefault;
-        PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText();
-        PartToEnd = partToEnd ?? cPartToEndDefault;
-      }
-      else if (DataTypeEnum.Binary.Equals(dataType))
-      {
-        // Binary writer
-        Overwrite = overwrite ?? cOverwriteDefault;
-      }
+      DateFormat = dateFormat ?? cDateFormatDefault;
+      DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText();
+      TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText();
+      NumberFormat = numberFormat ?? cNumberFormatDefault;
+      GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
+      DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText();
+      Part = part ?? cPartDefault;
+      PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText();
+      PartToEnd = partToEnd ?? cPartToEndDefault;
+      Overwrite = overwrite ?? cOverwriteDefault;
     }
 
     /// <summary>

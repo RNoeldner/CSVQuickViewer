@@ -532,7 +532,7 @@ namespace CsvTools
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, DateTime dateTime)
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime )
     {
       // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
       // string.Format to process {0:...
@@ -546,8 +546,8 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return !regEx.IsMatch(input)
-        ? PlaceholderReplace(input, placeholder, dateTime.ToString(CultureInfo.CurrentCulture))
-        : string.Format(regEx.Replace(input, "{0$2}"), dateTime.ToString(CultureInfo.CurrentCulture));
+        ? PlaceholderReplace(input, placeholder, formatedDateTime)
+        : string.Format(regEx.Replace(input, "{0$2}"), formatedDateTime);
     }
 
     /// <summary>

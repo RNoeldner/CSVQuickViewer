@@ -60,7 +60,7 @@ namespace CsvTools
             this.checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
             this.checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
             this.checkBoxTreatUnknowCharaterAsSpace = new System.Windows.Forms.CheckBox();
-            this.checkBoxTreatLFasSpace = new System.Windows.Forms.CheckBox();
+            this.checkBoxTreatLfAsSpace = new System.Windows.Forms.CheckBox();
             this.checkBoxTryToSolveMoreColumns = new System.Windows.Forms.CheckBox();
             this.checkBoxAllowRowCombining = new System.Windows.Forms.CheckBox();
             this.checkBoxAllowJson = new System.Windows.Forms.CheckBox();
@@ -735,19 +735,19 @@ namespace CsvTools
             this.toolTip.SetToolTip(this.checkBoxTreatUnknowCharaterAsSpace, "Threat any unknown character like a space");
             this.checkBoxTreatUnknowCharaterAsSpace.UseVisualStyleBackColor = true;
             // 
-            // checkBoxTreatLFasSpace
+            // checkBoxTreatLfAsSpace
             // 
-            this.checkBoxTreatLFasSpace.AutoSize = true;
-            this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatLFasSpace, 2);
-            this.checkBoxTreatLFasSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatLFAsSpace", true));
-            this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(323, 84);
-            this.checkBoxTreatLFasSpace.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBoxTreatLFasSpace.Name = "checkBoxTreatLFasSpace";
-            this.checkBoxTreatLFasSpace.Size = new System.Drawing.Size(143, 17);
-            this.checkBoxTreatLFasSpace.TabIndex = 9;
-            this.checkBoxTreatLFasSpace.Text = "Treat Linefeed as Space";
-            this.toolTip.SetToolTip(this.checkBoxTreatLFasSpace, "Threat a single occurrence of a LF as a space");
-            this.checkBoxTreatLFasSpace.UseVisualStyleBackColor = true;
+            this.checkBoxTreatLfAsSpace.AutoSize = true;
+            this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatLfAsSpace, 2);
+            this.checkBoxTreatLfAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatLFAsSpace", true));
+            this.checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(323, 84);
+            this.checkBoxTreatLfAsSpace.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxTreatLfAsSpace.Name = "checkBoxTreatLfAsSpace";
+            this.checkBoxTreatLfAsSpace.Size = new System.Drawing.Size(143, 17);
+            this.checkBoxTreatLfAsSpace.TabIndex = 9;
+            this.checkBoxTreatLfAsSpace.Text = "Treat Linefeed as Space";
+            this.toolTip.SetToolTip(this.checkBoxTreatLfAsSpace, "Threat a single occurrence of a LF as a space");
+            this.checkBoxTreatLfAsSpace.UseVisualStyleBackColor = true;
             // 
             // checkBoxTryToSolveMoreColumns
             // 
@@ -1159,7 +1159,7 @@ namespace CsvTools
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatNBSPAsSpace, 2, 6);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatUnknowCharaterAsSpace, 2, 5);
             this.tableLayoutPanelBehaviour.Controls.Add(this.labelPersistentSettings, 0, 0);
-            this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatLFasSpace, 2, 4);
+            this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatLfAsSpace, 2, 4);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTryToSolveMoreColumns, 2, 3);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxAllowRowCombining, 2, 2);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxSkipEmptyLines, 2, 1);
@@ -1638,7 +1638,7 @@ namespace CsvTools
     private System.Windows.Forms.CheckBox checkBoxTreatNBSPAsSpace;
     private System.Windows.Forms.CheckBox checkBoxSkipEmptyLines;
     private System.Windows.Forms.CheckBox checkBoxTreatUnknowCharaterAsSpace;
-    private System.Windows.Forms.CheckBox checkBoxTreatLFasSpace;
+    private System.Windows.Forms.CheckBox checkBoxTreatLfAsSpace;
     private System.Windows.Forms.CheckBox checkBoxTryToSolveMoreColumns;
     private System.Windows.Forms.CheckBox checkBoxAllowRowCombining;
     private System.Windows.Forms.CheckBox checkBoxAllowJson;
