@@ -81,17 +81,11 @@ namespace CsvTools
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust;
       m_PublicKey = publicKey;
-      FullPath = FileSystemUtils.ResolvePattern(fullPath) ?? string.Empty;
+      FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(FullPath);
-      Header = ReplacePlaceHolder(
-        header,
-        fileName,
-        id);
+      Header = ReplacePlaceHolder(header, fileName, id);
+      m_Footer = ReplacePlaceHolder(footer, fileName, id);
 
-      m_Footer = ReplacePlaceHolder(
-        footer,
-        fileName,
-        id);
       ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;

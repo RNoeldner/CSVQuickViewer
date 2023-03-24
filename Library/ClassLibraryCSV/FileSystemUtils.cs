@@ -237,17 +237,22 @@ namespace CsvTools
       }
     }
 
-
-    public static string? GetLatestFileOfPattern(string folder, in string searchPattern)
+    /// <summary>
+    ///  Get teh last file of a given pattern in a folder
+    /// </summary>
+    /// <param name="folder">The dierectory to look in</param>
+    /// <param name="searchPattern">The pattern to look for</param>
+    /// <returns>No matching file is found of teh folder does not exists an empty string is returned</returns>
+    public static string GetLatestFileOfPattern(string folder, in string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
         folder = ".";
       else if (!DirectoryExists(folder))
-        return null;
+        return string.Empty;
 
       // If a pattern is present in the folder this is not going to work
       var newSet = new DateTime(0);
-      string? lastFile = null;
+      var lastFile = string.Empty;
       foreach (var fileName in Directory.EnumerateFiles(
                  folder.LongPathPrefix(),
                  searchPattern,
@@ -260,7 +265,7 @@ namespace CsvTools
         lastFile = fileName;
       }
 
-      return lastFile?.RemovePrefix();
+      return lastFile.RemovePrefix();
     }
 
     /// <summary>
@@ -558,23 +563,30 @@ namespace CsvTools
         : path;
     }
 
-    public static string? ResolvePattern(string? fileName)
+    /// <summary>
+    /// Resolve placeholders in file names and find the latest fiel to match the pattern
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public static string ResolvePattern(in string fileName)
     {
       if (fileName == null || fileName.Length == 0)
         return string.Empty;
 
-      // Handle date Placeholders
-      fileName = fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
+      var withoutPlaceHolder = fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
                          .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
                          .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;                         
+                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
       // only if we have wildcards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
-        return fileName;
+        return withoutPlaceHolder;
 
-      var split = SplitPath(fileName);
-      return GetLatestFileOfPattern(split.DirectoryName, split.FileName);
+      // Handle Placeholders      
+      var split = SplitPath(withoutPlaceHolder);
+
+      // search for the file
+      return GetLatestFileOfPattern(split.DirectoryName, split.FileName)!;
     }
 
     public static string GetFileName(in string? path)
