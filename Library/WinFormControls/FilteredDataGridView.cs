@@ -510,7 +510,7 @@ namespace CsvTools
           .Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
 
         var visibleRowsCount = DisplayedRowCount(true);
-        var firstDisplayedRowIndex = FirstDisplayedCell.RowIndex;
+        var firstDisplayedRowIndex = FirstDisplayedCell?.RowIndex ?? 0;
 
         for (int rowIndex = firstDisplayedRowIndex; rowIndex < firstDisplayedRowIndex + visibleRowsCount; rowIndex++)
           Rows[rowIndex].Height = GetDesiredRowHeight(Rows[rowIndex], visible);
