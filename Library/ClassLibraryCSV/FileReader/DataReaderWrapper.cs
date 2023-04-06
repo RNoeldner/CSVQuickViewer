@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -265,6 +266,7 @@ namespace CsvTools
     public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal)) ?? string.Empty;
 
     /// <inheritdoc />
+    [DebuggerStepThrough]
     public override object GetValue(int ordinal)
     {
       if (ordinal == ReaderMapping.ColNumStartLine)
@@ -286,6 +288,7 @@ namespace CsvTools
       => DataReader.GetValues(values);
 
     /// <inheritdoc />
+    [DebuggerStepThrough]
     public override bool IsDBNull(int ordinal)
     {
       if (ordinal == ReaderMapping.ColNumStartLine || ordinal == ReaderMapping.ColNumEndLine ||

@@ -1042,15 +1042,17 @@ namespace CsvTools
             MoveNext(peekNextChar);
 
             // handling for "" that is not only representing a " but also closes the text
-            peekNextChar = Peek();
-            if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter
-                                                || peekNextChar == cCr || peekNextChar == cLf)) postData = true;
+            if (m_ContextSensitiveQualifier)
+            {
+              peekNextChar = Peek();
+              if (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf)
+                postData = true;
+            }
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
-          if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter
-                                              || peekNextChar == cCr || peekNextChar == cLf))
+          if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf))
           {
             postData = true;
             continue;
@@ -1207,7 +1209,7 @@ namespace CsvTools
     {
       await DisposeAsyncCore();
 
-      Dispose(false);      
+      Dispose(false);
     }
 
     protected async ValueTask DisposeAsyncCore()
