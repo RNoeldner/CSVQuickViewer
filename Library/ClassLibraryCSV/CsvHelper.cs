@@ -70,10 +70,9 @@ namespace CsvTools
       , CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("File name can not be empty", nameof(fileName));
-
-      inspectionResult.FileName = fileName;
-      Logger.Information("Opening file");
+        throw new ArgumentException("File name can not be empty", nameof(fileName));              
+      
+      inspectionResult.FileName = fileName;      
 #if SupportPGP
       var sourceAccess = new SourceAccess(fileName, privateKey: privateKey);
 #else
