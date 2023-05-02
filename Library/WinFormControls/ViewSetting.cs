@@ -62,29 +62,29 @@ namespace CsvTools
 
         var displayIndex = 0;
         foreach (var storedColumn in (vst ?? throw new InvalidOperationException()).OrderBy(x => x.DisplayIndex))
-        foreach (DataGridViewColumn col in columns)
-          if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
-            try
-            {
-              if (col.Visible != storedColumn.Visible)
-                col.Visible = storedColumn.Visible;
-
-              if (col.Visible)
+          foreach (DataGridViewColumn col in columns)
+            if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
+              try
               {
-                col.Width = storedColumn.Width;
-                if (storedColumn.Sort == 1)
-                  doSort?.Invoke(col, ListSortDirection.Ascending);
-                if (storedColumn.Sort == 2)
-                  doSort?.Invoke(col, ListSortDirection.Descending);
-              }
+                if (col.Visible != storedColumn.Visible)
+                  col.Visible = storedColumn.Visible;
 
-              col.DisplayIndex = displayIndex++;
-              break;
-            }
-            catch (Exception ex)
-            {
-              Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
-            }
+                if (col.Visible)
+                {
+                  col.Width = storedColumn.Width;
+                  if (storedColumn.Sort == 1)
+                    doSort?.Invoke(col, ListSortDirection.Ascending);
+                  if (storedColumn.Sort == 2)
+                    doSort?.Invoke(col, ListSortDirection.Descending);
+                }
+
+                col.DisplayIndex = displayIndex++;
+                break;
+              }
+              catch (Exception ex)
+              {
+                Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
+              }
 
         var hasFilterSet = false;
         foreach (var storedFilterSetting in vst)
@@ -134,40 +134,49 @@ namespace CsvTools
       }
     }
 
-    public static ICollection<ColumnSetting> GetViewSetting(DataGridViewColumnCollection columns,
+    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
-      var vst = columns.OfType<DataGridViewColumn>()
+      try
+      {
+        var vst = columns.OfType<DataGridViewColumn>()
         .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,
           ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
-      var colIndex = 0;
-      foreach (var columnFilter in columnFilters)
-      {
-        if (columnFilter is null)
-          continue;
-        if (columnFilter.ColumnFilterLogic.Active)
+        var colIndex = 0;
+        foreach (var columnFilter in columnFilters)
         {
-          var hadValueFiler = false;
-          foreach (var value in columnFilter.ColumnFilterLogic.ValueClusterCollection.ValueClusters.Where(x =>
-                     !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
+          if (columnFilter is null)
+            continue;
+          if (columnFilter.ColumnFilterLogic.Active)
           {
-            vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
-            hadValueFiler = true;
+            var hadValueFiler = false;
+            foreach (var value in columnFilter.ColumnFilterLogic.ValueClusterCollection.ValueClusters.Where(x =>
+                       !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
+            {
+              vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
+              hadValueFiler = true;
+            }
+
+            if (!hadValueFiler)
+            {
+              vst[colIndex].Operator = columnFilter.ColumnFilterLogic.Operator;
+              vst[colIndex].ValueText = columnFilter.ColumnFilterLogic.ValueText;
+              vst[colIndex].ValueDate = columnFilter.ColumnFilterLogic.ValueDateTime;
+            }
           }
 
-          if (!hadValueFiler)
-          {
-            vst[colIndex].Operator = columnFilter.ColumnFilterLogic.Operator;
-            vst[colIndex].ValueText = columnFilter.ColumnFilterLogic.ValueText;
-            vst[colIndex].ValueDate = columnFilter.ColumnFilterLogic.ValueDateTime;
-          }
+          colIndex++;
         }
 
-        colIndex++;
+        return vst;
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "GetViewSetting");
+        return null;
       }
 
-      return vst;
     }
 
     /// <summary>
@@ -175,6 +184,12 @@ namespace CsvTools
     /// </summary>
     public static string StoreViewSetting(DataGridViewColumnCollection columns,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
-      SortOrder sortOrder) => JsonConvert.SerializeObject(GetViewSetting(columns, columnFilters, sortedColumn, sortOrder), Formatting.None);
+      SortOrder sortOrder)
+    {
+      var res = GetViewSetting(columns, columnFilters, sortedColumn, sortOrder);
+      if (res == null)
+        return string.Empty;
+      return JsonConvert.SerializeObject(res, Formatting.None);
+    }
   }
 }

@@ -13,8 +13,10 @@
  */
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Core;
@@ -456,7 +458,7 @@ namespace CsvTools
           cBufferSize);
       }
     }
-
+    
     private void OpenZipOverBase()
     {
       if (m_SourceAccess.Reading)
@@ -486,22 +488,28 @@ namespace CsvTools
         var hasFile = false;
         if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
         {
+          var files = new List<ZipEntry>();
           var entryEnumerator = m_ZipFile.GetEnumerator();
           while (entryEnumerator.MoveNext())
           {
             var entry = entryEnumerator.Current as ZipEntry;
             if (entry?.IsFile ?? false)
             {
-              m_SourceAccess.IdentifierInContainer = entry.Name;
-              Logger.Debug(
-                "Unzipping {filename} {container}",
-                m_SourceAccess.Identifier,
-                m_SourceAccess.IdentifierInContainer);
-              AccessStream = m_ZipFile.GetInputStream(entry);
-              hasFile = true;
-              break;
+              files.Add(entry);
             }
           }
+          // get csv with highest priority
+          // get txt with second priority
+          // the by index in file
+          var bestEntry = files.OrderBy(x => x.ZipFileIndex +
+                     (x.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ? 0 :
+                      x.Name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? 500 :
+                      1000)).First();
+
+          m_SourceAccess.IdentifierInContainer = bestEntry.Name;
+          Logger.Information("Using {container}", m_SourceAccess.IdentifierInContainer);
+          AccessStream = m_ZipFile.GetInputStream(bestEntry);
+          hasFile = true;
         }
         else
         {
@@ -510,7 +518,7 @@ namespace CsvTools
             throw new FileNotFoundException(
               $"Could not find {m_SourceAccess.IdentifierInContainer} in {m_SourceAccess.Identifier}");
 
-          Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+          Logger.Information("Using {container}", m_SourceAccess.IdentifierInContainer);
           AccessStream = m_ZipFile.GetInputStream(entryIndex);
           hasFile = true;
         }

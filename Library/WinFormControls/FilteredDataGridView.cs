@@ -83,7 +83,7 @@ namespace CsvTools
       FontChanged += PassOnFontChanges;
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
 
-      Scroll += (_,_) => SetRowHeight();
+      Scroll += (_, _) => SetRowHeight();
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItem2.Image") as Image) ??
                              throw new InvalidOperationException("Resource not found");
@@ -855,23 +855,29 @@ namespace CsvTools
     /// </param>
     private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
     {
-      SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
-      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+      try
       {
-        using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
-
-        // ReSharper disable once LocalizableElement
-        frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
-        frm.SaveAction = s =>
+        SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
+        if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
         {
-          if (s.Equals(CurrentCell.Value))
-            return;
-          CurrentCell.Value = s;
-          CurrentCell.ErrorText = CurrentCell.ErrorText.AddMessage(
-            "Value was modified".AddWarningId());
-        };
-        frm.ShowWithFont(this, true);
+          using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
 
+          // ReSharper disable once LocalizableElement
+          frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
+          frm.SaveAction = s =>
+          {
+            if (s.Equals(CurrentCell.Value))
+              return;
+            CurrentCell.Value = s;
+            CurrentCell.ErrorText = CurrentCell.ErrorText.AddMessage(
+              "Value was modified".AddWarningId());
+          };
+          frm.ShowWithFont(this, true);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "FilteredDataGridView: Mouse Click {columnIndex} {rowIndex} {button}", e.ColumnIndex, e.RowIndex, e.Button);
       }
     }
 
@@ -947,8 +953,7 @@ namespace CsvTools
     {
       if (!e.Control || e.KeyCode != Keys.C)
         return;
-      var html = new DataGridViewCopyPaste(HtmlStyle);
-      html.SelectedDataIntoClipboard(this, !e.Alt, e.Shift, m_CancellationTokenSource.Token);
+      Copy(!e.Alt, e.Shift);
       e.Handled = true;
     }
 
@@ -1288,13 +1293,20 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemApply_Click(object? sender, EventArgs e)
     {
-      if (m_Filter[m_MenuItemColumnIndex] != null)
+      try
+      {
+        if (m_Filter[m_MenuItemColumnIndex] != null)
         m_Filter[m_MenuItemColumnIndex]!.ColumnFilterLogic.Active = true;
 
       ApplyFilters();
       contextMenuStripCell.Close();
       contextMenuStripHeader.Close();
       contextMenuStripFilter.Close();
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex,"Apply Click");
+      }      
     }
 
 
@@ -1320,27 +1332,32 @@ namespace CsvTools
       }
     }
 
+    private void Copy(bool addErrorInfo, bool cutLength)
+    {
+      try
+      {
+        var html = new DataGridViewCopyPaste(HtmlStyle);
+        html.SelectedDataIntoClipboard(this, addErrorInfo, cutLength, m_CancellationTokenSource.Token);
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Issue during Copy");
+      }
+    }
+
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCopy control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemCopy_Click(object? sender, EventArgs e)
-    {
-      var html = new DataGridViewCopyPaste(HtmlStyle);
-      html.SelectedDataIntoClipboard(this, false, false, m_CancellationTokenSource.Token);
-    }
+    private void ToolStripMenuItemCopy_Click(object? sender, EventArgs e) => Copy(false, false);
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCopyError control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e)
-    {
-      var html = new DataGridViewCopyPaste(HtmlStyle);
-      html.SelectedDataIntoClipboard(this, true, false, m_CancellationTokenSource.Token);
-    }
+    private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e) => Copy(true, false);
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilled control.
@@ -1433,12 +1450,19 @@ namespace CsvTools
 
     public void SetViewStatus(string newSetting)
     {
-      SuspendLayout();
-      if (ViewSetting.ReStoreViewSetting(newSetting, Columns, m_Filter, GetColumnFilter,
-            Sort))
-        ApplyFilters();
-      ColumnVisibilityChanged();
-      ResumeLayout(true);
+      try
+      {
+        SuspendLayout();
+        if (ViewSetting.ReStoreViewSetting(newSetting, Columns, m_Filter, GetColumnFilter,
+              Sort))
+          ApplyFilters();
+        ColumnVisibilityChanged();
+        ResumeLayout(true);
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "SetViewStatus");
+      }
     }
 
     private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
@@ -1448,27 +1472,32 @@ namespace CsvTools
       try
       {
         toolStripMenuItemSaveCol.Enabled = false;
-        // Select Path
-        var fileName = WindowsAPICodePackWrapper.Save(
-          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+        var text = GetViewStatus;
+        if (!string.IsNullOrEmpty(text))
+        {
+          // Select Path
+          var fileName = WindowsAPICodePackWrapper.Save(
+            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
 
-        if (fileName is null || fileName.Length == 0)
-          return;
-#if NET5_0_OR_GREATER
-        await
-#endif
-      // ReSharper disable once UseAwaitUsing
-      using var stream = new ImprovedStream(new SourceAccess(fileName, false));
-#if NET5_0_OR_GREATER
-        await
-#endif
-      using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-        await writer.WriteAsync(GetViewStatus);
-        await writer.FlushAsync();
+          if (fileName is null || fileName.Length == 0)
+            return;
 
-        if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-          basePhysical.ColumnFile = fileName;
+#if NET5_0_OR_GREATER
+          await
+#endif          
+          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+
+#if NET5_0_OR_GREATER
+          await
+#endif
+          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+          await writer.WriteAsync(GetViewStatus);
+          await writer.FlushAsync();
+
+          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+            basePhysical.ColumnFile = fileName;
+        }
       }
       catch (Exception ex)
       {
