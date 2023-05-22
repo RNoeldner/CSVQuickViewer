@@ -82,7 +82,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var usedStream = await GetStreamInMemory(sourceAccess, cancellationToken).ConfigureAwait(false);
+      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
       var disallowedDelimiter = new List<char>();
       do
       {
@@ -159,7 +159,7 @@ namespace CsvTools
     /// <param name="sourceAccess">The access information like filename or file type</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<Stream> GetStreamInMemory(this SourceAccess sourceAccess, CancellationToken cancellationToken)
+    public static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess, CancellationToken cancellationToken)
     {
       // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
       var stream = new ImprovedStream(sourceAccess);
