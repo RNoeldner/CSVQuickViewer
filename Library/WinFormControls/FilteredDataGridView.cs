@@ -697,7 +697,7 @@ namespace CsvTools
                         TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) || col.DataType == typeof(decimal))
-        return Math.Max(TextRenderer.MeasureText(grap, "626727278", Font).Width,
+        return Math.Max(TextRenderer.MeasureText(grap, "626727278.00", Font).Width,
                         TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(DateTime))
@@ -1023,6 +1023,9 @@ namespace CsvTools
 
           if (wrapColumns.Contains(col))
             newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+          if (showAsButton.Contains(col))
+              newColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
+
           newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
           newColumn.Width =
             oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
@@ -1062,130 +1065,138 @@ namespace CsvTools
 #pragma warning disable CA1416
     private void HighlightCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
-      if (e is { RowIndex: -1, ColumnIndex: >= 0 } && m_Filter[e.ColumnIndex] != null
-                                                   && m_Filter[e.ColumnIndex]!.ColumnFilterLogic.Active)
+      try
       {
+        if (e is { RowIndex: -1, ColumnIndex: >= 0 } && m_Filter[e.ColumnIndex] != null
+                                                     && m_Filter[e.ColumnIndex]!.ColumnFilterLogic.Active)
+        {
+          e.Handled = true;
+          e.PaintBackground(e.CellBounds, true);
+
+          // Display a Filter Symbol
+          var pt = e.CellBounds.Location;
+          var offset = e.CellBounds.Width - 22;
+          pt.X += offset;
+          pt.Y = (e.CellBounds.Height / 2) - 4;
+          e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);
+
+          e.PaintContent(e.CellBounds);
+        }
+
+        if (e.RowIndex < 0 || e.ColumnIndex < 0)
+          return;
+        var val = e.FormattedValue.ToString();
+        if (string.IsNullOrEmpty(val))
+          return;
+
+        var nbspIndex = val.IndexOf((char) 0xA0);
+        var linefeedIndex = val.IndexOf('\n');
+        var highlightIndex = HighlightText.Length > 0
+          ? val.IndexOf(HighlightText, StringComparison.InvariantCultureIgnoreCase)
+          : -1;
+
+        if (nbspIndex == -1 && highlightIndex == -1)
+          return;
+
         e.Handled = true;
         e.PaintBackground(e.CellBounds, true);
 
-        // Display a Filter Symbol
-        var pt = e.CellBounds.Location;
-        var offset = e.CellBounds.Width - 22;
-        pt.X += offset;
-        pt.Y = (e.CellBounds.Height / 2) - 4;
-        e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);
-
-        e.PaintContent(e.CellBounds);
-      }
-
-      if (e.RowIndex < 0 || e.ColumnIndex < 0)
-        return;
-      var val = e.FormattedValue.ToString();
-      if (string.IsNullOrEmpty(val))
-        return;
-
-      var nbspIndex = val.IndexOf((char) 0xA0);
-      var linefeedIndex = val.IndexOf('\n');
-      var highlightIndex = HighlightText.Length > 0
-        ? val.IndexOf(HighlightText, StringComparison.InvariantCultureIgnoreCase)
-        : -1;
-
-      if (nbspIndex == -1 && highlightIndex == -1)
-        return;
-
-      e.Handled = true;
-      e.PaintBackground(e.CellBounds, true);
-
-      if (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
-                         && e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
-      {
-        var hlRect = new Rectangle();
-        var widthSpace = TextRenderer.MeasureText(e.Graphics, @" ", e.CellStyle.Font, e.ClipBounds.Size).Width;
-        // Only do this as long the NBSP is before a linefeed
-        while (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex))
+        if (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
+                           && e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
         {
-          if (linefeedIndex == -1)
+          var hlRect = new Rectangle();
+          var widthSpace = TextRenderer.MeasureText(e.Graphics, @" ", e.CellStyle.Font, e.ClipBounds.Size).Width;
+          // Only do this as long the NBSP is before a linefeed
+          while (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex))
+          {
+            if (linefeedIndex == -1)
 
-            // Middle Alignment (this goes wrong if the have a linefeed)
-            hlRect.Y = (e.CellBounds.Top + (e.CellBounds.Height / 2)) - 2;
-          else
-            hlRect.Y = (e.CellBounds.Top + Font.Height) - 4;
+              // Middle Alignment (this goes wrong if the have a linefeed)
+              hlRect.Y = (e.CellBounds.Top + (e.CellBounds.Height / 2)) - 2;
+            else
+              hlRect.Y = (e.CellBounds.Top + Font.Height) - 4;
 
-          var before = val.Substring(0, nbspIndex);
-          if (before.Length > 0)
-            hlRect.X = (e.CellBounds.X
-                        + TextRenderer.MeasureText(e.Graphics, before, e.CellStyle.Font, e.CellBounds.Size)
-                          .Width) - 6;
-          else
-            hlRect.X = e.CellBounds.X;
+            var before = val.Substring(0, nbspIndex);
+            if (before.Length > 0)
+              hlRect.X = (e.CellBounds.X
+                          + TextRenderer.MeasureText(e.Graphics, before, e.CellStyle.Font, e.CellBounds.Size)
+                            .Width) - 6;
+            else
+              hlRect.X = e.CellBounds.X;
 
-          // if we are outside the bound stop
-          if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
-            break;
+            // if we are outside the bound stop
+            if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
+              break;
 
-          e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2),
-            new[]
-            {
+            e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2),
+              new[]
+              {
               new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
               new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
               new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
-            });
-          nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
+              });
+            nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
+          }
         }
-      }
 
-      if (HighlightText.Length > 0
-          && (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft
-              || e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
-      {
-        using var hlBrush = new SolidBrush(Color.MediumSpringGreen);
-        var hlRect = new Rectangle();
-        while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
+        if (HighlightText.Length > 0
+            && (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft
+                || e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
         {
-          var highlight = TextRenderer.MeasureText(
-            e.Graphics,
-            val.Substring(highlightIndex, HighlightText.Length),
-            e.CellStyle.Font,
-            e.CellBounds.Size);
-
-          hlRect.Y = e.CellBounds.Y + (e.CellBounds.Height - highlight.Height) / 2;
-          hlRect.Height = highlight.Height + 1;
-          hlRect.Width = highlight.Width - 6;
-
-          if (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
+          using var hlBrush = new SolidBrush(Color.MediumSpringGreen);
+          var hlRect = new Rectangle();
+          while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
           {
-            var before = val.Substring(0, highlightIndex);
-            if (before.Length > 0)
-              hlRect.X = (e.CellBounds.X + TextRenderer.MeasureText(
-                e.Graphics,
-                before,
-                e.CellStyle.Font,
-                e.CellBounds.Size).Width) - 4;
-            else
-              hlRect.X = e.CellBounds.X + 2;
-          }
-          else
-          {
-            var after = val.Substring(highlightIndex + HighlightText.Length);
-            if (after.Length > 0)
-              hlRect.X = ((e.CellBounds.X + e.CellBounds.Width)
-                          - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
-                            e.CellBounds.Size).Width
-                          - hlRect.Width) + 3;
-            else
-              hlRect.X = (e.CellBounds.X + e.CellBounds.Width) - hlRect.Width - 4;
-          }
+            var highlight = TextRenderer.MeasureText(
+              e.Graphics,
+              val.Substring(highlightIndex, HighlightText.Length),
+              e.CellStyle.Font,
+              e.CellBounds.Size);
 
-          e.Graphics.FillRectangle(hlBrush, hlRect);
-          highlightIndex = val.IndexOf(
-            HighlightText,
-            highlightIndex + HighlightText.Length,
-            StringComparison.InvariantCultureIgnoreCase);
+            hlRect.Y = e.CellBounds.Y + (e.CellBounds.Height - highlight.Height) / 2;
+            hlRect.Height = highlight.Height + 1;
+            hlRect.Width = highlight.Width - 6;
+
+            if (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
+            {
+              var before = val.Substring(0, highlightIndex);
+              if (before.Length > 0)
+                hlRect.X = (e.CellBounds.X + TextRenderer.MeasureText(
+                  e.Graphics,
+                  before,
+                  e.CellStyle.Font,
+                  e.CellBounds.Size).Width) - 4;
+              else
+                hlRect.X = e.CellBounds.X + 2;
+            }
+            else
+            {
+              var after = val.Substring(highlightIndex + HighlightText.Length);
+              if (after.Length > 0)
+                hlRect.X = ((e.CellBounds.X + e.CellBounds.Width)
+                            - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
+                              e.CellBounds.Size).Width
+                            - hlRect.Width) + 3;
+              else
+                hlRect.X = (e.CellBounds.X + e.CellBounds.Width) - hlRect.Width - 4;
+            }
+
+            e.Graphics.FillRectangle(hlBrush, hlRect);
+            highlightIndex = val.IndexOf(
+              HighlightText,
+              highlightIndex + HighlightText.Length,
+              StringComparison.InvariantCultureIgnoreCase);
+          }
         }
-      }
 
-      // paint the content as usual
-      e.PaintContent(e.CellBounds);
+        // paint the content as usual
+        e.PaintContent(e.CellBounds);
+      }
+      catch (Exception ex)
+      {
+        e.Handled = false;
+        Logger.Warning(ex, "HighlightCellPainting");
+      }
     }
 #pragma warning restore CA1416
 
@@ -1194,11 +1205,18 @@ namespace CsvTools
     /// </summary>
     private void ResetDataSource()
     {
-      CloseFilter();
-      Columns.Clear();
-      base.DataSource = null;
-      this.SafeInvoke(() => DataMember = null);
-      DataView = null;
+      try
+      {
+        CloseFilter();
+        Columns.Clear();
+        base.DataSource = null;
+        this.SafeInvoke(() => DataMember = null);
+        DataView = null;
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ResetDataSource");
+      }
     }
 
     /// <summary>
@@ -1209,46 +1227,46 @@ namespace CsvTools
     {
       if (DataView != null && !force)
         return;
-      m_BindingSource = null;
-      var dataSource = DataSource;
-      var dataMember = DataMember;
-      var maxIteration = 5;
-
-      while (dataSource is not System.Data.DataView && maxIteration > 0)
+      try
       {
-        if (dataSource is BindingSource bs)
+        m_BindingSource = null;
+        var dataSource = DataSource;
+        var dataMember = DataMember;
+        var maxIteration = 5;
+
+        while (dataSource is not System.Data.DataView && maxIteration > 0)
         {
-          m_BindingSource = ((BindingSource) DataSource!);
-          dataMember = bs.DataMember;
-          dataSource = bs.DataSource;
-        }
-        else
-        {
-          if (dataSource is DataSet ds)
+          if (dataSource is BindingSource bs)
           {
-            dataSource = ds.Tables[dataMember];
-            dataMember = string.Empty;
+            m_BindingSource = ((BindingSource) DataSource!);
+            dataMember = bs.DataMember;
+            dataSource = bs.DataSource;
           }
           else
           {
-            if (dataSource is DataTable dt)
+            if (dataSource is DataSet ds)
             {
-              dataSource = dt.DefaultView;
-              break;
+              dataSource = ds.Tables[dataMember];
+              dataMember = string.Empty;
+            }
+            else
+            {
+              if (dataSource is DataTable dt)
+              {
+                dataSource = dt.DefaultView;
+                break;
+              }
             }
           }
+
+          maxIteration--;
         }
 
-        maxIteration--;
-      }
-
-      try
-      {
         DataView = dataSource as DataView;
       }
       catch (Exception ex)
       {
-        Debug.WriteLine(ex.InnerExceptionMessages());
+        Logger.Warning(ex, "SetBoundDataView");
       }
     }
 
@@ -1273,17 +1291,24 @@ namespace CsvTools
 
     private void TimerColumnsFilter_Tick(object? sender, EventArgs e)
     {
-      timerColumsFilterChecked.Stop();
-
-      var items = new Dictionary<string, bool>();
-      for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
+      try
       {
-        var text = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString();
-        if (!string.IsNullOrEmpty(text))
-          items.Add(text, toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
-      }
+        timerColumsFilterChecked.Stop();
 
-      this.SafeInvoke(() => SetColumnVisibility(items));
+        var items = new Dictionary<string, bool>();
+        for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
+        {
+          var text = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString();
+          if (!string.IsNullOrEmpty(text))
+            items.Add(text, toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
+        }
+
+        this.SafeInvoke(() => SetColumnVisibility(items));
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "TimerColumnsFilter_Tick");
+      }
     }
 
     /// <summary>
@@ -1296,17 +1321,17 @@ namespace CsvTools
       try
       {
         if (m_Filter[m_MenuItemColumnIndex] != null)
-        m_Filter[m_MenuItemColumnIndex]!.ColumnFilterLogic.Active = true;
+          m_Filter[m_MenuItemColumnIndex]!.ColumnFilterLogic.Active = true;
 
-      ApplyFilters();
-      contextMenuStripCell.Close();
-      contextMenuStripHeader.Close();
-      contextMenuStripFilter.Close();
+        ApplyFilters();
+        contextMenuStripCell.Close();
+        contextMenuStripHeader.Close();
+        contextMenuStripFilter.Close();
       }
       catch (Exception ex)
       {
-        Logger.Error(ex,"Apply Click");
-      }      
+        Logger.Warning(ex, "Apply Click");
+      }
     }
 
 
@@ -1317,18 +1342,25 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemCF_Click(object? sender, EventArgs e)
     {
-      var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
-      if (columnFormat is null)
-        return;
-      if (m_FileSetting != null && FillGuessSettings != null)
+      try
       {
-        using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
-          false, false);
-
-        if (form.ShowWithFont(this, true) == DialogResult.Cancel)
+        var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
+        if (columnFormat is null)
           return;
+        if (m_FileSetting != null && FillGuessSettings != null)
+        {
+          using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
+            false, false);
 
-        m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
+          if (form.ShowWithFont(this, true) == DialogResult.Cancel)
+            return;
+
+          m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ToolStripMenuItemCF_Click");
       }
     }
 
@@ -1341,7 +1373,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Issue during Copy");
+        Logger.Warning(ex, "Issue during Copy");
       }
     }
 
@@ -1389,9 +1421,9 @@ namespace CsvTools
         m_Filter[m_MenuItemColumnIndex]!.ColumnFilterLogic.Active = false;
         ApplyFilters();
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        Logger.Warning(ex, "ToolStripMenuItemFilterRemoveOne_Click");
       }
     }
 
@@ -1413,9 +1445,9 @@ namespace CsvTools
         Columns[m_MenuItemColumnIndex].Visible = false;
         ColumnVisibilityChanged();
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        Logger.Warning(ex, "ToolStripMenuItemHideThisColumn_Click");
       }
     }
 
@@ -1461,7 +1493,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "SetViewStatus");
+        Logger.Warning(ex, "SetViewStatus");
       }
     }
 
@@ -1540,32 +1572,39 @@ namespace CsvTools
 
     private void TimerColumnsFilterText_Tick(object? sender, EventArgs e)
     {
-      timerColumsFilterText.Stop();
-      if (toolStripTextBoxColFilter.Text.Length <= 1) return;
-      toolStripTextBoxColFilter.RunWithHourglass(() =>
+      try
       {
-        bool allVisible = true;
-        foreach (DataGridViewColumn col in Columns)
+        timerColumsFilterText.Stop();
+        if (toolStripTextBoxColFilter.Text.Length <= 1) return;
+        toolStripTextBoxColFilter.RunWithHourglass(() =>
         {
-          if (!col.Visible)
+          bool allVisible = true;
+          foreach (DataGridViewColumn col in Columns)
           {
-            allVisible = false;
-            break;
+            if (!col.Visible)
+            {
+              allVisible = false;
+              break;
+            }
           }
-        }
 
-        foreach (DataGridViewColumn col in Columns)
-          if (col.DataPropertyName.IndexOf(toolStripTextBoxColFilter.Text, StringComparison.OrdinalIgnoreCase) != -1)
-            col.Visible = true;
-          else if (allVisible)
-            col.Visible = false;
+          foreach (DataGridViewColumn col in Columns)
+            if (col.DataPropertyName.IndexOf(toolStripTextBoxColFilter.Text, StringComparison.OrdinalIgnoreCase) != -1)
+              col.Visible = true;
+            else if (allVisible)
+              col.Visible = false;
 
-        if (!ColumnVisibilityChanged())
-          return;
+          if (!ColumnVisibilityChanged())
+            return;
 
-        SetRowHeight();
-      }, null);
-      toolStripTextBoxColFilter.Focus();
+          SetRowHeight();
+        }, null);
+        toolStripTextBoxColFilter.Focus();
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "TimerColumnsFilterText_Tick");
+      }
     }
   }
 }
