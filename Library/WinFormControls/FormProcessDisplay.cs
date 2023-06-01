@@ -19,7 +19,9 @@ using System;
 using System.Drawing;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 
 // ReSharper disable RedundantDelegateCreation
 // ReSharper disable RedundantNameQualifier
@@ -142,13 +144,31 @@ namespace CsvTools
             }
             else
             {
-              m_ProgressBar.Maximum = 0;
+              m_ProgressBar.Maximum = 2;
               m_LabelEtl.Text = string.Empty;
               m_ProgressBar.Style = ProgressBarStyle.Marquee;
+              Application.EnableVisualStyles();
+              Task.Run(()=>AnimateBackground(), CancellationToken);              
             }
           });
       }
     }
+
+    private void AnimateBackground()
+    {
+      while (m_ProgressBar.Style == ProgressBarStyle.Marquee)
+      {        
+        Thread.Sleep(200);
+        m_ProgressBar.SafeBeginInvoke(()=>{
+        if (m_ProgressBar.Value < m_ProgressBar.Maximum)
+          m_ProgressBar.Value++;
+        else
+          m_ProgressBar.Value = m_ProgressBar.Minimum;
+        });
+        // Application.DoEvents();
+      }      
+    }
+
     //string lastText = string.Empty;
     /// <summary>
     /// Sets the process values in the UI
@@ -178,7 +198,7 @@ namespace CsvTools
           if (value <= 0 || Maximum <= 1)
           {
             m_LabelEtl.Text = string.Empty;
-            m_ProgressBar.Style = ProgressBarStyle.Marquee;
+            m_ProgressBar.Style = ProgressBarStyle.Blocks;
           }
           else
           {

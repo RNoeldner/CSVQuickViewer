@@ -1024,7 +1024,7 @@ namespace CsvTools
           if (wrapColumns.Contains(col))
             newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
           if (showAsButton.Contains(col))
-              newColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
+            newColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
           newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
           newColumn.Width =

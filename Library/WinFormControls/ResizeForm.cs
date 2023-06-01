@@ -40,17 +40,23 @@ namespace CsvTools
 
     private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
     {
-      if (sender is IFontConfig config && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
-#pragma warning disable CA1416
-      //this.SafeInvokeNoHandleNeeded(() =>
+      if (sender is IFontConfig conf && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
       {
-        SuspendLayout();
-        SetFonts(this, new Font(config.Font, config.FontSize));
-        ResumeLayout();
-        Refresh();
+        try
+        {
+          SuspendLayout();
+          SetFonts(this, new Font(conf.Font, conf.FontSize));
+        }
+        catch
+        {
+          // ignore
+        }
+        finally
+        {
+          ResumeLayout();
+          Refresh();
+        }
       }
-      //);
-#pragma warning restore CA1416
     }
 
     public void SetFont(Font newFont) =>
