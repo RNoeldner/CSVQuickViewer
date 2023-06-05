@@ -144,7 +144,8 @@ namespace CsvTools
             }
             else
             {
-              m_ProgressBar.Maximum = 2;
+              m_ProgressBar.Maximum = 1;
+              m_ProgressBar.Maximum = 10;
               m_LabelEtl.Text = string.Empty;
               m_ProgressBar.Style = ProgressBarStyle.Marquee;
               Application.EnableVisualStyles();
@@ -165,7 +166,7 @@ namespace CsvTools
         else
           m_ProgressBar.Value = m_ProgressBar.Minimum;
         });
-        // Application.DoEvents();
+        Application.DoEvents();
       }      
     }
 
