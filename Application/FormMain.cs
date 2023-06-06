@@ -594,7 +594,7 @@ namespace CsvTools
           });
         
           Logger.Debug("Loading Batch");
-          using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
+          using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
             formProgress.ShowWithFont(this);
             noError  = await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,

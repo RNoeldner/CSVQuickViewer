@@ -127,7 +127,7 @@ namespace CsvTools
     {
       if (!fileSetting.ShowProgress)
         return null;
-      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, cancellationToken);
+      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
       formProgress.ShowWithFont(owner);
       return formProgress;
     }

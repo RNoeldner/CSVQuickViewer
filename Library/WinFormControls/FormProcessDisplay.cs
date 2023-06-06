@@ -21,7 +21,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 
 // ReSharper disable RedundantDelegateCreation
 // ReSharper disable RedundantNameQualifier
@@ -48,7 +47,7 @@ namespace CsvTools
     public event EventHandler<ProgressInfo>? ProgressChanged;
 
     public FormProgress(in string windowTitle)
-      : this(windowTitle, true, CancellationToken.None)
+      : this(windowTitle, true, new FontConfig(), CancellationToken.None)
     {
     }
 
@@ -58,7 +57,7 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in CancellationToken cancellationToken)
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken) : base(fontConfig)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
@@ -90,7 +89,7 @@ namespace CsvTools
     }
 
     public FormProgress()
-      : this(string.Empty, true, CancellationToken.None)
+      : this(string.Empty, true, new FontConfig(), CancellationToken.None)
     {
     }
 

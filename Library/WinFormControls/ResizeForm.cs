@@ -8,31 +8,34 @@ namespace CsvTools
 
   public class ResizeForm : Form
   {
-    private IFontConfig? m_FontConfig;
+    private IFontConfig m_FontConfig;
 
-    public ResizeForm() : this(null)
+    public ResizeForm() : this(new FontConfig())
     {
     }
 
     [Browsable(false)]
     [Bindable(false)]
-    public IFontConfig? FontConfig
+    public IFontConfig FontConfig
     {
       get => m_FontConfig;
       set
       {
         if (m_FontConfig != null)
           m_FontConfig.PropertyChanged -= FontSettingChanged;
-        m_FontConfig = value;
+        
         if (m_FontConfig != null)
         {
+          m_FontConfig = value;
           m_FontConfig.PropertyChanged += FontSettingChanged;
           FontSettingChanged(value, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
         }
       }
     }
 
-    protected ResizeForm(in IFontConfig? fontConfig)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    protected ResizeForm(in IFontConfig fontConfig)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
       InitializeComponent();
       FontConfig = fontConfig;
@@ -59,8 +62,7 @@ namespace CsvTools
       }
     }
 
-    public void SetFont(Font newFont) =>
-      SetFonts(this, newFont);
+    public void SetFont(Font newFont) => SetFonts(this, newFont);
 
     /// <summary>
     ///   Recursively change the font of all controls, needed on Windows 8 / 2012
@@ -75,6 +77,7 @@ namespace CsvTools
       foreach (Control ctrl in container.Controls)
         SetFonts(ctrl, newFont);
     }
+
 #pragma warning disable CS8600
     private void InitializeComponent()
     {

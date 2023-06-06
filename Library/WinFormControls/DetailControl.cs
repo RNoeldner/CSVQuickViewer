@@ -750,7 +750,7 @@ namespace CsvTools
         for (var i = 0; i < physSource.SkipRows; i++)
           skippedLines.AppendLine(await sr.ReadLineAsync());
       }
-      using var formProgress = new FormProgress("Writing file", true, m_CancellationToken);
+      using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
       try
       {
         formProgress.ShowWithFont(this);
@@ -851,7 +851,7 @@ namespace CsvTools
         // ReSharper disable once LocalizableElement
         m_ToolStripLabelCount.Text = " loading...";
 
-        using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);
+        using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
         formProgress.ShowWithFont(this);
         formProgress.Maximum = 100;
 

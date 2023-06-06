@@ -51,7 +51,7 @@ namespace CsvTools
 
     private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
-      using var formProgress = new FormProgress("Check", true, CancellationToken.None);
+      using var formProgress = new FormProgress("Check", true, FontConfig, CancellationToken.None);
       formProgress.ShowWithFont(this);
       formProgress.Maximum = 0;
       using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));

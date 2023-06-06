@@ -119,7 +119,7 @@ namespace CsvTools
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         using var formProgress =
-          new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+          new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token)
           {
             Maximum = m_DataRow.Length
           };
