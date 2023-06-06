@@ -93,8 +93,8 @@ namespace CsvTools
         dt.TableName = m_Id;
       try
       {
-        Logger.Debug("Setting DataTable");
-        actionSendNewDataTable.Invoke(dt);
+        progress?.Report(new ProgressInfo("Setting DataTable"));        
+        actionSendNewDataTable.Invoke(dt);        
       }
       catch (InvalidOperationException ex)
       {
@@ -104,21 +104,21 @@ namespace CsvTools
 
       try
       {
-        Logger.Debug("Refresh Display");
-        setRefreshDisplayAsync(cancellationToken);
+        progress?.Report(new ProgressInfo("Refresh Display"));        
+        setRefreshDisplayAsync(cancellationToken);        
       }
       catch (InvalidOperationException ex)
       {
         // ignore
         Logger.Warning(ex, "RefreshDisplayAsync");
       }
-
+      
       if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await DisposeAsync().ConfigureAwait(false);
 #else
         Dispose();
-#endif
+#endif      
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

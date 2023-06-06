@@ -50,13 +50,24 @@ namespace CsvTools
     private bool m_UpdateVisibility = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
-    public async Task LoadSettingAsync(IFileSetting fileSetting,
+    public async Task<bool> LoadSettingAsync(IFileSetting fileSetting,
       bool addErrorField, bool restoreError, TimeSpan durationInitial, FilterTypeEnum filterType,
       IProgress<ProgressInfo>? progress, EventHandler<WarningEventArgs>? addWarning,
-      CancellationToken cancellationToken) =>
-      await m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
+      CancellationToken cancellationToken)
+    {
+      try
+      {
+        await m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
         t => RefreshDisplay(filterType, t), addErrorField, restoreError,
         durationInitial, progress, addWarning, cancellationToken);
+        return true;
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
 
     /// <inheritdoc />
     /// <summary>
@@ -606,7 +617,7 @@ namespace CsvTools
     /// </summary>
     private void FilterColumns(FilterTypeEnum filterType)
     {
-      
+
       if (filterType == FilterTypeEnum.All || filterType== FilterTypeEnum.None)
       {
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)

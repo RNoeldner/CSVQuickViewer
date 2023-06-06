@@ -57,6 +57,10 @@ namespace CsvTools
 
     public IProgress<ProgressInfo> ReportProgress
     {
+      protected get
+      {
+        return m_ReportProgress!;
+      }
       set
       {
         value.SetMaximum(cMaxProgress);
