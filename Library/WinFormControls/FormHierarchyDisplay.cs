@@ -91,7 +91,7 @@ namespace CsvTools
     {
       this.RunWithHourglass(() =>
       {
-        using var formProgress = new FormProgress("Building Tree", false, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress("Building Tree", false, FontConfig, m_CancellationTokenSource.Token);
         formProgress.ShowWithFont(this);
         formProgress.Maximum = m_DataRow.GetLength(0) * 2;
 
@@ -317,7 +317,7 @@ namespace CsvTools
       {
         try
         {
-          using var formProgress = new FormProgress("Searching", false, m_CancellationTokenSource.Token);
+          using var formProgress = new FormProgress("Searching", false, FontConfig, m_CancellationTokenSource.Token);
           formProgress.ShowWithFont(this);
           Search(m_TextBoxValue!.Text, m_TreeView.Nodes, formProgress.CancellationToken);
         }

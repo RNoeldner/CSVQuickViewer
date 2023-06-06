@@ -121,7 +121,7 @@ namespace CsvTools
           return;
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
-        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token)
         { Maximum = m_DataRow.Length };
         formProgress.ShowWithFont(this);
         var intervalAction = new IntervalAction();
