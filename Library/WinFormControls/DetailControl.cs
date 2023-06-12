@@ -753,7 +753,7 @@ namespace CsvTools
       using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
       try
       {
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         BeforeFileStored?.Invoke(this, WriteSetting);
 
         var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
@@ -852,7 +852,7 @@ namespace CsvTools
         m_ToolStripLabelCount.Text = " loading...";
 
         using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         formProgress.Maximum = 100;
 
         await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), true,

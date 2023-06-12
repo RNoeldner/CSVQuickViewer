@@ -49,11 +49,11 @@ namespace CsvTools
 
     private bool m_IsDisposed;
 
-    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting) : base(viewSettings)
+    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_FileSetting = setting;
-
+      FontConfig = viewSettings;
       InitializeComponent();
 
       toolTip.SetToolTip(checkBoxAllowRowCombining,
@@ -122,7 +122,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           SetDefaultInspectionResult();
           using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
           formProgress.Maximum = 0;
-          formProgress.ShowWithFont(this);
+          formProgress.Show(this);
 
 
           SetFileSetting((await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,

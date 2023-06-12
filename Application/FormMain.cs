@@ -60,9 +60,10 @@ namespace CsvTools
 
 
 
-    public FormMain(in ViewSettings viewSettings) : base(viewSettings)
+    public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
+      FontConfig = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
 
@@ -596,7 +597,7 @@ namespace CsvTools
           Logger.Debug("Loading Batch");
           using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
-            formProgress.ShowWithFont(this);
+            formProgress.Show(this);
             noError  = await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }

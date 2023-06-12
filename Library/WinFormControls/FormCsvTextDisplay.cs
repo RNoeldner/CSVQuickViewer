@@ -101,7 +101,7 @@ namespace CsvTools
       await textBox.RunWithHourglassAsync(async () =>
       {
         using var formProgress = new FormProgress("Display Source", false, FontConfig, cancellationToken);
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         textBox.ClearUndo();
         formProgress.Report(new ProgressInfo("Display of read file"));
 
@@ -122,7 +122,7 @@ namespace CsvTools
       textBox.RunWithHourglass(() =>
       {
         using var formProgress = new FormProgress("Pretty Print Source", false, FontConfig, cancellationToken);
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         formProgress.Maximum = 0;
         formProgress.Report(new ProgressInfo("Parsing Text as Json"));
         var t = JsonConvert.DeserializeObject<object>(textBox.Text);

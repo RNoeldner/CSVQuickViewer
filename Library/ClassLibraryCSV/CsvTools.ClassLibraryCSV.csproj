@@ -52,6 +52,9 @@
 	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="RangeForStandard.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>

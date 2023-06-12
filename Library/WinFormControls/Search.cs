@@ -156,8 +156,7 @@ namespace CsvTools
     private void InitializeComponent()
     {
       System.Windows.Forms.Label label1;
-      System.ComponentModel.ComponentResourceManager resources =
-        new System.ComponentModel.ComponentResourceManager(typeof(Search));
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Search));
       this.m_BtnCancel = new System.Windows.Forms.Button();
       this.m_SearchTextBoxText = new System.Windows.Forms.TextBox();
       this.m_LblResults = new System.Windows.Forms.Label();
@@ -184,7 +183,7 @@ namespace CsvTools
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_BtnCancel.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
       this.m_BtnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-      this.m_BtnCancel.Image = ((System.Drawing.Image) (resources.GetObject("m_BtnCancel.Image")));
+      this.m_BtnCancel.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnCancel.Image")));
       this.m_BtnCancel.Location = new System.Drawing.Point(325, 3);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(24, 19);
@@ -220,7 +219,7 @@ namespace CsvTools
       this.m_BtnNext.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
       this.m_BtnNext.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
       this.m_BtnNext.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-      this.m_BtnNext.Image = ((System.Drawing.Image) (resources.GetObject("m_BtnNext.Image")));
+      this.m_BtnNext.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnNext.Image")));
       this.m_BtnNext.Location = new System.Drawing.Point(295, 3);
       this.m_BtnNext.Name = "m_BtnNext";
       this.m_BtnNext.Size = new System.Drawing.Size(24, 19);
@@ -234,7 +233,7 @@ namespace CsvTools
       this.m_BtnPrevious.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
       this.m_BtnPrevious.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
       this.m_BtnPrevious.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-      this.m_BtnPrevious.Image = ((System.Drawing.Image) (resources.GetObject("m_BtnPrevious.Image")));
+      this.m_BtnPrevious.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnPrevious.Image")));
       this.m_BtnPrevious.Location = new System.Drawing.Point(265, 3);
       this.m_BtnPrevious.Name = "m_BtnPrevious";
       this.m_BtnPrevious.Size = new System.Drawing.Size(24, 19);
@@ -246,8 +245,7 @@ namespace CsvTools
       // 
       this.m_TableLayoutPanel.ColumnCount = 6;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -262,8 +260,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 1;
-      this.m_TableLayoutPanel.RowStyles.Add(
-        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(352, 25);
       this.m_TableLayoutPanel.TabIndex = 7;
       // 
@@ -275,6 +272,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
+
     }
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     private void LblResultsTextChanged(object? sender, EventArgs e)

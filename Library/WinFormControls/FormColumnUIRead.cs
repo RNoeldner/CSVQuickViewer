@@ -72,8 +72,9 @@ namespace CsvTools
       Column column,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
-      bool showIgnore,
-      bool showWriteNull)
+      bool showIgnore,      
+      bool showWriteNull,
+      bool enableChangeColumn)
     {
       m_ColumnEdit = new ColumnMut(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
@@ -86,7 +87,7 @@ namespace CsvTools
       bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
       comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
 
-      comboBoxColumnName.Enabled = showIgnore;
+      comboBoxColumnName.Enabled = enableChangeColumn;
       checkBoxIgnore.Visible = showIgnore;
 
       labelDisplayNullAs.Visible = showWriteNull;
@@ -128,7 +129,7 @@ namespace CsvTools
     {
       using var formProgress = new FormProgress("Display Values", true, FontConfig, m_CancellationTokenSource.Token);
 
-      formProgress.ShowWithFont(this);
+      formProgress.Show(this);
       var values = await GetSampleValuesAsync(comboBoxColumnName.Text, formProgress, formProgress.CancellationToken);
       formProgress.Hide();
       Cursor.Current = Cursors.Default;
@@ -166,7 +167,7 @@ namespace CsvTools
       await buttonGuess.RunWithHourglassAsync(async () =>
       {
         using var formProgress = new FormProgress("Guess Value", true, FontConfig, m_CancellationTokenSource.Token);
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         {
           var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
           // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
@@ -534,7 +535,7 @@ namespace CsvTools
         SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
         using var formProgress = new FormProgress("Getting column headers", false, FontConfig, m_CancellationTokenSource.Token);
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         formProgress.SetProcess("Getting columns from source");
         HashSet<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

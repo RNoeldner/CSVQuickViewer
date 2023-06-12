@@ -10,10 +10,6 @@ namespace CsvTools
   {
     private IFontConfig m_FontConfig;
 
-    public ResizeForm() : this(new FontConfig())
-    {
-    }
-
     [Browsable(false)]
     [Bindable(false)]
     public IFontConfig FontConfig
@@ -23,7 +19,7 @@ namespace CsvTools
       {
         if (m_FontConfig != null)
           m_FontConfig.PropertyChanged -= FontSettingChanged;
-        
+
         if (m_FontConfig != null)
         {
           m_FontConfig = value;
@@ -34,31 +30,34 @@ namespace CsvTools
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    protected ResizeForm(in IFontConfig fontConfig)
+    public ResizeForm()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
       InitializeComponent();
-      FontConfig = fontConfig;
+      FontConfig = new FontConfig();
     }
 
     private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
     {
       if (sender is IFontConfig conf && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
       {
-        try
-        {
-          SuspendLayout();
-          SetFonts(this, new Font(conf.Font, conf.FontSize));
-        }
-        catch
-        {
-          // ignore
-        }
-        finally
-        {
-          ResumeLayout();
-          Refresh();
-        }
+        this.SafeInvoke(() =>
+          {
+            try
+            {
+              SuspendLayout();
+              SetFonts(this, new Font(conf.Font, conf.FontSize));
+            }
+            catch
+            {
+              // ignore
+            }
+            finally
+            {
+              ResumeLayout();
+              Refresh();
+            }
+          });
       }
     }
 

@@ -137,7 +137,7 @@ namespace CsvTools
       // 
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(487, 53);
+      this.m_BtnOk.Location = new System.Drawing.Point(487, 55);
       this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(57, 25);
@@ -175,7 +175,7 @@ namespace CsvTools
       // 
       this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(548, 53);
+      this.m_BtnCancel.Location = new System.Drawing.Point(548, 55);
       this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(57, 25);
@@ -202,7 +202,7 @@ namespace CsvTools
       this.m_ButtonKeyFile.Location = new System.Drawing.Point(487, 26);
       this.m_ButtonKeyFile.Margin = new System.Windows.Forms.Padding(2);
       this.m_ButtonKeyFile.Name = "m_ButtonKeyFile";
-      this.m_ButtonKeyFile.Size = new System.Drawing.Size(118, 23);
+      this.m_ButtonKeyFile.Size = new System.Drawing.Size(118, 25);
       this.m_ButtonKeyFile.TabIndex = 3;
       this.m_ButtonKeyFile.Text = "Select File";
       this.m_ButtonKeyFile.UseVisualStyleBackColor = true;
@@ -233,7 +233,7 @@ namespace CsvTools
       // 
       this.m_LabelKeyFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelKeyFile.AutoSize = true;
-      this.m_LabelKeyFile.Location = new System.Drawing.Point(21, 31);
+      this.m_LabelKeyFile.Location = new System.Drawing.Point(21, 32);
       this.m_LabelKeyFile.Name = "m_LabelKeyFile";
       this.m_LabelKeyFile.Size = new System.Drawing.Size(47, 13);
       this.m_LabelKeyFile.TabIndex = 1;
@@ -243,7 +243,7 @@ namespace CsvTools
       // 
       this.m_CheckBoxShowHide.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_CheckBoxShowHide.AutoSize = true;
-      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(403, 57);
+      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(403, 59);
       this.m_CheckBoxShowHide.Margin = new System.Windows.Forms.Padding(2);
       this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
       this.m_CheckBoxShowHide.Size = new System.Drawing.Size(80, 17);
