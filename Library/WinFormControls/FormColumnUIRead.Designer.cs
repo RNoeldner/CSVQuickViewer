@@ -66,10 +66,10 @@ namespace CsvTools
       this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.textBoxTimeSeparator = new System.Windows.Forms.TextBox();
       this.comboBoxTimeZone = new System.Windows.Forms.ComboBox();
-      this.label5 = new System.Windows.Forms.Label();
+      this.labelSample = new System.Windows.Forms.Label();
       this.labelSampleDisplay = new System.Windows.Forms.Label();
       this.labelDateOutputDisplay = new System.Windows.Forms.Label();
-      this.label6 = new System.Windows.Forms.Label();
+      this.labelNote = new System.Windows.Forms.Label();
       this.labelInputTZ = new System.Windows.Forms.Label();
       this.labelOutPutTZ = new System.Windows.Forms.Label();
       this.comboBoxTPFormat = new System.Windows.Forms.ComboBox();
@@ -307,10 +307,10 @@ namespace CsvTools
       tableLayoutPanel2.Controls.Add(labelDateOutput, 4, 5);
       tableLayoutPanel2.Controls.Add(labelSample, 4, 4);
       tableLayoutPanel2.Controls.Add(label4, 4, 3);
-      tableLayoutPanel2.Controls.Add(this.label5, 5, 3);
+      tableLayoutPanel2.Controls.Add(this.labelSample, 5, 3);
       tableLayoutPanel2.Controls.Add(this.labelSampleDisplay, 5, 4);
       tableLayoutPanel2.Controls.Add(this.labelDateOutputDisplay, 5, 5);
-      tableLayoutPanel2.Controls.Add(this.label6, 4, 1);
+      tableLayoutPanel2.Controls.Add(this.labelNote, 4, 1);
       tableLayoutPanel2.Controls.Add(this.labelInputTZ, 6, 4);
       tableLayoutPanel2.Controls.Add(this.labelOutPutTZ, 6, 5);
       tableLayoutPanel2.Controls.Add(labelTCFormat, 4, 2);
@@ -530,15 +530,15 @@ namespace CsvTools
       // 
       // label5
       // 
-      this.label5.AutoSize = true;
-      tableLayoutPanel2.SetColumnSpan(this.label5, 2);
-      this.label5.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label5.Location = new System.Drawing.Point(332, 83);
-      this.label5.Margin = new System.Windows.Forms.Padding(3);
-      this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(141, 13);
-      this.label5.TabIndex = 11;
-      this.label5.Text = "7th April 2013  15:45:50 345";
+      this.labelSample.AutoSize = true;
+      tableLayoutPanel2.SetColumnSpan(this.labelSample, 2);
+      this.labelSample.ForeColor = System.Drawing.SystemColors.Highlight;
+      this.labelSample.Location = new System.Drawing.Point(332, 83);
+      this.labelSample.Margin = new System.Windows.Forms.Padding(3);
+      this.labelSample.Name = "label5";
+      this.labelSample.Size = new System.Drawing.Size(141, 13);
+      this.labelSample.TabIndex = 11;
+      this.labelSample.Text = "7th April 2013  15:45:50 345";
       // 
       // labelSampleDisplay
       // 
@@ -563,16 +563,16 @@ namespace CsvTools
       // 
       // label6
       // 
-      this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label6.AutoSize = true;
-      tableLayoutPanel2.SetColumnSpan(this.label6, 3);
-      this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label6.Location = new System.Drawing.Point(284, 33);
-      this.label6.Margin = new System.Windows.Forms.Padding(3);
-      this.label6.Name = "label6";
-      this.label6.Size = new System.Drawing.Size(187, 13);
-      this.label6.TabIndex = 11;
-      this.label6.Text = "Note: Constants in quotes e.G. \"UTC\"";
+      this.labelNote.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.labelNote.AutoSize = true;
+      tableLayoutPanel2.SetColumnSpan(this.labelNote, 3);
+      this.labelNote.ForeColor = System.Drawing.SystemColors.Highlight;
+      this.labelNote.Location = new System.Drawing.Point(284, 33);
+      this.labelNote.Margin = new System.Windows.Forms.Padding(3);
+      this.labelNote.Name = "label6";
+      this.labelNote.Size = new System.Drawing.Size(187, 13);
+      this.labelNote.TabIndex = 11;
+      this.labelNote.Text = "Note: Constants in quotes e.G. \"UTC\"";
       // 
       // labelInputTZ
       // 
@@ -1261,10 +1261,10 @@ namespace CsvTools
     private System.Windows.Forms.ComboBox comboBoxTimePart;
     private System.Windows.Forms.TextBox textBoxTimeSeparator;
     private System.Windows.Forms.ComboBox comboBoxTimeZone;
-    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.Label labelSample;
     private System.Windows.Forms.Label labelSampleDisplay;
     private System.Windows.Forms.Label labelDateOutputDisplay;
-    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.Label labelNote;
     private System.Windows.Forms.Label labelInputTZ;
     private System.Windows.Forms.Label labelOutPutTZ;
     private System.Windows.Forms.ComboBox comboBoxTPFormat;

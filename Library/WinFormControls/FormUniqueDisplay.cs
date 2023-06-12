@@ -123,7 +123,7 @@ namespace CsvTools
           {
             Maximum = m_DataRow.Length
           };
-        formProgress.ShowWithFont(this);
+        formProgress.Show(this);
         Logger.Information("Getting Unique values");
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)

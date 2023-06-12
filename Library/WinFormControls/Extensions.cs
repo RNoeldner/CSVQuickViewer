@@ -35,17 +35,12 @@ namespace CsvTools
 
     public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
     {
-      var parentFrm = ctrl?.FindForm();
-      try
+      Form? parentFrm = null;
+
+      if (ctrl != null)
       {
-        if (parentFrm is ResizeForm resizeForm)
-          newForm.FontConfig = resizeForm.FontConfig;
-        else if (ctrl != null)
-          newForm.SetFont(ctrl.Font);
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning("Tyring to set Font", ex);
+        parentFrm = ctrl.FindForm();
+        newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
       }
       if (dialog)
         return newForm.ShowDialog(parentFrm);
@@ -127,8 +122,9 @@ namespace CsvTools
     {
       if (!fileSetting.ShowProgress)
         return null;
-      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
-      formProgress.ShowWithFont(owner);
+      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);      
+      formProgress.Show(owner);
+      
       return formProgress;
     }
 

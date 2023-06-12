@@ -57,16 +57,13 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken) : base(fontConfig)
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken) 
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
-
+      
       Text = windowTitle ?? string.Empty;
-
-      Maximum = 0;
-
-
+      
       SuspendLayout();
       m_TableLayoutPanel.SuspendLayout();
       if (withLoggerDisplay)
@@ -86,6 +83,10 @@ namespace CsvTools
       m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
       PerformLayout();
+      Application.EnableVisualStyles();
+      FontConfig = fontConfig;
+
+      Maximum = 0;
     }
 
     public FormProgress()
@@ -146,8 +147,7 @@ namespace CsvTools
               m_ProgressBar.Maximum = 1;
               m_ProgressBar.Maximum = 10;
               m_LabelEtl.Text = string.Empty;
-              m_ProgressBar.Style = ProgressBarStyle.Marquee;
-              Application.EnableVisualStyles();
+              m_ProgressBar.Style = ProgressBarStyle.Marquee;              
               Task.Run(()=>AnimateBackground(), CancellationToken);              
             }
           });

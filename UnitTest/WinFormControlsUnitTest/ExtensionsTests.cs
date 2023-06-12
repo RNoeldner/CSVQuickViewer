@@ -56,12 +56,12 @@ namespace CsvTools.Tests
         {
           ShowProgress = true
         };
-      using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
+      using (var prc = setting.GetProgress(new Form(), true, UnitTestStatic.Token))
       {
         Assert.IsNotNull(prc, "Getprogress With Logger");
       }
 
-      using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
+      using (var prc = setting.GetProgress(new Form(), false, UnitTestStatic.Token))
       {
         Assert.IsNotNull(prc, "Getprogress Without Logger");
       }
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
         };
       Extensions.RunStaThread(() =>
       {
-        using var prc = setting2.GetProgress(null, false, UnitTestStatic.Token);
+        using var prc = setting2.GetProgress(new Form(), false, UnitTestStatic.Token);
         Assert.IsNull(prc, "Getprogress without UI");
       });
     }

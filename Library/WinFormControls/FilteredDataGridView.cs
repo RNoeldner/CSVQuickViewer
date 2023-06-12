@@ -1350,7 +1350,7 @@ namespace CsvTools
         if (m_FileSetting != null && FillGuessSettings != null)
         {
           using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
-            false, false);
+            false, false, false);
 
           if (form.ShowWithFont(this, true) == DialogResult.Cancel)
             return;
