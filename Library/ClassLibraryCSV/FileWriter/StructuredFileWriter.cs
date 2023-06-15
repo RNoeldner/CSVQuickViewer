@@ -16,9 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,16 +33,6 @@ namespace CsvTools
     ///   The field placeholder
     /// </summary>
     public const string cFieldPlaceholderByName = "[{0}]";
-
-    /// <summary>
-    ///   The c field placeholder
-    /// </summary>
-    private const string cFieldPlaceholderByNumber = "[value{0}]";
-
-    /// <summary>
-    ///   The header placeholder
-    /// </summary>
-    private const string cHeaderPlaceholder = "[column{0}]";
 
     private readonly string m_Row;
     private readonly bool m_ByteOrderMark;
@@ -110,15 +98,31 @@ namespace CsvTools
     protected abstract string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader);
 
     /// <summary>
+    ///   Loops through the reader and invoking recordAction for each row
+    /// </summary>
+    /// <param name="reader">A data reader with the data</param>
+    /// <param name="recordAction">Async action to be performed</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task WriteReaderAsync(IFileReader reader, Func<string, Task> recordAction, CancellationToken cancellationToken)
+    {
+      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      HandleWriteStart();
+      var intervalAction = IntervalAction.ForProgress(ReportProgress);
+      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
+      {
+        NextRecord();
+        intervalAction?.Invoke(ReportProgress!, $"Record {reader.RecordNumber:N0}", reader.Percent);
+        await recordAction(BuildRow(m_Row, reader, columns));
+      }
+    }
+
+    /// <summary>
     ///   Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public override async Task WriteReaderAsync(
-      IFileReader reader,
-      Stream output,
-      CancellationToken cancellationToken)
+    public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
       var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
 
@@ -129,11 +133,8 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var writer =
-        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096, true);
+      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096, true);
       const string recordEnd = "\r\n";
-
-      HandleWriteStart();
 
       // Header
       if (!string.IsNullOrEmpty(Header))
@@ -146,51 +147,22 @@ namespace CsvTools
       }
 
       // Static template for the row, built once
-      var withHeader = m_Row;
-      var colNum = 0;
-      var placeHolderLookup1 = new Dictionary<int, string>();
-      var placeHolderLookup2 = new Dictionary<int, string>();
+      var sb = new StringBuilder(2048);
 
-      foreach (var columnName in columns.Select(x => x.Name))
+      await WriteReaderAsync(reader, async row =>
       {
-        var placeHolder = string.Format(CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
-        withHeader = withHeader.Replace(placeHolder, ElementName(columnName));
-
-        placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum));
-        placeHolderLookup2.Add(
-          colNum,
-          string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnName));
-        colNum++;
-      }
-
-      withHeader = withHeader.Trim();
-      var sb = new StringBuilder(
-        2048); // Assume a capacity of 2048 characters to start, data is flushed every 1024 chars
-      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-             && !cancellationToken.IsCancellationRequested)
-      {
-        NextRecord();
         if (Records > 1)
           sb.Append(RecordDelimiter());
-
         // Start a new line
         sb.Append(recordEnd);
-        var row = withHeader;
-        colNum = 0;
-        foreach (var columnInfo in columns)
+        sb.Append(BuildRow(m_Row, reader, columns));
+
+        if (sb.Length > 1024)
         {
-          var value = Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader);
-          row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
-          colNum++;
+          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+          sb.Length = 0;
         }
-
-        sb.Append(row);
-
-        if (sb.Length <= 1024) continue;
-        ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
-        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-        sb.Length = 0;
-      }
+      }, cancellationToken);
 
       if (sb.Length > 0)
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
@@ -207,13 +179,19 @@ namespace CsvTools
       var sb = new StringBuilder("{");
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
-        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name),
-          string.Format(cFieldPlaceholderByName, col.Name));
+        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name), string.Format(cFieldPlaceholderByName, col.Name));
       if (sb.Length > 1)
         sb.Length -= 2;
       sb.AppendLine("}");
-
       return sb.ToString();
+    }
+
+    public string BuildRow(in string placeHolderText, in IFileReader reader, in IEnumerable<WriterColumn> columns)
+    {
+      var row = placeHolderText;
+      foreach (var columnInfo in columns)
+        row = row.Replace(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));
+      return row;
     }
   }
 }
