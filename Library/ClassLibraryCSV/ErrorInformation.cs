@@ -326,7 +326,7 @@ namespace CsvTools
             if (end == -1)
               end = parts.Column.Length;
             var colName = parts.Column.Substring(start, end - start);
-            if (row.Table.Columns.Contains(colName))
+            if (row.Table.Columns.Contains(colName) && !string.IsNullOrEmpty(parts.Message) )
               row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(parts.Message));
             else
             {
