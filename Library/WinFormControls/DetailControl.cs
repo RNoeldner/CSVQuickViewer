@@ -50,24 +50,14 @@ namespace CsvTools
     private bool m_UpdateVisibility = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
-    public async Task<bool> LoadSettingAsync(IFileSetting fileSetting,
+
+    public Task LoadSettingAsync(IFileSetting fileSetting,
       bool addErrorField, bool restoreError, TimeSpan durationInitial, FilterTypeEnum filterType,
       IProgress<ProgressInfo>? progress, EventHandler<WarningEventArgs>? addWarning,
       CancellationToken cancellationToken)
-    {
-      try
-      {
-        await m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
+    => m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
         t => RefreshDisplay(filterType, t), addErrorField, restoreError,
         durationInitial, progress, addWarning, cancellationToken);
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
-    }
-
 
     /// <inheritdoc />
     /// <summary>
@@ -745,7 +735,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = new ImprovedStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
+        using var iStream = new ImprovedStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
         using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
         for (var i = 0; i < physSource.SkipRows; i++)
           skippedLines.AppendLine(await sr.ReadLineAsync());

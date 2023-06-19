@@ -579,11 +579,11 @@ namespace CsvTools
       try
       {
         m_ToolStripButtonAsText.Enabled = true;
-        bool noError = true;
+
         await Extensions.InvokeWithHourglassAsync(async () =>
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
-            
+
           detailControl.SafeInvoke(() =>
           {
             ShowTextPanel(true);
@@ -593,60 +593,58 @@ namespace CsvTools
             detailControl.CancellationToken = cancellationToken;
             detailControl.ShowInfoButtons = false;
           });
-        
+
           Logger.Debug("Loading Batch");
           using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
             formProgress.Show(this);
-            noError  = await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
+            await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
+
           }
-          if (noError)
+
+
+          var keepVisible = new List<string>();
+          if (m_FileSetting.DisplayEndLineNo)
+            keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
+          if (m_FileSetting.DisplayStartLineNo)
+            keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
+          if (m_FileSetting.DisplayRecordNo)
+            keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
+          detailControl.UniqueFieldName = keepVisible;
+
+          Logger.Debug("Batch Loaded");
+          cancellationToken.ThrowIfCancellationRequested();
+
+          // TODO: Is this needed ? Is the column collection not already set ?
+          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
+            .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
+              dataColumn.Ordinal)));
+
+
+          // Load View Settings from file
+          if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
           {
-            var keepVisible = new List<string>();
-            if (m_FileSetting.DisplayEndLineNo)
-              keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
-            if (m_FileSetting.DisplayStartLineNo)
-              keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
-            if (m_FileSetting.DisplayRecordNo)
-              keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
-            detailControl.UniqueFieldName = keepVisible;
-
-            Logger.Debug("Batch Loaded");
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // TODO: Is this needed ? Is the column collection not already set ?
-            m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
-              .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
-                dataColumn.Ordinal)));
-
-
-            // Load View Settings from file
-            if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
+            Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
+            detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
+          }
+          else
+          {
+            var index = m_FileSetting.FileName.LastIndexOf('.');
+            var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+            var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
+            if (FileSystemUtils.FileExists(fnView))
             {
-              Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
-              detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
-            }
-            else
-            {
-              var index = m_FileSetting.FileName.LastIndexOf('.');
-              var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-              var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-              if (FileSystemUtils.FileExists(fnView))
-              {
-                Logger.Information("Restoring view and filter setting {filename}...", fn);
-                detailControl.ReStoreViewSetting(fnView);
-              }
+              Logger.Information("Restoring view and filter setting {filename}...", fn);
+              detailControl.ReStoreViewSetting(fnView);
             }
           }
+
         });
 
-        if (noError)
-        {
-          cancellationToken.ThrowIfCancellationRequested();
-          this.SafeInvoke(() => ShowTextPanel(false));
-          detailControl.ShowInfoButtons = true;
-        }       
+        cancellationToken.ThrowIfCancellationRequested();
+        this.SafeInvoke(() => ShowTextPanel(false));
+        detailControl.ShowInfoButtons = true;
       }
       catch (Exception)
       {
