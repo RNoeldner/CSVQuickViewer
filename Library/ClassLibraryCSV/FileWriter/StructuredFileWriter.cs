@@ -14,9 +14,11 @@
 
 #nullable enable
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -191,7 +193,132 @@ namespace CsvTools
       var row = placeHolderText;
       foreach (var columnInfo in columns)
         row = row.Replace(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));
+
+      /*
+       * 
+       * {
+       *   "outer":[outer],
+       *   "array":[{
+       *    "name":[name],
+       *    "id":[id]
+       *   }]      
+       * } 
+       * -->  name="name1|name2" && id ="id1|id2"
+       * {
+       *   "outer":'outer',
+       *   "array":[{
+       *    "name":'name1|name2',
+       *    "id":'id1|id2'
+       *   }]      
+       * } 
+       
+       // So far so good now handle arrays, each property in an array is derived from a split of the field
+       * {
+       *   "outer":'outer',
+       *   array":[
+       *    {
+       *    "name": 'name1',
+       *    "id": 'id1'
+       *    },
+       *    {
+       *    "name": 'name2',
+       *    "id": 'id2'
+       *    }
+       *   ]
+       * } 
+       * */
+
+      // first check if we have arrays
+      if (row.IndexOf('[')!= -1 && row.IndexOf(']')!= -1)
+      {
+        var startArray = row.IndexOf("[");
+        var rep = new Dictionary<string, string>();
+        while (startArray != -1)
+        {
+          var endArray = row.IndexOf("]", startArray);
+          var array = row.Substring(startArray, endArray-startArray+1);
+          rep.Add(array, HandleArray(array));          
+          startArray = row.IndexOf("[", endArray);
+        }        
+        foreach(var replace in rep)
+          row=row.Replace(replace.Key, replace.Value);
+      }     
       return row;
+    }
+
+    public static string HandleArray(string arrayPart)
+    {
+      /*
+       *  [{
+       *    "name":'name1|name2',
+       *    "id":'id1|id2'
+       *   }]   
+       *   
+       *  -->
+       *   [
+       *    {
+       *    "name": 'name1',
+       *    "id": 'id1'
+       *    },
+       *    {
+       *    "name": 'name2',
+       *    "id": 'id2'
+       *    }
+       *   ]       
+       */
+      var start = arrayPart.IndexOf('[');
+      var end = arrayPart.LastIndexOf(']');
+      var oneElement = arrayPart.Substring(start+1, end-start-1).Trim();
+      /*
+       * {
+       *    "name":'name1|name2',
+       *    "id":'id1|id2'
+       * }
+       * or "name":'name1|name2|name3'
+       */
+      var properties = new Dictionary<string, string[]>();
+      var jtoken = JToken.Parse(oneElement);
+      foreach (JProperty prop in jtoken.Children().OfType<JProperty>())
+      {        
+        properties.Add(prop.Value.ToString(), prop.Value.ToString().Split(StaticCollections.ListDelimiterChars) ?? Array.Empty<string>());
+      }
+      if (properties.Count  == 0)
+      {
+        var values= (oneElement[0]== '"' || oneElement[0]== '\'') ? oneElement.Substring(1, oneElement.Length-2) : oneElement;        
+        properties.Add(oneElement, values.Split(StaticCollections.ListDelimiterChars) ?? Array.Empty<string>());
+      }
+        
+
+      var result = new StringBuilder();
+      result.Append('[');
+      var numMatches = int.MaxValue;
+      foreach (var prop in properties)
+        if (prop.Value.Length <numMatches)
+          numMatches =prop.Value.Length;
+
+      for (var index = 0; index < numMatches; index++)
+      {
+        var resultingElement = oneElement;
+
+        foreach (var prop in properties)
+        {
+          if (prop.Key[0]== '"')
+            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, '"' + prop.Value[index] + '"');
+          else if (prop.Key[0]== '\'')
+            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, "'" + prop.Value[index] + "'");
+          else
+            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, prop.Value[index]);
+        }
+          
+        result.Append(resultingElement);
+        result.Append(',');
+      }
+      // remove last ,
+      result.Length--;
+      result.Append(']');
+
+      return result.ToString();
+      
     }
   }
 }
