@@ -27,7 +27,9 @@ namespace CsvTools
 
     public override void Highlight(Range range)
     {
-      //clear style of changed range
+      try
+      {
+        //clear style of changed range
       range.ClearStyle(StyleIndex.All);
 
       //keyword highlighting
@@ -41,6 +43,12 @@ namespace CsvTools
       //set folding markers
       range.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
       range.SetFoldingMarkers(@"\[", @"\]"); //allow to collapse comment block
+      }
+      catch
+      {
+        // ignore
+      }
+      
     }
   }
 }

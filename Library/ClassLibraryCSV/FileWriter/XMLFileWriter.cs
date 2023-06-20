@@ -14,7 +14,9 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Security;
+using System.Text;
 
 namespace CsvTools
 {
@@ -52,7 +54,7 @@ namespace CsvTools
 
     protected override string ElementName(string input) => HtmlStyle.XmlElementName(input);
 
-    protected override string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader)
+    protected override string Escape(object? input, in WriterColumn columnInfo, in IDataRecord? reader)
     {
       if (input is null || input == DBNull.Value)
         return string.Empty;
@@ -60,5 +62,57 @@ namespace CsvTools
     }
 
     protected override string RecordDelimiter() => "";
+
+    public static (string Header, string Row) GetXMLHeaderAndRow(IEnumerable<Column> cols)
+    {
+      var sb = new StringBuilder();
+      var sbRow = new StringBuilder();
+      sb.AppendLine("<?xml version=\"1.0\"?>\n");
+      sb.AppendLine(
+        "  <xs:element name=\"rowset\">\n    <xs:complexType>\n     <xs:sequence>\r\n      <xs:element ref=\"row\"/>\n     </xs:sequence>\r\n   </xs:complexType>\r\n  </xs:element>");
+      sb.AppendLine(
+        "  <xs:schema elementFormDefault=\"qualified\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n  <xs:element name=\"row\">\n    <xs:complexType>\n      <xs:sequence>");
+      sbRow.AppendLine("  <row>");
+      
+      foreach (var col in cols)
+      {
+         sbRow.AppendFormat("    <{0}>{1}</{0}>\n", HtmlStyle.XmlElementName(col.Name),
+          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Name));
+        string type;
+        switch (col.ValueFormat.DataType)
+        {
+          case DataTypeEnum.Integer:
+            type = "xs:integer";
+            break;
+
+          case DataTypeEnum.Numeric:
+          case DataTypeEnum.Double:
+            type = "xs:decimal";
+            break;
+
+          case DataTypeEnum.DateTime:
+            type = "xs:dateTime";
+            break;
+
+          case DataTypeEnum.Boolean:
+            type = "xs:boolean";
+            break;
+
+          default:
+            type = "xs:string";
+            break;
+        }
+
+        sb.AppendFormat("          <xs:element name=\"{0}\" type=\"{1}\" />\n",
+          HtmlStyle.XmlElementName(col.Name),
+          type);
+      }
+
+      sb.AppendLine("        </xs:sequence>\n    </xs:complexType>\n  </xs:element>\n</xs:schema>");
+      sb.AppendLine("<rowset>");
+      sbRow.AppendLine("  </row>");
+      return (sb.ToString(), sbRow.ToString());
+    }
+
   }
 }

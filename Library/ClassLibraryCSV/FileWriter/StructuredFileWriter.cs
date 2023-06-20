@@ -14,11 +14,10 @@
 
 #nullable enable
 
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,11 +33,12 @@ namespace CsvTools
     /// <summary>
     ///   The field placeholder
     /// </summary>
-    public const string cFieldPlaceholderByName = "[{0}]";
+    public const string cFieldPlaceholderByName = "({0})";
 
     private readonly string m_Row;
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
+    protected IReadOnlyCollection<WriterColumn> WriterColumns { get; set; }
 
     /// <summary>
     ///   Initializes a new instance class used for <see cref="JsonFileWriter"/> and <see cref="XmlFileWriter"/>/>
@@ -91,13 +91,14 @@ namespace CsvTools
       m_CodePageId = codePageId;
       m_ByteOrderMark = byteOrderMark;
       m_Row = row;
+      WriterColumns = Array.Empty<WriterColumn>();
     }
 
     protected abstract string ElementName(string input);
 
     protected abstract string RecordDelimiter();
 
-    protected abstract string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader);
+    protected abstract string Escape(object? input, in WriterColumn columnInfo, in IDataRecord? reader);
 
     /// <summary>
     ///   Loops through the reader and invoking recordAction for each row
@@ -107,15 +108,20 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public async Task WriteReaderAsync(IFileReader reader, Func<string, Task> recordAction, CancellationToken cancellationToken)
     {
-      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      WriterColumns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
       HandleWriteStart();
       var intervalAction = IntervalAction.ForProgress(ReportProgress);
       while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
       {
         NextRecord();
         intervalAction?.Invoke(ReportProgress!, $"Record {reader.RecordNumber:N0}", reader.Percent);
-        await recordAction(BuildRow(m_Row, reader, columns));
+        await recordAction(BuildRow(m_Row, reader));
       }
+    }
+
+    public void SetWriterColumns(in IFileReader reader)
+    {
+      WriterColumns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
     }
 
     /// <summary>
@@ -126,10 +132,9 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
-      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      SetWriterColumns(reader);
 
-      var numColumns = columns.Count();
-      if (numColumns == 0)
+      if (WriterColumns.Count() == 0)
         throw new FileWriterException("No columns defined to be written.");
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -157,7 +162,7 @@ namespace CsvTools
           sb.Append(RecordDelimiter());
         // Start a new line
         sb.Append(recordEnd);
-        sb.Append(BuildRow(m_Row, reader, columns));
+        sb.Append(BuildRow(m_Row, reader));
 
         if (sb.Length > 1024)
         {
@@ -176,149 +181,12 @@ namespace CsvTools
       await writer.FlushAsync().ConfigureAwait(false);
     }
 
-    public static string GetJsonRow(IEnumerable<Column> cols)
-    {
-      var sb = new StringBuilder("{");
-      // { "firstName":"John", "lastName":"Doe"},
-      foreach (var col in cols)
-        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name), string.Format(cFieldPlaceholderByName, col.Name));
-      if (sb.Length > 1)
-        sb.Length -= 2;
-      sb.AppendLine("}");
-      return sb.ToString();
-    }
-
-    public string BuildRow(in string placeHolderText, in IFileReader reader, in IEnumerable<WriterColumn> columns)
+    public virtual string BuildRow(in string placeHolderText, in IDataReader reader)
     {
       var row = placeHolderText;
-      foreach (var columnInfo in columns)
+      foreach (var columnInfo in WriterColumns)
         row = row.Replace(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));
-
-      /*
-       * 
-       * {
-       *   "outer":[outer],
-       *   "array":[{
-       *    "name":[name],
-       *    "id":[id]
-       *   }]      
-       * } 
-       * -->  name="name1|name2" && id ="id1|id2"
-       * {
-       *   "outer":'outer',
-       *   "array":[{
-       *    "name":'name1|name2',
-       *    "id":'id1|id2'
-       *   }]      
-       * } 
-       
-       // So far so good now handle arrays, each property in an array is derived from a split of the field
-       * {
-       *   "outer":'outer',
-       *   array":[
-       *    {
-       *    "name": 'name1',
-       *    "id": 'id1'
-       *    },
-       *    {
-       *    "name": 'name2',
-       *    "id": 'id2'
-       *    }
-       *   ]
-       * } 
-       * */
-
-      // first check if we have arrays
-      if (row.IndexOf('[')!= -1 && row.IndexOf(']')!= -1)
-      {
-        var startArray = row.IndexOf("[");
-        var rep = new Dictionary<string, string>();
-        while (startArray != -1)
-        {
-          var endArray = row.IndexOf("]", startArray);
-          var array = row.Substring(startArray, endArray-startArray+1);
-          rep.Add(array, HandleArray(array));          
-          startArray = row.IndexOf("[", endArray);
-        }        
-        foreach(var replace in rep)
-          row=row.Replace(replace.Key, replace.Value);
-      }     
       return row;
-    }
-
-    public static string HandleArray(string arrayPart)
-    {
-      /*
-       *  [{
-       *    "name":'name1|name2',
-       *    "id":'id1|id2'
-       *   }]   
-       *   
-       *  -->
-       *   [
-       *    {
-       *    "name": 'name1',
-       *    "id": 'id1'
-       *    },
-       *    {
-       *    "name": 'name2',
-       *    "id": 'id2'
-       *    }
-       *   ]       
-       */
-      var start = arrayPart.IndexOf('[');
-      var end = arrayPart.LastIndexOf(']');
-      var oneElement = arrayPart.Substring(start+1, end-start-1).Trim();
-      /*
-       * {
-       *    "name":'name1|name2',
-       *    "id":'id1|id2'
-       * }
-       * or "name":'name1|name2|name3'
-       */
-      var properties = new Dictionary<string, string[]>();
-      var jtoken = JToken.Parse(oneElement);
-      foreach (JProperty prop in jtoken.Children().OfType<JProperty>())
-      {        
-        properties.Add(prop.Value.ToString(), prop.Value.ToString().Split(StaticCollections.ListDelimiterChars) ?? Array.Empty<string>());
-      }
-      if (properties.Count  == 0)
-      {
-        var values= (oneElement[0]== '"' || oneElement[0]== '\'') ? oneElement.Substring(1, oneElement.Length-2) : oneElement;        
-        properties.Add(oneElement, values.Split(StaticCollections.ListDelimiterChars) ?? Array.Empty<string>());
-      }
-        
-
-      var result = new StringBuilder();
-      result.Append('[');
-      var numMatches = int.MaxValue;
-      foreach (var prop in properties)
-        if (prop.Value.Length <numMatches)
-          numMatches =prop.Value.Length;
-
-      for (var index = 0; index < numMatches; index++)
-      {
-        var resultingElement = oneElement;
-
-        foreach (var prop in properties)
-        {
-          if (prop.Key[0]== '"')
-            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, '"' + prop.Value[index] + '"');
-          else if (prop.Key[0]== '\'')
-            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, "'" + prop.Value[index] + "'");
-          else
-            resultingElement= resultingElement.ReplaceCaseInsensitive(prop.Key, prop.Value[index]);
-        }
-          
-        result.Append(resultingElement);
-        result.Append(',');
-      }
-      // remove last ,
-      result.Length--;
-      result.Append(']');
-
-      return result.ToString();
-      
     }
   }
 }
