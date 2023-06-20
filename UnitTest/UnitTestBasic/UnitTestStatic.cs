@@ -253,10 +253,8 @@ namespace CsvTools.Tests
       var chars = " abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !§$%&/()=?+*#,.-;:_ "
         .ToCharArray();
       var data = new byte[length];
-      using (var crypto = new RNGCryptoServiceProvider())
-      {
-        crypto.GetNonZeroBytes(data);
-      }
+      using var rnd = RandomNumberGenerator.Create();
+      rnd.GetBytes(data,0,length);
 
       var result = new StringBuilder(length);
       foreach (var b in data)
