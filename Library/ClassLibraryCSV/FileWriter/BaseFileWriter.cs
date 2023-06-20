@@ -41,7 +41,7 @@ namespace CsvTools
     private readonly string m_PublicKey;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
-
+    
     public IProgress<ProgressInfo>? ReportProgress
     {
       protected get;
@@ -90,7 +90,7 @@ namespace CsvTools
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
-      m_IdentifierInContainer = identifierInContainer ?? string.Empty;
+      m_IdentifierInContainer = identifierInContainer ?? string.Empty;      
     }
 
 
@@ -335,7 +335,7 @@ namespace CsvTools
     /// <summary>
     ///   Value conversion of a FileWriter
     /// </summary>
-    /// <param name="reader">
+    /// <param name="dataRecord">
     ///   Data Reader / Data Records in case additional columns are needed e.G. for TimeZone
     ///   adjustment based off ColumnOrdinalTimeZone or GetFileName
     /// </param>
@@ -345,7 +345,7 @@ namespace CsvTools
     /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
     /// <param name="handleWarning">Method to pass on warnings</param>
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
-    public static object ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo,
+    public static object ValueConversion(in IDataRecord? dataRecord, in object? dataObject, WriterColumn columnInfo,
       in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
@@ -372,10 +372,10 @@ namespace CsvTools
             return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.ConstantTimeZone,
               msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
-          if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
+          if (dataRecord is null || columnInfo.ColumnOrdinalTimeZone <= -1)
             return dtm;
 
-          var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZone);
+          var destinationTimeZoneId = dataRecord.GetString(columnInfo.ColumnOrdinalTimeZone);
           if (string.IsNullOrEmpty(destinationTimeZoneId))
           {
             handleWarning?.Invoke(columnInfo.Name, "Time zone is empty, value not converted");
@@ -383,7 +383,7 @@ namespace CsvTools
           }
 
           return timeZoneAdjust(dtm, sourceTimeZone,
-            reader.GetString(columnInfo.ColumnOrdinalTimeZone), msg => handleWarning?.Invoke(columnInfo.Name, msg));
+            dataRecord.GetString(columnInfo.ColumnOrdinalTimeZone), msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
@@ -391,7 +391,7 @@ namespace CsvTools
         default:
 
           if (columnInfo.ColumnFormatter != null)
-            return columnInfo.ColumnFormatter.Write(dataObject, reader,
+            return columnInfo.ColumnFormatter.Write(dataObject, dataRecord,
               msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
           // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -399,7 +399,7 @@ namespace CsvTools
       }
     }
 
-    protected string TextEncodeField(object? dataObject, WriterColumn columnInfo, IDataReader? reader)
+    protected string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -407,7 +407,7 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
+        var convertedValue = ValueConversion(dataRecord, dataObject, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
         if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else

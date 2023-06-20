@@ -35,45 +35,47 @@ namespace CsvTools.Tests
       using var dt = UnitTestStaticData.GetDataTable(10, false);
       using var reader = new DataTableWrapper(dt);
 
-      var row = @"{""string"":[string],
-""int"":[int],
-""DateTime"":[DateTime],
-""bool"":[bool],
-""double"":[double],
-""numeric"":[numeric],
-""AllEmpty"":[AllEmpty],
-""PartEmpty"":[PartEmpty],
-""ID"":[ID]}";
+      var row = @"{""string"":(string),
+""int"":(int),
+""DateTime"":(DateTime),
+""bool"":(bool),
+""double"":(double),
+""numeric"":(numeric),
+""AllEmpty"":(AllEmpty),
+""PartEmpty"":(PartEmpty),
+""ID"":(ID)}";
 
-      var writer = new JsonFileWriter("id", "dummy.json", false, string.Empty, "]", "[", false, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
+      var writer = new JsonFileWriter("id", "dummy.json", false, string.Empty, "]", "(", false, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
 
-      var writerCols = new List<WriterColumn>();
-      foreach (var col in reader.GetColumnsOfReader())
-      {
-        if (col.ValueFormat.DataType== DataTypeEnum.DateTime)
-          writerCols.Add(new WriterColumn(col.Name, new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddThh:mm:ss.000Z", "-", ":"), col.ColumnOrdinal));
-        else
-          writerCols.Add(new WriterColumn(col.Name, col.ValueFormat, col.ColumnOrdinal));
-      }
+      //var writerCols = new List<WriterColumn>();
+      //foreach (var col in reader.GetColumnsOfReader())
+      //{
+      //  if (col.ValueFormat.DataType== DataTypeEnum.DateTime)
+      //    writerCols.Add(new WriterColumn(col.Name, new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddThh:mm:ss.000Z", "-", ":"), col.ColumnOrdinal));
+      //  else
+      //    writerCols.Add(new WriterColumn(col.Name, col.ValueFormat, col.ColumnOrdinal));
+      //}
+
+      writer.SetWriterColumns(reader);
       dt.Rows[0][2] = new DateTime(2022,10,17, 10, 12, 45, 0, DateTimeKind.Utc);
       reader.Read();     
-      var result = writer.BuildRow(row, reader, writerCols);      
+      var result = writer.BuildRow(row, reader);      
 
       Assert.IsTrue(result.Contains("\"AllEmpty\":\"\","));
-      Assert.IsTrue(result.Contains("\"ID\":\"1\""));
-      Assert.IsTrue(result.Contains("\"DateTime\":\"2022-10-17T10:12:45.000Z\""));  
+      Assert.IsTrue(result.Contains("\"ID\":1"));
+      Assert.IsTrue(result.Contains("\"DateTime\":\"2022-10-17T10:12:45"));  
       
       dt.Rows[0][7] = "Part1|Part2|Part3|Part4";
-      var row2 = @"{""ID"":[ID]}, ""PartEmpty"":[ [PartEmpty] ]}";
-      var result2 = writer.BuildRow(row2, reader, writerCols);      
+      var row2 = @"{""ID"":(ID), ""PartEmpty"":\[(PartEmpty)\]}";
+      var result2 = writer.BuildRow(row2, reader);      
       Assert.IsTrue(result2.Contains("\"PartEmpty\":[\"Part1\",\"Part2\",\"Part3\",\"Part4\"]"), result2);  
 
 
       dt.Rows[0][6] = "Lang1|Lang2";
       dt.Rows[0][7] = "Part1|Part2";            
-      var row3 = @"{""ID"":[ID]}, ""Array"":[{""Part"":[PartEmpty], ""Lang"":[AllEmpty]}] }";
-      var result3 = writer.BuildRow(row3, reader, writerCols);      
+      var row3 = @"{""ID"":(ID), ""Array"":\[{""Part"":(PartEmpty), ""Lang"":(AllEmpty)}\] }";
+      var result3 = writer.BuildRow(row3, reader);      
 
       Assert.IsTrue(result3.Contains("\"Array\":[{\"Part\":\"Part1\", \"Lang\":\"Lang1\"},{\"Part\":\"Part2\", \"Lang\":\"Lang2\"}]"), result3);  
     }
@@ -101,7 +103,7 @@ namespace CsvTools.Tests
         destTimeZone: TimeZoneInfo.Local.Id, true, true);
       await reader.OpenAsync(UnitTestStatic.Token);
 
-      var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
+      var row = JsonFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
 
       // writer 
@@ -141,7 +143,7 @@ namespace CsvTools.Tests
         destTimeZone: TimeZoneInfo.Local.Id, true, true);
       await reader.OpenAsync(UnitTestStatic.Token);
 
-      var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
+      var row = JsonFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
       var writer = new JsonFileWriter("id", fileName, false, string.Empty,
@@ -167,7 +169,7 @@ namespace CsvTools.Tests
       using var dt = UnitTestStaticData.GetDataTable(100, false);
       using var reader = new DataTableWrapper(dt);
 
-      var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
+      var row = JsonFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
       var writer = new JsonFileWriter("id", fileName, false, string.Empty,

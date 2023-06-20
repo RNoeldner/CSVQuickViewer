@@ -86,12 +86,12 @@ namespace CsvTools
       }
       catch (Exception exception)
       {                
-        fastColoredTextBoxRO.Visible=true;
+        fastColoredTextBoxRO.Visible=false;        
         webBrowser.Visible=false;
-        fastColoredTextBoxRO.Text =
-          // ReSharper disable once LocalizableElement
-          $"Error trying to parse {newLang}: {exception.Message}\n\n{textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 400))}";                
-
+        textBox.Visible=true;
+        radioButtonText.Checked = true;
+        // fastColoredTextBoxRO.Text =textBox.Text;
+        FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");        
       }
     }
 
