@@ -297,12 +297,12 @@ namespace CsvTools
       }
     }
 
-    private void CheckBoxShowHide_CheckedChanged(object sender, EventArgs e)
+    private void CheckBoxShowHide_CheckedChanged(object? sender, EventArgs e)
     {
       m_TextBoxPassphrase.PasswordChar = m_CheckBoxShowHide.Checked ? char.MinValue : '*';
     }
 
-    private void FormPasswordAndKey_DragEnter(object sender, DragEventArgs e)
+    private void FormPasswordAndKey_DragEnter(object? sender, DragEventArgs e)
     {
       try
       {
@@ -316,7 +316,7 @@ namespace CsvTools
       }
     }
 
-    private void FormPasswordAndKey_DragDrop(object sender, DragEventArgs e)
+    private void FormPasswordAndKey_DragDrop(object? sender, DragEventArgs e)
     {
       try
       {
@@ -336,7 +336,7 @@ namespace CsvTools
       }
     }
 
-    private void FormPasswordAndKey_Shown(object sender, EventArgs e)
+    private void FormPasswordAndKey_Shown(object? sender, EventArgs e)
     {
       m_TextBoxPassphrase.Visible  = ShowPassphrase;
       m_LabelPassphrase.Visible  = ShowPassphrase;

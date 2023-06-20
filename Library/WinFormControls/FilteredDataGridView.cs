@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -85,7 +84,7 @@ namespace CsvTools
 
       Scroll += (_, _) => SetRowHeight();
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItem2.Image") as Image) ??
+      m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
                              throw new InvalidOperationException("Resource not found");
 
       DataError += FilteredDataGridView_DataError;
@@ -845,6 +844,23 @@ namespace CsvTools
         ((DataGridViewColumnFilterControl) op.Control).FocusInput();
     }
 
+    private void OpenEditor(DataGridViewCell cell)
+    {
+      using var frm = new FormTextDisplay(cell.Value?.ToString() ?? string.Empty);
+
+      // ReSharper disable once LocalizableElement
+      frm.Text = $"{Columns[cell.ColumnIndex].DataPropertyName} - Row {cell.OwningRow.Index + 1:D}";
+      frm.SaveAction = s =>
+      {
+        if (s.Equals(cell.Value))
+          return;
+        cell.Value = s;
+        cell.ErrorText = CurrentCell.ErrorText.AddMessage(
+          "Value was modified".AddWarningId());
+      };
+      frm.ShowWithFont(this, true);
+    }
+
     /// <summary>
     ///   Shows the pop up when user right-clicks a column header
     /// </summary>
@@ -859,21 +875,7 @@ namespace CsvTools
       {
         SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
         if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
-        {
-          using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
-
-          // ReSharper disable once LocalizableElement
-          frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
-          frm.SaveAction = s =>
-          {
-            if (s.Equals(CurrentCell.Value))
-              return;
-            CurrentCell.Value = s;
-            CurrentCell.ErrorText = CurrentCell.ErrorText.AddMessage(
-              "Value was modified".AddWarningId());
-          };
-          frm.ShowWithFont(this, true);
-        }
+          OpenEditor(CurrentCell);
       }
       catch (Exception ex)
       {
@@ -951,6 +953,12 @@ namespace CsvTools
     /// </param>
     private void FilteredDataGridView_KeyDown(object? sender, KeyEventArgs e)
     {
+      if (e.Control && e.KeyCode == Keys.F2)
+      {
+        OpenEditor(CurrentCell);
+        e.Handled = true;
+        return;
+      }
       if (!e.Control || e.KeyCode != Keys.C)
         return;
       Copy(!e.Alt, e.Shift);
@@ -1424,6 +1432,18 @@ namespace CsvTools
       catch (Exception ex)
       {
         Logger.Warning(ex, "ToolStripMenuItemFilterRemoveOne_Click");
+      }
+    }
+
+    private void ToolStripMenuItemOpenEditor_Click(object? sender, EventArgs e)
+    {
+      try
+      {
+        OpenEditor(CurrentCell);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ToolStripMenuItemOpenEditor_Click");
       }
     }
 
