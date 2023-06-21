@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UtfUnknown.Core.Models.SingleByte.French;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -185,7 +186,7 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public async Task LoadCsvFileAsync(string fileName, CancellationToken cancellationToken)
+    public async Task LoadCsvOrZipFileAsync(string fileName, CancellationToken cancellationToken)
     {
       if (IsDisposed)
         return;
@@ -222,14 +223,19 @@ namespace CsvTools
 
         // make sure old columns are removed
         m_ViewSettings.DefaultInspectionResult.Columns.Clear();
+
         var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
           m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult,
+          m_ViewSettings.FillGuessSettings, list =>
+          {
+            using var frm = new FormSelectInDropdown(list);
+            return (frm.ShowWithFont(this, true) == DialogResult.OK) ? frm.SelectedText : list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
+                                                             || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+                                                             || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)) ?? list.First();
+          }, m_ViewSettings.DefaultInspectionResult,
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), cancellationToken);
-
-
 
         m_FileSetting = detection.PhysicalFile();
 
@@ -299,7 +305,7 @@ namespace CsvTools
         m_ViewSettings.InitialFolder = ".";
       var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
       if (!(fileName is null || fileName.Length == 0))
-        await LoadCsvFileAsync(fileName, m_CancellationTokenSource.Token);
+        await LoadCsvOrZipFileAsync(fileName, m_CancellationTokenSource.Token);
     }
 
     private void AddWarning(object? sender, WarningEventArgs args)
@@ -371,7 +377,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await LoadCsvFileAsync(m_FileSetting.FileName, m_CancellationTokenSource.Token);
+          await LoadCsvOrZipFileAsync(m_FileSetting.FileName, m_CancellationTokenSource.Token);
         else
           m_FileChanged = false;
 
@@ -421,7 +427,7 @@ namespace CsvTools
         if (WindowsAPICodePackWrapper.IsDialogOpen) return;
         await SaveIndividualFileSettingAsync();
 
-        await LoadCsvFileAsync(files[0], m_CancellationTokenSource.Token);
+        await LoadCsvOrZipFileAsync(files[0], m_CancellationTokenSource.Token);
       });
     }
 

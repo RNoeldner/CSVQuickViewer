@@ -17,6 +17,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -84,28 +85,16 @@ namespace CsvTools
 
     public static async Task<InspectionResult?> ReadManifestZip(string fileName)
     {
-      Logger.Debug("Opening Zip file {filename}", fileName);
-
+      // Find Manifest      
+      var mainfestEntry = fileName.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+      if (mainfestEntry == null)
+        return null;
+      Logger.Information("Configuration read from manifest file {filename}", mainfestEntry.Name);
+      
       using var archive = new ZipFile(fileName.LongPathPrefix());
-      // find Text and Manifest
-      foreach (ZipEntry entryManifest in archive)
-      {
-        if (!entryManifest.IsFile || !entryManifest.Name.EndsWith(
-              cCsvManifestExtension,
-              StringComparison.OrdinalIgnoreCase))
-          continue;
-        foreach (ZipEntry entryFile in archive)
-        {
-          if (entryManifest == entryFile || !entryFile.IsFile
-                                         || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-            continue;
-          Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
-          return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name)
-            .ConfigureAwait(false);
-        }
-      }
 
-      return null;
+      return await ReadManifestFromStream(archive.GetInputStream(mainfestEntry), fileName,
+        mainfestEntry.Name.Substring(0, mainfestEntry.Name.Length - cCsvManifestExtension.Length)+ "csv").ConfigureAwait(false);
     }
 
     private static async Task<InspectionResult> ReadManifestFromStream(
