@@ -39,7 +39,7 @@ namespace CsvTools.Tests
         () => new FormMain(new ViewSettings { DisplayRecordNo = true, MenuDown = true }),
         async frm =>
         {
-          await frm.LoadCsvFileAsync(fileToLoad, UnitTestStatic.Token);
+          await frm.LoadCsvOrZipFileAsync(fileToLoad, UnitTestStatic.Token);
           Assert.IsNotNull(frm.DataTable);
           Assert.AreEqual(7, frm.DataTable.Rows.Count);
         });
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(fileToLoad), "Source files exists");
       UnitTestStaticForms.ShowFormAsync(() => new FormMain(new ViewSettings()), async frm =>
         {
-          await frm.LoadCsvFileAsync(fileToLoad, UnitTestStatic.Token);
+          await frm.LoadCsvOrZipFileAsync(fileToLoad, UnitTestStatic.Token);
           Assert.IsNotNull(frm.DataTable);
           // 45 records, one of the lines has a linefeed
           Assert.IsTrue(frm.DataTable.Rows.Count >= 40);

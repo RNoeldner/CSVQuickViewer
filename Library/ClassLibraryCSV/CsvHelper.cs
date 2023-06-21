@@ -20,11 +20,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.Zip;
+using System.Linq;
 
 #if !QUICK
 using System.Globalization;
-using System.Linq;
-
 #endif
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -58,7 +58,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
+    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName, string identifierInContainer,
       bool guessJson, bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
@@ -70,14 +70,18 @@ namespace CsvTools
       , CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("File name can not be empty", nameof(fileName));              
-      
-      inspectionResult.FileName = fileName;      
+        throw new ArgumentException("File name can not be empty", nameof(fileName));
+
+      inspectionResult.FileName = fileName;
+
 #if SupportPGP
       var sourceAccess = new SourceAccess(fileName, privateKey: privateKey);
 #else
       var sourceAccess = new SourceAccess(fileName);
 #endif
+      if (fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(identifierInContainer))
+        sourceAccess.IdentifierInContainer = identifierInContainer;
+
       inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
@@ -232,6 +236,24 @@ namespace CsvTools
       return (detected.CodePage, false);
     }
 
+    public static IReadOnlyCollection<ZipEntry> GetFilesInZip(this string fileName)
+    {
+      var result = new List<ZipEntry>();
+      try
+      {
+        using var archive = new ZipFile(fileName.LongPathPrefix());
+        // find Text and Manifest      
+        foreach (ZipEntry entry in archive)
+          if (entry.IsFile)
+            result.Add(entry);
+      }
+      catch (ZipException)
+      {
+        // ignore        
+      }
+      return result;
+    }
+
     /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -254,7 +276,7 @@ namespace CsvTools
       bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
-      FillGuessSettings fillGuessSettings,
+      FillGuessSettings fillGuessSettings, Func<IEnumerable<string>, string>? selectFile,
       InspectionResult defaultInspectionResult
 #if SupportPGP
       , string privateKey
@@ -270,11 +292,12 @@ namespace CsvTools
       var fileName2 = FileSystemUtils.ResolvePattern(fileName);
       if (fileName2 is null)
         throw new FileNotFoundException(fileName);
+
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
 
       Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
-
+      var selectedFile = string.Empty;
 #if !QUICK
       // load from Setting file
       if (fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
@@ -291,23 +314,15 @@ namespace CsvTools
         {
           // we defiantly have a the extension with the name
           var fileSettingSer = await fileNameSetting.DeserializeFileAsync<CsvFile>().ConfigureAwait(false);
-          Logger.Information(
-            "Configuration read from setting file {filename}",
+          Logger.Information("Configuration read from setting file {filename}",
             FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
 
           var columnCollection = new ColumnCollection();
 
           // un-ignore all ignored columns
           foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-            columnCollection.Add(
-              new Column(
-                col.Name,
-                col.ValueFormat,
-                col.ColumnOrdinal,
-                false,
-                col.Convert,
-                col.DestinationName,
-                col.TimePart, col.TimePartFormat, col.TimeZonePart));
+            columnCollection.Add(new Column(col.Name, col.ValueFormat, col.ColumnOrdinal,
+                false, col.Convert, col.DestinationName, col.TimePart, col.TimePartFormat, col.TimeZonePart));
 
           return new InspectionResult
           {
@@ -339,15 +354,15 @@ namespace CsvTools
       if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
       {
         var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
-        if (setting is null)
-        {
-          Logger.Information("Trying to read manifest inside zip");
-        }
-        else
+        if (!(setting is null))
         {
           Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
           return setting;
         }
+        var list = fileName2.GetFilesInZip().Select(x => x.Name);
+        selectedFile = selectFile?.Invoke(list) ?? list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
+                                                               || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+                                                               || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase));
       }
 
       if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
@@ -363,7 +378,7 @@ namespace CsvTools
         }
 
       // Determine from file
-      return await GetInspectionResultFromFileAsync(fileName2, guessJson, guessCodePage, guessEscapePrefix, guessDelimiter,
+      return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage, guessEscapePrefix, guessDelimiter,
         guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
         defaultInspectionResult, fillGuessSettings
 #if SupportPGP
@@ -617,11 +632,11 @@ CommentLine
 
 #if !QUICK
 
-    
+
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
 
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true,
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(csvFile.IdentifierInContainer, false, true, true,
         true, true, true, true, false, true,
         new InspectionResult()
         {

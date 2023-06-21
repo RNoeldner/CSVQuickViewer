@@ -57,6 +57,9 @@
 	  <Compile Update="FormPasswordAndKey.cs">
 	    <SubType>Form</SubType>
 	  </Compile>
+	  <Compile Update="FormSelectInDropdown.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
 		<Compile Update="FormTextDisplay.cs">
 	    <SubType>Form</SubType>
 	  </Compile>

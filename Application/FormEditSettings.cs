@@ -38,7 +38,7 @@ namespace CsvTools
       {
         bindingSourceCsvFile.DataSource = csvFile;
         quotingControl.CsvFile = csvFile;
-        textBoxFile_TextChanged(this,EventArgs.Empty);
+        textBoxFile_TextChanged(this, EventArgs.Empty);
       }
     }
 
@@ -97,7 +97,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       if (!m_ViewSettings.GuessStartRow)
         m_ViewSettings.DefaultInspectionResult.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
       // if this is not for a specific file store teh value in the defaults
-      if (m_FileSetting != null) 
+      if (m_FileSetting != null)
         return;
       m_ViewSettings.KeyFileRead = textBoxKeyFileRead.Text;
       m_ViewSettings.KeyFileWrite = textBoxKeyFileWrite.Text;
@@ -129,8 +129,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-            m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, 
-            PgpHelper.GetKeyAndValidate(newFileName,m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
+            m_ViewSettings.FillGuessSettings,
+            list =>
+            {
+              using var frm = new FormSelectInDropdown(list);
+              return (frm.ShowWithFont(this, true) == DialogResult.OK) ? frm.SelectedText : list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
+                                                               || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+                                                               || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)) ?? list.First();
+            }, m_ViewSettings.DefaultInspectionResult,
+            PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
@@ -454,7 +461,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     {
       bool isPgp = textBoxFile.Text.AssumePgp();
       textBoxKeyFileRead.Enabled = isPgp;
-      buttonKeyFileRead.Enabled = isPgp; 
+      buttonKeyFileRead.Enabled = isPgp;
     }
   }
 }
