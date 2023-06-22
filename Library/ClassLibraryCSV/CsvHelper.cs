@@ -240,7 +240,7 @@ namespace CsvTools
     /// Get all ZipEntry that are files
     /// </summary>
     /// <param name="archive">the zip file</param>    
-    public static IEnumerable<ZipEntry> GetFilesInZip(this ICSharpCode.SharpZipLib.Zip.ZipFile archive)
+    public static IEnumerable<ZipEntry> GetFilesInZip(this ZipFile archive)
     {
       var entryEnumerator = archive.GetEnumerator();
       while (entryEnumerator.MoveNext())
@@ -357,8 +357,8 @@ namespace CsvTools
           return setting;
         }
         using var zipFile = new ZipFile(fileName2);
-        var list = zipFile.GetFilesInZip().Select(x => x.Name);
-        selectedFile = selectFile?.Invoke(list) ?? list.First(x => x.AssumeDelimited());
+        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => $"{x.Name}");
+        selectedFile = selectFile?.Invoke(list) ?? list.First();
       }
 
       if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
