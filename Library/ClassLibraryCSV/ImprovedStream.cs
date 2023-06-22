@@ -458,7 +458,7 @@ namespace CsvTools
           cBufferSize);
       }
     }
-    
+
     private void OpenZipOverBase()
     {
       if (m_SourceAccess.Reading)
@@ -488,20 +488,10 @@ namespace CsvTools
         var hasFile = false;
         if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
         {
-          var files = new List<ZipEntry>();
-          var entryEnumerator = m_ZipFile.GetEnumerator();
-          while (entryEnumerator.MoveNext())
-          {
-            var entry = entryEnumerator.Current as ZipEntry;
-            if (entry?.IsFile ?? false)
-            {
-              files.Add(entry);
-            }
-          }
           // get csv with highest priority
           // get txt with second priority
           // the by index in file
-          var bestEntry = files.OrderBy(x => x.ZipFileIndex +
+          var bestEntry = m_ZipFile.GetFilesInZip().OrderBy(x => x.ZipFileIndex +
                      (x.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ? 0 :
                       x.Name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? 500 :
                       1000)).First();

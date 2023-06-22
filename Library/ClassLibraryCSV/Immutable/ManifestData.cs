@@ -85,14 +85,14 @@ namespace CsvTools
 
     public static async Task<InspectionResult?> ReadManifestZip(string fileName)
     {
+      using var archive = new ZipFile(fileName.LongPathPrefix());
+
       // Find Manifest      
-      var mainfestEntry = fileName.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+      var mainfestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
       if (mainfestEntry == null)
         return null;
       Logger.Information("Configuration read from manifest file {filename}", mainfestEntry.Name);
-      
-      using var archive = new ZipFile(fileName.LongPathPrefix());
-
+          
       return await ReadManifestFromStream(archive.GetInputStream(mainfestEntry), fileName,
         mainfestEntry.Name.Substring(0, mainfestEntry.Name.Length - cCsvManifestExtension.Length)+ "csv").ConfigureAwait(false);
     }

@@ -79,7 +79,7 @@ namespace CsvTools
 #else
       var sourceAccess = new SourceAccess(fileName);
 #endif
-      if (fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(identifierInContainer))
+      if (fileName.AssumeZip() && !string.IsNullOrEmpty(identifierInContainer))
         sourceAccess.IdentifierInContainer = identifierInContainer;
 
       inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
@@ -236,22 +236,19 @@ namespace CsvTools
       return (detected.CodePage, false);
     }
 
-    public static IReadOnlyCollection<ZipEntry> GetFilesInZip(this string fileName)
+    /// <summary>
+    /// Get all ZipEntry that are files
+    /// </summary>
+    /// <param name="archive">the zip file</param>    
+    public static IEnumerable<ZipEntry> GetFilesInZip(this ICSharpCode.SharpZipLib.Zip.ZipFile archive)
     {
-      var result = new List<ZipEntry>();
-      try
+      var entryEnumerator = archive.GetEnumerator();
+      while (entryEnumerator.MoveNext())
       {
-        using var archive = new ZipFile(fileName.LongPathPrefix());
-        // find Text and Manifest      
-        foreach (ZipEntry entry in archive)
-          if (entry.IsFile)
-            result.Add(entry);
+        var entry = entryEnumerator.Current as ZipEntry;
+        if (entry?.IsFile ?? false)
+          yield return entry;
       }
-      catch (ZipException)
-      {
-        // ignore        
-      }
-      return result;
     }
 
     /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
@@ -351,7 +348,7 @@ namespace CsvTools
         }
       }
 #endif
-      if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+      if (fileName2.AssumeZip())
       {
         var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
         if (!(setting is null))
@@ -359,10 +356,9 @@ namespace CsvTools
           Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
           return setting;
         }
-        var list = fileName2.GetFilesInZip().Select(x => x.Name);
-        selectedFile = selectFile?.Invoke(list) ?? list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
-                                                               || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
-                                                               || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase));
+        using var zipFile = new ZipFile(fileName2);
+        var list = zipFile.GetFilesInZip().Select(x => x.Name);
+        selectedFile = selectFile?.Invoke(list) ?? list.First(x => x.AssumeDelimited());
       }
 
       if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))

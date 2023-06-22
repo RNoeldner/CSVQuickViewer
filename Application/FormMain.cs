@@ -26,7 +26,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UtfUnknown.Core.Models.SingleByte.French;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -230,10 +229,10 @@ namespace CsvTools
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
           m_ViewSettings.FillGuessSettings, list =>
           {
-            using var frm = new FormSelectInDropdown(list);
-            return (frm.ShowWithFont(this, true) == DialogResult.OK) ? frm.SelectedText : list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
-                                                             || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
-                                                             || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)) ?? list.First();
+           using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
+              if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
+                throw new OperationCanceledException();
+              return frm.SelectedText;
           }, m_ViewSettings.DefaultInspectionResult,
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), cancellationToken);
 

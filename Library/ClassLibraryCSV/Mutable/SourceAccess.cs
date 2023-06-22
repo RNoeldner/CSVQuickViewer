@@ -87,7 +87,7 @@ namespace CsvTools
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
     /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
-    public SourceAccess(in string fileName,bool isReading = true,in string? id = null, in string passPhrase = "")
+    public SourceAccess(in string fileName, bool isReading = true, in string? id = null, in string passPhrase = "")
 #endif
     {
       if (string.IsNullOrWhiteSpace(fileName))
@@ -103,7 +103,7 @@ namespace CsvTools
       Reading = isReading;
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
       Passphrase = passPhrase;
-      
+
 #if SupportPGP
       PgpKey = string.Empty;
       KeepEncrypted = keepEncrypted;
@@ -220,7 +220,7 @@ namespace CsvTools
         return FileTypeEnum.Deflate;
       if (fileName.AssumePgp())
         return FileTypeEnum.Pgp;
-      return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FileTypeEnum.Zip : FileTypeEnum.Plain;
+      return fileName.AssumeZip() ? FileTypeEnum.Zip : FileTypeEnum.Plain;
     }
 
     private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) =>
