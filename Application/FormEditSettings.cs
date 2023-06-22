@@ -132,10 +132,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.FillGuessSettings,
             list =>
             {
-              using var frm = new FormSelectInDropdown(list);
-              return (frm.ShowWithFont(this, true) == DialogResult.OK) ? frm.SelectedText : list.First(x => x.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
-                                                               || x.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
-                                                               || x.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)) ?? list.First();
+              using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
+              if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
+                throw new OperationCanceledException();
+              return frm.SelectedText;
             }, m_ViewSettings.DefaultInspectionResult,
             PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
 
