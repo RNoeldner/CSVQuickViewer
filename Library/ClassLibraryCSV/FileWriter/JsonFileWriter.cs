@@ -149,12 +149,13 @@ namespace CsvTools
       while (startArray != -1)
       {
         var endArray = row.IndexOf("\\]", startArray);
-        var array = row.Substring(startArray, endArray-startArray+3);
+        var array = row.Substring(startArray, endArray-startArray+2);
         rep.Add(array, HandleArray(array, FindWriterColumn(row, startArray)));
         startArray = row.IndexOf("\\[", endArray);
       }
       foreach (var replace in rep)
         row=row.Replace(replace.Key, replace.Value);
+
       return row;
     }
 
