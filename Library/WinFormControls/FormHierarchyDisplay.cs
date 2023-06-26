@@ -170,10 +170,7 @@ namespace CsvTools
     private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
       IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
     {
-      var dataColumnParent = m_DataTable.Columns[parentCol];
-      if (dataColumnParent is null)
-        throw new ArgumentException($"Could not find column {parentCol}");
-
+      DataColumn dataColumnParent = m_DataTable.Columns[parentCol]  ?? throw new ArgumentException($"Could not find column {parentCol}");
       DataColumn dataColumnID = m_DataTable.Columns[idCol] ?? throw new ArgumentException($"Could not find column {idCol}");
 
       DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
@@ -201,20 +198,20 @@ namespace CsvTools
 
         var title = new StringBuilder();
         if (dataColumnDisplay1 != null)
-          title.Append(dataRow[dataColumnDisplay1]);
+          title.Append(dataRow[dataColumnDisplay1.Ordinal]);
         if (dataColumnDisplay2 != null)
         {
           if (dataColumnDisplay1 != null)
             title.Append(" - ");
-          title.Append(dataRow[dataColumnDisplay2]);
+          title.Append(dataRow[dataColumnDisplay2.Ordinal]);
         }
         // Fallback 
         if (title.Length==0)
           title.Append(id);
 
-        var treeData = new TreeData(id, title.ToString(), dataRow[dataColumnParent].ToString());
+        var treeData = new TreeData(id, title.ToString(), dataRow[dataColumnParent.Ordinal].ToString());
         if (dataColumnDisplay1 != null)
-          treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1]) ?? string.Empty;
+          treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
         // Store the display
         if (!treeDataDictionary.ContainsKey(id))
@@ -373,7 +370,7 @@ namespace CsvTools
       System.Windows.Forms.ContextMenuStrip contextMenuStrip;
       System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
       System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
-      System.Windows.Forms.Label labelFind;      
+      System.Windows.Forms.Label labelFind;
       this.m_TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.m_ComboBoxID = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxParentID = new System.Windows.Forms.ComboBox();
@@ -514,7 +511,7 @@ namespace CsvTools
       // 
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 3);
       this.m_TreeView.ContextMenuStrip = contextMenuStrip;
-      this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;      
+      this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TreeView.Location = new System.Drawing.Point(3, 110);
       this.m_TreeView.Name = "m_TreeView";
       this.m_TreeView.Size = new System.Drawing.Size(496, 255);
@@ -682,9 +679,13 @@ namespace CsvTools
 
     private void TimerDisplayElapsed(object? sender, ElapsedEventArgs e)
     {
-      if (string.IsNullOrEmpty(m_ComboBoxDisplay1.Text) && string.IsNullOrEmpty(m_ComboBoxDisplay2.Text))
-        m_ComboBoxDisplay1.Text = m_ComboBoxDisplay2.Text;
-
+      m_ComboBoxDisplay1.SafeInvoke(
+        () =>
+        {
+          if (string.IsNullOrEmpty(m_ComboBoxDisplay1.Text) && string.IsNullOrEmpty(m_ComboBoxDisplay2.Text))
+            m_ComboBoxDisplay1.Text = m_ComboBoxDisplay2.Text;
+        }
+      );
       Task.Run(() =>
       {
         m_TimerDisplay.Stop();
