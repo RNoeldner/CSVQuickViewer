@@ -33,7 +33,8 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the HTML style.
     /// </summary>
-    /// <value>The HTML style.</value>
+    /// <value>The HTML style.</value>    
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public HtmlStyle HtmlStyle { get; set; } = HtmlStyle.Default;
 
     /// <summary>

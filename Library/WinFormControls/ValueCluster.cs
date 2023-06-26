@@ -141,6 +141,6 @@ namespace CsvTools
     ///   Return a string representation of this cluster
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
+    public override string ToString() => $"{Display ?? "[empty]"} {Count:N0} {(Count == 1 ? "item" : "items")}";
   }
 }
