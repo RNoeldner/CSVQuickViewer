@@ -273,7 +273,7 @@ namespace CsvTools
       bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
-      FillGuessSettings fillGuessSettings, Func<IEnumerable<string>, string>? selectFile,
+      FillGuessSettings fillGuessSettings, Func<IReadOnlyCollection<string>, string>? selectFile,
       InspectionResult defaultInspectionResult
 #if SupportPGP
       , string privateKey
@@ -357,7 +357,7 @@ namespace CsvTools
           return setting;
         }
         using var zipFile = new ZipFile(fileName2);
-        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => $"{x.Name}");
+        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => $"{x.Name}").ToList();
         selectedFile = selectFile?.Invoke(list) ?? list.First();
       }
 
