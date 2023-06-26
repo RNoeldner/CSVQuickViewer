@@ -273,7 +273,7 @@ namespace CsvTools
       bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
-      FillGuessSettings fillGuessSettings, Func<IEnumerable<string>, string>? selectFile,
+      FillGuessSettings fillGuessSettings, Func<IReadOnlyCollection<string>, string>? selectFile,
       InspectionResult defaultInspectionResult
 #if SupportPGP
       , string privateKey
