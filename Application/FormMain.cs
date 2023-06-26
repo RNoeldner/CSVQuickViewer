@@ -229,10 +229,12 @@ namespace CsvTools
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
           m_ViewSettings.FillGuessSettings, list =>
           {
-           using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
-              if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
-                throw new OperationCanceledException();
-              return frm.SelectedText;
+            if (list.Count==1)
+              return list.First();
+            using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
+            if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
+              throw new OperationCanceledException();
+            return frm.SelectedText;
           }, m_ViewSettings.DefaultInspectionResult,
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), cancellationToken);
 
