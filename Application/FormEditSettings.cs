@@ -132,6 +132,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.FillGuessSettings,
             list =>
             {
+              if (list.Count==1)
+                return list.First();
               using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
               if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
                 throw new OperationCanceledException();
