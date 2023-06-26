@@ -565,9 +565,7 @@ namespace CsvTools
             ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
             : FilteredDataGridView.Columns[0].Name;
           m_FormUniqueDisplay?.Close();
-          m_FormUniqueDisplay = new FormUniqueDisplay(
-            m_DataTable.Clone(),
-            m_DataTable.Select(FilteredDataGridView.CurrentFilter),
+          m_FormUniqueDisplay = new FormUniqueDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
             columnName, HtmlStyle);
           m_FormUniqueDisplay.ShowWithFont(this);
         }

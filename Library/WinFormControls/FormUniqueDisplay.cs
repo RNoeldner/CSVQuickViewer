@@ -51,6 +51,20 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(hTmlStyle));
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
+
+      var listRem = new List<DataColumn>();
+      foreach (DataColumn col in m_DataTable.Columns)
+      {
+        if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
+          col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
+          col.ColumnName == ReaderConstants.cErrorField ||          
+          col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
+          listRem.Add(col);
+      }
+
+      foreach (var col in listRem)
+        m_DataTable.Columns.Remove(col);
+
       m_InitialColumn = initialColumn;
       InitializeComponent();
       detailControl.HtmlStyle = hTmlStyle;
@@ -110,13 +124,12 @@ namespace CsvTools
       Extensions.ProcessUIElements();
       try
       {
-        var dataColumnID = m_DataTable.Columns[dataColumnName];
-        if (dataColumnID is null)
-          throw new Exception($"Column {dataColumnName} not found");
+        DataColumn dataColumnID = m_DataTable.Columns[dataColumnName] ?? throw new Exception($"Column {dataColumnName} not found");
 
         this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 
-        var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var dictIDToRow = new Dictionary<string, int>(StringComparer.Ordinal);
+        var dictIDToCount = new Dictionary<string, int>(StringComparer.Ordinal);
 
         using var formProgress =
           new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token)
@@ -135,27 +148,42 @@ namespace CsvTools
           if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal))
             continue;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-          var id = dataRow[dataColumnID.Ordinal].ToString().Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-          if (!dictIDToRow.ContainsKey(id))
+          var id = dataRow[dataColumnID.Ordinal].ToString().Trim().ToLowerInvariant();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.          
+          if (dictIDToRow.ContainsKey(id))
+            dictIDToCount[id]++;
+          else
+          {
             dictIDToRow.Add(id, rowIndex);
+            dictIDToCount.Add(id, 1);
+          }
         }
 
         this.SafeInvoke(
           () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
 
+        var countCol = m_DataTable.Columns["Count#"];
+        if (countCol == null)
+        {
+          m_DataTable.Columns.Add(new DataColumn("Count#", typeof(int)));
+          countCol = m_DataTable.Columns["Count#"];
+        }
+
         m_DataTable.BeginLoadData();
         m_DataTable.Clear();
+
         formProgress.Maximum = dictIDToRow.Count;
 
         var counter = 0;
-        foreach (var rowIndex in dictIDToRow.Values)
+        foreach (var rowIndex in dictIDToRow)
         {
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           counter++;
           intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
-          m_DataTable.ImportRow(m_DataRow[rowIndex]);
+          m_DataTable.ImportRow(m_DataRow[rowIndex.Value]);
+          // add the counter for the values
+          m_DataTable.Rows[m_DataTable.Rows.Count-1][countCol.Ordinal] = dictIDToCount[rowIndex.Key];
         }
 
         m_DataTable.EndLoadData();
