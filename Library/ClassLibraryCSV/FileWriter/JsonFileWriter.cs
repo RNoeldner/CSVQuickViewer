@@ -132,9 +132,9 @@ namespace CsvTools
       foreach (var col in cols)
         sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name), string.Format(cFieldPlaceholderByName, col.Name));
       if (sb.Length > 1)
-        sb.Length -= 2;
-      sb.AppendLine("}");
-      return sb.ToString();
+      sb.Length -= 2;
+      sb.AppendLine("}");      
+      return sb.ToString();      
     }
 
     public override string BuildRow(in string placeHolderText, in IDataReader reader)
@@ -161,12 +161,13 @@ namespace CsvTools
 
     private static IReadOnlyList<string> TrimmedSplit(string input, char split = ',', char escape = '/')
     {
-      if (string.IsNullOrEmpty(input))
-        return Array.Empty<string>();
 
       // Remove quoting  
-      if (input.Length>1 && input[0] == input[input.Length-1] && (input[0] == '"' || input[0] == '\''))
+      if (input.Length>= 2 && input[0] == input[input.Length-1] && (input[0] == '"' || input[0] == '\''))
         input = input.Substring(1, input.Length-2);
+
+      if (input.Length==0)
+        return Array.Empty<string>();
 
       var res = new List<string>();
       var sb = new StringBuilder();
@@ -192,13 +193,18 @@ namespace CsvTools
       return res;
     }
 
+
     public string HandleArray(string arrayPart, in WriterColumn columnInfoRoot)
     {
       var start = arrayPart.IndexOf('[');
       var end = arrayPart.LastIndexOf(']');
       var oneElement = arrayPart.Substring(start+1, end-start-2).Trim().Replace("\": \"", "\":\"");
 
-      var properties = new Dictionary<string, (IReadOnlyList<string> values, WriterColumn column)>();
+      var slpitList = new Dictionary<WriterColumn, IReadOnlyList<string>>();
+
+      var result = new StringBuilder();
+      result.Append('[');
+
       if (oneElement.StartsWith("{", StringComparison.Ordinal) && oneElement.EndsWith("}", StringComparison.Ordinal))
       {
         try
@@ -207,45 +213,75 @@ namespace CsvTools
           foreach (JProperty prop in jtoken.Children())
           {
             var list = prop.Value?.ToString() ?? string.Empty;
-            var col = WriterColumns.FirstOrDefault(x=> x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ?? new WriterColumn(prop.Name, new ValueFormat(), -1);    
-            // any value was a string, so make sure we inclide teh 
-            properties.Add($"\"{list}\"", (TrimmedSplit(list), col));              
+            var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ?? new WriterColumn(prop.Name, new ValueFormat(), -1);
+            if (slpitList.ContainsKey(col))
+              Logger.Error("Duplicate property {property}, property will be ignored", prop.Name);
+            else
+              slpitList.Add(col, TrimmedSplit(list));
           }
-
         }
         catch (Exception ex)
         {
           Logger.Warning(ex, "Json object could not be parsed {element}", oneElement);
-          // ignore if we do not have a object elemnet but just a list this would fail        
         }
       }
 
-      if (properties.Count  == 0)
-        properties.Add(oneElement, (TrimmedSplit(oneElement), columnInfoRoot));
-
-      var result = new StringBuilder();
-      result.Append('[');
-      var numMatches = int.MaxValue;
-      foreach (var prop in properties)
-        if (prop.Value.values.Count <numMatches)
-          numMatches =prop.Value.values.Count;
-
-      for (var index = 0; index < numMatches; index++)
+      // If there are no properties assume we have a list only
+      if (slpitList.Count  == 0)
       {
-        // now relace the existing old text
-        var resultingElement = oneElement;        
-        foreach (var prop in properties)
-          // ToDo: Safer would be to include the properyName
-          resultingElement= resultingElement.Replace(prop.Key, Escape(prop.Value.values[index], prop.Value.column, null));
-                  
-        result.Append(resultingElement);
-        result.Append(',');
+        foreach (var entry in TrimmedSplit(oneElement))
+        {
+          result.Append(Escape(entry, columnInfoRoot, null));
+          result.Append(',');
+        }
+        if (result.Length>1)
+          result.Length--;
       }
-      // remove last ,
-      if (result.Length>1)
-        result.Length--;
-      result.Append(']');
+      else
+      {
+        var numMatches = int.MaxValue;
+        foreach (var prop in slpitList)
+        {
+          if (prop.Value.Count <numMatches && prop.Value.Count!=0)
+          {
+            if (numMatches != int.MaxValue)
+              Logger.Warning($"List does not contain the same number of of entries, {prop.Key.Name} has less than before");
+            numMatches =prop.Value.Count;
+          }
+        }
 
+        // now fill the return value
+        for (var index = 0; index < numMatches; index++)
+        {
+          // open Object
+          result.Append('{');
+          // list properties of object
+          foreach (var prop in slpitList)
+          {
+
+            JsonConvert.ToString(prop.Key.Name);
+            result.Append($"\"{prop.Key.Name}\":");
+            try
+            {
+              result.Append(Escape(prop.Value[index], prop.Key, null));
+            }
+            catch (Exception)
+            {
+              result.Append(Escape(null, prop.Key, null));
+            }
+            result.Append(',');
+          }
+          // remove last ,
+          result.Length--;
+          // close object
+          result.Append('}');
+          result.Append(',');
+        }
+
+        // remove last ,
+        result.Length--;
+      }
+      result.Append(']');
       return result.ToString();
     }
   }

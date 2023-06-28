@@ -547,11 +547,11 @@ CommentLine
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifier = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
-          changedFieldQualifier = inspectionResult.FieldQualifier != qualifier.QuoteChar;
-          inspectionResult.FieldQualifier = qualifier.QuoteChar;
-          inspectionResult.ContextSensitiveQualifier= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
-          inspectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
+          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
+          changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
+          inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;          
+          inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);          
+          inspectionResult.DuplicateQualifierToEscape = qualifierTestResult.DuplicateQualifier;
         }
 
         if (guessDelimiter) // Dependent on SkipRows, FieldQualifier and EscapePrefix

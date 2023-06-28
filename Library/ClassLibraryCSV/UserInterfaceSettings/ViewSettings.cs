@@ -55,6 +55,7 @@ namespace CsvTools
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
     private int m_ShowButtonAtLength = 2000;
+    private Duration m_LimitDuration = Duration.FiveSecond;
 
     public enum Duration
     {
@@ -62,11 +63,12 @@ namespace CsvTools
       [Description("1/2 second")][ShortDescription("½ s")] HalfSecond,
       [Description("1 second")][ShortDescription("1 s")] Second,
       [Description("2 seconds")][ShortDescription("2 s")] TwoSecond,
+      [Description("5 seconds")][ShortDescription("5 s")] FiveSecond,
       [Description("10 seconds")][ShortDescription("10 s")] TenSecond,
     }
 #if SupportPGP
     private string m_KeyFileRead = string.Empty;
-    private string m_KeyFileWrite = string.Empty;
+    private string m_KeyFileWrite = string.Empty;    
 
     [DefaultValue("")]
     public string KeyFileRead
@@ -228,13 +230,12 @@ namespace CsvTools
       set => SetProperty(ref m_GuessStartRow, value);
     }
 
-    [DefaultValue(Duration.Second)]
+    [DefaultValue(Duration.FiveSecond)]
     public Duration LimitDuration
     {
-      get;
-      set;
-    } = Duration.Second;
-
+      get => m_LimitDuration;
+      set => SetProperty(ref m_LimitDuration, value);
+    }
 
     [DefaultValue(false)]
     public bool MenuDown
