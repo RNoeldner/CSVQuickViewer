@@ -39,7 +39,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"')
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score<85)
           currentQuote.Score += 15;
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
@@ -99,7 +99,18 @@ namespace CsvTools
 
       return false;
     }
-    
+
+
+    /// <summary>
+    /// Determine a score for a quote
+    /// </summary>
+    /// <param name="textReader"></param>
+    /// <param name="delimiterChar"></param>
+    /// <param name="escapeChar"></param>
+    /// <param name="quoteChar"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The score is between 0 and 99, 99 meaning almost certain</returns>
+    /// <exception cref="ArgumentNullException"></exception>
     private static QuoteTestResult GetScoreForQuote(
       in ImprovedTextReader textReader,
       char delimiterChar,
@@ -111,15 +122,16 @@ namespace CsvTools
       var counterTotal = 0;
       var counterOpenStrict = 0;
       var counterOpenSimple = 0;
+      var counterCloseSimple = 0;
       var counterCloseStrict = 0;
       const char placeHolderText = 't';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var filter = new StringBuilder();
       var last = -1;
 
-      var res = new QuoteTestResult (quoteChar);
+      var res = new QuoteTestResult(quoteChar);
       // Read simplified text from file
-      while (!textReaderPosition.AllRead() && filter.Length < 8000 && !cancellationToken.IsCancellationRequested)
+      while (!textReaderPosition.AllRead() && filter.Length < 16000 && !cancellationToken.IsCancellationRequested)
       {
         var c = (char) textReader.Read();
         // disregard spaces
@@ -165,36 +177,44 @@ namespace CsvTools
         if (line[index] != quoteChar)
           continue;
         counterTotal++;
+
         if (line[index - 1] == delimiterChar)
         {
           // having a delimiter before is good, but it would be even better if its followed by text
           counterOpenSimple++;
-          if ((line[index + 1] == placeHolderText ||
-              (line[index + 1] == quoteChar &&
-               line[index + 2] != delimiterChar)))
+          if (line[index + 1] == placeHolderText || (line[index + 1] == quoteChar && line[index + 2] != delimiterChar))
             counterOpenStrict++;
         }
-        if (line[index + 1] == delimiterChar&&line[index - 1] == quoteChar)
-          counterCloseStrict++;
-      }
 
+        if (line[index + 1] == delimiterChar)
+        {
+          counterCloseSimple++;
+          if (line[index - 1] != delimiterChar)
+            counterCloseStrict++;
+        }
+
+      }
+      var totalScore = counterTotal;
       if (counterOpenStrict != 0 && counterCloseStrict * 1.5 > counterOpenStrict &&
           counterCloseStrict < counterOpenStrict * 1.5)
       {
-        res.Score = 5 * counterOpenStrict;
+        totalScore = 2 * counterOpenStrict + 2 * counterCloseStrict;
       }
-      else if (!res.DuplicateQualifier && !res.DuplicateQualifier && counterOpenSimple != 0)
+      else if (!res.DuplicateQualifier && counterOpenSimple != 0)
       {
-        res.Score = 3 * counterOpenSimple;
+        totalScore = counterOpenSimple +  counterCloseSimple;
       }
-      else
-        res.Score = counterTotal;
 
-      // Without score we did not see any record
-      // in this case assume DuplicateQualifier
-      if (res.Score < 10)
+      // If we hardly saw quotes assume DuplicateQualifier
+      if (counterTotal < 50 && filter.Length > 100)
         res.DuplicateQualifier = true;
-      
+
+      // try to normalize the score, depenedning on the length of teh filter build a percaneta score that  should indicate how sure
+      if (totalScore > filter.Length)
+        res.Score = 99;
+      else
+        res.Score = Convert.ToInt32(totalScore / (double) filter.Length * 100);
+
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers
       return res;
     }
@@ -206,7 +226,7 @@ namespace CsvTools
       public char QuoteChar;
       public int Score;
 
-      public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier=false, bool escapedQualifier = false)
+      public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier = false, bool escapedQualifier = false)
       {
         QuoteChar = quoteChar;
         Score = score;

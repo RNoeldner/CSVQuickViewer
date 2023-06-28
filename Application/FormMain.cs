@@ -546,7 +546,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
         async (o, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-      m_SettingsChangedTimerChange.Stop();
+      
       ShowTextPanel(false);
     }
     private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
@@ -609,7 +609,6 @@ namespace CsvTools
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
 
           }
-
 
           var keepVisible = new List<string>();
           if (m_FileSetting.DisplayEndLineNo)
