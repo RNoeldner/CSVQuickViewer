@@ -230,8 +230,8 @@ namespace CsvTools
           m_ViewSettings.FillGuessSettings, list =>
           {
             if (list.Count==1)
-              return list.First();
-            using var frm = new FormSelectInDropdown(list, list.First(x => x.AssumeDelimited()));
+              return list.First();                       
+            using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
             if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
               throw new OperationCanceledException();
             return frm.SelectedText;
