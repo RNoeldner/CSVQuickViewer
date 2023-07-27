@@ -307,8 +307,6 @@ namespace CsvTools
         var filter = m_Filter[m_MenuItemColumnIndex];
         if (filter is null) return;
         filter.ColumnFilterLogic.SetFilter(CurrentCell.Value);
-        if (!filter.ColumnFilterLogic.Active)
-          filter.ColumnFilterLogic.Active = true;
         ApplyFilters();
       }
       catch
