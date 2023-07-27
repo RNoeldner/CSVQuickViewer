@@ -148,10 +148,9 @@ namespace CsvTools
     {
       get => m_Active;
       set
-      {
-        SetProperty(ref m_Active, value);
-        // If set active from the outside, make sure the Expression is correct
-        if (m_Active)
+      {        
+        if (SetProperty(ref m_Active, value) && m_Active)          
+          // If set actived from the outside, make sure the Expression is correct
           m_Active = BuildFilterExpression();
       }
     }
@@ -297,9 +296,10 @@ namespace CsvTools
         else
           ValueText = Convert.ToString(value) ?? string.Empty;
         Operator = cOperatorEquals;
-      }
-
-      BuildFilterExpression();
+      }    
+      foreach(var cluster in ValueClusterCollection.GetActiveValueCluster())
+        cluster.Active = false;
+      m_Active = BuildFilterExpression();
     }
 
     /// <summary>
