@@ -529,14 +529,12 @@ CommentLine
         var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
         inspectionResult.CommentLine =  newCommentLine;
       }
-
+      var newPrefix = inspectionResult.EscapePrefix;
       if (guessEscapePrefix) // Dependent on SkipRows, FieldDelimiter and FieldQualifier
       {
         Logger.Information("Checking Escape Prefix");
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        var newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
-        changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
-        inspectionResult.EscapePrefix =  newPrefix;
+        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);        
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
@@ -547,11 +545,15 @@ CommentLine
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
+          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, new[] { '"', '\'' }, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;          
           inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);          
           inspectionResult.DuplicateQualifierToEscape = qualifierTestResult.DuplicateQualifier;
+          
+          // In case we have DuplicateQualifier turn off EscapePrefix
+          if (inspectionResult.DuplicateQualifierToEscape)
+            newPrefix =  char.MinValue;          
         }
 
         if (guessDelimiter) // Dependent on SkipRows, FieldQualifier and EscapePrefix
@@ -559,7 +561,7 @@ CommentLine
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
           var delimiterDet = await textReader.InspectDelimiterAsync(
-            inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+            inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             inspectionResult.SkipRows++;
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
@@ -575,6 +577,10 @@ CommentLine
           inspectionResult.NewLine = textReader.InspectRecordDelimiter(inspectionResult.FieldQualifier, cancellationToken);
         }
       }
+
+      changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
+      if (changedEscapePrefix)
+        inspectionResult.EscapePrefix =  newPrefix;
 
       if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount<5)
       {
