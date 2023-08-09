@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 
 namespace CsvTools.Tests
@@ -20,26 +21,31 @@ namespace CsvTools.Tests
   [TestClass]
   public class BinaryFormatterTests
   {
-   
-
     [TestMethod]
     public void WriteFileTestAsync()
     {
-      var testContent = BinaryFormatter.CombineNameAndContent("BasicCSV.txt.gz",
-        File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")));
-
-      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile.gz");
-      bin.Write(testContent, null, null);
+      // TODO: Test PlaceHolder Replace
+      var bin = new BinaryFormatter( UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile.gz");
+      bin.Write(File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")), null, null);
       Assert.IsTrue(FileSystemUtils.FileExists(UnitTestStatic.GetTestPath("NewFile.gz")));
       FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile.gz"));
+    }
+    [TestMethod]
+    public void WriteFileTestAsync2()
+    {
+      // TODO: Test PlaceHolder Replace
+      var bin = new BinaryFormatter( UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile2.gz");
+      bin.Write(Convert.ToBase64String(File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"))), null, null);
+      Assert.IsTrue(FileSystemUtils.FileExists(UnitTestStatic.GetTestPath("NewFile2.gz")));
+      FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile2.gz"));
     }
 
     [TestMethod]
     public void FormatText()
     {
-      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "");
-      var res = bin.FormatInputText("BasicCSV.txt.gz", null);
-      Assert.AreEqual("BasicCSV.txt.gz", BinaryFormatter.GetNameFromNameAndContent(res));
+      // TODO: Test Large Files
+      var bin = new BinaryFormatter( UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "");      
+      Assert.IsTrue(bin.FormatInputText("BasicCSV.txt.gz", null).Length > 100);
     }
   }
 }

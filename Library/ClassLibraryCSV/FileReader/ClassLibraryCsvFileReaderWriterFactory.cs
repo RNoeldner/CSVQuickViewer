@@ -68,11 +68,11 @@ namespace CsvTools
       IFileWriter? writer = fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite,
-          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.KeepUnencrypted,
-          csv.IdentifierInContainer, csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar,
-          csv.FieldQualifierChar, csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
-          csv.QualifierPlaceholder, csv.QualifyAlways, csv.QualifyOnlyIfNeeded, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id, publicKey),
+          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer,
+          csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar,
+          csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder,
+          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          publicKey, csv.KeepUnencrypted),
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
           jsonFile.KeepUnencrypted, jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header,
           jsonFile.EmptyAsNull, jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection,

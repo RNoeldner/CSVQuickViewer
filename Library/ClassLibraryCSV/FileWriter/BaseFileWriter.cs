@@ -34,14 +34,17 @@ namespace CsvTools
     private readonly string m_Footer;
     internal readonly string FullPath;
     private readonly string m_IdentifierInContainer;
+#if SupportPGP
     private readonly bool m_KeepUnencrypted;
+    private readonly string m_PublicKey;
+#endif
+
     protected readonly ValueFormat ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
-    private readonly string m_PublicKey;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
-    
+
     public IProgress<ProgressInfo>? ReportProgress
     {
       protected get;
@@ -54,7 +57,6 @@ namespace CsvTools
     /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of teh file to write</param>
     /// <param name="valueFormatGeneral">Fallback value format for typed values that do not have a column setup</param>
-    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
     /// <param name="header">Header to be written before data and/or Header is written</param>
@@ -63,12 +65,12 @@ namespace CsvTools
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
+    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <exception cref="ArgumentException"></exception>
     protected BaseFileWriter(
       in string id,
       in string fullPath,
       in ValueFormat? valueFormatGeneral,
-      bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
       in string? header,
@@ -76,11 +78,16 @@ namespace CsvTools
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string sourceTimeZone,
-      in string publicKey)
+      in string publicKey,
+      bool unencrypted
+      )
     {
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust;
+#if SupportPGP
       m_PublicKey = publicKey;
+      m_KeepUnencrypted = unencrypted;
+#endif
       FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(FullPath);
       Header = ReplacePlaceHolder(header, fileName, id);
@@ -89,8 +96,8 @@ namespace CsvTools
       ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
-      m_KeepUnencrypted = unencrypted;
-      m_IdentifierInContainer = identifierInContainer ?? string.Empty;      
+
+      m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     }
 
 
@@ -141,6 +148,12 @@ namespace CsvTools
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
 
+        // Make the write folder an absolute path, 
+        // TODO: using "" as basepath, this is not ideal better would be to pass in root folder
+        var writeFolder = FileSystemUtils.GetAbsolutePath(
+          string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat?.WriteFolder,
+          string.Empty);
+
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
             col.ValueFormat.DataType,
@@ -154,7 +167,7 @@ namespace CsvTools
             generalFormat.False,
             generalFormat.DisplayNullAs,
             readFolder: generalFormat.ReadFolder,
-            writeFolder: generalFormat.WriteFolder,
+            writeFolder: writeFolder,
             fileOutPutPlaceholder: generalFormat.FileOutPutPlaceholder,
             overwrite: generalFormat.Overwrite)
           : new ValueFormat(
@@ -168,12 +181,8 @@ namespace CsvTools
             column.ValueFormat.True,
             column.ValueFormat.False,
             column.ValueFormat.DisplayNullAs,
-            readFolder: string.IsNullOrEmpty(column.ValueFormat.ReadFolder)
-              ? generalFormat.ReadFolder
-              : column.ValueFormat.ReadFolder,
-            writeFolder: string.IsNullOrEmpty(column.ValueFormat.WriteFolder)
-              ? generalFormat.WriteFolder
-              : column.ValueFormat.WriteFolder,
+            readFolder: string.Empty, // No need for a read folder
+            writeFolder: writeFolder,
             fileOutPutPlaceholder: string.IsNullOrEmpty(column.ValueFormat.FileOutPutPlaceholder)
               ? generalFormat.FileOutPutPlaceholder
               : column.ValueFormat.FileOutPutPlaceholder,

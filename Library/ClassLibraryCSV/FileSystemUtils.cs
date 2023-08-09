@@ -227,7 +227,7 @@ namespace CsvTools
 
         // the Filename could contains wildcards, that is not supported when extending relative path
         // the path part though ca not contain wildcards, so combine base and path
-        return (GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))) + fileName.Substring(split))
+        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))), fileName.AsSpan(split))
           .RemovePrefix();
       }
       catch (Exception ex)
@@ -552,6 +552,15 @@ namespace CsvTools
       return path.StartsWith(@"\\", StringComparison.Ordinal)
         ? cUncLongPathPrefix + path.Substring(2)
         : cLongPathPrefix + path;
+    }
+
+    public static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> path)
+    {
+      if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
+        return path.Slice(cLongPathPrefix.Length);
+      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
+        ? path.Slice(cUncLongPathPrefix.Length)
+        : path;
     }
 
     public static string RemovePrefix(this string path)

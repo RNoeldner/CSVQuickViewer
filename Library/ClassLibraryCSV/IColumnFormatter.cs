@@ -21,7 +21,7 @@ namespace CsvTools
   public interface IColumnFormatter
   {
     /// <summary>
-    /// Format the text for the input, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+    /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
     /// </summary>
     /// <param name="inputString">The input text that need to be processed</param>
     /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
@@ -29,12 +29,12 @@ namespace CsvTools
     string FormatInputText(in string inputString, in Action<string>? handleWarning);
 
     /// <summary>
-    /// Returns the dataObject as string, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+    /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
     /// </summary>
     /// <param name="dataObject">The data to be processed</param>
     /// <param name="dataRow">All other values for the current row, to handle placeholders etc.</param>
     /// <param name="handleWarning"></param>
-    /// <returns>An awaitable task with teh text a text representation</returns>
+    /// <returns>An awaitable task with the text a text representation</returns>
     string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning);
 
     /// <summary>

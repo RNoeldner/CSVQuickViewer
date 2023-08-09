@@ -83,7 +83,6 @@ namespace CsvTools
       int codePageId,
       bool byteOrderMark,
       in IEnumerable<Column>? columnDefinition,
-      bool unencrypted,
       in string? identifierInContainer,
       in string? header,
       in string? footer,
@@ -98,13 +97,14 @@ namespace CsvTools
       bool qualifyAlways,
       bool qualifyOnlyIfNeeded,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey)
+      in string sourceTimeZone, 
+      in string publicKey, 
+      bool unencrypted
+      )
       : base(
         id,
         fullPath,
         valueFormat,
-        unencrypted,
         identifierInContainer,
         footer,
         header,
@@ -112,7 +112,8 @@ namespace CsvTools
         fileSettingDisplay,
         timeZoneAdjust,
         sourceTimeZone,
-        publicKey)
+        publicKey,
+        unencrypted)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;

@@ -104,7 +104,7 @@ namespace CsvTools
         if (m_ColumnFormatterCreated)
           return m_ColumnFormatter;
         m_ColumnFormatterCreated = true;
-        return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ColumnOrdinal, ValueFormat);
+        return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ValueFormat);
       }
     }
 
@@ -204,7 +204,7 @@ namespace CsvTools
       {
         stringBuilder.Append(" (");
         stringBuilder.Append(shortDesc);
-        stringBuilder.Append(")");
+        stringBuilder.Append(')');
       }
 
       if (addTime && ValueFormat.DataType == DataTypeEnum.DateTime)
@@ -217,7 +217,7 @@ namespace CsvTools
           {
             stringBuilder.Append(" (");
             stringBuilder.Append(TimePartFormat);
-            stringBuilder.Append(")");
+            stringBuilder.Append(')');
           }
         }
 
