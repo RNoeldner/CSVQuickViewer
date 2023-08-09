@@ -23,7 +23,6 @@ namespace CsvTools.Tests
         codePageId: 65001,
         byteOrderMark: true,
         columnDefinition: null,
-        unencrypted: false,
         identifierInContainer: null,
         header: null,
         footer: null,
@@ -35,8 +34,9 @@ namespace CsvTools.Tests
         newLinePlaceholder: "",
         delimiterPlaceholder: "",
         qualifierPlaceholder: "",
-        qualifyAlways: false, qualifyOnlyIfNeeded: true, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone: System.TimeZoneInfo.Local.Id, PGPKeyTestHelper.cPublic);
+        qualifyAlways: false,
+        qualifyOnlyIfNeeded: true, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone: System.TimeZoneInfo.Local.Id,
+        publicKey: PGPKeyTestHelper.cPublic, unencrypted: false);
       using var dt = UnitTestStaticData.GetDataTable();
       using var reader = new DataTableWrapper(dt);
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
@@ -61,7 +61,6 @@ namespace CsvTools.Tests
         codePageId: 65001,
         byteOrderMark: true,
         columnDefinition: null,
-        unencrypted: true,
         identifierInContainer: null,
         header: null,
         footer: null,
@@ -74,8 +73,9 @@ namespace CsvTools.Tests
         delimiterPlaceholder: "",
         qualifierPlaceholder: "",
         qualifyAlways: false,
-        qualifyOnlyIfNeeded: true, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone: System.TimeZoneInfo.Local.Id, PGPKeyTestHelper.cPublic);
+        qualifyOnlyIfNeeded: true,
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone: System.TimeZoneInfo.Local.Id,
+        publicKey: PGPKeyTestHelper.cPublic, unencrypted: true);
 
       using var dt = UnitTestStaticData.GetDataTable();
       using var reader = new DataTableWrapper(dt);

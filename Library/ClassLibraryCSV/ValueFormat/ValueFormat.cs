@@ -39,7 +39,6 @@ namespace CsvTools
     private const char cPartSplitterDefaultChar = ':';
     internal const string cPartSplitterDefault = ":";
     internal const bool cPartToEndDefault = true;
-    private const char cTimeSeparatorDefaultChar = ':';
     internal const string cTimeSeparatorDefault = ":";
 
     internal const string cTrueDefault = "";
@@ -328,7 +327,7 @@ namespace CsvTools
         DataTypeEnum.Numeric => NumberFormat.ReplaceDefaults('.', DecimalSeparator, ',', GroupSeparator),
         DataTypeEnum.Double => NumberFormat.ReplaceDefaults('.', DecimalSeparator, ',', GroupSeparator),
         DataTypeEnum.TextPart => $"{Part}" + (PartToEnd ? " To End" : string.Empty),
-        DataTypeEnum.Binary => $"Read file from {ReadFolder}",
+        DataTypeEnum.Binary => $"Read from {ReadFolder}, write to {WriteFolder}",
         DataTypeEnum.TextReplace =>
           $"Replace {StringUtils.GetShortDisplay(RegexSearchPattern, 10)} with {StringUtils.GetShortDisplay(RegexReplacement, 10)}",
         _ => string.Empty

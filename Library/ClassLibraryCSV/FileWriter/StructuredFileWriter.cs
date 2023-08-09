@@ -75,7 +75,6 @@ namespace CsvTools
         id,
         fullPath,
         null,
-        unencrypted,
         identifierInContainer,
         footer,
         header,
@@ -83,7 +82,8 @@ namespace CsvTools
         fileSettingDisplay,
         timeZoneAdjust,
         sourceTimeZone,
-        publicKey)
+        publicKey,
+        unencrypted)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");

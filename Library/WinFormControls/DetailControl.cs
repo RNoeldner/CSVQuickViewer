@@ -747,15 +747,15 @@ namespace CsvTools
         var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
           WriteSetting.ValueFormatWrite,
           WriteSetting.CodePageId,
-          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.KeepUnencrypted,
-          WriteSetting.IdentifierInContainer,
-          skippedLines.ToString(), WriteSetting.Footer, string.Empty, WriteSetting.NewLine,
-          WriteSetting.FieldDelimiterChar,
+          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer,
+          skippedLines.ToString(),
+          WriteSetting.Footer, string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar,
           WriteSetting.FieldQualifierChar,
           WriteSetting.EscapePrefixChar,
-          WriteSetting.NewLinePlaceholder, WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder,
-          WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone,
-          TimeZoneInfo.Local.Id, PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile));
+          WriteSetting.NewLinePlaceholder,
+          WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
+          WriteSetting.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
+          PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted);
 
 #if NET5_0_OR_GREATER
         await

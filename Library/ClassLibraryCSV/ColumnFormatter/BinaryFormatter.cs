@@ -21,33 +21,19 @@ namespace CsvTools
 {
   public class BinaryFormatter : BaseColumnFormatter
   {
-    private readonly int m_ColumnOrdinal;
     private readonly string m_FileOutPutPlaceholder;
     private readonly bool m_Overwrite;
     private readonly string m_RootFolderRead;
     private readonly string m_RootFolderWrite;
 
-    public BinaryFormatter(int columnOrdinal = -1, string? rootFolderRead = null, string? rootFolderWrite = null,
-      string? fileOutPutPlaceholder = null, bool overwrite = true)
+    public BinaryFormatter(string? rootFolderRead = null, string? rootFolderWrite = null, string? fileOutPutPlaceholder = null, bool overwrite = true)
     {
-      m_ColumnOrdinal = columnOrdinal;
       m_RootFolderRead = rootFolderRead ?? string.Empty;
       m_RootFolderWrite = rootFolderWrite ?? string.Empty;
       m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
       m_Overwrite = overwrite;
     }
 
-    public static string CombineNameAndContent(in string fileName, in byte[] content) =>
-      $"{fileName}\0{Convert.ToBase64String(content)}";
-
-    private static byte[] GetContentFromNameAndContent(in string contentsWithFileName) =>
-      Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf(char.MinValue) + 1));
-
-    public static string GetNameFromNameAndContent(in string contentsWithFileName) =>
-      contentsWithFileName.Substring(0, contentsWithFileName.IndexOf(char.MinValue));
-
-
-    /// <inheritdoc/>
     public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var fileName = inputString.FullPath(m_RootFolderRead);
@@ -59,59 +45,56 @@ namespace CsvTools
         return string.Empty;
       }
 
-      if (fi.Length <= 256000) 
-        return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
+      if (fi.Length <= 256000)
+        return Convert.ToBase64String(File.ReadAllBytes(fileName.LongPathPrefix()));
       if (RaiseWarning)
         handleWarning?.Invoke($"File {inputString} too large {fi.Length:N0} > {256000:N0}");
       return string.Empty;
 
     }
 
+
     /// <inheritdoc/>
-    public override string Write(in object? contentsWithFileName, in IDataRecord? dataRow, in Action<string>? handleWarning)
+    public override string Write(in object? binaryContet, in IDataRecord? dataRow, in Action<string>? handleWarning)
     {
       var fileName = m_FileOutPutPlaceholder;
+
       if (dataRow != null)
       {
-        if (string.IsNullOrEmpty(m_FileOutPutPlaceholder))
-          fileName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
+        // try to replace all placeholders
+        for (var colOrdinal = 0; colOrdinal<dataRow.FieldCount; colOrdinal++)
+          fileName = fileName.PlaceholderReplace2(dataRow.GetName(colOrdinal), dataRow.GetValue(colOrdinal).ToString() ?? dataRow.GetName(colOrdinal));
 
-        else
-          // The fileNamePattern could contain placeholders that will be replaced with the value of another column
-          for (var colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
+        if ((fileName == m_FileOutPutPlaceholder || fileName.IndexOfAny(new[] { '{', '[' })!=-1) && RaiseWarning)
+          handleWarning?.Invoke("Placeholder columns not found");
+
+        // Need to make sure the resulting filename does not contain invalid characters 
+        foreach (var invalid in Path.GetInvalidFileNameChars())
+        {
+          var index = fileName.IndexOf(invalid);
+          if (index != -1)
           {
-            if (colOrdinal == m_ColumnOrdinal)
-            {
-              var originalName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
-              fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal), originalName);
-              fileName = fileName.PlaceholderReplace("0", originalName);
-              continue;
-            }
-
-            if (fileName.IndexOf(dataRow.GetName(colOrdinal), StringComparison.CurrentCultureIgnoreCase) == -1)
-              continue;
-            if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataTypeEnum.Binary)
-              continue;
-            if (!dataRow.IsDBNull(colOrdinal))
-              fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal), dataRow.GetValue(colOrdinal).ToString()!);
+            if (RaiseWarning)
+              handleWarning?.Invoke($"Invalid charcater {invalid} removed from {fileName} ");
+            fileName = fileName.Remove(index);
           }
+
+        }
+
+        // make sure the folder exists
+#if !QUICK
+        if (!FileSystemUtils.DirectoryExists(m_RootFolderWrite))
+          FileSystemUtils.CreateDirectory(m_RootFolderWrite);
+#endif
+        var fullPath = Path.Combine(m_RootFolderWrite, fileName);
+        if (m_Overwrite)
+          FileSystemUtils.FileDelete(fullPath);
+
+        if (binaryContet is byte[] bytes)
+          FileSystemUtils.WriteAllBytes(fullPath, bytes);
+        else if (binaryContet is string base64 && !string.IsNullOrEmpty(base64))
+          FileSystemUtils.WriteAllBytes(fullPath, Convert.FromBase64String(base64));
       }
-
-      // Need to make sure the resulting filename does not contain invalid characters 
-      foreach (var invalid in Path.GetInvalidFileNameChars())
-      {
-        var index = fileName.IndexOf(invalid);
-        if (index != -1)
-          fileName = fileName.Remove(index);
-      }
-
-      if (contentsWithFileName == null) 
-        return fileName;
-      var fullPath = Path.Combine(m_RootFolderWrite, fileName);
-      if (m_Overwrite)
-        FileSystemUtils.FileDelete(fullPath);
-      FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString() ?? string.Empty));
-
       return fileName;
     }
   }

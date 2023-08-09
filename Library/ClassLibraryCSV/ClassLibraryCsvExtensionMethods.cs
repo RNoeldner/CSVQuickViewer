@@ -487,7 +487,29 @@ namespace CsvTools
 
 
 #endif
+    /// <summary>
+    ///   Replaces placeholders with a text. The placeholder are identified surrounding { or [
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <param name="placeholder">The placeholder.</param>
+    /// <param name="replacement">The replacement.</param>
+    /// <returns>The new text based on input</returns>
+    [DebuggerStepThrough]
+    public static string PlaceholderReplace2(this string input, in string placeholder, string replacement)
+    {
+      if (string.IsNullOrEmpty(replacement)) return input;
 
+      var type = "{" + placeholder.Trim() + "}";
+      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+      {
+        type = "[" + placeholder.Trim() + "]";
+        if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+        {
+          return input;
+        }
+      }
+      return input.ReplaceCaseInsensitive(type, replacement);
+    }
     /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
     ///   leading #
@@ -532,7 +554,7 @@ namespace CsvTools
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime )
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime)
     {
       // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
       // string.Format to process {0:...
