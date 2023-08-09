@@ -39,7 +39,6 @@ namespace CsvTools
     ///   be escaped.
     /// </summary>
     private const string cLongPathPrefix = @"\\?\";
-
     private const string cUncLongPathPrefix = @"\\?\UNC\";
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -227,7 +226,7 @@ namespace CsvTools
 
         // the Filename could contains wildcards, that is not supported when extending relative path
         // the path part though ca not contain wildcards, so combine base and path
-        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))), fileName.AsSpan(split))
+        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))), fileName.Substring(split))
           .RemovePrefix();
       }
       catch (Exception ex)
@@ -537,7 +536,7 @@ namespace CsvTools
       if (!m_IsWindows)
         return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
 
-      if (shortPath.Contains("~"))
+      if (shortPath.Contains('~'))
         return shortPath.LongFileNameKernel();
 
       return shortPath;
@@ -553,6 +552,19 @@ namespace CsvTools
         ? cUncLongPathPrefix + path.Substring(2)
         : cLongPathPrefix + path;
     }
+    
+    /* Implemenation with Span
+     * 
+    public static ReadOnlySpan<char> LongPathPrefix(this ReadOnlySpan<char> path)
+    {
+      // In case the directory is 248 we need long path as well
+      if (!m_IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
+          path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+        return path;
+      return path.StartsWith(@"\\", StringComparison.Ordinal)
+        ? string.Concat(cUncLongPathPrefix.AsSpan(), path.Slice(2)).AsSpan()
+        : string.Concat(cLongPathPrefix.AsSpan(), path).AsSpan();
+    }
 
     public static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> path)
     {
@@ -562,7 +574,7 @@ namespace CsvTools
         ? path.Slice(cUncLongPathPrefix.Length)
         : path;
     }
-
+    */
     public static string RemovePrefix(this string path)
     {
       if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
