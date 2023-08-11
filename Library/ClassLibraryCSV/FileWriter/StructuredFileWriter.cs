@@ -108,7 +108,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public async Task WriteReaderAsync(IFileReader reader, Func<string, Task> recordAction, CancellationToken cancellationToken)
     {
-      WriterColumns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      SetWriterColumns(reader);      
       HandleWriteStart();
       var intervalAction = IntervalAction.ForProgress(ReportProgress);
       while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)

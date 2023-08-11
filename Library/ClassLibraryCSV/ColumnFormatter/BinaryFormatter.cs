@@ -14,6 +14,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
@@ -96,6 +97,52 @@ namespace CsvTools
           FileSystemUtils.WriteAllBytes(fullPath, Convert.FromBase64String(base64));
       }
       return fileName;
+    }
+
+    /// <summary>
+    /// Replaces possible relative paths in ReadFolder and WriteFolder of Binarywriters to absolute paths
+    /// </summary>
+    /// <param name="columnDefinition">The existing columns definitions</param>
+    /// <param name="rootFolder">The root folder for possible realtive pathes</param>
+    /// <returns>A corrected list of Columns</returns>
+    public static IEnumerable<Column> FoldersAbsolutePath(IEnumerable<Column> columnDefinition, string rootFolder)
+    {
+      foreach (var item in columnDefinition)
+      {
+        if (item.ValueFormat.DataType == DataTypeEnum.Binary && item.Convert && !item.Ignore)
+        {
+          var format = new ValueFormat(item.ValueFormat.DataType,
+              readFolder: FileSystemUtils.GetAbsolutePath(item.ValueFormat.ReadFolder, rootFolder),
+              writeFolder: FileSystemUtils.GetAbsolutePath(item.ValueFormat.WriteFolder, rootFolder),
+              fileOutPutPlaceholder: item.ValueFormat.FileOutPutPlaceholder,
+              overwrite: item.ValueFormat.Overwrite);
+          yield return new Column(item.Name, format, item.ColumnOrdinal, item.Ignore, item.Convert, item.DestinationName, item.TimePart, item.TimePartFormat, item.TimeZonePart);
+        }
+        yield return item;
+      }
+    }
+
+    /// <summary>
+    /// Replaces possible Absolute paths in ReadFolder and WriteFolder of Binarywriters to relative paths
+    /// </summary>
+    /// <param name="columnDefinition">The existing columns definitions</param>
+    /// <param name="rootFolder">The root folder to be relaced with .</param>
+    /// <returns>A corrected list of Columns</returns>
+    public static IEnumerable<Column> FoldersRealtivePath(IEnumerable<Column> columnDefinition, string rootFolder)
+    {
+      foreach (var item in columnDefinition)
+      {
+        if (item.ValueFormat.DataType == DataTypeEnum.Binary && item.Convert && !item.Ignore)
+        {
+          var format = new ValueFormat(item.ValueFormat.DataType,
+              readFolder: FileSystemUtils.GetRelativePath(item.ValueFormat.ReadFolder, rootFolder),
+              writeFolder: FileSystemUtils.GetRelativePath(item.ValueFormat.WriteFolder, rootFolder),
+              fileOutPutPlaceholder: item.ValueFormat.FileOutPutPlaceholder,
+              overwrite: item.ValueFormat.Overwrite);
+          yield return new Column(item.Name, format, item.ColumnOrdinal, item.Ignore, item.Convert, item.DestinationName, item.TimePart, item.TimePartFormat, item.TimeZonePart);
+        }
+        yield return item;
+      }
     }
   }
 }

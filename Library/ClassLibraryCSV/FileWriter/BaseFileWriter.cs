@@ -127,7 +127,9 @@ namespace CsvTools
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IReadOnlyCollection<WriterColumn> GetColumnInformation(in ValueFormat generalFormat, in IReadOnlyCollection<Column> columnDefinitions, in IFileReader reader)
+    public static IReadOnlyCollection<WriterColumn> GetColumnInformation(in ValueFormat generalFormat,
+      in IReadOnlyCollection<Column> columnDefinitions,
+      in IFileReader reader)
     {
       var result = new List<WriterColumn>();
 
@@ -147,12 +149,9 @@ namespace CsvTools
       {
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-
-        // Make the write folder an absolute path, 
-        // TODO: using "" as basepath, this is not ideal better would be to pass in root folder
         var writeFolder = FileSystemUtils.GetAbsolutePath(
-          string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat?.WriteFolder,
-          string.Empty);
+                  string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column?.ValueFormat.WriteFolder,
+                  string.Empty);
 
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
