@@ -32,7 +32,7 @@
 	  </Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.0.4" />
+		<PackageReference Include="MSTest" Version="3.1.1" />
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 	</ItemGroup>

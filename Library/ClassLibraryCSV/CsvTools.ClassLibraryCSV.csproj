@@ -62,10 +62,11 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Ben.Demystifier" Version="*" />
+		
 		<PackageReference Include="Markdown" Version="2.2.*" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.*" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
-		<PackageReference Include="Portable.BouncyCastle" Version="1.9.*" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
 		<PackageReference Include="SharpZipLib" Version="1.4.2" />
 		<PackageReference Include="TimeZoneConverter" Version="6.1.*" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.*" />
