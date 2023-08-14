@@ -38,7 +38,6 @@ namespace CsvTools
     /// </summary>
     public JsonFileWriter(in string id,
       in string fullPath,
-      bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
       in string? header,
@@ -50,7 +49,8 @@ namespace CsvTools
       in string row,
       TimeZoneChangeDelegate? timeZoneAdjust,
       in string sourceTimeZone,
-      in string publicKey)
+      in string publicKey,
+      bool unencrypted)
       : base(
         id,
         fullPath,
