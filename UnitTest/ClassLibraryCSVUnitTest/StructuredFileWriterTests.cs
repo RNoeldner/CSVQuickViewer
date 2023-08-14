@@ -57,8 +57,7 @@ namespace CsvTools.Tests
       fileSetting.Row = sb.ToString();
       var writer = new JsonFileWriter(
         fileSetting.ID,
-        fileSetting.FullPath, 
-        fileSetting.KeepUnencrypted,
+        fileSetting.FullPath,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
         fileSetting.Header,
@@ -68,7 +67,8 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
+        StandardTimeZoneAdjust.ChangeTimeZone,
+        TimeZoneInfo.Local.Id, string.Empty, fileSetting.KeepUnencrypted);
 
       var result = await writer.WriteAsync(reader, UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
@@ -110,7 +110,6 @@ namespace CsvTools.Tests
       var writer = new XmlFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
         fileSetting.Header,
@@ -119,7 +118,8 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty);
+        StandardTimeZoneAdjust.ChangeTimeZone,
+        TimeZoneInfo.Local.Id, string.Empty, fileSetting.KeepUnencrypted);
       await writer.WriteAsync(reader, UnitTestStatic.Token);
     }
   }

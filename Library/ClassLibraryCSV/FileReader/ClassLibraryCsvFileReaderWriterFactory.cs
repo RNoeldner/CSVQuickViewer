@@ -74,13 +74,13 @@ namespace CsvTools
           csv.QualifyAlways, csv.QualifyOnlyIfNeeded, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
           publicKey, csv.KeepUnencrypted),
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
-          jsonFile.KeepUnencrypted, jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header,
-          jsonFile.EmptyAsNull, jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection,
-          jsonFile.ToString(), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey),
-        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.KeepUnencrypted,
-          xmlFile.IdentifierInContainer, xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark,
-          xmlFile.ColumnCollection, xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id, publicKey),
+          jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull,
+          jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString(),
+          jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted),
+        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.IdentifierInContainer,
+          xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection,
+          xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          publicKey, xmlFile.KeepUnencrypted),
         _ => null
       };
 
