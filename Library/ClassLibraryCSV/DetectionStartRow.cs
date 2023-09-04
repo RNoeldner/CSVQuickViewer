@@ -64,12 +64,31 @@ namespace CsvTools
             break;
           }
         }
+        // read till end of line, no matter what
+        if (isComment[currentRow])
+        {
+          bool eol=false;
+          // read till end of line
+          while (!textReader.EndOfStream && !cancellationToken.IsCancellationRequested && !eol)
+          {
+            readChar = textReader.Read();
+            if (readChar=='\r' || readChar=='\n')
+            {
+              currentRow++;              
+              var nextChar = textReader.Peek();
+              if (readChar=='\r' && nextChar=='\n' || readChar=='\n' && nextChar=='\r' )
+                textReader.Read();
+              eol =true;
+            }            
+          }
+          continue;
+        }
 
-        if (readChar == escapePrefixChar && !isComment[currentRow])
+        if (readChar == escapePrefixChar )
           continue;
 
         // Handle Quoting
-        if (readChar == fieldQualifierChar && !isComment[currentRow])
+        if (readChar == fieldQualifierChar )
         {
           if (quoted)
           {
@@ -107,7 +126,7 @@ namespace CsvTools
             break;
 
           default:
-            if (!isComment[currentRow] && !quoted && readChar == fieldDelimiterChar)
+            if (!quoted && readChar == fieldDelimiterChar)
             {
               colCount[currentRow]++;
               firstChar = true;
@@ -125,8 +144,8 @@ namespace CsvTools
           columnCount.Add(colCount[row]);
       }
 
-      // if we do not more than 4 proper rows do nothing
-      if (columnCount.Count > 4)
+      // if we do not have 4 proper rows do nothing
+      if (columnCount.Count >= 4)
       {
         // In case we have a row that is exactly twice as long as the row before and row after,
         // assume its missing a linefeed
