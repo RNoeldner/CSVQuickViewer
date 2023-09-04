@@ -42,10 +42,20 @@ namespace CsvTools
     private const string cUncLongPathPrefix = @"\\?\UNC\";
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+    /// <summary>
+    /// Returns the full path of a file name, resolving any wildcards or environment variables
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="root"></param>
+    /// <returns></returns>
     public static string FullPath(this string? fileName, in string? root) =>
       ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
 #if !QUICK
+    /// <summary>
+    /// Creates a directory if it does not exist
+    /// </summary>
+    /// <param name="directoryName"></param>
     public static void CreateDirectory(in string? directoryName)
     {
       if (directoryName is null || directoryName.Length == 0)
@@ -54,7 +64,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Makes the backup.
+    ///   Deletes a file and creates a backup copy with a .bak extension
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="multipleBackups">if set to <c>true</c> multiple backup version are kept.</param>
@@ -127,7 +137,7 @@ namespace CsvTools
       var bytes = new byte[81920];
       int bytesRead;
       long totalReads = 0;
-
+      // The original maximum value of the progress object, in case it implements the IProgressTime interface
       long oldMax = 0;
       if (progress is IProgressTime progressTime)
       {
@@ -135,12 +145,14 @@ namespace CsvTools
         progressTime.Maximum = fromStream.Length;
       }
 
+      // invoked at regular intervals to report the progress
       var intervalAction = IntervalAction.ForProgress(progress);
-      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
+      // Read data from the source stream until there is no more data or the operation is cancelled
+      while (!cancellationToken.IsCancellationRequested && (bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
                .ConfigureAwait(false)) > 0)
       {
-        cancellationToken.ThrowIfCancellationRequested();
         totalReads += bytesRead;
+        // This line writes the data read from the source stream to the destination stream
         await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
 #pragma warning disable CS8604 // Possible null reference argument.
         intervalAction?.Invoke(progress, "Copy data", totalReads);
@@ -151,14 +163,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Copy a file locally and provide progress
+    ///   Copies a file from one location to another asynchronously, while checking if the file has changed, reporting the progress and supporting cancellation.
     /// </summary>
     /// <param name="sourceFile">The file to be copied from</param>
     /// <param name="destFile">The file to be created / overwritten</param>
     /// <param name="onlyChanged">
     ///   Checks if the source file is newer or has a different length, if not file will not be copied,
     /// </param>
-    /// <param name="progress">A process display</param>
+    /// <param name="progress">Progress used to report the progress of the copy operation</param>
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task FileCopy(
@@ -176,7 +188,7 @@ namespace CsvTools
                               && fiSource.Length == fiDestInfo.Length)
           return;
       }
-
+      // If the source file exists, delete the destination file if it exists
       if (FileExists(sourceFile))
         FileDelete(destFile);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -191,7 +203,10 @@ namespace CsvTools
     }
 
 #endif
-
+    /// <summary>
+    ///   Deletes a file if it exists.
+    /// </summary>
+    /// <param name="fileName">Specify the file to be deleted</param>
     public static void FileDelete(in string? fileName)
     {
       if (fileName is null || fileName.Length == 0) return;
@@ -204,7 +219,7 @@ namespace CsvTools
       !(fileName is null || fileName.Length == 0) && File.Exists(fileName.LongPathPrefix());
 
     /// <summary>
-    ///   Gets the absolute path.
+    ///   Gets the absolute (rooted) path.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="basePath">The base path.</param>
@@ -552,7 +567,7 @@ namespace CsvTools
         ? cUncLongPathPrefix + path.Substring(2)
         : cLongPathPrefix + path;
     }
-    
+
     /* Implemenation with Span
      * 
     public static ReadOnlySpan<char> LongPathPrefix(this ReadOnlySpan<char> path)
