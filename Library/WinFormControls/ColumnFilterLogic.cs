@@ -149,6 +149,7 @@ namespace CsvTools
       get => m_Active;
       set
       {        
+        m_FilterExpressionValue = BuildFilterExpressionValues();
         if (SetProperty(ref m_Active, value) && m_Active)          
           // If set actived from the outside, make sure the Expression is correct
           m_Active = BuildFilterExpression();
@@ -533,7 +534,7 @@ namespace CsvTools
     ///   Builds the filter expression for this column for value based filter
     /// </summary>
     /// <returns>a sql statement</returns>
-    private string BuildFilterExpressionValues()
+    public string BuildFilterExpressionValues()
     {
       var sql = new StringBuilder();
       var counter = 0;
