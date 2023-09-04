@@ -55,6 +55,8 @@ namespace CsvTools
       var startRow = delimiterCounter.LastRow > 60 ? 15 : delimiterCounter.LastRow > 20 ? 5 : 0;
 
       var neededRows = (delimiterCounter.FilledRows > 20 ? numberOfRows * 75 : numberOfRows * 50) / 100;
+      if (neededRows==1 && delimiterCounter.FilledRows > 1)
+        neededRows++;
 
       cancellationToken.ThrowIfCancellationRequested();
       var validSeparatorIndex = new List<int>();
@@ -91,10 +93,10 @@ namespace CsvTools
       else
       {
         // otherwise find the best
-        var sums = new Dictionary<int, long>();
-        var intEmptyRows = 0;
+        var sums = new Dictionary<int, long>();        
         foreach (var index in validSeparatorIndex)
         {
+          var intEmptyRows = 0;
           var totalRows = (double) (delimiterCounter.LastRow - startRow);
           var sumCount = 0;
           // If there are enough rows skip the first rows, there might be a descriptive introduction
