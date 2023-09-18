@@ -35,7 +35,9 @@ namespace CsvTools.Tests
         delimiterPlaceholder: "",
         qualifierPlaceholder: "",
         qualifyAlways: false,
-        qualifyOnlyIfNeeded: true, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone: System.TimeZoneInfo.Local.Id,
+        qualifyOnlyIfNeeded: true, 
+        fixedLength: false,
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone: System.TimeZoneInfo.Local.Id,
         publicKey: PGPKeyTestHelper.cPublic, unencrypted: false);
       using var dt = UnitTestStaticData.GetDataTable();
       using var reader = new DataTableWrapper(dt);
@@ -74,6 +76,7 @@ namespace CsvTools.Tests
         qualifierPlaceholder: "",
         qualifyAlways: false,
         qualifyOnlyIfNeeded: true,
+        fixedLength: false,
         timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone: System.TimeZoneInfo.Local.Id,
         publicKey: PGPKeyTestHelper.cPublic, unencrypted: true);
 

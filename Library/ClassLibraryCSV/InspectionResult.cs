@@ -45,6 +45,10 @@ namespace CsvTools
 
     [JsonIgnore]
     [DefaultValue(false)]
+    public bool IsXml = false;
+
+    [JsonIgnore]
+    [DefaultValue(false)]
     public bool NoDelimitedFile = false;
 
     [JsonIgnore]
@@ -57,24 +61,30 @@ namespace CsvTools
 #if !QUICK
     public IFileSettingPhysicalFile PhysicalFile()
     {
-      var ret = (IsJson) ? new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer } as IFileSettingPhysicalFile : new CsvFile(id: string.Empty, fileName: FileName)
-      {
-        CommentLine = CommentLine,
-        EscapePrefixChar = EscapePrefix,
-        FieldDelimiterChar = FieldDelimiter,
-        FieldQualifierChar = FieldQualifier,
-        ContextSensitiveQualifier = ContextSensitiveQualifier,
-        DuplicateQualifierToEscape = DuplicateQualifierToEscape,
-        NewLine = NewLine,
-        ByteOrderMark = ByteOrderMark,
-        CodePageId = CodePageId,
-        HasFieldHeader = HasFieldHeader,
-        NoDelimitedFile = NoDelimitedFile,
-        IdentifierInContainer = IdentifierInContainer,
-        SkipRows = SkipRows
-      };
+      IFileSettingPhysicalFile? ret = null;
+      if (IsXml)
+        ret = new XmlFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
+      else if (IsJson)
+        ret = new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
+      else
+        ret = new CsvFile(id: string.Empty, fileName: FileName)
+        {
+          CommentLine = CommentLine,
+          EscapePrefixChar = EscapePrefix,
+          FieldDelimiterChar = FieldDelimiter,
+          FieldQualifierChar = FieldQualifier,
+          ContextSensitiveQualifier = ContextSensitiveQualifier,
+          DuplicateQualifierToEscape = DuplicateQualifierToEscape,
+          NewLine = NewLine,
+          ByteOrderMark = ByteOrderMark,
+          CodePageId = CodePageId,
+          HasFieldHeader = HasFieldHeader,
+          NoDelimitedFile = NoDelimitedFile,
+          IdentifierInContainer = IdentifierInContainer,
+          SkipRows = SkipRows
+        };
 
-      ret.ColumnCollection.AddRangeNoClone(Columns);
+      ret!.ColumnCollection.AddRangeNoClone(Columns);
       ret.ColumnFile = ColumnFile;
 
       return ret;

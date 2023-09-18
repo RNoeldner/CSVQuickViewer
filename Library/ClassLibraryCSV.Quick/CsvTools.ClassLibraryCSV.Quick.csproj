@@ -51,6 +51,7 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\BaseFileReaderTyped.cs" Link="FileReader\BaseFileReaderTyped.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\CsvFileReader.cs" Link="FileReader\CsvFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\JsonFileReader.cs" Link="FileReader\JsonFileReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\FileReader\XmlFileReader.cs" Link="FileReader\XmlFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\IFileReader.cs" Link="FileReader\IFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderConstants.cs" Link="FileReader\ReaderConstants.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
