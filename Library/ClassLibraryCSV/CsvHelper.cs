@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
+using System.Xml;
 
 #if !QUICK
 using System.Globalization;
@@ -101,10 +102,10 @@ namespace CsvTools
 
         // if its a delimited file but we do not have fields,
         // the delimiter must have been wrong, pick another one, after 3 though give up
-        Logger.Information("Reading to check field delimiter");
 
-        if (!inspectionResult.IsJson)
+        if (!inspectionResult.IsJson && !inspectionResult.IsXml)
         {
+          Logger.Information("Reading to check field delimiter");
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
@@ -125,7 +126,7 @@ namespace CsvTools
 
         // no need to check for Json again
         guessJson = false;
-      } while (!inspectionResult.IsJson && disallowedDelimiter.Count < 3);
+      } while (!inspectionResult.IsJson && !inspectionResult.IsXml && disallowedDelimiter.Count < 3);
 
       // in case there was a problem with the disallowed delimiters
       if (disallowedDelimiter.Count == 3)
@@ -383,6 +384,31 @@ namespace CsvTools
         , cancellationToken).ConfigureAwait(false);
     }
 
+
+    /// <summary>
+    ///   Determines whether data in the specified stream is a XML
+    /// </summary>
+    /// <param name="stream">The stream to read data from</param>
+    /// <param name="encoding">The encoding.</param>
+    /// <returns><c>true</c> if xml could be read from stream; otherwise, <c>false</c>.</returns>
+    public static async Task<bool> InspectIsXmlReadableAsync(
+      this Stream stream,
+      Encoding encoding)
+    {
+      stream.Seek(0, SeekOrigin.Begin);
+      using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
+      try
+      {
+        using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings() { Async = true });
+        await xmlReader.MoveToContentAsync().ConfigureAwait(false);
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
+
     /// <summary>
     ///   Determines whether data in the specified stream is a JSON
     /// </summary>
@@ -499,9 +525,18 @@ CommentLine
       if (guessJson)
       {
         cancellationToken.ThrowIfCancellationRequested();
-
+        Logger.Information("Checking Xml format");
+        inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
+      }
+      if (inspectionResult.IsXml)
+      {
+        Logger.Information("Detected xml file, no further checks done");
+        return;
+      }
+      if (guessJson)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Json format");
-
         inspectionResult.IsJson = await stream.InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), cancellationToken).ConfigureAwait(false);
       }
 
@@ -534,7 +569,7 @@ CommentLine
       {
         Logger.Information("Checking Escape Prefix");
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);        
+        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
@@ -547,13 +582,13 @@ CommentLine
           Logger.Information("Checking Qualifier");
           var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, new[] { '"', '\'' }, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
-          inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;          
-          inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);          
+          inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;
+          inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);
           inspectionResult.DuplicateQualifierToEscape = qualifierTestResult.DuplicateQualifier;
-          
+
           // In case we have DuplicateQualifier turn off EscapePrefix
           if (inspectionResult.DuplicateQualifierToEscape)
-            newPrefix =  char.MinValue;          
+            newPrefix =  char.MinValue;
         }
 
         if (guessDelimiter) // Dependent on SkipRows, FieldQualifier and EscapePrefix
@@ -685,6 +720,14 @@ CommentLine
       if (stream is MemoryStream memStream)
       {
         memStream.Seek(0, SeekOrigin.Begin);
+        if (inspectionResult.IsJson)
+          return new JsonFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
+            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+
+        if (inspectionResult.IsXml)
+          return new XmlFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
+            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+
         return new CsvFileReader(memStream,
           codePageId: inspectionResult.CodePageId,
           skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
@@ -709,6 +752,10 @@ CommentLine
 
       if (inspectionResult.IsJson)
         return new JsonFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+
+      if (inspectionResult.IsXml)
+        return new XmlFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
           StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
