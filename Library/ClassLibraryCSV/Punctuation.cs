@@ -70,6 +70,21 @@ namespace CsvTools
       character = FromText(value);
       return true;
     }
+
+    public static string HandleLongText(this string? inputString)
+    {
+      if (inputString == null)
+        return string.Empty;
+
+      if (inputString.Length>1)
+      {
+        var from = inputString.FromText();
+        if (from!=inputString[0])
+          return from.ToString();
+      }
+      return inputString;
+    }
+
     /// <summary>
     ///   Return a character resolving written punctuation
     /// </summary>
@@ -96,10 +111,12 @@ namespace CsvTools
       if (compareText.Equals("Tab", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Tabulator", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase)
+          || compareText.Equals("\\t", StringComparison.OrdinalIgnoreCase))
         return '\t';
 
-      if (compareText.Equals("Space", StringComparison.OrdinalIgnoreCase))
+      if (compareText.Equals("Space", StringComparison.OrdinalIgnoreCase) ||
+          compareText.Equals("\\s", StringComparison.OrdinalIgnoreCase))
         return ' ';
 
       if (compareText.Equals("hash", StringComparison.OrdinalIgnoreCase)
@@ -192,8 +209,8 @@ namespace CsvTools
       if (compareText.Equals("Return", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("CR", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Carriage return",
-            StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Carriage return", StringComparison.OrdinalIgnoreCase)
+          || compareText.Equals("\\r", StringComparison.OrdinalIgnoreCase))
         return '\r';
 
       if (compareText.Equals("Check mark", StringComparison.OrdinalIgnoreCase)
@@ -203,7 +220,8 @@ namespace CsvTools
       if (compareText.Equals("Feed", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("LineFeed", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("LF", StringComparison.OrdinalIgnoreCase)
-          || compareText.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
+          || compareText.Equals("Line feed", StringComparison.OrdinalIgnoreCase)
+          || compareText.Equals("\\n", StringComparison.OrdinalIgnoreCase))
         return '\n';
 
       if (compareText.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase)

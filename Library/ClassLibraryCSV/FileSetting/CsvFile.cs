@@ -49,7 +49,7 @@ namespace CsvTools
     private const char cFieldQualifierDefault = '"';
     private const char cEscapePrefixDefault = '\0';
     private const bool cQualifyOnlyIfNeededDefault = true;
-    private const bool cDuplicateQualifierToEscapeDefault = true;
+    private const bool cDuplicateQualifierToEscapeDefault = true;    
 
     /// <summary>
     ///   File ending for a setting file
@@ -82,6 +82,7 @@ namespace CsvTools
     private bool m_WarnQuotes;
     private bool m_WarnQuotesInQuotes = true;
     private bool m_WarnUnknownCharacter = true;
+    private bool m_WriteFixedLength = false;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
@@ -435,6 +436,16 @@ namespace CsvTools
       get => m_WarnUnknownCharacter;
       set => SetProperty(ref m_WarnUnknownCharacter, value);
     }
+     /// <inheritdoc />
+#if XmlSerialization
+    [XmlAttribute]
+#endif
+    [DefaultValue(false)]
+    public bool WriteFixedLength
+    {
+      get => m_WriteFixedLength;
+      set => SetProperty(ref m_WriteFixedLength, value);
+    }
 
     /// <inheritdoc />
     public override object Clone()
@@ -454,6 +465,7 @@ namespace CsvTools
 
       csv.WarnQuotes = m_WarnQuotes;
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
+      
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
       csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
@@ -462,7 +474,7 @@ namespace CsvTools
       csv.TreatLfAsSpace = m_TreatLfAsSpace;
       csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
       csv.AllowRowCombining = m_AllowRowCombining;
-
+      csv.WriteFixedLength = m_WriteFixedLength;
       csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
 
       csv.NumWarnings = m_NumWarnings;
@@ -504,6 +516,7 @@ namespace CsvTools
              && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
              && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
              && m_WarnUnknownCharacter == other.WarnUnknownCharacter
+             && m_WriteFixedLength == other.WriteFixedLength
              && BaseSettingsEquals(other as BaseSettings)
              && ContextSensitiveQualifier == other.ContextSensitiveQualifier
              && DuplicateQualifierToEscape == other.DuplicateQualifierToEscape
@@ -548,6 +561,9 @@ namespace CsvTools
 
         if (m_AllowRowCombining != csv.AllowRowCombining)
           yield return $"{nameof(AllowRowCombining)}: {AllowRowCombining} {csv.AllowRowCombining}";
+
+        if (m_WriteFixedLength != csv.WriteFixedLength)
+          yield return $"{nameof(WriteFixedLength)}: {WriteFixedLength} {csv.WriteFixedLength}";
 
         if (m_TreatLfAsSpace != csv.TreatLfAsSpace)
           yield return $"{nameof(TreatLfAsSpace)}: {TreatLfAsSpace} {csv.TreatLfAsSpace}";

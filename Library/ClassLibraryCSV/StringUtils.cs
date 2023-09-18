@@ -43,6 +43,25 @@ namespace CsvTools
       }
     }
 
+    public static string Replace(this string search, char oldValue, in string newValue)
+    {
+      if (search == null)
+        return string.Empty;
+
+      if (search.IndexOf(oldValue)== -1)
+        return search;
+
+      var res = new StringBuilder(search.Length);
+      foreach (var chr in search)
+      {
+        if (chr==oldValue)
+          res.Append(newValue);
+        else
+          res.Append(chr);
+      }
+      return res.ToString();
+    }
+
     public static System.Security.SecureString ToSecureString(this string text)
     {
       if (text is null)
@@ -305,7 +324,7 @@ namespace CsvTools
       var requiredParts = new List<int>();
       for (int i = 0; i < slices.Count; i++)
       {
-        if (slices[i].length == 0 || slices[i].start <= 0) 
+        if (slices[i].length == 0 || slices[i].start <= 0)
           continue;
         if (filter[slices[i].start-1]=='+')
           requiredParts.Add(i);
@@ -314,7 +333,7 @@ namespace CsvTools
       var allRequiredFound = true;
       foreach (var i in requiredParts)
       {
-        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1) 
+        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1)
           continue;
         allRequiredFound = false;
         break;
