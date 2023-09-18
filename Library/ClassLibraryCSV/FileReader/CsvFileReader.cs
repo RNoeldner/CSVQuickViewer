@@ -275,9 +275,19 @@ namespace CsvTools
       m_ContextSensitiveQualifier = contextSensitiveQualifier;
       m_CodePageId = codePageId;
       m_CommentLine = commentLine;
-      m_DelimiterPlaceholder = delimiterPlaceholder;
+      
+      m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
+      m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
+
+      var illeagal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
+      if (m_DelimiterPlaceholder.IndexOfAny(illeagal)!=-1)
+        throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
+     
+      if (m_NewLinePlaceholder.IndexOfAny(illeagal)!=-1)
+        throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
+
       m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
-      m_NewLinePlaceholder = newLinePlaceholder;
+
       m_NumWarning = numWarning;
       m_QuotePlaceholder = quotePlaceholder;
       m_SkipDuplicateHeader = skipDuplicateHeader;
