@@ -498,18 +498,22 @@ namespace CsvTools
     public static string PlaceholderReplace2(this string input, in string placeholder, string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
-
-      var type = "{" + placeholder.Trim() + "}";
+      var type = "{{" + placeholder.Trim() + "}}";
       if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
       {
-        type = "[" + placeholder.Trim() + "]";
+        type = "{" + placeholder.Trim() + "}";
         if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
         {
-          return input;
+          type = "[" + placeholder.Trim() + "]";
+          if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+          {
+            return input;
+          }
         }
       }
       return input.ReplaceCaseInsensitive(type, replacement);
     }
+
     /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
     ///   leading #
@@ -523,16 +527,20 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(replacement)) return input;
 
-      var type = "{" + placeholder + "}";
+      var type = "{{" + placeholder + "}}";
       if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
       {
-        type = "#" + placeholder + "#";
+        type = "{" + placeholder + "}";
         if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
         {
-          type = "#" + placeholder;
-          if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase)
-              && input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
-            return input;
+          type = "#" + placeholder + "#";
+          if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+          {
+            type = "#" + placeholder;
+            if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase)
+                && input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
+              return input;
+          }
         }
       }
 
@@ -561,15 +569,24 @@ namespace CsvTools
 
       // General regex without matching the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
 
-      // Needs to start with # or { Ends with #, space or } May contain a Format description
-      // starting with : ending with }
-      var regEx = new Regex(
-        @"(?:[{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
+      // Needs to start with {{ Ends }} May contain a Format description
+      var regEx1 = new Regex(
+        @"(?:\{\{)(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:\}\})",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-      return !regEx.IsMatch(input)
-        ? PlaceholderReplace(input, placeholder, formatedDateTime)
-        : string.Format(regEx.Replace(input, "{0$2}"), formatedDateTime);
+      if (regEx1.IsMatch(input))
+        return string.Format(regEx1.Replace(input, "{0$2}"), formatedDateTime);
+
+      // Needs to start with # or { Ends with #, space or } May contain a Format description
+      // starting with : ending with }
+      var regEx2 = new Regex(
+        @"(?:[\{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+      if (regEx2.IsMatch(input))
+        return string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime);
+
+      return PlaceholderReplace(input, placeholder, formatedDateTime)
     }
 
     /// <summary>
@@ -734,12 +751,12 @@ namespace CsvTools
     {
       if (template.IndexOf('{') == -1)
         return template;
-
-      // get all placeholders in brackets
-      var rgx = new Regex(@"\{[^\}]+\}");
-
       var placeholder = new Dictionary<string, string>();
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
+
+
+      // get all placeholders in brackets {} or {{ }}
+      var rgx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
 
       // ReSharper disable once RedundantEnumerableCastCall
       foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
@@ -755,6 +772,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(val))
           placeholder.Add(value, val);
       }
+
 
       // replace them with the property value from setting
       template = placeholder.Aggregate(template, (current, pro) => current.ReplaceCaseInsensitive(pro.Key, pro.Value));
@@ -777,9 +795,8 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      // get all placeholders in brackets
-      var rgx = new Regex(@"\{[^\}]+\}");
-
+      // get all placeholders in brackets {} or {{ }}
+      var rgx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
       var placeholder = new Dictionary<string, string>();
       var index = 0;
       // ReSharper disable once RedundantEnumerableCastCall
