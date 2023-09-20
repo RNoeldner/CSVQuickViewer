@@ -43,25 +43,6 @@ namespace CsvTools
       }
     }
 
-    public static string Replace(this string search, char oldValue, in string newValue)
-    {
-      if (search == null)
-        return string.Empty;
-
-      if (search.IndexOf(oldValue)== -1)
-        return search;
-
-      var res = new StringBuilder(search.Length);
-      foreach (var chr in search)
-      {
-        if (chr==oldValue)
-          res.Append(newValue);
-        else
-          res.Append(chr);
-      }
-      return res.ToString();
-    }
-
     public static System.Security.SecureString ToSecureString(this string text)
     {
       if (text is null)

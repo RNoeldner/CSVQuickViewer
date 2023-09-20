@@ -71,6 +71,7 @@ namespace CsvTools
     /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the <see cref="fieldQualifierChar"/> this text will be written</param>
     /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
     /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> <see cref="fieldQualifierChar"/> is ignored</param>
+    /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
@@ -131,15 +132,15 @@ namespace CsvTools
       m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
       m_QualifierPlaceholder = qualifierPlaceholder.HandleLongText();
 
-      // check the validity of placeolders
-      var illeagal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-      if (m_DelimiterPlaceholder.IndexOfAny(illeagal)!=-1)
+      // check the validity of placeholders
+      var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
+      if (m_DelimiterPlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
 
-      if (m_QualifierPlaceholder.IndexOfAny(illeagal)!=-1)
+      if (m_QualifierPlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(qualifierPlaceholder)} invalid characters in  '{m_QualifierPlaceholder}'");
 
-      if (m_NewLinePlaceholder.IndexOfAny(illeagal)!=-1)
+      if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
 
       if (m_EscapePrefix != char.MinValue)
@@ -189,11 +190,10 @@ namespace CsvTools
       {
         foreach (var columnInfo in columns)
         {
-          sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null));
-          if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
+          sb.Append(HandleFixLengthAndQualifier(columnInfo, columnInfo.Name));
+          if (!m_FixedLength && !ReferenceEquals(columnInfo, lastCol))
             sb.Append(m_FieldDelimiter);
         }
-
         sb.Append(m_NewLine);
       }
 
@@ -217,7 +217,7 @@ namespace CsvTools
           if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
             emptyColumns++;
           else
-            row.Append(TextEncodeField(col, columnInfo, false, reader));
+            row.Append(TextEncodeField(col, columnInfo, reader));
 
           if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
             row.Append(m_FieldDelimiter);
@@ -248,41 +248,33 @@ namespace CsvTools
       await writer.FlushAsync().ConfigureAwait(false);
     }
 
-    private string TextEncodeField(object? dataObject, WriterColumn columnInfo, bool isHeader, IDataReader? reader)
+    private string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
     {
-      if (columnInfo is null)
-        throw new ArgumentNullException(nameof(columnInfo));
-
-      if (m_FieldDelimiter == char.MinValue && columnInfo.FieldLength == 0)
-        throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
-
-      string displayAs;
-      if (isHeader)
+      var displayAs = base.TextEncodeField(dataObject, columnInfo, dataRecord);
+      if (columnInfo.ValueFormat.DataType == DataTypeEnum.String)
       {
-        if (dataObject is null)
-          throw new ArgumentNullException(nameof(dataObject));
-        displayAs = Convert.ToString(dataObject) ?? string.Empty;
-      }
-      else
-      {
-        displayAs = TextEncodeField(dataObject, columnInfo, reader);
-        if (columnInfo.ValueFormat.DataType == DataTypeEnum.String)
-        {
-          // a new line of any kind will be replaced with the placeholder if set
-          if (m_NewLinePlaceholder.Length > 0)
-            displayAs = displayAs.HandleCrlfCombinations(m_NewLinePlaceholder);
+        // a new line of any kind will be replaced with the placeholder if set
+        if (m_NewLinePlaceholder.Length > 0)
+          displayAs = displayAs.HandleCrlfCombinations(m_NewLinePlaceholder);
 
-          if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
-            displayAs = displayAs.Replace(m_FieldDelimiter, m_DelimiterPlaceholder);
+        if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
+          displayAs = displayAs.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
 
-          if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
-            displayAs = displayAs.Replace(m_FieldQualifier, m_QualifierPlaceholder);
-        }
+        if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
+          displayAs = displayAs.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
       }
 
+      return HandleFixLengthAndQualifier(columnInfo, displayAs);
+    }
+
+    private string HandleFixLengthAndQualifier(WriterColumn columnInfo, string displayAs)
+    {
       // Adjust the output in case its is fixed length
       if (m_FixedLength)
       {
+        if (columnInfo.FieldLength == 0)
+          throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
+
         if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
           return displayAs.PadRight(columnInfo.FieldLength, ' ');
         HandleWarning(columnInfo.Name,
@@ -292,26 +284,31 @@ namespace CsvTools
 
       // Escape Delimiter
       if (m_EscapePrefix != char.MinValue)
-        displayAs = displayAs.Replace(m_FieldDelimiter, m_FieldDelimiterEscaped);
+        displayAs = displayAs.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
 
       // Qualify text if there is a qualifier
       if (m_FieldQualifier == char.MinValue)
         return displayAs;
 
-      // Determin if we need to qualify
+      // Determine if we need to qualify
       var qualifyThis = m_QualifyAlways;
       if (!qualifyThis)
       {
         if (m_QualifyOnlyIfNeeded)
           // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
-          // the Qualifier or a whitespace thgat is lost otherwise
-          qualifyThis = displayAs.IndexOfAny(m_QualifyCharArray) > -1 || displayAs[0].Equals(m_FieldQualifier) || displayAs[0].Equals(' ');
+          // the Qualifier or a whitespace that is lost otherwise
+          qualifyThis = displayAs.IndexOfAny(m_QualifyCharArray) > -1 || displayAs[0].Equals(m_FieldQualifier) ||
+                        displayAs[0].Equals(' ');
         else
-          // quality any text or date intss etc that containing a Qualify Char
-          qualifyThis = columnInfo.ValueFormat.DataType == DataTypeEnum.String || columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+          // quality any text or date etc that containing a Qualify Char
+          qualifyThis = columnInfo.ValueFormat.DataType == DataTypeEnum.String ||
+                        columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml ||
+                        displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
-      return qualifyThis ? $"{m_FieldQualifier}{displayAs.Replace(m_FieldQualifier, m_FieldQualifierEscaped)}{m_FieldQualifier}" : displayAs;
+      return qualifyThis
+        ? $"{m_FieldQualifier}{displayAs.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
+        : displayAs;
     }
   }
 }
