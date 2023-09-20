@@ -586,7 +586,7 @@ namespace CsvTools
       if (regEx2.IsMatch(input))
         return string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime);
 
-      return PlaceholderReplace(input, placeholder, formatedDateTime)
+      return PlaceholderReplace(input, placeholder, formatedDateTime);
     }
 
     /// <summary>
