@@ -310,7 +310,7 @@ namespace CsvTools
       */
 
       // Determine if we need to qualify
-      var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
+      var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && text.Length>0 && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
 
       return qualifyThis
         ? $"{m_FieldQualifier}{text.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"

@@ -352,8 +352,5 @@ namespace CsvTools
     }
     /// <inheritdoc />
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
-
-    /// <inheritdoc />
-    public byte[] GetFile(int ordinal) => FileReader?.GetFile(ordinal) ?? Array.Empty<byte>();
   }
 }

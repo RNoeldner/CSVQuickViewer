@@ -173,7 +173,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(id: "BasicEscaped", fileName: UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', CommentLine = "#", EscapePrefixChar = '\\'
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        CommentLine = "#",
+        EscapePrefixChar = '\\'
       };
 
 
@@ -407,7 +410,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"))
       {
-        HasFieldHeader = false, ContextSensitiveQualifier = true, TrimmingOption = TrimmingOptionEnum.All,
+        HasFieldHeader = false,
+        ContextSensitiveQualifier = true,
+        TrimmingOption = TrimmingOptionEnum.All,
       };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
 
@@ -434,7 +439,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("CSVTestEmpty.txt"))
       {
-        HasFieldHeader = false, ByteOrderMark = true
+        HasFieldHeader = false,
+        ByteOrderMark = true
       };
 
 
@@ -461,7 +467,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = "PIPE".FromText(),
+        HasFieldHeader = false,
+        FieldDelimiterChar = "PIPE".FromText(),
       };
 
 
@@ -502,7 +509,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfFile.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = '\\'
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\'
       };
 
 
@@ -580,7 +589,9 @@ Line "Test"", "22",23,"  24"
       var setting =
         new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt"))
         {
-          HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = "".FromText()
+          HasFieldHeader = false,
+          FieldDelimiterChar = ',',
+          EscapePrefixChar = "".FromText()
         };
 
 
@@ -615,7 +626,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("EscapeWithoutTextQualifier.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = '\\', FieldQualifierChar = string.Empty.FromText()
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\',
+        FieldQualifierChar = string.Empty.FromText()
       };
 
 
@@ -653,7 +667,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        FieldDelimiterChar = ','
       };
       setting.ColumnCollection.Add(new Column("ExamDate",
         new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
@@ -693,7 +708,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        FieldDelimiterChar = ','
       };
 
 
@@ -711,7 +727,7 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
       var message = string.Empty;
-      test.Warning += delegate(object _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("exists more than once"));
     }
@@ -913,7 +929,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        FieldDelimiterChar = ','
       };
 
 
@@ -947,7 +964,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        FieldDelimiterChar = ','
       };
 
 
@@ -979,7 +997,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("LongHeaders.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ',', CommentLine = "#"
+        HasFieldHeader = true,
+        FieldDelimiterChar = ',',
+        CommentLine = "#"
       };
 
 
@@ -1023,7 +1043,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt"))
       {
-        HasFieldHeader = false, WarnEmptyTailingColumns = true, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        WarnEmptyTailingColumns = true,
+        FieldDelimiterChar = ','
       };
 
 
@@ -1107,7 +1129,7 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
-        destTimeZone: TimeZoneInfo.Local.Id,  true, true);
+        destTimeZone: TimeZoneInfo.Local.Id, true, true);
       Assert.IsFalse(test.NextResult());
       Assert.IsFalse(await test.NextResultAsync());
 
@@ -1121,7 +1143,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', FieldQualifierChar = string.Empty.FromText()
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        FieldQualifierChar = string.Empty.FromText()
       };
 
 
@@ -1160,12 +1184,14 @@ Line "Test"", "22",23,"  24"
     }
 
     [TestMethod]
+    /*[Timeout(2000)]*/
     public async Task OpenBinary()
     {
       var setting =
         new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BinaryReferenceList.txt"))
         {
-          HasFieldHeader = true, FieldDelimiterChar = "Tab".FromText()
+          HasFieldHeader = true,
+          FieldDelimiterChar = "Tab".FromText()
         };
       // ReSharper disable once RedundantArgumentDefaultValue
       setting.ColumnCollection.Add(new Column("Title", ValueFormat.Empty, 0));
@@ -1191,8 +1217,10 @@ Line "Test"", "22",23,"  24"
 #pragma warning disable CS0618
       Assert.IsTrue(reader.Read());
 #pragma warning restore CS0618
-
-      Assert.IsTrue(reader.GetValue(1).ToString().StartsWith("BasicCSV.txt.gz"));
+      var fn = UnitTestStatic.GetTestPath("BasicCSV.txt.gz").LongPathPrefix();
+      Assert.AreEqual(fn, reader.GetValue(1).ToString());
+      var myBuff = new byte[1000];
+      Assert.AreEqual(new FileInfo(fn).Length, reader.GetBytes(1, 0, myBuff, 0, myBuff.Length));
     }
 
     [TestMethod]
@@ -1256,7 +1284,8 @@ Line "Test"", "22",23,"  24"
       var setting =
         new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormats.txt"))
         {
-          HasFieldHeader = true, FieldDelimiterChar = "Tab".FromText()
+          HasFieldHeader = true,
+          FieldDelimiterChar = "Tab".FromText()
         };
       setting.ColumnCollection.Add(new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime)));
       setting.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
@@ -1425,7 +1454,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FieldDelimiterChar = '\t'
       };
       setting.ColumnCollection.Add(new Column("Start Date",
         new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time",
@@ -1470,7 +1501,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FieldDelimiterChar = '\t'
       };
       setting.ColumnCollection.Add(
         new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
@@ -1507,7 +1540,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("ReadingInHeaderAfterComments.txt"))
       {
-        HasFieldHeader = true, CommentLine = "#"
+        HasFieldHeader = true,
+        CommentLine = "#"
       };
 
 
@@ -1538,7 +1572,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("RowWithoutColumnDelimiter.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        FieldDelimiterChar = ','
       };
 
 
@@ -1759,7 +1794,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', SkipRows = 100
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        SkipRows = 100
       };
 
 
@@ -1785,7 +1822,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("SkippingComments.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', CommentLine = "#"
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        CommentLine = "#"
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -1845,7 +1884,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile("Id", UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',',
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
       };
 
 
@@ -1888,7 +1928,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', SkipRows = 2
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        SkipRows = 2
       };
 
 
@@ -1933,7 +1975,10 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile(
         fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"))
       {
-        HasFieldHeader = true, ConsecutiveEmptyRows = 2, SkipEmptyLines = false, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 2,
+        SkipEmptyLines = false,
+        FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -1966,7 +2011,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"))
       {
-        HasFieldHeader = true, ConsecutiveEmptyRows = 3, SkipEmptyLines = false, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 3,
+        SkipEmptyLines = false,
+        FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -2029,7 +2077,7 @@ Line "Test"", "22",23,"  24"
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
     }
@@ -2040,7 +2088,7 @@ Line "Test"", "22",23,"  24"
       using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("LateStartRow.txt")));
       string escapePrefix = string.Empty;
       using var textReader = await improvedStream.GetTextReaderAsync(20127, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual(10,  textReader.InspectStartRow('|', '"', (escapePrefix).FromText(), "#", UnitTestStatic.Token));
+      Assert.AreEqual(10, textReader.InspectStartRow('|', '"', (escapePrefix).FromText(), "#", UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -2073,7 +2121,7 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("Linefeed"));
@@ -2084,7 +2132,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifierBeginningAndEnd.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = '\\', ContextSensitiveQualifier = false,
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\',
+        ContextSensitiveQualifier = false,
       };
 
 
@@ -2130,7 +2181,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', ContextSensitiveQualifier = false
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        ContextSensitiveQualifier = false
       };
 
 
@@ -2173,7 +2226,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifierNotClosedAtEnd.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = '\\'
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\'
       };
 
 
@@ -2234,7 +2289,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifiers.txt"))
       {
-        HasFieldHeader = false, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        FieldDelimiterChar = ','
       };
 
 
@@ -2275,7 +2331,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TextQualifiersWithDelimiters.txt"))
       {
-        HasFieldHeader = false, WarnDelimiterInValue = true, FieldDelimiterChar = ',', EscapePrefixChar = '\\',
+        HasFieldHeader = false,
+        WarnDelimiterInValue = true,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\',
       };
 
 
@@ -2338,7 +2397,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("TrimmingHeaders.txt"))
       {
-        HasFieldHeader = true, FieldDelimiterChar = ',', CommentLine = "#"
+        HasFieldHeader = true,
+        FieldDelimiterChar = ',',
+        CommentLine = "#"
       };
 
 
@@ -2373,7 +2434,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile("id", UnitTestStatic.GetTestPath("UnicodeUTF16BE.txt"))
       {
-        HasFieldHeader = false, CodePageId = 1201, ByteOrderMark = true, FieldDelimiterChar = ',',
+        HasFieldHeader = false,
+        CodePageId = 1201,
+        ByteOrderMark = true,
+        FieldDelimiterChar = ',',
       };
 
 
@@ -2431,7 +2495,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile("id", UnitTestStatic.GetTestPath("UnicodeUTF16LE.txt"))
       {
-        HasFieldHeader = false, CodePageId = 1200, ByteOrderMark = true, FieldDelimiterChar = ',',
+        HasFieldHeader = false,
+        CodePageId = 1200,
+        ByteOrderMark = true,
+        FieldDelimiterChar = ',',
       };
 
 
@@ -2485,7 +2552,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile("utf8", UnitTestStatic.GetTestPath("UnicodeUTF8.txt"))
       {
-        HasFieldHeader = false, CodePageId = 65001, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        CodePageId = 65001,
+        FieldDelimiterChar = ','
       };
 
 

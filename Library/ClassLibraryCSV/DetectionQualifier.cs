@@ -168,53 +168,58 @@ namespace CsvTools
         last = c;
       }
 
-      // normalize this, line should start and end with delimiter
-      //  t","t","t",t,t,t't,t"t,t -> ,t","t","t",t,t,t't,t"t,t,,
-      var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar + delimiterChar;
 
-      for (var index = 1; index < line.Length - 2; index++)
-      {
-        if (line[index] != quoteChar)
-          continue;
-        counterTotal++;
-
-        if (line[index - 1] == delimiterChar)
-        {
-          // having a delimiter before is good, but it would be even better if its followed by text
-          counterOpenSimple++;
-          if (line[index + 1] == placeHolderText || (line[index + 1] == quoteChar && line[index + 2] != delimiterChar))
-            counterOpenStrict++;
-        }
-
-        if (line[index + 1] == delimiterChar)
-        {
-          counterCloseSimple++;
-          if (line[index - 1] != delimiterChar)
-            counterCloseStrict++;
-        }
-
-      }
-      var totalScore = counterTotal;
-      if (counterOpenStrict != 0 && counterCloseStrict * 1.5 > counterOpenStrict &&
-          counterCloseStrict < counterOpenStrict * 1.5)
-      {
-        totalScore = 2 * counterOpenStrict + 2 * counterCloseStrict;
-      }
-      else if (!res.DuplicateQualifier && counterOpenSimple != 0)
-      {
-        totalScore = counterOpenSimple +  counterCloseSimple;
-      }
-
-      // If we hardly saw quotes assume DuplicateQualifier
-      if (counterTotal < 50 && filter.Length > 100)
-        res.DuplicateQualifier = true;
-
-      // try to normalize the score, depenedning on the length of teh filter build a percaneta score that  should indicate how sure
-      if (totalScore > filter.Length)
-        res.Score = 99;
+      if (filter.Length<1)
+        res.Score = 0;
       else
-        res.Score = Convert.ToInt32(totalScore / (double) filter.Length * 100);
+      {
+        // normalize this, line should start and end with delimiter
+        //  t","t","t",t,t,t't,t"t,t -> ,t","t","t",t,t,t't,t"t,t,,
+        var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar + delimiterChar;
 
+        for (var index = 1; index < line.Length - 2; index++)
+        {
+          if (line[index] != quoteChar)
+            continue;
+          counterTotal++;
+
+          if (line[index - 1] == delimiterChar)
+          {
+            // having a delimiter before is good, but it would be even better if its followed by text
+            counterOpenSimple++;
+            if (line[index + 1] == placeHolderText || (line[index + 1] == quoteChar && line[index + 2] != delimiterChar))
+              counterOpenStrict++;
+          }
+
+          if (line[index + 1] == delimiterChar)
+          {
+            counterCloseSimple++;
+            if (line[index - 1] != delimiterChar)
+              counterCloseStrict++;
+          }
+
+        }
+        var totalScore = counterTotal;
+        if (counterOpenStrict != 0 && counterCloseStrict * 1.5 > counterOpenStrict &&
+            counterCloseStrict < counterOpenStrict * 1.5)
+        {
+          totalScore = 2 * counterOpenStrict + 2 * counterCloseStrict;
+        }
+        else if (!res.DuplicateQualifier && counterOpenSimple != 0)
+        {
+          totalScore = counterOpenSimple +  counterCloseSimple;
+        }
+
+        // If we hardly saw quotes assume DuplicateQualifier
+        if (counterTotal < 50 && filter.Length > 100)
+          res.DuplicateQualifier = true;
+
+        // try to normalize the score, depenedning on the length of teh filter build a percaneta score that  should indicate how sure
+        if (totalScore > filter.Length)
+          res.Score = 99;
+        else
+          res.Score = Convert.ToInt32(totalScore / (double) filter.Length * 100);
+      }
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers
       return res;
     }
