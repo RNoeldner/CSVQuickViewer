@@ -32,7 +32,7 @@ namespace CsvTools
     /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
     /// </summary>
     /// <param name="dataObject">The data to be processed</param>
-    /// <param name="dataRow">All other values for the current row, to handle placeholders etc.</param>
+    /// <param name="dataRow">All values for the current row to support placeholders, to handle placeholders etc.</param>
     /// <param name="handleWarning"></param>
     /// <returns>An awaitable task with the text a text representation</returns>
     string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning);

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,8 +34,8 @@ namespace CsvTools
     private readonly bool m_ColumnHeader;
     private readonly char m_FieldDelimiter;
     private readonly char m_FieldQualifier;
-    private readonly char m_EscapePrefix;
-    private readonly bool m_FixedLength;
+    private readonly bool m_IsFixedLength;
+    private readonly bool m_HasEscapePrefix;
     private readonly string m_FieldDelimiterEscaped;
     private readonly string m_FieldQualifierEscaped;
     private readonly string m_NewLine;
@@ -118,15 +117,24 @@ namespace CsvTools
       m_ColumnHeader = hasFieldHeader;
       m_ByteOrderMark = byteOrderMark;
       m_FieldQualifier =  fieldQualifierChar;
+      m_FieldQualifierEscaped =  new string(m_FieldQualifier, 2);
+
       m_FieldDelimiter = fieldDelimiterChar;
-      m_EscapePrefix = escapePrefixChar;
-      m_QualifyAlways = qualifyAlways;
+      m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
+
+      m_HasEscapePrefix = escapePrefixChar != char.MinValue;
+      if (m_HasEscapePrefix)
+      {
+        m_FieldQualifierEscaped = $"{escapePrefixChar}{m_FieldQualifier}";
+        m_FieldDelimiterEscaped = $"{escapePrefixChar}{m_FieldDelimiter}";
+      }
+
+      m_QualifyAlways = qualifyAlways && !qualifyOnlyIfNeeded;
       m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
-      if (m_QualifyOnlyIfNeeded && m_QualifyAlways)
-        m_QualifyAlways = false;
+
       m_NewLine = newLine.NewLineString();
       Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text());
-      m_FixedLength  = fixedLength;
+      m_IsFixedLength  = fixedLength;
 
       m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
       m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
@@ -143,21 +151,19 @@ namespace CsvTools
       if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
 
-      if (m_EscapePrefix != char.MinValue)
-      {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = m_EscapePrefix.ToString() + m_FieldQualifier;
-        m_FieldDelimiterEscaped = m_EscapePrefix.ToString() + m_FieldDelimiter;
-      }
-      else
-      {
-        m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
-        // but require quoting
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, fieldDelimiterChar };
+      var qualifyList = new List<char>(3);
 
-        // the Qualifier is repeated to so it can be recognized as not to be end the quoting
-        m_FieldQualifierEscaped = m_FieldQualifier.ToString() + m_FieldQualifier;
+      // need quoting in case of new line that is not handled by placeholder
+      if (!string.IsNullOrEmpty(m_NewLinePlaceholder))
+      {
+        qualifyList.Add((char) 0x0a);
+        qualifyList.Add((char) 0x0d);
       }
+      // need quoting in case of a not escaped delimiter
+      if (!m_HasEscapePrefix)
+        qualifyList.Add(m_FieldDelimiter);
+
+      m_QualifyCharArray = qualifyList.ToArray();
     }
 
     /// <inheritdoc cref="IFileWriter"/>
@@ -190,8 +196,8 @@ namespace CsvTools
       {
         foreach (var columnInfo in columns)
         {
-          sb.Append(HandleFixLengthAndQualifier(columnInfo, columnInfo.Name));
-          if (!m_FixedLength && !ReferenceEquals(columnInfo, lastCol))
+          sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength, null));
+          if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             sb.Append(m_FieldDelimiter);
         }
         sb.Append(m_NewLine);
@@ -217,8 +223,11 @@ namespace CsvTools
           if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
             emptyColumns++;
           else
-            row.Append(TextEncodeField(col, columnInfo, reader));
-
+          {
+            row.Append(HandleText(TextEncodeField(col, columnInfo, reader),
+              columnInfo.FieldLength,
+              (msg) => HandleWarning(columnInfo.Name, msg)));
+          }
           if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
             row.Append(m_FieldDelimiter);
         }
@@ -248,49 +257,42 @@ namespace CsvTools
       await writer.FlushAsync().ConfigureAwait(false);
     }
 
-    private string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
+    /// <summary>
+    /// Handled escaping, placeholders and qualifying 
+    /// </summary>
+    /// <param name="text">The text to be written</param>    
+    /// <param name="fieldLength">The length for fixedLength</param>    
+    /// <param name="handleWarning">Action to perform if text is cut off for fixed length</param>
+    /// <returns></returns>
+    /// <exception cref="FileWriterException"></exception>
+    public string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
     {
-      var displayAs = base.TextEncodeField(dataObject, columnInfo, dataRecord);
-      if (columnInfo.ValueFormat.DataType == DataTypeEnum.String)
+      if (m_IsFixedLength && fieldLength == 0)
+        throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
+
+      // New line of any kind will be replaced with the placeholder if set
+      if (m_NewLinePlaceholder.Length > 0)
+        text = StringUtils.HandleCrlfCombinations(text, m_NewLinePlaceholder);
+
+      // Delimiter  e.G. ; replaced with the placeholder or escaped 
+      if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
+        text = text.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
+      else if (m_HasEscapePrefix)
+        text = text.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
+
+      // Qualifier e.G. " replaced with the placeholder if set
+      if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
+        text = text.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
+
+      if (m_IsFixedLength)
       {
-        // a new line of any kind will be replaced with the placeholder if set
-        if (m_NewLinePlaceholder.Length > 0)
-          displayAs = displayAs.HandleCrlfCombinations(m_NewLinePlaceholder);
-
-        if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
-          displayAs = displayAs.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
-
-        if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
-          displayAs = displayAs.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
+        if (text.Length <= fieldLength || fieldLength <= 0)
+          return text.PadRight(fieldLength, ' ');
+        handleWarning?.Invoke($"Text with length of {text.Length} has been cut off after {fieldLength} character");
+        return text.Substring(0, fieldLength);
       }
 
-      return HandleFixLengthAndQualifier(columnInfo, displayAs);
-    }
-
-    private string HandleFixLengthAndQualifier(WriterColumn columnInfo, string displayAs)
-    {
-      // Adjust the output in case its is fixed length
-      if (m_FixedLength)
-      {
-        if (columnInfo.FieldLength == 0)
-          throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
-
-        if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
-          return displayAs.PadRight(columnInfo.FieldLength, ' ');
-        HandleWarning(columnInfo.Name,
-          $"Text with length of {displayAs.Length} has been cut off after {columnInfo.FieldLength} character");
-        return displayAs.Substring(0, columnInfo.FieldLength);
-      }
-
-      // Escape Delimiter
-      if (m_EscapePrefix != char.MinValue)
-        displayAs = displayAs.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
-
-      // Qualify text if there is a qualifier
-      if (m_FieldQualifier == char.MinValue)
-        return displayAs;
-
-      // Determine if we need to qualify
+      /* Old method:
       var qualifyThis = m_QualifyAlways;
       if (!qualifyThis)
       {
@@ -305,10 +307,14 @@ namespace CsvTools
                         columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml ||
                         displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
+      */
+
+      // Determine if we need to qualify
+      var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
 
       return qualifyThis
-        ? $"{m_FieldQualifier}{displayAs.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
-        : displayAs;
+        ? $"{m_FieldQualifier}{text.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
+        : text;
     }
   }
 }
