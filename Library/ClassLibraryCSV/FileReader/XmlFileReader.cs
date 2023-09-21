@@ -122,6 +122,14 @@ namespace CsvTools
       return columns;
     }
 
+    public static string GetFullPath(XmlNode node)
+    {
+      if (node.ParentNode == null)
+        return string.Empty;
+      else
+        return $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";
+    }
+
     public override async Task OpenAsync(CancellationToken token)
     {
       HandleShowProgress($"Opening XML file {FileName}", 0);
@@ -138,6 +146,8 @@ namespace CsvTools
         m_Doc.Load(m_ImprovedStream!);
         // Support a root node, or an array                
         m_CurrentNode  = GetStartNode();
+        if (m_CurrentNode != null)
+          Logger.Information($"Start Node: {GetFullPath(m_CurrentNode)}");
 
         List<string> columnNames = new List<string>();
         for (int i = 0; i<10 && m_CurrentNode !=null; i++)
@@ -262,9 +272,10 @@ namespace CsvTools
     private XmlNode? GetStartNode()
     {
       var items = m_Doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.Element).ToList();
-      if (items.Count==1 && items[0].ChildNodes.Count>1)
-        items = items[0].ChildNodes.OfType<XmlNode>().ToList();      
-      return items.Count!=0 ? items.FirstOrDefault(x => x.ChildNodes.Count >1) : null;
+      // go deeper until we havbe some a list of child nodes
+      while (items != null && items.Count ==1)
+        items = items?.FirstOrDefault(x => x.ChildNodes.Count >1)?.ChildNodes.OfType<XmlNode>().ToList();
+      return (items?.Count ?? 0) >0 ? items?.First() : null;
     }
 
     /// <summary>
