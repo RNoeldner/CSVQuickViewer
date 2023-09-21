@@ -45,13 +45,7 @@ namespace CsvTools
           handleWarning?.Invoke($"File {inputString} not found");
         return string.Empty;
       }
-
-      if (fi.Length <= 256000)
-        return Convert.ToBase64String(File.ReadAllBytes(fileName.LongPathPrefix()));
-      if (RaiseWarning)
-        handleWarning?.Invoke($"File {inputString} too large {fi.Length:N0} > {256000:N0}");
-      return string.Empty;
-
+      return fileName.LongPathPrefix();      
     }
 
 
@@ -81,21 +75,21 @@ namespace CsvTools
           }
 
         }
-
-        // make sure the folder exists
+      }
+      // make sure the folder exists
 #if !QUICK
         if (!FileSystemUtils.DirectoryExists(m_RootFolderWrite))
           FileSystemUtils.CreateDirectory(m_RootFolderWrite);
 #endif
-        var fullPath = Path.Combine(m_RootFolderWrite, fileName);
-        if (m_Overwrite)
-          FileSystemUtils.FileDelete(fullPath);
+      var fullPath = Path.Combine(m_RootFolderWrite, fileName);
+      if (m_Overwrite)
+        FileSystemUtils.FileDelete(fullPath);
 
-        if (binaryContet is byte[] bytes)
-          FileSystemUtils.WriteAllBytes(fullPath, bytes);
-        else if (binaryContet is string base64 && !string.IsNullOrEmpty(base64))
-          FileSystemUtils.WriteAllBytes(fullPath, Convert.FromBase64String(base64));
-      }
+      if (binaryContet is byte[] bytes)
+        FileSystemUtils.WriteAllBytes(fullPath, bytes);
+      else if (binaryContet is string base64 && !string.IsNullOrEmpty(base64))
+        FileSystemUtils.WriteAllBytes(fullPath, Convert.FromBase64String(base64));
+
       return fileName;
     }
 

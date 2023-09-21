@@ -94,7 +94,7 @@ namespace CsvTools
       Logger.Information("Configuration read from manifest file {filename}", mainfestEntry.Name);
           
       return await ReadManifestFromStream(archive.GetInputStream(mainfestEntry), fileName,
-        mainfestEntry.Name.Substring(0, mainfestEntry.Name.Length - cCsvManifestExtension.Length)+ "csv").ConfigureAwait(false);
+        mainfestEntry.Name.Substring(0, mainfestEntry.Name.Length - cCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
     }
 
     private static async Task<InspectionResult> ReadManifestFromStream(

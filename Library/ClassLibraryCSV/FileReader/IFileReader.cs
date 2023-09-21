@@ -140,13 +140,7 @@ namespace CsvTools
     ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
     /// </returns>
     Task<bool> ReadAsync(CancellationToken token);
-
-    /// <summary>
-    /// Get The binary data from a file at the location of the column content
-    /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal.</param>
-    byte[] GetFile(int ordinal);
-
+   
     /// <summary>
     ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>

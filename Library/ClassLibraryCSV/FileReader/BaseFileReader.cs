@@ -358,28 +358,10 @@ namespace CsvTools
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
     {
       if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-      var fn = GetString(ordinal);
-      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
-        return -1;
-
-      using var fileStream = FileSystemUtils.OpenRead(fn);
+      using var stream = GetStream(ordinal);
       if (dataOffset > 0)
-        fileStream.Seek(dataOffset, SeekOrigin.Begin);
-
-      return fileStream.Read(buffer, bufferOffset, length);
-    }
-
-    /// <inheritdoc cref="IFileReader" />
-    public virtual byte[] GetFile(int ordinal)
-    {
-      var fn = GetString(ordinal);
-      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
-        return Array.Empty<byte>();
-
-      var fi = new FileSystemUtils.FileInfo(fn);
-      var buffer = new byte[fi.Length];
-      GetBytes(ordinal, 0, buffer, 0, buffer.Length);
-      return buffer;
+        stream.Seek(dataOffset, SeekOrigin.Current);
+      return stream.Read(buffer, bufferOffset, length);
     }
 
     /// <inheritdoc />
@@ -675,8 +657,13 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override Stream GetStream(int ordinal) =>
-      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
+    public override Stream GetStream(int ordinal)
+    {
+      if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
+        return new FileStream(path: CurrentRowColumnText[ordinal], mode: FileMode.Open, access: FileAccess.Read);
+      else
+        return new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -689,8 +676,16 @@ namespace CsvTools
     public override string GetString(int ordinal) =>
       CurrentRowColumnText[ordinal];
 
-    public override TextReader GetTextReader(int ordinal) =>
-      new StringReader(CurrentRowColumnText[ordinal]);
+    public override TextReader GetTextReader(int ordinal)
+    {
+      if (IsDBNull(ordinal))
+        return new StringReader(string.Empty);
+      if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
+        return File.OpenText(path: CurrentRowColumnText[ordinal]);
+      else
+        return new StringReader(CurrentRowColumnText[ordinal]);
+    }
+
 
     /// <inheritdoc />
     /// <summary>
@@ -710,7 +705,6 @@ namespace CsvTools
       {
         ret = column.ValueFormat.DataType switch
         {
-          DataTypeEnum.Binary => GetFile(ordinal),
           DataTypeEnum.DateTime => GetDateTime(ordinal),
           DataTypeEnum.Integer => GetInt64(ordinal),
           DataTypeEnum.Double => GetDouble(ordinal),

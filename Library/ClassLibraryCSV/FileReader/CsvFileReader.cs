@@ -275,14 +275,14 @@ namespace CsvTools
       m_ContextSensitiveQualifier = contextSensitiveQualifier;
       m_CodePageId = codePageId;
       m_CommentLine = commentLine;
-      
+
       m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
       m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
 
       var illeagal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
       if (m_DelimiterPlaceholder.IndexOfAny(illeagal)!=-1)
         throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
-     
+
       if (m_NewLinePlaceholder.IndexOfAny(illeagal)!=-1)
         throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
 
@@ -365,7 +365,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Return the value of the specified field.
+    ///   Return the value of the specified field, in case of a binary file, return the as Base64Encoded string
     /// </summary>
     /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The object will contain the field value upon return.</returns>
@@ -377,19 +377,17 @@ namespace CsvTools
     {
       if (IsDBNull(ordinal))
         return DBNull.Value;
-
-      var value = CurrentRowColumnText[ordinal].AsSpan();
       var column = Column[ordinal];
       if (column.Ignore)
         return DBNull.Value;
       object? ret = column.ValueFormat.DataType switch
       {
-        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal).AsSpan(), column, true),
-        DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataTypeEnum.Double => GetDoubleNull(value, ordinal),
-        DataTypeEnum.Numeric => GetDecimalNull(value, ordinal),
-        DataTypeEnum.Boolean => GetBooleanNull(value, ordinal),
-        DataTypeEnum.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        DataTypeEnum.DateTime => GetDateTimeNull(null, CurrentRowColumnText[ordinal].AsSpan(), null, GetTimeValue(ordinal).AsSpan(), column, true),
+        DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(CurrentRowColumnText[ordinal].AsSpan(), column) : GetInt64Null(CurrentRowColumnText[ordinal].AsSpan(), column),
+        DataTypeEnum.Double => GetDoubleNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
+        DataTypeEnum.Numeric => GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
+        DataTypeEnum.Boolean => GetBooleanNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
+        DataTypeEnum.Guid => GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), column.ColumnOrdinal),
         _ => CurrentRowColumnText[ordinal]
       };
       return ret ?? DBNull.Value;
