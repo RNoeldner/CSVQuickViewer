@@ -263,9 +263,8 @@ namespace CsvTools
     {
       var items = m_Doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.Element).ToList();
       if (items.Count==1 && items[0].ChildNodes.Count>1)
-        items = items[0].ChildNodes.OfType<XmlNode>().ToList();
-
-      return items.Count!=0 ? items[0] : null;
+        items = items[0].ChildNodes.OfType<XmlNode>().ToList();      
+      return items.Count!=0 ? items.FirstOrDefault(x => x.ChildNodes.Count >1) : null;
     }
 
     /// <summary>
