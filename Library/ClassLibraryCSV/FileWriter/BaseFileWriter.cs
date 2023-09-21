@@ -345,7 +345,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataRecord">
     ///   Data Reader / Data Records in case additional columns are needed e.G. for TimeZone
-    ///   adjustment based off ColumnOrdinalTimeZone or GetFileName
+    ///   adjustment based off ColumnOrdinalTimeZone or handling placeholders
     /// </param>
     /// <param name="dataObject">The actual data of the column</param>
     /// <param name="columnInfo">Information on ValueConversion</param>
