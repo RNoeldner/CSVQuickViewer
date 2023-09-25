@@ -46,6 +46,18 @@ namespace CsvTools
 
       return inputString;
     }
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+    {
+      if (m_Regex?.IsMatch(inputString.ToString()) ?? false)
+      {
+        var output = m_Regex.Replace(inputString.ToString(), m_Replacement).AsSpan();
+        if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+          handleWarning?.Invoke("Text Replace");
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        return output;
+      }
 
+      return inputString;
+    }
   }
 }

@@ -566,30 +566,8 @@ namespace CsvTools
       return path.StartsWith(@"\\", StringComparison.Ordinal)
         ? cUncLongPathPrefix + path.Substring(2)
         : cLongPathPrefix + path;
-    }
-
-    /* Implemenation with Span
-     * 
-    public static ReadOnlySpan<char> LongPathPrefix(this ReadOnlySpan<char> path)
-    {
-      // In case the directory is 248 we need long path as well
-      if (!m_IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
-          path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
-        return path;
-      return path.StartsWith(@"\\", StringComparison.Ordinal)
-        ? string.Concat(cUncLongPathPrefix.AsSpan(), path.Slice(2)).AsSpan()
-        : string.Concat(cLongPathPrefix.AsSpan(), path).AsSpan();
-    }
-
-    public static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> path)
-    {
-      if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
-        return path.Slice(cLongPathPrefix.Length);
-      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-        ? path.Slice(cUncLongPathPrefix.Length)
-        : path;
-    }
-    */
+    }     
+    
     public static string RemovePrefix(this string path)
     {
       if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
@@ -709,6 +687,8 @@ namespace CsvTools
           Logger.Information(ex, "FileInfo {fileName}", Name);
         }
       }
+
+     
 
       public FileInfo(string fileName, long length, DateTime lastWriteTimeUtc)
       {
