@@ -29,6 +29,14 @@ namespace CsvTools
     string FormatInputText(in string inputString, in Action<string>? handleWarning);
 
     /// <summary>
+    /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+    /// </summary>
+    /// <param name="inputString">The input span that need to be processed</param>
+    /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
+    /// <returns>The formatted text span </returns>
+    ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning);
+
+    /// <summary>
     /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
     /// </summary>
     /// <param name="dataObject">The data to be processed</param>
