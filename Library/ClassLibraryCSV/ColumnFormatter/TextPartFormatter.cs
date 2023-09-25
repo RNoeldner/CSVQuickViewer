@@ -39,5 +39,13 @@ namespace CsvTools
         handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
       return output.ToString();
     }
+
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+    {
+      var output = inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+      if (RaiseWarning && output.IsEmpty)
+        handleWarning?.Invoke($"Part {m_Part} of text {inputString.ToString()} is empty.");
+      return output;
+    }
   }
 }

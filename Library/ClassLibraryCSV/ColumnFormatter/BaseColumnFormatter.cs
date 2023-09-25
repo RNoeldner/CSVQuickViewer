@@ -24,10 +24,11 @@ namespace CsvTools
   {
     /// <inheritdoc/>
     public abstract string FormatInputText(in string inputString, in Action<string>? handleWarning);
+    public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning);
 
     /// <inheritdoc/>
     public virtual string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
-      => dataObject?.ToString() ?? string.Empty;
+      => dataObject?.ToString() ?? string.Empty;    
 
     /// <inheritdoc/>
     public bool RaiseWarning { get; set; } = true;

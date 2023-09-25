@@ -85,7 +85,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
-    public async Task NotSupportedAsync()
+    public async Task GetBytes()
     {
       var setting = new JsonFile("id", UnitTestStatic.GetTestPath("Emp.json"), "");
 
@@ -96,7 +96,7 @@ namespace CsvTools.Tests
       await jfr.ReadAsync(UnitTestStatic.Token);
 
       var buffer = new byte[200];
-      Assert.AreEqual(-1L, jfr.GetBytes(1, 0, buffer, 0, 100));
+      Assert.AreEqual(7, jfr.GetBytes(1, 0, buffer, 0, 100));
       try
       {
         jfr.GetData(2);
