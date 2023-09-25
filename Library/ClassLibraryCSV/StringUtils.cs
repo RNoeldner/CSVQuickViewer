@@ -181,7 +181,7 @@ namespace CsvTools
       }
       return sb.ToString();
     }
-
+        
     /// <summary>
     ///   Joins the strings
     /// </summary>
@@ -250,6 +250,19 @@ namespace CsvTools
         chars[count++] = c;
 
       return new string(chars, 0, count);
+    }
+
+    public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
+    {
+      var chars = new char[original.Length];
+      var count = 0;
+      foreach (var c in original)
+      {
+        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
+        if (UnicodeCategory.Control != oc || c == '\r' || c == '\n')
+          chars[count++] = c;
+      }
+      return new ReadOnlySpan<char>(chars, 0, count);
     }
 
     public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
@@ -516,7 +529,7 @@ namespace CsvTools
 
       result = entry;
       return true;
-    }
+    }  
 
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
