@@ -265,19 +265,6 @@ namespace CsvTools
       return new ReadOnlySpan<char>(chars, 0, count);
     }
 
-    public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
-    {
-      var chars = new char[original.Length];
-      var count = 0;
-      foreach (var c in original)
-      {
-        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
-        if (UnicodeCategory.Control != oc || c == '\r' || c == '\n')
-          chars[count++] = c;
-      }
-      return new ReadOnlySpan<char>(chars, 0, count);
-    }
-
     /// <summary>
     ///   Used to get only text representation without umlaut or accents, allowing upper and lower
     ///   case characters and numbers
