@@ -44,6 +44,13 @@ namespace CsvTools
       return output;
     }
 
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+    {
+      var output = m_Markdown.Transform(inputString.ToString()).AsSpan();
+      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+        handleWarning?.Invoke("Markdown encoding");
+      return output;
+    }
   }
 }
 #endif

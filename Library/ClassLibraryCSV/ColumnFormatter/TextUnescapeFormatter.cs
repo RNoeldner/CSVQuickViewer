@@ -21,7 +21,7 @@ namespace CsvTools
 {
   public class TextUnescapeFormatter : BaseColumnFormatter
   {
-    private static Tuple<int, int> ParseHex(in string text, int startPos)
+    private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
     {
       var hex = new StringBuilder();
       var pos = startPos + 2;
@@ -61,7 +61,7 @@ namespace CsvTools
       var posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
-        var (pos, charValue) = ParseHex(retValue, posEncoded);
+        var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
         if (pos != -1)
         {
           retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
@@ -74,7 +74,7 @@ namespace CsvTools
       posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
-        var (pos, charValue) = ParseHex(retValue, posEncoded);
+        var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
         if (pos != -1)
         {
           retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
@@ -94,5 +94,7 @@ namespace CsvTools
         handleWarning?.Invoke("Unescaped text");
       return output;
     }
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+      => FormatInputText(inputString.ToString(), handleWarning).AsSpan();
   }
 }

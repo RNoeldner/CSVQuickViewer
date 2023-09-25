@@ -298,7 +298,7 @@ namespace CsvTools
         }
 
       return sb.ToString();
-    }
+    }    
 
     /// <summary>
     ///   Get the JSON element / variable name
@@ -353,9 +353,8 @@ namespace CsvTools
       if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
           && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
-      return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ")
-        .Replace("  ", " ");
-    }
+      return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ").Replace("  ", " ");
+    }    
 
     /// <summary>
     ///   Get the XML element name

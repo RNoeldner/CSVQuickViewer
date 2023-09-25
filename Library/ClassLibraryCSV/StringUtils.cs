@@ -86,7 +86,7 @@ namespace CsvTools
       return 0;
     }
 
-    public static int AssumeIDColumn(in ReadOnlySpan<char> columnName)
+    public static int AssumeIdColumn(in ReadOnlySpan<char> columnName)
     {
       if (columnName.TrimEnd().Length == 0)
         return 0;
@@ -141,15 +141,23 @@ namespace CsvTools
     /// </returns>
     public static string HandleCrlfCombinations(this string text, in string replace = "\n")
     {
-      // Replace everything Unicode LINE SEPARATOR
-      const string placeholderStr = "\u2028";
-      const char placeholderChar = '\u2028';
-      text = text.Replace("\r\n", placeholderStr);
-      text = text.Replace("\n\r", placeholderStr);
-      text = text.Replace('\r', placeholderChar);
-      text = text.Replace('\n', placeholderChar);
-      // now replace this with the desired replace (no matter if string or char)
-      return text.Replace(placeholderStr, replace);
+      var sb = new StringBuilder(text.Length);
+      var lastC = '\0';
+      foreach (var chr in text)
+      {
+        if ((chr == '\r' && lastC == '\n') ||
+            (chr == '\n' && lastC == '\r'))
+        {
+          lastC = '\0';
+          continue;
+        }
+        else if (chr=='\r' || chr == '\n')
+          sb.Append(replace);
+        else
+          sb.Append(chr);
+        lastC  = chr;
+      }
+      return sb.ToString();
     }
 
     /// <summary>
@@ -184,7 +192,7 @@ namespace CsvTools
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<string> parts, char joinWith = ',')
     {
-      var sb = new StringBuilder();
+      var sb = new StringBuilder(100);
       foreach (var part in parts)
       {
         if (string.IsNullOrEmpty(part))
@@ -193,7 +201,6 @@ namespace CsvTools
           sb.Append(joinWith);
         sb.Append(part);
       }
-
       return sb.ToString();
     }
 
@@ -245,6 +252,19 @@ namespace CsvTools
       return new string(chars, 0, count);
     }
 
+    public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
+    {
+      var chars = new char[original.Length];
+      var count = 0;
+      foreach (var c in original)
+      {
+        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
+        if (UnicodeCategory.Control != oc || c == '\r' || c == '\n')
+          chars[count++] = c;
+      }
+      return new ReadOnlySpan<char>(chars, 0, count);
+    }
+
     /// <summary>
     ///   Used to get only text representation without umlaut or accents, allowing upper and lower
     ///   case characters and numbers
@@ -256,7 +276,11 @@ namespace CsvTools
         original,
         x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
                                                   || x == UnicodeCategory.DecimalDigitNumber);
-
+    public static ReadOnlySpan<char> NoSpecials(this ReadOnlySpan<char> original) =>
+      ProcessByCategory(
+        original,
+        x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
+                                                  || x == UnicodeCategory.DecimalDigitNumber);
     /// <summary>
     ///   Check if a text would match a filter value,
     /// </summary>
@@ -362,6 +386,22 @@ namespace CsvTools
       return new string(chars, 0, count);
     }
 
+    public static ReadOnlySpan<char> ProcessByCategory(this ReadOnlySpan<char> original, Func<UnicodeCategory, bool> testFunction)
+    {
+      if (original.Length==0)
+        return original;
+
+      var chars = new char[original.Length];
+      var count = 0;
+      foreach (var c in original)
+      {
+        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
+        if (testFunction(oc))
+          chars[count++] = c;
+      }
+      return new ReadOnlySpan<char>(chars, 0, count);
+    }
+
     /// <summary>
     ///   Checks if the provided text should be treated as NULL
     /// </summary>
@@ -437,12 +477,17 @@ namespace CsvTools
     public static string SqlName(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
+    public static ReadOnlySpan<char> SqlName(this ReadOnlySpan<char> contents) =>
+      contents.IsEmpty || contents.IndexOf(']') == -1 ? contents : contents.ToString().Replace("]", "]]").AsSpan();
+
     /// <summary>
     ///   Handles quotes in SQLs, does not include the outer quotes
     /// </summary>
     /// <param name="contents">The contents.</param>
     public static string SqlQuote(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
+    public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents) =>
+      contents.IsEmpty || contents.IndexOf('\'') == -1 ? contents : contents.ToString().Replace("'", "''").AsSpan();
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
