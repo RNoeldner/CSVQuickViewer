@@ -181,7 +181,7 @@ namespace CsvTools
       }
       return sb.ToString();
     }
-
+        
     /// <summary>
     ///   Joins the strings
     /// </summary>
@@ -516,7 +516,7 @@ namespace CsvTools
 
       result = entry;
       return true;
-    }
+    }  
 
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
