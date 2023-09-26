@@ -704,6 +704,30 @@ namespace CsvTools
       return new string(result, 0, pos);
     }
 
+    //public static void ReplaceDefaults(this Span<char> inputValue, in char old1, in char new1, in char old2, in char new2)
+    //{
+    //  if (inputValue.IsEmpty)
+    //    return;
+        
+    //  // Assume the text stays the same, it could only be shorter
+      
+    //  int pos = 0;
+    //  // ReSharper disable once ForCanBeConvertedToForeach
+    //  for (int i = 0; i < inputValue.Length; i++)
+    //  {
+    //    if (inputValue[i] == old1)
+    //    {
+    //      if (new1 != char.MinValue)
+    //        inputValue[pos++]=new1;
+    //    }
+    //    else if (inputValue[i] == old2)
+    //    {
+    //      if (new2 != char.MinValue)
+    //        inputValue[pos++]=new2;
+    //    }
+    //  }
+    //}
+
     /// <summary>
     ///   Replaces the two string
     /// </summary>

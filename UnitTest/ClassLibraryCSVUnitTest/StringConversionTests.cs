@@ -95,11 +95,6 @@ namespace CsvTools.Tests
         "055:11",
         new TimeSpan(2, 7, 11, 0).Ticks.GetTimeFromTicks().DateTimeToString(new ValueFormat(DataTypeEnum.DateTime, @"HHH:mm", timeSeparator: ":", dateSeparator: ".")));
     }
-
- 
-
-
-
  
     [TestMethod]
     public void TextPartFormatter()

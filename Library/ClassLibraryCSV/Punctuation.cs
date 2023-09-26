@@ -157,9 +157,8 @@ namespace CsvTools
           || compareText.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase))
         return '¦';
 
-      if (compareText.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) || compareText.Equals(
-            "FullwidthBrokenBar",
-            StringComparison.OrdinalIgnoreCase))
+      if (compareText.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) || 
+          compareText.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase))
         return '￤';
 
       if (compareText.Equals("Semicolon", StringComparison.OrdinalIgnoreCase))
