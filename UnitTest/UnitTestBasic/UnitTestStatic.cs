@@ -282,12 +282,12 @@ namespace CsvTools.Tests
 
     public static void RunCopyTo(IEnumerable<Type> list)
     {
-      if (list == null) throw new ArgumentNullException(nameof(list));
+      if (list is null) throw new ArgumentNullException(nameof(list));
       foreach (var type in list)
         try
         {
           // if there is not parameter less constructor skip
-          if (type.GetConstructor(Type.EmptyTypes) == null)
+          if (type.GetConstructor(Type.EmptyTypes) is null)
             continue;
 
           var obj1 = Activator.CreateInstance(type);
@@ -376,7 +376,7 @@ namespace CsvTools.Tests
 
     public static T RunSerialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
     {
-      if (obj == null)
+      if (obj is null)
         throw new ArgumentNullException(nameof(obj));
 
       T ret = obj;

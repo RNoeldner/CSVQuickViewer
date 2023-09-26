@@ -480,7 +480,7 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
       col.AddRangeNoClone(detected);
-      Assert.IsTrue(col.GetByName("ID") == null || col.GetByName("ID")?.Convert == false);
+      Assert.IsTrue(col.GetByName("ID") is null || col.GetByName("ID")?.Convert == false);
       Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName("ExamDate")?.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Boolean, col.GetByName("IsNativeLang")?.ValueFormat.DataType);
     }
@@ -660,7 +660,7 @@ namespace CsvTools.Tests
         .GetSampleValuesAsync(test, 100, new[] { 0 }, 20, "NULL", 80, UnitTestStatic.Token)
         .ConfigureAwait(false);
 
-      Assert.IsTrue(temp == null || temp.Count == 0);
+      Assert.IsTrue(temp is null || temp.Count == 0);
     }
 
     [TestMethod]
@@ -1060,7 +1060,7 @@ namespace CsvTools.Tests
         true,
         null,
         UnitTestStatic.Token);
-      Assert.IsTrue(res.FoundValueFormat == null || res.FoundValueFormat?.DataType != DataTypeEnum.Integer);
+      Assert.IsTrue(res.FoundValueFormat is null || res.FoundValueFormat?.DataType != DataTypeEnum.Integer);
     }
   }
 }

@@ -305,7 +305,7 @@ namespace CsvTools
               true,
               fillGuessSettings.RemoveCurrencySymbols,
               cancellationToken);
-            if (checkResult.FoundValueFormat == null ||
+            if (checkResult.FoundValueFormat is null ||
                 checkResult.FoundValueFormat.DataType == DataTypeEnum.Double) continue;
             var colIndexExisting = columnCollection.IndexOf(readerColumn);
 

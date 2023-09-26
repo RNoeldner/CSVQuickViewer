@@ -73,7 +73,7 @@ namespace CsvTools
 
     public static string HandleLongText(this string? inputString)
     {
-      if (inputString == null)
+      if (inputString is null)
         return string.Empty;
 
       if (inputString.Length>1)
@@ -91,7 +91,7 @@ namespace CsvTools
     /// <param name="inputString">The text to check</param>
     public static char FromText(this string? inputString)
     {
-      if (inputString == null)
+      if (inputString is null)
         return char.MinValue;
       if (inputString.Length == 1)
       {

@@ -89,7 +89,7 @@ namespace CsvTools
 
       // Find Manifest      
       var mainfestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
-      if (mainfestEntry == null)
+      if (mainfestEntry is null)
         return null;
       Logger.Information("Configuration read from manifest file {filename}", mainfestEntry.Name);
           

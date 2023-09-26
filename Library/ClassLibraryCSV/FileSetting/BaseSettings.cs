@@ -147,7 +147,7 @@ namespace CsvTools
       {
         ColumnCollection.Clear();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (value == null)
+        if (value is null)
           return;
         ColumnCollection.AddRange(value.Select(x => x.ToImmutableColumn()));
       }
@@ -612,7 +612,7 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     protected virtual void BaseSettingsCopyTo(in BaseSettings? other)
     {
-      if (other == null)
+      if (other is null)
         return;
       other.MappingCollection.Clear();
       other.MappingCollection.AddRange(MappingCollection);

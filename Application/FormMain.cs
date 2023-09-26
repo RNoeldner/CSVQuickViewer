@@ -157,7 +157,7 @@ namespace CsvTools
 
     private async Task RunDetection(CancellationToken cancellationToken)
     {
-      if (m_FileSetting == null)
+      if (m_FileSetting is null)
         return;
       m_RunDetection = false;
       ShowTextPanel(true);
@@ -768,7 +768,7 @@ namespace CsvTools
 
     private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
     {
-      if (m_FileSetting == null)
+      if (m_FileSetting is null)
         return;
 
       ButtonAsText(asText);
@@ -782,7 +782,7 @@ namespace CsvTools
 
     private async void ToggleDisplayAsText(object? sender, EventArgs e)
     {
-      if (m_FileSetting == null)
+      if (m_FileSetting is null)
         return;
 
       await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>

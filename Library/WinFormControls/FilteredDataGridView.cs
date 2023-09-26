@@ -321,7 +321,7 @@ namespace CsvTools
     /// <returns><c>true</c> if column visibility has changed</returns>
     public bool HideEmptyColumns()
     {
-      if (Columns.Count == 0 || DataView == null)
+      if (Columns.Count == 0 || DataView is null)
         return false;
 
       var hasChanges = false;
@@ -714,7 +714,7 @@ namespace CsvTools
 
     public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
     {
-      if (DataView == null)
+      if (DataView is null)
         base.AutoResizeColumns(autoSizeColumnsMode);
       else
       {
@@ -1471,7 +1471,7 @@ namespace CsvTools
 
     private void ToolStripMenuItemLoadCol_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting == null)
+      if (m_FileSetting is null)
         return;
 
       try

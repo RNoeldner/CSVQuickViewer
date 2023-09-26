@@ -187,7 +187,7 @@ namespace CsvTools
       SortOrder sortOrder)
     {
       var res = GetViewSetting(columns, columnFilters, sortedColumn, sortOrder);
-      if (res == null)
+      if (res is null)
         return string.Empty;
       return JsonConvert.SerializeObject(res, Formatting.None);
     }

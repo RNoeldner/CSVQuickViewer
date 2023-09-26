@@ -262,13 +262,12 @@ namespace CsvTools
       if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)
       {
         if (AssociatedTimeCol[ordinal] == -1)
-          return CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value;
+          return CurrentValues[ordinal] is null;
 
-        return (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
-               && (CurrentValues[AssociatedTimeCol[ordinal]] is null || CurrentValues[AssociatedTimeCol[ordinal]] == DBNull.Value);
+        return CurrentValues[ordinal] is null && CurrentValues[AssociatedTimeCol[ordinal]] is null;
       }
 
-      if (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
+      if (CurrentValues[ordinal] is null)
         return true;
 
       if (CurrentValues[ordinal] is string str)

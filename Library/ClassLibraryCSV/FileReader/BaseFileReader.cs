@@ -129,7 +129,7 @@ namespace CsvTools
     {
       TimeZoneAdjust = timeZoneAdjust;
       DestTimeZone = destTimeZone;
-      m_ColumnDefinition = columnDefinition == null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
+      m_ColumnDefinition = columnDefinition is null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
@@ -357,7 +357,7 @@ namespace CsvTools
     /// <exception cref="T:System.NotImplementedException"></exception>    
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
     {
-      if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+      if (buffer is null) throw new ArgumentNullException(nameof(buffer));
       using var stream = GetStream(ordinal);
       if (dataOffset > 0)
         stream.Seek(dataOffset, SeekOrigin.Current);
@@ -395,7 +395,7 @@ namespace CsvTools
     /// </exception>
     public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
     {
-      if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+      if (buffer is null) throw new ArgumentNullException(nameof(buffer));
       var offset = (int) dataOffset;
       var maxLen = CurrentRowColumnText[ordinal].Length - offset;
 

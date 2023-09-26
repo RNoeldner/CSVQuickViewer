@@ -359,7 +359,7 @@ namespace CsvTools
 
     public bool Equals(ValueFormatMut? other)
     {
-      if (other == null) return false;
+      if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
       return DataType == other.DataType
              && DateFormat == other.DateFormat
