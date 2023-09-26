@@ -21,6 +21,8 @@ namespace CsvTools
 {
   public class TextUnescapeFormatter : BaseColumnFormatter
   {
+    public static TextUnescapeFormatter Instance = new TextUnescapeFormatter();
+
     private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
     {
       var hex = new StringBuilder();
@@ -43,6 +45,13 @@ namespace CsvTools
           return new Tuple<int, int>(pos, charValue);
 
       return new Tuple<int, int>(-1, -1);
+    }
+
+    public static ReadOnlySpan<char> Unescape(ReadOnlySpan<char> text)
+    {
+      if (text.IndexOf('\\') == -1)
+        return text;
+      return Unescape(text.ToString()).AsSpan();
     }
 
     /// <summary>
@@ -94,7 +103,8 @@ namespace CsvTools
         handleWarning?.Invoke("Unescaped text");
       return output;
     }
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
-      => FormatInputText(inputString.ToString(), handleWarning).AsSpan();
+
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+      => Unescape(inputString);
   }
 }

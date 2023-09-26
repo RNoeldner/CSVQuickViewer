@@ -643,6 +643,7 @@ namespace CsvTools
           if (!hasWarning)
             foreach (var columnIndex in samples.Keys.Where(x => !((ICollection<int>) enough).Contains(x)))
             {
+              // value must be string as spans are not supported in lambda
               var value = fileReader.GetString(columnIndex);
 
               // Any non existing value is not of interest
@@ -652,8 +653,8 @@ namespace CsvTools
               // Always trim
               value = value.Trim();
 
-              // Always do treat Text "Null" as Null
-              if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
+              // Always do treat Text "Null" as Null, 
+              if (StringUtils.ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan()))
                 continue;
 
               // cut of

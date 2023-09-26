@@ -12,27 +12,20 @@
  *
  */
 #nullable enable
+
 using System;
-using System.Data;
+
 
 namespace CsvTools
 {
-  /// <summary>
-  /// Base class for all ColumnFormatters
-  /// </summary>
-  public abstract class BaseColumnFormatter : IColumnFormatter
+  public sealed class EmptyFormatter : BaseColumnFormatter
   {
-    /// <inheritdoc/>
-    public abstract string FormatInputText(in string inputString, in Action<string>? handleWarning);
+    public static EmptyFormatter Instance = new EmptyFormatter();
 
     /// <inheritdoc/>
-    public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning) => inputString;
 
     /// <inheritdoc/>
-    public virtual string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
-      => dataObject?.ToString() ?? string.Empty;    
-
-    /// <inheritdoc/>
-    public bool RaiseWarning { get; set; } = true;
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString) => inputString;
   }
 }

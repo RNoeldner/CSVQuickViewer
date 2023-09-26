@@ -20,6 +20,8 @@ namespace CsvTools
 {
   public class TextToHtmlFormatter : BaseColumnFormatter
   {
+    public static TextToHtmlFormatter Instance = new TextToHtmlFormatter();
+
     /// <inheritdoc/>
     public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
     {
@@ -37,12 +39,7 @@ namespace CsvTools
       return output;
     }
 
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
-    {
-      var output = HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"HTML encoding removed from {inputString.ToString()}");
-      return output;
-    }
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+      => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();    
   }
 }

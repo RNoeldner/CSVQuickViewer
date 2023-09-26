@@ -29,8 +29,6 @@ namespace CsvTools
   public class Column : IEquatable<Column>, ICollectionIdentity
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
-    private IColumnFormatter? m_ColumnFormatter;
-    private bool m_ColumnFormatterCreated;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Column"/> class.
@@ -64,6 +62,7 @@ namespace CsvTools
       TimePart = timePart ?? string.Empty;
       TimePartFormat = timePartFormat ?? cDefaultTimePartFormat;
       TimeZonePart = timeZonePart ?? string.Empty;
+      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ValueFormat);
     }
 
     /// <summary>
@@ -97,15 +96,9 @@ namespace CsvTools
     ///  Only an Immutable Column does have a ColumnFormatter
     /// </summary>
     [JsonIgnore]
-    public IColumnFormatter? ColumnFormatter
+    public IColumnFormatter ColumnFormatter
     {
-      get
-      {
-        if (m_ColumnFormatterCreated)
-          return m_ColumnFormatter;
-        m_ColumnFormatterCreated = true;
-        return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ValueFormat);
-      }
+      get;      
     }
 
     /// <summary>

@@ -244,6 +244,10 @@ namespace CsvTools
       return Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
     }
 
+    public override ReadOnlySpan<char> GetSpan(int ordinal)
+      => GetString(ordinal).AsSpan();
+
+
     public override int GetValues(object[] values)
     {
       Array.Copy(CurrentValues, values, FieldCount);
@@ -279,8 +283,21 @@ namespace CsvTools
       base.InitColumn(fieldCount);
     }
 
-    protected string TreatNbspTestAsNullTrim(string inputString) =>
-      TreatNbspAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
+    protected string TreatNbspTestAsNullTrim(ReadOnlySpan<char> inputString)
+    {
+      {
+        if (inputString.Length == 0)
+          return string.Empty;
+
+        if (m_Trim)
+          inputString = inputString.Trim();
+
+        if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
+          return (StringUtils.ShouldBeTreatedAsNull(inputString.ToString().Replace((char) 0xA0, ' ').AsSpan(), m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
+        else
+          return (StringUtils.ShouldBeTreatedAsNull(inputString, m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
+      }
+    }
 
     private void EnsureTextFilled(int ordinal)
     {

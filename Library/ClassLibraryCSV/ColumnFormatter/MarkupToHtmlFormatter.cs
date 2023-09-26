@@ -22,18 +22,17 @@ namespace CsvTools
 {
   public class Markdown2HtmlFormatter : BaseColumnFormatter
   {
-    private readonly Markdown m_Markdown;
+    public static Markdown2HtmlFormatter Instance = new Markdown2HtmlFormatter();
 
-    public Markdown2HtmlFormatter() =>
-      m_Markdown = new Markdown(new MarkdownOptions
-      {
-        AllowEmptyLinkText = false,
-        AutoHyperlink = true,
-        DisableImages = true,
-        LinkEmails = true,
-        QuoteSingleLine = false,
-        AutoNewLines = true
-      });
+    private readonly Markdown m_Markdown = new Markdown(new MarkdownOptions
+    {
+      AllowEmptyLinkText = false,
+      AutoHyperlink = true,
+      DisableImages = true,
+      LinkEmails = true,
+      QuoteSingleLine = false,
+      AutoNewLines = true
+    });
 
 
     public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
@@ -44,13 +43,8 @@ namespace CsvTools
       return output;
     }
 
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
-    {
-      var output = m_Markdown.Transform(inputString.ToString()).AsSpan();
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke("Markdown encoding");
-      return output;
-    }
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+      => FormatInputText(inputString.ToString(), null).AsSpan();
   }
 }
 #endif

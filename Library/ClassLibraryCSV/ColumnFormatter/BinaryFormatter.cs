@@ -48,16 +48,12 @@ namespace CsvTools
       return fileName.LongPathPrefix();      
     }
 
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
     {
       var fileName = inputString.ToString().FullPath(m_RootFolderRead);
       var fi = new FileSystemUtils.FileInfo(fileName);
       if (!fi.Exists)
-      {
-        if (RaiseWarning)
-          handleWarning?.Invoke($"File {inputString.ToString()} not found");
         return Array.Empty<char>();
-      }
       return fileName.LongPathPrefix().AsSpan();      
     }
 

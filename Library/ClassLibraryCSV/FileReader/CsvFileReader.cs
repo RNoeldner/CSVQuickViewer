@@ -382,7 +382,7 @@ namespace CsvTools
         return DBNull.Value;
       object? ret = column.ValueFormat.DataType switch
       {
-        DataTypeEnum.DateTime => GetDateTimeNull(null, CurrentRowColumnText[ordinal].AsSpan(), null, GetTimeValue(ordinal).AsSpan(), column, true),
+        DataTypeEnum.DateTime => GetDateTimeNull(null, CurrentRowColumnText[ordinal].AsSpan(), null, GetTimeValue(ordinal), column, true),
         DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(CurrentRowColumnText[ordinal].AsSpan(), column) : GetInt64Null(CurrentRowColumnText[ordinal].AsSpan(), column),
         DataTypeEnum.Double => GetDoubleNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
         DataTypeEnum.Numeric => GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
@@ -713,7 +713,7 @@ namespace CsvTools
             CurrentRowColumnText[columnNo]
               .ReplaceCaseInsensitive(m_NewLinePlaceholder, '\n')
               .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter)
-              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier),
+              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier).AsSpan(),
             columnNo);
 
           if (adjustedValue.Length > 0)
@@ -754,11 +754,11 @@ namespace CsvTools
             if (m_WarnLineFeed && (adjustedValue.IndexOfAny(new[] { '\r', '\n' }) != -1))
               WarnLinefeed(columnNo);
 
-            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
-              adjustedValue = string.Empty;
+            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull.AsSpan()))
+              adjustedValue = Array.Empty<char>();
           }
 
-          CurrentRowColumnText[columnNo] = adjustedValue;
+          CurrentRowColumnText[columnNo] = adjustedValue.ToString();
         }
 
         return true;
