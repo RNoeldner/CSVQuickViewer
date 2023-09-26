@@ -397,13 +397,8 @@ namespace CsvTools
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
 
         default:
-
-          if (columnInfo.ColumnFormatter != null)
-            return columnInfo.ColumnFormatter.Write(dataObject, dataRecord,
+          return columnInfo.ColumnFormatter.Write(dataObject, dataRecord,
               msg => handleWarning?.Invoke(columnInfo.Name, msg));
-
-          // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-          return Convert.ToString(dataObject) ?? string.Empty;
       }
     }
 

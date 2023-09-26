@@ -21,6 +21,8 @@ namespace CsvTools
 {
   public class TextToHtmlFullFormatter : BaseColumnFormatter
   {
+    public static TextToHtmlFullFormatter Instance = new TextToHtmlFullFormatter();
+
     /// <inheritdoc/>
     public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
     {
@@ -38,12 +40,8 @@ namespace CsvTools
       return output!;
     }
 
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString, in Action<string>? handleWarning)
-    {
-      var output = HtmlStyle.HtmlEncodeShort(inputString.ToString()).AsSpan();
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"HTML encoding removed from {inputString.ToString()}");
-      return output!;
-    }
+    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+    => HtmlStyle.HtmlEncodeShort(inputString.ToString()).AsSpan();
+
   }
 }

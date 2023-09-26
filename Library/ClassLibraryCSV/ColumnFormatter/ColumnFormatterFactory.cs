@@ -17,21 +17,22 @@ namespace CsvTools
 {
   public static class ColumnFormatterFactory
   {
-    public static IColumnFormatter? GetColumnFormatter(in ValueFormat valueFormat)
+
+    public static IColumnFormatter GetColumnFormatter(in ValueFormat valueFormat)
     {
       return valueFormat.DataType switch
       {
         DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter,
           valueFormat.PartToEnd),
-        DataTypeEnum.TextToHtml => new TextToHtmlFormatter(),
-        DataTypeEnum.TextToHtmlFull => new TextToHtmlFullFormatter(),
-        DataTypeEnum.TextUnescape => new TextUnescapeFormatter(),
+        DataTypeEnum.TextToHtml => TextToHtmlFormatter.Instance,
+        DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
+        DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
         DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
         DataTypeEnum.Binary => new BinaryFormatter(valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
-        DataTypeEnum.Markdown2Html => new Markdown2HtmlFormatter(),
+        DataTypeEnum.Markdown2Html => Markdown2HtmlFormatter.Instance,
 #endif
-        _ => null
+        _ => EmptyFormatter.Instance
       };
     }
   }

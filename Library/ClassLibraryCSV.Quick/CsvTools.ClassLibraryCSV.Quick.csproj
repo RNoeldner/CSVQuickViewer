@@ -42,6 +42,7 @@
 
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="ColumnFormatter\BinaryFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" Link="ColumnFormatter\BaseColumnFormatter.cs" />
+    <Compile Include="..\ClassLibraryCSV\ColumnFormatter\EmptyFormatter.cs" Link="ColumnFormatter\EmptyFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ColumnFormatter\ColumnFormatterFactory.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextReplaceFormatter.cs" Link="ColumnFormatter\TextReplaceFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />

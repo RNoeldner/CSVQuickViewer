@@ -437,7 +437,7 @@ namespace CsvTools
         null,
         CurrentRowColumnText[ordinal].AsSpan(),
         null,
-        GetTimeValue(ordinal).AsSpan(),
+        GetTimeValue(ordinal),
         Column[ordinal],
         true);
       if (dt.HasValue) return dt.Value;
@@ -666,15 +666,15 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the originally provided text in a column
-    /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <returns></returns>
-    /// <exception cref="T:System.InvalidOperationException">Row has not been read</exception>
-    /// <exception cref="T:System.ArgumentOutOfRangeException">ordinal invalid</exception>
     public override string GetString(int ordinal) =>
       CurrentRowColumnText[ordinal];
+
+    /// <summary>
+    ///   Gets the originally provided text of a column
+    /// </summary>
+    /// <param name="ordinal">The column number.</param>
+    /// <returns></returns>    
+    public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
 
     public override TextReader GetTextReader(int ordinal)
     {
@@ -818,30 +818,22 @@ namespace CsvTools
       EndOfFile = false;
     }
 
-    /// <summary>
-    ///   Handles input replacements like NBSP and NULL
-    /// </summary>
-    /// <param name="inputString">The input string.</param>
-    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat NBSP as space].</param>
-    /// <param name="treatTextAsNull">The treat text as null.</param>
-    /// <param name="trim">if set to <c>true</c> [trim].</param>
-    /// <returns></returns>
-    protected static string TreatNbspAsNullTrim(
-      string inputString,
+    protected static ReadOnlySpan<char> TreatNbspAsNullTrim(
+      ReadOnlySpan<char> inputString,
       bool treatNbspAsSpace,
-      in string treatTextAsNull,
+      ReadOnlySpan<char> treatTextAsNull,
       bool trim)
     {
       if (inputString.Length == 0)
-        return string.Empty;
-
-      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
-        inputString = inputString.Replace((char) 0xA0, ' ');
+        return Array.Empty<char>();
 
       if (trim)
         inputString = inputString.Trim();
 
-      return StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull) ? string.Empty : inputString;
+      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
+        return StringUtils.ShouldBeTreatedAsNull(inputString.ToString().Replace((char) 0xA0, ' ').AsSpan(), treatTextAsNull) ? Array.Empty<char>() : inputString;
+      else
+        return StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull) ? Array.Empty<char>() : inputString;
     }
 
     /// <summary>
@@ -1026,10 +1018,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    protected virtual string GetTimeValue(int i) =>
+    protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
       AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
-        ? string.Empty
-        : CurrentRowColumnText[AssociatedTimeCol[i]];
+        ? Array.Empty<char>()
+        : CurrentRowColumnText[AssociatedTimeCol[i]].AsSpan();
 
     protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
       new WarningEventArgs(
@@ -1076,13 +1068,12 @@ namespace CsvTools
     /// <param name="inputString">The input string.</param>
     /// <param name="ordinal">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected virtual string HandleTextSpecials(in string? inputString, int ordinal)
+    protected virtual ReadOnlySpan<char> HandleTextSpecials(ReadOnlySpan<char> span, int ordinal)
     {
-      if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
-        return inputString ?? string.Empty;
+      if (span.IsEmpty || ordinal >= FieldCount)
+        return Array.Empty<char>();
 
-      return Column[ordinal].ColumnFormatter
-        ?.FormatInputText(inputString, message => HandleWarning(ordinal, message)) ?? inputString;
+      return Column[ordinal].ColumnFormatter.FormatInputText(span);
     }
 
     /// <summary>

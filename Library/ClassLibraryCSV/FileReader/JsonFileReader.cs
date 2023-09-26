@@ -305,6 +305,8 @@ namespace CsvTools
         var columnNumber = 0;
         foreach (var col in Column)
         {
+          if (col.Ignore)
+            continue;
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
           {
             if (CurrentValues[columnNumber] is null)
@@ -318,10 +320,9 @@ namespace CsvTools
               CurrentRowColumnText[columnNumber] = orgVal;
 
               // ReSharper disable once MergeIntoPattern
-              if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataTypeEnum.String)
+              if (!string.IsNullOrEmpty(orgVal) && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
-                CurrentRowColumnText[columnNumber] =
-                  TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber));
+                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber)).ToString();
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }

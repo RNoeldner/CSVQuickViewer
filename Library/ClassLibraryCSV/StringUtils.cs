@@ -181,7 +181,7 @@ namespace CsvTools
       }
       return sb.ToString();
     }
-        
+
     /// <summary>
     ///   Joins the strings
     /// </summary>
@@ -254,6 +254,7 @@ namespace CsvTools
 
     public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
     {
+      // not using Stackalloc as chars could not stay on stack anyway.
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in original)
@@ -412,17 +413,9 @@ namespace CsvTools
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
     public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull)
     {
-      if (treatAsNull.Length == 0)
-        return false;
-
-      if (value is null || value.Length == 0)
+      if (value is null)
         return true;
-
-      foreach (var part in treatAsNull.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries))
-        if (value.Equals(part, StringComparison.OrdinalIgnoreCase))
-          return true;
-
-      return false;
+      return ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
     }
 
     /// <summary>
@@ -433,15 +426,16 @@ namespace CsvTools
     ///   A semicolon separated list of that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(this ReadOnlySpan<char> value, ReadOnlySpan<char> treatAsNull)
+    public static bool ShouldBeTreatedAsNull(this ReadOnlySpan<char> span, ReadOnlySpan<char> treatAsNull)
     {
       if (treatAsNull.IsEmpty)
         return false;
-      if (value.Length == 0)
+      if (span.IsEmpty)
         return true;
-      foreach (var valueTuple in treatAsNull.GetSlices(StaticCollections.ListDelimiterChars))
+
+      foreach (var (start, length) in treatAsNull.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        if (value.Equals(treatAsNull.Slice(valueTuple.start, valueTuple.length), StringComparison.OrdinalIgnoreCase))
+        if (span.Equals(treatAsNull.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return true;
       }
       return false;
@@ -516,7 +510,7 @@ namespace CsvTools
 
       result = entry;
       return true;
-    }  
+    }
 
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
