@@ -96,16 +96,9 @@ namespace CsvTools
       if (dateTime.TimeOfDay.TotalSeconds<1)
         return dateTime.ToString("d", culture);
 
-      if (IsDuration(dateTime))
-        return (dateTime - DateTimeConstants.FirstDateTime).TotalHours.ToString(
-                 (dateTime - DateTimeConstants.FirstDateTime).TotalHours >= 100 ? "000" : "00",
-                 CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - DateTimeConstants.FirstDateTime).Minutes.ToString(
-                                                 "00",
-                                                 CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - DateTimeConstants.FirstDateTime).Seconds.ToString(
-                                                 "00",
-                                                 CultureInfo.InvariantCulture);
+      if (dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddHours(240))
+        return $"{(dateTime - DateTimeConstants.FirstDateTime).TotalHours}:{(dateTime - DateTimeConstants.FirstDateTime).Minutes:00}:{(dateTime - DateTimeConstants.FirstDateTime).Seconds:00}";
+
       return dateTime.ToString("G", culture);
     }
 
@@ -170,14 +163,12 @@ namespace CsvTools
     /// <returns>A Time</returns>
     public static DateTime GetTimeFromTicks(this long ticks) => DateTimeConstants.FirstDateTime.Add(new TimeSpan(ticks));
 
+    /// <summary>
+    ///   Determines if the DateTime is indeed a time only
+    /// </summary>
+    /// <param name="dateTime"></param>
+    /// <returns><c>true</c> if it should be treated as Time without date</returns>
     public static bool IsTimeOnly(this in DateTime dateTime) =>
       dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddDays(1);
-
-    public static DateTime TimeOnly(this in DateTime dateTime) =>
-      DateTimeConstants.FirstDateTime.Add(dateTime.TimeOfDay);
-
-
-    private static bool IsDuration(in DateTime dateTime) =>
-      dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddHours(240);
   }
 }
