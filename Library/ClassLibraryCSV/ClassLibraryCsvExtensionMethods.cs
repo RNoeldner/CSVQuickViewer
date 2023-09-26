@@ -907,8 +907,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(other, self))
-        return true;
+
       ICollection<T> selfCol = self.ToArray();
       if (other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T>)
       {
@@ -949,9 +948,6 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(self));
       if (other is null)
         return false;
-
-      if (ReferenceEquals(other, self))
-        return true;
 
       // Shortcut if we have collections but different number of Items
       if (self is ICollection<T> selfCol && other is ICollection<T> otherCol && selfCol.Count != otherCol.Count)

@@ -135,9 +135,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
+      
       return m_NumErrors == other.m_NumErrors
              && m_Samples.Equals(other.m_Samples)
              && m_Errors.Equals(other.m_Errors);

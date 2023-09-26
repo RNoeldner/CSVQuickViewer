@@ -303,8 +303,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return m_Enabled == other.Enabled &&
              m_CheckedRecords == other.CheckedRecords &&
              m_DateParts == other.DateParts &&

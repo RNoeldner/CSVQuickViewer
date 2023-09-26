@@ -757,8 +757,11 @@ namespace CsvTools
             if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull.AsSpan()))
               adjustedValue = Array.Empty<char>();
           }
-
-          CurrentRowColumnText[columnNo] = adjustedValue.ToString();
+#if NET7_0_OR_GREATER
+          CurrentRowColumnText[columnNo] =  new string(adjustedValue);
+#else
+          CurrentRowColumnText[columnNo] =  adjustedValue.ToString();
+#endif
         }
 
         return true;

@@ -502,8 +502,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return m_NoDelimitedFile == other.NoDelimitedFile
              && m_NumWarnings == other.NumWarnings
              && m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace
