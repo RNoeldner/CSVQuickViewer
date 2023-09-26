@@ -226,7 +226,7 @@ namespace CsvTools
       get => m_DataTable;
       set
       {
-        if (ReferenceEquals(m_DataTable, value))
+        if (m_DataTable == value)
           return;
 
         m_DataTable.Dispose();
@@ -675,7 +675,7 @@ namespace CsvTools
 
       var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
 
-      if (ReferenceEquals(m_BindingSource.DataSource, newDt))
+      if (m_BindingSource.DataSource == newDt)
       {
         m_UpdateVisibility = true;
         return;

@@ -175,7 +175,7 @@ namespace CsvTools
           // ignored
         }
 
-        if (!ReferenceEquals(AccessStream, BaseStream))
+        if (AccessStream != BaseStream)
           try
           {
             // ReSharper disable once ConstantConditionalAccessQualifier
@@ -210,7 +210,7 @@ namespace CsvTools
         m_StreamClosedThird?.Flush();
         m_StreamClosedSecond?.Flush();
 #endif
-        if (!ReferenceEquals(AccessStream, BaseStream))
+        if (AccessStream != BaseStream)
           AccessStream?.Flush();
         BaseStream.Flush();
       }
@@ -299,7 +299,7 @@ namespace CsvTools
         m_StreamClosedThird = null;
       }
 #endif
-      if (!ReferenceEquals(AccessStream, BaseStream))
+      if (AccessStream != BaseStream)
         AccessStream?.Dispose();
 
       if (!m_SourceAccess.LeaveOpen)
@@ -407,7 +407,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     private async ValueTask DisposeAsyncCore()
     {
-      if (AccessStream != null &&  !ReferenceEquals(AccessStream, BaseStream))
+      if (AccessStream != null &&  AccessStream !=  BaseStream)
       {
         // ReSharper disable once ConstantConditionalAccessQualifier
         await AccessStream.DisposeAsync().ConfigureAwait(false);

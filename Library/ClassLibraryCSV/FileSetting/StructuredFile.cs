@@ -65,8 +65,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
     }
 

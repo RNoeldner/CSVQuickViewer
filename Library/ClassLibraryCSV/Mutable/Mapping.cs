@@ -104,8 +104,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return Attention == other.Attention
              && Update == other.Update
              && string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase)

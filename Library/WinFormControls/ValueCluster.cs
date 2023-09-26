@@ -100,8 +100,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
              && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
@@ -120,8 +119,7 @@ namespace CsvTools
     {
       if (obj is null)
         return false;
-      if (ReferenceEquals(this, obj))
-        return true;
+      
       return obj is ValueCluster typed && GetHashCode() == typed.GetHashCode();
     }
 

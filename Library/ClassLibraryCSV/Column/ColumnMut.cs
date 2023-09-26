@@ -411,9 +411,7 @@ namespace CsvTools
     public bool Equals(ColumnMut? other)
     {
       if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
+        return false;      
 
       return ColumnOrdinal == other.ColumnOrdinal && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
                                                   && string.Equals(DestinationName, other.DestinationName,

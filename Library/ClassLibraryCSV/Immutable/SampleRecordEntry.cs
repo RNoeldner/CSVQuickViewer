@@ -108,8 +108,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
+      
       return RecordNumber == other.RecordNumber
              && ProvideEvidence == other.ProvideEvidence
              && string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);

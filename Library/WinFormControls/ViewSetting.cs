@@ -141,8 +141,7 @@ namespace CsvTools
       try
       {
         var vst = columns.OfType<DataGridViewColumn>()
-        .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,
-          ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+        .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
         var colIndex = 0;
         foreach (var columnFilter in columnFilters)
         {

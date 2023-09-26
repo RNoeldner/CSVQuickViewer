@@ -200,7 +200,7 @@ namespace CsvTools.Tests
 
     public static void CheckAllPropertiesEqual(this object a, in object b, IReadOnlyCollection<string>? ignore = null)
     {
-      if (ReferenceEquals(a, b))
+      if (a== b)
         return;
 
       try
@@ -243,7 +243,7 @@ namespace CsvTools.Tests
 #pragma warning restore CS8603
     }
 
-    
+
 
     public static string? GetRandomText(int length)
     {
@@ -254,7 +254,7 @@ namespace CsvTools.Tests
         .ToCharArray();
       var data = new byte[length];
       using var rnd = RandomNumberGenerator.Create();
-      rnd.GetBytes(data,0,length);
+      rnd.GetBytes(data, 0, length);
 
       var result = new StringBuilder(length);
       foreach (var b in data)

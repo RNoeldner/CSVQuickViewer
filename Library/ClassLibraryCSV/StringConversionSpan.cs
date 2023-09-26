@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -125,7 +126,7 @@ namespace CsvTools
 
       return dateValue;
     }
-    
+
     /// <summary>
     ///   Combines two strings to one date time.
     /// </summary>
@@ -220,13 +221,33 @@ namespace CsvTools
     /// </returns>
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public static bool? StringToBoolean(
-      this ReadOnlySpan<char> value, 
+      this ReadOnlySpan<char> value,
       ReadOnlySpan<char> trueValue,
       ReadOnlySpan<char> falseValue)
     {
-      return StringToBooleanWithMatch(value,trueValue,falseValue).Item1;
+      if (value.IsEmpty)
+        return null;
+
+      if (!trueValue.IsEmpty)
+        foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
+          if (value.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+            return true;
+      foreach (var text in StaticCollections.TrueValues)
+        if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+          return true;
+
+      if (!falseValue.IsEmpty)
+        foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
+          if (value.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+      foreach (var text in StaticCollections.FalseValues)
+        if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+          return false;
+
+      return null;
     }
-    
+
     /// <summary>
     ///   Check is a string is a boolean.
     /// </summary>
@@ -239,7 +260,7 @@ namespace CsvTools
     /// </returns>
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public static (bool?, string value) StringToBooleanWithMatch(
-      this ReadOnlySpan<char> value, 
+      this ReadOnlySpan<char> value,
       ReadOnlySpan<char> trueValue,
       ReadOnlySpan<char> falseValue)
     {
@@ -265,7 +286,8 @@ namespace CsvTools
 
       return (null, string.Empty);
     }
-    
+
+
     /// <summary>
     ///   Parses a string to a date time value
     /// </summary>
@@ -328,8 +350,8 @@ namespace CsvTools
     {
       // Quick check: If the entry is empty, or a constant string, or the length does not make
       // sense, we do not need to try and parse
-      if (text.Length < 4 || text.SequenceEqual("00000000".AsSpan()) ||
-          text.SequenceEqual("99999999".AsSpan()))
+      if (text.Length < 4 || text.Equals("00000000".AsSpan(), StringComparison.Ordinal) ||
+          text.Equals("99999999".AsSpan(), StringComparison.Ordinal))
         return null;
 
       if (text.IndexOfAny('\t', ' ')!=-1)
@@ -378,7 +400,7 @@ namespace CsvTools
         timeSeparatorChar,
         culture);
     }
-
+    
     /// <summary>
     ///   Parses a string to a decimal
     /// </summary>
@@ -394,21 +416,19 @@ namespace CsvTools
       char groupSeparatorChar,
       bool allowPercentage,
       bool currencyRemoval)
-    {      
+    {
       // in case nothing is passed in we are already done here
       if (text.IsEmpty)
         return null;
 
       if (currencyRemoval)
       {
-        var temp = text.ToString();
-        foreach (var currencySymbol in StaticCollections.CurrencySymbols)
+        var pos = text.IndexOfAny(StaticCollections.CurrencySymbols);
+        while (pos!=-1)
         {
-          if (temp.IndexOf(currencySymbol) != -1)
-            temp= temp.Replace(currencySymbol.ToString(), string.Empty);
-        }
-
-        text = temp.AsSpan().Trim();
+          text = text.ToString().Remove(pos, 1).AsSpan();
+          pos = text.IndexOfAny(StaticCollections.CurrencySymbols);
+        }          
       }
 
       var startDecimal = text.Length;
@@ -510,8 +530,8 @@ namespace CsvTools
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static short? StringToInt16(
-      this ReadOnlySpan<char> text, 
-      char decimalSeparatorChar, 
+      this ReadOnlySpan<char> text,
+      char decimalSeparatorChar,
       char thousandSeparatorChar)
     {
       if (text.IsEmpty)
@@ -538,8 +558,8 @@ namespace CsvTools
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static int? StringToInt32(
-      this ReadOnlySpan<char> text, 
-      char decimalSeparatorChar, 
+      this ReadOnlySpan<char> text,
+      char decimalSeparatorChar,
       char thousandSeparatorChar)
     {
       if (text.IsEmpty)
@@ -566,8 +586,8 @@ namespace CsvTools
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static long? StringToInt64(
-      this ReadOnlySpan<char> text, 
-      char decimalSeparatorChar, 
+      this ReadOnlySpan<char> text,
+      char decimalSeparatorChar,
       char thousandSeparatorChar)
     {
       if (text.IsEmpty)
@@ -598,9 +618,9 @@ namespace CsvTools
     ///   and the splitter is not contained the whole value is returned.
     /// </returns>    
     public static ReadOnlySpan<char> StringToTextPart(
-      this ReadOnlySpan<char> text, 
-      char splitter, 
-      int part, 
+      this ReadOnlySpan<char> text,
+      char splitter,
+      int part,
       bool toEnd)
     {
       if (text.IsEmpty || part < 1)
@@ -612,7 +632,7 @@ namespace CsvTools
 
       if (part > list.Count)
         return ReadOnlySpan<char>.Empty;
-      
+
       if (!toEnd)
         return text.Slice(list[part - 1].start, list[part - 1].length);
       return text.Slice(list[part - 1].start);
@@ -626,8 +646,8 @@ namespace CsvTools
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns></returns>
     public static TimeSpan? StringToTimeSpan(
-      this ReadOnlySpan<char> text, 
-      char timeSeparatorChar, 
+      this ReadOnlySpan<char> text,
+      char timeSeparatorChar,
       bool serialDateTime)
     {
       if (text.IsEmpty)
@@ -635,8 +655,8 @@ namespace CsvTools
 
       var slices = text.GetSlices(new[] { timeSeparatorChar, ' ', '.' }).Where(x => x.length>0).ToList();
       // Either we only have one slice or its two slices but the two slices are separated by .
-      if (slices.Count==1 || 
-          slices.Count==2 && text[slices[1].start-1] =='.' )
+      if (slices.Count==1 ||
+          slices.Count==2 && text[slices[1].start-1] =='.')
       {
         if (!serialDateTime)
           return null;
@@ -646,7 +666,7 @@ namespace CsvTools
 
         return null;
       }
-      
+
       var slice = text.Slice(slices[0].start, slices[0].length);
       int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
@@ -706,8 +726,8 @@ namespace CsvTools
     }
 
     private static int IndexOf(
-      this ReadOnlySpan<char> text, 
-      char charToFind, 
+      this ReadOnlySpan<char> text,
+      char charToFind,
       int start = 0)
     {
       for (int i = start; i < text.Length; i++)

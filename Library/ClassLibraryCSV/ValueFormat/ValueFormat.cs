@@ -214,13 +214,13 @@ namespace CsvTools
     public bool Overwrite { get; }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormat other && Equals(other);
+    public override bool Equals(object? obj) => obj is ValueFormat other && Equals(other);
 
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(ValueFormat? other)
     {
       if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      
       return DataType == other.DataType
              && DateFormat == other.DateFormat
              && DateSeparator == other.DateSeparator

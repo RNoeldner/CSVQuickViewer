@@ -360,7 +360,7 @@ namespace CsvTools
     public bool Equals(ValueFormatMut? other)
     {
       if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      
       return DataType == other.DataType
              && DateFormat == other.DateFormat
              && DateSeparator == other.DateSeparator
@@ -385,7 +385,7 @@ namespace CsvTools
 #pragma warning disable CS0659
     public override bool Equals(object? obj) =>
 #pragma warning restore CS0659
-      ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
+      obj is ValueFormatMut other && Equals(other);
 
     /// <summary>
     /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created

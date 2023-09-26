@@ -197,7 +197,7 @@ namespace CsvTools
         foreach (var columnInfo in columns)
         {
           sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength, null));
-          if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+          if (!m_IsFixedLength && columnInfo != lastCol)
             sb.Append(m_FieldDelimiter);
         }
         sb.Append(m_NewLine);
@@ -228,7 +228,7 @@ namespace CsvTools
               columnInfo.FieldLength,
               (msg) => HandleWarning(columnInfo.Name, msg)));
           }
-          if (m_FieldDelimiter != char.MinValue && !ReferenceEquals(columnInfo, lastCol))
+          if (m_FieldDelimiter != char.MinValue && columnInfo != lastCol)
             row.Append(m_FieldDelimiter);
         }
 
