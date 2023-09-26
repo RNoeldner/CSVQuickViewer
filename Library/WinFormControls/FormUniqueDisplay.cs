@@ -163,7 +163,7 @@ namespace CsvTools
           () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
 
         var countCol = m_DataTable.Columns["Count#"];
-        if (countCol == null)
+        if (countCol is null)
         {
           m_DataTable.Columns.Add(new DataColumn("Count#", typeof(int)));
           countCol = m_DataTable.Columns["Count#"];

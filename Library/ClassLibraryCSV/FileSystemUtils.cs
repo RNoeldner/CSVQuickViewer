@@ -584,7 +584,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string ResolvePattern(in string fileName)
     {
-      if (fileName == null || fileName.Length == 0)
+      if (fileName is null || fileName.Length == 0)
         return string.Empty;
 
       var withoutPlaceHolder = fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))

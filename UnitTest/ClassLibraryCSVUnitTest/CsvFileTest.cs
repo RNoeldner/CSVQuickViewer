@@ -217,7 +217,7 @@ namespace CsvTools.Tests
     public void FileFormat()
     {
       var csv = m_CsvFile.Clone() as CsvFile;
-      if (csv == null) throw new ArgumentNullException(nameof(csv));
+      if (csv is null) throw new ArgumentNullException(nameof(csv));
       csv.QualifyAlways = true;
       Assert.IsTrue(csv.QualifyAlways);
       csv.QualifyAlways = false;

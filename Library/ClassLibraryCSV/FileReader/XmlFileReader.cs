@@ -102,7 +102,7 @@ namespace CsvTools
         {
           foreach (XmlNode attributes in check.ChildNodes)
           {
-            if (attributes == null)
+            if (attributes is null)
               continue;
             if (!columns.ContainsKey(attributes.Name))
               columns.Add(attributes.Name, attributes.InnerText?? string.Empty);
@@ -112,7 +112,7 @@ namespace CsvTools
         {
           foreach (XmlAttribute attributes in check.Attributes)
           {
-            if (attributes == null)
+            if (attributes is null)
               continue;
             if (!columns.ContainsKey($"_{attributes.Name}"))
               columns.Add($"_{attributes.Name}", attributes.InnerText?? string.Empty);
@@ -124,7 +124,7 @@ namespace CsvTools
 
     public static string GetFullPath(XmlNode node)
     {
-      if (node.ParentNode == null)
+      if (node.ParentNode is null)
         return string.Empty;
       else
         return $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";

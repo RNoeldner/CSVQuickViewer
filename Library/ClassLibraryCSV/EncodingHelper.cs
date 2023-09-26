@@ -199,7 +199,7 @@ namespace CsvTools
         return Encoding.UTF8;
 
       var results = CharsetDetector.DetectFromBytes(buff);
-      if (results.Detected == null)
+      if (results.Detected is null)
         return Encoding.UTF8;
 
       if (results.Detected.Confidence > 0.56)

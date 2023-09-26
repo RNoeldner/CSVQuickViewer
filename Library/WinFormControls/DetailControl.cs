@@ -156,10 +156,10 @@ namespace CsvTools
           () =>
           {
             var col = GetViewColumn(dataColumnName);
-            if (col == null) return;
+            if (col is null) return;
             var columnFilters = FilteredDataGridView.SetFilterMenu(col.Index);
 
-            if (columnFilters == null) return;
+            if (columnFilters is null) return;
             columnFilters.ColumnFilterLogic.Operator = op;
             if (value is DateTime dateTime)
               columnFilters.ColumnFilterLogic.ValueDateTime = dateTime;
@@ -720,7 +720,7 @@ namespace CsvTools
     {
       if (FilteredDataGridView.DataView is null)
         return;
-      if (WriteSetting == null)
+      if (WriteSetting is null)
       {
         WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
         FileSetting?.CopyTo(WriteSetting);
@@ -942,7 +942,7 @@ namespace CsvTools
     private void DetailControl_ParentChanged(object sender, EventArgs e)
     {
       var frm = this.ParentForm;
-      if (frm == null)
+      if (frm is null)
         return;
       if (!frm.KeyPreview)
         frm.KeyPreview = true;

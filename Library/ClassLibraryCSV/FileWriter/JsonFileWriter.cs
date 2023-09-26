@@ -82,7 +82,7 @@ namespace CsvTools
       var typedValue = ValueConversion(reader, input, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
 
       // sepcial handling of null
-      if (m_EmptyAsNull && (typedValue == null  || typedValue == DBNull.Value))
+      if (m_EmptyAsNull && (typedValue is null  || typedValue == DBNull.Value))
         return "null";
 
       // Sepcial handling of DateTime

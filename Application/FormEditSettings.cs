@@ -117,7 +117,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (newFileName is null || newFileName.Length == 0)
           return;
 
-        if (m_FileSetting == null)
+        if (m_FileSetting is null)
         {
           SetDefaultInspectionResult();
           using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);

@@ -243,7 +243,7 @@ namespace System.Runtime.CompilerServices
         /// </summary>
         public static T[] GetSubArray<T>(T[] array, Range range)
         {
-            if (array == null)
+            if (array is null)
             {
                 throw new ArgumentNullException(nameof(array));
             }

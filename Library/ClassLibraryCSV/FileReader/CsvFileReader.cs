@@ -341,7 +341,7 @@ namespace CsvTools
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>
     public new long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length)
     {
-      if (buffer== null) throw new ArgumentNullException(nameof(buffer));
+      if (buffer is null) throw new ArgumentNullException(nameof(buffer));
       if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
           string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
       using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);

@@ -270,7 +270,7 @@ namespace CsvTools
         try
         {
           var key = pgpSecKey.ExtractPrivateKey(passPhrase.ToCharArray());
-          if (key == null) continue;
+          if (key is null) continue;
           closeThird = encryptedData.GetDataStream(key);
           pgpObjectFactory = new PgpObjectFactory(closeThird);
           // first Object

@@ -94,7 +94,7 @@ namespace CsvTools
       m_Footer = ReplacePlaceHolder(footer, fileName, id);
 
       ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
-      ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
+      ColumnDefinition =  columnDefinition is null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
 
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
