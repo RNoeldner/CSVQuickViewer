@@ -641,33 +641,38 @@ namespace CsvTools
           recordRead++;
           // In case there was a warning reading the line, ignore the line
           if (!hasWarning)
-            foreach (var columnIndex in samples.Keys.Where(x => !((ICollection<int>) enough).Contains(x)))
+            try
             {
-              // value must be string as spans are not supported in lambda
-              var value = fileReader.GetString(columnIndex);
+              foreach (var columnIndex in samples.Keys.Except(enough))
+              {
+                // value must be string as spans are not supported in lambda
+                var value = fileReader.GetString(columnIndex).Trim();
+                // Any non existing value is not of interest
+                if (value.Length==0)
+                  continue;
 
-              // Any non existing value is not of interest
-              if (string.IsNullOrWhiteSpace(value))
-                continue;
+                // Always do treat Text "Null" as Null, 
+                if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
+                  continue;
 
-              // Always trim
-              value = value.Trim();
+                // cut of
+                if (maxChars > 0 && value.Length > maxChars)
+                  value = value.Substring(0, maxChars);
 
-              // Always do treat Text "Null" as Null, 
-              if (StringUtils.ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan()))
-                continue;
+                // collect the value if there are not enough samples and the text is not present yet
+                if (samples[columnIndex].Count < maxSamples &&
+                    !samples[columnIndex].Contains(value, StringComparer.OrdinalIgnoreCase))
+                {
+                  samples[columnIndex].Add(value);
 
-              // cut of
-              if (maxChars > 0 && value.Length > maxChars)
-                value = value.Substring(0, maxChars);
-
-              // collect the value if there are not enough samples and the text is not present yet
-              if (samples[columnIndex].Count < maxSamples &&
-                  !samples[columnIndex].Contains(value, StringComparer.OrdinalIgnoreCase))
-                samples[columnIndex].Add(value);
-
-              if (samples[columnIndex].Count >= enoughSamples)
-                enough.Add(columnIndex);
+                  if (samples[columnIndex].Count >= enoughSamples)
+                    enough.Add(columnIndex);
+                }
+              }
+            }
+            catch 
+            {
+              Logger.Warning("Issue reading line {line}, possible empty training column", fileReader.StartLineNumber);
             }
           else
             hasWarning = false;

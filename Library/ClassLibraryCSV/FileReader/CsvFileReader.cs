@@ -79,9 +79,6 @@ namespace CsvTools
 
     private readonly char m_FieldQualifier;
 
-    // This is used to report issues with columns
-    private readonly Action<int, string> m_HandleMessageColumn;
-
     private readonly bool m_HasFieldHeader;
 
     private readonly string m_IdentifierInContainer;
@@ -122,7 +119,7 @@ namespace CsvTools
     private readonly bool m_WarnQuotes;
 
     private readonly bool m_WarnUnknownCharacter;
-
+    private readonly bool m_WarnEmptyTailingColumns;
     private int m_ConsecutiveEmptyRows;
 
     /// <summary>
@@ -154,6 +151,7 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader? m_TextReader;
 
+    /// <inheritdoc />
     public CsvFileReader(in Stream stream, int codePageId, int skipRows,
       bool hasFieldHeader, in IEnumerable<Column>? columnDefinition, in TrimmingOptionEnum trimmingOption,
       char fieldDelimiter, char fieldQualifier, char escapeCharacter,
@@ -279,11 +277,11 @@ namespace CsvTools
       m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
       m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
 
-      var illeagal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-      if (m_DelimiterPlaceholder.IndexOfAny(illeagal)!=-1)
+      var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
+      if (m_DelimiterPlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
 
-      if (m_NewLinePlaceholder.IndexOfAny(illeagal)!=-1)
+      if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
 
       m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
@@ -307,13 +305,7 @@ namespace CsvTools
       m_TrimmingOption = trimmingOption;
       m_TreatTextAsNull = treatTextAsNull;
       m_IdentifierInContainer = identifierInContainer;
-
-      // Either we report the issues regularly or at least log it
-      if (warnEmptyTailingColumns)
-        m_HandleMessageColumn = HandleWarning;
-      else
-        // or we add them to the log
-        m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
+      m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
     }
 
     /// <inheritdoc />
@@ -338,7 +330,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
     public new long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length)
     {
       if (buffer is null) throw new ArgumentNullException(nameof(buffer));
@@ -364,15 +355,6 @@ namespace CsvTools
     public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Return the value of the specified field, in case of a binary file, return the as Base64Encoded string
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The object will contain the field value upon return.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see
-    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
     public override object GetValue(int ordinal)
     {
       if (IsDBNull(ordinal))
@@ -436,8 +418,8 @@ namespace CsvTools
         // Turn off unescaped warning based on WarnLineFeed
         if (!m_WarnLineFeed)
           foreach (var col in Column)
-            if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
-              unescapeFormatter.RaiseWarning = false;
+            if (col.ColumnFormatter is TextUnescapeFormatter unescapedFormatter)
+              unescapedFormatter.RaiseWarning = false;
 
         if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
           m_RealignColumns = new ReAlignColumns(FieldCount);
@@ -619,14 +601,14 @@ namespace CsvTools
           {
             // As the record is ignored tis will most likely not be visible
             // -2 to indicate this error could be stored with the previous line....
-            m_HandleMessageColumn(-2,
-              $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
+            if (m_WarnEmptyTailingColumns)
+              HandleWarning(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
             return false;
           }
 
           if (!m_AllowRowCombining)
           {
-            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({CurrentRowColumnText.Length}/{FieldCount}).");
+            HandleWarning(-1, $"Line {cLessColumns} ({CurrentRowColumnText.Length}/{FieldCount}).");
           }
           else
           {
@@ -644,7 +626,7 @@ namespace CsvTools
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              m_HandleMessageColumn(CurrentRowColumnText.Length - 1,
+              HandleWarning(CurrentRowColumnText.Length - 1,
                 $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
               combined[CurrentRowColumnText.Length - 1] += '\n' + nextLine[0];
 
@@ -667,12 +649,12 @@ namespace CsvTools
 
           if (m_RealignColumns != null)
           {
-            m_HandleMessageColumn(-1, text + " Trying to realign columns.");
+            HandleWarning(-1, text + " Trying to realign columns.");
 
             // determine which column could have caused the issue it could be any column, try to establish
             CurrentRowColumnText = m_RealignColumns.RealignColumn(
               CurrentRowColumnText,
-              m_HandleMessageColumn,
+              HandleWarning,
               m_RecordSource.ToString());
           }
           else
@@ -689,15 +671,11 @@ namespace CsvTools
 
             if (!hasContent)
             {
-              m_HandleMessageColumn(
-                -1,
-                text + " All additional columns where empty. Allow 're-align columns' to handle this.");
+              if (m_WarnEmptyTailingColumns) HandleWarning(-1, text + " All additional columns where empty. Allow 're-align columns' to handle this.");
               return true;
             }
 
-            m_HandleMessageColumn(
-              -1,
-              text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
+            HandleWarning(-1, text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
           }
         }
 
@@ -754,7 +732,7 @@ namespace CsvTools
             if (m_WarnLineFeed && (adjustedValue.IndexOfAny(new[] { '\r', '\n' }) != -1))
               WarnLinefeed(columnNo);
 
-            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull.AsSpan()))
+            if (adjustedValue.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
               adjustedValue = Array.Empty<char>();
           }
 #if NET7_0_OR_GREATER

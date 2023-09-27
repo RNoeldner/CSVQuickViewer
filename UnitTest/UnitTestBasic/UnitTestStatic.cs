@@ -62,7 +62,7 @@ namespace CsvTools.Tests
     {
       Token = context.CancellationTokenSource.Token;
 #pragma warning disable CS0618
-      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+      ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 #pragma warning restore CS0618
       //AppDomain.CurrentDomain.UnhandledException += delegate (object _, UnhandledExceptionEventArgs args)
       //{
