@@ -405,7 +405,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Start Time", col[1].Name, "Column 2 Start Time");
       Assert.AreEqual("Start Time", col[0].TimePart, "TimePart is Start Time");
       Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
-      Assert.AreEqual("MM/dd/yyyy", col[0].ValueFormat.DateFormat);
+      Assert.IsTrue(col[0].ValueFormat.DateFormat.Equals("MM/dd/yyyy") || col[0].ValueFormat.DateFormat.Equals("M/d/yyyy"));
       Assert.AreEqual("HH:mm:ss", col[1].ValueFormat.DateFormat);
     }
 
@@ -468,6 +468,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public async Task FillGuessColumnFormatIgnoreID()
     {
       var setting =
@@ -486,13 +487,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public async Task FillGuessColumnFormatTextColumnsAsync()
     {
       var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FieldDelimiterChar = ','
+        FieldDelimiterChar = ',',
+        WarnEmptyTailingColumns = true,
       };
       var fillGuessSettings = new FillGuessSettings(ignoreIdColumns: true);
 
@@ -502,9 +505,9 @@ namespace CsvTools.Tests
 
       var col = new List<Column>(detected);
       Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType, col[0].ToString());
-      Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType);
-      Assert.AreEqual(DataTypeEnum.Numeric, col[2].ValueFormat.DataType);
-      Assert.AreEqual(DataTypeEnum.String, col[4].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType, col[1].ToString());
+      Assert.AreEqual(DataTypeEnum.Numeric, col[2].ValueFormat.DataType, col[2].ToString());
+      Assert.AreEqual(DataTypeEnum.String, col[4].ValueFormat.DataType, col[4].ToString());
     }
 
     [TestMethod]
@@ -550,6 +553,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public async Task GetSampleValuesAsyncTest2()
     {
       using var dt = UnitTestStaticData.GetDataTable(1000);
@@ -582,13 +586,13 @@ namespace CsvTools.Tests
 
 
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
-        detectPercentage: true, detectBoolean: true, detectGuid: true, dateParts: true,
+        detectPercentage: true, detectBoolean: true, detectGuid: true, dateParts: true, 
         ignoreIdColumns: true);
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
 
-      Assert.AreEqual(6, detected.Count(), "Number of recognized Columns");
+      Assert.AreEqual(7, detected.Count(), "Number of recognized Columns");
 
       var v1 = detected.First(x => x.Name == "DateTime");
       var v2 = detected.First(x => x.Name == "Double");

@@ -421,7 +421,7 @@ namespace CsvTools
     /// <summary>
     ///   Checks if the provided text should be treated as NULL
     /// </summary>
-    /// <param name="value">A span with the text</param>
+    /// <param name="span">A span with the text</param>
     /// <param name="treatAsNull">
     ///   A semicolon separated list of that should be treated as NULL
     /// </param>
