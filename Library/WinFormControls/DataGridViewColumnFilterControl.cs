@@ -16,7 +16,6 @@
 namespace CsvTools
 {
   using System;
-  using System.ComponentModel;
   using System.Globalization;
   using System.Windows.Forms;
 
@@ -36,7 +35,7 @@ namespace CsvTools
       if (dataGridViewColumn is null)
         throw new ArgumentNullException(nameof(dataGridViewColumn));
       m_DataGridViewColumnFilter = new ColumnFilterLogic(dataGridViewColumn.ValueType, dataGridViewColumn.DataPropertyName);
-      m_DataGridViewColumnFilter.PropertyChanged += FilterLogic_PropertyChanged;
+
       InitializeComponent();
       lblCondition.Text = dataGridViewColumn.HeaderText;
 
@@ -95,47 +94,14 @@ namespace CsvTools
       }
     }
 
-    private void FilterLogic_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void HandleEnterKeyPress(object? sender, KeyPressEventArgs e)
     {
-      switch (e.PropertyName)
-      {
-        case nameof(ColumnFilterLogic.ValueText):
-          textBoxValue.Text = m_DataGridViewColumnFilter.ValueText;
-          break;
-
-        case nameof(ColumnFilterLogic.ValueDateTime):
-          dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
-          break;
-
-        case nameof(ColumnFilterLogic.Operator):
-          comboBoxOperator.Text = m_DataGridViewColumnFilter.Operator;
-          break;
-      }
-    }
-
-    /// <summary>
-    ///   Starts the clock to change the filter with a delay
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void FilterValueChanged(object? sender, EventArgs e)
-    {
+      if (e.KeyChar != 13)
+        return;
       try
       {
-        if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
-        {
-          if (!(sender is DateTimePicker dateTimePicker))
-            return;
-
-          m_DataGridViewColumnFilter.ValueDateTime = dateTimePicker.Value;
-        }
-        else
-        {
-          if (!(sender is TextBox textBox))
-            return;
-
-          m_DataGridViewColumnFilter.ValueText = textBox.Text;
-        }
+        e.Handled = true;
+        m_DataGridViewColumnFilter.ApplyFilter();
       }
       catch (Exception ex)
       {
@@ -143,46 +109,55 @@ namespace CsvTools
       }
     }
 
-    private void HandleEnterKeyPress(object? sender, KeyPressEventArgs e)
+    private void UpdateValues(object? sender, EventArgs e)
     {
-      if (e.KeyChar != 13)
-        return;
-      e.Handled = true;
-      m_DataGridViewColumnFilter.ApplyFilter();
-    }
-
-    private void TextBoxValue_Validated(object? sender, EventArgs e)
-    {
-      errorProvider.SetError(textBoxValue, string.Empty);
-      textBoxValue.Width = dateTimePickerValue.Width;
-      switch (Type.GetTypeCode(m_DataGridViewColumnFilter.ColumnDataType))
+      try
       {
-        case TypeCode.Byte:
-        case TypeCode.Decimal:
-        case TypeCode.Double:
-        case TypeCode.Int16:
-        case TypeCode.Int32:
-        case TypeCode.Int64:
-        case TypeCode.SByte:
-        case TypeCode.Single:
-        case TypeCode.UInt16:
-        case TypeCode.UInt32:
-        case TypeCode.UInt64:
-          var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                         false, false) ?? 
-                       textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
-          if (!nvalue.HasValue)
+        if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+          m_DataGridViewColumnFilter.ValueDateTime = dateTimePickerValue.Value;
+        else
+        {
+          errorProvider.SetError(textBoxValue, string.Empty);
+          textBoxValue.Width = dateTimePickerValue.Width;
+          if (textBoxValue.Text.Length>0)
           {
-            textBoxValue.Width = dateTimePickerValue.Width - 20;
-            errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+            switch (Type.GetTypeCode(m_DataGridViewColumnFilter.ColumnDataType))
+            {
+              case TypeCode.Byte:
+              case TypeCode.Decimal:
+              case TypeCode.Double:
+              case TypeCode.Int16:
+              case TypeCode.Int32:
+              case TypeCode.Int64:
+              case TypeCode.SByte:
+              case TypeCode.Single:
+              case TypeCode.UInt16:
+              case TypeCode.UInt32:
+              case TypeCode.UInt64:
+                var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                               CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                               false, false) ??
+                             textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
+                if (!nvalue.HasValue)
+                {
+                  textBoxValue.Width = dateTimePickerValue.Width - 20;
+                  errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+                  return;
+                }
+                else
+                {
+                  textBoxValue.Text = nvalue.Value.ToString(CultureInfo.CurrentCulture);
+                }
+                break;
+            }
           }
-          else
-          {
-            textBoxValue.Text = nvalue.Value.ToString(CultureInfo.CurrentCulture);
-          }
+          m_DataGridViewColumnFilter.ValueText = textBoxValue.Text;
+        }
 
-          break;
+      }
+      catch (Exception ex)
+      {
+        ParentForm.ShowError(ex);
       }
     }
   }

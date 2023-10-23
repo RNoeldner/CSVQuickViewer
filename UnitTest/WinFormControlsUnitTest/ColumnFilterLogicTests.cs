@@ -191,6 +191,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void ChangeFilterString()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
+      TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
+      
+      columnFilterLogic.ValueText="Test";
+      TestFilterExpression("[strCol] like '%Test%'", columnFilterLogic);
+    }
+
+
+    [TestMethod]
     public void AllFilterDateTime()
     {
       var dtm = DateTime.Now;
