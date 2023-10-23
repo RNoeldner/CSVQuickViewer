@@ -140,7 +140,7 @@ namespace CsvTools
     public static string OperatorIsNull => cOperatorIsNull;
 
     /// <summary>
-    ///   Gets a value indicating whether this <see cref="DataGridViewColumnFilterControl" /> is active.
+    ///   Gets a value indicating whether this <see cref="ColumnFilterLogic" /> is active.
     /// </summary>
     /// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
     public bool Active
@@ -149,7 +149,7 @@ namespace CsvTools
       set
       {        
         if (SetProperty(ref m_Active, value) && m_Active)
-          m_Active = BuildFilterExpression();
+          FilterChanged();
       }
     }
 
@@ -274,7 +274,7 @@ namespace CsvTools
     /// </summary>
     public void ApplyFilter()
     {
-      m_Active = BuildFilterExpression();
+      FilterChanged();
       if (m_Active)
         ColumnFilterApply?.Invoke(this, EventArgs.Empty);
     }
@@ -313,7 +313,7 @@ namespace CsvTools
         Operator = cOperatorEquals;
       }
       
-      m_Active = BuildFilterExpression();
+      FilterChanged();
     }
 
     /// <summary>
@@ -404,19 +404,7 @@ namespace CsvTools
       }
 
       return returnVal.ToString();
-    }
-
-    /// <summary>
-    ///   Builds the filter expression for this column
-    /// </summary>
-    /// <returns>true if the filter is set</returns>
-    private bool BuildFilterExpression()
-    {
-      m_FilterExpressionOperator = BuildFilterExpressionOperator();
-      m_FilterExpressionValue = BuildFilterExpressionValues();
-
-      return m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;
-    }
+    }   
 
     /// <summary>
     ///   Builds the filter expression for this column for Operator based filter
@@ -568,6 +556,12 @@ namespace CsvTools
     /// <summary>
     ///   Called when the filter is changed.
     /// </summary>
-    private void FilterChanged() => m_Active = BuildFilterExpression();
+    private void FilterChanged()
+    {
+      m_FilterExpressionOperator = BuildFilterExpressionOperator();
+      m_FilterExpressionValue = BuildFilterExpressionValues();
+
+      m_Active = m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;      
+    }
   }
 }

@@ -338,7 +338,7 @@ namespace CsvTools
       if (cluster.Count > 0)
         m_ValueClusters.Add(cluster);
     }
-
+    
     /// <summary>
     ///   Builds the data grid view column filter values.
     /// </summary>

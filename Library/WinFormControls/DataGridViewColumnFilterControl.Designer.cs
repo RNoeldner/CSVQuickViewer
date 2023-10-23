@@ -93,7 +93,7 @@ namespace CsvTools
       this.Controls.Add(this.lblCondition);
       this.Name = "DataGridViewColumnFilterControl";
       this.Size = new System.Drawing.Size(312, 72);
-      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
+      this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);      
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
