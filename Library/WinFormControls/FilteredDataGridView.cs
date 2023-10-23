@@ -1326,9 +1326,6 @@ namespace CsvTools
     {
       try
       {
-        if (m_Filter[m_MenuItemColumnIndex] != null)
-          m_Filter[m_MenuItemColumnIndex]!.ColumnFilterLogic.Active = true;
-
         ApplyFilters();
         contextMenuStripCell.Close();
         contextMenuStripHeader.Close();

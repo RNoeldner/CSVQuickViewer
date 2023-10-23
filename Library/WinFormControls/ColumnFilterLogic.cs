@@ -137,7 +137,6 @@ namespace CsvTools
     /// </summary>
     public event EventHandler? ColumnFilterApply;
 
-
     public static string OperatorIsNull => cOperatorIsNull;
 
     /// <summary>
@@ -149,9 +148,7 @@ namespace CsvTools
       get => m_Active;
       set
       {        
-        m_FilterExpressionValue = BuildFilterExpressionValues();
-        if (SetProperty(ref m_Active, value) && m_Active)          
-          // If set actived from the outside, make sure the Expression is correct
+        if (SetProperty(ref m_Active, value) && m_Active)
           m_Active = BuildFilterExpression();
       }
     }
@@ -215,7 +212,12 @@ namespace CsvTools
     public DateTime ValueDateTime
     {
       get => m_ValueDateTime;
-      set => SetProperty(ref m_ValueDateTime, value);
+      set
+      {
+        if (SetProperty(ref m_ValueDateTime, value))
+          // in case the text is chnaged rebuild the filter
+          FilterChanged();
+      }
     }
 
     /// <summary>
@@ -225,7 +227,12 @@ namespace CsvTools
     public string ValueText
     {
       get => m_ValueText;
-      set => SetProperty(ref m_ValueText, value);
+      set
+      {
+        if (SetProperty(ref m_ValueText, value))
+          // in case the text is chnaged rebuild the filter
+          FilterChanged();
+      }
     }
 
     public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
@@ -265,7 +272,12 @@ namespace CsvTools
     /// <summary>
     ///   Applies the filter.
     /// </summary>
-    public void ApplyFilter() => ColumnFilterApply?.Invoke(this, EventArgs.Empty);
+    public void ApplyFilter()
+    {
+      m_Active = BuildFilterExpression();
+      if (m_Active)
+        ColumnFilterApply?.Invoke(this, EventArgs.Empty);
+    }
 
     /// <summary>
     ///   Builds the SQL command.
@@ -279,13 +291,15 @@ namespace CsvTools
       return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_ColumnDataType));
     }
 
-
     /// <summary>
     ///   Set the Filter to a value
     /// </summary>
     /// <param name="value">The typed value</param>
     public void SetFilter(in object value)
     {
+      foreach (var cluster in ValueClusterCollection.GetActiveValueCluster())
+        cluster.Active = false;
+
       if (string.IsNullOrEmpty(Convert.ToString(value)))
       {
         Operator = OperatorIsNull;
@@ -297,9 +311,8 @@ namespace CsvTools
         else
           ValueText = Convert.ToString(value) ?? string.Empty;
         Operator = cOperatorEquals;
-      }    
-      foreach(var cluster in ValueClusterCollection.GetActiveValueCluster())
-        cluster.Active = false;
+      }
+      
       m_Active = BuildFilterExpression();
     }
 

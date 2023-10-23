@@ -42,29 +42,28 @@ namespace CsvTools
       // 
       this.textBoxValue.Location = new System.Drawing.Point(121, 33);
       this.textBoxValue.Name = "textBoxValue";
-      this.textBoxValue.Size = new System.Drawing.Size(180, 35);
+      this.textBoxValue.Size = new System.Drawing.Size(180, 20);
       this.textBoxValue.TabIndex = 1;
       this.textBoxValue.Visible = false;
-      this.textBoxValue.TextChanged += new System.EventHandler(this.FilterValueChanged);
+      this.textBoxValue.TextChanged += new System.EventHandler(this.UpdateValues);
       this.textBoxValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
-      this.textBoxValue.Validated += new System.EventHandler(this.TextBoxValue_Validated);
       // 
       // dateTimePickerValue
       // 
       this.dateTimePickerValue.Format = System.Windows.Forms.DateTimePickerFormat.Short;
       this.dateTimePickerValue.Location = new System.Drawing.Point(125, 33);
       this.dateTimePickerValue.Name = "dateTimePickerValue";
-      this.dateTimePickerValue.Size = new System.Drawing.Size(180, 35);
+      this.dateTimePickerValue.Size = new System.Drawing.Size(180, 20);
       this.dateTimePickerValue.TabIndex = 9;
       this.dateTimePickerValue.Visible = false;
-      this.dateTimePickerValue.ValueChanged += new System.EventHandler(this.FilterValueChanged);
+      this.dateTimePickerValue.ValueChanged += new System.EventHandler(this.UpdateValues);
       this.dateTimePickerValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
       // 
       // comboBoxOperator
       // 
       this.comboBoxOperator.Location = new System.Drawing.Point(3, 32);
       this.comboBoxOperator.Name = "comboBoxOperator";
-      this.comboBoxOperator.Size = new System.Drawing.Size(114, 37);
+      this.comboBoxOperator.Size = new System.Drawing.Size(114, 21);
       this.comboBoxOperator.TabIndex = 0;
       this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
       this.comboBoxOperator.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
@@ -76,7 +75,7 @@ namespace CsvTools
       this.lblCondition.Location = new System.Drawing.Point(3, 3);
       this.lblCondition.Margin = new System.Windows.Forms.Padding(3);
       this.lblCondition.Name = "lblCondition";
-      this.lblCondition.Size = new System.Drawing.Size(177, 29);
+      this.lblCondition.Size = new System.Drawing.Size(76, 13);
       this.lblCondition.TabIndex = 12;
       this.lblCondition.Text = "Field Condition";
       // 

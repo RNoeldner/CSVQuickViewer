@@ -159,15 +159,15 @@ namespace CsvTools
             if (col is null) return;
             var columnFilters = FilteredDataGridView.SetFilterMenu(col.Index);
 
-            if (columnFilters is null) return;
+            if (columnFilters is null) 
+              return;
+            
             columnFilters.ColumnFilterLogic.Operator = op;
             if (value is DateTime dateTime)
               columnFilters.ColumnFilterLogic.ValueDateTime = dateTime;
             else
               columnFilters.ColumnFilterLogic.ValueText = Convert.ToString(value) ?? string.Empty;
-            columnFilters.ColumnFilterLogic.Active = true;
-
-            FilteredDataGridView.ApplyFilters();
+            columnFilters.ColumnFilterLogic.ApplyFilter();                      
           }
         );
       }
