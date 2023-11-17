@@ -272,7 +272,7 @@ namespace CsvTools
                                       select filterLogic)
           {
             if (filter.Length > 0)
-              filter.Append("\nAND\n");
+              filter.Append("\nAND\n");            
             filter.Append("(" + filterLogic.FilterExpression + ")");
           }
 
@@ -1326,6 +1326,10 @@ namespace CsvTools
     {
       try
       {
+        // Rebuild the filter chnages to checking / uncheck of value Filter is not reflected
+        if (contextMenuStripFilter.Items[0] is ToolStripDataGridViewColumnFilter op)
+          op.ColumnFilterLogic.FilterChanged();
+        
         ApplyFilters();
         contextMenuStripCell.Close();
         contextMenuStripHeader.Close();
