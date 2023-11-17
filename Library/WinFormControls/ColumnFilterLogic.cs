@@ -556,7 +556,7 @@ namespace CsvTools
     /// <summary>
     ///   Called when the filter is changed.
     /// </summary>
-    private void FilterChanged()
+    public void FilterChanged()
     {
       m_FilterExpressionOperator = BuildFilterExpressionOperator();
       m_FilterExpressionValue = BuildFilterExpressionValues();
