@@ -19,6 +19,7 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 
 namespace CsvTools.Tests
 {
@@ -76,7 +77,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       string? prop = null;
-      columnFilterLogic.PropertyChanged += delegate(object _, PropertyChangedEventArgs e)
+      columnFilterLogic.PropertyChanged += delegate (object _, PropertyChangedEventArgs e)
       {
         prop = e.PropertyName;
       };
@@ -195,7 +196,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
       TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
-      
+
       columnFilterLogic.ValueText="Test";
       TestFilterExpression("[strCol] like '%Test%'", columnFilterLogic);
     }
@@ -224,7 +225,7 @@ namespace CsvTools.Tests
 
       using var data = UnitTestStaticData.GetDataTable(200);
       using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
-      columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(long), 1);
+      columnFilterLogic.ValueClusterCollection.ReBuildValueClusters(data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray());
       var i = 0;
       foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
       {

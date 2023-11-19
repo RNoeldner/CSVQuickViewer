@@ -130,6 +130,7 @@ namespace CsvTools
       m_DataPropertyName = string.Empty;
       DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
       m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
+      ValueClusterCollection = new ValueClusterCollection(this, 100);
     }
 
     /// <summary>
@@ -147,7 +148,7 @@ namespace CsvTools
     {
       get => m_Active;
       set
-      {        
+      {
         if (SetProperty(ref m_Active, value) && m_Active)
           FilterChanged();
       }
@@ -177,6 +178,8 @@ namespace CsvTools
         m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
       }
     }
+
+    public string DataPropertyNameEscaped => m_DataPropertyNameEscape;
 
     /// <summary>
     ///   Gets the filter expression.
@@ -235,12 +238,11 @@ namespace CsvTools
       }
     }
 
-    public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
+    public readonly ValueClusterCollection ValueClusterCollection;
 
-    public static object[] GetOperators(in Type columnDataType)
+    public static string[] GetOperators(in Type columnDataType)
     {
-      var retValues = new List<object>();
-
+      var retValues = new List<string>();
       if (columnDataType != typeof(DateTime) && columnDataType != typeof(bool))
         retValues.AddRange(new[] { cOperatorContains, cOperatorBegins, cOperatorEnds });
 
@@ -312,7 +314,7 @@ namespace CsvTools
           ValueText = Convert.ToString(value) ?? string.Empty;
         Operator = cOperatorEquals;
       }
-      
+
       FilterChanged();
     }
 
@@ -404,7 +406,7 @@ namespace CsvTools
       }
 
       return returnVal.ToString();
-    }   
+    }
 
     /// <summary>
     ///   Builds the filter expression for this column for Operator based filter
@@ -561,7 +563,7 @@ namespace CsvTools
       m_FilterExpressionOperator = BuildFilterExpressionOperator();
       m_FilterExpressionValue = BuildFilterExpressionValues();
 
-      m_Active = m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;      
+      m_Active = m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;
     }
   }
 }

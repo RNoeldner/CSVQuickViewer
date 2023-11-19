@@ -72,8 +72,7 @@ namespace CsvTools.Tests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = dataTable200;
-          control.SetFilterMenu(0);
+          control.DataSource = dataTable200;          
           control.CurrentCell = control[1, 0];
           control.FilterCurrentCell();
 
@@ -89,8 +88,7 @@ namespace CsvTools.Tests
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
           control =>
           {
-            control.DataSource = dataTable200;
-            control.SetFilterMenu(0);
+            control.DataSource = dataTable200;            
             control.RefreshUI();
           });
     }
@@ -121,22 +119,6 @@ namespace CsvTools.Tests
           control.DataSource = dataTable200;
           control.FrozenColumns = 1;
           control.HighlightText = "HH";
-        });
-    }
-
-    [TestMethod]
-    [Timeout(1000)]
-    public void FilteredDataGridViewVarious_SetFilterMenu()
-    {
-      using var dataTable200 = UnitTestStaticData.GetDataTable(200);
-      UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-        control =>
-        {
-          control.DataSource = dataTable200;
-
-          // Refresh all columns filters
-          for (int col = 0; col < dataTable200.Columns.Count; col++)
-            control.SetFilterMenu(col);
         });
     }
 

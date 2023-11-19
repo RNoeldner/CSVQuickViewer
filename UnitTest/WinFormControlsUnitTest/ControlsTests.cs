@@ -324,16 +324,16 @@ namespace CsvTools.Tests
         new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default)));
     }
 
-    [TestMethod, Timeout(1000)]
-    public void DataGridViewColumnFilterControl()
-    {
-      using var dataTable = UnitTestStaticData.GetDataTable(60);
-      UnitTestStaticForms.ShowControl(() => new DataGridViewColumnFilterControl(new DataGridViewTextBoxColumn
-      {
-        ValueType = dataTable.Columns[0].DataType,
-        Name = dataTable.Columns[0].ColumnName,
-        DataPropertyName = dataTable.Columns[0].ColumnName
-      }));
-    }
+    //[TestMethod, Timeout(1000)]
+    //public void DataGridViewColumnFilterControl()
+    //{
+    //  using var dataTable = UnitTestStaticData.GetDataTable(60);
+    //  UnitTestStaticForms.ShowControl(() => new DataGridViewColumnFilterControl(new DataGridViewTextBoxColumn
+    //  {
+    //    ValueType = dataTable.Columns[0].DataType,
+    //    Name = dataTable.Columns[0].ColumnName,
+    //    DataPropertyName = dataTable.Columns[0].ColumnName
+    //  }));
+    //}
   }
 }

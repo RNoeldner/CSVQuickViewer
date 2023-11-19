@@ -15,6 +15,7 @@
 #nullable enable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -25,58 +26,55 @@ namespace CsvTools
   /// <summary>
   ///   ValueClusterCollection
   /// </summary>
-  public sealed class ValueClusterCollection
+  public sealed class ValueClusterCollection : ICollection<ValueCluster>
   {
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
-
+    private ICollection<object> m_Values;
+    private bool m_HasNull;
     private readonly int m_MaxNumber;
-
-    private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
-
+    private readonly IList<ValueCluster> m_ValueClusters = new List<ValueCluster>();
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
-
-    /// <param name="maxNumber">The maximum number.</param>
-    public ValueClusterCollection(int maxNumber) => m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
+    private readonly ColumnFilterLogic m_FilterLogic;
 
     /// <summary>
-    ///   Gets the values.
+    /// Constructor for ValueClusterCollection
     /// </summary>
-    /// <value>The values.</value>
-    public ICollection<ValueCluster> ValueClusters
+    /// <param name="columnFilterLogic">The parent ColumnFilterLogic</param>
+    /// <param name="maxNumber">Maximum number of clusters</param>
+    public ValueClusterCollection(in ColumnFilterLogic columnFilterLogic, int maxNumber)
     {
-      get
-      {
-        return m_ValueClusters;
-      }
+      m_FilterLogic = columnFilterLogic;
+      m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
     }
 
     /// <summary>
-    ///   Builds the data grid view column filter values.
+    ///   Gets the m_Values.
     /// </summary>
-    /// <param name="dataView">The data view.</param>
-    /// <param name="columnType">Type of the column.</param>
-    /// <param name="columnIndex">Index of the column.</param>
-    /// <returns></returns>
-    public BuildValueClustersResult BuildValueClusters(
-      in DataView dataView,
-      in Type columnType,
-      int columnIndex)
-    {
-      if (dataView.Table is null)
-        return BuildValueClustersResult.Error;
+    /// <value>The m_Values.</value>
+    public ICollection<ValueCluster> ValueClusters => m_ValueClusters;
 
-      if (m_Result != BuildValueClustersResult.NotRun) return m_Result;
+    public int Count => m_ValueClusters.Count;
+
+    public bool IsReadOnly => m_ValueClusters.IsReadOnly;
+
+    public BuildValueClustersResult ReBuildValueClusters(in ICollection<object> values)
+    {
+      if (values is null) throw new ArgumentNullException(nameof(values));
+
+      m_Values = values;
+      m_HasNull = values.Any(x => x  == DBNull.Value);
       try
       {
-        if (columnType == typeof(string) || columnType == typeof(bool) || columnType == typeof(Guid))
-          m_Result = BuildValueClustersString(dataView.Table, columnIndex);
-        else if (columnType == typeof(DateTime))
-          m_Result = BuildValueClustersDate(dataView.Table, columnIndex);
-        else if (columnType == typeof(byte) || columnType == typeof(short) || columnType == typeof(int)
-                 || columnType == typeof(uint) || columnType == typeof(int) || columnType == typeof(float)
-                 || columnType == typeof(double) || columnType == typeof(long) || columnType == typeof(ulong)
-                 || columnType == typeof(decimal))
-          m_Result = BuildValueClustersNumeric(dataView.Table, columnIndex, columnType);
+        ClearNotActive();
+        if (m_FilterLogic.ColumnDataType == typeof(string) || m_FilterLogic.ColumnDataType == typeof(bool) || m_FilterLogic.ColumnDataType == typeof(Guid))
+          m_Result = BuildValueClustersString();
+        else if (m_FilterLogic.ColumnDataType == typeof(DateTime))
+          m_Result = BuildValueClustersDate();
+        else if (m_FilterLogic.ColumnDataType == typeof(byte) || m_FilterLogic.ColumnDataType == typeof(short) || m_FilterLogic.ColumnDataType == typeof(int)
+                 || m_FilterLogic.ColumnDataType == typeof(uint) || m_FilterLogic.ColumnDataType == typeof(int) || m_FilterLogic.ColumnDataType == typeof(float)
+                 || m_FilterLogic.ColumnDataType == typeof(double) || m_FilterLogic.ColumnDataType   == typeof(long) || m_FilterLogic.ColumnDataType == typeof(ulong)
+                 || m_FilterLogic.ColumnDataType == typeof(decimal))
+          m_Result = BuildValueClustersNumeric();
         else
           m_Result = BuildValueClustersResult.WrongType;
       }
@@ -102,24 +100,22 @@ namespace CsvTools
     /// <param name="dataTable">The data view.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersDate(DataTable dataTable, int columnIndex)
+    private BuildValueClustersResult BuildValueClustersDate()
     {
-      // Get the distinct values and their counts
+      // Get the distinct m_Values and their counts
       var clusterYear = new HashSet<int>();
       var clusterMonth = new HashSet<DateTime>();
       var clusterDay = new HashSet<DateTime>();
       var clusterHour = new HashSet<long>();
-      var hasNull = false;
-      var columnName = dataTable.Columns[columnIndex].ColumnName;
-      foreach (DataRow dataRow in dataTable.Rows)
+      
+      foreach (var dataRow in m_Values)
       {
-        if (dataRow[columnIndex] == DBNull.Value)
+        if (dataRow == DBNull.Value)
         {
-          hasNull = true;
+          m_HasNull = true;
           continue;
         }
-
-        var value = (DateTime) dataRow[columnIndex];
+        var value = (DateTime) dataRow;
         if (clusterHour.Count <= m_MaxNumber)
           clusterHour.Add(value.TimeOfDay.Ticks / cTicksPerGroup);
         if (clusterDay.Count <= m_MaxNumber)
@@ -131,67 +127,65 @@ namespace CsvTools
         // if we have more than the maximum entries stop, no value filter will be used
         if (clusterYear.Count <= m_MaxNumber)
           continue;
-        m_ValueClusters.Clear();
         return BuildValueClustersResult.TooManyValues;
       }
 
       if (clusterYear.Count == 0)
-      {
-        m_ValueClusters.Clear();
+      {        
         return BuildValueClustersResult.NoValues;
       }
 
-      if (hasNull)
-        AddValueClusterNull(dataTable, columnIndex);
+      if (m_HasNull)
+        AddValueClusterNull();
 
       int CountDateTime(DateTime minVal, DateTime maxVal) =>
-        dataTable.Rows.Cast<DataRow>()
-          .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-          .Select(dataRow => Convert.ToDateTime(dataRow[columnIndex], CultureInfo.CurrentCulture))
+        m_Values.Where(dataRow => dataRow != DBNull.Value)
+          .Select(dataRow => Convert.ToDateTime(dataRow, CultureInfo.CurrentCulture))
           .Count(value => value >= minVal && value < maxVal);
 
-      var colNameEsc = $"[{columnName.SqlName()}]";
       if (clusterDay.Count == 1)
         foreach (var dic in clusterHour.OrderBy(x => x))
         {
           var from = (dic * cTicksPerGroup).GetTimeFromTicks();
           var to = ((dic + 1) * cTicksPerGroup).GetTimeFromTicks();
           var cluster = new ValueCluster($"{from:t} - {to:t}",
-            $"({colNameEsc} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {colNameEsc} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
+            $"({m_FilterLogic.DataPropertyNameEscaped} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {m_FilterLogic.DataPropertyNameEscaped} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
             dic.ToString("000000", CultureInfo.InvariantCulture),
-            CountDateTime(from, to));
+            CountDateTime(from, to), from, to);
           if (cluster.Count > 0)
-            m_ValueClusters.Add(cluster);
+            Add(cluster);
         }
       else if (clusterDay.Count < m_MaxNumber)
         foreach (var dic in clusterDay.OrderBy(x => x))
         {
           var cluster = new ValueCluster(dic.ToString("d", CultureInfo.CurrentCulture),
-            $"({colNameEsc} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {colNameEsc} < #{dic.AddDays(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)"
+            $"({m_FilterLogic.DataPropertyNameEscaped} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {m_FilterLogic.DataPropertyNameEscaped} < #{dic.AddDays(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)"
             , dic.ToString("s", CultureInfo.CurrentCulture),
-            CountDateTime(dic, dic.AddDays(1)));
+            CountDateTime(dic, dic.AddDays(1)), dic, dic.AddDays(1));
           if (cluster.Count > 0)
-            m_ValueClusters.Add(cluster);
+            Add(cluster);
         }
       else if (clusterMonth.Count < m_MaxNumber)
         foreach (var dic in clusterMonth.OrderBy(x => x))
         {
           var cluster = new ValueCluster(dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
-            $"({colNameEsc} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {colNameEsc} < #{dic.AddMonths(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)",
+            $"({m_FilterLogic.DataPropertyNameEscaped} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {m_FilterLogic.DataPropertyNameEscaped} < #{dic.AddMonths(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)",
             dic.ToString("s", CultureInfo.InvariantCulture),
-            CountDateTime(dic, dic.AddMonths(1)));
+            CountDateTime(dic, dic.AddMonths(1)), dic, dic.AddMonths(1));
           if (cluster.Count > 0)
-            m_ValueClusters.Add(cluster);
+            Add(cluster);
         }
       else
         foreach (var dic in clusterYear.OrderBy(x => x))
         {
+          var from = new DateTime(dic + 1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+          var to = new DateTime(dic+1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
           var cluster = new ValueCluster(dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
-            $"({colNameEsc} >= #01/01/{dic:d4}# AND {colNameEsc} < #01/01/{dic + 1:d4}#)",
+            $"({m_FilterLogic.DataPropertyNameEscaped} >= #01/01/{dic:d4}# AND {m_FilterLogic.DataPropertyNameEscaped} < #01/01/{dic + 1:d4}#)",
             dic.ToString("000000", CultureInfo.InvariantCulture),
-            CountDateTime(new DateTime(dic, 1, 1), new DateTime(dic + 1, 1, 1)));
+            CountDateTime(from, to), from, to);
           if (cluster.Count > 0)
-            m_ValueClusters.Add(cluster);
+            Add(cluster);
         }
 
       return BuildValueClustersResult.ListFilled;
@@ -204,28 +198,22 @@ namespace CsvTools
     /// <param name="columnIndex">Index of the column.</param>
     /// <param name="columnType">Type of the column.</param>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersNumeric(
-      DataTable dataTable,
-      int columnIndex,
-      Type columnType)
+    private BuildValueClustersResult BuildValueClustersNumeric()
     {
-      // Get the distinct values and their counts
+      // Get the distinct m_Values and their counts
       var clusterFractions = new HashSet<double>();
       var clusterOne = new HashSet<long>();
       var clusterTen = new HashSet<long>();
       var clusterHundred = new HashSet<long>();
       var clusterThousand = new HashSet<long>();
-      var clusterTenThousand = new HashSet<long>();
+      var clusterTenThousand = new HashSet<long>();      
 
-      var columnName = dataTable.Columns[columnIndex].ColumnName;
-
-      var values = dataTable.Rows.Cast<DataRow>().Select(dataRow => dataRow[columnIndex])
-        .Where(val => val != DBNull.Value).ToList();
-
-      foreach (var value in values)
+      foreach (var value in m_Values)
       {
-        if (clusterFractions.Count <= m_MaxNumber && (columnType == typeof(decimal) || columnType == typeof(float) ||
-                                                      columnType == typeof(double)))
+        if (value is DBNull)
+          continue;
+
+        if (clusterFractions.Count <= m_MaxNumber && (m_FilterLogic.ColumnDataType == typeof(decimal) || m_FilterLogic.ColumnDataType == typeof(float) || m_FilterLogic.ColumnDataType == typeof(double)))
         {
           var rounded = Math.Floor(Convert.ToDouble(value, CultureInfo.CurrentCulture) * 10d) / 10d;
           clusterFractions.Add(rounded);
@@ -245,21 +233,17 @@ namespace CsvTools
         // if we have more than the maximum entries stop, no value filter will be used
         if (clusterTenThousand.Count > m_MaxNumber)
         {
-          m_ValueClusters.Clear();
           return BuildValueClustersResult.TooManyValues;
         }
       }
 
       if (clusterOne.Count == 0 && clusterFractions.Count == 0)
-      {
-        m_ValueClusters.Clear();
+      {        
         return BuildValueClustersResult.NoValues;
       }
 
-      if (dataTable.Rows.Cast<DataRow>().Any(dataRow => dataRow[columnIndex] == DBNull.Value))
-        AddValueClusterNull(dataTable, columnIndex);
-
-      var colNameEsc = $"[{columnName.SqlName()}]";
+      if (m_HasNull)
+        AddValueClusterNull();
 
       if (clusterFractions.Count < m_MaxNumber && clusterFractions.Count > 0)
       {
@@ -273,12 +257,11 @@ namespace CsvTools
             maxValue = dic;
           }
 
-          m_ValueClusters.Add(
-            new ValueCluster($"{minValue:F1} - {maxValue:F1}", // Fixed Point
-              $"({colNameEsc} >= {minValue.ToString("F1", CultureInfo.InvariantCulture)} AND {colNameEsc} < {maxValue.ToString("F1", CultureInfo.InvariantCulture)})",
+          Add(new ValueCluster($"{minValue:F1} - {maxValue:F1}", // Fixed Point
+              $"({m_FilterLogic.DataPropertyNameEscaped} >= {minValue.ToString("F1", CultureInfo.InvariantCulture)} AND {m_FilterLogic.DataPropertyNameEscaped} < {maxValue.ToString("F1", CultureInfo.InvariantCulture)})",
               m_ValueClusters.Count.ToString("D3"),
-              values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
-                .Count(value => value >= minValue && value < maxValue)));
+              m_Values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
+                .Count(value => value >= minValue && value < maxValue), minValue, maxValue));
         }
       }
       else
@@ -312,53 +295,47 @@ namespace CsvTools
         }
 
         var counter = 0;
-        var valuesLong = values.Select(dataRow => Convert.ToInt64(dataRow, CultureInfo.CurrentCulture)).ToList();
+        var valuesLong = m_Values.Where(x => x != null && x != DBNull.Value).Select(dataRow => Convert.ToInt64(dataRow, CultureInfo.CurrentCulture)).ToList();
         foreach (var dic in fittingCluster.OrderBy(x => x))
         {
           if (dic < 0 && counter == 0)
-            AddNumericCluster(valuesLong, dic - 1, factor, colNameEsc, counter++);
-          AddNumericCluster(valuesLong, dic, factor, colNameEsc, counter++);
+            AddNumericCluster(valuesLong, dic - 1, factor, counter++);
+          AddNumericCluster(valuesLong, dic, factor, counter++);
         }
       }
 
       return BuildValueClustersResult.ListFilled;
     }
-
-    private void AddNumericCluster(IEnumerable<long> values, long dic, int factor, string colNameEsc,
+    
+    private void AddNumericCluster(IEnumerable<long> values, long dic, int factor,
       int counter)
     {
       var minValue = dic * factor;
       var maxValue = (dic + 1) * factor;
 
       var cluster = new ValueCluster((factor > 1) ? $"{minValue:D} to {maxValue:D}" : $"{dic}",
-        string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, minValue, maxValue),
+        string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", m_FilterLogic.DataPropertyNameEscaped, minValue, maxValue),
         counter.ToString("D3"),
-        values.Count(value => value >= minValue && value < maxValue));
+        values.Count(value => value >= minValue && value < maxValue), (double) minValue, (double) maxValue);
 
       if (cluster.Count > 0)
-        m_ValueClusters.Add(cluster);
+        Add(cluster);
     }
-    
+
     /// <summary>
-    ///   Builds the data grid view column filter values.
+    ///   Builds the data grid view column filter m_Values.
     /// </summary>
     /// <param name="dataTable">The data view.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersString(DataTable dataTable, int columnIndex)
+    private BuildValueClustersResult BuildValueClustersString()
     {
-      // Get the distinct values and their counts
-      var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      var hasNull = false;
-      foreach (DataRow dataRow in dataTable.Rows)
-      {
-        if (dataRow[columnIndex] == DBNull.Value)
-        {
-          hasNull = true;
-          continue;
-        }
+      // Get the distinct m_Values and their counts
+      var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);      
 
-        var text = dataRow[columnIndex].ToString();
+      foreach (var ob in m_Values)
+      {
+        var text = ob.ToString();
         if (text is null || text.Length == 0)
           continue;
         cluster.Add(text);
@@ -366,37 +343,79 @@ namespace CsvTools
         // if we have more than the maximum entries stop, no value filter will be used
         if (cluster.Count <= m_MaxNumber)
           continue;
-        m_ValueClusters.Clear();
+        
         return BuildValueClustersResult.TooManyValues;
       }
 
       if (cluster.Count == 0)
-      {
-        m_ValueClusters.Clear();
+      {        
         return BuildValueClustersResult.NoValues;
       }
 
-      if (hasNull)
-        AddValueClusterNull(dataTable, columnIndex);
+      if (m_HasNull)
+        AddValueClusterNull();
 
-      var colNameEsc = $"[{dataTable.Columns[columnIndex].ColumnName.SqlName()}]";
       foreach (var text in cluster)
-        m_ValueClusters.Add(new ValueCluster(text, $"({colNameEsc} = '{text.SqlQuote()}')", text,
-          dataTable.Rows.Cast<DataRow>()
-            .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-            .Count(dataRow =>
-              string.Equals(dataRow[columnIndex].ToString(), text, StringComparison.OrdinalIgnoreCase))));
+        Add(new ValueCluster(text, $"({m_FilterLogic.DataPropertyNameEscaped} = '{text.SqlQuote()}')", text,
+          m_Values.Where(dataRow => dataRow != DBNull.Value)
+          .Count(dataRow => string.Equals(dataRow.ToString(), text, StringComparison.OrdinalIgnoreCase)), text, null));
 
       return BuildValueClustersResult.ListFilled;
     }
 
-    private void AddValueClusterNull(DataTable dataTable, int columnIndex)
+    private void AddValueClusterNull()
     {
-      m_ValueClusters.Add(
+      if (!m_ValueClusters.Any(x => x.Start is null))
+        m_ValueClusters.Add(
         new ValueCluster(ColumnFilterLogic.OperatorIsNull,
-          string.Format($"([{dataTable.Columns[columnIndex].ColumnName.SqlName()}] IS NULL)"),
+          string.Format($"{m_FilterLogic.DataPropertyNameEscaped} IS NULL)"),
           string.Empty,
-          dataTable.Rows.Cast<DataRow>().Count(dataRow => dataRow[columnIndex] == DBNull.Value)));
+          m_Values.Count(x => x == DBNull.Value), null, null));
     }
+
+    public void Add(ValueCluster item)
+    {
+      if (m_FilterLogic.ColumnDataType == typeof(string) || m_FilterLogic.ColumnDataType == typeof(bool) || m_FilterLogic.ColumnDataType == typeof(Guid))
+      {
+        if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, item.Start?.ToString() ?? string.Empty)))
+          m_ValueClusters.Add(item);
+      }
+      else if (m_FilterLogic.ColumnDataType == typeof(DateTime))
+      {
+        //                                                                       x  i   x
+        // Do not add if there is a cluster existing that spans the new value   [ [ ]  ]
+        // Do not add if there is a cluster existing that spans the new value     [ ]  ]
+        // Do not add if there is a cluster existing that spans the new value   [ [ ]
+        // Do not add if there is a cluster existing that spans the new value     [ ]
+        if (!m_ValueClusters.Any(x => (DateTime) x.Start <= (DateTime) item.Start && (DateTime) x.End<= (DateTime) item.End))
+          m_ValueClusters.Add(item);
+      }
+      else if (m_FilterLogic.ColumnDataType == typeof(float) || m_FilterLogic.ColumnDataType == typeof(double) || m_FilterLogic.ColumnDataType == typeof(decimal) || m_FilterLogic.ColumnDataType == typeof(byte) || m_FilterLogic.ColumnDataType == typeof(short) || m_FilterLogic.ColumnDataType == typeof(int) || m_FilterLogic.ColumnDataType == typeof(long))
+      {
+        if (!m_ValueClusters.Any(x => x.Start != null &&  (double) x.Start <= (double) item.Start && (double) x.End>= (double) item.End))
+          m_ValueClusters.Add(item);
+      }
+      else
+        m_ValueClusters.Add(item);
+    }
+
+
+    /// <summary>
+    /// Removes all not active Cluster 
+    /// </summary>
+    public void ClearNotActive()
+    {
+      var keep = GetActiveValueCluster().ToArray();
+      Clear();
+      foreach (var item in keep)
+        m_ValueClusters.Add(item);
+    }
+
+    public void Clear() => m_ValueClusters.Clear();
+    public bool Contains(ValueCluster item) => m_ValueClusters.Contains(item);
+    public void CopyTo(ValueCluster[] array, int arrayIndex) => m_ValueClusters.CopyTo(array, arrayIndex);
+    public bool Remove(ValueCluster item) => m_ValueClusters.Remove(item);
+    public IEnumerator<ValueCluster> GetEnumerator() => m_ValueClusters.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => m_ValueClusters.GetEnumerator();
   }
 }

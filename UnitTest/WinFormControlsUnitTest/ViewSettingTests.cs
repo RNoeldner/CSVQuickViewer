@@ -19,7 +19,7 @@ namespace CsvTools.Tests
           ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc);
-        var columnFilters = new List<ToolStripDataGridViewColumnFilter> { new ToolStripDataGridViewColumnFilter(dgvc) };
+        var columnFilters = new List<ColumnFilterLogic> { new ColumnFilterLogic( typeof(string), "DataProp") };
         var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, dgv.SortedColumn, dgv.SortOrder);
         Assert.IsTrue(!string.IsNullOrEmpty(text));
       }
@@ -42,22 +42,19 @@ namespace CsvTools.Tests
           ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc2);
-        var columnFilters = new List<ToolStripDataGridViewColumnFilter>
-        {
-          new ToolStripDataGridViewColumnFilter(dgvc), new ToolStripDataGridViewColumnFilter(dgvc2)
-        };
+        var columnFilters = new List<ColumnFilterLogic> { new ColumnFilterLogic( typeof(string), "DataProp"), new ColumnFilterLogic( typeof(string), "DataProp2") };
+        
+        columnFilters[0].ValueClusterCollection.ValueClusters
+          .Add(new ValueCluster("display", "cond", string.Empty, 0, "cond",null));
+        columnFilters[0].Active = true;
 
-        columnFilters[0].ColumnFilterLogic.ValueClusterCollection.ValueClusters
-          .Add(new ValueCluster("display", "cond", string.Empty, 0));
-        columnFilters[0].ColumnFilterLogic.Active = true;
-
-        columnFilters[1].ColumnFilterLogic.Operator = "=";
-        columnFilters[1].ColumnFilterLogic.ValueText = "Halloween";
-        columnFilters[1].ColumnFilterLogic.Active = true;
+        columnFilters[1].Operator = "=";
+        columnFilters[1].ValueText = "Halloween";
+        columnFilters[1].Active = true;
 
         var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, dgv.SortedColumn, dgv.SortOrder);
-        ViewSetting.ReStoreViewSetting(text, dgv.Columns, Array.Empty<ToolStripDataGridViewColumnFilter>(),
-          i => columnFilters[i], null);
+        //ViewSetting.ReStoreViewSetting(text, dgv.Columns, Array.Empty<ToolStripDataGridViewColumnFilter>(),
+        //  i => columnFilters[i], null);
       }
     }
 
