@@ -157,17 +157,17 @@ namespace CsvTools
           {
             var col = GetViewColumn(dataColumnName);
             if (col is null) return;
-            var columnFilters = FilteredDataGridView.SetFilterMenu(col.Index);
+            var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
 
             if (columnFilters is null) 
               return;
             
-            columnFilters.ColumnFilterLogic.Operator = op;
+            columnFilters.Operator = op;
             if (value is DateTime dateTime)
-              columnFilters.ColumnFilterLogic.ValueDateTime = dateTime;
+              columnFilters.ValueDateTime = dateTime;
             else
-              columnFilters.ColumnFilterLogic.ValueText = Convert.ToString(value) ?? string.Empty;
-            columnFilters.ColumnFilterLogic.ApplyFilter();                      
+              columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
+            columnFilters.ApplyFilter();                      
           }
         );
       }

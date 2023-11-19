@@ -23,6 +23,9 @@ namespace CsvTools
   /// </summary>
   public sealed class ValueCluster : IEquatable<ValueCluster>
   {
+    public readonly object? Start;
+    public readonly object? End;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
     /// </summary>
@@ -31,12 +34,14 @@ namespace CsvTools
     /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    public ValueCluster(in string display, in string condition, in string? sort, int count, bool active = false)
+    public ValueCluster(in string display, in string condition, in string? sort, int count, object? start, object? end = null, bool active = false)
     {
       Display = display;
       SQLCondition = condition;
       Sort = sort ?? string.Empty;
       Count = count;
+      Start = start;
+      End = end;
 
       // These values might change later
       Active = active;
@@ -100,7 +105,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      
+
       return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
              && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
@@ -119,7 +124,7 @@ namespace CsvTools
     {
       if (obj is null)
         return false;
-      
+
       return obj is ValueCluster typed && GetHashCode() == typed.GetHashCode();
     }
 

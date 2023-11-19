@@ -51,6 +51,9 @@
 		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Update="FromDataGridViewFilter.cs">
+	    <SubType>UserControl</SubType>
+	  </Compile>
 	  <Compile Update="FormColumnUIRead.cs" />
 	  <Compile Update="FormPasswordAndKey.cs" />
 	  <Compile Update="FormSelectInDropdown.cs">
