@@ -23,29 +23,20 @@ using System.Linq;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   ValueClusterCollection
-  /// </summary>
-  public sealed class ValueClusterCollection : ICollection<ValueCluster>
+  /// <remarks>
+  /// Constructor for ValueClusterCollection
+  /// </remarks>
+  /// <param name="columnFilterLogic">The parent ColumnFilterLogic</param>
+  /// <param name="maxNumber">Maximum number of clusters</param>
+  public sealed class ValueClusterCollection(in ColumnFilterLogic columnFilterLogic, int maxNumber) : ICollection<ValueCluster>
   {
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
-    private ICollection<object> m_Values;
+    private ICollection<object> m_Values = Array.Empty<object>();
     private bool m_HasNull;
-    private readonly int m_MaxNumber;
+    private readonly int m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
     private readonly IList<ValueCluster> m_ValueClusters = new List<ValueCluster>();
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
-    private readonly ColumnFilterLogic m_FilterLogic;
-
-    /// <summary>
-    /// Constructor for ValueClusterCollection
-    /// </summary>
-    /// <param name="columnFilterLogic">The parent ColumnFilterLogic</param>
-    /// <param name="maxNumber">Maximum number of clusters</param>
-    public ValueClusterCollection(in ColumnFilterLogic columnFilterLogic, int maxNumber)
-    {
-      m_FilterLogic = columnFilterLogic;
-      m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
-    }
+    private readonly ColumnFilterLogic m_FilterLogic = columnFilterLogic;
 
     /// <summary>
     ///   Gets the m_Values.
@@ -309,12 +300,10 @@ namespace CsvTools
     {
       var minValue = dic * factor;
       var maxValue = (dic + 1) * factor;
-
-      var cluster = new ValueCluster((factor > 1) ? $"{minValue:D} to {maxValue:D}" : $"{dic}",
-        string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", m_FilterLogic.DataPropertyNameEscaped, minValue, maxValue),
+      var cluster = new ValueCluster((factor > 1) ? $"{minValue:D} to {maxValue-1:D}" : $"{dic}",
+        string.Format(CultureInfo.InvariantCulture, (factor > 1) ? "({0} >= {1} AND {0} < {2})" : "{0} = {1}", m_FilterLogic.DataPropertyNameEscaped, minValue, maxValue),
         counter.ToString("D3"),
-        values.Count(value => value >= minValue && value < maxValue), (double) minValue, (double) maxValue);
-
+        values.Count(value => (factor > 1) ? value >= minValue && value < maxValue : value == minValue), (double) minValue, (double) maxValue);
       if (cluster.Count > 0)
         Add(cluster);
     }

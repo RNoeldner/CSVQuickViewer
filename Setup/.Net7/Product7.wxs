@@ -10,7 +10,7 @@
   <?define AppFolder="CSVQuickViewer" ?>
 
   <?define CSVQuickViewer.ProjectDir= "..\..\Application"?>
-  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net7.0-windows"?>
+  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net8.0-windows"?>
 
   <Product Id="*" Name="$(var.Application) $(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
            UpgradeCode="F42F893E-A1DB-43C6-481F-D2FED20CDEED" Codepage="utf-8">

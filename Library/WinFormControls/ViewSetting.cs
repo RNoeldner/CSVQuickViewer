@@ -25,118 +25,72 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
-    private static ColumnFilterLogic? GetFilter(in string dataPropertyName, in ICollection<ColumnFilterLogic> columnFilters, in DataGridViewColumnCollection columns)
-    {
-      // look in already existing Filters
-      foreach (var columnFilter in columnFilters)
-      {
-        if (columnFilter is null)
-          continue;
-        if (dataPropertyName.Equals(columnFilter.DataPropertyName,StringComparison.OrdinalIgnoreCase))
-          return columnFilter;
-      }
-
-      var columnIndex = 0;
-      foreach (var filter in columnFilters)
-      {
-        if (filter is null && columns[columnIndex].DataPropertyName.Equals(dataPropertyName, StringComparison.OrdinalIgnoreCase))
-          return new ColumnFilterLogic(typeof(string), dataPropertyName);
-        columnIndex++;
-      }
-
-      return null;
-    }
-
-    public static bool ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
-      ICollection<ColumnFilterLogic> columnFilters,      
-      Action<DataGridViewColumn, ListSortDirection>? doSort)
+    public static void ReStoreViewSetting(in string text, DataGridViewColumnCollection columns, IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
     {
       try
       {
         var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
-
+        if (vst == null)
+          throw new InvalidOperationException();
         var displayIndex = 0;
-        foreach (var storedColumn in (vst ?? throw new InvalidOperationException()).OrderBy(x => x.DisplayIndex))
-          foreach (DataGridViewColumn col in columns)
-            if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
-              try
-              {
-                if (col.Visible != storedColumn.Visible)
-                  col.Visible = storedColumn.Visible;
-
-                if (col.Visible)
-                {
-                  col.Width = storedColumn.Width;
-                  if (storedColumn.Sort == 1)
-                    doSort?.Invoke(col, ListSortDirection.Ascending);
-                  if (storedColumn.Sort == 2)
-                    doSort?.Invoke(col, ListSortDirection.Descending);
-                }
-
-                col.DisplayIndex = displayIndex++;
-                break;
-              }
-              catch (Exception ex)
-              {
-                Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
-              }
-
         var hasFilterSet = false;
-        foreach (var storedFilterSetting in vst)
+        foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
         {
-          ColumnFilterLogic? columnFilter = null;
-
-          if (storedFilterSetting.ValueFilters.Count > 0)
+          var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x => x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
+          if (col == null)
+            continue;
+          try
           {
-            columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns);
-            if (columnFilter is null)
-              continue;
-            foreach (var valueFilter in storedFilterSetting.ValueFilters)
+            if (col.Visible != storedColumn.Visible)
+              col.Visible = storedColumn.Visible;
+
+            if (col.Visible)
             {
-              var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
-                valueFilter.SQLCondition.Equals(x.SQLCondition, StringComparison.OrdinalIgnoreCase));
-              if (cluster != null)
-                cluster.Active = true;
-              else
-                columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(valueFilter.Display,
-                  valueFilter.SQLCondition, string.Empty, 0, null, null, true));
+              col.Width = storedColumn.Width;
+              if (storedColumn.Sort == 1)
+                doSort?.Invoke(col, ListSortDirection.Ascending);
+              if (storedColumn.Sort == 2)
+                doSort?.Invoke(col, ListSortDirection.Descending);
             }
-          }
 
-          // only restore operator based filter if there is no Value Filter
-          else if (!string.IsNullOrEmpty(storedFilterSetting.Operator))
+            col.DisplayIndex = displayIndex++;
+
+            var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
+
+            foreach (var cluster in storedColumn.ValueFilters)
+              columnFilters[col.Index].ValueClusterCollection.Add(new ValueCluster(cluster.Display, cluster.SQLCondition, string.Empty, 0, null, null, true));
+            if (storedColumn.ValueFilters.Count==0)
+            {
+              columnFilters[col.Index].Operator = storedColumn.Operator;
+              columnFilters[col.Index].ValueText = storedColumn.ValueText;
+              columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
+            }
+
+            if (!columnFilters.ContainsKey(col.Index))
+              columnFilters.Add(col.Index, newColumnFilterLogic);
+            else
+              columnFilters[col.Index] = newColumnFilterLogic;
+            hasFilterSet = true;
+
+            break;
+          }
+          catch (Exception ex)
           {
-            columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns);
-            if (columnFilter is null)
-              continue;
-            columnFilter.ValueText = storedFilterSetting.ValueText;
-            columnFilter.ValueDateTime = storedFilterSetting.ValueDate;
-            columnFilter.Operator = storedFilterSetting.Operator;
+            Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
           }
-
-          if (columnFilter != null)
-            columnFilter.Active = true;
-
-          hasFilterSet = true;
         }
-
-        return hasFilterSet;
       }
       catch (Exception ex)
       {
         Logger.Warning(ex, "Restoring View Setting");
-        return false;
       }
     }
 
-    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns,
-      IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn,
-      SortOrder sortOrder)
+    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns, IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn, SortOrder sortOrder)
     {
       try
       {
-        var vst = columns.OfType<DataGridViewColumn>()
-        .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+        var vst = columns.OfType<DataGridViewColumn>().Select(col => new ColumnSetting(col.DataPropertyName, col.Visible, col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
         var colIndex = 0;
         foreach (var columnFilter in columnFilters)
         {
