@@ -402,8 +402,7 @@ namespace CsvTools
       this.m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
       this.m_FastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox00.ReadOnly = true;
-      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox00.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox00.ServiceColors")));
+      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
       this.m_FastColoredTextBox00.ShowLineNumbers = false;
       this.m_FastColoredTextBox00.ShowScrollBars = false;
       this.m_FastColoredTextBox00.Size = new System.Drawing.Size(92, 18);
@@ -450,8 +449,7 @@ namespace CsvTools
       this.m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
       this.m_FastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox12.ReadOnly = true;
-      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox12.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox12.ServiceColors")));
+      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
       this.m_FastColoredTextBox12.ShowLineNumbers = false;
       this.m_FastColoredTextBox12.Size = new System.Drawing.Size(197, 33);
       this.m_FastColoredTextBox12.TabIndex = 5;
@@ -487,7 +485,6 @@ namespace CsvTools
       this.m_FastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox02.ReadOnly = true;
       this.m_FastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox02.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox02.ServiceColors")));
       this.m_FastColoredTextBox02.ShowLineNumbers = false;
       this.m_FastColoredTextBox02.ShowScrollBars = false;
       this.m_FastColoredTextBox02.Size = new System.Drawing.Size(92, 33);
@@ -524,7 +521,6 @@ namespace CsvTools
       this.m_FastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox11.ReadOnly = true;
       this.m_FastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox11.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox11.ServiceColors")));
       this.m_FastColoredTextBox11.ShowLineNumbers = false;
       this.m_FastColoredTextBox11.ShowScrollBars = false;
       this.m_FastColoredTextBox11.Size = new System.Drawing.Size(197, 18);
@@ -561,7 +557,6 @@ namespace CsvTools
       this.m_FastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox01.ReadOnly = true;
       this.m_FastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox01.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox01.ServiceColors")));
       this.m_FastColoredTextBox01.ShowLineNumbers = false;
       this.m_FastColoredTextBox01.ShowScrollBars = false;
       this.m_FastColoredTextBox01.Size = new System.Drawing.Size(92, 18);
@@ -598,7 +593,6 @@ namespace CsvTools
       this.m_FastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox10.ReadOnly = true;
       this.m_FastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox10.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox10.ServiceColors")));
       this.m_FastColoredTextBox10.ShowLineNumbers = false;
       this.m_FastColoredTextBox10.ShowScrollBars = false;
       this.m_FastColoredTextBox10.Size = new System.Drawing.Size(197, 18);
@@ -637,8 +631,7 @@ namespace CsvTools
       this.m_FastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox.ReadOnly = true;
       this.m_TableLayoutPanelText.SetRowSpan(this.m_FastColoredTextBox, 3);
-      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.m_FastColoredTextBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors) (resources.GetObject("m_FastColoredTextBox.ServiceColors")));
+      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
       this.m_FastColoredTextBox.Size = new System.Drawing.Size(362, 95);
       this.m_FastColoredTextBox.TabIndex = 0;
       this.m_FastColoredTextBox.TabLength = 1;

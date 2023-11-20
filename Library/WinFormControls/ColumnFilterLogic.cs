@@ -95,7 +95,7 @@ namespace CsvTools
     /// <summary>
     ///   The m_ column data type
     /// </summary>
-    private readonly Type m_ColumnDataType;
+    private readonly DataTypeEnum m_DataType;
 
     /// <summary>
     ///   Flag indicating if the whole filter is active
@@ -126,10 +126,13 @@ namespace CsvTools
     /// <param name="dataPropertyName">Name of the data property.</param>
     public ColumnFilterLogic(in Type columnDataType, in string dataPropertyName)
     {
+      if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
+      if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
+
       m_DataPropertyNameEscape = string.Empty;
       m_DataPropertyName = string.Empty;
-      DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
-      m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
+      DataPropertyName = dataPropertyName;      
+      m_DataType = columnDataType.GetDataType();
       ValueClusterCollection = new ValueClusterCollection(this, 100);
     }
 
@@ -158,7 +161,7 @@ namespace CsvTools
     ///   Gets the type of the column data.
     /// </summary>
     /// <value>The type of the column data.</value>
-    public Type ColumnDataType => m_ColumnDataType;
+    public DataTypeEnum DataType => m_DataType;
 
     public string DataPropertyName
     {
@@ -240,22 +243,19 @@ namespace CsvTools
 
     public readonly ValueClusterCollection ValueClusterCollection;
 
-    public static string[] GetOperators(in Type columnDataType)
+    public static string[] GetOperators(DataTypeEnum columnDataType)
     {
       var retValues = new List<string>();
-      if (columnDataType != typeof(DateTime) && columnDataType != typeof(bool))
+      if (columnDataType != DataTypeEnum.DateTime && columnDataType != DataTypeEnum.Boolean)
         retValues.AddRange(new[] { cOperatorContains, cOperatorBegins, cOperatorEnds });
 
       // everyone gets = / <>
       retValues.AddRange(new[] { cOperatorEquals, cOperatorNotEqual });
 
-      if (columnDataType == typeof(string))
+      if (columnDataType == DataTypeEnum.String)
         retValues.AddRange(new[] { cOperatorLonger, cOperatorShorter, cOperatorSmallerEqual, cOperatorBiggerEqual });
 
-      else if (columnDataType == typeof(DateTime) || columnDataType == typeof(int) || columnDataType == typeof(long)
-               || columnDataType == typeof(double) || columnDataType == typeof(float)
-               || columnDataType == typeof(decimal) || columnDataType == typeof(byte)
-               || columnDataType == typeof(short))
+      else if (columnDataType == DataTypeEnum.DateTime || columnDataType == DataTypeEnum.Numeric || columnDataType == DataTypeEnum.Integer)
         retValues.AddRange(
           new[] { cOperatorSmaller, cOperatorSmallerEqual, cOperatorBiggerEqual, cOperatorBigger });
 
@@ -290,7 +290,7 @@ namespace CsvTools
     {
       if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_ColumnDataType));
+      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_DataType));
     }
 
     /// <summary>
@@ -308,7 +308,7 @@ namespace CsvTools
       }
       else
       {
-        if (m_ColumnDataType == typeof(DateTime))
+        if (m_DataType == DataTypeEnum.DateTime)
           ValueDateTime = (DateTime) value;
         else
           ValueText = Convert.ToString(value) ?? string.Empty;
@@ -324,46 +324,35 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>A string with the formatted value</returns>
-    private static string FormatValue(ReadOnlySpan<char> value, Type targetType)
+    private static string FormatValue(ReadOnlySpan<char> value, DataTypeEnum targetType)
     {
       if (value.IsEmpty)
         return string.Empty;
-      switch (Type.GetTypeCode(targetType))
+      switch (targetType)
       {
-        case TypeCode.DateTime:
+        case DataTypeEnum.DateTime:
           throw new NotImplementedException("ValueDateTime Time should be used, not ValueText");
 
-        case TypeCode.Byte:
-        case TypeCode.Decimal:
-        case TypeCode.Double:
-        case TypeCode.Int16:
-        case TypeCode.Int32:
-        case TypeCode.Int64:
-        case TypeCode.SByte:
-        case TypeCode.Single:
-        case TypeCode.UInt16:
-        case TypeCode.UInt32:
-        case TypeCode.UInt64:
+        case DataTypeEnum.Numeric:
           var decValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
                            CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
                            false, false) ??
                          value.StringToDecimal('.', char.MinValue, false, false);
           return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
-        case TypeCode.Boolean:
+        case DataTypeEnum.Integer:
+          var lngValue = (value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                           false, false) ??
+                         value.StringToDecimal('.', char.MinValue, false, false)).Value.ToInt64();
+          return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue);
+
+        case DataTypeEnum.Boolean:
           var boolValue = value.StringToBoolean("x".AsSpan(), ReadOnlySpan<char>.Empty);
           if (boolValue.HasValue)
             return boolValue.Value ? "1" : "0";
           break;
 
-        case TypeCode.Object:
-          if (targetType == typeof(Guid))
-            return $"'{value.ToString().SqlQuote()}'";
-          break;
-
-        case TypeCode.Empty:
-        case TypeCode.DBNull:
-          break;
 
         default:
           return $"'{value.ToString().SqlQuote()}'";
@@ -419,10 +408,10 @@ namespace CsvTools
         case cOperatorIsNull:
           return string.Format(
             CultureInfo.InvariantCulture,
-            m_ColumnDataType == typeof(string) ? "({0} IS NULL or {0} = '')" : "{0} IS NULL",
+            m_DataType == DataTypeEnum.String ? "({0} IS NULL or {0} = '')" : "{0} IS NULL",
             m_DataPropertyNameEscape);
 
-        case cOperatorIsNotNull when Type.GetTypeCode(m_ColumnDataType) == TypeCode.String:
+        case cOperatorIsNotNull when m_DataType == DataTypeEnum.String:
           return string.Format(CultureInfo.InvariantCulture, "NOT({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
 
         case cOperatorIsNotNull:
@@ -442,7 +431,7 @@ namespace CsvTools
         case cOperatorContains:
           if (!string.IsNullOrEmpty(m_ValueText))
           {
-            if (m_ColumnDataType == typeof(string))
+            if (m_DataType == DataTypeEnum.String)
               return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0} LIKE '%{1}%'",
@@ -458,17 +447,17 @@ namespace CsvTools
           break;
 
         case cOperatorLonger:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), typeof(int))))
+          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer)))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
         case cOperatorShorter:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), typeof(int))))
+          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer)))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
         case cOperatorBegins:
-          if (m_ColumnDataType == typeof(string))
+          if (m_DataType == DataTypeEnum.String)
             return string.Format(
               CultureInfo.InvariantCulture,
               "{0} LIKE '{1}%'",
@@ -481,7 +470,7 @@ namespace CsvTools
             StringEscapeLike(m_ValueText));
 
         case cOperatorEnds:
-          if (m_ColumnDataType == typeof(string))
+          if (m_DataType == DataTypeEnum.String)
             return string.Format(
               CultureInfo.InvariantCulture,
               "{0} LIKE '%{1}'",
@@ -496,7 +485,7 @@ namespace CsvTools
         default:
           string filterValue;
 
-          if (m_ColumnDataType == typeof(DateTime))
+          if (m_DataType == DataTypeEnum.DateTime)
           {
             // Filtering for Dates we need to ignore time
             filterValue = $@"#{m_ValueDateTime:MM\/dd\/yyyy}#";
@@ -515,7 +504,7 @@ namespace CsvTools
 
           if (string.IsNullOrEmpty(m_ValueText))
             return string.Empty;
-          filterValue = FormatValue(m_ValueText.AsSpan(), m_ColumnDataType);
+          filterValue = FormatValue(m_ValueText.AsSpan(), m_DataType);
 
           if (!string.IsNullOrEmpty(filterValue))
           {

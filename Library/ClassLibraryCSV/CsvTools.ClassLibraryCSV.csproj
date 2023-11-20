@@ -11,7 +11,7 @@
 		<OutputType>Library</OutputType>
 		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
 		<SignAssembly>True</SignAssembly>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
@@ -45,10 +45,10 @@
 	  <Optimize>False</Optimize>
 	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
 	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
 	  <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>

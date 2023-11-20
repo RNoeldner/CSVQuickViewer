@@ -885,7 +885,13 @@ namespace CsvTools
           newColumn.Width =
             oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
             GetColumnWith(col, DataView.Table.Rows, m_CancellationTokenSource.Token);
-          Columns.Add(newColumn);
+          var colIndex = Columns.Add(newColumn);
+          // remove filter in case it does not match
+          if (m_FilterLogic.TryGetValue(colIndex, out var filter))
+          {
+            if (filter.DataPropertyName != col.ColumnName && filter.DataType != newColumn.ValueType.GetDataType())
+              m_FilterLogic.Remove(colIndex);
+          }
         }
       }
       finally
@@ -1116,7 +1122,7 @@ namespace CsvTools
         {
           if (dataSource is BindingSource bs)
           {
-            m_BindingSource = ((BindingSource) DataSource!);
+            m_BindingSource = (BindingSource) DataSource!;
             dataMember = bs.DataMember;
             dataSource = bs.DataSource;
           }
@@ -1195,7 +1201,7 @@ namespace CsvTools
       {
         var filter = GetColumnFilter(m_MenuItemColumnIndex);
         // This does not work proprtly
-        var filterExpression = FilterText(m_MenuItemColumnIndex);        
+        var filterExpression = FilterText(m_MenuItemColumnIndex);
         var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<object>();
         using (var filterPopup = new FromDataGridViewFilter(filter, data))
         {
@@ -1223,13 +1229,19 @@ namespace CsvTools
           return;
         if (m_FileSetting != null && FillGuessSettings != null)
         {
+
           using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
             false, false, false);
 
           if (form.ShowWithFont(this, true) == DialogResult.Cancel)
             return;
 
+          // Update the  columns
           m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
+
+          // Handle Filter in case of Type change
+          if (form.UpdatedColumn.ValueFormat.DataType != columnFormat.ValueFormat.DataType)
+            m_FilterLogic.Remove(m_MenuItemColumnIndex);
         }
       }
       catch (Exception ex)

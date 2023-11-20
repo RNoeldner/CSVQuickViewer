@@ -8,7 +8,7 @@
 		<Authors>Raphael Nöldner</Authors>
 		<PackageIcon>Picture.png</PackageIcon>
 		<SignAssembly>True</SignAssembly>
-		<TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>
@@ -36,15 +36,19 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
 	  <DebugType>none</DebugType>
+    <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
 	  <DebugType>none</DebugType>
+    <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
 	  <DebugType>embedded</DebugType>
+    <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
 	  <DebugType>embedded</DebugType>
+    <DefineConstants>$(DefineConstants);SupportPGP</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="App.config" />
@@ -71,7 +75,7 @@
 		<Reference Include="System.Xml.Linq" />
 		<Reference Include="WindowsBase" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows' Or '$(TargetFramework)' == 'net7.0-windows'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>

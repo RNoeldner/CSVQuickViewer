@@ -20,7 +20,6 @@ namespace CsvTools
   using System.Globalization;
   using System.Linq;
   using System.Text;
-  using System.Threading;
   using System.Windows.Forms;
 
   /// <summary>
@@ -41,12 +40,12 @@ namespace CsvTools
 
       Text = m_DataGridViewColumnFilter.DataPropertyName;
 
-      dateTimePickerValue.Visible = m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime);
+      dateTimePickerValue.Visible = m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime;
       textBoxValue.Visible = !dateTimePickerValue.Visible;
 
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
-      comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.ColumnDataType));
+      comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.DataType));
       comboBoxOperator.SelectedIndex = 0;
       comboBoxOperator.EndUpdate();
 
@@ -124,39 +123,32 @@ namespace CsvTools
     {
       try
       {
-        if (m_DataGridViewColumnFilter.ColumnDataType != typeof(DateTime))
+        if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
         {
           errorProvider.SetError(textBoxValue, string.Empty);
           if (textBoxValue.Text.Length>0)
           {
-            switch (Type.GetTypeCode(m_DataGridViewColumnFilter.ColumnDataType))
+            if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
             {
-              case TypeCode.Byte:
-              case TypeCode.Decimal:
-              case TypeCode.Double:
-              case TypeCode.Int16:
-              case TypeCode.Int32:
-              case TypeCode.Int64:
-              case TypeCode.SByte:
-              case TypeCode.Single:
-              case TypeCode.UInt16:
-              case TypeCode.UInt32:
-              case TypeCode.UInt64:
-                var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                               CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                               false, false) ??
-                             textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
-                if (!nvalue.HasValue)
+              var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                             CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                             false, false) ??
+                           textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
+              if (!nvalue.HasValue)
+              {
+                textBoxValue.Width = dateTimePickerValue.Width - 20;
+                errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+                return;
+              }
+              else
+              {
+                if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (nvalue.Value< long.MinValue || nvalue.Value> long.MaxValue))
                 {
                   textBoxValue.Width = dateTimePickerValue.Width - 20;
-                  errorProvider.SetError(textBoxValue, "Not a valid numeric value");
-                  return;
+                  errorProvider.SetError(textBoxValue, "Out of integer rage");
                 }
-                else
-                {
-                  textBoxValue.Text = nvalue.Value.ToString(CultureInfo.CurrentCulture);
-                }
-                break;
+                textBoxValue.Text = nvalue.Value.ToString(CultureInfo.CurrentCulture);
+              }
             }
           }
         }
@@ -169,7 +161,7 @@ namespace CsvTools
 
     private void buttonFilter_Click(object sender, EventArgs e)
     {
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
         m_DataGridViewColumnFilter.ValueDateTime = dateTimePickerValue.Value;
       else
         m_DataGridViewColumnFilter.ValueText = textBoxValue.Text;
@@ -185,7 +177,7 @@ namespace CsvTools
 
     private void FromDataGridViewFilter_Load(object sender, EventArgs e)
     {
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
       {
         dateTimePickerValue.Focus();
         dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
@@ -212,7 +204,7 @@ namespace CsvTools
 
     private void panelTop_Resize(object sender, EventArgs e)
     {
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
         return;
       textBoxValue.Width = buttonFilter.Left - textBoxValue.Left - 5;
     }
