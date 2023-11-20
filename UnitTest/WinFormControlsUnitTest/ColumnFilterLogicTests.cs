@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       Assert.IsNotNull(columnFilterLogic);
-      Assert.AreEqual(typeof(double), columnFilterLogic.ColumnDataType);
+      Assert.AreEqual(DataTypeEnum.Numeric, columnFilterLogic.DataType);
       Assert.AreEqual("Column1", columnFilterLogic.DataPropertyName);
 
       var columnFilterLogic2 = new ColumnFilterLogic(typeof(double), "[Column1]");
@@ -111,13 +111,13 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(1000)]
     public void GetOperatorsTest()
     {
-      var stringType = ColumnFilterLogic.GetOperators(typeof(string));
+      var stringType = ColumnFilterLogic.GetOperators(DataTypeEnum.String);
       Assert.AreEqual(11, stringType.Length);
 
-      var dateTimeType = ColumnFilterLogic.GetOperators(typeof(DateTime));
+      var dateTimeType = ColumnFilterLogic.GetOperators(DataTypeEnum.DateTime);
       Assert.AreEqual(8, dateTimeType.Length);
 
-      var boolType = ColumnFilterLogic.GetOperators(typeof(bool));
+      var boolType = ColumnFilterLogic.GetOperators(DataTypeEnum.Boolean);
       Assert.AreEqual(4, boolType.Length);
     }
 
@@ -174,7 +174,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol");
       columnFilterLogic.SetFilter("Hello");
-      columnFilterLogic.Operator = ColumnFilterLogic.GetOperators(typeof(string)).First().ToString();
+      columnFilterLogic.Operator = ColumnFilterLogic.GetOperators(DataTypeEnum.String).First().ToString();
       TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
     }
 
@@ -183,7 +183,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
 
-      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.DataType))
       {
         columnFilterLogic.Operator = op.ToString();
         columnFilterLogic.Active = true;
@@ -209,7 +209,7 @@ namespace CsvTools.Tests
       var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") { ValueDateTime = dtm };
       Assert.AreEqual(dtm, columnFilterLogic.ValueDateTime);
 
-      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.DataType))
       {
         columnFilterLogic.Operator = op.ToString();
         columnFilterLogic.Active = true;
@@ -242,7 +242,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(long), "intCol") { ValueText = "-10" };
       Assert.AreEqual("-10", columnFilterLogic.ValueText);
-      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.DataType))
       {
         columnFilterLogic.Operator = op.ToString();
         columnFilterLogic.Active = true;
@@ -255,7 +255,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(bool), "strCol");
       columnFilterLogic.SetFilter("true");
-      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.DataType))
       {
         columnFilterLogic.Operator = op.ToString();
         Assert.IsNotNull(columnFilterLogic.FilterExpression);

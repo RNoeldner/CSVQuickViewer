@@ -673,9 +673,17 @@ CommentLine
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
 
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(csvFile.IdentifierInContainer, false, true, true,
-        true, true, true, true, false, true,
-        new InspectionResult()
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(identifierInContainer: csvFile.IdentifierInContainer,
+        guessJson: false,
+        guessCodePage: true,
+        guessEscapePrefix: true,
+        guessDelimiter: true,
+        guessQualifier: true,
+        guessStartRow: true,
+        guessHasHeader: true,
+        guessNewLine: false,
+        guessCommentLine: true,
+        inspectionResult: new InspectionResult()
         {
           IdentifierInContainer = csvFile.IdentifierInContainer,
           FileName = csvFile.FileName,
@@ -685,7 +693,11 @@ CommentLine
           SkipRows =  csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        new FillGuessSettings(false), PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile), cancellationToken).ConfigureAwait(false);
+        fillGuessSettings: new FillGuessSettings(false),
+#if SupportPGP
+        privateKey: PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile),
+#endif
+        cancellationToken: cancellationToken); ;
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;

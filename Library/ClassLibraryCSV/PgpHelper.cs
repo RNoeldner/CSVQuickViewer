@@ -118,7 +118,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Returns teh key information from a file
+    /// Returns the key information from a file
     /// </summary>
     /// <param name="fileName">File that should be read or written, this is used to determine if its a pgp file</param>
     /// <param name="keyFile">The file with teh key contend</param>

@@ -66,14 +66,11 @@ namespace CsvTools
       try
       {
         ClearNotActive();
-        if (m_FilterLogic.ColumnDataType == typeof(string) || m_FilterLogic.ColumnDataType == typeof(bool) || m_FilterLogic.ColumnDataType == typeof(Guid))
+        if (m_FilterLogic.DataType == DataTypeEnum.String|| m_FilterLogic.DataType == DataTypeEnum.Boolean || m_FilterLogic.DataType == DataTypeEnum.Guid)
           m_Result = BuildValueClustersString();
-        else if (m_FilterLogic.ColumnDataType == typeof(DateTime))
+        else if (m_FilterLogic.DataType == DataTypeEnum.DateTime)
           m_Result = BuildValueClustersDate();
-        else if (m_FilterLogic.ColumnDataType == typeof(byte) || m_FilterLogic.ColumnDataType == typeof(short) || m_FilterLogic.ColumnDataType == typeof(int)
-                 || m_FilterLogic.ColumnDataType == typeof(uint) || m_FilterLogic.ColumnDataType == typeof(int) || m_FilterLogic.ColumnDataType == typeof(float)
-                 || m_FilterLogic.ColumnDataType == typeof(double) || m_FilterLogic.ColumnDataType   == typeof(long) || m_FilterLogic.ColumnDataType == typeof(ulong)
-                 || m_FilterLogic.ColumnDataType == typeof(decimal))
+        else if (m_FilterLogic.DataType == DataTypeEnum.Numeric || m_FilterLogic.DataType == DataTypeEnum.Integer)
           m_Result = BuildValueClustersNumeric();
         else
           m_Result = BuildValueClustersResult.WrongType;
@@ -107,7 +104,7 @@ namespace CsvTools
       var clusterMonth = new HashSet<DateTime>();
       var clusterDay = new HashSet<DateTime>();
       var clusterHour = new HashSet<long>();
-      
+
       foreach (var dataRow in m_Values)
       {
         if (dataRow == DBNull.Value)
@@ -131,7 +128,7 @@ namespace CsvTools
       }
 
       if (clusterYear.Count == 0)
-      {        
+      {
         return BuildValueClustersResult.NoValues;
       }
 
@@ -206,14 +203,14 @@ namespace CsvTools
       var clusterTen = new HashSet<long>();
       var clusterHundred = new HashSet<long>();
       var clusterThousand = new HashSet<long>();
-      var clusterTenThousand = new HashSet<long>();      
+      var clusterTenThousand = new HashSet<long>();
 
       foreach (var value in m_Values)
       {
         if (value is DBNull)
           continue;
 
-        if (clusterFractions.Count <= m_MaxNumber && (m_FilterLogic.ColumnDataType == typeof(decimal) || m_FilterLogic.ColumnDataType == typeof(float) || m_FilterLogic.ColumnDataType == typeof(double)))
+        if (clusterFractions.Count <= m_MaxNumber && (m_FilterLogic.DataType == DataTypeEnum.Numeric))
         {
           var rounded = Math.Floor(Convert.ToDouble(value, CultureInfo.CurrentCulture) * 10d) / 10d;
           clusterFractions.Add(rounded);
@@ -238,7 +235,7 @@ namespace CsvTools
       }
 
       if (clusterOne.Count == 0 && clusterFractions.Count == 0)
-      {        
+      {
         return BuildValueClustersResult.NoValues;
       }
 
@@ -306,7 +303,7 @@ namespace CsvTools
 
       return BuildValueClustersResult.ListFilled;
     }
-    
+
     private void AddNumericCluster(IEnumerable<long> values, long dic, int factor,
       int counter)
     {
@@ -331,7 +328,7 @@ namespace CsvTools
     private BuildValueClustersResult BuildValueClustersString()
     {
       // Get the distinct m_Values and their counts
-      var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);      
+      var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach (var ob in m_Values)
       {
@@ -343,12 +340,12 @@ namespace CsvTools
         // if we have more than the maximum entries stop, no value filter will be used
         if (cluster.Count <= m_MaxNumber)
           continue;
-        
+
         return BuildValueClustersResult.TooManyValues;
       }
 
       if (cluster.Count == 0)
-      {        
+      {
         return BuildValueClustersResult.NoValues;
       }
 
@@ -375,22 +372,22 @@ namespace CsvTools
 
     public void Add(ValueCluster item)
     {
-      if (m_FilterLogic.ColumnDataType == typeof(string) || m_FilterLogic.ColumnDataType == typeof(bool) || m_FilterLogic.ColumnDataType == typeof(Guid))
+      if (m_FilterLogic.DataType == DataTypeEnum.String|| m_FilterLogic.DataType == DataTypeEnum.Boolean || m_FilterLogic.DataType == DataTypeEnum.Guid)
       {
         if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, item.Start?.ToString() ?? string.Empty)))
           m_ValueClusters.Add(item);
       }
-      else if (m_FilterLogic.ColumnDataType == typeof(DateTime))
+      else if (m_FilterLogic.DataType == DataTypeEnum.DateTime)
       {
         //                                                                       x  i   x
         // Do not add if there is a cluster existing that spans the new value   [ [ ]  ]
         // Do not add if there is a cluster existing that spans the new value     [ ]  ]
         // Do not add if there is a cluster existing that spans the new value   [ [ ]
         // Do not add if there is a cluster existing that spans the new value     [ ]
-        if (!m_ValueClusters.Any(x => (DateTime) x.Start <= (DateTime) item.Start && (DateTime) x.End<= (DateTime) item.End))
+        if (!m_ValueClusters.Any(x => x.Start != null && (DateTime) x.Start <= (DateTime) item.Start && (DateTime) x.End<= (DateTime) item.End))
           m_ValueClusters.Add(item);
       }
-      else if (m_FilterLogic.ColumnDataType == typeof(float) || m_FilterLogic.ColumnDataType == typeof(double) || m_FilterLogic.ColumnDataType == typeof(decimal) || m_FilterLogic.ColumnDataType == typeof(byte) || m_FilterLogic.ColumnDataType == typeof(short) || m_FilterLogic.ColumnDataType == typeof(int) || m_FilterLogic.ColumnDataType == typeof(long))
+      else if (m_FilterLogic.DataType == DataTypeEnum.Numeric || m_FilterLogic.DataType == DataTypeEnum.Integer)
       {
         if (!m_ValueClusters.Any(x => x.Start != null &&  (double) x.Start <= (double) item.Start && (double) x.End>= (double) item.End))
           m_ValueClusters.Add(item);

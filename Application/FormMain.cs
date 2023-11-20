@@ -66,7 +66,7 @@ namespace CsvTools
       FontConfig = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
-
+#if SupportPGP
       FunctionalDI.GetKeyAndPassphraseForFile = fileName =>
         fileName.GetKeyAndPassphraseForFile(
           m_FileSetting?.Passphrase ?? string.Empty,
@@ -113,7 +113,7 @@ namespace CsvTools
             return frm.Passphrase;
           return string.Empty;
         });
-
+#endif
       FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);
 
       // add the not button not visible in designer to the detail control
@@ -230,13 +230,14 @@ namespace CsvTools
           m_ViewSettings.FillGuessSettings, list =>
           {
             if (list.Count==1)
-              return list.First();                       
+              return list.First();
             using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
             if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
               throw new OperationCanceledException();
             return frm.SelectedText;
           }, m_ViewSettings.DefaultInspectionResult,
-          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), cancellationToken);
+          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), 
+          cancellationToken);
 
         m_FileSetting = detection.PhysicalFile();
 
@@ -546,7 +547,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
         async (o, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-      
+
       ShowTextPanel(false);
     }
     private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)

@@ -179,7 +179,6 @@ namespace CsvTools
       this.textBox.Name = "textBox";
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
       this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
       this.textBox.ShowFoldingLines = true;
       this.textBox.Size = new System.Drawing.Size(832, 465);
       this.textBox.TabIndex = 1;
@@ -229,7 +228,6 @@ namespace CsvTools
       this.fastColoredTextBoxRO.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBoxRO.ReadOnly = true;
       this.fastColoredTextBoxRO.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.fastColoredTextBoxRO.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fastColoredTextBoxRO.ServiceColors")));
       this.fastColoredTextBoxRO.ShowFoldingLines = true;
       this.fastColoredTextBoxRO.Size = new System.Drawing.Size(832, 465);
       this.fastColoredTextBoxRO.TabIndex = 2;

@@ -99,8 +99,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       // if this is not for a specific file store teh value in the defaults
       if (m_FileSetting != null)
         return;
+#if SupportPGP
       m_ViewSettings.KeyFileRead = textBoxKeyFileRead.Text;
       m_ViewSettings.KeyFileWrite = textBoxKeyFileWrite.Text;
+#endif
     }
 
     private async void BtnOpenFile_Click(object? sender, EventArgs e)
@@ -133,13 +135,14 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             list =>
             {
               if (list.Count==1)
-                return list.First();             
+                return list.First();
               using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
               if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
                 throw new OperationCanceledException();
               return frm.SelectedText;
             }, m_ViewSettings.DefaultInspectionResult,
-            PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead), formProgress.CancellationToken)).PhysicalFile());
+            PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead), 
+            formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
@@ -281,12 +284,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       {
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
-
+#if SupportPGP
         if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileRead))
           textBoxKeyFileRead.Text = m_ViewSettings.KeyFileRead;
         if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileWrite))
           textBoxKeyFileWrite.Text = m_ViewSettings.KeyFileWrite;
-
+#endif
         textBoxDelimiter.Character = m_ViewSettings.DefaultInspectionResult.FieldDelimiter;
         textBoxEscapeRead.Character = m_ViewSettings.DefaultInspectionResult.EscapePrefix;
         textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
