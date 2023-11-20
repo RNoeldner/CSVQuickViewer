@@ -11,7 +11,7 @@ namespace CsvTools
   [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
   public class TimedMessage : ResizeForm
   {
-    private IContainer components;
+    private Container components;
     private Button m_Button1;
 
     private Button m_Button2;

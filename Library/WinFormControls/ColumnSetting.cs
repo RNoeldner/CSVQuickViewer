@@ -6,41 +6,31 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class ColumnSetting
+  /// <summary>
+  /// Storage for information on columns needed for ViewSettings
+  /// </summary>
+  /// <param name="dataPropertyName"></param>
+  /// <param name="visible"></param>
+  /// <param name="sorted"></param>
+  /// <param name="displayIndex"></param>
+  /// <param name="width"></param>
+  public sealed class ColumnSetting(in string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
   {
-    public ColumnSetting(in string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
-    {
-      DataPropertyName = dataPropertyName;
-      Visible = visible;
-      DisplayIndex = displayIndex;
-      Sort = sorted;
-      Width = width;
-    }
-
-    public string DataPropertyName { get; }
-
-    public bool Visible { get; }
-    public int Sort { get; }
-    public int Width { get; }
-    public int DisplayIndex { get; }
-
+    public string DataPropertyName { get; } = dataPropertyName;
+    public bool Visible { get; } = visible;
+    public int Sort { get; } = sorted;
+    public int Width { get; } = width;
+    public int DisplayIndex { get; } = displayIndex;
     public string Operator { get; set; } = string.Empty;
-
     public string ValueText { get; set; } = string.Empty;
-
     public DateTime ValueDate { get; set; }
-
     public ICollection<ValueFilter> ValueFilters { get; } = new List<ValueFilter>();
 
     public bool ShouldSerializeSort() => Sort != 0;
-
     public bool ShouldSerializeOperator() =>
       !string.IsNullOrEmpty(Operator) && (ShouldSerializeValueText() || ShouldSerializeValueDate());
-
     public bool ShouldSerializeValueText() => !string.IsNullOrEmpty(ValueText);
-
     public bool ShouldSerializeValueDate() => ValueDate.Year > 1;
-
     public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
     public override int GetHashCode()
