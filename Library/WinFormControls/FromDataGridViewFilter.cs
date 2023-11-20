@@ -25,13 +25,15 @@ namespace CsvTools
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
-  public partial class FromDataGridViewFilter : ResizeForm
+  public sealed partial class FromDataGridViewFilter : ResizeForm
   {
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
+
     /// <summary>
-    ///   Initializes a new instance of the <see cref="DataGridViewColumnFilterControl" /> class.
+    ///   Initializes a new instance of the <see cref="FromDataGridViewFilter" /> class.
     /// </summary>
-    /// <param name="dataGridViewColumn">The data grid view column.</param>
+    /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
+    /// <param name="columnValues">The data in teh column</param>
     public FromDataGridViewFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues)
     {
       m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
@@ -45,6 +47,7 @@ namespace CsvTools
 
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
+      // ReSharper disable once CoVariantArrayConversion
       comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.DataType));
       comboBoxOperator.SelectedIndex = 0;
       comboBoxOperator.EndUpdate();
@@ -69,7 +72,7 @@ namespace CsvTools
             break;
         }
         toolTip.SetToolTip(this.listViewCluster, explain);
-        listViewCluster.Items.Add(new ListViewItem(new string[] {
+        listViewCluster.Items.Add(new ListViewItem(new[] {
             explain,
             string.Empty})).ForeColor = System.Drawing.SystemColors.HighlightText;
         listViewCluster.Enabled = false;
@@ -83,14 +86,14 @@ namespace CsvTools
       listViewCluster.Items.Clear();
       foreach (var item in filtered)
       {
-        var lv_item = listViewCluster.Items.Add(new ListViewItem(new string[] {
+        var lv_item = listViewCluster.Items.Add(new ListViewItem(new[] {
             item.Display,
             item.Count.ToString("N0")}));
         lv_item.Checked = item.Active;
       }
       foreach (var item in m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => !filtered.Contains(x)))
       {
-        var lv_item = listViewCluster.Items.Add(new ListViewItem(new string[] {
+        var lv_item = listViewCluster.Items.Add(new ListViewItem(new[] {
             item.Display,
             item.Count.ToString("N0")}));
         lv_item.ForeColor = System.Drawing.SystemColors.GrayText;
@@ -119,47 +122,7 @@ namespace CsvTools
       }
     }
 
-    private void UpdateValues(object? sender, EventArgs e)
-    {
-      try
-      {
-        if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
-        {
-          errorProvider.SetError(textBoxValue, string.Empty);
-          if (textBoxValue.Text.Length>0)
-          {
-            if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
-            {
-              var nvalue = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                             CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                             false, false) ??
-                           textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
-              if (!nvalue.HasValue)
-              {
-                textBoxValue.Width = dateTimePickerValue.Width - 20;
-                errorProvider.SetError(textBoxValue, "Not a valid numeric value");
-                return;
-              }
-              else
-              {
-                if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (nvalue.Value< long.MinValue || nvalue.Value> long.MaxValue))
-                {
-                  textBoxValue.Width = dateTimePickerValue.Width - 20;
-                  errorProvider.SetError(textBoxValue, "Out of integer rage");
-                }
-                textBoxValue.Text = nvalue.Value.ToString(CultureInfo.CurrentCulture);
-              }
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
-    }
-
-    private void buttonFilter_Click(object sender, EventArgs e)
+    private void ButtonFilter_Click(object sender, EventArgs e)
     {
       if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
         m_DataGridViewColumnFilter.ValueDateTime = dateTimePickerValue.Value;
@@ -190,19 +153,53 @@ namespace CsvTools
         textBoxValue.Focus();
       }
       FromDataGridViewFilter_Resize(sender, e);
-      panelTop_Resize(sender, e);
+      PanelTop_Resize(sender, e);
     }
 
     private void textBoxValue_TextChanged(object sender, EventArgs e)
     {
-      // Filter The check boxes
-      if (comboBoxOperator.Text.Contains("xxx"))
-        FilterItems(textBoxValue.Text);
-      else
-        FilterItems("");
+      try
+      {
+        if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
+        {
+          errorProvider.SetError(textBoxValue, string.Empty);
+          if (textBoxValue.Text.Length>0)
+          {
+            if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
+            {
+              var stringToDecimal = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                             CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                             false, false) ??
+                           textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
+              if (!stringToDecimal.HasValue)
+              {
+                textBoxValue.Width = dateTimePickerValue.Width - 20;
+                errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+              }
+              else
+              {
+                if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (stringToDecimal.Value< long.MinValue || stringToDecimal.Value> long.MaxValue))
+                {
+                  textBoxValue.Width = dateTimePickerValue.Width - 20;
+                  errorProvider.SetError(textBoxValue, "Out of integer rage");
+                }
+                textBoxValue.Text = stringToDecimal.Value.ToString(CultureInfo.CurrentCulture);
+              }
+            }
+          }
+        }
+
+        // Filter The check boxes
+        FilterItems(comboBoxOperator.Text.Contains("xxx") ? textBoxValue.Text : "");
+      }
+      catch (Exception ex)
+      {
+        ParentForm.ShowError(ex);
+      }
+
     }
 
-    private void panelTop_Resize(object sender, EventArgs e)
+    private void PanelTop_Resize(object sender, EventArgs e)
     {
       if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
         return;
@@ -214,18 +211,17 @@ namespace CsvTools
       listViewCluster.Columns[0].Width = listViewCluster.Width - listViewCluster.Columns[1].Width - 28;
     }
 
-    private void listViewCluster_KeyUp(object sender, KeyEventArgs e)
+    private void ListViewCluster_KeyUp(object sender, KeyEventArgs e)
     {
-      if (e.Control && e.KeyCode == Keys.C)
-      {
-        var buffer = new StringBuilder();
-        var dataObject = new DataObject();
-        foreach (ListViewItem sel in listViewCluster.SelectedItems)
-          buffer.AppendLine($"{sel.Text}\t{sel.SubItems[1].Text}");
-        dataObject.SetData(DataFormats.Text, true, buffer.ToString());
-        dataObject.SetClipboard();
-        e.Handled = true;
-      }
+      if (!e.Control || e.KeyCode != Keys.C) 
+        return;
+      var buffer = new StringBuilder();
+      var dataObject = new DataObject();
+      foreach (ListViewItem sel in listViewCluster.SelectedItems)
+        buffer.AppendLine($"{sel.Text}\t{sel.SubItems[1].Text}");
+      dataObject.SetData(DataFormats.Text, true, buffer.ToString());
+      dataObject.SetClipboard();
+      e.Handled = true;
     }
   }
 }

@@ -4,7 +4,7 @@
 		<RootNamespace>CsvTools</RootNamespace>
 		<ProductName>CsvTools</ProductName>
 		<OutputType>Library</OutputType>
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<CodePage>65001</CodePage>

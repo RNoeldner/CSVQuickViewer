@@ -15,7 +15,7 @@
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<Configurations>Debug;Release</Configurations>
-		<LangVersion>8.0</LangVersion>
+		<LangVersion>latest</LangVersion>		
 		<RepositoryType>git</RepositoryType>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<IsPublishable>False</IsPublishable>
