@@ -80,7 +80,7 @@ namespace CsvTools
       CellFormatting += CellFormatDate;
 #pragma warning restore CA1416
       FontChanged += PassOnFontChanges;
-      m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
+      m_FilterLogic = [];
 
       Scroll += (_, _) => SetRowHeight();
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
@@ -937,6 +937,9 @@ namespace CsvTools
     {
       try
       {
+        if (e.Graphics == null)
+          return;
+
         if (e is { RowIndex: -1, ColumnIndex: >= 0 } && GetColumnFilter(e.ColumnIndex).Active)
         {
           e.Handled = true;
@@ -948,13 +951,12 @@ namespace CsvTools
           pt.X += offset;
           pt.Y = (e.CellBounds.Height / 2) - 4;
           e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);
-
           e.PaintContent(e.CellBounds);
         }
 
         if (e.RowIndex < 0 || e.ColumnIndex < 0)
           return;
-        var val = e.FormattedValue.ToString();
+        var val = e.FormattedValue?.ToString() ?? string.Empty;
         if (string.IsNullOrEmpty(val))
           return;
 
@@ -971,7 +973,7 @@ namespace CsvTools
         e.PaintBackground(e.CellBounds, true);
 
         if (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
-                           && e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
+                           && e.CellStyle?.Alignment == DataGridViewContentAlignment.MiddleLeft)
         {
           var hlRect = new Rectangle();
           var widthSpace = TextRenderer.MeasureText(e.Graphics, @" ", e.CellStyle.Font, e.ClipBounds.Size).Width;
@@ -1014,8 +1016,8 @@ namespace CsvTools
         }
 
         if (HighlightText.Length > 0
-            && (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft
-                || e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
+            && (e.CellStyle?.Alignment == DataGridViewContentAlignment.MiddleLeft
+                || e.CellStyle?.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
         {
           using var hlBrush = new SolidBrush(Color.MediumSpringGreen);
           var hlRect = new Rectangle();
@@ -1202,7 +1204,7 @@ namespace CsvTools
         var filter = GetColumnFilter(m_MenuItemColumnIndex);
         // This does not work proprtly
         var filterExpression = FilterText(m_MenuItemColumnIndex);
-        var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<object>();
+        var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? [];
         using (var filterPopup = new FromDataGridViewFilter(filter, data))
         {
           if (filterPopup.ShowDialog() == DialogResult.OK)
@@ -1380,19 +1382,15 @@ namespace CsvTools
 
     public void SetViewStatus(string newSetting)
     {
-      try
+      this.RunWithHourglass(() =>
       {
         SuspendLayout();
-        //if (ViewSetting.ReStoreViewSetting(newSetting, Columns, m_FilterLogic.Values, GetColumnFilter,
-        //      Sort))
+        ViewSetting.ReStoreViewSetting(newSetting, Columns, m_FilterLogic, Sort);
         ApplyFilters();
         ColumnVisibilityChanged();
         ResumeLayout(true);
       }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "SetViewStatus");
-      }
+      );
     }
 
     private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
