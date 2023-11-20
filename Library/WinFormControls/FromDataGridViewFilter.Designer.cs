@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  partial class FromDataGridViewFilter
+  sealed partial class FromDataGridViewFilter
   {
     /// <summary>
     /// Required designer variable.
@@ -72,7 +72,7 @@ namespace CsvTools
       this.buttonFilter.Text = "&Apply Filter";
       this.toolTip.SetToolTip(this.buttonFilter, "Apply the filter for the column");
       this.buttonFilter.UseVisualStyleBackColor = true;
-      this.buttonFilter.Click += new System.EventHandler(this.buttonFilter_Click);
+      this.buttonFilter.Click += new System.EventHandler(this.ButtonFilter_Click);
       // 
       // lblCondition
       // 
@@ -131,7 +131,7 @@ namespace CsvTools
       this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
       this.listViewCluster.View = System.Windows.Forms.View.Details;
-      this.listViewCluster.KeyUp += new System.Windows.Forms.KeyEventHandler(this.listViewCluster_KeyUp);
+      this.listViewCluster.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ListViewCluster_KeyUp);
       // 
       // panelTop
       // 
@@ -146,7 +146,7 @@ namespace CsvTools
       this.panelTop.Name = "panelTop";
       this.panelTop.Size = new System.Drawing.Size(574, 28);
       this.panelTop.TabIndex = 25;
-      this.panelTop.Resize += new System.EventHandler(this.panelTop_Resize);
+      this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
       // 
       // FromDataGridViewFilter
       // 

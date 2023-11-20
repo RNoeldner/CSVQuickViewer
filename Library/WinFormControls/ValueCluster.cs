@@ -33,7 +33,9 @@ namespace CsvTools
     /// <param name="condition">the sql condition to be applied</param>
     /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
+    /// <param name="end"></param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
+    /// <param name="start"></param>
     public ValueCluster(in string display, in string condition, in string? sort, int count, object? start, object? end = null, bool active = false)
     {
       Display = display;
@@ -144,6 +146,6 @@ namespace CsvTools
     ///   Return a string representation of this cluster
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => $"{Display ?? "[empty]"} {Count:N0} {(Count == 1 ? "item" : "items")}";
+    public override string ToString() => $"{Display} {Count:N0} {(Count == 1 ? "item" : "items")}";
   }
 }

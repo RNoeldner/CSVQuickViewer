@@ -17,26 +17,31 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 
 namespace CsvTools
 {
-  /// <remarks>
-  /// Constructor for ValueClusterCollection
-  /// </remarks>
-  /// <param name="columnFilterLogic">The parent ColumnFilterLogic</param>
-  /// <param name="maxNumber">Maximum number of clusters</param>
-  public sealed class ValueClusterCollection(in ColumnFilterLogic columnFilterLogic, int maxNumber) : ICollection<ValueCluster>
+  public sealed class ValueClusterCollection : ICollection<ValueCluster>
   {
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
     private ICollection<object> m_Values = Array.Empty<object>();
     private bool m_HasNull;
-    private readonly int m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
+    private readonly int m_MaxNumber;
     private readonly IList<ValueCluster> m_ValueClusters = new List<ValueCluster>();
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
-    private readonly ColumnFilterLogic m_FilterLogic = columnFilterLogic;
+    private readonly ColumnFilterLogic m_FilterLogic;
+
+    /// <remarks>
+    /// Constructor for ValueClusterCollection
+    /// </remarks>
+    /// <param name="columnFilterLogic">The parent ColumnFilterLogic</param>
+    /// <param name="maxNumber">Maximum number of clusters</param>
+    public ValueClusterCollection(in ColumnFilterLogic columnFilterLogic, int maxNumber)
+    {
+      m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
+      m_FilterLogic = columnFilterLogic;
+    }
 
     /// <summary>
     ///   Gets the m_Values.
@@ -85,8 +90,6 @@ namespace CsvTools
     /// <summary>
     ///   Builds the value clusters date.
     /// </summary>
-    /// <param name="dataTable">The data view.</param>
-    /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
     private BuildValueClustersResult BuildValueClustersDate()
     {
@@ -182,9 +185,6 @@ namespace CsvTools
     /// <summary>
     ///   Builds the value clusters date.
     /// </summary>
-    /// <param name="dataTable">The data view.</param>
-    /// <param name="columnIndex">Index of the column.</param>
-    /// <param name="columnType">Type of the column.</param>
     /// <returns></returns>
     private BuildValueClustersResult BuildValueClustersNumeric()
     {
@@ -311,8 +311,6 @@ namespace CsvTools
     /// <summary>
     ///   Builds the data grid view column filter m_Values.
     /// </summary>
-    /// <param name="dataTable">The data view.</param>
-    /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
     private BuildValueClustersResult BuildValueClustersString()
     {
@@ -321,8 +319,10 @@ namespace CsvTools
 
       foreach (var ob in m_Values)
       {
+        if (ob is null || ob == DBNull.Value)
+          continue;
         var text = ob.ToString();
-        if (text is null || text.Length == 0)
+        if (text.Length == 0)
           continue;
         cluster.Add(text);
 
@@ -344,7 +344,7 @@ namespace CsvTools
       foreach (var text in cluster)
         Add(new ValueCluster(text, $"({m_FilterLogic.DataPropertyNameEscaped} = '{text.SqlQuote()}')", text,
           m_Values.Where(dataRow => dataRow != DBNull.Value)
-          .Count(dataRow => string.Equals(dataRow.ToString(), text, StringComparison.OrdinalIgnoreCase)), text, null));
+          .Count(dataRow => string.Equals(dataRow.ToString(), text, StringComparison.OrdinalIgnoreCase)), text));
 
       return BuildValueClustersResult.ListFilled;
     }
@@ -356,7 +356,7 @@ namespace CsvTools
         new ValueCluster(ColumnFilterLogic.OperatorIsNull,
           string.Format($"{m_FilterLogic.DataPropertyNameEscaped} IS NULL)"),
           string.Empty,
-          m_Values.Count(x => x == DBNull.Value), null, null));
+          m_Values.Count(x => x == DBNull.Value), null));
     }
 
     public void Add(ValueCluster item)
@@ -373,12 +373,12 @@ namespace CsvTools
         // Do not add if there is a cluster existing that spans the new value     [ ]  ]
         // Do not add if there is a cluster existing that spans the new value   [ [ ]
         // Do not add if there is a cluster existing that spans the new value     [ ]
-        if (!m_ValueClusters.Any(x => x.Start != null && (DateTime) x.Start <= (DateTime) item.Start && (DateTime) x.End<= (DateTime) item.End))
+        if (!m_ValueClusters.Any(x => (DateTime) (x.Start ?? DateTime.MinValue) <= (DateTime) (item.Start ?? DateTime.MinValue) && (DateTime) (x.End ?? DateTime.MaxValue)<= (DateTime) (item.End ?? DateTime.MaxValue)))
           m_ValueClusters.Add(item);
       }
       else if (m_FilterLogic.DataType == DataTypeEnum.Numeric || m_FilterLogic.DataType == DataTypeEnum.Integer)
       {
-        if (!m_ValueClusters.Any(x => x.Start != null &&  (double) x.Start <= (double) item.Start && (double) x.End>= (double) item.End))
+        if (!m_ValueClusters.Any(x => (double) (x.Start ?? Double.MinValue) <= (double) (item.Start ?? Double.MinValue) && (double) (x.End ?? DateTime.MaxValue) >= (double) (item.End ?? DateTime.MaxValue)))
           m_ValueClusters.Add(item);
       }
       else
@@ -389,7 +389,7 @@ namespace CsvTools
     /// <summary>
     /// Removes all not active Cluster 
     /// </summary>
-    public void ClearNotActive()
+    private void ClearNotActive()
     {
       var keep = GetActiveValueCluster().ToArray();
       Clear();

@@ -311,6 +311,7 @@ namespace CsvTools
         if (m_DataType == DataTypeEnum.DateTime)
           ValueDateTime = (DateTime) value;
         else
+          // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
           ValueText = Convert.ToString(value) ?? string.Empty;
         Operator = cOperatorEquals;
       }
@@ -341,10 +342,10 @@ namespace CsvTools
           return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
         case DataTypeEnum.Integer:
-          var lngValue = (value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                           false, false) ??
-                         value.StringToDecimal('.', char.MinValue, false, false)).Value.ToInt64();
+          var lngValue = ((value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                             CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                             false, false) ??
+                           value.StringToDecimal('.', char.MinValue, false, false))!).Value.ToInt64();
           return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue);
 
         case DataTypeEnum.Boolean:

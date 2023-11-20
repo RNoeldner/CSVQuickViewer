@@ -40,7 +40,8 @@ namespace CsvTools
       if (ctrl != null)
       {
         parentFrm = ctrl.FindForm();
-        newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
+        if (parentFrm !=null)
+          newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
       }
       if (dialog)
         return newForm.ShowDialog(parentFrm);
@@ -122,9 +123,9 @@ namespace CsvTools
     {
       if (!fileSetting.ShowProgress)
         return null;
-      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);      
+      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
       formProgress.Show(owner);
-      
+
       return formProgress;
     }
 
