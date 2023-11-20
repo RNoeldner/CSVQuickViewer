@@ -68,23 +68,22 @@ namespace CsvTools
     ///   Listen for events on the underlying control
     /// </summary>
     /// <param name="control"></param>
-    protected override void OnSubscribeControlEvents(Control control)
+    protected override void OnSubscribeControlEvents(Control? control)
     {
       base.OnSubscribeControlEvents(control);
-
-      var checkedListBoxControl = (CheckedListBox) control;
-      checkedListBoxControl.ItemCheck += OnItemCheck;
+      if (control is CheckedListBox checkedListBoxControl)
+        checkedListBoxControl.ItemCheck += OnItemCheck;
     }
 
     /// <summary>
     ///   Stop listening for events on the underlying control
     /// </summary>
     /// <param name="control"></param>
-    protected override void OnUnsubscribeControlEvents(Control control)
+    protected override void OnUnsubscribeControlEvents(Control? control)
     {
       base.OnUnsubscribeControlEvents(control);
-
-      var checkedListBoxControl = (CheckedListBox) control;
+      
+      if (control is CheckedListBox checkedListBoxControl)
       checkedListBoxControl.ItemCheck -= OnItemCheck;
     }
 
