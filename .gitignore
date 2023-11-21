@@ -272,3 +272,5 @@ __pycache__/
 /CSVQuickViewer.MAUI
 /Library/ClassLibraryCSV/Mutable/FileFormat.cs
 /Library/ClassLibraryCSVOld
+/Setup/CSVQuickViewerPortable.Net8.zip
+/Setup/CSVQuickViewerSetup.Net8.msi
