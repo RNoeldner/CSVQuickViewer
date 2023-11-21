@@ -33,7 +33,6 @@ namespace CsvTools
         if (vst == null)
           throw new InvalidOperationException();
         var displayIndex = 0;
-        var hasFilterSet = false;
         foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
         {
           var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x => x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
@@ -66,11 +65,7 @@ namespace CsvTools
               columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
             }
 
-            if (!columnFilters.ContainsKey(col.Index))
-              columnFilters.Add(col.Index, newColumnFilterLogic);
-            else
-              columnFilters[col.Index] = newColumnFilterLogic;
-            hasFilterSet = true;
+            columnFilters[col.Index] = newColumnFilterLogic;
 
             break;
           }

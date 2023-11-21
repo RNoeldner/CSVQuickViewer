@@ -7,7 +7,6 @@
     <OutputType>Library</OutputType>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
-    <LangVersion>default</LangVersion>
     <SignAssembly>True</SignAssembly>
     <IsPublishable>False</IsPublishable>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
