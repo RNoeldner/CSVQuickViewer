@@ -4,7 +4,7 @@
 		<RootNamespace>CsvTools</RootNamespace>
 		<ProductName>CsvTools</ProductName>
 		<OutputType>Library</OutputType>
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<CodePage>65001</CodePage>
@@ -154,7 +154,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Ben.Demystifier" Version="*" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
 		<PackageReference Include="SharpZipLib" Version="1.4.2" />
 		<PackageReference Include="TimeZoneConverter" Version="6.1.*" />

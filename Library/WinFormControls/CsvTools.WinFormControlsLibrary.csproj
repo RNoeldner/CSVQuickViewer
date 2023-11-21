@@ -1,69 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<UseWindowsForms>true</UseWindowsForms>
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
 		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
-		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<EnableWindowsTargeting>true</EnableWindowsTargeting>
-		<OutputType>Library</OutputType>
-		<LangVersion>8.0</LangVersion>
-		<Nullable>enable</Nullable>
-		<LangVersion>default</LangVersion>
-		<SignAssembly>True</SignAssembly>
-		<IsPublishable>False</IsPublishable>
-		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-		<RootNamespace>CsvTools</RootNamespace>
-		<AssemblyName>CsvTools.WinFormControls</AssemblyName>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
-	  <DebugType>none</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
-	  <DebugType>none</DebugType>
-	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="..\SharedAssemblyInfo.cs">
-			<Link>Properties\SharedAssemblyInfo.cs</Link>
-		</Compile>
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
-		<Reference Include="System" />
-		<Reference Include="System.Core" />
-		<Reference Include="System.Drawing" />
-		<Reference Include="System.Windows.Forms" />
-		<Reference Include="System.Data.DataSetExtensions" />
-		<Reference Include="System.Data" />
-		<Reference Include="System.Xml" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="FCTB" Version="2.16.*" />
-		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.*" />
-		<PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
-		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Compile Update="FromDataGridViewFilter.cs">
-	    <SubType>UserControl</SubType>
-	  </Compile>
-	  <Compile Update="FormColumnUIRead.cs" />
-	  <Compile Update="FormPasswordAndKey.cs" />
-	  <Compile Update="FormSelectInDropdown.cs">
-	    <SubType>Form</SubType>
-	  </Compile>
-		<Compile Update="FormTextDisplay.cs" />
-	  <Compile Update="FormCsvTextDisplay.cs" />
-	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Update="DetailControl.resx">
-	  </EmbeddedResource>
-	</ItemGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <OutputType>Library</OutputType>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <LangVersion>default</LangVersion>
+    <SignAssembly>True</SignAssembly>
+    <IsPublishable>False</IsPublishable>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <RootNamespace>CsvTools</RootNamespace>
+    <AssemblyName>CsvTools.WinFormControls</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FCTB" Version="2.16.*" />
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.*" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="FromDataGridViewFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="FormColumnUIRead.cs" />
+    <Compile Update="FormPasswordAndKey.cs" />
+    <Compile Update="FormSelectInDropdown.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormTextDisplay.cs" />
+    <Compile Update="FormCsvTextDisplay.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="DetailControl.resx">
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
