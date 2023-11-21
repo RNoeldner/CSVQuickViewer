@@ -59,7 +59,7 @@ namespace CsvTools
           }
           case Language.Xml:
           {
-            XmlDocument doc = new();
+            var doc = new XmlDocument();
             doc.LoadXml(textBox.Text.Trim('\"', '\'', ' '));
 
             var settings = new XmlWriterSettings { Indent = true, NewLineOnAttributes = true };
@@ -127,25 +127,25 @@ namespace CsvTools
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
 
-    private void radioButton1_CheckedChanged(object sender, EventArgs e)
+    private void RadioButton1_CheckedChanged(object sender, EventArgs e)
     {
       if (radioButtonText.Checked)
         HandleText(Language.Text);
     }
 
-    private void radioButton2_CheckedChanged(object sender, EventArgs e)
+    private void RadioButton2_CheckedChanged(object sender, EventArgs e)
     {
       if (radioButtonJson.Checked)
         HandleText(Language.Json);
     }
 
-    private void radioButton3_CheckedChanged(object sender, EventArgs e)
+    private void RadioButton3_CheckedChanged(object sender, EventArgs e)
     {
       if (radioButtonXml.Checked)
         HandleText(Language.Xml);
     }
 
-    private void radioButton4_CheckedChanged(object sender, EventArgs e)
+    private void RadioButton4_CheckedChanged(object sender, EventArgs e)
     {
       if (radioButtonHtml.Checked)
         HandleText(Language.HTML);
@@ -167,18 +167,18 @@ namespace CsvTools
         HandleText(Language.Json);
     }
 
-    private void buttonCancel_Click(object sender, EventArgs e)
+    private void ButtonCancel_Click(object sender, EventArgs e)
     {
       this.Close();
     }
 
-    private void buttonSave_Click(object sender, EventArgs e)
+    private void ButtonSave_Click(object sender, EventArgs e)
     {
       SaveAction?.Invoke(textBox.Text);
       this.Close();
     }
 
-    private void textBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+    private void TextBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
     {
       buttonSave.Enabled = textBox.IsChanged;
     }

@@ -29,9 +29,7 @@ namespace CsvTools
     {
       try
       {
-        var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
-        if (vst == null)
-          throw new InvalidOperationException();
+        var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text) ?? throw new InvalidOperationException();
         var displayIndex = 0;
         foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
         {

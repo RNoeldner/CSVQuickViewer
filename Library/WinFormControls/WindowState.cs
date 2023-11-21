@@ -10,7 +10,7 @@ namespace CsvTools
   public sealed class WindowState
   {
     public static readonly WindowState Default =
-      new(10, 10, 600, 600);
+      new WindowState(10, 10, 600, 600);
 
     [Obsolete("Used for XML Serialization")]
     public WindowState() : this(10, 10, 600, 600)

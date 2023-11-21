@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public class MultiSelectTreeView : TreeView
   {
-    private TreeNode m_FirstNode = new();
+    private TreeNode m_FirstNode = new TreeNode();
 
     /// <summary>
     ///   Gets or sets the HTML style.

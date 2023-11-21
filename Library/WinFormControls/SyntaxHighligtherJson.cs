@@ -5,10 +5,10 @@ namespace CsvTools
 {
   public sealed class SyntaxHighlighterJson : SyntaxHighlighterBase
   {
-    private readonly Regex m_JsonKeywordRegex = new(@"(?<range>""([^\\""]|\\"")*"")\s*:",
+    private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:",
       RegexOptions.Singleline | RegexCompiledOption);
     
-    private readonly Regex m_JsonNumberRegex = new(@"\b(\d+[\.]?\d*|true|false|null)\b",
+    private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b",
       RegexOptions.Singleline | RegexCompiledOption);
 
     private readonly Regex m_JsonStringRegex =

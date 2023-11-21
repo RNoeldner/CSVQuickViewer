@@ -156,7 +156,7 @@ namespace CsvTools
       PanelTop_Resize(sender, e);
     }
 
-    private void textBoxValue_TextChanged(object sender, EventArgs e)
+    private void TextBoxValue_TextChanged(object sender, EventArgs e)
     {
       try
       {

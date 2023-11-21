@@ -391,7 +391,7 @@ namespace CsvTools
       this.checkedListBoxDateFormats.TabIndex = 5;
       this.toolTip.SetToolTip(this.checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
       this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
-      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.checkedListBoxDateFormats_SelectedIndexChanged);
+      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.CheckedListBoxDateFormats_SelectedIndexChanged);
       // 
       // labelTimeCol
       // 

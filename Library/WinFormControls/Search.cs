@@ -34,15 +34,15 @@ namespace CsvTools
     private readonly IContainer? components = null;
 
     // private read only System.Timers.Timer m_TimerChange = new System.Timers.Timer();
-    private Button m_BtnCancel = new();
+    private Button m_BtnCancel = new Button();
 
-    private Button m_BtnNext = new();
+    private Button m_BtnNext = new Button();
 
-    private Button m_BtnPrevious = new();
+    private Button m_BtnPrevious = new Button();
 
     private int m_CurrentResult = -1;
 
-    private Label m_LblResults = new();
+    private Label m_LblResults = new Label();
 
     private int m_Results;
 

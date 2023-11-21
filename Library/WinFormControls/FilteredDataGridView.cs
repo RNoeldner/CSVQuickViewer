@@ -65,7 +65,7 @@ namespace CsvTools
 #endif
     private void CellFormatDate(object? sender, DataGridViewCellFormattingEventArgs e)
     {
-      if (e.Value is not DateTime cellValue)
+      if (!(e.Value is DateTime cellValue))
         return;
 
       e.Value = StringConversion.DisplayDateTime(cellValue, CultureInfo.CurrentCulture);
@@ -76,13 +76,11 @@ namespace CsvTools
       m_CancellationTokenSource = new CancellationTokenSource();
 
       InitializeComponent();
-#pragma warning disable CA1416
       CellFormatting += CellFormatDate;
-#pragma warning restore CA1416
       FontChanged += PassOnFontChanges;
-      m_FilterLogic = [];
+      m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
 
-      Scroll += (_, _) => SetRowHeight();
+      Scroll += (o, e) => SetRowHeight();
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
                              throw new InvalidOperationException("Resource not found");
@@ -103,11 +101,9 @@ namespace CsvTools
       DefaultCellStyle.ForeColor = Color.Black;
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
-#pragma warning disable CA1416
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-#pragma warning restore CA1416
 
-      FontChanged += (_, _) =>
+      FontChanged += (o, e) =>
       {
         AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         SetRowHeight();
@@ -432,7 +428,6 @@ namespace CsvTools
           toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
-#pragma warning disable CS8604 // Possible null reference argument.
           toolStripMenuItemSortAscending.Text = columnIndex > -1
             ? string.Format(
               CultureInfo.CurrentCulture,
@@ -446,7 +441,6 @@ namespace CsvTools
               Convert.ToString(toolStripMenuItemSortDescending.Tag),
               Columns[columnIndex].DataPropertyName)
             : "Sort descending";
-#pragma warning restore CS8604 // Possible null reference argument.
           var columnFormat = GetColumnFormat(columnIndex);
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
@@ -523,9 +517,7 @@ namespace CsvTools
       {
         m_DisposedValue = true;
         components?.Dispose();
-#pragma warning disable CA1416
         m_ImgFilterIndicator.Dispose();
-#pragma warning restore CA1416
         m_CancellationTokenSource.Dispose();
       }
 
@@ -730,7 +722,7 @@ namespace CsvTools
       try
       {
         SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
-        if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+        if (e.Button==MouseButtons.Left && e.RowIndex >= 0 && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
           OpenEditor(CurrentCell);
       }
       catch (Exception ex)
@@ -864,13 +856,7 @@ namespace CsvTools
 
         foreach (DataColumn col in DataView.Table.Columns)
         {
-          DataGridViewColumn newColumn =
-            col.DataType == typeof(bool)
-              ? new DataGridViewCheckBoxColumn()
-              : showAsButton.Contains(col)
-                ? new DataGridViewButtonColumn()
-                : new DataGridViewTextBoxColumn();
-
+          var newColumn = (col.DataType == typeof(bool)) ? new DataGridViewCheckBoxColumn() : showAsButton.Contains(col) ? new DataGridViewButtonColumn() as DataGridViewColumn : new DataGridViewTextBoxColumn();
 
           newColumn.ValueType = col.DataType;
           newColumn.Name = col.ColumnName;
@@ -932,7 +918,6 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="DataGridViewCellPaintingEventArgs" /> instance containing the event data.
     /// </param>
-#pragma warning disable CA1416
     private void HighlightCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
       try
@@ -940,7 +925,7 @@ namespace CsvTools
         if (e.Graphics == null)
           return;
 
-        if (e is { RowIndex: -1, ColumnIndex: >= 0 } && GetColumnFilter(e.ColumnIndex).Active)
+        if (e.RowIndex== -1 &&  e.ColumnIndex >= 0 && GetColumnFilter(e.ColumnIndex).Active)
         {
           e.Handled = true;
           e.PaintBackground(e.CellBounds, true);
@@ -1085,7 +1070,6 @@ namespace CsvTools
         Logger.Warning(ex, "HighlightCellPainting");
       }
     }
-#pragma warning restore CA1416
 
     /// <summary>
     ///   Resets the data source.
@@ -1120,7 +1104,7 @@ namespace CsvTools
         var dataMember = DataMember;
         var maxIteration = 5;
 
-        while (dataSource is not System.Data.DataView && maxIteration > 0)
+        while (!(dataSource is DataView) && maxIteration > 0)
         {
           if (dataSource is BindingSource bs)
           {
@@ -1204,15 +1188,13 @@ namespace CsvTools
         var filter = GetColumnFilter(m_MenuItemColumnIndex);
         // This does not work proprtly
         var filterExpression = FilterText(m_MenuItemColumnIndex);
-        var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? [];
-        using (var filterPopup = new FromDataGridViewFilter(filter, data))
+        var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
+        using var filterPopup = new FromDataGridViewFilter(filter, data);
+        if (filterPopup.ShowDialog() == DialogResult.OK)
         {
-          if (filterPopup.ShowDialog() == DialogResult.OK)
-          {
-            ApplyFilters();
-            contextMenuStripCell.Close();
-            contextMenuStripHeader.Close();
-          }
+          ApplyFilters();
+          contextMenuStripCell.Close();
+          contextMenuStripHeader.Close();
         }
       });
     }
