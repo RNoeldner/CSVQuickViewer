@@ -50,14 +50,18 @@ namespace CsvTools.Tests
           try
           {
             frm.Show();
+            Application.DoEvents();
           }
           catch (Exception)
           {
             // ignore the form might be shown already
           }
-
+          
+         
           if (waitBeforeActionSeconds > 0 && !isClosed)
             WaitSomeTime(waitBeforeActionSeconds, CancellationToken.None);
+
+          Application.DoEvents();
 
           if (!isClosed)
             toDoForm?.Invoke(frm);

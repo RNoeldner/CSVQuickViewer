@@ -42,9 +42,6 @@ namespace CsvTools
 
       Text = m_DataGridViewColumnFilter.DataPropertyName;
 
-      dateTimePickerValue.Visible = m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime;
-      textBoxValue.Visible = !dateTimePickerValue.Visible;
-
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
       // ReSharper disable once CoVariantArrayConversion
@@ -140,20 +137,25 @@ namespace CsvTools
 
     private void FromDataGridViewFilter_Load(object sender, EventArgs e)
     {
+      FromDataGridViewFilter_Resize(sender, e);
+      PanelTop_Resize(sender, e);
+
       if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
       {
-        dateTimePickerValue.Focus();
-        dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
+        if (m_DataGridViewColumnFilter.ValueDateTime >= dateTimePickerValue.MinDate && m_DataGridViewColumnFilter.ValueDateTime <= dateTimePickerValue.MaxDate)
+          dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
+        else
+          dateTimePickerValue.Value = DateTime.Now.Date;
+        dateTimePickerValue.Visible = true;
+
       }
       else
       {
         textBoxValue.Text = m_DataGridViewColumnFilter.ValueText;
-        textBoxValue.SelectionStart = 0;
-        textBoxValue.SelectionLength = textBoxValue.Text.Length;
-        textBoxValue.Focus();
+        dateTimePickerValue.Visible = false;
       }
-      FromDataGridViewFilter_Resize(sender, e);
-      PanelTop_Resize(sender, e);
+
+      textBoxValue.Visible = !dateTimePickerValue.Visible;
     }
 
     private void TextBoxValue_TextChanged(object sender, EventArgs e)
@@ -213,7 +215,7 @@ namespace CsvTools
 
     private void ListViewCluster_KeyUp(object sender, KeyEventArgs e)
     {
-      if (!e.Control || e.KeyCode != Keys.C) 
+      if (!e.Control || e.KeyCode != Keys.C)
         return;
       var buffer = new StringBuilder();
       var dataObject = new DataObject();
@@ -222,6 +224,19 @@ namespace CsvTools
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
       dataObject.SetClipboard();
       e.Handled = true;
+    }
+
+    private void FromDataGridViewFilter_Activated(object sender, EventArgs e)
+    {
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
+        dateTimePickerValue.Focus();
+      else
+      {
+        textBoxValue.Focus();
+        textBoxValue.SelectionStart = 0;
+        textBoxValue.SelectionLength = textBoxValue.Text.Length;
+      }
+
     }
   }
 }
