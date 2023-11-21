@@ -61,7 +61,11 @@ namespace CsvTools
       m_HasNull = values.Any(x => x  == DBNull.Value);
       try
       {
-        ClearNotActive();
+        if (m_FilterLogic.Active)
+          ClearNotActive();
+        else
+          Clear();
+
         if (m_FilterLogic.DataType == DataTypeEnum.String|| m_FilterLogic.DataType == DataTypeEnum.Boolean || m_FilterLogic.DataType == DataTypeEnum.Guid)
           m_Result = BuildValueClustersString();
         else if (m_FilterLogic.DataType == DataTypeEnum.DateTime)
@@ -101,12 +105,9 @@ namespace CsvTools
 
       foreach (var dataRow in m_Values)
       {
-        if (dataRow == DBNull.Value)
-        {
-          m_HasNull = true;
+        if (dataRow == DBNull.Value || !(dataRow is DateTime value))
           continue;
-        }
-        var value = (DateTime) dataRow;
+
         if (clusterHour.Count <= m_MaxNumber)
           clusterHour.Add(value.TimeOfDay.Ticks / cTicksPerGroup);
         if (clusterDay.Count <= m_MaxNumber)
@@ -153,8 +154,7 @@ namespace CsvTools
             $"({m_FilterLogic.DataPropertyNameEscaped} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {m_FilterLogic.DataPropertyNameEscaped} < #{dic.AddDays(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)"
             , dic.ToString("s", CultureInfo.CurrentCulture),
             CountDateTime(dic, dic.AddDays(1)), dic, dic.AddDays(1));
-          if (cluster.Count > 0)
-            Add(cluster);
+          Add(cluster);
         }
       else if (clusterMonth.Count < m_MaxNumber)
         foreach (var dic in clusterMonth.OrderBy(x => x))
@@ -163,8 +163,7 @@ namespace CsvTools
             $"({m_FilterLogic.DataPropertyNameEscaped} >= #{dic.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}# AND {m_FilterLogic.DataPropertyNameEscaped} < #{dic.AddMonths(1).ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}#)",
             dic.ToString("s", CultureInfo.InvariantCulture),
             CountDateTime(dic, dic.AddMonths(1)), dic, dic.AddMonths(1));
-          if (cluster.Count > 0)
-            Add(cluster);
+          Add(cluster);
         }
       else
         foreach (var dic in clusterYear.OrderBy(x => x))
@@ -175,8 +174,7 @@ namespace CsvTools
             $"({m_FilterLogic.DataPropertyNameEscaped} >= #01/01/{dic:d4}# AND {m_FilterLogic.DataPropertyNameEscaped} < #01/01/{dic + 1:d4}#)",
             dic.ToString("000000", CultureInfo.InvariantCulture),
             CountDateTime(from, to), from, to);
-          if (cluster.Count > 0)
-            Add(cluster);
+          Add(cluster);
         }
 
       return BuildValueClustersResult.ListFilled;
@@ -373,7 +371,7 @@ namespace CsvTools
         // Do not add if there is a cluster existing that spans the new value     [ ]  ]
         // Do not add if there is a cluster existing that spans the new value   [ [ ]
         // Do not add if there is a cluster existing that spans the new value     [ ]
-        if (!m_ValueClusters.Any(x => (DateTime) (x.Start ?? DateTime.MinValue) <= (DateTime) (item.Start ?? DateTime.MinValue) && (DateTime) (x.End ?? DateTime.MaxValue)<= (DateTime) (item.End ?? DateTime.MaxValue)))
+        if (!m_ValueClusters.Any(x => (DateTime) (x.Start ?? DateTime.MinValue) <= (DateTime) (item.Start ?? DateTime.MinValue) && (DateTime) (x.End ?? DateTime.MaxValue) >= (DateTime) (item.End ?? DateTime.MaxValue)))
           m_ValueClusters.Add(item);
       }
       else if (m_FilterLogic.DataType == DataTypeEnum.Numeric || m_FilterLogic.DataType == DataTypeEnum.Integer)

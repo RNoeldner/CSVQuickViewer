@@ -68,7 +68,7 @@ namespace CsvTools
       this.buttonFilter.Location = new System.Drawing.Point(483, 2);
       this.buttonFilter.Name = "buttonFilter";
       this.buttonFilter.Size = new System.Drawing.Size(87, 23);
-      this.buttonFilter.TabIndex = 1;
+      this.buttonFilter.TabIndex = 3;
       this.buttonFilter.Text = "&Apply Filter";
       this.toolTip.SetToolTip(this.buttonFilter, "Apply the filter for the column");
       this.buttonFilter.UseVisualStyleBackColor = true;
@@ -90,7 +90,7 @@ namespace CsvTools
       this.comboBoxOperator.Location = new System.Drawing.Point(67, 3);
       this.comboBoxOperator.Name = "comboBoxOperator";
       this.comboBoxOperator.Size = new System.Drawing.Size(103, 21);
-      this.comboBoxOperator.TabIndex = 1;
+      this.comboBoxOperator.TabIndex = 2;
       this.toolTip.SetToolTip(this.comboBoxOperator, "Operator for comparsion");
       this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
       // 
@@ -106,7 +106,7 @@ namespace CsvTools
       // 
       // textBoxValue
       // 
-      this.textBoxValue.Location = new System.Drawing.Point(176, 3);
+      this.textBoxValue.Location = new System.Drawing.Point(185, 3);
       this.textBoxValue.Name = "textBoxValue";
       this.textBoxValue.Size = new System.Drawing.Size(250, 20);
       this.textBoxValue.TabIndex = 1;
@@ -127,7 +127,7 @@ namespace CsvTools
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
       this.listViewCluster.Size = new System.Drawing.Size(574, 380);
-      this.listViewCluster.TabIndex = 22;
+      this.listViewCluster.TabIndex = 1;
       this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
       this.listViewCluster.View = System.Windows.Forms.View.Details;
@@ -145,7 +145,7 @@ namespace CsvTools
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
       this.panelTop.Size = new System.Drawing.Size(574, 28);
-      this.panelTop.TabIndex = 25;
+      this.panelTop.TabIndex = 0;
       this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
       // 
       // FromDataGridViewFilter
@@ -162,6 +162,7 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(551, 260);
       this.Name = "FromDataGridViewFilter";
       this.Text = "Filter";
+      this.Activated += new System.EventHandler(this.FromDataGridViewFilter_Activated);
       this.Load += new System.EventHandler(this.FromDataGridViewFilter_Load);
       this.Resize += new System.EventHandler(this.FromDataGridViewFilter_Resize);
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
