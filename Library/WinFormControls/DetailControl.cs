@@ -34,10 +34,10 @@ namespace CsvTools
   /// </summary>
   public sealed partial class DetailControl : UserControl
   {
-    private readonly List<DataGridViewCell> m_FoundCells = new();
-    private readonly List<ToolStripItem> m_ToolStripItems = new();
+    private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
+    private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
     private CancellationToken m_CancellationToken = CancellationToken.None;
-    private DataTable m_DataTable = new();
+    private DataTable m_DataTable = new DataTable();
     private bool m_DisposedValue; // To detect redundant calls
     private FilterDataTable m_FilterDataTable = new FilterDataTable(new DataTable());
     private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
@@ -408,13 +408,13 @@ namespace CsvTools
       FilteredDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
     }
 
-    private void searchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+    private void SearchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
     {
       // Start the search
-      if (sender is not BackgroundWorker bw) return;
-      if (e.Argument is not string searchText) return;
+      if (!(sender is BackgroundWorker bw)) return;
+      if (!(e.Argument is string searchText)) return;
 
-      List<DataGridViewCell> found = new();
+      List<DataGridViewCell> found = new List<DataGridViewCell>();
       if (searchText.Length > 0)
         foreach (var viewColumn in FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
                    .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)))
@@ -440,7 +440,7 @@ namespace CsvTools
       e.Result = new Tuple<IEnumerable<DataGridViewCell>, string>(found, searchText);
     }
 
-    private void searchBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    private void SearchBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
       m_FoundCells.Clear();
       FilteredDataGridView.HighlightText = string.Empty;
@@ -483,7 +483,7 @@ namespace CsvTools
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible,
             HtmlStyle);
         m_FormShowMaxLength.ShowWithFont(this);
-        m_FormShowMaxLength.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
+        m_FormShowMaxLength.FormClosed += (o, e) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       }, ParentForm);
       m_ToolStripButtonColumnLength.Enabled = false;
     }
@@ -511,7 +511,7 @@ namespace CsvTools
             { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
-            (_, _) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
+            (o, e) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -538,7 +538,7 @@ namespace CsvTools
               HtmlStyle)
             { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.ShowWithFont(this);
-          m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+          m_HierarchyDisplay.FormClosed += (o, e) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -961,7 +961,7 @@ namespace CsvTools
     private async void DisplaySource_Click(object sender, EventArgs e)
     {
       if (m_SourceDisplay != null) return;
-      if (FileSetting is not IFileSettingPhysicalFile phys)
+      if (!(FileSetting is IFileSettingPhysicalFile phys))
         return;
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       {

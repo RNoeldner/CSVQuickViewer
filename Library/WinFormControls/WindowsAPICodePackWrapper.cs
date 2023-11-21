@@ -22,7 +22,7 @@ namespace CsvTools
 
       try
       {
-        if (percent is > 0 and <= 1)
+        if (percent > 0 && percent  <= 1)
         {
           TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
           TaskbarManager.Instance.SetProgressValue((percent * 1000d).ToInt(), 1000);
@@ -39,7 +39,7 @@ namespace CsvTools
       }
     }
 
-    public static string? Folder(in string initialDirectory, in  string title)
+    public static string? Folder(in string initialDirectory, in string title)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -77,7 +77,7 @@ namespace CsvTools
 
     public static bool IsDialogOpen { get; private set; }
 
-    public static string? Open(in string initialDirectory, in string title,in  string filter,
+    public static string? Open(in string initialDirectory, in string title, in string filter,
                                in string? preselectFileName)
     {
       if (m_CommonFileDialogSupported)
@@ -137,7 +137,7 @@ namespace CsvTools
     }
 
     public static string? Save(in string initialDirectory, in string title, in string filter,
-                               in string defaultExt, bool overwritePrompt = true, 
+                               in string defaultExt, bool overwritePrompt = true,
                                in string? preselectFileName = null)
     {
       Retry:

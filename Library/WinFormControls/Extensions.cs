@@ -237,11 +237,7 @@ namespace CsvTools
         else
         {
           var runThread = new Thread(action.Invoke);
-
-#pragma warning disable CA1416
           runThread.SetApartmentState(ApartmentState.STA);
-#pragma warning restore CA1416
-
           runThread.Start();
           if (timeoutMilliseconds > 0)
             runThread.Join(timeoutMilliseconds);

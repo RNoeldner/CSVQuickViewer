@@ -16,7 +16,7 @@ namespace CsvTools
 {
   public static class WinAppLogging
   {
-    private static readonly UserInterfaceSink m_UserInterfaceSink = new(CultureInfo.CurrentCulture);
+    private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
 
     /// <summary>
     ///   Dummy Method to make sure the Constructor is called
@@ -84,7 +84,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     public class UserInterfaceSink : ILogEventSink
     {
-      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new();
+      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new List<Microsoft.Extensions.Logging.ILogger>();
 
       // By design: Only one Action to be called you can not have two or more destinations
       private readonly IFormatProvider m_FormatProvider;

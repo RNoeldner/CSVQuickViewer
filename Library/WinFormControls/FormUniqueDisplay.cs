@@ -24,7 +24,7 @@ namespace CsvTools
 
   public partial class FormUniqueDisplay : ResizeForm
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource = new();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly DataRow[] m_DataRow;
 
@@ -147,9 +147,7 @@ namespace CsvTools
           var dataRow = m_DataRow[rowIndex];
           if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal))
             continue;
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
           var id = dataRow[dataColumnID.Ordinal].ToString().Trim().ToLowerInvariant();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.          
           if (dictIDToRow.ContainsKey(id))
             dictIDToCount[id]++;
           else

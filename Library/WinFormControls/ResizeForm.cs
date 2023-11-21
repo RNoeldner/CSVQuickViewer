@@ -39,7 +39,7 @@ namespace CsvTools
 
     private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
     {
-      if (sender is IFontConfig conf && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
+      if (sender is IFontConfig conf && (e.PropertyName ==  nameof(IFontConfig.Font) || e.PropertyName ==  nameof(IFontConfig.FontSize)))
       {
         this.SafeInvoke(() =>
           {

@@ -357,7 +357,7 @@ namespace CsvTools
         "oved by the reading applications. This is needed in case a line feed or a delimi" +
         "ter is part of the column");
       this.m_TextBoxQuote.Type = CsvTools.PunctuationTextBox.PunctuationType.Qualifier;
-      this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.m_TextBoxQuote_TextChanged);
+      this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.TextBoxQuote_TextChanged);
       // 
       // m_TextBoxQuotePlaceHolder
       // 
@@ -823,7 +823,7 @@ namespace CsvTools
       // m_TimerRebuilt
       // 
       this.m_TimerRebuilt.Interval = 200;
-      this.m_TimerRebuilt.Tick += new System.EventHandler(this.timerRebuilt_Tick);
+      this.m_TimerRebuilt.Tick += new System.EventHandler(this.TimerRebuilt_Tick);
       // 
       // QuotingControl
       // 
@@ -860,7 +860,7 @@ namespace CsvTools
     }
 #pragma warning restore CS8622
 
-    private void timerRebuilt_Tick(object sender, EventArgs e)
+    private void TimerRebuilt_Tick(object sender, EventArgs e)
     {
       if (!m_HasChanges)
         return;
@@ -880,14 +880,14 @@ namespace CsvTools
 
 
         m_FastColoredTextBox00!.Text = "This is";
-        if (trimming is TrimmingOptionEnum.Unquoted or TrimmingOptionEnum.None)
+        if (trimming == TrimmingOptionEnum.Unquoted || trimming == TrimmingOptionEnum.None)
           m_FastColoredTextBox00.AppendText(" ");
 
         m_FastColoredTextBox01!.Clear();
-        if (trimming is TrimmingOptionEnum.Unquoted or TrimmingOptionEnum.None)
+        if (trimming == TrimmingOptionEnum.Unquoted || trimming == TrimmingOptionEnum.None)
           m_FastColoredTextBox01.AppendText(" ");
         m_FastColoredTextBox01.AppendText("a Trimming");
-        if (trimming is TrimmingOptionEnum.Unquoted or TrimmingOptionEnum.None)
+        if (trimming == TrimmingOptionEnum.Unquoted || trimming == TrimmingOptionEnum.None)
           m_FastColoredTextBox01.AppendText(" ");
 
 
@@ -1041,7 +1041,7 @@ namespace CsvTools
       }
     }
 
-    private void m_TextBoxQuote_TextChanged(object sender, EventArgs e)
+    private void TextBoxQuote_TextChanged(object sender, EventArgs e)
     {
       m_TextBoxQuotePlaceHolder.Enabled =  !string.IsNullOrEmpty(m_TextBoxQuote.Text);
       m_RadioButtonNeeded.Enabled =  !string.IsNullOrEmpty(m_TextBoxQuote.Text);

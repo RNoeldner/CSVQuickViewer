@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormDuplicatesDisplay : ResizeForm
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource = new();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly DataRow[] m_DataRow;
 

@@ -29,7 +29,7 @@ namespace CsvTools
     private TableLayoutPanel m_TableLayoutPanel;
 
     private TextBox m_TextBox;
-    private Timer m_Timer = new();
+    private Timer m_Timer = new Timer();
     private WebBrowser? m_WebBrowser;
 
 #pragma warning disable CS8618

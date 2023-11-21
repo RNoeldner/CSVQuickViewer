@@ -40,7 +40,7 @@ namespace CsvTools
     private const string cNoSampleDate =
       "The source does not contain samples without warnings in the {0:N0} records read";
 
-    private readonly CancellationTokenSource m_CancellationTokenSource = new();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly ColumnMut m_ColumnEdit;
     private readonly IFileSetting m_FileSetting;
@@ -72,7 +72,7 @@ namespace CsvTools
       Column column,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
-      bool showIgnore,      
+      bool showIgnore,
       bool showWriteNull,
       bool enableChangeColumn)
     {
@@ -144,7 +144,7 @@ namespace CsvTools
       else
       {
         MessageBox.ShowBigHtml(
-          BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
+          FormColumnUiRead.BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
           comboBoxColumnName.Text,
           MessageBoxButtons.OK,
           MessageBoxIcon.Information);
@@ -203,7 +203,7 @@ namespace CsvTools
             if (checkResult.FoundValueFormat is null)
             {
               MessageBox.ShowBigHtml(
-                BuildHtmlText(
+                FormColumnUiRead.BuildHtmlText(
                   $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
                   null, 4, "Examples", samples.Values, 4),
                 $"Column: {columnName}",
@@ -243,7 +243,7 @@ namespace CsvTools
                 if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
                 {
                   if (MessageBox.ShowBigHtml(
-                        BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
+                        FormColumnUiRead.BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
                           "Not matching:", checkResult.ExampleNonMatch),
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
@@ -255,10 +255,10 @@ namespace CsvTools
                 else
                 {
                   MessageBox.ShowBigHtml(
-                    BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
+                    FormColumnUiRead.BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
                       checkResult.ExampleNonMatch),
                     $"Column: {columnName}",
-                    MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 RefreshData();
@@ -267,7 +267,7 @@ namespace CsvTools
               {
                 // add the regular samples to the invalids that are first
                 var displayMsg =
-                  $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Select(x=>x.Span.ToString()).Join("\t")}";
+                  $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Select(x => x.Span.ToString()).Join("\t")}";
 
                 if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                 {
@@ -424,7 +424,7 @@ namespace CsvTools
     }
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
-    private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
+    private static string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
       IReadOnlyCollection<ReadOnlyMemory<char>> values1, int col1, string? headerList2 = null, IReadOnlyCollection<ReadOnlyMemory<char>>? values2 = null,
       int col2 = 2)
     {
@@ -437,14 +437,18 @@ namespace CsvTools
       var stringBuilder = st.StartHtmlDoc(
         $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}");
 
-      if (header is { Length: > 0 })
+      if (!string.IsNullOrEmpty(header))
+#pragma warning disable CS8604 // Possible null reference argument.
         stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
+#pragma warning restore CS8604 // Possible null reference argument.
 
-      ListSamples(stringBuilder, headerList1, values1, col1, rows);
-      ListSamples(stringBuilder, headerList2, values2, col2, rows);
+      FormColumnUiRead.ListSamples(stringBuilder, headerList1, values1, col1, rows);
+      FormColumnUiRead.ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
-      if (footer is { Length: > 0 })
+      if (!string.IsNullOrEmpty(footer))
+#pragma warning disable CS8604 // Possible null reference argument.
         stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
+#pragma warning restore CS8604 // Possible null reference argument.
 
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");
@@ -697,7 +701,7 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
-    private void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<ReadOnlyMemory<char>>? values, int col,
+    private static void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<ReadOnlyMemory<char>>? values, int col,
       int rows)
     {
       if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
@@ -767,7 +771,7 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
 
       // Check all items in parts
-      var parts = (IEnumerable<string>)m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries);
+      var parts = (IEnumerable<string>) m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries);
       foreach (var format in parts)
       {
         var index = checkedListBoxDateFormats.Items.IndexOf(format);
@@ -853,7 +857,7 @@ namespace CsvTools
       }
     }
 
-    private void checkedListBoxDateFormats_SelectedIndexChanged(object sender, EventArgs e)
+    private void CheckedListBoxDateFormats_SelectedIndexChanged(object sender, EventArgs e)
     {
       UpdateDateLabel();
 

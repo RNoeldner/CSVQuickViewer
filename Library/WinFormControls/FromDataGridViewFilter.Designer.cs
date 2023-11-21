@@ -112,7 +112,7 @@ namespace CsvTools
       this.textBoxValue.TabIndex = 1;
       this.toolTip.SetToolTip(this.textBoxValue, "Text to filter.  Please use decimal point for numbers");
       this.textBoxValue.Visible = false;
-      this.textBoxValue.TextChanged += new System.EventHandler(this.textBoxValue_TextChanged);
+      this.textBoxValue.TextChanged += new System.EventHandler(this.TextBoxValue_TextChanged);
       // 
       // listViewCluster
       // 

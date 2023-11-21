@@ -80,7 +80,7 @@ namespace CsvTools
       this.radioButtonText.TabStop = true;
       this.radioButtonText.Text = "&Text";
       this.radioButtonText.UseVisualStyleBackColor = false;
-      this.radioButtonText.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+      this.radioButtonText.CheckedChanged += new System.EventHandler(this.RadioButton1_CheckedChanged);
       // 
       // radioButtonJson
       // 
@@ -94,7 +94,7 @@ namespace CsvTools
       this.radioButtonJson.TabIndex = 3;
       this.radioButtonJson.Text = "&Json";
       this.radioButtonJson.UseVisualStyleBackColor = false;
-      this.radioButtonJson.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+      this.radioButtonJson.CheckedChanged += new System.EventHandler(this.RadioButton2_CheckedChanged);
       // 
       // radioButtonXml
       // 
@@ -108,7 +108,7 @@ namespace CsvTools
       this.radioButtonXml.TabIndex = 4;
       this.radioButtonXml.Text = "&Xml";
       this.radioButtonXml.UseVisualStyleBackColor = false;
-      this.radioButtonXml.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+      this.radioButtonXml.CheckedChanged += new System.EventHandler(this.RadioButton3_CheckedChanged);
       // 
       // radioButtonHtml
       // 
@@ -122,7 +122,7 @@ namespace CsvTools
       this.radioButtonHtml.TabIndex = 5;
       this.radioButtonHtml.Text = "&Html";
       this.radioButtonHtml.UseVisualStyleBackColor = false;
-      this.radioButtonHtml.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
+      this.radioButtonHtml.CheckedChanged += new System.EventHandler(this.RadioButton4_CheckedChanged);
       // 
       // buttonSave
       // 
@@ -134,7 +134,7 @@ namespace CsvTools
       this.buttonSave.TabIndex = 6;
       this.buttonSave.Text = "&Save";
       this.buttonSave.UseVisualStyleBackColor = true;
-      this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+      this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
       // 
       // buttonCancel
       // 
@@ -145,7 +145,7 @@ namespace CsvTools
       this.buttonCancel.TabIndex = 7;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
-      this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+      this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
       // 
       // textBox
       // 
@@ -184,7 +184,7 @@ namespace CsvTools
       this.textBox.TabIndex = 1;
       this.textBox.WordWrap = true;
       this.textBox.Zoom = 100;
-      this.textBox.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.textBox_TextChanged);
+      this.textBox.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChanged);
       // 
       // webBrowser
       // 

@@ -33,11 +33,11 @@ namespace CsvTools
   public sealed class FormProgress : ResizeForm, IProgressTime, ILogger
   {
     private readonly LoggerDisplay? m_LoggerDisplay;
-    private ProgressTime m_Progress = new();
-    private Label m_LabelEtl = new();
-    private Label m_LabelText = new();
-    private ProgressBar m_ProgressBar = new();
-    private TableLayoutPanel m_TableLayoutPanel = new();
+    private ProgressTime m_Progress = new ProgressTime();
+    private Label m_LabelEtl = new Label();
+    private Label m_LabelText = new Label();
+    private ProgressBar m_ProgressBar = new ProgressBar();
+    private TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
 
     /// <summary>Raised for each reported progress value.</summary>
     /// <remarks>
