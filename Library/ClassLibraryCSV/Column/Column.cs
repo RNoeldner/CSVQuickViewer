@@ -80,7 +80,7 @@ namespace CsvTools
     /// <summary>
     ///   Formatting option for values
     /// </summary>
-    public ValueFormat ValueFormat { get; }
+    public ValueFormat ValueFormat { get; protected set;}
 
     /// <summary>
     /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
