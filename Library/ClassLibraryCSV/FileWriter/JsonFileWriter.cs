@@ -132,9 +132,9 @@ namespace CsvTools
       foreach (var col in cols)
         sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name), string.Format(cFieldPlaceholderByName, col.Name));
       if (sb.Length > 1)
-      sb.Length -= 2;
-      sb.AppendLine("}");      
-      return sb.ToString();      
+        sb.Length -= 2;
+      sb.AppendLine("}");
+      return sb.ToString();
     }
 
     public override string BuildRow(in string placeHolderText, in IDataReader reader)
@@ -210,7 +210,7 @@ namespace CsvTools
         try
         {
           var jtoken = JToken.Parse(oneElement);
-          foreach (JProperty prop in jtoken.Children())
+          foreach (var prop in jtoken.Children().OfType<JProperty>())
           {
             var list = prop.Value?.ToString() ?? string.Empty;
             var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ?? new WriterColumn(prop.Name, new ValueFormat(), -1);

@@ -292,7 +292,7 @@ namespace CsvTools
         foreach (var ie in ae.Flatten().InnerExceptions)
         {
           if (sb.Length > 0)
-            sb.Append("\n");
+            sb.Append('\n');
           sb.Append(ie.Message);
         }
 
@@ -301,7 +301,7 @@ namespace CsvTools
 
       sb.Append(exception.Message);
       if (exception.InnerException is null) return sb.ToString();
-      sb.Append("\n");
+      sb.Append('\n');
       sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
 
       return sb.ToString();

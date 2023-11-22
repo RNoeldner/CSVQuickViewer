@@ -601,7 +601,7 @@ namespace CsvTools
       var stringBuilder = new StringBuilder();
       stringBuilder.Append(GetType().Name);
       if (!string.IsNullOrEmpty(ID))
-        stringBuilder.Append(" ");
+        stringBuilder.Append(' ');
       stringBuilder.Append(ID);
       return stringBuilder.ToString();
     }
