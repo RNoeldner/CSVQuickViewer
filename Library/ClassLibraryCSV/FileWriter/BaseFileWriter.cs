@@ -115,7 +115,7 @@ namespace CsvTools
     ///   Event to be raised if writing is finished
     /// </summary>
     public event EventHandler? WriteFinished;
-
+    private static readonly char[] timeIdentifiers = new[] { 'h', 'H', 'm', 's' };
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
@@ -238,7 +238,7 @@ namespace CsvTools
         if (column is null || string.IsNullOrEmpty(column.TimePart) || colNames.ContainsValue(column.TimePart))
           continue;
 
-        if (ci.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
+        if (ci.ValueFormat.DateFormat.IndexOfAny(timeIdentifiers) != -1)
           Logger.Warning(
             $"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
 

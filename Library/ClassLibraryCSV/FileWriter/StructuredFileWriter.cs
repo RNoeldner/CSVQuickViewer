@@ -178,7 +178,11 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(Footer()))
         await writer.WriteAsync(Footer()).ConfigureAwait(false);
 
+#if NET5_0_OR_GREATER
+      await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+#else
       await writer.FlushAsync().ConfigureAwait(false);
+#endif
     }
 
     public virtual string BuildRow(in string placeHolderText, in IDataReader reader)

@@ -346,7 +346,7 @@ namespace CsvTools
         return sbText.ToString();
       sbText.Append(" (");
       sbText.Append(shortDesc);
-      sbText.Append(")");
+      sbText.Append(')');
 
       return sbText.ToString();
     }

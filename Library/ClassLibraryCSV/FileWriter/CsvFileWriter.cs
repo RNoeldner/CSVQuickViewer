@@ -253,8 +253,11 @@ namespace CsvTools
         // and store the possibly remaining data
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
       }
-
+      #if NET5_0_OR_GREATER
+      await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+      #else
       await writer.FlushAsync().ConfigureAwait(false);
+      #endif
     }
 
     /// <summary>
