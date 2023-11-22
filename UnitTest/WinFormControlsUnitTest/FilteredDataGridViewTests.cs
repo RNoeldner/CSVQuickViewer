@@ -200,8 +200,7 @@ namespace CsvTools.Tests
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
           control =>
           {
-            control.DataSource = DataTable200;
-            control.ShowAllColumns();
+            control.DataSource = DataTable200;            
             control.HideEmptyColumns();
 
             control.SetColumnVisibility(new Dictionary<string, bool>

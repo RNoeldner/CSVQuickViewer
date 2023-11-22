@@ -86,7 +86,7 @@ namespace CsvTools
                              throw new InvalidOperationException("Resource not found");
 
       DataError += FilteredDataGridView_DataError;
-      toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
+
       if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
         tableLayoutSettings.ColumnCount = 3;
 
@@ -183,7 +183,6 @@ namespace CsvTools
       set
       {
         m_FileSetting = value;
-        toolStripMenuItemSaveCol.Enabled = m_FileSetting != null;
         toolStripMenuItemCF.Enabled = m_FileSetting != null;
       }
     }
@@ -319,8 +318,6 @@ namespace CsvTools
       try
       {
         if (!HideEmptyColumns())
-          return;
-        if (!ColumnVisibilityChanged())
           return;
         SetRowHeight();
         DataViewChanged?.Invoke(this, EventArgs.Empty);
@@ -462,53 +459,6 @@ namespace CsvTools
       }
     }
 
-    public void ShowAllColumns()
-    {
-      foreach (DataGridViewColumn col in Columns)
-        if (!col.Visible)
-          col.Visible = true;
-
-      if (!ColumnVisibilityChanged())
-        return;
-      SetRowHeight();
-      DataViewChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///   Updated the Columns CheckedListBoxControl according to the visibility of the columns
-    /// </summary>
-    /// <returns><c>true</c> if something was updated</returns>
-    internal bool ColumnVisibilityChanged()
-    {
-      var hasChanges = false;
-
-      var showShowAll = false;
-      foreach (DataGridViewColumn col in Columns)
-        if (!col.Visible)
-          showShowAll = true;
-
-      toolStripMenuItemShowAllColumns.Enabled = showShowAll;
-
-      toolStripMenuItemColumnVisibility.ItemCheck -= CheckedListBox_ItemCheck;
-
-      // update the checked state of the ToolStripMenuItem
-      foreach (DataGridViewColumn col in Columns)
-      {
-        var itemIndex = ColumnDisplayMenuItemAdd(col.DataPropertyName);
-        if (itemIndex <= -1)
-          continue;
-        if (col.Visible ==
-            toolStripMenuItemColumnVisibility.CheckedListBoxControl.CheckedIndices.Contains(itemIndex))
-          continue;
-
-        toolStripMenuItemColumnVisibility.CheckedListBoxControl.SetItemChecked(itemIndex, col.Visible);
-        hasChanges = true;
-      }
-
-      toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
-      return hasChanges;
-    }
-
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
@@ -637,61 +587,6 @@ namespace CsvTools
       return m_DefRowHeight;
     }
 
-    /// <summary>
-    ///   Handles the ItemCheck event of the CheckedListBox control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="ItemCheckEventArgs" /> instance containing the event data.</param>
-    private void CheckedListBox_ItemCheck(object? sender, ItemCheckEventArgs e)
-    {
-      timerColumsFilterChecked.Stop();
-      timerColumsFilterChecked.Start();
-    }
-
-    /// <summary>
-    ///   Columns the display menu item add.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <returns></returns>
-    private int ColumnDisplayMenuItemAdd(string text)
-    {
-      if (!Columns.Contains(text))
-        return -1;
-      var itemIndex = ColumnDisplayMenuItemFind(text);
-
-      // if we have the column already do not do anything
-      if (itemIndex != -1)
-        return itemIndex;
-      itemIndex = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Add(text);
-
-      // ReSharper disable once PossibleNullReferenceException
-      toolStripMenuItemColumnVisibility.CheckedListBoxControl.SetItemChecked(itemIndex, Columns[text].Visible);
-      return itemIndex;
-    }
-
-    /// <summary>
-    ///   Columns the display menu item find.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <returns></returns>
-    private int ColumnDisplayMenuItemFind(string text)
-    {
-      if (toolStripMenuItemColumnVisibility?.CheckedListBoxControl.Items != null)
-        return toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.IndexOf(text);
-      return -1;
-    }
-
-    /// <summary>
-    ///   Columns the display menu item remove.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    private void ColumnDisplayMenuItemRemove(string text)
-    {
-      var itemIndex = ColumnDisplayMenuItemFind(text);
-      if (itemIndex > -1)
-        toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.RemoveAt(itemIndex);
-    }
-
     private void OpenEditor(DataGridViewCell cell)
     {
       using var frm = new FormTextDisplay(cell.Value?.ToString() ?? string.Empty);
@@ -749,21 +644,6 @@ namespace CsvTools
           ? DataGridViewContentAlignment.MiddleCenter
           : DataGridViewContentAlignment.MiddleRight;
       }
-
-      ColumnDisplayMenuItemAdd(e.Column.DataPropertyName);
-    }
-
-    /// <summary>
-    ///   Handles the ColumnRemoved event of the FilteredDataGridView control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing
-    ///   the event data.
-    /// </param>
-    private void FilteredDataGridView_ColumnRemoved(object? sender, DataGridViewColumnEventArgs e)
-    {
-      ColumnDisplayMenuItemRemove(e.Column.DataPropertyName);
     }
 
     /// <summary>
@@ -817,72 +697,62 @@ namespace CsvTools
         if (!oldWith.ContainsKey(column.DataPropertyName))
           oldWith.Add(column.DataPropertyName, column.Width);
 
-      ColumnRemoved -= FilteredDataGridView_ColumnRemoved;
-      try
+
+      // remove all columns
+      Columns.Clear();
+
+      // if we do not have a BoundDataView exit now
+      if (DataView is null || DataView.Table is null)
+        return;
+
+      var wrapColumns = new List<DataColumn>();
+      var showAsButton = new List<DataColumn>();
+      foreach (DataColumn col in DataView.Table.Columns)
       {
-        // remove all columns
-        Columns.Clear();
-
-        // along with the entries in the context menu
-        toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Clear();
-
-        // if we do not have a BoundDataView exit now
-        if (DataView is null || DataView.Table is null)
-          return;
-
-        var wrapColumns = new List<DataColumn>();
-        var showAsButton = new List<DataColumn>();
-        foreach (DataColumn col in DataView.Table.Columns)
+        if (col.DataType != typeof(string)) continue;
+        foreach (DataRow row in DataView.Table.Rows)
         {
-          if (col.DataType != typeof(string)) continue;
-          foreach (DataRow row in DataView.Table.Rows)
+          var text = row[col].ToString();
+          if (string.IsNullOrEmpty(text))
+            continue;
+          if (m_ShowButtonAtLength >0 && text.Length > m_ShowButtonAtLength)
           {
-            var text = row[col].ToString();
-            if (string.IsNullOrEmpty(text))
-              continue;
-            if (m_ShowButtonAtLength >0 && text.Length > m_ShowButtonAtLength)
-            {
-              showAsButton.Add(col);
-              break;
-            }
-
-            if (text.IndexOf('\n') != -1)
-            {
-              wrapColumns.Add(col);
-              break;
-            }
+            showAsButton.Add(col);
+            break;
           }
-        }
 
-        foreach (DataColumn col in DataView.Table.Columns)
-        {
-          var newColumn = (col.DataType == typeof(bool)) ? new DataGridViewCheckBoxColumn() : showAsButton.Contains(col) ? new DataGridViewButtonColumn() as DataGridViewColumn : new DataGridViewTextBoxColumn();
-
-          newColumn.ValueType = col.DataType;
-          newColumn.Name = col.ColumnName;
-          newColumn.DataPropertyName = col.ColumnName;
-
-          if (wrapColumns.Contains(col))
-            newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-          if (showAsButton.Contains(col))
-            newColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-
-          newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-          newColumn.Width =
-            oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
-            GetColumnWith(col, DataView.Table.Rows, m_CancellationTokenSource.Token);
-          var colIndex = Columns.Add(newColumn);
-          // remove filter in case it does not match
-          if (m_FilterLogic.TryGetValue(colIndex, out var filter))
+          if (text.IndexOf('\n') != -1)
           {
-            if (filter.DataPropertyName != col.ColumnName && filter.DataType != newColumn.ValueType.GetDataType())
-              m_FilterLogic.Remove(colIndex);
+            wrapColumns.Add(col);
+            break;
           }
         }
       }
-      finally
+
+      foreach (DataColumn col in DataView.Table.Columns)
       {
-        ColumnRemoved += FilteredDataGridView_ColumnRemoved;
+        var newColumn = (col.DataType == typeof(bool)) ? new DataGridViewCheckBoxColumn() : showAsButton.Contains(col) ? new DataGridViewButtonColumn() as DataGridViewColumn : new DataGridViewTextBoxColumn();
+
+        newColumn.ValueType = col.DataType;
+        newColumn.Name = col.ColumnName;
+        newColumn.DataPropertyName = col.ColumnName;
+
+        if (wrapColumns.Contains(col))
+          newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+        if (showAsButton.Contains(col))
+          newColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
+        newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        newColumn.Width =
+          oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
+          GetColumnWith(col, DataView.Table.Rows, m_CancellationTokenSource.Token);
+        var colIndex = Columns.Add(newColumn);
+        // remove filter in case it does not match
+        if (m_FilterLogic.TryGetValue(colIndex, out var filter))
+        {
+          if (filter.DataPropertyName != col.ColumnName && filter.DataType != newColumn.ValueType.GetDataType())
+            m_FilterLogic.Remove(colIndex);
+        }
       }
     }
 
@@ -1158,27 +1028,19 @@ namespace CsvTools
       if (e.Category == UserPreferenceCategory.Locale)
         CultureInfo.CurrentCulture.ClearCachedData();
     }
-
-    private void TimerColumnsFilter_Tick(object? sender, EventArgs e)
+    private void OpenColumnsDialog(object? sender, EventArgs e)
     {
-      try
+      this.RunWithHourglass(() =>
       {
-        timerColumsFilterChecked.Stop();
-
-        var items = new Dictionary<string, bool>();
-        for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
+        // This does not work proprtly
+        var filterExpression = FilterText(m_MenuItemColumnIndex);
+        using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key));
+        if (filterPopup.ShowDialog() == DialogResult.OK)
         {
-          var text = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString();
-          if (!string.IsNullOrEmpty(text))
-            items.Add(text, toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
+          SetRowHeight();
+          DataViewChanged?.Invoke(this, EventArgs.Empty);
         }
-
-        this.SafeInvoke(() => SetColumnVisibility(items));
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "TimerColumnsFilter_Tick");
-      }
+      });
     }
 
     private void OpenFilterDialog(object? sender, EventArgs e)
@@ -1189,7 +1051,7 @@ namespace CsvTools
         // This does not work proprtly
         var filterExpression = FilterText(m_MenuItemColumnIndex);
         var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
-        using var filterPopup = new FromDataGridViewFilter(filter, data);
+        using var filterPopup = new FromColumnFilter(filter, data);
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           ApplyFilters();
@@ -1325,7 +1187,6 @@ namespace CsvTools
       {
         if (!Columns.Cast<DataGridViewColumn>().Any(col => col.Visible && col.Index != m_MenuItemColumnIndex)) return;
         Columns[m_MenuItemColumnIndex].Visible = false;
-        ColumnVisibilityChanged();
       }
       catch (Exception ex)
       {
@@ -1340,7 +1201,7 @@ namespace CsvTools
 
       try
       {
-        toolStripMenuItemLoadCol.Enabled = false;
+
         var fileName = WindowsAPICodePackWrapper.Open(
           m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
@@ -1351,10 +1212,7 @@ namespace CsvTools
       {
         FindForm()?.ShowError(ex);
       }
-      finally
-      {
-        toolStripMenuItemLoadCol.Enabled = true;
-      }
+
     }
 
     /// <summary>
@@ -1369,7 +1227,6 @@ namespace CsvTools
         SuspendLayout();
         ViewSetting.ReStoreViewSetting(newSetting, Columns, m_FilterLogic, Sort);
         ApplyFilters();
-        ColumnVisibilityChanged();
         ResumeLayout(true);
       }
       );
@@ -1381,7 +1238,6 @@ namespace CsvTools
         return;
       try
       {
-        toolStripMenuItemSaveCol.Enabled = false;
         var text = GetViewStatus;
         if (!string.IsNullOrEmpty(text))
         {
@@ -1413,18 +1269,7 @@ namespace CsvTools
       {
         FindForm()?.ShowError(ex);
       }
-      finally
-      {
-        toolStripMenuItemSaveCol.Enabled = true;
-      }
     }
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemAllCol control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemShowAllColumns_Click(object? sender, EventArgs e) => ShowAllColumns();
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.
@@ -1448,40 +1293,7 @@ namespace CsvTools
 
     private void ToolStripMenuItemSortRemove_Click(object? sender, EventArgs e) => DataView!.Sort = string.Empty;
 
-    private void TimerColumnsFilterText_Tick(object? sender, EventArgs e)
-    {
-      try
-      {
-        timerColumsFilterText.Stop();
-        if (toolStripTextBoxColFilter.Text.Length <= 1) return;
-        toolStripTextBoxColFilter.RunWithHourglass(() =>
-        {
-          bool allVisible = true;
-          foreach (DataGridViewColumn col in Columns)
-          {
-            if (!col.Visible)
-            {
-              allVisible = false;
-              break;
-            }
-          }
-          foreach (DataGridViewColumn col in Columns)
-            if (col.DataPropertyName.IndexOf(toolStripTextBoxColFilter.Text, StringComparison.OrdinalIgnoreCase) != -1)
-              col.Visible = true;
-            else if (allVisible)
-              col.Visible = false;
 
-          if (!ColumnVisibilityChanged())
-            return;
 
-          SetRowHeight();
-        }, null);
-        toolStripTextBoxColFilter.Focus();
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "TimerColumnsFilterText_Tick");
-      }
-    }
   }
 }
