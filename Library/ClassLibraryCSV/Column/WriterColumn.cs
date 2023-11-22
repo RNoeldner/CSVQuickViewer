@@ -29,6 +29,33 @@ namespace CsvTools
       FieldLength = fieldLength;
       ConstantTimeZone = constantTimeZone;
       ColumnOrdinalTimeZone = columnOrdinalTimeZone;
+
+      // Writing data Formats should not have empty formats
+      if (string.IsNullOrEmpty(ValueFormat.True) ||
+          string.IsNullOrEmpty(ValueFormat.False) ||
+          string.IsNullOrEmpty(ValueFormat.DateFormat) ||
+          string.IsNullOrEmpty(ValueFormat.NumberFormat))
+      {
+        ValueFormat = new ValueFormat(
+          ValueFormat.DataType,
+          string.IsNullOrEmpty(ValueFormat.DateFormat) ? ValueFormat.Empty.DateFormat : ValueFormat.DateFormat,
+          ValueFormat.DateSeparator.ToStringHandle0(),
+          ValueFormat.TimeSeparator.ToStringHandle0(),
+          string.IsNullOrEmpty(ValueFormat.NumberFormat) ? ValueFormat.Empty.NumberFormat : ValueFormat.NumberFormat,
+          ValueFormat.GroupSeparator.ToStringHandle0(),
+          ValueFormat.DecimalSeparator.ToStringHandle0(),
+          string.IsNullOrEmpty(ValueFormat.True) ? "true" : ValueFormat.True,
+          string.IsNullOrEmpty(ValueFormat.False) ? "false" : ValueFormat.False,
+          ValueFormat.DisplayNullAs,
+          ValueFormat.Part,
+          ValueFormat.PartSplitter.ToStringHandle0(),
+          ValueFormat.PartToEnd,
+          ValueFormat.RegexSearchPattern,
+          ValueFormat.RegexReplacement,
+          ValueFormat.ReadFolder,
+          ValueFormat.WriteFolder,
+          ValueFormat.FileOutPutPlaceholder, ValueFormat.Overwrite);
+      }
     }
 
     /// <summary>
