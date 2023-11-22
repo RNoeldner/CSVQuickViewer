@@ -32,7 +32,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private ValueFormat m_DefaultValueFormatWrite = ValueFormat.Empty;
+    private ValueFormat m_ValueFormatWrite = ValueFormat.Empty;
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -146,8 +146,32 @@ namespace CsvTools
 #endif
     public virtual ValueFormat ValueFormatWrite
     {
-      get => m_DefaultValueFormatWrite;
-      set => SetProperty(ref m_DefaultValueFormatWrite, value);
+      get => m_ValueFormatWrite;
+      set
+      {
+        if (string.IsNullOrEmpty(value.True) ||
+           string.IsNullOrEmpty(value.False) ||
+           string.IsNullOrEmpty(value.DateFormat) ||
+           string.IsNullOrEmpty(value.NumberFormat))
+        {
+          var valueFormatM = new ValueFormatMut(value);
+
+          if (string.IsNullOrEmpty(valueFormatM.True))
+            valueFormatM.True="true";
+
+          if (string.IsNullOrEmpty(valueFormatM.False))
+            valueFormatM.False="false";
+
+          if (string.IsNullOrEmpty(valueFormatM.DateFormat))
+            valueFormatM.DateFormat=ValueFormat.Empty.DateFormat;
+
+          if (string.IsNullOrEmpty(valueFormatM.NumberFormat))
+            valueFormatM.NumberFormat=ValueFormat.Empty.NumberFormat;
+          SetProperty(ref m_ValueFormatWrite, valueFormatM.ToImmutable());
+
+        }
+        SetProperty(ref m_ValueFormatWrite, value);
+      }
     }
 
     /// <summary>
@@ -159,8 +183,8 @@ namespace CsvTools
     [JsonIgnore]
     public virtual ValueFormatMut ValueFormatMut
     {
-      get => new ValueFormatMut(m_DefaultValueFormatWrite);
-      set => SetProperty(ref m_DefaultValueFormatWrite, value.ToImmutable());
+      get => new ValueFormatMut(m_ValueFormatWrite);
+      set => ValueFormatWrite = value.ToImmutable();
     }
 
 #if XmlSerialization
