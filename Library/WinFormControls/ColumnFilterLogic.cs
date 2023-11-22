@@ -382,7 +382,7 @@ namespace CsvTools
           case '*':
           case '[':
           case ']':
-            returnVal.Append("[" + c + "]");
+            returnVal.Append('[' + c + ']');
             break;
 
           case '\'':

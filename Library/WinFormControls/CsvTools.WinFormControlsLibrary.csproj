@@ -50,7 +50,10 @@
     <ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="FromDataGridViewFilter.cs">
+    <Compile Update="FromColumnsFilter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FromColumnFilter.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="FormColumnUIRead.cs" />

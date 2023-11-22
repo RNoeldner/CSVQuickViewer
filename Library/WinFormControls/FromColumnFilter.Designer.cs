@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  sealed partial class FromDataGridViewFilter
+  sealed partial class FromColumnFilter
   {
     /// <summary>
     /// Required designer variable.
@@ -41,6 +41,7 @@ namespace CsvTools
       this.listViewCluster = new System.Windows.Forms.ListView();
       this.panelTop = new System.Windows.Forms.Panel();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+      this.timerFilter = new System.Windows.Forms.Timer(this.components);
       colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       colItems = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
@@ -50,11 +51,12 @@ namespace CsvTools
       // colText
       // 
       colText.Text = "Filter";
-      colText.Width = 90;
+      colText.Width = 25;
       // 
       // colItems
       // 
       colItems.Text = "Count";
+      colItems.Width = 50;
       // 
       // errorProvider
       // 
@@ -65,7 +67,7 @@ namespace CsvTools
       this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonFilter.AutoSize = true;
       this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonFilter.Location = new System.Drawing.Point(483, 2);
+      this.buttonFilter.Location = new System.Drawing.Point(469, 2);
       this.buttonFilter.Name = "buttonFilter";
       this.buttonFilter.Size = new System.Drawing.Size(87, 23);
       this.buttonFilter.TabIndex = 3;
@@ -126,7 +128,7 @@ namespace CsvTools
       this.listViewCluster.Location = new System.Drawing.Point(0, 28);
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(574, 380);
+      this.listViewCluster.Size = new System.Drawing.Size(560, 362);
       this.listViewCluster.TabIndex = 1;
       this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
@@ -144,23 +146,29 @@ namespace CsvTools
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(574, 28);
+      this.panelTop.Size = new System.Drawing.Size(560, 28);
       this.panelTop.TabIndex = 0;
       this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
       // 
-      // FromDataGridViewFilter
+      // timerFilter
+      // 
+      this.timerFilter.Enabled = true;
+      this.timerFilter.Interval = 200;
+      this.timerFilter.Tick += new System.EventHandler(this.TimerFilter_Tick);
+      // 
+      // FromColumnFilter
       // 
       this.AcceptButton = this.buttonFilter;
       this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(574, 408);
+      this.ClientSize = new System.Drawing.Size(560, 390);
       this.Controls.Add(this.listViewCluster);
       this.Controls.Add(this.panelTop);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.MinimumSize = new System.Drawing.Size(551, 260);
-      this.Name = "FromDataGridViewFilter";
+      this.Name = "FromColumnFilter";
       this.Text = "Filter";
       this.Activated += new System.EventHandler(this.FromDataGridViewFilter_Activated);
       this.Load += new System.EventHandler(this.FromDataGridViewFilter_Load);
@@ -183,5 +191,6 @@ namespace CsvTools
     private System.Windows.Forms.ListView listViewCluster;
     private System.Windows.Forms.Panel panelTop;
     private System.Windows.Forms.ToolTip toolTip;
+    private System.Windows.Forms.Timer timerFilter;
   }
 }

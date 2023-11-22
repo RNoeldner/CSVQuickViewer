@@ -25,22 +25,22 @@ namespace CsvTools
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
-  public sealed partial class FromDataGridViewFilter : ResizeForm
+  public sealed partial class FromColumnFilter : ResizeForm
   {
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FromDataGridViewFilter" /> class.
+    ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
     /// </summary>
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
     /// <param name="columnValues">The data in teh column</param>
-    public FromDataGridViewFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues)
+    public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues)
     {
       m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
 
       InitializeComponent();
 
-      Text = m_DataGridViewColumnFilter.DataPropertyName;
+      Text = $"Filter : {m_DataGridViewColumnFilter.DataPropertyName}";
 
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
@@ -160,45 +160,44 @@ namespace CsvTools
 
     private void TextBoxValue_TextChanged(object sender, EventArgs e)
     {
+      timerFilter.Stop();
+      timerFilter.Start();
+
       try
       {
         if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
         {
           errorProvider.SetError(textBoxValue, string.Empty);
-          if (textBoxValue.Text.Length>0)
+          if (textBoxValue.Text.Length==0)
+            return;
+
+          if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
           {
-            if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
+            var stringToDecimal = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                           false, false) ??
+                         textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
+            if (!stringToDecimal.HasValue)
             {
-              var stringToDecimal = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                             CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                             false, false) ??
-                           textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
-              if (!stringToDecimal.HasValue)
+              textBoxValue.Width = dateTimePickerValue.Width - 20;
+              errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+            }
+            else
+            {
+              if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (stringToDecimal.Value< long.MinValue || stringToDecimal.Value> long.MaxValue))
               {
                 textBoxValue.Width = dateTimePickerValue.Width - 20;
-                errorProvider.SetError(textBoxValue, "Not a valid numeric value");
+                errorProvider.SetError(textBoxValue, "Out of integer rage");
               }
-              else
-              {
-                if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (stringToDecimal.Value< long.MinValue || stringToDecimal.Value> long.MaxValue))
-                {
-                  textBoxValue.Width = dateTimePickerValue.Width - 20;
-                  errorProvider.SetError(textBoxValue, "Out of integer rage");
-                }
-                textBoxValue.Text = stringToDecimal.Value.ToString(CultureInfo.CurrentCulture);
-              }
+              textBoxValue.Text = stringToDecimal.Value.ToString(CultureInfo.CurrentCulture);
             }
           }
         }
-
-        // Filter The check boxes
-        FilterItems(comboBoxOperator.Text.Contains("xxx") ? textBoxValue.Text : "");
       }
       catch (Exception ex)
       {
         ParentForm.ShowError(ex);
       }
-
     }
 
     private void PanelTop_Resize(object sender, EventArgs e)
@@ -237,6 +236,21 @@ namespace CsvTools
         textBoxValue.SelectionLength = textBoxValue.Text.Length;
       }
 
+    }
+
+    private void TimerFilter_Tick(object sender, EventArgs e)
+    {
+      timerFilter.Stop();
+      try
+      {
+        // Filter The check boxes
+        if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
+          FilterItems(comboBoxOperator.Text.Contains("xxx") ? textBoxValue.Text : "");
+      }
+      catch (Exception ex)
+      {
+        ParentForm.ShowError(ex);
+      }
     }
   }
 }

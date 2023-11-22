@@ -689,8 +689,7 @@ namespace CsvTools
         m_BindingSource.DataSource = newDt;
         FilteredDataGridView.DataSource = m_BindingSource;
 
-        FilterColumns(filterType);
-        FilteredDataGridView.ColumnVisibilityChanged();
+        FilterColumns(filterType);        
 
         if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
           Sort(oldSortedColumn,
