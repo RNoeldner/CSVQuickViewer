@@ -34,7 +34,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
     /// <param name="columnValues">The data in teh column</param>
-    public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues)
+    /// <param name="maxCluster">Maximum number of clusters to show</param>
+    public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
     {
       m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
 
@@ -47,11 +48,13 @@ namespace CsvTools
       // ReSharper disable once CoVariantArrayConversion
       comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.DataType));
       comboBoxOperator.SelectedIndex = 0;
-      comboBoxOperator.EndUpdate();
+      comboBoxOperator.EndUpdate();      
 
-      var result = m_DataGridViewColumnFilter.ReBuildValueClusters(columnValues, 40);
+      var result = m_DataGridViewColumnFilter.ReBuildValueClusters(columnValues, maxCluster);
       if (result == BuildValueClustersResult.ListFilled)
-        FilterItems("");
+      {
+         FilterItems("");
+      }       
       else
       {
         listViewCluster.CheckBoxes = false;
@@ -69,9 +72,9 @@ namespace CsvTools
             break;
         }
         toolTip.SetToolTip(this.listViewCluster, explain);
-        listViewCluster.Items.Add(new ListViewItem(new[] {
-            explain,
-            string.Empty})).ForeColor = System.Drawing.SystemColors.HighlightText;
+        labelError.Text = explain;
+        labelError.Visible=true;        
+        toolTip.SetToolTip(this.labelError, explain);
         listViewCluster.Enabled = false;
       }
     }
@@ -251,6 +254,6 @@ namespace CsvTools
       {
         ParentForm.ShowError(ex);
       }
-    }
+    }   
   }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CSVQuickViewer": {
+      "commandName": "Project",
+      "commandLineArgs": "c:\\Users\\rnoldner\\NonSync\\Gunnebo\\CSOD Migration\\ExtractCore\\Export\\HRCore\\EmployeeAllowance.csv"
+    }
+  }
+}

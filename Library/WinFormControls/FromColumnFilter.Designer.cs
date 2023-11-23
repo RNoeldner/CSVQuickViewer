@@ -42,6 +42,7 @@ namespace CsvTools
       this.panelTop = new System.Windows.Forms.Panel();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.timerFilter = new System.Windows.Forms.Timer(this.components);
+      this.labelError = new System.Windows.Forms.Label();
       colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       colItems = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
@@ -67,7 +68,7 @@ namespace CsvTools
       this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonFilter.AutoSize = true;
       this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonFilter.Location = new System.Drawing.Point(469, 2);
+      this.buttonFilter.Location = new System.Drawing.Point(444, 2);
       this.buttonFilter.Name = "buttonFilter";
       this.buttonFilter.Size = new System.Drawing.Size(87, 23);
       this.buttonFilter.TabIndex = 3;
@@ -128,7 +129,7 @@ namespace CsvTools
       this.listViewCluster.Location = new System.Drawing.Point(0, 28);
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(560, 362);
+      this.listViewCluster.Size = new System.Drawing.Size(535, 369);
       this.listViewCluster.TabIndex = 1;
       this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
@@ -146,7 +147,7 @@ namespace CsvTools
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(560, 28);
+      this.panelTop.Size = new System.Drawing.Size(535, 28);
       this.panelTop.TabIndex = 0;
       this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
       // 
@@ -156,12 +157,32 @@ namespace CsvTools
       this.timerFilter.Interval = 200;
       this.timerFilter.Tick += new System.EventHandler(this.TimerFilter_Tick);
       // 
+      // labelError
+      // 
+      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      this.labelError.AutoSize = true;
+      this.labelError.BackColor = System.Drawing.SystemColors.Info;
+      this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.labelError.ForeColor = System.Drawing.SystemColors.InfoText;
+      this.labelError.Location = new System.Drawing.Point(25, 90);
+      this.labelError.Margin = new System.Windows.Forms.Padding(0);
+      this.labelError.Name = "labelError";
+      this.labelError.Padding = new System.Windows.Forms.Padding(5);
+      this.labelError.Size = new System.Drawing.Size(178, 36);
+      this.labelError.TabIndex = 2;
+      this.labelError.Text = "Error Information";
+      this.labelError.Visible = false;
+      // 
       // FromColumnFilter
       // 
       this.AcceptButton = this.buttonFilter;
       this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(560, 390);
+      this.ClientSize = new System.Drawing.Size(535, 397);
+      this.Controls.Add(this.labelError);
       this.Controls.Add(this.listViewCluster);
       this.Controls.Add(this.panelTop);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -192,5 +213,6 @@ namespace CsvTools
     private System.Windows.Forms.Panel panelTop;
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.Timer timerFilter;
+    private System.Windows.Forms.Label labelError;
   }
 }

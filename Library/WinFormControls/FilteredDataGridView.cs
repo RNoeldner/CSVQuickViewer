@@ -1051,7 +1051,7 @@ namespace CsvTools
         // This does not work proprtly
         var filterExpression = FilterText(m_MenuItemColumnIndex);
         var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
-        using var filterPopup = new FromColumnFilter(filter, data);
+        using var filterPopup = new FromColumnFilter(filter, data, 45);
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           ApplyFilters();

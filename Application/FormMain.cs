@@ -58,8 +58,6 @@ namespace CsvTools
     {
     }
 
-
-
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
@@ -187,11 +185,9 @@ namespace CsvTools
     /// <returns></returns>
     public async Task LoadCsvOrZipFileAsync(string fileName, CancellationToken cancellationToken)
     {
-      if (IsDisposed)
+      if (IsDisposed || string.IsNullOrEmpty(fileName))
         return;
 
-      if (string.IsNullOrEmpty(fileName))
-        return;
       var split = FileSystemUtils.SplitPath(fileName);
 
       if (FileSystemUtils.DirectoryExists(split.DirectoryName))
@@ -236,7 +232,7 @@ namespace CsvTools
               throw new OperationCanceledException();
             return frm.SelectedText;
           }, m_ViewSettings.DefaultInspectionResult,
-          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead), 
+          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),
           cancellationToken);
 
         m_FileSetting = detection.PhysicalFile();
@@ -282,7 +278,7 @@ namespace CsvTools
         Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
         ButtonAsText(false);
 
-        await OpenDataReaderAsync(cancellationToken);
+        this.SafeInvoke(async ()=>await OpenDataReaderAsync(cancellationToken));
       }
       catch (Exception ex)
       {
@@ -587,7 +583,6 @@ namespace CsvTools
       try
       {
         m_ToolStripButtonAsText.Enabled = true;
-
         await Extensions.InvokeWithHourglassAsync(async () =>
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
@@ -648,9 +643,8 @@ namespace CsvTools
           }
 
         });
-
         cancellationToken.ThrowIfCancellationRequested();
-        this.SafeInvoke(() => ShowTextPanel(false));
+        ShowTextPanel(false);
         detailControl.ShowInfoButtons = true;
       }
       catch (Exception)
