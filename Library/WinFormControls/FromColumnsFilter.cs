@@ -48,7 +48,7 @@ namespace CsvTools
 
     private void Filter(string filter)
     {
-      var filtered = Columns.Where(x => string.IsNullOrEmpty(filter) || x.Name.Contains(filter)).OrderBy(x => x.DisplayIndex).ToArray();
+      var filtered = Columns.Where(x => string.IsNullOrEmpty(filter) || x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).OrderBy(x => x.DisplayIndex).ToArray();
       listViewCluster.BeginUpdate();
       listViewCluster.Items.Clear();
       foreach (var item in filtered)
