@@ -23,8 +23,8 @@ namespace CsvTools
   /// </summary>
   public sealed class ValueCluster : IEquatable<ValueCluster>
   {
-    public readonly object? Start;
-    public readonly object? End;
+    public object? Start { get; }
+    public object? End { get; }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
@@ -36,11 +36,10 @@ namespace CsvTools
     /// <param name="end"></param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
     /// <param name="start"></param>
-    public ValueCluster(in string display, in string condition, in string? sort, int count, object? start, object? end = null, bool active = false)
+    public ValueCluster(in string display, in string condition, int count, object? start, object? end = null, bool active = false)
     {
       Display = display;
       SQLCondition = condition;
-      Sort = sort ?? string.Empty;
       Count = count;
       Start = start;
       End = end;
@@ -78,15 +77,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the displayed text
-    /// </summary>
-    /// <value>The display.</value>
-    public string Sort
-    {
-      get;
-    }
-
-    /// <summary>
     ///   Gets or sets the SQL condition to get a list of the records
     /// </summary>
     /// <value>The SQL condition.</value>
@@ -108,8 +98,7 @@ namespace CsvTools
       if (other is null)
         return false;
 
-      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
+      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)             
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
              && Count == other.Count && Active == other.Active;
     }
@@ -134,10 +123,8 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = Display.GetHashCode();
-        hashCode = (hashCode * 397) ^ (Sort.GetHashCode());
-        hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());
-        hashCode = (hashCode * 397) ^ Count.GetHashCode();
+        var hashCode = Display.GetHashCode();        
+        hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());        
         return hashCode;
       }
     }

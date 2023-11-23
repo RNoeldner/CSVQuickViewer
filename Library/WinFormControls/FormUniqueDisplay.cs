@@ -180,6 +180,7 @@ namespace CsvTools
           counter++;
           intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex.Value]);
+          if (m_DataTable.Rows.Count>0)
           // add the counter for the values
           m_DataTable.Rows[m_DataTable.Rows.Count-1][countCol.Ordinal] = dictIDToCount[rowIndex.Key];
         }

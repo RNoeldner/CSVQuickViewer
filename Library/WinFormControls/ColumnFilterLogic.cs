@@ -131,15 +131,13 @@ namespace CsvTools
 
       m_DataPropertyNameEscape = string.Empty;
       m_DataPropertyName = string.Empty;
-      DataPropertyName = dataPropertyName;      
+      DataPropertyName = dataPropertyName;
       m_DataType = columnDataType.GetDataType();
-      ValueClusterCollection = new ValueClusterCollection(this, 100);
-    }
+      if (m_DataType == DataTypeEnum.Double)
+        m_DataType = DataTypeEnum.Numeric;
 
-    /// <summary>
-    ///   Occurs when filter should be executed
-    /// </summary>
-    public event EventHandler? ColumnFilterApply;
+      ValueClusterCollection = new ValueClusterCollection();
+    }
 
     public static string OperatorIsNull => cOperatorIsNull;
 
@@ -153,7 +151,7 @@ namespace CsvTools
       set
       {
         if (SetProperty(ref m_Active, value) && m_Active)
-          FilterChanged();
+          ApplyFilter();
       }
     }
 
@@ -196,6 +194,13 @@ namespace CsvTools
         return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
+    /// <summary>
+    /// Rebuild the ValueClusters based on the data passed in
+    /// </summary>
+    /// <param name="columnValues">The avalibale values</param>
+    /// <param name="maxValues">Maximun number of items to show</param>
+    /// <returns><see cref="BuildValueClustersResult"/></returns>
+    public BuildValueClustersResult ReBuildValueClusters(in ICollection<object> columnValues, int maxValues) => ValueClusterCollection.ReBuildValueClusters(DataType, columnValues, DataPropertyNameEscaped, Active, maxValues);
 
     /// <summary>
     ///   Gets or sets the operator, setting the operator will build the filter
@@ -207,7 +212,7 @@ namespace CsvTools
       set
       {
         if (SetProperty(ref m_Operator, value))
-          FilterChanged();
+          ApplyFilter();
       }
     }
 
@@ -222,7 +227,7 @@ namespace CsvTools
       {
         if (SetProperty(ref m_ValueDateTime, value))
           // in case the text is chnaged rebuild the filter
-          FilterChanged();
+          ApplyFilter();
       }
     }
 
@@ -237,7 +242,7 @@ namespace CsvTools
       {
         if (SetProperty(ref m_ValueText, value))
           // in case the text is chnaged rebuild the filter
-          FilterChanged();
+          ApplyFilter();
       }
     }
 
@@ -276,9 +281,10 @@ namespace CsvTools
     /// </summary>
     public void ApplyFilter()
     {
-      FilterChanged();
-      if (m_Active)
-        ColumnFilterApply?.Invoke(this, EventArgs.Empty);
+      m_FilterExpressionOperator = BuildFilterExpressionOperator();
+      m_FilterExpressionValue = BuildFilterExpressionValues();
+
+      m_Active = m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;
     }
 
     /// <summary>
@@ -316,7 +322,7 @@ namespace CsvTools
         Operator = cOperatorEquals;
       }
 
-      FilterChanged();
+      ApplyFilter();
     }
 
     /// <summary>
@@ -339,21 +345,26 @@ namespace CsvTools
                            CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
                            false, false) ??
                          value.StringToDecimal('.', char.MinValue, false, false);
-          return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
+          if (decValue.HasValue)
+            return string.Format(CultureInfo.InvariantCulture, "{0}", decValue.Value);
+          else
+            return "0";
 
         case DataTypeEnum.Integer:
-          var lngValue = ((value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+          var lngValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
                              CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
                              false, false) ??
-                           value.StringToDecimal('.', char.MinValue, false, false))!).Value.ToInt64();
-          return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue);
+                         value.StringToDecimal('.', char.MinValue, false, false);
+          if (lngValue.HasValue)
+            return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue.Value.ToInt64());
+          else
+            return "0";
 
         case DataTypeEnum.Boolean:
           var boolValue = value.StringToBoolean("x".AsSpan(), ReadOnlySpan<char>.Empty);
           if (boolValue.HasValue)
             return boolValue.Value ? "1" : "0";
           break;
-
 
         default:
           return $"'{value.ToString().SqlQuote()}'";
@@ -407,22 +418,16 @@ namespace CsvTools
       switch (m_Operator)
       {
         case cOperatorIsNull:
-          return string.Format(
-            CultureInfo.InvariantCulture,
-            m_DataType == DataTypeEnum.String ? "({0} IS NULL or {0} = '')" : "{0} IS NULL",
-            m_DataPropertyNameEscape);
+          return m_DataType == DataTypeEnum.String ? $"({m_DataPropertyNameEscape} IS NULL or {m_DataPropertyNameEscape} = '')" : $"{m_DataPropertyNameEscape} IS NULL";
 
         case cOperatorIsNotNull when m_DataType == DataTypeEnum.String:
-          return string.Format(CultureInfo.InvariantCulture, "NOT({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
+          return $"NOT({m_DataPropertyNameEscape} IS NULL or {m_DataPropertyNameEscape} = '')";
 
         case cOperatorIsNotNull:
-          return string.Format(CultureInfo.InvariantCulture, "NOT {0} IS NULL", m_DataPropertyNameEscape);
+          return $"NOT {m_DataPropertyNameEscape} IS NULL";
       }
 
-      if (string.IsNullOrEmpty(m_ValueText) && (m_Operator == cOperatorContains || m_Operator == cOperatorLonger
-                                                                                 || m_Operator == cOperatorShorter
-                                                                                 || m_Operator == cOperatorBegins
-                                                                                 || m_Operator == cOperatorEnds))
+      if (string.IsNullOrEmpty(m_ValueText) && (m_Operator == cOperatorContains || m_Operator == cOperatorLonger || m_Operator == cOperatorShorter|| m_Operator == cOperatorBegins || m_Operator == cOperatorEnds))
       {
         return string.Empty;
       }
@@ -433,55 +438,26 @@ namespace CsvTools
           if (!string.IsNullOrEmpty(m_ValueText))
           {
             if (m_DataType == DataTypeEnum.String)
-              return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0} LIKE '%{1}%'",
-                m_DataPropertyNameEscape,
-                StringEscapeLike(m_ValueText));
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "Convert({0},'System.String') LIKE '%{1}%'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
+              return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
+            return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
           }
-
           break;
 
         case cOperatorLonger:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer)))
-            return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, m_ValueText);
-          break;
+          return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
         case cOperatorShorter:
-          if (!string.IsNullOrEmpty(FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer)))
-            return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, m_ValueText);
-          break;
+          return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
         case cOperatorBegins:
           if (m_DataType == DataTypeEnum.String)
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "{0} LIKE '{1}%'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
-          return string.Format(
-            CultureInfo.InvariantCulture,
-            "Convert({0},'System.String') LIKE '{1}%'",
-            m_DataPropertyNameEscape,
-            StringEscapeLike(m_ValueText));
+            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
+          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
 
         case cOperatorEnds:
           if (m_DataType == DataTypeEnum.String)
-            return string.Format(
-              CultureInfo.InvariantCulture,
-              "{0} LIKE '%{1}'",
-              m_DataPropertyNameEscape,
-              StringEscapeLike(m_ValueText));
-          return string.Format(
-            CultureInfo.InvariantCulture,
-            "Convert({0},'System.String') LIKE '%{1}'",
-            m_DataPropertyNameEscape,
-            StringEscapeLike(m_ValueText));
+            return $"{m_DataPropertyNameEscape} LIKE '%{StringEscapeLike(m_ValueText)}'";
+          return $"Convert({m_DataPropertyNameEscape},'System.String') LIKE '%{StringEscapeLike(m_ValueText)}'";
 
         default:
           string filterValue;
@@ -543,17 +519,6 @@ namespace CsvTools
       if (counter > 1)
         return "(" + sql + ")";
       return counter == 1 ? sql.ToString() : string.Empty;
-    }
-
-    /// <summary>
-    ///   Called when the filter is changed.
-    /// </summary>
-    public void FilterChanged()
-    {
-      m_FilterExpressionOperator = BuildFilterExpressionOperator();
-      m_FilterExpressionValue = BuildFilterExpressionValues();
-
-      m_Active = m_FilterExpressionValue.Length > 0 || m_FilterExpressionOperator.Length > 0;
     }
   }
 }

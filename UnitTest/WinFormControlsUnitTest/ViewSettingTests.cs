@@ -44,8 +44,7 @@ namespace CsvTools.Tests
         dgv.Columns.Add(dgvc2);
         var columnFilters = new List<ColumnFilterLogic> { new ColumnFilterLogic( typeof(string), "DataProp"), new ColumnFilterLogic( typeof(string), "DataProp2") };
         
-        columnFilters[0].ValueClusterCollection.ValueClusters
-          .Add(new ValueCluster("display", "cond", string.Empty, 0, "cond",null));
+        columnFilters[0].ValueClusterCollection.Add(new ValueCluster("display", "cond", 0, "cond", null));
         columnFilters[0].Active = true;
 
         columnFilters[1].Operator = "=";
