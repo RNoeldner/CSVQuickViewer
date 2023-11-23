@@ -161,17 +161,34 @@ namespace CsvTools
         return BuildValueClustersResult.NoValues;
 
       if (clusterDay.Count == 1)
+      {
+        clusterHour.Add(clusterHour.Min() -1);
+        clusterHour.Add(clusterHour.Max() +1);
         foreach (var dic in clusterHour.OrderBy(x => x))
           AddValueClusterDateTime(escapedName, (dic * cTicksPerGroup).GetTimeFromTicks(), ((dic + 1) * cTicksPerGroup).GetTimeFromTicks(), values);
+      }
       else if (clusterDay.Count < max)
+      {
+        clusterDay.Add(clusterDay.Min().AddDays(-1));
+        clusterDay.Add(clusterDay.Max().AddDays(+1));
         foreach (var dic in clusterDay.OrderBy(x => x))
           AddValueClusterDateTime(escapedName, dic, dic.AddDays(1), values);
+      }
       else if (clusterMonth.Count < max)
+      {
+        clusterMonth.Add(clusterDay.Min().AddMonths(-1));
+        clusterMonth.Add(clusterDay.Max().AddMonths(+1));
         foreach (var dic in clusterMonth.OrderBy(x => x))
           AddValueClusterDateTime(escapedName, dic, dic.AddMonths(1), values);
+      }
       else
+      {
+        clusterYear.Add(clusterYear.Min() -1);
+        clusterYear.Add(clusterYear.Max() +1);
         foreach (var dic in clusterYear.OrderBy(x => x))
           AddValueClusterDateTime(escapedName, new DateTime(dic + 1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), new DateTime(dic+1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), values);
+      }
+
 
       return BuildValueClustersResult.ListFilled;
     }
@@ -329,24 +346,36 @@ namespace CsvTools
     {
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var clusterFirst = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach (var text in values)
       {
-        cluster.Add(text);
-        // if we have more than the maximum entries stop, no value filter will be used
         if (cluster.Count <= max)
-          continue;
-        return BuildValueClustersResult.TooManyValues;
+          cluster.Add(text);
+        if (clusterFirst.Count <= max)
+          clusterFirst.Add(text.Substring(0, 1));
       }
-
       if (cluster.Count == 0)
         return BuildValueClustersResult.NoValues;
+      if (clusterFirst.Count >max)
+        return BuildValueClustersResult.TooManyValues;
 
-      foreach (var text in cluster.OrderBy(x => x))
+      if (cluster.Count <= max)
       {
-        if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
-          m_ValueClusters.Add(new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')", values.OfType<string>().Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)),
-            text));
+        foreach (var text in cluster.OrderBy(x => x))
+        {
+          if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
+            m_ValueClusters.Add(new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')", values.Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)),
+              text));
+        }
+      }
+      else
+      {
+        foreach (var text in clusterFirst.OrderBy(x => x))
+        {
+          if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
+            m_ValueClusters.Add(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", values.Count(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)), text));
+        }
       }
       return BuildValueClustersResult.ListFilled;
     }
