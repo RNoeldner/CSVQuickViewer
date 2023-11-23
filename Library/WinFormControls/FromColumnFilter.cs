@@ -49,7 +49,8 @@ namespace CsvTools
       comboBoxOperator.SelectedIndex = 0;
       comboBoxOperator.EndUpdate();
 
-      var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(columnValues);
+
+      var result = m_DataGridViewColumnFilter.ReBuildValueClusters(columnValues, 50);
       if (result == BuildValueClustersResult.ListFilled)
         FilterItems("");
       else

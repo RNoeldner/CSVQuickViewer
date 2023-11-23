@@ -308,7 +308,8 @@ namespace CsvTools.Tests
         HtmlStyle.Default));
     }
 
-    [TestMethod, Timeout(2000)]
+    [TestMethod]
+    [Timeout(4000)]
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);

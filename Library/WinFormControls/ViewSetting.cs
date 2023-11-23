@@ -55,7 +55,7 @@ namespace CsvTools
             var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
 
             foreach (var cluster in storedColumn.ValueFilters)
-              columnFilters[col.Index].ValueClusterCollection.Add(new ValueCluster(cluster.Display, cluster.SQLCondition, string.Empty, 0, null, null, true));
+              columnFilters[col.Index].ValueClusterCollection.Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
             if (storedColumn.ValueFilters.Count==0)
             {
               columnFilters[col.Index].Operator = storedColumn.Operator;
@@ -92,7 +92,7 @@ namespace CsvTools
           if (columnFilter.Active)
           {
             var hadValueFiler = false;
-            foreach (var value in columnFilter.ValueClusterCollection.ValueClusters.Where(x =>
+            foreach (var value in columnFilter.ValueClusterCollection.Where(x =>
                        !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
             {
               vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));

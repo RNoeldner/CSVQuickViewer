@@ -20,11 +20,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueClusterCtor()
     {
-      var tst1 = new ValueCluster("text", "SQl", "Sort", 0, "text", null, false);
+      var tst1 = new ValueCluster("text", "SQl", 0, "text", null, false);
       Assert.AreEqual("text", tst1.Display);
       Assert.AreEqual(0, tst1.Count);
 
-      var tst2 = new ValueCluster("dis", "cond", "sort", 10, "dis", null, false);
+      var tst2 = new ValueCluster("dis", "cond", 10, "dis", null, false);
       Assert.AreEqual("dis", tst2.Display);
       Assert.AreEqual(10, tst2.Count);
 
@@ -39,8 +39,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void EqualsTest()
     {
-      var src = new ValueCluster("dis", "cond", "sort", 10, "cond", null, false);
-      var dest = new ValueCluster("dis", "cond2", "sort", 10, "cond", null, false);
+      var src = new ValueCluster("dis", "cond", 10, "cond", null, false);
+      var dest = new ValueCluster("dis", "cond2", 10, "cond", null, false);
       Assert.IsFalse(src.Equals(dest));
       Assert.IsTrue(src.Equals(src));
       Assert.IsTrue(src.Equals((object) src));
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ToStringTest()
     {
-      var disp = new ValueCluster("dis2", "cond", "sort", 20, "cond", null, false).ToString();
+      var disp = new ValueCluster("dis2", "cond", 20, "cond", null, false).ToString();
       Assert.AreEqual("dis2 20 items", disp);
     }
 
@@ -57,8 +57,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetHashCodeTest()
     {
-      var disp1 = new ValueCluster("dis2", "cond", "sort", 20, "cond", null, true);
-      var disp2 = new ValueCluster("dis2", "cond", "sort", 20,"cond2", "dummy", true );
+      var disp1 = new ValueCluster("dis2", "cond", 20, "cond", null, true);
+      var disp2 = new ValueCluster("dis2", "cond", 20, "cond2", "dummy", true);
       Assert.AreEqual(disp1.GetHashCode(), disp2.GetHashCode());
     }
   }
