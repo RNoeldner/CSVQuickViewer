@@ -346,18 +346,24 @@ namespace CsvTools
     {
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      var clusterFirst = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var clusterOne = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var clusterTwo = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var clusterThree = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach (var text in values)
       {
         if (cluster.Count <= max)
           cluster.Add(text);
-        if (clusterFirst.Count <= max)
-          clusterFirst.Add(text.Substring(0, 1));
+        if (clusterOne.Count <= max)
+          clusterOne.Add(text.Substring(0, 1));
+        if (clusterTwo.Count <= max)
+          clusterTwo.Add(text.Substring(0, 2));
+        if (clusterThree.Count <= max)
+          clusterThree.Add(text.Substring(0, 3));
       }
       if (cluster.Count == 0)
         return BuildValueClustersResult.NoValues;
-      if (clusterFirst.Count >max)
+      if (clusterOne.Count >max)
         return BuildValueClustersResult.TooManyValues;
 
       if (cluster.Count <= max)
@@ -371,7 +377,14 @@ namespace CsvTools
       }
       else
       {
-        foreach (var text in clusterFirst.OrderBy(x => x))
+        var clusterBegin = clusterOne;
+
+        if (clusterThree.Count <= max)
+          clusterBegin = clusterThree;
+        else if (clusterTwo.Count <= max)
+          clusterBegin = clusterTwo;
+
+        foreach (var text in clusterBegin.OrderBy(x => x))
         {
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
             m_ValueClusters.Add(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", values.Count(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)), text));
