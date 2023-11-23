@@ -31,6 +31,7 @@ namespace CsvTools
     public int Count => m_ValueClusters.Count;
 
     public bool IsReadOnly => m_ValueClusters.IsReadOnly;
+    private ValueCluster lastValueCluster = new ValueCluster("Dummy", string.Empty, int.MaxValue, null);
 
     public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values, in string escapedName, bool isActive, int maxNumber)
     {
@@ -159,54 +160,104 @@ namespace CsvTools
 
       if (clusterYear.Count == 0)
         return BuildValueClustersResult.NoValues;
-
+      var desiredSize = (values.Count * 3) / (max *2);
       if (clusterDay.Count == 1)
       {
         clusterHour.Add(clusterHour.Min() -1);
         clusterHour.Add(clusterHour.Max() +1);
         foreach (var dic in clusterHour.OrderBy(x => x))
-          AddValueClusterDateTime(escapedName, (dic * cTicksPerGroup).GetTimeFromTicks(), ((dic + 1) * cTicksPerGroup).GetTimeFromTicks(), values);
+          AddValueClusterDateTime(escapedName, (dic * cTicksPerGroup).GetTimeFromTicks(), ((dic + 1) * cTicksPerGroup).GetTimeFromTicks(), values, DateTimeRange.Hours, desiredSize);
       }
       else if (clusterDay.Count < max)
       {
         clusterDay.Add(clusterDay.Min().AddDays(-1));
         clusterDay.Add(clusterDay.Max().AddDays(+1));
-        foreach (var dic in clusterDay.OrderBy(x => x))
-          AddValueClusterDateTime(escapedName, dic, dic.AddDays(1), values);
+        foreach (var dateTime in clusterDay.OrderBy(x => x))
+          AddValueClusterDateTime(escapedName, dateTime, dateTime.AddDays(1), values, DateTimeRange.Days, desiredSize);
       }
       else if (clusterMonth.Count < max)
       {
         clusterMonth.Add(clusterDay.Min().AddMonths(-1));
         clusterMonth.Add(clusterDay.Max().AddMonths(+1));
-        foreach (var dic in clusterMonth.OrderBy(x => x))
-          AddValueClusterDateTime(escapedName, dic, dic.AddMonths(1), values);
+        foreach (var dateTime in clusterMonth.OrderBy(x => x))
+          AddValueClusterDateTime(escapedName, dateTime, dateTime.AddMonths(1), values, DateTimeRange.Month, desiredSize);
       }
       else
       {
-        clusterYear.Add(clusterYear.Min() -1);
         clusterYear.Add(clusterYear.Max() +1);
-        foreach (var dic in clusterYear.OrderBy(x => x))
-          AddValueClusterDateTime(escapedName, new DateTime(dic + 1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), new DateTime(dic+1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), values);
+        foreach (var year in clusterYear.OrderBy(x => x))
+          AddValueClusterDateTime(escapedName, new DateTime(year, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), new DateTime(year + 1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), values, DateTimeRange.Years, desiredSize);
       }
 
 
       return BuildValueClustersResult.ListFilled;
     }
 
+    private enum DateTimeRange { Hours, Days, Month, Years }
+
+    private void AddValueClusterDateTime(in string escapedName, DateTime from, DateTime to, ICollection<DateTime> values, DateTimeRange displayType, int desiredSize)
+    {
+      // Do not add if there is a cluster existing that spans the new value   [ [ ]  ]
+      // Do not add if there is a cluster existing that spans the new value     [ ]  ]
+      // Do not add if there is a cluster existing that spans the new value   [ [ ]
+      // Do not add if there is a cluster existing that spans the new value     [ ]
+      if (!m_ValueClusters.Any(x => x.Start != null && (DateTime) x.Start <= from && (DateTime) (x.End ?? DateTime.MaxValue) >= to))
+      {
+        var count = values.Count(x => x >= from && x<to);
+        if (count >0)
+        {
+          // Combine buckets if the last and the current do not have many values
+          if (lastValueCluster.Count + count < desiredSize && lastValueCluster.Start is DateTime lastFrom)
+          {
+            from = lastFrom;
+            count += lastValueCluster.Count;
+
+            // remove the last cluster it will be included with this new one
+            m_ValueClusters.Remove(lastValueCluster);
+          }
+          string display = string.Empty;
+          switch (displayType)
+          {
+            case DateTimeRange.Hours:
+              display=$"{from:t} - {to:t}";
+              break;
+            case DateTimeRange.Days:
+              if (to == from.AddDays(1))
+                display=$"{from:d}";
+              else
+                display=$"{from:d} - {to:d}";
+              break;
+            case DateTimeRange.Month:
+              if (to == from.AddMonths(1))
+                display=$"{from:Y}";
+              else
+                display=$"{from:Y} - {to:Y}";
+              break;
+            case DateTimeRange.Years:
+              if (to == from.AddYears(1))
+                display=$"{from:yyyy}";
+              else
+                display=$"{from:yyyy} - {to:yyyy}";
+              break;
+          }
+          lastValueCluster = new ValueCluster(display, $"({escapedName} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {escapedName} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
+           count, from, to);
+          m_ValueClusters.Add(lastValueCluster);
+        }
+      }
+    }
+
     /// <summary>
     ///   Builds the value clusters date.
     /// </summary>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersNumeric(in IEnumerable<double> values, in string escapedName, int max, in bool decimals)
+    private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName, int max, in bool decimals)
     {
       // Get the distinct values and their counts
       var clusterFractions = new HashSet<double>();
       var clusterOne = new HashSet<long>();
-      var clusterTen = new HashSet<long>();
-      var clusterHundred = new HashSet<long>();
-      var clusterThousand = new HashSet<long>();
-      var clusterTenThousand = new HashSet<long>();
       var hasFactions = false;
+
       foreach (var value in values)
       {
         if (clusterFractions.Count <= max && decimals)
@@ -217,26 +268,9 @@ namespace CsvTools
         var key = Convert.ToInt64(value, CultureInfo.CurrentCulture);
         if (clusterOne.Count <= max)
           clusterOne.Add(key);
-        if (clusterTen.Count <= max)
-        {
-          clusterTen.Add(key / 10);
-        }
-        if (clusterHundred.Count <= max)
-        {
-          clusterHundred.Add(key / 100);
-        }
-        if (clusterThousand.Count <= max)
-        {
-          clusterThousand.Add(key / 1000);
-        }
-        clusterTenThousand.Add(key / 10000);
-
-        // if we have more than the maximum entries stop, no value filter will be used
-        if (clusterTenThousand.Count > max)
-          return BuildValueClustersResult.TooManyValues;
       }
 
-      if (clusterOne.Count == 0 && clusterFractions.Count == 0)
+      if (clusterOne.Count == 0)
         return BuildValueClustersResult.NoValues;
 
       if (decimals && hasFactions && clusterFractions.Count < max && clusterFractions.Count > 0)
@@ -267,40 +301,38 @@ namespace CsvTools
 
       // Use Integer filter
       HashSet<long> fittingCluster;
-      int factor;
+      double factor;
       if (clusterOne.Count < max)
       {
         factor = 1;
         fittingCluster = clusterOne;
       }
-      else if (clusterTen.Count < max)
-      {
-        factor = 10;
-        fittingCluster = clusterTen;
-      }
-      else if (clusterHundred.Count < max)
-      {
-        factor = 100;
-        fittingCluster = clusterHundred;
-      }
-      else if (clusterThousand.Count < max)
-      {
-        factor = 1000;
-        fittingCluster = clusterThousand;
-      }
       else
       {
-        factor = 10000;
-        fittingCluster = clusterTenThousand;
-      }
+        // Dynamic Factor
+        var digits = (int) Math.Log10(values.Max() - values.Min());
+        factor = Math.Pow(10, digits);
 
+        var start = (long) (values.Min() / factor);
+        var end = (long) (values.Max() / factor);
+        while (end-start<(max*2)/3)
+        {
+          factor = factor/2;
+          start = (long) (values.Min() / factor);
+          end = (long) (values.Max() / factor);
+        }
+        fittingCluster = new HashSet<long>();
+        for (long i = start; i<=end; i++)
+          fittingCluster.Add(i);
+      }
       fittingCluster.Add(fittingCluster.Max(x => x)+1);
       fittingCluster.Add(fittingCluster.Min(x => x)-1);
 
+      var desiredSize = (values.Count * 3) / (max *2);
       foreach (var dic in fittingCluster.OrderBy(x => x))
       {
-        var minValue = dic * factor;
-        var maxValue = minValue + factor;
+        var minValue = (long) (dic * factor);
+        var maxValue = (long) (minValue + factor);
         var existing = false;
         try
         {
@@ -316,9 +348,17 @@ namespace CsvTools
             var count = values.Count(value => value >= minValue && value < maxValue);
             if (count>0)
             {
-              m_ValueClusters.Add(new ValueCluster($"{minValue:N0} to {maxValue-1:N0}",
-                string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue),
-                count, minValue, maxValue));
+              // Combine buckets if teh last and the current do not have many values
+              if (lastValueCluster.Count + count < desiredSize && lastValueCluster.Start is long lastMin)
+              {
+                minValue = lastMin;
+                count += lastValueCluster.Count;
+                // remove the last cluster it will be included with thie one
+                m_ValueClusters.Remove(lastValueCluster);
+              }
+              lastValueCluster = new ValueCluster($"{minValue:N0} to {maxValue-1:N0}", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
+              m_ValueClusters.Add(lastValueCluster);
+
             }
           }
           else
@@ -331,12 +371,10 @@ namespace CsvTools
                 count, minValue, maxValue));
             }
           }
-
         }
       }
       return BuildValueClustersResult.ListFilled;
     }
-
 
     /// <summary>
     ///   Builds the data grid view column filter values.
@@ -347,8 +385,12 @@ namespace CsvTools
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var clusterOne = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var allow2 = true;
       var clusterTwo = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var allow3 = true;
       var clusterThree = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var allow4 = true;
+      var clusterFour = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach (var text in values)
       {
@@ -356,10 +398,16 @@ namespace CsvTools
           cluster.Add(text);
         if (clusterOne.Count <= max)
           clusterOne.Add(text.Substring(0, 1));
-        if (clusterTwo.Count <= max)
+        allow2 &= (text.Length>=2);
+        allow3 &= (text.Length>=3);
+        allow4 &= (text.Length>=4);
+
+        if (allow2 && clusterTwo.Count <= max)
           clusterTwo.Add(text.Substring(0, 2));
-        if (clusterThree.Count <= max)
+        if (allow3 && clusterThree.Count <= max)
           clusterThree.Add(text.Substring(0, 3));
+        if (allow4 && clusterFour.Count <= max)
+          clusterFour.Add(text.Substring(0, 4));
       }
       if (cluster.Count == 0)
         return BuildValueClustersResult.NoValues;
@@ -371,23 +419,29 @@ namespace CsvTools
         foreach (var text in cluster.OrderBy(x => x))
         {
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
-            m_ValueClusters.Add(new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')", values.Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)),
-              text));
+          {
+            lastValueCluster = new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')", values.Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)), text);
+            m_ValueClusters.Add(lastValueCluster);
+          }
         }
       }
       else
       {
         var clusterBegin = clusterOne;
-
-        if (clusterThree.Count <= max)
+        if (allow4 && clusterFour.Count <= max)
+          clusterBegin = clusterFour;
+        else if (allow3 && clusterThree.Count <= max)
           clusterBegin = clusterThree;
-        else if (clusterTwo.Count <= max)
+        else if (allow2 &&  clusterTwo.Count <= max)
           clusterBegin = clusterTwo;
 
         foreach (var text in clusterBegin.OrderBy(x => x))
         {
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
-            m_ValueClusters.Add(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", values.Count(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)), text));
+          {
+            lastValueCluster = new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", values.Count(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)), text);
+            m_ValueClusters.Add(lastValueCluster);
+          }
         }
       }
       return BuildValueClustersResult.ListFilled;
@@ -396,28 +450,9 @@ namespace CsvTools
     private void AddValueClusterNull(in string escapedName, int count)
     {
       if (!m_ValueClusters.Any(x => x.Start is null) && count>0)
-        m_ValueClusters.Add(
-        new ValueCluster(ColumnFilterLogic.OperatorIsNull,
-          string.Format($"({escapedName} IS NULL)"),
-          count, null));
-    }
-
-    public void AddValueClusterDateTime(in string escapedName, DateTime from, DateTime to, ICollection<DateTime> values)
-    {
-
-      // Do not add if there is a cluster existing that spans the new value   [ [ ]  ]
-      // Do not add if there is a cluster existing that spans the new value     [ ]  ]
-      // Do not add if there is a cluster existing that spans the new value   [ [ ]
-      // Do not add if there is a cluster existing that spans the new value     [ ]
-      if (!m_ValueClusters.Any(x => (DateTime) (x.Start ?? DateTime.MinValue) <= from && (DateTime) (x.End ?? DateTime.MaxValue) >= to))
       {
-        var count = values.Count(x => x >= from && x<to);
-        if (count >0)
-        {
-          m_ValueClusters.Add(new ValueCluster($"{from:t} - {to:t}",
-           $"({escapedName} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {escapedName} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
-           count, from, to));
-        }
+        lastValueCluster = new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count, null);
+        m_ValueClusters.Add(lastValueCluster);
       }
     }
 
