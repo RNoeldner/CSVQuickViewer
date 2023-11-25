@@ -77,9 +77,10 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted
+      in string sourceTimeZone
+#if SupportPGP
+      , in string publicKey, bool unencrypted
+#endif
       )
     {
       SourceTimeZone = sourceTimeZone;
@@ -267,13 +268,11 @@ namespace CsvTools
 
       try
       {
-
+        var sourceAccess = new SourceAccess(FullPath, false
 #if SupportPGP
-        var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, publicKey: m_PublicKey);
-
-#else
-        var sourceAccess = new SourceAccess(FullPath, false);
+          , keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey
 #endif
+          );
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

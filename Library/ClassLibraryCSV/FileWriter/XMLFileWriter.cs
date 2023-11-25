@@ -40,14 +40,20 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted)
+      in string sourceTimeZone
+#if SupportPGP
+      , in string publicKey, bool unencrypted
+#endif
+      )
       : base(
-        id, fullPath, unencrypted,
+        id, fullPath,
         identifierInContainer, footer, header, codePageId,
         byteOrderMark, columnDefinition, fileSettingDisplay, row,
-        timeZoneAdjust, sourceTimeZone, publicKey)
+        timeZoneAdjust, sourceTimeZone
+#if SupportPGP
+        , publicKey, unencrypted
+#endif
+        )
 
     {
     }
@@ -73,11 +79,11 @@ namespace CsvTools
       sb.AppendLine(
         "  <xs:schema elementFormDefault=\"qualified\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n  <xs:element name=\"row\">\n    <xs:complexType>\n      <xs:sequence>");
       sbRow.AppendLine("  <row>");
-      
+
       foreach (var col in cols)
       {
-         sbRow.AppendFormat("    <{0}>{1}</{0}>\n", HtmlStyle.XmlElementName(col.Name),
-          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Name));
+        sbRow.AppendFormat("    <{0}>{1}</{0}>\n", HtmlStyle.XmlElementName(col.Name),
+         string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Name));
         string type;
         switch (col.ValueFormat.DataType)
         {

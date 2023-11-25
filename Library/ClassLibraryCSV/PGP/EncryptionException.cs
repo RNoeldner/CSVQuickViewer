@@ -1,3 +1,4 @@
+#if SupportPGP
 using System;
 
 namespace CsvTools
@@ -16,3 +17,4 @@ namespace CsvTools
     }
   }
 }
+#endif

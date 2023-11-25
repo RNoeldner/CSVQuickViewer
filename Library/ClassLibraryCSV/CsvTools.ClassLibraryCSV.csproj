@@ -28,12 +28,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <DebugType>embedded</DebugType>
     <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DebugType>none</DebugType>
     <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
     <DebugType>embedded</DebugType>
@@ -45,12 +43,8 @@
     <Optimize>False</Optimize>
     <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-    <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <DefineConstants>$(DefineConstants);XmlSerialization</DefineConstants>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'" />
   <ItemGroup>
     <Compile Remove="Immutable\W3C_CSV_Schema.cs" />
     <Compile Remove="RangeForStandard.cs" />
@@ -63,11 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="*" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
     
     <PackageReference Include="Markdown" Version="2.2.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="TimeZoneConverter" Version="6.1.*" />
     <PackageReference Include="UTF.Unknown" Version="2.5.*" />    

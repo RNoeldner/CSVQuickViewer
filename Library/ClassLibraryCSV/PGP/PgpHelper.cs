@@ -5,7 +5,6 @@ using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +13,98 @@ namespace CsvTools
 {
   public static class PgpHelper
   {
-    private static readonly Dictionary<string, SecureString> m_KnownKeys = new Dictionary<string, SecureString>();
+    
+    /// <summary>
+    ///   Gets the passphrase, possibly using the UI when needed 
+    /// </summary>
+    /// <param name="fileName">Path to the file</param>
+    /// <param name="defaultPassphrase">The possibly already known passphrase</param>
+    /// <param name="getPassphraseInteractive">A routine used to get a passphrase interactively</param>
+    /// <returns>The Passphrase to use</returns>
+    public static string GetPassphraseForFile(this string fileName,
+      in string defaultPassphrase,
+      Func<string>? getPassphraseInteractive)
+    {
+      if (!(fileName.AssumePgp() || fileName.AssumeZip()))
+        return string.Empty;
+      var passphrase = defaultPassphrase;
+
+      // Passphrase stored in Setting
+      if (passphrase.Length == 0)
+        passphrase = PgpHelper.LookupPassphrase(fileName);
+
+      // try to get the passphrase stored for the key
+      if (passphrase.Length == 0 && getPassphraseInteractive !=null)
+        passphrase = getPassphraseInteractive.Invoke();
+
+      if (passphrase.Length == 0)
+        throw new FileReaderException("A passphrase is needed for decryption.");
+
+      // when the passphrase is valid it will stored it with PGPKeyStorage
+      return passphrase;
+    }
+
+    public static (string passphrase, string keyFile, string key) GetKeyAndPassphraseForFile(this string fileName, string passphrase,
+      string keyFile, Func<(string passphrase, string keyFile, string key)>? getKeyAndPassphraseInteractive)
+    {
+      if (!(fileName.AssumePgp()))
+        return (string.Empty, string.Empty, string.Empty);
+
+      // Passphrase stored in Setting
+      if (passphrase.Length == 0)
+        passphrase = PgpHelper.LookupPassphrase(fileName);
+
+      if (keyFile.Length==0)
+        keyFile = PgpHelper.LookupKeyFile(fileName);
+
+      var key = PgpHelper.GetKeyAndValidate(fileName, keyFile);
+      if ((key.Length == 0 || passphrase.Length == 0) && getKeyAndPassphraseInteractive!= null)
+      {
+        var res = getKeyAndPassphraseInteractive.Invoke();
+        key = res.key;
+        keyFile = res.keyFile;
+        passphrase= res.passphrase;
+      }
+      if (passphrase.Length == 0)
+        throw new FileReaderException("A passphrase is needed for decryption.");
+      if (key.Length == 0)
+        throw new EncryptionException("The key information is needed");
+
+      return (passphrase, keyFile, key);
+    }
+
+    /// <summary>
+    ///   Gets the key to use possibly using the UI when needed 
+    /// </summary>
+    /// <param name="fileName">Path to the file</param>
+    /// <param name="keyFile">The file setting that may contain information on the passphrase</param>
+    /// <param name="getKeyInteractive">A routine used to check possibly already known keys for that file</param>
+    /// <returns>The Passphrase to use</returns>
+    public static string GetKeyForFile(this string fileName, in string keyFile, Func<string>? getKeyInteractive)
+    {
+      if (!fileName.AssumePgp())
+        return string.Empty;
+
+      // Key stored in file 
+      var key = PgpHelper.GetKeyAndValidate(fileName, keyFile);
+
+      // Key file stored in in lookup
+      if (key.Length == 0)
+        key = PgpHelper.LookupKey(fileName);
+
+      // try to get the passphrase stored for the key, there is no key file in this case
+      if (key.Length == 0 && getKeyInteractive !=null)
+        key = getKeyInteractive.Invoke();
+
+      if (key.Length == 0)
+        throw new EncryptionException("The key information is needed");
+
+      return key;
+    }
+
+
+
+    private static readonly Dictionary<string, System.Security.SecureString> m_KnownKeys = new Dictionary<string, System.Security.SecureString>();
     private static readonly Dictionary<string, string> m_KnownKeyFiles = new Dictionary<string, string>();
     public static string LookupKeyFile(string fileName) =>
       m_KnownKeyFiles.TryGetValue(fileName, out var value) ? value : string.Empty;
@@ -27,7 +117,7 @@ namespace CsvTools
 
     // This is not ideal as SecureString is Disposable...
     // need to call ClearPassphrase when application exists
-    private static readonly Dictionary<string, SecureString> m_KnownPassphrase = new Dictionary<string, SecureString>();
+    private static readonly Dictionary<string, System.Security.SecureString> m_KnownPassphrase = new Dictionary<string, System.Security.SecureString>();
 
     public static string LookupKey(string fileName) =>
       m_KnownKeys.TryGetValue(fileName, out var value) ? value.GetText() : string.Empty;

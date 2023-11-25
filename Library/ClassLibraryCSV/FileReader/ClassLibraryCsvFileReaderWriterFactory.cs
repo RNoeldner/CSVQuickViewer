@@ -62,8 +62,9 @@ namespace CsvTools
     /// <inheritdoc />
     public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
-      var publicKey = string.Empty;
+      
 #if SupportPGP
+      var publicKey = string.Empty;
       if (fileSetting is IFileSettingPhysicalFile physicalFile)
         publicKey = PgpHelper.GetKeyAndValidate(physicalFile.FileName, physicalFile.KeyFile);
 #endif
@@ -73,16 +74,26 @@ namespace CsvTools
           csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer,
           csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar,
           csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder,
-          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
-          publicKey, csv.KeepUnencrypted),
+          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id
+#if SupportPGP
+          ,publicKey, csv.KeepUnencrypted
+#endif
+          ),
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
           jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull,
           jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString(),
-          jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted),
+          jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id
+#if SupportPGP
+          , publicKey, jsonFile.KeepUnencrypted
+#endif
+          ),
         IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.IdentifierInContainer,
           xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection,
-          xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
-          publicKey, xmlFile.KeepUnencrypted),
+          xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id
+#if SupportPGP
+          , publicKey, xmlFile.KeepUnencrypted
+#endif
+          ),
         _ => null
       };
 
