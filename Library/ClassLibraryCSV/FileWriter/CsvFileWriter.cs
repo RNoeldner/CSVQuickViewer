@@ -96,9 +96,11 @@ namespace CsvTools
       bool qualifyOnlyIfNeeded,
       bool fixedLength,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted)
+      in string sourceTimeZone
+#if SupportPGP
+      ,in string publicKey, bool unencrypted
+#endif
+      )
       : base(
         id,
         fullPath,
@@ -109,9 +111,11 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone,
-        publicKey,
-        unencrypted)
+        sourceTimeZone
+#if SupportPGP
+        ,publicKey, unencrypted
+#endif
+        )
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
@@ -253,11 +257,11 @@ namespace CsvTools
         // and store the possibly remaining data
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
       }
-      #if NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER
       await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
-      #else
+#else
       await writer.FlushAsync().ConfigureAwait(false);
-      #endif
+#endif
     }
 
     /// <summary>

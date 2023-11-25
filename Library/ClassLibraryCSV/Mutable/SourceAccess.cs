@@ -48,10 +48,10 @@ namespace CsvTools
     /// <summary>
     ///   The Private Key for reading PGP files
     /// </summary>
-    public string PgpKey;
+    public readonly string PgpKey;
 #endif
 
-    public string Passphrase;
+    public readonly string Passphrase;
 
     /// <summary>
     ///   Property used for informational purpose
@@ -63,23 +63,6 @@ namespace CsvTools
     /// </summary>
     public string IdentifierInContainer;
 
-#if SupportPGP
-    /// <summary>
-    ///   Get a new SourceAccess helper class
-    /// </summary>
-    /// <param name="fileName">Name of the file</param>
-    /// <param name="isReading"><c>true</c> if the files is for reading</param>
-    /// <param name="id">The identifier for the file for logging etc</param>
-    /// <param name="keepEncrypted">
-    ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
-    ///   debugging in case the private key is not known and the file can not be decrypted
-    /// </param>
-    /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
-    /// <param name="privateKey"></param>
-    /// <param name="publicKey"></param>
-    public SourceAccess(in string fileName, bool isReading = true,
-          in string? id = null, bool keepEncrypted = false, in string passPhrase = "", in string privateKey = "", in string publicKey = "")
-#else
     /// <summary>
     ///   Get a new SourceAccess helper class
     /// </summary>
@@ -87,8 +70,9 @@ namespace CsvTools
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
     /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
-    public SourceAccess(in string fileName, bool isReading = true, in string? id = null, in string passPhrase = "")
-#endif
+    /// <param name="keepEncrypted"></param>
+    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
+    public SourceAccess(in string fileName, bool isReading = true, in string? id = null, in string passPhrase = "", bool keepEncrypted = false, in string pgpKey = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -119,10 +103,7 @@ namespace CsvTools
 #if SupportPGP
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp:
-          if (isReading)
-            PgpKey = privateKey;
-          else
-            PgpKey = publicKey;
+          PgpKey = pgpKey;
           break;
 #endif
       }
@@ -152,18 +133,13 @@ namespace CsvTools
     /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
-      : this(setting.FullPath, isReading, setting.ID
-#if SupportPGP
-        , setting.KeepUnencrypted
-#endif
-        )
+      : this(setting.FullPath, isReading, setting.ID, setting.Passphrase, keepEncrypted: setting.KeepUnencrypted)
     {
       if (FileType != FileTypeEnum.Pgp) return;
-      #if SupportPGP
+#if SupportPGP
       PgpKey = FileSystemUtils.ReadAllText(setting.KeyFile);
-      #endif
+#endif
     }
-
 #endif
 
     /// <summary>

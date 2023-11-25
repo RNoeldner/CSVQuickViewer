@@ -48,13 +48,14 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted)
+      in string sourceTimeZone
+#if SupportPGP
+      ,in string publicKey,bool unencrypted
+#endif    
+      )
       : base(
         id,
         fullPath,
-        unencrypted,
         identifierInContainer,
         footer,
         header,
@@ -64,8 +65,11 @@ namespace CsvTools
         fileSettingDisplay,
         row,
         timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone,
-        publicKey)
+        sourceTimeZone
+#if SupportPGP
+        , publicKey, unencrypted
+#endif
+        )
     {
       m_EmptyAsNull = emptyAsNull;
     }

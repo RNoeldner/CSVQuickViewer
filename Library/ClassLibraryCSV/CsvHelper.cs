@@ -43,6 +43,7 @@ namespace CsvTools
     ///   Row and Header
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
+    /// <param name="identifierInContainer"></param>
     /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
     /// <param name="guessCodePage">if true, try to determine the code page</param>
     /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
@@ -56,6 +57,7 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="inspectionResult">Default in case inspection is wanted</param>
     /// <param name="fillGuessSettings"></param>
+    /// <param name="pgpKey">Private PGP key in case reading an encrypted file</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
@@ -64,22 +66,14 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
       bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
-      FillGuessSettings fillGuessSettings
-#if SupportPGP
-      , string privateKey
-#endif
-      , CancellationToken cancellationToken)
+      FillGuessSettings fillGuessSettings, string pgpKey, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File name can not be empty", nameof(fileName));
 
       inspectionResult.FileName = fileName;
 
-#if SupportPGP
-      var sourceAccess = new SourceAccess(fileName, privateKey: privateKey);
-#else
-      var sourceAccess = new SourceAccess(fileName);
-#endif
+      var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey);
       if (fileName.AssumeZip() && !string.IsNullOrEmpty(identifierInContainer))
         sourceAccess.IdentifierInContainer = identifierInContainer;
 
@@ -265,6 +259,7 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
+    /// <param name="privateKey"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
@@ -373,11 +368,7 @@ namespace CsvTools
       // Determine from file
       return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage, guessEscapePrefix, guessDelimiter,
         guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-        defaultInspectionResult, fillGuessSettings
-#if SupportPGP
-        , privateKey
-#endif 
-        , cancellationToken).ConfigureAwait(false);
+        defaultInspectionResult, fillGuessSettings, privateKey, cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -547,7 +538,7 @@ CommentLine
       int tryCount = 0;
       retest:
       tryCount++;
-      bool changedEscapePrefix = false;
+      bool changedEscapePrefix;
       bool changedDelimiter = false;
       bool changedFieldQualifier = false;
       bool changedSkipRows = false;
@@ -689,11 +680,14 @@ CommentLine
           SkipRows =  csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        fillGuessSettings: new FillGuessSettings(false),
+        fillGuessSettings: new FillGuessSettings(false)
+      , pgpKey:
 #if SupportPGP
-        privateKey: PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile),
+        PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile)
+#else
+        string.Empty
 #endif
-        cancellationToken: cancellationToken); ;
+        , cancellationToken: cancellationToken);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;

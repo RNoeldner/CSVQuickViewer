@@ -159,14 +159,11 @@ namespace CsvTools
             if (col is null) return;
             var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
 
-            if (columnFilters is null) 
-              return;
-            
             columnFilters.Operator = op;
             if (value is DateTime dateTime)
               columnFilters.ValueDateTime = dateTime;
             else
-              columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
+              columnFilters.ValueText = Convert.ToString(value);
             columnFilters.ApplyFilter();                      
           }
         );
@@ -427,7 +424,7 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
+            if (cell.FormattedValue?.ToString().IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
                 -1)
               continue;
 
@@ -753,11 +750,9 @@ namespace CsvTools
           WriteSetting.EscapePrefixChar,
           WriteSetting.NewLinePlaceholder,
           WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
-          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
+          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id
 #if SupportPGP
-          PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted
-#else
-          string.Empty, false
+          ,PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted
 #endif
           );
 

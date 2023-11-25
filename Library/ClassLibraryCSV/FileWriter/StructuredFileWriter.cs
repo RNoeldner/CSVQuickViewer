@@ -45,7 +45,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of teh file to write</param>
-    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
     /// <param name="header">Header to be written before data and/or Header is written</param>
@@ -56,10 +55,10 @@ namespace CsvTools
     /// <param name="row">Placeholder for a row</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     protected StructuredFileWriter(in string id,
       in string fullPath,
-      bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
       in string? header,
@@ -69,8 +68,12 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey)
+      in string sourceTimeZone
+
+#if SupportPGP
+      , in string publicKey, bool unencrypted
+#endif
+      )
       : base(
         id,
         fullPath,
@@ -81,9 +84,11 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone,
-        publicKey,
-        unencrypted)
+        sourceTimeZone
+#if SupportPGP
+        ,publicKey, unencrypted
+#endif       
+        )
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
@@ -108,7 +113,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public async Task WriteReaderAsync(IFileReader reader, Func<string, Task> recordAction, CancellationToken cancellationToken)
     {
-      SetWriterColumns(reader);      
+      SetWriterColumns(reader);
       HandleWriteStart();
       var intervalAction = IntervalAction.ForProgress(ReportProgress);
       while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
