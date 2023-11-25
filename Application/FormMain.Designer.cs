@@ -17,8 +17,9 @@ namespace CsvTools
 
       if (disposing)
       {
+#if SupportPGP
         PgpHelper.ClearPgpInfo();
-
+#endif
         m_DisposedValue = true;
         components?.Dispose();
 

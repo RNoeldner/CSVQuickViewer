@@ -796,6 +796,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
+    
+    /// <summary>
+    ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
+    ///   ParseColumnName and last FinishOpen
+    /// </summary>
+    [Obsolete("Use OpenAsync instead")]
+    public virtual void Open() => OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
     ///   Overrides the column format from setting.

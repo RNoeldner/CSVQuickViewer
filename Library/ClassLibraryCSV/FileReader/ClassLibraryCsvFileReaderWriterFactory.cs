@@ -42,9 +42,9 @@ namespace CsvTools
       {
         IJsonFile csv1 => new JsonFileReader(csv1.FullPath, csv1.ColumnCollection, csv1.RecordLimit,
           csv1.TrimmingOption == TrimmingOptionEnum.All, csv1.TreatTextAsNull, csv1.TreatNBSPAsSpace, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id),
+          TimeZoneInfo.Local.Id, false, false),
         IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit,
-          xml.TrimmingOption == TrimmingOptionEnum.All, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id),
+          xml.TrimmingOption == TrimmingOptionEnum.All, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false),
         ICsvFile csv2 => new CsvFileReader(csv2.FullPath, csv2.CodePageId, csv2.SkipRows, csv2.HasFieldHeader,
           csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiterChar, csv2.FieldQualifierChar, csv2.EscapePrefixChar,
           csv2.RecordLimit, csv2.AllowRowCombining, csv2.ContextSensitiveQualifier, csv2.CommentLine, csv2.NumWarnings,

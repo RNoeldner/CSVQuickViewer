@@ -141,7 +141,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
                 throw new OperationCanceledException();
               return frm.SelectedText;
             }, m_ViewSettings.DefaultInspectionResult,
-            PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead), 
+#if SupportPGP
+            PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead),
+            #else
+            string.Empty,
+#endif
             formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();

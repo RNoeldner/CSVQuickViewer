@@ -471,7 +471,7 @@ namespace CsvTools
         try
         {
           m_ZipFile.GetEnumerator();
-#if !QUICK
+#if SupportPGP
           // store the password it is correct...
           if (!string.IsNullOrEmpty(pass))
             PgpHelper.StorePassphrase(m_SourceAccess.FullPath, pass);

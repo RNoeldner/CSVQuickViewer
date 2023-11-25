@@ -754,7 +754,12 @@ namespace CsvTools
           WriteSetting.NewLinePlaceholder,
           WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
           WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
-          PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted);
+#if SupportPGP
+          PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted
+#else
+          string.Empty, false
+#endif
+          );
 
 #if NET5_0_OR_GREATER
         await
