@@ -275,11 +275,7 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
       FillGuessSettings fillGuessSettings, Func<IReadOnlyCollection<string>, string>? selectFile,
-      InspectionResult defaultInspectionResult
-#if SupportPGP
-      , string privateKey
-#endif
-      , CancellationToken cancellationToken)
+      InspectionResult defaultInspectionResult, string privateKey, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Argument can not be empty", nameof(fileName));
@@ -734,11 +730,11 @@ CommentLine
         memStream.Seek(0, SeekOrigin.Begin);
         if (inspectionResult.IsJson)
           return new JsonFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
-            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false, false);
 
         if (inspectionResult.IsXml)
           return new XmlFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
-            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
 
         return new CsvFileReader(memStream,
           codePageId: inspectionResult.CodePageId,
@@ -764,11 +760,11 @@ CommentLine
 
       if (inspectionResult.IsJson)
         return new JsonFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
 
       if (inspectionResult.IsXml)
         return new XmlFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
 
       return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
         skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,

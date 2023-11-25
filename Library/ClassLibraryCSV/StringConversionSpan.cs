@@ -116,8 +116,7 @@ namespace CsvTools
 
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
       // proper formatted value
-      if (dateValue == DateTimeConstants.FirstDateTime && dateColumn is null
-                                                       && (dateColumnText.IsEmpty || dateColumnText.Length == 0
+      if (dateValue == DateTimeConstants.FirstDateTime && (dateColumnText.IsEmpty || dateColumnText.Length == 0
                                                          || !dateColumnText.Equals(
                                                            DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat)
                                                              .AsSpan(), StringComparison.Ordinal)))

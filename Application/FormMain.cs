@@ -232,14 +232,18 @@ namespace CsvTools
               throw new OperationCanceledException();
             return frm.SelectedText;
           }, m_ViewSettings.DefaultInspectionResult,
+#if SupportPGP
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),
+          #else
+          string.Empty,
+#endif
           cancellationToken);
 
         m_FileSetting = detection.PhysicalFile();
-
+#if SupportPGP
         // If keyFile was set in the process its not yet stored
         m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
-
+#endif
         // formProgress.Close();
         //}
 

@@ -59,6 +59,8 @@
             <File Id="SystemThreadingTasksExtensions" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Threading.Tasks.Extensions.dll" />
             <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
             <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
+						<File Id="System.Diagnostics.DiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
+            <!-- <File Id="BouncyCastle.Cryptography" Name="BouncyCastle.Cryptography.dll" Source="$(var.CSVQuickViewer.TargetPath)\BouncyCastle.Cryptography.dll" />   -->         
             <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />

@@ -33,7 +33,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", jfr.GetName(0));
       Assert.AreEqual("_last_touched_dt_utc", jfr.GetName(1));
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
     {
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("LogFile.json"));
       using var jfr = new JsonFileReader(stream, Array.Empty<Column>(), 5000, false, "<nil>", true,
-        m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("level", jfr.GetColumn(1).Name);
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, jfr.GetByte(21));
@@ -87,11 +87,11 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task GetBytes()
     {
-      var setting = new JsonFile("id", UnitTestStatic.GetTestPath("Emp.json"), "");
+      var setting = new JsonFile("id", UnitTestStatic.GetTestPath("Emp.json"));
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
 
@@ -116,7 +116,7 @@ namespace CsvTools.Tests
     public async Task ReadJSonTypes()
     {
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       try
       {
@@ -220,7 +220,7 @@ namespace CsvTools.Tests
     {
       var dpd = new Progress<ProgressInfo>();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false,false);
       jfr.ReportProgress = dpd;
 
       await jfr.OpenAsync(UnitTestStatic.Token);
@@ -258,7 +258,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(20, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -277,7 +277,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(new Guid("ef21069c-3d93-4e07-878d-00e820727f65"), jfr.GetGuid(0));
@@ -298,7 +298,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile("json", UnitTestStatic.GetTestPath("Jason2.json"));
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(7, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -320,7 +320,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(2, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -342,7 +342,7 @@ namespace CsvTools.Tests
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false,false);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(3, jfr.FieldCount);
     }

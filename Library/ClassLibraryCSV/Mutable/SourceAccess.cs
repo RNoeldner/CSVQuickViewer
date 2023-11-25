@@ -143,7 +143,7 @@ namespace CsvTools
 #endif
     }
 
-#if SupportPGP
+#if !QUICK
     /// <inheritdoc />
     /// <summary>
     ///   Create a source access based on a setting, the setting might contain information for
@@ -152,10 +152,16 @@ namespace CsvTools
     /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
-      : this(setting.FullPath, isReading, setting.ID, setting.KeepUnencrypted)
+      : this(setting.FullPath, isReading, setting.ID
+#if SupportPGP
+        , setting.KeepUnencrypted
+#endif
+        )
     {
       if (FileType != FileTypeEnum.Pgp) return;
+      #if SupportPGP
       PgpKey = FileSystemUtils.ReadAllText(setting.KeyFile);
+      #endif
     }
 
 #endif

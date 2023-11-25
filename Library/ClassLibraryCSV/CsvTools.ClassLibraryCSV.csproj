@@ -49,9 +49,10 @@
     <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <DefineConstants>$(DefineConstants);SupportPGP;XmlSerialization</DefineConstants>
+    <DefineConstants>$(DefineConstants);XmlSerialization</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Immutable\W3C_CSV_Schema.cs" />
     <Compile Remove="RangeForStandard.cs" />
   </ItemGroup>
   <ItemGroup>

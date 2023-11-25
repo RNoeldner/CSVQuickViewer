@@ -4,7 +4,7 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <?define ProductVersion="!(bind.FileVersion.ExecutableID)" ?>
   <?define Manufacturer="Raphael Nöldner" ?>
-  <?define NetVersion=".Net7" ?>
+  <?define NetVersion=".Net8" ?>
 
   <?define Application="CSV Quick Viewer" ?>
   <?define AppFolder="CSVQuickViewer" ?>
@@ -56,7 +56,8 @@
             <File Id="SerilogSinksFile" Name="Serilog.Sinks.File.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Sinks.File.dll" />
             <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
             <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
-
+            <!-- <File Id="BouncyCastle.Cryptography" Name="BouncyCastle.Cryptography.dll" Source="$(var.CSVQuickViewer.TargetPath)\BouncyCastle.Cryptography.dll" />   -->         
+						            
             <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
