@@ -51,8 +51,8 @@ namespace CsvTools.Tests
     public void BuildValueClusters_StringListFilled()
     {
       var fl = GetFilterLogic(0);
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(GetColumnData(0), 200));
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(GetColumnData(7), 200));
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(0), "d1", false, 200));
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(7), "d2", true, 200));
       Assert.IsNotNull(fl.ValueClusterCollection);
     }
 
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
 
       test.ReBuildValueClusters(DataTypeEnum.Numeric, number, "dummy", true, 40);
       Assert.AreEqual(number.Count, test.Count);
-      Assert.AreEqual(number.Count, test.Select(x=> x.Count).Sum());
+      Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum());
       Assert.AreEqual("-3", test.First().Display);
       Assert.AreEqual("2", test.Last().Display);
     }
@@ -113,8 +113,8 @@ namespace CsvTools.Tests
       for (long i = -199; i < 200; i++)
         number.Add(i);
 
-      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 200);            
-      Assert.AreEqual(number.Count, test.Select(x=> x.Count).Sum());
+      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 200);
+      Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum());
       Assert.IsTrue(test.First().Display.Contains("-199"));
       Assert.IsTrue(test.Last().Display.Contains("200"), test.Last().Display);
     }
@@ -134,13 +134,13 @@ namespace CsvTools.Tests
       for (long i = 10; i < 2000; i++)
         number2.Add(i);
       test.ReBuildValueClusters(DataTypeEnum.Integer, number2, "dummy", true, 50);
-      Assert.AreEqual(number2.Count, test.Select(x=> x.Count).Sum());       
+      Assert.AreEqual(number2.Count, test.Select(x => x.Count).Sum());
 
       var number3 = new List<object>();
       for (long i = -500; i < -50; i++)
         number3.Add(i);
       test.ReBuildValueClusters(DataTypeEnum.Integer, number3, "dummy", true, 50);
-      Assert.AreEqual(number3.Count, test.Select(x=> x.Count).Sum());       
+      Assert.AreEqual(number3.Count, test.Select(x => x.Count).Sum());
 
     }
 
@@ -149,16 +149,16 @@ namespace CsvTools.Tests
     public void BuildValueClusters_DateTime()
     {
       var test = new ValueClusterCollection();
-      
+
       var data = GetColumnData(2);
 
-      
+
       test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", true, 150);
-      Assert.AreEqual(data.Count, test.Select(x=> x.Count).Sum());
+      Assert.AreEqual(data.Count, test.Select(x => x.Count).Sum());
 
       var res = test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", true, 50);
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, res );
-      Assert.AreEqual(data.Count, test.Select(x=> x.Count).Sum());
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
+      Assert.AreEqual(data.Count, test.Select(x => x.Count).Sum());
 
     }
 

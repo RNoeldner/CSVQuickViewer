@@ -40,9 +40,13 @@ namespace CsvTools
       this.textBoxValue = new System.Windows.Forms.TextBox();
       this.listViewCluster = new System.Windows.Forms.ListView();
       this.panelTop = new System.Windows.Forms.Panel();
+      this.radioButtonEven = new System.Windows.Forms.RadioButton();
+      this.radioButtonCombine = new System.Windows.Forms.RadioButton();
+      this.radioButtonReg = new System.Windows.Forms.RadioButton();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.timerFilter = new System.Windows.Forms.Timer(this.components);
       this.labelError = new System.Windows.Forms.Label();
+      this.timerRebuild = new System.Windows.Forms.Timer(this.components);
       colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       colItems = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
@@ -68,7 +72,7 @@ namespace CsvTools
       this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonFilter.AutoSize = true;
       this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonFilter.Location = new System.Drawing.Point(444, 2);
+      this.buttonFilter.Location = new System.Drawing.Point(598, 2);
       this.buttonFilter.Name = "buttonFilter";
       this.buttonFilter.Size = new System.Drawing.Size(87, 23);
       this.buttonFilter.TabIndex = 3;
@@ -100,7 +104,7 @@ namespace CsvTools
       // dateTimePickerValue
       // 
       this.dateTimePickerValue.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-      this.dateTimePickerValue.Location = new System.Drawing.Point(185, 3);
+      this.dateTimePickerValue.Location = new System.Drawing.Point(176, 4);
       this.dateTimePickerValue.Name = "dateTimePickerValue";
       this.dateTimePickerValue.Size = new System.Drawing.Size(129, 20);
       this.dateTimePickerValue.TabIndex = 0;
@@ -109,9 +113,9 @@ namespace CsvTools
       // 
       // textBoxValue
       // 
-      this.textBoxValue.Location = new System.Drawing.Point(185, 3);
+      this.textBoxValue.Location = new System.Drawing.Point(176, 4);
       this.textBoxValue.Name = "textBoxValue";
-      this.textBoxValue.Size = new System.Drawing.Size(250, 20);
+      this.textBoxValue.Size = new System.Drawing.Size(211, 20);
       this.textBoxValue.TabIndex = 1;
       this.toolTip.SetToolTip(this.textBoxValue, "Text to filter.  Please use decimal point for numbers");
       this.textBoxValue.Visible = false;
@@ -129,7 +133,7 @@ namespace CsvTools
       this.listViewCluster.Location = new System.Drawing.Point(0, 28);
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(535, 369);
+      this.listViewCluster.Size = new System.Drawing.Size(689, 351);
       this.listViewCluster.TabIndex = 1;
       this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
@@ -139,6 +143,9 @@ namespace CsvTools
       // panelTop
       // 
       this.panelTop.AutoSize = true;
+      this.panelTop.Controls.Add(this.radioButtonEven);
+      this.panelTop.Controls.Add(this.radioButtonCombine);
+      this.panelTop.Controls.Add(this.radioButtonReg);
       this.panelTop.Controls.Add(this.textBoxValue);
       this.panelTop.Controls.Add(this.dateTimePickerValue);
       this.panelTop.Controls.Add(this.buttonFilter);
@@ -147,9 +154,47 @@ namespace CsvTools
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(535, 28);
+      this.panelTop.Size = new System.Drawing.Size(689, 28);
       this.panelTop.TabIndex = 0;
       this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
+      // 
+      // radioButtonEven
+      // 
+      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonEven.AutoSize = true;
+      this.radioButtonEven.Location = new System.Drawing.Point(542, 5);
+      this.radioButtonEven.Name = "radioButtonEven";
+      this.radioButtonEven.Size = new System.Drawing.Size(50, 17);
+      this.radioButtonEven.TabIndex = 4;
+      this.radioButtonEven.Text = "Even";
+      this.radioButtonEven.UseVisualStyleBackColor = true;
+      this.radioButtonEven.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
+      // 
+      // radioButtonCombine
+      // 
+      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonCombine.AutoSize = true;
+      this.radioButtonCombine.Location = new System.Drawing.Point(470, 5);
+      this.radioButtonCombine.Name = "radioButtonCombine";
+      this.radioButtonCombine.Size = new System.Drawing.Size(66, 17);
+      this.radioButtonCombine.TabIndex = 4;
+      this.radioButtonCombine.Text = "Combine";
+      this.radioButtonCombine.UseVisualStyleBackColor = true;
+      this.radioButtonCombine.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
+      // 
+      // radioButtonReg
+      // 
+      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonReg.AutoSize = true;
+      this.radioButtonReg.Checked = true;
+      this.radioButtonReg.Location = new System.Drawing.Point(402, 5);
+      this.radioButtonReg.Name = "radioButtonReg";
+      this.radioButtonReg.Size = new System.Drawing.Size(62, 17);
+      this.radioButtonReg.TabIndex = 4;
+      this.radioButtonReg.TabStop = true;
+      this.radioButtonReg.Text = "Regular";
+      this.radioButtonReg.UseVisualStyleBackColor = true;
+      this.radioButtonReg.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
       // timerFilter
       // 
@@ -176,19 +221,25 @@ namespace CsvTools
       this.labelError.Text = "Error Information";
       this.labelError.Visible = false;
       // 
+      // timerRebuild
+      // 
+      this.timerRebuild.Enabled = true;
+      this.timerRebuild.Interval = 200;
+      this.timerRebuild.Tick += new System.EventHandler(this.timerRebuild_Tick);
+      // 
       // FromColumnFilter
       // 
       this.AcceptButton = this.buttonFilter;
       this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(535, 397);
+      this.ClientSize = new System.Drawing.Size(689, 379);
       this.Controls.Add(this.labelError);
       this.Controls.Add(this.listViewCluster);
       this.Controls.Add(this.panelTop);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(551, 260);
+      this.MinimumSize = new System.Drawing.Size(705, 260);
       this.Name = "FromColumnFilter";
       this.Text = "Filter";
       this.Activated += new System.EventHandler(this.FromDataGridViewFilter_Activated);
@@ -214,5 +265,9 @@ namespace CsvTools
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.Timer timerFilter;
     private System.Windows.Forms.Label labelError;
+    private System.Windows.Forms.RadioButton radioButtonEven;
+    private System.Windows.Forms.RadioButton radioButtonCombine;
+    private System.Windows.Forms.RadioButton radioButtonReg;
+    private System.Windows.Forms.Timer timerRebuild;
   }
 }

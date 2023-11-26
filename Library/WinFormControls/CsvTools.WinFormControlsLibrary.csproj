@@ -53,9 +53,7 @@
     <Compile Update="FromColumnsFilter.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FromColumnFilter.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="FromColumnFilter.cs" />
     <Compile Update="FormColumnUIRead.cs" />
     <Compile Update="FormPasswordAndKey.cs" />
     <Compile Update="FormSelectInDropdown.cs">

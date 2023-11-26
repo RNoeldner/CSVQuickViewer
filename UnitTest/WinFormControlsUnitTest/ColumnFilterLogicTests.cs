@@ -41,8 +41,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ApplyFilterTest()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1"); 
-      columnFilterLogic.ApplyFilter(); 
+      var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
+      columnFilterLogic.ApplyFilter();
     }
 
     [TestMethod]
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
 
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.DataType))
       {
-        columnFilterLogic.Operator = op.ToString();        
+        columnFilterLogic.Operator = op.ToString();
         // columnFilterLogic.Active = true;
         Assert.IsNotNull(columnFilterLogic.FilterExpression);
       }
@@ -187,7 +187,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ChangeFilterString()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { Operator = "…xxx…",  ValueText = "Hello" };
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { Operator = "…xxx…", ValueText = "Hello" };
       TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
 
       columnFilterLogic.ValueText="Test";
@@ -218,7 +218,7 @@ namespace CsvTools.Tests
 
       using var data = UnitTestStaticData.GetDataTable(200);
       using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
-      columnFilterLogic.ReBuildValueClusters(data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), 20);
+      columnFilterLogic.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.Integer, data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), "d", true, 20);
       var i = 0;
       foreach (var cluster in columnFilterLogic.ValueClusterCollection)
       {
