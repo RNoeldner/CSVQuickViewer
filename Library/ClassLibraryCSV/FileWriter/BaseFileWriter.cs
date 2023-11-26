@@ -34,10 +34,8 @@ namespace CsvTools
     private readonly string m_Footer;
     internal readonly string FullPath;
     private readonly string m_IdentifierInContainer;
-#if SupportPGP
     private readonly bool m_KeepUnencrypted;
     private readonly string m_PublicKey;
-#endif
 
     protected readonly ValueFormat ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
@@ -78,17 +76,14 @@ namespace CsvTools
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string sourceTimeZone
-#if SupportPGP
+
       , in string publicKey, bool unencrypted
-#endif
       )
     {
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust;
-#if SupportPGP
       m_PublicKey = publicKey;
       m_KeepUnencrypted = unencrypted;
-#endif
       FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(FullPath);
       Header = ReplacePlaceHolder(header, fileName, id);
@@ -268,11 +263,7 @@ namespace CsvTools
 
       try
       {
-        var sourceAccess = new SourceAccess(FullPath, false
-#if SupportPGP
-          , keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey
-#endif
-          );
+        var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

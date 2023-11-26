@@ -39,7 +39,6 @@ namespace CsvTools
     /// </summary>
     public readonly bool Reading;
 
-#if SupportPGP
     /// <summary>
     ///   Flag <c>true</c> if the not encrypted files should be kept after encryption
     /// </summary>
@@ -49,7 +48,6 @@ namespace CsvTools
     ///   The Private Key for reading PGP files
     /// </summary>
     public readonly string PgpKey;
-#endif
 
     public readonly string Passphrase;
 
@@ -88,10 +86,9 @@ namespace CsvTools
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
       Passphrase = passPhrase;
 
-#if SupportPGP
+
       PgpKey = string.Empty;
       KeepEncrypted = keepEncrypted;
-#endif
       LeaveOpen = false;
       FileType = FromExtension(fileName);
       IdentifierInContainer = string.Empty;
@@ -100,14 +97,12 @@ namespace CsvTools
         case FileTypeEnum.Zip when !isReading:
           IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
           break;
-#if SupportPGP
+
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp:
           PgpKey = pgpKey;
           break;
-#endif
       }
-#if SupportPGP
       if (!isReading && KeepEncrypted && FileType == FileTypeEnum.Pgp)
       {
         // remove extension
@@ -119,9 +114,6 @@ namespace CsvTools
       {
         m_OpenStream = GetOpenStreamFunc(fileName, isReading);
       }
-#else
-      m_OpenStream = GetOpenStreamFunc(fileName, isReading);
-#endif
     }
 
 #if !QUICK
@@ -136,12 +128,9 @@ namespace CsvTools
       : this(setting.FullPath, isReading, setting.ID, setting.Passphrase, keepEncrypted: setting.KeepUnencrypted)
     {
       if (FileType != FileTypeEnum.Pgp) return;
-#if SupportPGP
       PgpKey = FileSystemUtils.ReadAllText(setting.KeyFile);
-#endif
     }
 #endif
-
     /// <summary>
     ///   Create a source access based on a stream
     /// </summary>
@@ -155,9 +144,8 @@ namespace CsvTools
       Reading = true;
       FullPath = string.Empty;
       Passphrase = string.Empty;
-#if SupportPGP
       PgpKey = string.Empty;
-#endif
+
       IdentifierInContainer = string.Empty;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
