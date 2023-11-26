@@ -374,25 +374,12 @@ namespace CsvTools.Tests
         }
     }
 
-    public static T RunSerialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
+    public static T RunSerialize<T>(T obj, bool includeJson = true) where T : class
     {
       if (obj is null)
         throw new ArgumentNullException(nameof(obj));
 
-      T ret = obj;
-
-      if (includeXml)
-      {
-#if XmlSerialization
-        var serializer = new XmlSerializer(typeof(T));
-        var testXml = obj.SerializeIndentedXml(serializer);
-
-        Assert.IsFalse(string.IsNullOrEmpty(testXml));
-        using TextReader reader = new StringReader(testXml);
-        ret = serializer.Deserialize(reader) as T ?? throw new InvalidOperationException();
-        Assert.IsNotNull(ret);
-#endif
-      }
+      T ret = obj;      
 
       if (includeJson)
       {
@@ -432,7 +419,7 @@ namespace CsvTools.Tests
           if (!propertyInfo.ChangePropertyValue(obj))
             // could not change the property
             continue;
-          var ret = RunSerialize(obj, false);
+          var ret = RunSerialize(obj);
           Assert.AreEqual(propertyInfo.GetValue(obj), propertyInfo.GetValue(ret),
             $"Comparing changed value {propertyInfo.Name} of {obj.GetType().FullName}");
         }

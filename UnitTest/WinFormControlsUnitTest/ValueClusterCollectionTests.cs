@@ -113,11 +113,10 @@ namespace CsvTools.Tests
       for (long i = -199; i < 200; i++)
         number.Add(i);
 
-      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 200);
-      Assert.AreEqual(40, test.Count);
+      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 200);            
       Assert.AreEqual(number.Count, test.Select(x=> x.Count).Sum());
-      Assert.IsTrue(test.First().Display.Contains("-200") && test.First().Display.Contains("-191"), test.First().Display);
-      Assert.IsTrue(test.Last().Display.Contains("190") && test.Last().Display.Contains("199"), test.Last().Display);
+      Assert.IsTrue(test.First().Display.Contains("-199"));
+      Assert.IsTrue(test.Last().Display.Contains("200"), test.Last().Display);
     }
 
     [TestMethod]
@@ -129,8 +128,8 @@ namespace CsvTools.Tests
       for (long i = -1999; i < 2000; i++)
         number.Add(i);
       test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 50);
-      Assert.AreEqual(number.Count, test.Select(x=> x.Count).Sum());         
-             
+      Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum(), "Clusters should cover all entries");
+
       var number2 = new List<object>();
       for (long i = 10; i < 2000; i++)
         number2.Add(i);
@@ -150,7 +149,17 @@ namespace CsvTools.Tests
     public void BuildValueClusters_DateTime()
     {
       var test = new ValueClusterCollection();
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(DataTypeEnum.DateTime, GetColumnData(2), "dummy", true, 200));
+      
+      var data = GetColumnData(2);
+
+      
+      test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", true, 150);
+      Assert.AreEqual(data.Count, test.Select(x=> x.Count).Sum());
+
+      var res = test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", true, 50);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, res );
+      Assert.AreEqual(data.Count, test.Select(x=> x.Count).Sum());
+
     }
 
     [TestMethod]

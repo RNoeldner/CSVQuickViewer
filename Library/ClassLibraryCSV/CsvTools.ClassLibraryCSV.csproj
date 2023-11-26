@@ -57,7 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="*" />
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
     
     <PackageReference Include="Markdown" Version="2.2.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
