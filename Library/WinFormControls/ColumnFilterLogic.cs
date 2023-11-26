@@ -194,14 +194,7 @@ namespace CsvTools
         return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
-    /// <summary>
-    /// Rebuild the ValueClusters based on the data passed in
-    /// </summary>
-    /// <param name="columnValues">The avalibale values</param>
-    /// <param name="maxValues">Maximun number of items to show</param>
-    /// <returns><see cref="BuildValueClustersResult"/></returns>
-    public BuildValueClustersResult ReBuildValueClusters(in ICollection<object> columnValues, int maxValues) => ValueClusterCollection.ReBuildValueClusters(DataType, columnValues, DataPropertyNameEscaped, Active, maxValues);
-
+    
     /// <summary>
     ///   Gets or sets the operator, setting the operator will build the filter
     /// </summary>

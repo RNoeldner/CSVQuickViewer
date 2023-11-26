@@ -28,7 +28,8 @@ namespace CsvTools
   public sealed partial class FromColumnFilter : ResizeForm
   {
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
-
+    private readonly ICollection<object> m_Values;
+    private readonly int m_MaxCluster;
     /// <summary>
     ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
     /// </summary>
@@ -38,7 +39,8 @@ namespace CsvTools
     public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
     {
       m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
-
+      m_Values = columnValues;
+      m_MaxCluster = maxCluster;
       InitializeComponent();
 
       Text = $"Filter : {m_DataGridViewColumnFilter.DataPropertyName}";
@@ -48,34 +50,15 @@ namespace CsvTools
       // ReSharper disable once CoVariantArrayConversion
       comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.DataType));
       comboBoxOperator.SelectedIndex = 0;
-      comboBoxOperator.EndUpdate();      
+      comboBoxOperator.EndUpdate();
 
-      var result = m_DataGridViewColumnFilter.ReBuildValueClusters(columnValues, maxCluster);
-      if (result == BuildValueClustersResult.ListFilled)
+      timerRebuild.Start();
+
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.String || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Guid || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Boolean)
       {
-         FilterItems("");
-      }       
-      else
-      {
-        listViewCluster.CheckBoxes = false;
-        var explain = "Error collecting the values";
-        switch (result)
-        {
-          case BuildValueClustersResult.WrongType:
-            explain="Datatype did not match";
-            break;
-          case BuildValueClustersResult.TooManyValues:
-            explain="Too many different values";
-            break;
-          case BuildValueClustersResult.NoValues:
-            explain="No value found";
-            break;
-        }
-        toolTip.SetToolTip(this.listViewCluster, explain);
-        labelError.Text = explain;
-        labelError.Visible=true;        
-        toolTip.SetToolTip(this.labelError, explain);
-        listViewCluster.Enabled = false;
+        radioButtonCombine.Enabled = false;
+        radioButtonEven.Enabled = false;
+        radioButtonReg.Enabled = false;
       }
     }
 
@@ -254,6 +237,44 @@ namespace CsvTools
       {
         ParentForm.ShowError(ex);
       }
-    }   
+    }
+
+    private void timerRebuild_Tick(object sender, EventArgs e)
+    {
+      timerRebuild.Stop();
+      var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped, m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked);
+      if (result == BuildValueClustersResult.ListFilled)
+      {
+        FilterItems("");
+      }
+      else
+      {
+        listViewCluster.CheckBoxes = false;
+        var explain = "Error collecting the values";
+        switch (result)
+        {
+          case BuildValueClustersResult.WrongType:
+            explain="Datatype did not match";
+            break;
+          case BuildValueClustersResult.TooManyValues:
+            explain="Too many different values";
+            break;
+          case BuildValueClustersResult.NoValues:
+            explain="No value found";
+            break;
+        }
+        toolTip.SetToolTip(this.listViewCluster, explain);
+        labelError.Text = explain;
+        labelError.Visible=true;
+        toolTip.SetToolTip(this.labelError, explain);
+        listViewCluster.Enabled = false;
+      }
+    }
+
+    private void ClusterTypeChanged(object sender, EventArgs e)
+    {
+      timerRebuild.Stop();
+      timerRebuild.Start();
+    }
   }
 }
