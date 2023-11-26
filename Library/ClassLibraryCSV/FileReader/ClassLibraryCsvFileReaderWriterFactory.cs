@@ -61,12 +61,8 @@ namespace CsvTools
 
     /// <inheritdoc />
     public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
-    {      
+    {
       var publicKey = string.Empty;
-#if SupportPGP
-      if (fileSetting is IFileSettingPhysicalFile physicalFile)
-        publicKey = PgpHelper.GetKeyAndValidate(physicalFile.FileName, physicalFile.KeyFile);
-#endif
       IFileWriter? writer = fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite,

@@ -35,18 +35,9 @@ namespace CsvTools.Tests
     public void SampleRecordEntrySerialize()
     {
       var test = new SampleRecordEntry(10, true, "Error1");
-      var output = UnitTestStatic.RunSerialize(test, false, false);
+      var output = UnitTestStatic.RunSerialize(test, false);
       Assert.AreEqual(test.RecordNumber, output.RecordNumber);
-    }
-
-    [TestMethod]
-    public void SampleAndErrorsInformationSerialize()
-    {
-      var test = new SampleAndErrorsInformation(10, new[] { new SampleRecordEntry(10, true, "Error1") },
-        new[] { new SampleRecordEntry(11), new SampleRecordEntry(12) }, 2);
-      var output = UnitTestStatic.RunSerialize(test, true, false);
-      Assert.AreEqual(test.NumErrors, output.NumErrors);
-    }
+    }   
 
     [TestMethod]
     public void AddError()

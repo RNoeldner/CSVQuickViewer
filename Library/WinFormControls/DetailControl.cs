@@ -750,10 +750,8 @@ namespace CsvTools
           WriteSetting.EscapePrefixChar,
           WriteSetting.NewLinePlaceholder,
           WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
-          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id
-#if SupportPGP
-          ,PgpHelper.GetKeyAndValidate(fileName, WriteSetting.KeyFile), WriteSetting.KeepUnencrypted
-#endif
+          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id , FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
+
           );
 
 #if NET5_0_OR_GREATER
