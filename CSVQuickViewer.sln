@@ -36,14 +36,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{5B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibaryCSVQuick.UnitTest", "UnitTest\CsvTools.ClassLibaryCSVQuick.UnitTest\CsvTools.ClassLibaryCSVQuick.UnitTest.csproj", "{6E3BB97E-4B08-43E6-BE66-B2B0063C1659}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI472", "Setup\.Net472\CSVQuickViewer_MSI472.wixproj", "{E7A862B8-5A45-47FD-9A91-D909A08BE783}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9FD}") = "CSVQuickViewer_MSI472", "Setup\.Net472\CSVQuickViewer_MSI472.wixproj", "{E7A862B8-5A45-47FD-9A91-D909A08BE783}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C07F9282-7816-4B22-8B1E-F7AA0812ED67} = {C07F9282-7816-4B22-8B1E-F7AA0812ED67}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "UnitTest\Benchmark\Benchmark.csproj", "{D3044C00-B148-4B23-BDDA-BCBA97393858}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI8", "Setup\.Net8\CSVQuickViewer_MSI8.wixproj", "{FE96A246-3F90-406B-A959-EB68BE822E6B}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9FD}") = "CSVQuickViewer_MSI8", "Setup\.Net8\CSVQuickViewer_MSI8.wixproj", "{FE96A246-3F90-406B-A959-EB68BE822E6B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C07F9282-7816-4B22-8B1E-F7AA0812ED67} = {C07F9282-7816-4B22-8B1E-F7AA0812ED67}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
