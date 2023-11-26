@@ -261,17 +261,3 @@ Setup/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/Library/ClassLibraryCSV_new
-/CSVQuickViewerUWPBU
-/CSVQuickViewerUWP
-/Library/ClassLibraryCSV.UWP
-/CSVQuickViewer.UWP.sln
-/UnitTest/ClassLibraryCSVUnitTest/TestFiles/CSVQuickViewer_005.json
-/UnitTest/ClassLibraryCSVUnitTest/TestFiles/CSVQuickViewer_004.json
-/UnitTest/ClassLibraryCSVUnitTest/TestFiles/CSVQuickViewer_003.json
-/CSVQuickViewer.MAUI
-/Library/ClassLibraryCSV/Mutable/FileFormat.cs
-/Library/ClassLibraryCSVOld
-/Setup/CSVQuickViewerPortable.Net8.zip
-/Setup/CSVQuickViewerSetup.Net8.msi
-/Setup/CSVQuickViewerPortable.Net8.zip
