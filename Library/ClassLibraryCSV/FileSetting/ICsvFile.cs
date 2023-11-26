@@ -95,7 +95,6 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-
     bool WarnQuotes { get; set; }
 
     /// <summary>
@@ -146,7 +145,9 @@ namespace CsvTools
     /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; set; }
 
-
+    /// <summary>
+    ///  The resulting file shoudl not use delimiters but instaed use fixed length columns
+    /// </summary>
     bool WriteFixedLength { get; set; }
 
     /// <summary>

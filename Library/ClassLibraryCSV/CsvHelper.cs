@@ -655,8 +655,6 @@ CommentLine
     }
 
 #if !QUICK
-
-
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
 
@@ -680,14 +678,7 @@ CommentLine
           SkipRows =  csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        fillGuessSettings: new FillGuessSettings(false)
-      , pgpKey:
-#if SupportPGP
-        PgpHelper.GetKeyAndValidate(csvFile.FileName, csvFile.KeyFile)
-#else
-        string.Empty
-#endif
-        , cancellationToken: cancellationToken);
+        fillGuessSettings: new FillGuessSettings(false) , pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar= det.EscapePrefix;
