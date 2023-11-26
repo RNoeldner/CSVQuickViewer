@@ -10,7 +10,7 @@
   <?define CSVQuickViewer.ProjectDir= "..\..\Application"?>
   <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net472"?>
 
-  <Product Id="*" Name="$(var.Application) $(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
+  <Product Id="*" Name="$(var.Application) $(var.ProductVersion)$(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
            UpgradeCode="F42F893E-A1DB-43C6-481F-D2FED20CDEED" Codepage="utf-8">
     <Package Id="*" InstallerVersion="310" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" />
     <WixVariable Id="WixUILicenseRtf" Value="..\lgpl.rtf" />
@@ -59,8 +59,8 @@
             <File Id="SystemThreadingTasksExtensions" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Threading.Tasks.Extensions.dll" />
             <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
             <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
-						<File Id="System.Diagnostics.DiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
-            <!-- <File Id="BouncyCastle.Cryptography" Name="BouncyCastle.Cryptography.dll" Source="$(var.CSVQuickViewer.TargetPath)\BouncyCastle.Cryptography.dll" />   -->         
+            <File Id="System.Diagnostics.DiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
+            <!-- <File Id="BouncyCastle.Cryptography" Name="BouncyCastle.Cryptography.dll" Source="$(var.CSVQuickViewer.TargetPath)\BouncyCastle.Cryptography.dll" />   -->
             <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
