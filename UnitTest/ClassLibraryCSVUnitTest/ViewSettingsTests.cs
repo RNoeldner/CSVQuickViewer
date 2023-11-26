@@ -32,7 +32,7 @@ namespace CsvTools.Tests
     public void SerializeViewSettingsTest()
     {
       var test1 = new ViewSettings { AllowJson = false, HtmlStyle = new HtmlStyle("Dummy") };
-      var output = UnitTestStatic.RunSerialize(test1, true, true);
+      var output = UnitTestStatic.RunSerialize(test1);
       Assert.AreEqual(test1.AllowJson, output.AllowJson);
       Assert.AreEqual(test1.HtmlStyle.Style, output.HtmlStyle.Style);
     }

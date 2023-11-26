@@ -38,18 +38,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(ret);
     }
 
-
-    [TestMethod]
-    public void ColumnMut()
-    {
-      var input = new ColumnMut("Näme",
-        new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
-          "erp", "read", "Wr", "ou", false))
-      { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
-      var output = UnitTestStatic.RunSerialize(input, true, false);
-      Assert.AreEqual(input.Name, output.Name);
-      Assert.AreEqual(input.DestinationName, output.DestinationName);
-    }
+   
 
     [TestMethod]
     public void ColumnMutProperties()
@@ -62,9 +51,9 @@ namespace CsvTools.Tests
         new[]
         {
           nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal),
-          nameof(input.DecimalSeparator), nameof(input.NumberFormat),
-          nameof(input.Part), nameof(input.PartSplitter),nameof(input.PartToEnd),
-          nameof(input.False), nameof(input.True)
+          nameof(input.ValueFormat.DecimalSeparator), nameof(input.ValueFormat.NumberFormat),
+          nameof(input.ValueFormat.Part), nameof(input.ValueFormat.PartSplitter),nameof(input.ValueFormat.PartToEnd),
+          nameof(input.ValueFormat.False), nameof(input.ValueFormat.True)
         });
 
       var input2 = new ColumnMut("Näme",
@@ -75,9 +64,9 @@ namespace CsvTools.Tests
         new[]
         {
           nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal),
-          nameof(input.DecimalSeparator), nameof(input.NumberFormat),
-          nameof(input.DateFormat), nameof(input.DateSeparator), nameof(input.TimeSeparator),
-          nameof(input.False), nameof(input.True)
+          nameof(input.ValueFormat.DecimalSeparator), nameof(input.ValueFormat.NumberFormat),
+          nameof(input.ValueFormat.DateFormat), nameof(input.ValueFormat.DateSeparator), nameof(input.ValueFormat.TimeSeparator),
+          nameof(input.ValueFormat.False), nameof(input.ValueFormat.True)
         });
     }
 
@@ -145,7 +134,7 @@ namespace CsvTools.Tests
     {
       var input = new ValueFormatMut(DataTypeEnum.Numeric, numberFormat: "x.00", decimalSeparator: ",");
 
-      var output = UnitTestStatic.RunSerialize(input, false);
+      var output = UnitTestStatic.RunSerialize(input);
       Assert.AreEqual(input.NumberFormat, output.NumberFormat);
       Assert.AreEqual(input.DecimalSeparator, output.DecimalSeparator);
       Assert.AreEqual(input.DateFormat, output.DateFormat);

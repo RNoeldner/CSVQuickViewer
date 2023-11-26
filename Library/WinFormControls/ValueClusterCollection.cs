@@ -161,6 +161,8 @@ namespace CsvTools
       if (clusterYear.Count == 0)
         return BuildValueClustersResult.NoValues;
       var desiredSize = (values.Count * 3) / (max *2);
+      if (desiredSize < 5)
+        desiredSize=5;
       if (clusterDay.Count == 1)
       {
         clusterHour.Add(clusterHour.Min() -1);
@@ -201,7 +203,17 @@ namespace CsvTools
       // Do not add if there is a cluster existing that spans the new value     [ ]  ]
       // Do not add if there is a cluster existing that spans the new value   [ [ ]
       // Do not add if there is a cluster existing that spans the new value     [ ]
-      if (!m_ValueClusters.Any(x => x.Start != null && (DateTime) x.Start <= from && (DateTime) (x.End ?? DateTime.MaxValue) >= to))
+
+      var existing = false;
+      try
+      {
+        existing = m_ValueClusters.Any(x => x.Start is DateTime start &&  start <= from
+                                          && x.Start is DateTime end  &&  end >= to);
+      }
+      catch
+      {
+      }
+      if (!existing)
       {
         var count = values.Count(x => x >= from && x<to);
         if (count >0)
@@ -219,25 +231,25 @@ namespace CsvTools
           switch (displayType)
           {
             case DateTimeRange.Hours:
-              display=$"{from:t} - {to:t}";
+              display=$"{from:t} – {to:t}";
               break;
             case DateTimeRange.Days:
               if (to == from.AddDays(1))
                 display=$"{from:d}";
               else
-                display=$"{from:d} - {to:d}";
+                display=$"{from:d} – {to:d}";
               break;
             case DateTimeRange.Month:
               if (to == from.AddMonths(1))
                 display=$"{from:Y}";
               else
-                display=$"{from:Y} - {to:Y}";
+                display=$"{from:Y} – {to:Y}";
               break;
             case DateTimeRange.Years:
               if (to == from.AddYears(1))
                 display=$"{from:yyyy}";
               else
-                display=$"{from:yyyy} - {to:yyyy}";
+                display=$"{from:yyyy} – {to:yyyy}";
               break;
           }
           lastValueCluster = new ValueCluster(display, $"({escapedName} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {escapedName} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
@@ -315,9 +327,12 @@ namespace CsvTools
 
         var start = (long) (values.Min() / factor);
         var end = (long) (values.Max() / factor);
-        while (end-start<(max*2)/3)
+        while (end-start<(max*2)/3 && factor>1)
         {
-          factor = factor/2;
+          if (factor > 10)
+            factor = Math.Round(factor / 10.0) * 5;
+          else
+            factor = Math.Round(factor / 4.0) * 2;
           start = (long) (values.Min() / factor);
           end = (long) (values.Max() / factor);
         }
@@ -329,14 +344,18 @@ namespace CsvTools
       fittingCluster.Add(fittingCluster.Min(x => x)-1);
 
       var desiredSize = (values.Count * 3) / (max *2);
+      if (desiredSize < 5)
+        desiredSize=5;
       foreach (var dic in fittingCluster.OrderBy(x => x))
       {
         var minValue = (long) (dic * factor);
         var maxValue = (long) (minValue + factor);
+
         var existing = false;
         try
         {
-          existing = m_ValueClusters.Any(x => (long) (x.Start ?? long.MinValue) <= minValue && (long) (x.End ?? long.MaxValue) >= maxValue);
+          existing = m_ValueClusters.Any(x => x.Start is long start &&  start <= minValue
+                                            && x.Start is long end  &&  end >= maxValue);
         }
         catch
         {
@@ -356,7 +375,7 @@ namespace CsvTools
                 // remove the last cluster it will be included with thie one
                 m_ValueClusters.Remove(lastValueCluster);
               }
-              lastValueCluster = new ValueCluster($"{minValue:N0} to {maxValue-1:N0}", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
+              lastValueCluster = new ValueCluster($"[{minValue:N0},{maxValue:N0})", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
               m_ValueClusters.Add(lastValueCluster);
 
             }

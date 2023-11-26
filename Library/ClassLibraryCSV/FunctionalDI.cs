@@ -36,7 +36,7 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, string> GetPassphraseForFile = _ => string.Empty;
 
-    public static Func<string, string> GetKeyForFile = _ => string.Empty;
+   // public static Func<string, string> GetKeyForFile = _ => string.Empty;
 
     public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile = _ => (string.Empty, string.Empty, string.Empty);
 
