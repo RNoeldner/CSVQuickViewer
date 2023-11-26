@@ -68,11 +68,9 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone
-
-#if SupportPGP
-      , in string publicKey, bool unencrypted
-#endif
+      in string sourceTimeZone,
+      in string publicKey,
+      bool unencrypted
       )
       : base(
         id,
@@ -84,10 +82,9 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone
-#if SupportPGP
-        ,publicKey, unencrypted
-#endif       
+        sourceTimeZone,
+        publicKey,
+        unencrypted
         )
     {
       if (string.IsNullOrEmpty(row))

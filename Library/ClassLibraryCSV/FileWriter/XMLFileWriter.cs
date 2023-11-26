@@ -40,21 +40,16 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone
-#if SupportPGP
-      , in string publicKey, bool unencrypted
-#endif
+      in string sourceTimeZone,
+      in string publicKey,
+      bool unencrypted
       )
       : base(
         id, fullPath,
         identifierInContainer, footer, header, codePageId,
         byteOrderMark, columnDefinition, fileSettingDisplay, row,
-        timeZoneAdjust, sourceTimeZone
-#if SupportPGP
-        , publicKey, unencrypted
-#endif
+        timeZoneAdjust, sourceTimeZone, publicKey, unencrypted
         )
-
     {
     }
 
