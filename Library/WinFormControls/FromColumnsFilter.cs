@@ -108,7 +108,7 @@ namespace CsvTools
         {
           if (col.Checked)
           {
-            var colName = col.SubItems[0].ToString();
+            var colName = col.SubItems[0].Text ?? col.Text;
             col.Checked = Rows.Any(dataRow => dataRow[colName] != DBNull.Value);
           }
         }

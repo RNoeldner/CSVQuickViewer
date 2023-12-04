@@ -67,7 +67,7 @@ namespace CsvTools
       this.listViewCluster.Location = new System.Drawing.Point(0, 32);
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(559, 376);
+      this.listViewCluster.Size = new System.Drawing.Size(535, 376);
       this.listViewCluster.TabIndex = 1;
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
       this.listViewCluster.View = System.Windows.Forms.View.List;
@@ -84,13 +84,14 @@ namespace CsvTools
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(559, 32);
+      this.panelTop.Size = new System.Drawing.Size(535, 32);
       this.panelTop.TabIndex = 0;
       // 
       // label1
       // 
+      this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(273, 11);
+      this.label1.Location = new System.Drawing.Point(304, 11);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(29, 13);
       this.label1.TabIndex = 7;
@@ -99,9 +100,9 @@ namespace CsvTools
       // buttonUncheck
       // 
       this.buttonUncheck.AutoSize = true;
-      this.buttonUncheck.Location = new System.Drawing.Point(79, 4);
+      this.buttonUncheck.Location = new System.Drawing.Point(65, 4);
       this.buttonUncheck.Name = "buttonUncheck";
-      this.buttonUncheck.Size = new System.Drawing.Size(70, 23);
+      this.buttonUncheck.Size = new System.Drawing.Size(66, 23);
       this.buttonUncheck.TabIndex = 6;
       this.buttonUncheck.Text = "&Uncheck";
       this.buttonUncheck.UseVisualStyleBackColor = true;
@@ -109,7 +110,8 @@ namespace CsvTools
       // 
       // textBoxFilter
       // 
-      this.textBoxFilter.Location = new System.Drawing.Point(308, 6);
+      this.textBoxFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.textBoxFilter.Location = new System.Drawing.Point(339, 7);
       this.textBoxFilter.Name = "textBoxFilter";
       this.textBoxFilter.Size = new System.Drawing.Size(100, 20);
       this.textBoxFilter.TabIndex = 5;
@@ -118,7 +120,7 @@ namespace CsvTools
       // buttonEmpty
       // 
       this.buttonEmpty.AutoSize = true;
-      this.buttonEmpty.Location = new System.Drawing.Point(155, 4);
+      this.buttonEmpty.Location = new System.Drawing.Point(137, 4);
       this.buttonEmpty.Name = "buttonEmpty";
       this.buttonEmpty.Size = new System.Drawing.Size(112, 23);
       this.buttonEmpty.TabIndex = 4;
@@ -131,7 +133,7 @@ namespace CsvTools
       this.buttonCheck.AutoSize = true;
       this.buttonCheck.Location = new System.Drawing.Point(3, 4);
       this.buttonCheck.Name = "buttonCheck";
-      this.buttonCheck.Size = new System.Drawing.Size(70, 23);
+      this.buttonCheck.Size = new System.Drawing.Size(56, 23);
       this.buttonCheck.TabIndex = 3;
       this.buttonCheck.Text = "&Check";
       this.buttonCheck.UseVisualStyleBackColor = true;
@@ -142,7 +144,7 @@ namespace CsvTools
       this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonApply.AutoSize = true;
       this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonApply.Location = new System.Drawing.Point(469, 6);
+      this.buttonApply.Location = new System.Drawing.Point(445, 6);
       this.buttonApply.Name = "buttonApply";
       this.buttonApply.Size = new System.Drawing.Size(87, 23);
       this.buttonApply.TabIndex = 3;
@@ -162,7 +164,7 @@ namespace CsvTools
       this.AcceptButton = this.buttonApply;
       this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(559, 408);
+      this.ClientSize = new System.Drawing.Size(535, 408);
       this.Controls.Add(this.listViewCluster);
       this.Controls.Add(this.panelTop);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

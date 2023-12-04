@@ -50,9 +50,7 @@
     <ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="FromColumnsFilter.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FromColumnsFilter.cs" />
     <Compile Update="FromColumnFilter.cs" />
     <Compile Update="FormColumnUIRead.cs" />
     <Compile Update="FormPasswordAndKey.cs" />
