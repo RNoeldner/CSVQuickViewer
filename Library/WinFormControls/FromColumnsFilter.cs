@@ -87,13 +87,13 @@ namespace CsvTools
     private void TimerFilter_Tick(object sender, EventArgs e)
     {
       timerFilter.Stop();
-      textBoxFilter.RunWithHourglass(() =>
+      this.RunWithHourglass(() =>
       {
         m_Checked.Clear();
         m_Checked.AddRange(listViewCluster.CheckedItems.OfType<ListViewItem>().Select(x => x.Text));
 
         // Filter The check boxes
-        Filter(textBoxFilter.Text);
+        Filter(textBoxFilter.Text);        
       });
     }
 
