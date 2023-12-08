@@ -57,13 +57,13 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken) 
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
-      
+
       Text = windowTitle ?? string.Empty;
-      
+
       SuspendLayout();
       m_TableLayoutPanel.SuspendLayout();
       if (withLoggerDisplay)
@@ -147,8 +147,8 @@ namespace CsvTools
               m_ProgressBar.Maximum = 1;
               m_ProgressBar.Maximum = 10;
               m_LabelEtl.Text = string.Empty;
-              m_ProgressBar.Style = ProgressBarStyle.Marquee;              
-              Task.Run(()=>AnimateBackground(), CancellationToken);              
+              m_ProgressBar.Style = ProgressBarStyle.Marquee;
+              Task.Run(() => AnimateBackground(), CancellationToken);
             }
           });
       }
@@ -157,16 +157,17 @@ namespace CsvTools
     private void AnimateBackground()
     {
       while (m_ProgressBar.Style == ProgressBarStyle.Marquee)
-      {        
+      {
         Thread.Sleep(200);
-        m_ProgressBar.SafeBeginInvoke(()=>{
-        if (m_ProgressBar.Value < m_ProgressBar.Maximum)
-          m_ProgressBar.Value++;
-        else
-          m_ProgressBar.Value = m_ProgressBar.Minimum;
+        m_ProgressBar.SafeBeginInvoke(() =>
+        {
+          if (m_ProgressBar.Value < m_ProgressBar.Maximum)
+            m_ProgressBar.Value++;
+          else
+            m_ProgressBar.Value = m_ProgressBar.Minimum;
         });
         Application.DoEvents();
-      }      
+      }
     }
 
     //string lastText = string.Empty;
@@ -183,11 +184,7 @@ namespace CsvTools
       var text = args.Text;
       m_Progress.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
-      ProgressChanged?.Invoke(this, args);
-      //if (!lastText.Equals(text) && text.Length>0)
-      //  m_LoggerDisplay?.AppendText(text.TrimEnd('\n') + '\n', true, LogLevel.Information);
-      //lastText= text;
-      // This might cause an issue
+      ProgressChanged?.Invoke(this, args);      
       m_LabelText.SafeBeginInvoke(
         () =>
         {
@@ -197,15 +194,13 @@ namespace CsvTools
 
           if (value <= 0 || Maximum <= 1)
           {
-            m_LabelEtl.Text = string.Empty;
-            m_ProgressBar.Style = ProgressBarStyle.Blocks;
+            m_LabelEtl.Text = string.Empty;            
           }
           else
           {
-            m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
-            m_ProgressBar.Value = m_Progress.TimeToCompletion.Value > m_ProgressBar.Maximum
-              ? m_ProgressBar.Maximum
-              : m_Progress.TimeToCompletion.Value.ToInt();
+            // m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
+            if (m_Progress.TimeToCompletion.Value >0 && m_Progress.TimeToCompletion.Value <= Maximum)
+              m_ProgressBar.Value = m_Progress.TimeToCompletion.Value.ToInt();
             var sb = new StringBuilder();
             sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
 
@@ -219,6 +214,8 @@ namespace CsvTools
             m_LabelEtl.Text = sb.ToString();
           }
         });
+
+      // Without this the text will not be updated...
       Application.DoEvents();
     }
 

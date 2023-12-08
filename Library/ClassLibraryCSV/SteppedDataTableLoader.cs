@@ -15,7 +15,7 @@ namespace CsvTools
     private IFileReader? m_FileReader;
     private string m_Id = string.Empty;
     public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
-
+    
     /// <summary>
     /// Starts the load of data from a file setting into the data table from m_GetDataTable
     /// </summary>
@@ -65,21 +65,20 @@ namespace CsvTools
 
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField);
 
-      // the initial progress is set on the source reader
-      await GetNextBatch(progress, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
+      // the initial progress is set on the source reader, no need to pass it in, when alling GetNextBatch this needs to be set though
+      await GetNextBatch(null, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Loads teh next batch of data from a file setting into the data table from m_GetDataTable
+    /// Loads the next batch of data from a file setting into the data table from m_GetDataTable
     /// </summary>
     /// <param name="actionSendNewDataTable">Action to pass on the data table, if called a second time make sure data is merged</param>
     /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
-    /// <param name="progress">Process display to pass on progress information</param>
+    /// <param name="progress">Process display to pass on progress information, ideally the underlying m_FileReader.ReportProgress is used though</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="duration">For maximum duration for the read process</param>
     /// <param name="restoreError">Restore column and row errors from error columns</param>
-    public async Task GetNextBatch(
-      IProgress<ProgressInfo>? progress, TimeSpan duration, bool restoreError,
+    public async Task GetNextBatch(IProgress<ProgressInfo>? progress, TimeSpan duration, bool restoreError,
       Action<DataTable> actionSendNewDataTable, Action<CancellationToken> setRefreshDisplayAsync,
       CancellationToken cancellationToken)
     {
@@ -93,8 +92,8 @@ namespace CsvTools
         dt.TableName = m_Id;
       try
       {
-        progress?.Report(new ProgressInfo("Setting DataTable"));        
-        actionSendNewDataTable.Invoke(dt);        
+        progress?.Report(new ProgressInfo("Setting DataTable"));
+        actionSendNewDataTable.Invoke(dt);
       }
       catch (InvalidOperationException ex)
       {
@@ -104,15 +103,15 @@ namespace CsvTools
 
       try
       {
-        progress?.Report(new ProgressInfo("Refresh Display"));        
-        setRefreshDisplayAsync(cancellationToken);        
+        progress?.Report(new ProgressInfo("Refresh Display"));
+        setRefreshDisplayAsync(cancellationToken);
       }
       catch (InvalidOperationException ex)
       {
         // ignore
         Logger.Warning(ex, "RefreshDisplayAsync");
       }
-      
+
       if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await DisposeAsync().ConfigureAwait(false);
