@@ -26,8 +26,8 @@ namespace CsvTools
       System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
       System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FilteredDataGridView));
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
       this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
       this.contextMenuStripCell = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -50,6 +50,7 @@ namespace CsvTools
       this.toolStripMenuItemSortDescending = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItemSortRemove = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItemFreeze = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItemFreeze2 = new System.Windows.Forms.ToolStripMenuItem();
       toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
       toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
       toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -108,9 +109,10 @@ namespace CsvTools
             this.toolStripMenuItemFilterThisValue,
             this.toolStripMenuItemFilterRemove,
             toolStripSeparator7,
-            this.toolStripMenuItemCols});
+            this.toolStripMenuItemCols,
+            this.toolStripMenuItemFreeze2});
       this.contextMenuStripCell.Name = "contextMenuStripDropDownCopy";
-      this.contextMenuStripCell.Size = new System.Drawing.Size(320, 232);
+      this.contextMenuStripCell.Size = new System.Drawing.Size(320, 262);
       // 
       // toolStripMenuItemOpenEditor
       // 
@@ -144,6 +146,7 @@ namespace CsvTools
       this.toolStripMenuItemFilter.Name = "toolStripMenuItemFilter";
       this.toolStripMenuItemFilter.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemFilter.Text = "Filter";
+      this.toolStripMenuItemFilter.ToolTipText = "Filter the rows based on this column ";
       this.toolStripMenuItemFilter.Click += new System.EventHandler(this.OpenFilterDialog);
       // 
       // toolStripMenuItemFilterThisValue
@@ -152,6 +155,7 @@ namespace CsvTools
       this.toolStripMenuItemFilterThisValue.Name = "toolStripMenuItemFilterThisValue";
       this.toolStripMenuItemFilterThisValue.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemFilterThisValue.Text = "Filter for this value";
+      this.toolStripMenuItemFilterThisValue.ToolTipText = "Only show rows with this column value";
       this.toolStripMenuItemFilterThisValue.Click += new System.EventHandler(this.ToolStripMenuItemFilterValue_Click);
       // 
       // toolStripMenuItemFilterRemove
@@ -167,6 +171,7 @@ namespace CsvTools
       this.toolStripMenuItemCols.Name = "toolStripMenuItemCols";
       this.toolStripMenuItemCols.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemCols.Text = "Columns";
+      this.toolStripMenuItemCols.ToolTipText = "Decide column visibility";
       this.toolStripMenuItemCols.Click += new System.EventHandler(this.OpenColumnsDialog);
       // 
       // toolStripMenuItemColumns
@@ -242,6 +247,7 @@ namespace CsvTools
       this.toolStripMenuItemFilterRemoveAllFilter.Name = "toolStripMenuItemFilterRemoveAllFilter";
       this.toolStripMenuItemFilterRemoveAllFilter.Size = new System.Drawing.Size(268, 30);
       this.toolStripMenuItemFilterRemoveAllFilter.Text = "Remove all Filter";
+      this.toolStripMenuItemFilterRemoveAllFilter.ToolTipText = "Remove all currently used column filters";
       this.toolStripMenuItemFilterRemoveAllFilter.Click += new System.EventHandler(this.ToolStripMenuItemFilterRemoveAll_Click);
       // 
       // toolStripMenuItemSortAscending
@@ -273,26 +279,35 @@ namespace CsvTools
       // 
       this.toolStripMenuItemFreeze.Name = "toolStripMenuItemFreeze";
       this.toolStripMenuItemFreeze.Size = new System.Drawing.Size(268, 30);
-      this.toolStripMenuItemFreeze.Text = "Freeze";
+      this.toolStripMenuItemFreeze.Text = "Freeze / Unfreeze Column";
+      this.toolStripMenuItemFreeze.ToolTipText = "Frozen: Column will stay visible during horizontal scrolling";
       this.toolStripMenuItemFreeze.Click += new System.EventHandler(this.ToolStripMenuItemFreeze_Click);
+      // 
+      // toolStripMenuItemFreeze2
+      // 
+      this.toolStripMenuItemFreeze2.Name = "toolStripMenuItemFreeze2";
+      this.toolStripMenuItemFreeze2.Size = new System.Drawing.Size(319, 30);
+      this.toolStripMenuItemFreeze2.Text = "Freeze / Unfreeze Column";
+      this.toolStripMenuItemFreeze2.ToolTipText = "Frozen: Column will stay visible during horizontal scrolling";
+      this.toolStripMenuItemFreeze2.Click += new System.EventHandler(this.ToolStripMenuItemFreeze_Click);
       // 
       // FilteredDataGridView
       // 
       this.AutoGenerateColumns = false;
-      dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
-      dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+      dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+      this.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+      this.RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
       this.RowTemplate.Height = 33;
       this.contextMenuStripCell.ResumeLayout(false);
       this.contextMenuStripHeader.ResumeLayout(false);
@@ -325,5 +340,6 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpenEditor;
     private System.Windows.Forms.ToolStripSeparator toolStripSeparatorCF;
+    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFreeze2;
   }
 }
