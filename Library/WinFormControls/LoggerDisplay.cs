@@ -51,6 +51,13 @@ namespace CsvTools
       WinAppLogging.AddLog(this);
     }
 
+    /// <inheritdoc />
+    public sealed override bool AllowDrop
+    {
+      get { return base.AllowDrop; }
+      set { base.AllowDrop = value; }
+    }
+
     [DefaultValue(LogLevel.Information)]
     public LogLevel MinLevel
     {

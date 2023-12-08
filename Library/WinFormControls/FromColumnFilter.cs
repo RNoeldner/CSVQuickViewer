@@ -30,11 +30,12 @@ namespace CsvTools
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
     private readonly ICollection<object> m_Values;
     private readonly int m_MaxCluster;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
     /// </summary>
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
-    /// <param name="columnValues">The data in teh column</param>
+    /// <param name="columnValues">The data in the column</param>
     /// <param name="maxCluster">Maximum number of clusters to show</param>
     public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
     {
@@ -69,17 +70,17 @@ namespace CsvTools
       listViewCluster.Items.Clear();
       foreach (var item in filtered)
       {
-        var lv_item = listViewCluster.Items.Add(new ListViewItem(new[] {
+        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] {
             item.Display,
-            item.Count.ToString("N0")}));
-        lv_item.Checked = item.Active;
+            item.Count.ToString("N0"), }));
+        lvItem.Checked = item.Active;
       }
       foreach (var item in m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => !filtered.Contains(x)))
       {
-        var lv_item = listViewCluster.Items.Add(new ListViewItem(new[] {
+        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] {
             item.Display,
-            item.Count.ToString("N0")}));
-        lv_item.ForeColor = System.Drawing.SystemColors.GrayText;
+            item.Count.ToString("N0"), }));
+        lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
 
       }
       listViewCluster.EndUpdate();
@@ -254,7 +255,7 @@ namespace CsvTools
         switch (result)
         {
           case BuildValueClustersResult.WrongType:
-            explain="Datatype did not match";
+            explain="Data type did not match";
             break;
           case BuildValueClustersResult.TooManyValues:
             explain="Too many different values";

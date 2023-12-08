@@ -66,7 +66,8 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-    /// <param name="showWriteNull"></param>
+    /// <param name="showWriteNull">If set to true, the "write null" option will be shown.</param>
+    /// <param name="enableChangeColumn">Allow to choose a different column</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUiRead(
       Column column,
@@ -361,11 +362,10 @@ namespace CsvTools
           var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
           foreach (var dateFormat in dateFormats)
           {
-            var fmt = (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat;
+            text.Add(StringConversion.DateTimeToString(sourceDate, 
+              (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's', }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
             text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
-              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
-            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
-              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
+              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's', }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
           }
           labelSampleDisplay.Text = text.Join(", ");
 
@@ -414,13 +414,6 @@ namespace CsvTools
         Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}",
           decimalSeparator, numberFormat, groupSeparator);
       }
-    }
-
-    private static void AddNotExisting(ICollection<string> list, string value,
-      IReadOnlyCollection<string>? otherList = null)
-    {
-      if (!list.Contains(value) && (otherList is null || !otherList.Contains(value)))
-        list.Add(value);
     }
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
