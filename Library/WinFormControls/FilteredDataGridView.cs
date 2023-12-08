@@ -46,6 +46,19 @@ namespace CsvTools
     private IFileSetting? m_FileSetting;
     private int m_ShowButtonAtLength = 1000;
     private int m_MenuItemColumnIndex;
+    private bool m_DataLoaded= true;
+
+    public bool DataLoaded
+    {
+      get => m_DataLoaded;
+      set
+      {
+        if (m_DataLoaded == value)
+          return;
+        m_DataLoaded = value;
+        this.SafeBeginInvoke(()=> toolStripMenuItemFilter.Enabled = value);       
+      }
+    }
 
     private void PassOnFontChanges(object? sender, EventArgs e)
     {
@@ -1034,7 +1047,8 @@ namespace CsvTools
       {
         // This does not work proprtly
         var filterExpression = FilterText(m_MenuItemColumnIndex);
-        using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key));
+        using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
+          m_DataLoaded);
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           SetRowHeight();

@@ -905,17 +905,15 @@ namespace CsvTools
         m_ToolStripButtonColumnLength.Enabled = hasData;
         m_ToolStripButtonHierarchy.Enabled = hasData;
         m_ToolStripButtonStore.Enabled = hasData;
-        m_ToolStripButtonStore.Enabled = hasData;
-
+        m_ToolStripButtonStore.Enabled = hasData;        
         toolStripButtonMoveLastItem.Enabled = hasData;
+        FilteredDataGridView.DataLoaded  =hasData;
         FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
         m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
 
-        m_ToolStripLabelCount.ForeColor =
-          m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
-        m_ToolStripLabelCount.ToolTipText =
-          m_SteppedDataTableLoader.EndOfFile ? "Total number of records" : "Total number of records (loaded so far)";
+        m_ToolStripLabelCount.ForeColor = m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
+        m_ToolStripLabelCount.ToolTipText = m_SteppedDataTableLoader.EndOfFile ? "Total number of records" : "Total number of records (loaded so far)";
 
         m_ToolStripTop.Visible = m_ShowButtons;
 
