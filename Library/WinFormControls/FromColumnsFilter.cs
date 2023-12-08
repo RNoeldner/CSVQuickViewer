@@ -99,7 +99,7 @@ namespace CsvTools
           m_Checked.Add(col);
 
         // Filter The check boxes
-        Filter(textBoxFilter.Text);
+        Filter(textBoxFilter.Text);        
       });
     }
 
