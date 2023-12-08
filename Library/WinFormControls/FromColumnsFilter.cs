@@ -26,22 +26,25 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FromColumnsFilter : ResizeForm
   {
-    private readonly List<DataGridViewColumn> Columns = new List<DataGridViewColumn>();
+    private readonly List<DataGridViewColumn> m_Columns = new List<DataGridViewColumn>();
     private readonly HashSet<string> m_Protected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> m_Checked = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    private readonly List<DataRow> Rows = new List<DataRow>();
+    private readonly List<DataRow> m_Rows = new List<DataRow>();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
     /// </summary>
-    /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
-    /// <param name="columnValues">The data in teh column</param>
-    public FromColumnsFilter(in DataGridViewColumnCollection columns, in IEnumerable<DataRow> dataRows, in IEnumerable<int> withFilter, bool allDataPresent = true)
+    /// <param name="columns">The data grid view columns. This is an input parameter.</param>
+    /// <param name="dataRows">The data in the columns. This is an input parameter.</param>
+    /// <param name="withFilter">Column indexes currently being filtered, these columns should not be hidden.</param>
+    /// <param name="allDataPresent">A boolean flag indicating whether all data is present, if not all i loaded  some functionality is not available</param>
+    public FromColumnsFilter(in DataGridViewColumnCollection columns, in IEnumerable<DataRow> dataRows,
+      in IEnumerable<int> withFilter, bool allDataPresent = true)
     {
-      Columns.AddRange(columns.OfType<DataGridViewColumn>());
-      Rows.AddRange(dataRows);
+      m_Columns.AddRange(columns.OfType<DataGridViewColumn>());
+      m_Rows.AddRange(dataRows);
 
-      foreach (var col in Columns)
+      foreach (var col in m_Columns)
       {
         if (col.Visible)
           m_Checked.Add(col.DataPropertyName);
@@ -58,13 +61,13 @@ namespace CsvTools
 
     private void AddItem(DataGridViewColumn item, bool filtered)
     {
-      var lv_item = listViewCluster.Items.Add(new ListViewItem(item.Name));
+      var lvItem = listViewCluster.Items.Add(new ListViewItem(item.Name));
       if (m_Protected.Contains(item.DataPropertyName))
-        lv_item.ForeColor = System.Drawing.SystemColors.Highlight;
+        lvItem.ForeColor = System.Drawing.SystemColors.Highlight;
       else if (!filtered)
-        lv_item.ForeColor = System.Drawing.SystemColors.GrayText;
+        lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
 
-      lv_item.Checked = m_Checked.Contains(item.DataPropertyName);
+      lvItem.Checked = m_Checked.Contains(item.DataPropertyName);
     }
 
     private void Filter(string filter)
@@ -72,10 +75,10 @@ namespace CsvTools
       listViewCluster.BeginUpdate();
       listViewCluster.Items.Clear();
 
-      var filtered = Columns.Where(x => string.IsNullOrEmpty(filter) || x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToArray();
+      var filtered = m_Columns.Where(x => string.IsNullOrEmpty(filter) || x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToArray();
       foreach (var item in filtered.OrderBy(x => x.DisplayIndex))
         AddItem(item, true);
-      foreach (var item in Columns.Where(x => !filtered.Contains(x)).OrderBy(x => x.DisplayIndex))
+      foreach (var item in m_Columns.Where(x => !filtered.Contains(x)).OrderBy(x => x.DisplayIndex))
         AddItem(item, false);
 
       listViewCluster.EndUpdate();
@@ -99,7 +102,7 @@ namespace CsvTools
           m_Checked.Add(col);
 
         // Filter The check boxes
-        Filter(textBoxFilter.Text);        
+        Filter(textBoxFilter.Text);
       });
     }
 
@@ -122,7 +125,7 @@ namespace CsvTools
           if (col.Checked)
           {
             var colName = col.SubItems[0].Text ?? col.Text;
-            col.Checked = Rows.Any(dataRow => dataRow[colName] != DBNull.Value);
+            col.Checked = m_Rows.Any(dataRow => dataRow[colName] != DBNull.Value);
           }
         }
       });
@@ -133,16 +136,13 @@ namespace CsvTools
       buttonApply.RunWithHourglass(() =>
       {
         // Apply the things
-        foreach (var col in Columns)
+        foreach (var col in m_Columns)
         {
-          if (m_Protected.Contains(col.DataPropertyName))
-            col.Visible = true;
-          else
-            col.Visible = listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
+          col.Visible = m_Protected.Contains(col.DataPropertyName) || listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
         }
-        // if nothing is visible any more unhide first column
-        if (Columns.Count>0 && !Columns.Any(x => x.Visible))
-          Columns.First().Visible = true;
+        // if nothing is visible any more un-hide first column
+        if (m_Columns.Count>0 && !m_Columns.Any(x => x.Visible))
+          m_Columns.First().Visible = true;
       });
     }
 

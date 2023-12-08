@@ -400,11 +400,6 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private void AutoResizeColumns()
-    {
-      FilteredDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-    }
-
     private void SearchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
     {
       // Start the search

@@ -91,7 +91,7 @@ namespace CsvTools
       }
 
       formProgress.SetMaximum(0);
-      formProgress.Report(new ProgressInfo($"Finished reading file"));
+      formProgress.Report(new ProgressInfo("Finished reading file"));
 
       return sb.ToString();
     }
