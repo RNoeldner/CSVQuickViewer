@@ -729,14 +729,7 @@ namespace CsvTools
         best = kv.Value;
         possibleDateSeparators.Add(kv.Key);
       }
-
-      // Ideally we should have exactly one separator
-      if (possibleDateSeparators.Count > 1)
-      {
-        // in case nothing was found matches are 0 rows, we will check all though....
-        if (best > 0)
-          Logger.Warning("Multiple possible date separators : {dateSeparators}", possibleDateSeparators);
-      }
+     
 
       foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
