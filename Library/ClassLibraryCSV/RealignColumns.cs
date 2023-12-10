@@ -147,7 +147,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Looking ate the text sets certain flags
+    ///   Looking at the text sets certain flags
     /// </summary>
     /// <param name="text">The column information, best is trimmed</param>
     /// <returns>The appropriate column options</returns>

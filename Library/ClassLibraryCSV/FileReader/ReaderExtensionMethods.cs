@@ -53,7 +53,7 @@ namespace CsvTools
 #if !QUICK
     /// <summary>
     /// Gets a reader for a source that reads everything as text columns, 
-    /// e.g for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
+    /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
     /// </summary>
     /// <param name="source">The initial source setting </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
@@ -65,7 +65,7 @@ namespace CsvTools
       fileSettingCopy.ColumnCollection.Clear();
 
       // Make sure that if we do have a CSV file without header that we will skip the first row
-      // that might contain headers, but its simply set as without headers.
+      // that might contain headers, but it's simply set as without headers.
       if (fileSettingCopy is ICsvFile csv)
       {
         if (!csv.HasFieldHeader)
@@ -103,7 +103,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataReader">The dataReader / row with the columns</param>
     /// <param name="columns">A collection of columns indexes to combine</param>
-    /// <param name="combineWith">A seperator for the columns contend</param>
+    /// <param name="combineWith">A separator for the columns contend</param>
     /// <param name="trimming">The columns will be trimmed, if trimming happens, this action is to be performed</param>
     /// <returns>An upper case text representation</returns>
     public static string GetCombinedKey(this IDataReader dataReader, IReadOnlyCollection<int>? columns, char combineWith, Action<int>? trimming = null)
@@ -147,7 +147,7 @@ namespace CsvTools
     ///   original passed in data table is returned, no artificial columns are added
     /// </param>
     /// <param name="maxDuration">
-    ///   Timeout duration for reading data, if the reader is slow or it has many rows make sure the
+    ///   Timeout duration for reading data, if the reader is slow, or it has many rows make sure the
     ///   timespan is big enough, otherwise teh result is cut off
     /// </param>
     /// <param name="restoreErrorsFromColumn">

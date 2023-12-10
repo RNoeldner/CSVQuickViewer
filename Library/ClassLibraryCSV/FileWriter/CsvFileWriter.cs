@@ -198,7 +198,7 @@ namespace CsvTools
       {
         foreach (var columnInfo in columns)
         {
-          sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength, null));
+          sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength));
           if (!m_IsFixedLength && columnInfo != lastCol)
             sb.Append(m_FieldDelimiter);
         }
@@ -277,7 +277,7 @@ namespace CsvTools
 
       // New line of any kind will be replaced with the placeholder if set
       if (m_NewLinePlaceholder.Length > 0)
-        text = StringUtils.HandleCrlfCombinations(text, m_NewLinePlaceholder);
+        text = text.HandleCrlfCombinations(m_NewLinePlaceholder);
 
       // Delimiter  e.G. ; replaced with the placeholder or escaped 
       if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)

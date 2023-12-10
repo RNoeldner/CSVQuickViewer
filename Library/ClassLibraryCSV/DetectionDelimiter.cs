@@ -110,14 +110,14 @@ namespace CsvTools
               intEmptyRows++;
           }
 
-          // if a lot rows do not have a columns disregard the delimiter
+          // if a lot of rows do not have a columns disregard the delimiter
           if (intEmptyRows  > totalRows * 2 /3)
             continue;
 
           // Get the average of the rows
           var avg = (int) Math.Ceiling(sumCount / totalRows);
 
-          // Only proceed if there is usually more then one occurrence and we have more then one row
+          // Only proceed if there is usually more than one occurrence, and we have more then one row
           if (avg < 1 || delimiterCounter.SeparatorRows[index] == 1)
             continue;
 

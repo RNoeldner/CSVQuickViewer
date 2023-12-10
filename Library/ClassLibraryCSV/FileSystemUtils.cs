@@ -578,7 +578,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Resolve placeholders in file names and find the latest fiel to match the pattern
+    /// Resolve placeholders in file names and find the latest field to match the pattern
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>

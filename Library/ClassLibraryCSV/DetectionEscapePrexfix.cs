@@ -23,7 +23,7 @@ namespace CsvTools
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
 
-      // The characters that could be an escape, most likely its a \ 
+      // The characters that could be an escape, most likely it's a \ 
       var checkedEscapeChars = StaticCollections.EscapePrefixChars;
 
       // build a list of all characters that would indicate a sequence
@@ -45,7 +45,7 @@ namespace CsvTools
       for (int current = 0; current< 500 && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested; current++)
       {
         var line = (await textReader.ReadLineAsync().ConfigureAwait(false));
-        // in case non of the possible escapes is in the line skip it...
+        // in case none of the possible escapes is in the line skip it...
         if (line.IndexOfAny(checkedEscapeChars)==-1)
           continue;
         // otherwise check each escape 

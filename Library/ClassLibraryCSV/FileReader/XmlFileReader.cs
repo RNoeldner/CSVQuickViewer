@@ -168,7 +168,7 @@ namespace CsvTools
 
         // get column names for some time
         InitColumn(columnNames.Count);
-        ParseColumnName(columnNames, null, true);
+        ParseColumnName(columnNames);
         FinishOpen();
         ResetPositionToStartOrOpen();
       }
@@ -278,9 +278,9 @@ namespace CsvTools
     private XmlNode? GetStartNode()
     {
       var items = m_Doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.Element).ToList();
-      // go deeper until we havbe some a list of child nodes
+      // go deeper until we have some a list of child nodes
       while (items != null && items.Count ==1)
-        items = items?.FirstOrDefault(x => x.ChildNodes.Count >1)?.ChildNodes.OfType<XmlNode>().ToList();
+        items = items.FirstOrDefault(x => x.ChildNodes.Count >1)?.ChildNodes.OfType<XmlNode>().ToList();
       return (items?.Count ?? 0) >0 ? items?.First() : null;
     }
 

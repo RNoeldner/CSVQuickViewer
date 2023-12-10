@@ -41,7 +41,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="item">The item to add</param>
     /// <remarks>
-    ///   In case the the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
+    ///   In case the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
     ///   this case any change to the passed in item would not be reflected in the collection
     /// </remarks>
     /// <returns>

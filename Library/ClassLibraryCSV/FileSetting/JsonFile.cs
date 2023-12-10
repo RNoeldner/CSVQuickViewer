@@ -25,7 +25,7 @@ namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.StructuredFile" />
   /// <summary>
-  ///   Setting file for Json files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
+  ///   Setting file for Json files, it's an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
   public sealed class JsonFile : StructuredFile, IJsonFile
@@ -48,7 +48,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="id"></param>
     /// <param name="fileName">Name of the file.</param>
-    /// <param name="row">Writing Json this this is the definition</param>
+    /// <param name="row">Writing Json this is the definition</param>
     [JsonConstructor]
     public JsonFile(in string? id, in string? fileName, in string? row = "")
       : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)

@@ -110,7 +110,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the a short representation of the text.
+    ///   Gets the short representation of the text.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
@@ -238,7 +238,7 @@ namespace CsvTools
     ///   Used to get text without control characters
     /// </summary>
     /// <param name="original">The original text.</param>
-    /// <returns>The original text without control characters</returns>
+    /// <returns>The original text without U+0000 through U+001F or U+0080 through U+009F. but keeping \r\n</returns>
     public static string NoControlCharacters(this string original)
     {
       var chars = new char[original.Length];
@@ -252,6 +252,11 @@ namespace CsvTools
       return new string(chars, 0, count);
     }
 
+    /// <summary>
+    ///   Used to get text without control characters, line feeds are passed on
+    /// </summary>
+    /// <param name="original">The original text.</param>
+    /// <returns>The original text without U+0000 through U+001F or U+0080 through U+009F. but keeping \r\n</returns>
     public static ReadOnlySpan<char> NoControlCharacters(this ReadOnlySpan<char> original)
     {
       // not using Stackalloc as chars could not stay on stack anyway.
@@ -277,6 +282,7 @@ namespace CsvTools
         original,
         x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
                                                   || x == UnicodeCategory.DecimalDigitNumber);
+
     public static ReadOnlySpan<char> NoSpecials(this ReadOnlySpan<char> original) =>
       ProcessByCategory(
         original,
@@ -485,7 +491,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
-    ///   if its a number; if not its assume is a reference to another field
+    ///   if it's a number; if not its assume is a reference to another field
     /// </summary>
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
     /// <param name="result">The constant value without the " or '</param>

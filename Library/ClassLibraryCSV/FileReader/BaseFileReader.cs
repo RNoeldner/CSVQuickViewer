@@ -624,10 +624,10 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column meta data of
+    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column metadata of
     ///   the <see cref="T:System.Data.IDataReader" /> .
     /// </summary>
-    /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column meta data.</returns>
+    /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column metadata.</returns>
     /// <exception cref="T:System.InvalidOperationException">
     ///   The <see cref="T:System.Data.IDataReader" /> is closed.
     /// </exception>
@@ -794,7 +794,7 @@ namespace CsvTools
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
     ///   ParseColumnName and last FinishOpen
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
     
     /// <summary>
@@ -809,7 +809,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>true if read was successful</returns>
     /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
@@ -838,13 +838,13 @@ namespace CsvTools
         inputString = inputString.Trim();
 
       if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
-        return StringUtils.ShouldBeTreatedAsNull(inputString.ToString().Replace((char) 0xA0, ' ').AsSpan(), treatTextAsNull) ? Array.Empty<char>() : inputString;
+        return inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
       else
-        return StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull) ? Array.Empty<char>() : inputString;
+        return inputString.ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
     }
 
     /// <summary>
-    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a
+    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if it's a
     ///   physical file
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
@@ -1070,9 +1070,9 @@ namespace CsvTools
     /// <summary>
     ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
     ///   maximum column size
-    ///   Attention: Trimming needs to be handled before hand
+    ///   Attention: Trimming needs to be handled beforehand
     /// </summary>
-    /// <param name="inputString">The input string.</param>
+    /// <param name="span">The input string.</param>
     /// <param name="ordinal">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     protected virtual ReadOnlySpan<char> HandleTextSpecials(ReadOnlySpan<char> span, int ordinal)
@@ -1113,7 +1113,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Parses the name of the columns and sets the data types, it will handle TimePart and
-    ///   TimeZone. Column must be set before hand
+    ///   TimeZone. Column must be set beforehand
     /// </summary>
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>

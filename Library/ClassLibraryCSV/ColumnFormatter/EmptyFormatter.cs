@@ -20,7 +20,7 @@ namespace CsvTools
 {
   public sealed class EmptyFormatter : BaseColumnFormatter
   {
-    public static EmptyFormatter Instance = new EmptyFormatter();
+    public static readonly EmptyFormatter Instance = new EmptyFormatter();
 
     /// <inheritdoc/>
     public override string FormatInputText(in string inputString, in Action<string>? handleWarning) => inputString;

@@ -53,7 +53,7 @@ namespace CsvTools
         else
         {
           positiveMatches++;
-          // if we have 5 hits or only one fail (for very low number of sample values, assume its a
+          // if we have 5 hits or only one fail (for very low number of sample values, assume it's a
           // possible match
           if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
           checkResult.PossibleMatch = true;
@@ -148,7 +148,7 @@ namespace CsvTools
         }
         else
         {
-          // if the value contains the decimal separator or is too large to be an integer, its not
+          // if the value contains the decimal separator or is too large to be an integer, it's not
           // an integer
           if (value.Span.IndexOf(decimalSeparator) != -1)
             assumeInteger = false;
@@ -235,7 +235,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if a text does contains indications that suggest to use something else than DataType.String
+    ///   Check if a text does contain indications that suggest to use something else than DataType.String
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>

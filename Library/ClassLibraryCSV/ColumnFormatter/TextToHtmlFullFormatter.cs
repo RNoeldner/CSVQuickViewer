@@ -21,15 +21,11 @@ namespace CsvTools
 {
   public class TextToHtmlFullFormatter : BaseColumnFormatter
   {
-    public static TextToHtmlFullFormatter Instance = new TextToHtmlFullFormatter();
+    public static readonly TextToHtmlFullFormatter Instance = new TextToHtmlFullFormatter();
 
     /// <inheritdoc/>
-    public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
-    {
-      if (dataObject is null)
-        return string.Empty;
-      return HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
-    }
+    public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning) => 
+      dataObject is null ? string.Empty : HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
 
     /// <inheritdoc/>
     public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
@@ -39,7 +35,7 @@ namespace CsvTools
         handleWarning?.Invoke($"HTML encoding removed from {inputString}");
       return output!;
     }
-
+    /// <inheritdoc/>
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
     => HtmlStyle.HtmlEncodeShort(inputString.ToString()).AsSpan();
 

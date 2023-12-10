@@ -261,7 +261,7 @@ namespace CsvTools
             case JsonToken.Float:
             case JsonToken.String:
             case JsonToken.Boolean:
-              // in case there is a property its a real column, otherwise its used for structuring only
+              // in case there is a property it's a real column, otherwise it's used for structuring only
               headers[key] = true;
 
               // in case we are in an array combine all values but separate them with linefeed
@@ -304,7 +304,7 @@ namespace CsvTools
           keyValuePairs.Remove(kv.Key);
 
         // store the information into our fixed structure, even if the tokens in Json change order
-        // they will aligned
+        // they will align
         if (Column.Length == 0) return keyValuePairs;
         var columnNumber = 0;
         foreach (var col in Column)
@@ -326,7 +326,7 @@ namespace CsvTools
               // ReSharper disable once MergeIntoPattern
               if (!string.IsNullOrEmpty(orgVal) && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
-                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber)).ToString();
+                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber));
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }

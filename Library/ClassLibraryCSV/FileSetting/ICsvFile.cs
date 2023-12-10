@@ -22,7 +22,7 @@ namespace CsvTools
   public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
   {
     /// <summary>
-    ///   Gets or sets a value indicating whether rows should combined if there are less columns.
+    ///   Gets or sets a value indicating whether rows should combined if there are fewer columns.
     /// </summary>
     /// <value>
     ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
@@ -33,7 +33,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether a file is most likely not a delimited file
     /// </summary>
     /// <value>
-    ///   <c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.
+    ///   <c>true</c> if the file is assumed to be a non-delimited file; otherwise, <c>false</c>.
     /// </value>
     bool NoDelimitedFile { get; set; }
 
@@ -146,12 +146,12 @@ namespace CsvTools
     bool QualifyOnlyIfNeeded { get; set; }
 
     /// <summary>
-    ///  The resulting file shoudl not use delimiters but instaed use fixed length columns
+    ///  The resulting file should not use delimiters but instead use fixed length columns
     /// </summary>
     bool WriteFixedLength { get; set; }
 
     /// <summary>
-    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, its
+    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, It's
     ///   similar to escaping but could replace a Quote with something completely different or a
     ///   longer text, e.G. {Quote}
     /// </summary>
@@ -165,7 +165,7 @@ namespace CsvTools
     string NewLinePlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
+    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
     ///   similar to escaping but could replace a Quote with something completely different or a
     ///   longer text, e.G. {Delimiter}
     /// </summary>
@@ -173,7 +173,7 @@ namespace CsvTools
     string DelimiterPlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether context sensitive qualification is used
+    ///   Gets or sets a value indicating whether context-sensitive qualification is used
     /// </summary>    
     bool ContextSensitiveQualifier { get; set; }
 

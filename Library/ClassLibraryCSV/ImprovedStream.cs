@@ -13,7 +13,6 @@
  */
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -309,7 +308,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Depending on type call call other Methods to work with teh stream
+    /// Depending on type call other Methods to work with teh stream
     /// </summary>
     private void OpenByFileType(FileTypeEnum fileType)
     {
@@ -471,6 +470,7 @@ namespace CsvTools
         try
         {
           m_ZipFile.GetEnumerator();
+
 #if SupportPGP
           // store the password it is correct...
           if (!string.IsNullOrEmpty(pass))
@@ -535,6 +535,7 @@ namespace CsvTools
         using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
         {
           var entryEnumerator = zipFileTest.GetEnumerator();
+
           while (entryEnumerator.MoveNext())
           {
             if (!(entryEnumerator.Current is ZipEntry zipEntry))
@@ -545,6 +546,7 @@ namespace CsvTools
               break;
             }
           }
+
         }
 
         if (copyOtherFiles)
@@ -555,7 +557,7 @@ namespace CsvTools
           {
             File.Copy(m_SourceAccess.FullPath, tmpName, true);
 
-            // build a new Zip file with the contend of the old one but export the file we are about
+            // build a new Zip file with the contents of the old one but export the file we are about
             // to write
             using var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName));
             var entryEnumerator = zipFile.GetEnumerator();

@@ -19,7 +19,7 @@ using System.Linq;
 namespace CsvTools
 {
   /// <summary>
-  ///   Collection of static functions for string in regards to type conversions
+  ///   Collection of static functions for string in regard to type conversions
   /// </summary>
   public static class StringConversion
   {

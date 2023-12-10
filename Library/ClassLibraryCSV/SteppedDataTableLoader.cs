@@ -24,7 +24,7 @@ namespace CsvTools
     /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
     /// <param name="addErrorField">if set to <c>true</c> include error column.</param>
     /// <param name="restoreError">Restore column and row errors from error columns</param>
-    /// <param name="durationInitial">The duration for the initial initial.</param>
+    /// <param name="durationInitial">The duration for the initial load</param>
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -65,7 +65,7 @@ namespace CsvTools
 
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField);
 
-      // the initial progress is set on the source reader, no need to pass it in, when alling GetNextBatch this needs to be set though
+      // the initial progress is set on the source reader, no need to pass it in, when calling GetNextBatch this needs to be set though
       await GetNextBatch(null, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
     }
 
@@ -87,7 +87,7 @@ namespace CsvTools
       Logger.Debug("Getting batch");
       var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, restoreError, progress, cancellationToken).ConfigureAwait(false);
 
-      // for Debugging its nice to know where it all came form
+      // for Debugging It's nice to know where it all came form
       if (!string.IsNullOrEmpty(m_Id))
         dt.TableName = m_Id;
       try
