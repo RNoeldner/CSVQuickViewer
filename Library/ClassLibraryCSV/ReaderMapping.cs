@@ -22,7 +22,7 @@ namespace CsvTools
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
     /// <summary>
-    ///   Maps the columns of the data reader for an reader wrapper, taking care of ignored and
+    ///   Maps the columns of the data reader for a reader wrapper, taking care of ignored and
     ///   artificial columns
     /// </summary>
     /// <param name="dataReader">

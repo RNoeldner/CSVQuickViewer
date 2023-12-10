@@ -1,23 +1,24 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace CsvTools.Tests
-{   
+{
   [TestClass]
   public class StringUtilsTests
   {
@@ -176,7 +177,15 @@ namespace CsvTools.Tests
       Assert.AreEqual("12", "12_&§$".NoSpecials());
       Assert.AreEqual("aabb", " aa_bb  ".NoSpecials());
     }
-
+    [TestMethod]
+    [Timeout(200)]
+    public void NoSpecials2()
+    {
+      Assert.AreEqual(string.Empty, " ".AsSpan().NoSpecials().ToString());
+      Assert.AreEqual("aabb", "aabb".AsSpan().NoSpecials().ToString());
+      Assert.AreEqual("12", "12_&§$".AsSpan().NoSpecials().ToString());
+      Assert.AreEqual("aabb", " aa_bb  ".AsSpan().NoSpecials().ToString());
+    }
     [TestMethod]
     [Timeout(200)]
     public void SqlName()
@@ -188,13 +197,29 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(200)]
+    public void SqlName2()
+    {
+      Assert.AreEqual(@"", @"".AsSpan().SqlName().ToString());
+      Assert.AreEqual(@"ValidationTask", @"ValidationTask".AsSpan().SqlName().ToString());
+      Assert.AreEqual(@"Validation]]Task", @"Validation]Task".AsSpan().SqlName().ToString());
+    }
+
+    [TestMethod]
+    [Timeout(200)]
     public void SqlQuote()
     {
       Assert.AreEqual(@"", @"".SqlQuote());
       Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlQuote());
-      Assert.AreEqual(@"Validation''Task", @"Validation'Task".SqlQuote());      
+      Assert.AreEqual(@"Validation''Task", @"Validation'Task".SqlQuote());
     }
-
+    [TestMethod]
+    [Timeout(200)]
+    public void SqlQuote2()
+    {
+      Assert.AreEqual(@"", @"".AsSpan().SqlQuote().ToString());
+      Assert.AreEqual(@"ValidationTask", @"ValidationTask".AsSpan().SqlQuote().ToString());
+      Assert.AreEqual(@"Validation''Task", @"Validation'Task".AsSpan().SqlQuote().ToString());
+    }
     [TestMethod]
     [Timeout(200)]
     public void SafeFileName()
@@ -255,6 +280,51 @@ namespace CsvTools.Tests
       Assert.AreEqual("This is a test", HtmlStyle.TextToHtmlEncode("This is a test"));
       Assert.AreEqual("This is a test", HtmlStyle.TextToHtmlEncode("This is a\ttest"));
       Assert.AreEqual("This is a<br>test", HtmlStyle.TextToHtmlEncode("This is a\ntest"));
+    }
+
+    [TestMethod()]
+    public void AssumeIdColumnTest()
+    {
+      Assert.AreEqual(2, StringUtils.AssumeIdColumn("testId".AsSpan()));
+      Assert.AreEqual(3, StringUtils.AssumeIdColumn(" id".AsSpan()));
+    }
+
+    [TestMethod()]
+    public void ToSecureStringTest()
+    {
+      var enc = "testId".ToSecureString();
+      Assert.IsInstanceOfType("testId".ToSecureString(), typeof(System.Security.SecureString));
+      Assert.AreEqual("testId", enc.GetText());
+
+      try
+      {
+        StringUtils.ToSecureString(null);
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+    }
+
+    [TestMethod()]
+    public void NoControlCharactersTest()
+    {
+      Assert.AreEqual("Test", "Test".AsSpan().NoControlCharacters().ToString());
+      Assert.AreEqual("Test", "Te\tst".AsSpan().NoControlCharacters().ToString());
+      Assert.AreEqual("Test", "T\be\tst".AsSpan().NoControlCharacters().ToString());
+    }
+
+    [TestMethod()]
+    public void TryGetConstantTest()
+    {
+      Assert.IsTrue("'15'".AsSpan().TryGetConstant(out var result));
+      Assert.AreEqual("15", result.ToString());
+
+      Assert.IsTrue("\"-115.6\"".AsSpan().TryGetConstant(out var result2));
+      Assert.AreEqual("-115.6", result2.ToString());
     }
   }
 }

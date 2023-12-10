@@ -32,6 +32,7 @@ namespace CsvTools
       m_Font=font ?? "Segoe UI";
       m_FontSize=fontSize ?? 8.25F;
     }
+
     public string Font => m_Font;
     public float FontSize => m_FontSize;
   }

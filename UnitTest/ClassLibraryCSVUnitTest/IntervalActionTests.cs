@@ -35,6 +35,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void IntervalActionError()
+    {
+      var intervalAction = new IntervalAction();
+      intervalAction.Invoke(()=> throw new ObjectDisposedException("dummy"));
+      intervalAction.Invoke((t)=> throw new ObjectDisposedException(t), "test");
+    }
+
+    [TestMethod]
     public async Task InvokeAsync()
     {
       long setValue = -1;

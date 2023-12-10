@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace CsvTools.Tests
@@ -138,40 +139,63 @@ namespace CsvTools.Tests
     public void TextToHtmlFormatterTest()
     {
       var called = false;
-      var fmter = new TextToHtmlFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
+      var textToHtml = new TextToHtmlFormatter();
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("Hello World", fmter.FormatInputText("Hello\tWorld", _ => called = true));
+      Assert.AreEqual("Hello World", textToHtml.FormatInputText("Hello\tWorld", _ => called = true));
       Assert.IsTrue(called);
     }
 
     [TestMethod]
     public void TextToHtmlFormatterWriteTest()
     {
-      var fmter = new TextToHtmlFormatter();
-      Assert.AreEqual("Hello", fmter.Write("Hello", null, null));
-      Assert.AreEqual("<br>", fmter.Write("\r", null, null));
+      var textToHtml = new TextToHtmlFormatter();
+      Assert.AreEqual("Hello", textToHtml.Write("Hello", null, null));
+      Assert.AreEqual("<br>", textToHtml.Write("\r", null, null));
     }
 
+    [TestMethod]
+    public void TextToHtmlFullFormatterWrite()
+    {
+      var textToHtml = new TextToHtmlFullFormatter();
+      var dao = new DateTime(2012, 10, 11, 9, 34, 55, 0);
+      Assert.AreEqual(dao.ToString(CultureInfo.CurrentCulture), textToHtml.Write(dao, null, null));
+
+    }
+    
     [TestMethod]
     public void TextToHtmlFullFormatterTest()
     {
       var called = false;
-      var fmter = new TextToHtmlFullFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
+      var textToHtml = new TextToHtmlFullFormatter();
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello".AsSpan()).ToString());
+
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("&lt;&gt;", fmter.FormatInputText("<>", _ => called = true));
+      
+      Assert.AreEqual("&lt;&gt;", textToHtml.FormatInputText("<>", _ => called = true));
       Assert.IsTrue(called);
+    }
+    
+
+    [TestMethod]
+    public void EmptyFormatterTest()
+    {
+      var called = false;
+      var textToHtml = new EmptyFormatter();
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello".AsSpan()).ToString());
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
+      Assert.IsFalse(called);
     }
 
     [TestMethod]
     public void TextUnescapeFormatterTest()
     {
       var called = false;
-      var fmter = new TextUnescapeFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
+      var textToHtml = new TextUnescapeFormatter();
+      Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("\n\x0020\r", fmter.FormatInputText(@"\n\x0020\r", _ => called = true));
+      Assert.AreEqual("\n\x0020\r", textToHtml.FormatInputText(@"\n\x0020\r", _ => called = true));
       Assert.IsTrue(called);
     }
 

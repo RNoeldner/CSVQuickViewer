@@ -108,7 +108,7 @@ namespace CsvTools
       }
       else
       {
-        // remove itmes from queue if not needed
+        // remove items from queue if not needed
         var expireBefore = DateTime.UtcNow - m_MaximumAge;
         var firstItem = m_Queue.Peek();
         while (m_Queue.Count > m_MinimumData && firstItem.DateTime < expireBefore)
@@ -162,7 +162,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Displays the timespan in a human readable format
+    ///   Displays the timespan in a human-readable format
     /// </summary>
     /// <param name="value">The value.</param>
     /// <param name="cut2Sec">If true any value shorter than 2 seconds will be empty</param>

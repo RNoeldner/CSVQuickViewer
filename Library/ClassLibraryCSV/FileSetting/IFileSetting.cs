@@ -97,7 +97,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether this setting is critical for the export, meaning
     ///   the processing will throw an error in case of problems. You can flag a setting to not be
-    ///   validated but it should show up as critical import step
+    ///   validated, but it should show up as critical import step
     /// </summary>
     /// <value><c>true</c> if this file is of higher importance; otherwise, <c>false</c>.</value>
     bool InOverview { get; set; }

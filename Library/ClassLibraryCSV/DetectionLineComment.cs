@@ -12,7 +12,7 @@ namespace CsvTools
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="fieldDelimiterChar">The delimiter.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>true if the comment line seems to ne ok</returns>
+    /// <returns>true if the comment line seems to be ok</returns>
     public static async Task<bool> InspectLineCommentIsValidAsync(
       this ImprovedTextReader textReader,
       string commentLine,

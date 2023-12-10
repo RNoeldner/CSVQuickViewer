@@ -186,7 +186,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="data">The class to be serialized</param>
     /// <param name="fileName">The filename to store the serialization text</param>
-    /// <param name="askOverwrite">Function to call if teh file does exists, if left empty the file will be overwritten</param>
+    /// <param name="askOverwrite">Function to call if teh file does exist, if left empty the file will be overwritten</param>
     /// <param name="withBackup">If <c>true</c> backups are </param>
     /// <returns></returns>
     public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null,
@@ -256,7 +256,7 @@ namespace CsvTools
       saveSetting.Header = string.Empty;
       saveSetting.Footer = string.Empty;
 
-      // remove not needed Columns so they do not play into comparison
+      // remove not needed Columns, so they do not play into comparison
       saveSetting.ColumnCollection.Clear();
       foreach (var col in fileSettingPhysicalFile.ColumnCollection)
         if (col.Ignore || (col.ValueFormat.DataType == DataTypeEnum.String && col.Convert)

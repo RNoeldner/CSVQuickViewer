@@ -83,7 +83,7 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(ValueFormatMut));
         if (args.PropertyName is null)
           return;
-        // If the value types changes to to something else but string, assume we need to convert
+        // If the value types changes to something else but string, assume we need to convert
         if (args.PropertyName.Equals(nameof(ValueFormat.DataType)) && sender is ValueFormatMut valueFormat)
           Convert = valueFormat.DataType != DataTypeEnum.String;
       };
@@ -298,7 +298,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether this <see cref="ColumnMut" /> is convert. Only used
     ///   to read a typed value as text
     /// </summary>
-    /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if the column should be converted; otherwise, <c>false</c>.</value>
 #if XmlSerialization
 [XmlAttribute]
 #endif
@@ -324,7 +324,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the column should be ignore reading a file
+    ///   Gets or sets a value indicating whether the column should be ignored reading a file
     /// </summary>
     /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
 #if XmlSerialization
