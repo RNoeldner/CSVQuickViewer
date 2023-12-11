@@ -153,17 +153,22 @@ namespace CsvTools
       if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
         throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
 
-      var qualifyList = new List<char>(3);
+      var qualifyList = new List<char>(4);
 
       // need quoting in case of new line that is not handled by placeholder
-      if (!string.IsNullOrEmpty(m_NewLinePlaceholder))
+      if (string.IsNullOrEmpty(m_NewLinePlaceholder))
       {
         qualifyList.Add((char) 0x0a);
         qualifyList.Add((char) 0x0d);
       }
+
       // need quoting in case of a not escaped delimiter
       if (!m_HasEscapePrefix)
+      {
+        qualifyList.Add(m_FieldQualifier);
         qualifyList.Add(m_FieldDelimiter);
+      }
+        
 
       m_QualifyCharArray = qualifyList.ToArray();
     }
