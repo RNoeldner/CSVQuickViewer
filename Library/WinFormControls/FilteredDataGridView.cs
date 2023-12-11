@@ -20,7 +20,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -44,7 +46,7 @@ namespace CsvTools
     private IFileSetting? m_FileSetting;
     private int m_ShowButtonAtLength = 1000;
     private int m_MenuItemColumnIndex;
-    private bool m_DataLoaded= true;
+    private bool m_DataLoaded = true;
 
     public bool DataLoaded
     {
@@ -54,7 +56,6 @@ namespace CsvTools
         if (m_DataLoaded == value)
           return;
         m_DataLoaded = value;
-        this.SafeBeginInvoke(()=> toolStripMenuItemFilter.Enabled = value);       
       }
     }
 
@@ -250,11 +251,11 @@ namespace CsvTools
     internal DataView? DataView { get; private set; }
 
     /// <summary>
-    /// Get the filter for all columns but the one column specified
+    /// Get the filter for all columns but the one cloumn specified
     /// </summary>
     /// <param name="exclude">The column index</param>
     /// <returns>The filter statement</returns>
-    public string FilterText(int exclude) => m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
+    public string GetFilterExpression(int exclude) => m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
 
     /// <summary>
     ///   Applies the filters.
@@ -262,7 +263,7 @@ namespace CsvTools
     public void ApplyFilters() =>
       this.RunWithHourglass(() =>
         {
-          var bindingSourceFilter = FilterText(-1);
+          var bindingSourceFilter = GetFilterExpression(-1);
           toolStripMenuItemFilterRemoveAllFilter.Enabled = bindingSourceFilter.Length > 0;
 
           // Apply the filter only if any changes occurred
@@ -485,11 +486,18 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private static int Measure(IDeviceContext dc, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
+    private static string DefFileNameColSetting(IFileSetting fileSetting, string extension)
+    {
+      var defFileName = fileSetting.ID;
+      var index = defFileName.LastIndexOf('.');
+      return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
+    }
+
+    private static int Measure(Graphics grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
       Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
     {
       var max = Math.Min(
-        TextRenderer.MeasureText(dc, col.ColumnName, font).Width,
+        TextRenderer.MeasureText(grap, col.ColumnName, font).Width,
         maxWidth);
       var counter = 0;
       var lastIncrease = 0;
@@ -504,7 +512,7 @@ namespace CsvTools
           break;
         if (check.Text.Length>0)
         {
-          var width = TextRenderer.MeasureText(dc, check.Text, font).Width;
+          var width = TextRenderer.MeasureText(grap, check.Text, font).Width;
           if (width > max)
           {
             lastIncrease= counter;
@@ -522,33 +530,32 @@ namespace CsvTools
     /// </summary>
     /// <param name="col"></param>
     /// <param name="rowCollection"></param>
-    /// <param name="token"></param>
     /// <returns>A number for DataGridViewColumn.With</returns>
     private int GetColumnWith(DataColumn col, DataRowCollection rowCollection, CancellationToken token)
     {
-      using var graphics = CreateGraphics();
+      using var grap = CreateGraphics();
 
       if (col.DataType == typeof(Guid))
-        return Math.Max(TextRenderer.MeasureText(graphics, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
-                        TextRenderer.MeasureText(graphics, col.ColumnName, Font).Width);
+        return Math.Max(TextRenderer.MeasureText(grap, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) || col.DataType == typeof(decimal))
-        return Math.Max(TextRenderer.MeasureText(graphics, "626727278.00", Font).Width,
-                        TextRenderer.MeasureText(graphics, col.ColumnName, Font).Width);
+        return Math.Max(TextRenderer.MeasureText(grap, "626727278.00", Font).Width,
+                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(DateTime))
-        return Measure(graphics, Font, Width /2, col, rowCollection,
+        return Measure(grap, Font, Width /2, col, rowCollection,
           value => ((value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty, false), token);
 
       if (col.DataType == typeof(string))
-        return Measure(graphics, Font, Width /2, col, rowCollection,
+        return Measure(grap, Font, Width /2, col, rowCollection,
           value =>
           {
             var txt = value?.ToString() ?? string.Empty;
             return (txt, txt.Length > m_ShowButtonAtLength);
           }, token);
 
-      return Math.Min(Width /2, Math.Max(TextRenderer.MeasureText(graphics, "dummy", Font).Width, TextRenderer.MeasureText(graphics, col.ColumnName, Font).Width));
+      return Math.Min(Width /2, Math.Max(TextRenderer.MeasureText(grap, "dummy", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width));
     }
 
     public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
@@ -586,7 +593,7 @@ namespace CsvTools
         m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
-      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
+      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
         return m_DefRowHeight * 2;
 
       return m_DefRowHeight;
@@ -1037,8 +1044,8 @@ namespace CsvTools
     {
       this.RunWithHourglass(() =>
       {
-        // This does not work properly
-        var filterExpression = FilterText(m_MenuItemColumnIndex);
+        // This does not work proprtly
+        var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
         using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
           m_DataLoaded);
         if (filterPopup.ShowDialog() == DialogResult.OK)
@@ -1050,13 +1057,16 @@ namespace CsvTools
     }
 
     private void OpenFilterDialog(object? sender, EventArgs e)
-    {
+    {      
+      if (!m_DataLoaded && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Incomplete data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel)
+        return;
+
       this.RunWithHourglass(() =>
       {
         var filter = GetColumnFilter(m_MenuItemColumnIndex);
-        var filterExpression = FilterText(m_MenuItemColumnIndex);
+        var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
         var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
-        using var filterPopup = new FromColumnFilter(filter, data, 45);
+        using var filterPopup = new FromRowsFilter(filter, data, 50);
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           ApplyFilters();
@@ -1129,6 +1139,13 @@ namespace CsvTools
     private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e) => Copy(true, false);
 
     /// <summary>
+    ///   Handles the Click event of the toolStripMenuItemFilled control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+    private void ToolStripMenuItemFilled_Click(object? sender, EventArgs e) => RefreshUI();
+
+    /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilterRemoveAll control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
@@ -1192,6 +1209,27 @@ namespace CsvTools
       }
     }
 
+    private void ToolStripMenuItemLoadCol_Click(object? sender, EventArgs e)
+    {
+      if (m_FileSetting is null)
+        return;
+
+      try
+      {
+
+        var fileName = WindowsAPICodePackWrapper.Open(
+          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
+          "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
+        if (fileName != null)
+          ReStoreViewSetting(fileName);
+      }
+      catch (Exception ex)
+      {
+        FindForm()?.ShowError(ex);
+      }
+
+    }
+
     /// <summary>
     /// Get an Array of ColumnSetting serialized as Json Text
     /// </summary>
@@ -1207,6 +1245,45 @@ namespace CsvTools
         ResumeLayout(true);
       }
       );
+    }
+
+    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
+    {
+      if (m_FileSetting is null)
+        return;
+      try
+      {
+        var text = GetViewStatus;
+        if (!string.IsNullOrEmpty(text))
+        {
+          // Select Path
+          var fileName = WindowsAPICodePackWrapper.Save(
+            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+
+          if (fileName is null || fileName.Length == 0)
+            return;
+
+#if NET5_0_OR_GREATER
+          await
+#endif          
+          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+
+#if NET5_0_OR_GREATER
+          await
+#endif
+          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+          await writer.WriteAsync(GetViewStatus);
+          await writer.FlushAsync();
+
+          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+            basePhysical.ColumnFile = fileName;
+        }
+      }
+      catch (Exception ex)
+      {
+        FindForm()?.ShowError(ex);
+      }
     }
 
     /// <summary>

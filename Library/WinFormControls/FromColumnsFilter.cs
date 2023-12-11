@@ -32,7 +32,7 @@ namespace CsvTools
     private readonly List<DataRow> m_Rows = new List<DataRow>();
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
+    ///   Initializes a new instance of the <see cref="FromRowsFilter" /> class.
     /// </summary>
     /// <param name="columns">The data grid view columns. This is an input parameter.</param>
     /// <param name="dataRows">The data in the columns. This is an input parameter.</param>

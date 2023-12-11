@@ -164,7 +164,7 @@ namespace CsvTools
               columnFilters.ValueDateTime = dateTime;
             else
               columnFilters.ValueText = Convert.ToString(value);
-            columnFilters.ApplyFilter();                      
+            columnFilters.ApplyFilter();
           }
         );
       }
@@ -456,6 +456,9 @@ namespace CsvTools
       FilteredDataGridView.Refresh();
     }
 
+    private bool CancelMissingData()      
+        => FilteredDataGridView.Columns.Count <= 0 || (!m_SteppedDataTableLoader.EndOfFile && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel);
+    
     /// <summary>
     ///   Handles the Click event of the buttonTableSchema control.
     /// </summary>
@@ -463,8 +466,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonColumnLength_Click(object? sender, EventArgs e)
     {
-      if (FilteredDataGridView.Columns.Count <= 0)
-        return;
+      if (CancelMissingData()) return;
+      
       m_ToolStripButtonColumnLength.RunWithHourglass(() =>
       {
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
@@ -487,8 +490,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonDuplicates_Click(object? sender, EventArgs e)
     {
-      if (FilteredDataGridView.Columns.Count <= 0)
-        return;
+      if (CancelMissingData()) return;
+    
       m_ToolStripButtonDuplicates.RunWithHourglass(() =>
       {
         var columnName = FilteredDataGridView.CurrentCell != null
@@ -520,6 +523,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonHierarchy_Click(object? sender, EventArgs e)
     {
+      if (CancelMissingData()) return;
       m_ToolStripButtonHierarchy.RunWithHourglass(() =>
       {
         try
@@ -547,8 +551,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonUniqueValues_Click(object? sender, EventArgs e)
     {
-      if (FilteredDataGridView.Columns.Count <= 0)
-        return;
+     if (CancelMissingData()) return;
       m_ToolStripButtonUniqueValues.RunWithHourglass(() =>
       {
         try
@@ -681,7 +684,7 @@ namespace CsvTools
         m_BindingSource.DataSource = newDt;
         FilteredDataGridView.DataSource = m_BindingSource;
 
-        FilterColumns(filterType);        
+        FilterColumns(filterType);
 
         if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
           Sort(oldSortedColumn,
@@ -745,7 +748,7 @@ namespace CsvTools
           WriteSetting.EscapePrefixChar,
           WriteSetting.NewLinePlaceholder,
           WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
-          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id , FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
+          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
 
           );
 
@@ -894,16 +897,10 @@ namespace CsvTools
         m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
         m_ToolStripButtonSource.Visible = m_ShowButtons && (FileSetting is IFileSettingPhysicalFile);
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-
-        m_ToolStripButtonUniqueValues.Enabled = hasData;
-        m_ToolStripButtonDuplicates.Enabled = hasData;
-        m_ToolStripButtonColumnLength.Enabled = hasData;
-        m_ToolStripButtonHierarchy.Enabled = hasData;
+                        
         m_ToolStripButtonStore.Enabled = hasData;
-        m_ToolStripButtonStore.Enabled = hasData;        
         toolStripButtonMoveLastItem.Enabled = hasData;
         FilteredDataGridView.DataLoaded  =hasData;
-        FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
         m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
 

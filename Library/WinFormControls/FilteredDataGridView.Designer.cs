@@ -316,17 +316,15 @@ namespace CsvTools
 
     }
 
-    private System.Windows.Forms.ContextMenuStrip contextMenuStripCell;
-    
+    private System.Windows.Forms.ContextMenuStrip contextMenuStripCell;    
     private System.Windows.Forms.ContextMenuStrip contextMenuStripHeader;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCols;
-    
+    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCols;    
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilter;    
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCF;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemColumns;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopy;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyError;
-    public System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterAdd;
+    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterAdd;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemove;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemoveAllFilter;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterThisValue;
