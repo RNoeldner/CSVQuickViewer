@@ -35,9 +35,12 @@
             <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
             <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
+           
+            <!--
             <File Id="CSVQuickViewerdepsJson" Name="CSVQuickViewer.deps.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.deps.Json" />
             <File Id="CSVQuickViewerConfig" Name="CSVQuickViewer.dll.Config" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll.Config" />
             <File Id="CSVQuickViewerRuntimeConfigJson" Name="CSVQuickViewer.RuntimeConfig.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.RuntimeConfig.Json" />
+            -->
             <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
             <File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
             <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />

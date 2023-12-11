@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  sealed partial class FromColumnFilter
+  sealed partial class FromRowsFilter
   {
     /// <summary>
     /// Required designer variable.
@@ -16,11 +16,11 @@ namespace CsvTools
       {
         components.Dispose();
       }
-
+      cancellationTokenSource.Dispose();
       base.Dispose(disposing);
     }
 
-    
+
     #region Windows Form Designer generated code
 
     /// <summary>
@@ -30,8 +30,8 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.ColumnHeader colText;
       System.Windows.Forms.ColumnHeader colItems;
+      this.colText = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
       this.buttonFilter = new System.Windows.Forms.Button();
       this.lblCondition = new System.Windows.Forms.Label();
@@ -47,21 +47,20 @@ namespace CsvTools
       this.timerFilter = new System.Windows.Forms.Timer(this.components);
       this.labelError = new System.Windows.Forms.Label();
       this.timerRebuild = new System.Windows.Forms.Timer(this.components);
-      colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-      colItems = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      colItems = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
       this.panelTop.SuspendLayout();
       this.SuspendLayout();
-      // 
-      // colText
-      // 
-      colText.Text = "Filter";
-      colText.Width = 25;
       // 
       // colItems
       // 
       colItems.Text = "Count";
       colItems.Width = 50;
+      // 
+      // colText
+      // 
+      this.colText.Text = "Filter";
+      this.colText.Width = 200;
       // 
       // errorProvider
       // 
@@ -69,7 +68,7 @@ namespace CsvTools
       // 
       // buttonFilter
       // 
-      this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonFilter.AutoSize = true;
       this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonFilter.Location = new System.Drawing.Point(598, 2);
@@ -125,7 +124,7 @@ namespace CsvTools
       // 
       this.listViewCluster.CheckBoxes = true;
       this.listViewCluster.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            colText,
+            this.colText,
             colItems});
       this.listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
       this.listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -160,31 +159,35 @@ namespace CsvTools
       // 
       // radioButtonEven
       // 
-      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonEven.AutoSize = true;
       this.radioButtonEven.Location = new System.Drawing.Point(542, 5);
       this.radioButtonEven.Name = "radioButtonEven";
       this.radioButtonEven.Size = new System.Drawing.Size(50, 17);
       this.radioButtonEven.TabIndex = 4;
       this.radioButtonEven.Text = "Even";
+      this.toolTip.SetToolTip(this.radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only avaliba" +
+        "le with numbers and dates");
       this.radioButtonEven.UseVisualStyleBackColor = true;
       this.radioButtonEven.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
       // radioButtonCombine
       // 
-      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonCombine.AutoSize = true;
       this.radioButtonCombine.Location = new System.Drawing.Point(470, 5);
       this.radioButtonCombine.Name = "radioButtonCombine";
       this.radioButtonCombine.Size = new System.Drawing.Size(66, 17);
       this.radioButtonCombine.TabIndex = 4;
       this.radioButtonCombine.Text = "Combine";
+      this.toolTip.SetToolTip(this.radioButtonCombine, "Combine close custers that do not have many records, only avalibale with numbers " +
+        "and dates");
       this.radioButtonCombine.UseVisualStyleBackColor = true;
       this.radioButtonCombine.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
       // radioButtonReg
       // 
-      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonReg.AutoSize = true;
       this.radioButtonReg.Checked = true;
       this.radioButtonReg.Location = new System.Drawing.Point(402, 5);
@@ -193,6 +196,8 @@ namespace CsvTools
       this.radioButtonReg.TabIndex = 4;
       this.radioButtonReg.TabStop = true;
       this.radioButtonReg.Text = "Regular";
+      this.toolTip.SetToolTip(this.radioButtonReg, "Separate all values into clusters of even ranges, the number of entries may vary " +
+        "a lot, only avalibale with numbers and dates");
       this.radioButtonReg.UseVisualStyleBackColor = true;
       this.radioButtonReg.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
@@ -204,13 +209,13 @@ namespace CsvTools
       // 
       // labelError
       // 
-      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
       this.labelError.AutoSize = true;
       this.labelError.BackColor = System.Drawing.SystemColors.Info;
       this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
       this.labelError.ForeColor = System.Drawing.SystemColors.InfoText;
       this.labelError.Location = new System.Drawing.Point(25, 90);
       this.labelError.Margin = new System.Windows.Forms.Padding(0);
@@ -227,7 +232,7 @@ namespace CsvTools
       this.timerRebuild.Interval = 200;
       this.timerRebuild.Tick += new System.EventHandler(this.timerRebuild_Tick);
       // 
-      // FromColumnFilter
+      // FromRowsFilter
       // 
       this.AcceptButton = this.buttonFilter;
       this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
@@ -240,12 +245,13 @@ namespace CsvTools
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.MinimumSize = new System.Drawing.Size(705, 260);
-      this.Name = "FromColumnFilter";
+      this.Name = "FromRowsFilter";
       this.Text = "Filter";
       this.Activated += new System.EventHandler(this.FromDataGridViewFilter_Activated);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FromRowsFilter_FormClosing);
       this.Load += new System.EventHandler(this.FromDataGridViewFilter_Load);
       this.Resize += new System.EventHandler(this.FromDataGridViewFilter_Resize);
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
       this.panelTop.ResumeLayout(false);
       this.panelTop.PerformLayout();
       this.ResumeLayout(false);
@@ -269,5 +275,6 @@ namespace CsvTools
     private System.Windows.Forms.RadioButton radioButtonCombine;
     private System.Windows.Forms.RadioButton radioButtonReg;
     private System.Windows.Forms.Timer timerRebuild;
+    private System.Windows.Forms.ColumnHeader colText;
   }
 }

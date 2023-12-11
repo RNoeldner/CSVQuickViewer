@@ -20,24 +20,26 @@ namespace CsvTools
   using System.Globalization;
   using System.Linq;
   using System.Text;
+  using System.Threading;
   using System.Windows.Forms;
 
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
-  public sealed partial class FromColumnFilter : ResizeForm
+  public sealed partial class FromRowsFilter : ResizeForm
   {
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
     private readonly ICollection<object> m_Values;
     private readonly int m_MaxCluster;
+    private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FromColumnFilter" /> class.
+    ///   Initializes a new instance of the <see cref="FromRowsFilter" /> class.
     /// </summary>
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
     /// <param name="columnValues">The data in the column</param>
     /// <param name="maxCluster">Maximum number of clusters to show</param>
-    public FromColumnFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
+    public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
     {
       m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
       m_Values = columnValues;
@@ -57,9 +59,9 @@ namespace CsvTools
 
       if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.String || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Guid || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Boolean)
       {
-        radioButtonCombine.Enabled = false;
-        radioButtonEven.Enabled = false;
-        radioButtonReg.Enabled = false;
+        radioButtonCombine.Visible = false;
+        radioButtonEven.Visible = false;
+        radioButtonReg.Visible = false;
       }
     }
 
@@ -196,7 +198,7 @@ namespace CsvTools
 
     private void FromDataGridViewFilter_Resize(object sender, EventArgs e)
     {
-      listViewCluster.Columns[0].Width = listViewCluster.Width - listViewCluster.Columns[1].Width - 28;
+      colText.Width = listViewCluster.Width - listViewCluster.Columns[1].Width - 28;
     }
 
     private void ListViewCluster_KeyUp(object sender, KeyEventArgs e)
@@ -243,39 +245,48 @@ namespace CsvTools
     private void timerRebuild_Tick(object sender, EventArgs e)
     {
       timerRebuild.Stop();
-      var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped, m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked);
-      if (result == BuildValueClustersResult.ListFilled)
+      buttonFilter.RunWithHourglass(() =>
       {
-        FilterItems("");
-      }
-      else
-      {
-        listViewCluster.CheckBoxes = false;
-        var explain = "Error collecting the values";
-        switch (result)
+        var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, cancellationTokenSource.Token);
+        if (result == BuildValueClustersResult.ListFilled)
         {
-          case BuildValueClustersResult.WrongType:
-            explain="Data type did not match";
-            break;
-          case BuildValueClustersResult.TooManyValues:
-            explain="Too many different values";
-            break;
-          case BuildValueClustersResult.NoValues:
-            explain="No value found";
-            break;
+          FilterItems("");
         }
-        toolTip.SetToolTip(this.listViewCluster, explain);
-        labelError.Text = explain;
-        labelError.Visible=true;
-        toolTip.SetToolTip(this.labelError, explain);
-        listViewCluster.Enabled = false;
-      }
+        else
+        {
+          listViewCluster.CheckBoxes = false;
+          var explain = "Error collecting the values";
+          switch (result)
+          {
+            case BuildValueClustersResult.WrongType:
+              explain="Data type did not match";
+              break;
+            case BuildValueClustersResult.TooManyValues:
+              explain="Too many different values";
+              break;
+            case BuildValueClustersResult.NoValues:
+              explain="No value found";
+              break;
+          }
+          toolTip.SetToolTip(this.listViewCluster, explain);
+          labelError.Text = explain;
+          labelError.Visible=true;
+          toolTip.SetToolTip(this.labelError, explain);
+          listViewCluster.Enabled = false;
+        }
+      });
     }
 
     private void ClusterTypeChanged(object sender, EventArgs e)
     {
       timerRebuild.Stop();
       timerRebuild.Start();
+    }
+
+    private void FromRowsFilter_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      cancellationTokenSource.Cancel();
     }
   }
 }
