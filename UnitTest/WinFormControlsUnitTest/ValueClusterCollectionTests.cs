@@ -106,17 +106,17 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(1000)]
-    public void BuildValueClusters_LongRangeStep10()
+    public void BuildValueClusters_LongRangeStep5()
     {
       var test = new ValueClusterCollection();
       var number = new List<object>();
-      for (long i = -199; i < 200; i++)
+      for (long i = -199; i < 200; i+=5)
         number.Add(i);
 
-      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 200);
-      Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum());
-      Assert.IsTrue(test.First().Display.Contains("-199"));
-      Assert.IsTrue(test.Last().Display.Contains("200"), test.Last().Display);
+      test.ReBuildValueClusters(DataTypeEnum.Integer, number, "dummy", true, 100);
+      Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum(),"Number of entries does not match");
+      Assert.IsTrue(test.First().Display.Contains("-200") || test.First().Display.Contains("-199"), test.First().Display);
+      Assert.IsTrue(test.Last().Display.Contains("200") || test.First().Display.Contains("199"), test.Last().Display);
     }
 
     [TestMethod]

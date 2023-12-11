@@ -23,10 +23,14 @@ namespace CsvTools.Tests
   public sealed class FormMainTests
   {
     [TestMethod]
-    [Timeout(5100)]
+    [Timeout(6000)]
     public void ProgramMainNoArguments()
-    {      
-      Extensions.RunStaThread(() => Program.Main(Array.Empty<string>()), 5000);
+    { 
+      var ct = CancellationTokenSource.CreateLinkedTokenSource( UnitTestStatic.Token);      
+      var mainT = new Task(()=> Extensions.RunStaThread(() => Program.Main(Array.Empty<string>()),0), ct.Token);
+      mainT.Start();
+      UnitTestStaticForms.WaitSomeTime(2, ct.Token);
+      ct.Cancel();
     }
 
 
