@@ -17,7 +17,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -35,15 +34,15 @@ namespace CsvTools
     private ValueCluster m_Last = new ValueCluster("Dummy", string.Empty, int.MaxValue, null);
 
     /// <summary>
-    /// Parse the data to create culsters for these found values
+    /// Parse the data to create clusters for these found values
     /// </summary>
     /// <param name="type">The type of the column</param>
     /// <param name="values">The values to look </param>
     /// <param name="escapedName">The escaped name of th column for the build SQL filter</param>
     /// <param name="isActive">Indicating if the filter is currently active</param>
     /// <param name="maxNumber">Maximum number of clusters to return</param>
-    /// <param name="combine">In case custers are every small combine close custers, the csuters are still bind with even margings</param>
-    /// <param name="even">Build clusters that have roughly the same number of elements, the restuting borders can vary a lot, e:g. 1950-1980, 1980-1985, 1986, 1987</param>
+    /// <param name="combine">In case clusters are every small combine close clusters, the clusters still have even margins</param>
+    /// <param name="even">Build clusters that have roughly the same number of elements, the resulting borders can vary a lot, e:g. 1950-1980, 1980-1985, 1986, 1987</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
@@ -64,58 +63,56 @@ namespace CsvTools
       {
         if (type == DataTypeEnum.String || type == DataTypeEnum.Guid  || type == DataTypeEnum.Boolean)
         {
-          var m_CountNull = 0;
+          var countNull = 0;
           var typedValues = new List<string>();
           foreach (var obj in values)
           {
             if (obj is DBNull || obj == null)
             {
-              m_CountNull++;
+              countNull++;
               continue;
             }
             var str = obj.ToString();
             if (string.IsNullOrEmpty(str))
             {
-              m_CountNull++;
+              countNull++;
               continue;
             }
             typedValues.Add(str);
           }
-          AddValueClusterNull(escapedName, m_CountNull);
+          AddValueClusterNull(escapedName, countNull);
           return BuildValueClustersString(typedValues, escapedName, maxNumber, cancellationToken);
         }
-        else if (type == DataTypeEnum.DateTime)
+        if (type == DataTypeEnum.DateTime)
         {
-          var m_CountNull = 0;
+          var countNull = 0;
           var typedValues = new List<DateTime>();
           foreach (var obj in values)
           {
             if (obj is DBNull || obj == null)
             {
-              m_CountNull++;
+              countNull++;
               continue;
             }
             if (obj is DateTime value)
               typedValues.Add(value);
             else
-              m_CountNull++;
+              countNull++;
 
           }
-          AddValueClusterNull(escapedName, m_CountNull);
-          if (even)
-            return BuildValueClustersDateEven(typedValues, escapedName, maxNumber, cancellationToken);
-          else
-            return BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, cancellationToken);
+          AddValueClusterNull(escapedName, countNull);
+          return even ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, cancellationToken) :
+                        BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
-        else if (type == DataTypeEnum.Integer)
+        if (type == DataTypeEnum.Integer)
         {
-          var m_CountNull = 0;
+          var countNull = 0;
           var typedValues = new List<long>();
           foreach (var obj in values)
           {
             if (obj is DBNull || obj == null)
             {
-              m_CountNull++;
+              countNull++;
               continue;
             }
             try
@@ -124,25 +121,22 @@ namespace CsvTools
             }
             catch
             {
-              m_CountNull++;
+              countNull++;
             }
           }
-          AddValueClusterNull(escapedName, m_CountNull);
-          if (even)
-            return BuildValueClustersLongEven(typedValues, escapedName, maxNumber, cancellationToken);
-          else
-            return BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, cancellationToken);
+          AddValueClusterNull(escapedName, countNull);
+          return even ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, cancellationToken) : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
 
-        else if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
+        if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
         {
-          var m_CountNull = 0;
+          var countNull = 0;
           var typedValues = new List<double>();
           foreach (var obj in values)
           {
             if (obj is DBNull || obj == null)
             {
-              m_CountNull++;
+              countNull++;
               continue;
             }
             try
@@ -151,17 +145,15 @@ namespace CsvTools
             }
             catch
             {
-              m_CountNull++;
+              countNull++;
             }
           }
-          AddValueClusterNull(escapedName, m_CountNull);
-          if (even)
-            return BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, cancellationToken);
-          else
-            return BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, cancellationToken);
+          AddValueClusterNull(escapedName, countNull);
+          return even ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, cancellationToken) :
+            BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
-        else
-          return BuildValueClustersResult.WrongType;
+
+        return BuildValueClustersResult.WrongType;
       }
       catch (Exception ex)
       {
@@ -178,12 +170,12 @@ namespace CsvTools
       m_ValueClusters.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
 
     /// <summary>
-    ///   Determine if there is a cluster present that overaches the given values
+    ///   Determine if there is a cluster present that over arches the given values
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="minValue">Start of Range</param>
     /// <param name="maxVal">End of Range</param>
-    /// <returns><c>true</c> if there is alraedy a cluster taht covers the range</returns>
+    /// <returns><c>true</c> if there is already a cluster that covers the range</returns>
     private bool HasOverlappingCluster<T>(T minValue, T maxVal) where T : IComparable<T>
     => m_ValueClusters.Any(x => x.Start is T sv && sv.CompareTo(minValue)<=0 && (x.End  == null || (x.End is T ev && ev.CompareTo(maxVal)>0)));
 
@@ -210,20 +202,20 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         bucketCount += keyValue.Value;
         // progress keyValue.Key next bucket
-        if (bucketCount > bucketSize)
-        {
-          // In case there is a cluster that is overspanning do not add a cluster
-          // : it started earlier and ends later
-          if (!hasPrevious || !HasOverlappingCluster(minValue, keyValue.Key))
-            m_ValueClusters.Add(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key), bucketCount, minValue, keyValue.Key));
+        if (bucketCount <= bucketSize)
+          continue;
 
-          minValue = keyValue.Key;
-          bucketCount = keyValue.Value;
-        }
+        // In case there is a cluster that is overlapping do not add a cluster
+        if (!hasPrevious || !HasOverlappingCluster(minValue, keyValue.Key))
+          m_ValueClusters.Add(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key), bucketCount, minValue, keyValue.Key));
+
+        minValue = keyValue.Key;
+        bucketCount = keyValue.Value;
       }
+
       // Make one last bucket for the rest
       if (!hasPrevious || !m_ValueClusters.Any(x => x.End == null || x.End is T se && se.CompareTo(minValue)>=0))
-        m_ValueClusters.Add(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue, null));
+        m_ValueClusters.Add(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
 
       return BuildValueClustersResult.ListFilled;
     }
@@ -233,9 +225,9 @@ namespace CsvTools
       return BuildValueClustersEven(values, values.Count/ max, (number) => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
 
         (minValue, maxValue) => $"{minValue:d} – {maxValue:d}",
-        (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, $"({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, minValue, maxValue),
+        (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, minValue, maxValue),
         (minValue) => $"{minValue:d} – ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, $"({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName, minValue), cancellationToken);
+        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName, minValue), cancellationToken);
     }
 
     private BuildValueClustersResult BuildValueClustersLongEven(in ICollection<long> values, string escapedName, int max, CancellationToken cancellationToken)
@@ -342,51 +334,32 @@ namespace CsvTools
     private enum DateTimeRange { Hours, Days, Month, Years }
 
     private void AddValueClusterDateTime(in string escapedName, DateTime from, DateTime to, ICollection<DateTime> values, DateTimeRange displayType, int desiredSize = int.MaxValue)
-    {      
-      if (!HasOverlappingCluster(from, to))
+    {
+      if (HasOverlappingCluster(from, to))
+        return;
+      var count = values.Count(x => x >= from && x<to);
+      if (count <= 0)
+        return;
+      // Combine buckets if the last and the current do not have many values
+      if (m_Last.Count + count < desiredSize && m_Last.Start is DateTime lastFrom)
       {
-        var count = values.Count(x => x >= from && x<to);
-        if (count >0)
-        {
-          // Combine buckets if the last and the current do not have many values
-          if (m_Last.Count + count < desiredSize && m_Last.Start is DateTime lastFrom)
-          {
-            from = lastFrom;
-            count += m_Last.Count;
+        from = lastFrom;
+        count += m_Last.Count;
 
-            // remove the last cluster it will be included with this new one
-            m_ValueClusters.Remove(m_Last);
-          }
-          string display = string.Empty;
-          switch (displayType)
-          {
-            case DateTimeRange.Hours:
-              display=$"{from:t} – {to:t}";
-              break;
-            case DateTimeRange.Days:
-              if (to == from.AddDays(1))
-                display=$"{from:d}";
-              else
-                display=$"{from:d} – {to:d}";
-              break;
-            case DateTimeRange.Month:
-              if (to == from.AddMonths(1))
-                display=$"{from:Y}";
-              else
-                display=$"{from:Y} – {to:Y}";
-              break;
-            case DateTimeRange.Years:
-              if (to == from.AddYears(1))
-                display=$"{from:yyyy}";
-              else
-                display=$"{from:yyyy} – {to:yyyy}";
-              break;
-          }
-          m_Last = new ValueCluster(display, $"({escapedName} >= #{from.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}# AND {escapedName} < #{to.ToString("MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture)}#)",
-           count, from, to);
-          m_ValueClusters.Add(m_Last);
-        }
+        // remove the last cluster it will be included with this new one
+        m_ValueClusters.Remove(m_Last);
       }
+
+      m_Last = new ValueCluster(displayType switch
+      {
+        DateTimeRange.Hours => $"{from:t} – {to:t}",
+        DateTimeRange.Days => to == from.AddDays(1) ? $"{from:d}" : $"{from:d} – {to:d}",
+        DateTimeRange.Month => to == from.AddMonths(1) ? $"{from:Y}" : $"{from:Y} – {to:Y}",
+        DateTimeRange.Years => to == from.AddYears(1) ? $"{from:yyyy}" : $"{from:yyyy} – {to:yyyy}",
+        _ => string.Empty
+      }, string.Format(CultureInfo.InvariantCulture,
+        "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, from, to), count, from, to);
+      m_ValueClusters.Add(m_Last);
     }
 
     private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName, int max, bool combine, CancellationToken cancellationToken)
@@ -420,14 +393,13 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           var maxValue = minValue + .1;
-          if (!HasOverlappingCluster(minValue, maxValue))
-          {
-            var count = values.Count(value => value >= minValue && value < maxValue);
-            if (count>0)
-              Add(new ValueCluster($"{minValue:F1} - {maxValue:F1}", // Fixed Point
-                   string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})", escapedName, minValue, maxValue),
-                count, minValue, maxValue));
-          }
+          if (HasOverlappingCluster(minValue, maxValue))
+            continue;
+          var count = values.Count(value => value >= minValue && value < maxValue);
+          if (count>0)
+            Add(new ValueCluster($"{minValue:F1} - {maxValue:F1}", // Fixed Point
+              string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})", escapedName, minValue, maxValue),
+              count, minValue, maxValue));
         }
       }
 
@@ -466,7 +438,7 @@ namespace CsvTools
       var desiredSize = 1;
       if (combine)
       {
-        desiredSize = (values.Count * 3) / (max *2);
+        desiredSize = values.Count * 3 / (max *2);
         if (desiredSize < 5)
           desiredSize=5;
       }
@@ -478,44 +450,32 @@ namespace CsvTools
         var minValue = (long) (dic * factor);
         var maxValue = (long) (minValue + factor);
 
-        var existing = false;
-        try
+        if (HasOverlappingCluster(minValue, maxValue))
+          continue;
+        if (factor > 1)
         {
-          existing = m_ValueClusters.Any(x => x.Start is long start &&  start <= minValue
-                                            && x.Start is long end  &&  end >= maxValue);
-        }
-        catch
-        {
-        }
-        if (!existing)
-        {
-          if (factor > 1)
+          var count = values.Count(value => value >= minValue && value < maxValue);
+          if (count <= 0)
+            continue;
+          // Combine buckets if the last and the current do not have many values
+          if (m_Last.Count + count < desiredSize && m_Last.Start is long lastMin)
           {
-            var count = values.Count(value => value >= minValue && value < maxValue);
-            if (count>0)
-            {
-              // Combine buckets if the last and the current do not have many values
-              if (m_Last.Count + count < desiredSize && m_Last.Start is long lastMin)
-              {
-                minValue = lastMin;
-                count += m_Last.Count;
-                // remove the last cluster it will be included with thie one
-                m_ValueClusters.Remove(m_Last);
-              }
-              m_Last = new ValueCluster($"[{minValue:N0},{maxValue:N0})", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
-              m_ValueClusters.Add(m_Last);
-
-            }
+            minValue = lastMin;
+            count += m_Last.Count;
+            // remove the last cluster it will be included with this one
+            m_ValueClusters.Remove(m_Last);
           }
-          else
+          m_Last = new ValueCluster($"[{minValue:N0},{maxValue:N0})", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
+          m_ValueClusters.Add(m_Last);
+        }
+        else
+        {
+          var count = values.Count(value => Math.Abs(value - minValue) < .1);
+          if (count>0)
           {
-            var count = values.Count(value => value == minValue);
-            if (count>0)
-            {
-              m_ValueClusters.Add(new ValueCluster($"{minValue:N0}",
-                string.Format(CultureInfo.InvariantCulture, "{0} = {1}", escapedName, minValue),
-                count, minValue, maxValue));
-            }
+            m_ValueClusters.Add(new ValueCluster($"{minValue:N0}",
+              string.Format(CultureInfo.InvariantCulture, "{0} = {1}", escapedName, minValue),
+              count, minValue, maxValue));
           }
         }
       }
@@ -582,35 +542,32 @@ namespace CsvTools
         var minValue = (long) (dic * factor);
         var maxValue = (long) (minValue + factor);
 
-        if (!HasOverlappingCluster(minValue, maxValue))
+        if (HasOverlappingCluster(minValue, maxValue))
+          continue;
+        if (factor > 1)
         {
-          if (factor > 1)
+          var count = values.Count(value => value >= minValue && value < maxValue);
+          if (count <= 0)
+            continue;
+          // Combine buckets if the last and the current do not have many values
+          if (m_Last.Count + count < desiredSize && m_Last.Start is long lastMin)
           {
-            var count = values.Count(value => value >= minValue && value < maxValue);
-            if (count>0)
-            {
-              // Combine buckets if the last and the current do not have many values
-              if (m_Last.Count + count < desiredSize && m_Last.Start is long lastMin)
-              {
-                minValue = lastMin;
-                count += m_Last.Count;
-                // remove the last cluster it will be included with thie one
-                m_ValueClusters.Remove(m_Last);
-              }
-              m_Last = new ValueCluster($"[{minValue:N0},{maxValue:N0})", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
-              m_ValueClusters.Add(m_Last);
-
-            }
+            minValue = lastMin;
+            count += m_Last.Count;
+            // remove the last cluster it will be included with this one
+            m_ValueClusters.Remove(m_Last);
           }
-          else
+          m_Last = new ValueCluster($"[{minValue:N0},{maxValue:N0})", string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName, minValue, maxValue), count, minValue, maxValue);
+          m_ValueClusters.Add(m_Last);
+        }
+        else
+        {
+          var count = values.Count(value => value == minValue);
+          if (count>0)
           {
-            var count = values.Count(value => value == minValue);
-            if (count>0)
-            {
-              m_ValueClusters.Add(new ValueCluster($"{minValue:N0}",
-                string.Format(CultureInfo.InvariantCulture, "{0} = {1}", escapedName, minValue),
-                count, minValue, maxValue));
-            }
+            m_ValueClusters.Add(new ValueCluster($"{minValue:N0}",
+              string.Format(CultureInfo.InvariantCulture, "{0} = {1}", escapedName, minValue),
+              count, minValue, maxValue));
           }
         }
       }
@@ -692,11 +649,10 @@ namespace CsvTools
 
     private void AddValueClusterNull(in string escapedName, int count)
     {
-      if (!m_ValueClusters.Any(x => x.Start is null) && count>0)
-      {
-        m_Last = new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count, null);
-        m_ValueClusters.Add(m_Last);
-      }
+      if (count <= 0 || m_ValueClusters.Any(x => x.Start is null))
+        return;
+      m_ValueClusters.Add(new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+        string.Format($"({escapedName} IS NULL)"), count, null));
     }
 
     /// <summary>
