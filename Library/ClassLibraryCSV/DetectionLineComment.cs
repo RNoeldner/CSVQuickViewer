@@ -79,7 +79,7 @@ namespace CsvTools
       var starts =
         new[] { "<!--", "##", "//", "==", "\\\\", "''", "#", "/", "\\", "'", }.ToDictionary(test => test, _ => 0);
 
-      // Comments are mainly at teh start of a file
+      // Comments are mainly at the start of a file
       textReader.ToBeginning();
       for (int current = 0; current<50 && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested; current++)
       {

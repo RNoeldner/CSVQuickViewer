@@ -59,7 +59,7 @@ namespace CsvTools
     /// <param name="valueFormat">The format of the column.</param>
     /// <param name="columnOrdinal">The column ordinal.</param>
     /// <param name="ignore">if set to <c>true</c> the column will be ignored.</param>
-    /// <param name="convert">If Conversion is necessary, usually yes if teh format is non string.</param>
+    /// <param name="convert">If Conversion is necessary, usually yes if the format is non string.</param>
     /// <param name="destinationName">Name of the destination.</param>
     /// <param name="timePart">The time part for date time information provided in two columns.</param>
     /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>

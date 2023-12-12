@@ -145,7 +145,7 @@ namespace CsvTools
     /// Set a filter on a data column
     /// </summary>
     /// <param name="dataColumnName">The name of the data column</param>
-    /// <param name="op">The operator for teh filter e.G. =</param>
+    /// <param name="op">The operator for the filter e.G. =</param>
     /// <param name="value">The value to compare to</param>
     // ReSharper disable once UnusedMember.Global
     public void SetFilter(string dataColumnName, string op, object value)

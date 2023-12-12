@@ -50,14 +50,14 @@ namespace CsvTools
     ///   Constructor for a delimited Text / fixed length text writer
     /// </summary>
     /// <param name="id">Information for  Placeholder of ID</param>
-    /// <param name="fullPath">Fully qualified path of teh file to write</param>
+    /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="hasFieldHeader">Determine if a header row should be created</param>
     /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
     /// <param name="codePageId">The Code Page for encoding of characters</param>
     /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
     /// <param name="columnDefinition">Individual definitions of columns and formats</param>
-    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
-    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
+    /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
+    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
     /// <param name="header">Header to be written before data and/or Header is written</param>
     /// <param name="fileSettingDisplay">Info text for logging and process report</param>
@@ -72,7 +72,7 @@ namespace CsvTools
     /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> <see cref="fieldQualifierChar"/> is ignored</param>
     /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
-    /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     public CsvFileWriter(in string id,
       in string fullPath,

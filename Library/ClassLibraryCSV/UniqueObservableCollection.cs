@@ -202,7 +202,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the index of a collection item by the CollectionIdentifier
     /// </summary>
-    /// <param name="searchId">The identifier in teh collection.</param>
+    /// <param name="searchId">The identifier in the collection.</param>
     /// <returns>-1 if not found, the index otherwise</returns>
     protected int GetIndexByIdentifier(int searchId)
     {

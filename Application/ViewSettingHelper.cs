@@ -28,7 +28,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Store the ViewSettings in teh fileSystem
+    /// Store the ViewSettings in the fileSystem
     /// </summary>
     public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
     {

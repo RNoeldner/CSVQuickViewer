@@ -214,7 +214,7 @@ namespace CsvTools
         if (counterTotal < 50 && filter.Length > 100)
           res.DuplicateQualifier = true;
 
-        // try to normalize the score, depenedning on the length of teh filter build a percaneta score that  should indicate how sure
+        // try to normalize the score, depenedning on the length of the filter build a percaneta score that  should indicate how sure
         if (totalScore > filter.Length)
           res.Score = 99;
         else

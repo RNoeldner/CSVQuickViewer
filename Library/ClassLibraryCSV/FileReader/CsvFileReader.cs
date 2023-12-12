@@ -789,8 +789,8 @@ namespace CsvTools
     /// <param name="headerRow">The initial header</param>
     /// <returns>Number of columns</returns>
     /// <remarks>
-    ///   If seek is supported, it will parse a few extra rows to check if teh header and the
-    ///   following rows do result in teh same number of columns
+    ///   If seek is supported, it will parse a few extra rows to check if the header and the
+    ///   following rows do result in the same number of columns
     /// </remarks>
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {

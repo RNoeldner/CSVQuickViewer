@@ -308,7 +308,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Depending on type call other Methods to work with teh stream
+    /// Depending on type call other Methods to work with the stream
     /// </summary>
     private void OpenByFileType(FileTypeEnum fileType)
     {

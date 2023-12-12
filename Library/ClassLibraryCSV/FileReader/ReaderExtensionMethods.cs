@@ -148,7 +148,7 @@ namespace CsvTools
     /// </param>
     /// <param name="maxDuration">
     ///   Timeout duration for reading data, if the reader is slow, or it has many rows make sure the
-    ///   timespan is big enough, otherwise teh result is cut off
+    ///   timespan is big enough, otherwise the result is cut off
     /// </param>
     /// <param name="restoreErrorsFromColumn">
     ///   if the source is a persisted table, restore the error information

@@ -31,7 +31,7 @@ namespace CsvTools
     {
       this.components = new System.ComponentModel.Container();
       System.Windows.Forms.ColumnHeader colItems;
-      this.colText = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
+      this.colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
       this.buttonFilter = new System.Windows.Forms.Button();
       this.lblCondition = new System.Windows.Forms.Label();
@@ -47,8 +47,8 @@ namespace CsvTools
       this.timerFilter = new System.Windows.Forms.Timer(this.components);
       this.labelError = new System.Windows.Forms.Label();
       this.timerRebuild = new System.Windows.Forms.Timer(this.components);
-      colItems = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
+      colItems = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
       this.panelTop.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -68,7 +68,7 @@ namespace CsvTools
       // 
       // buttonFilter
       // 
-      this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonFilter.AutoSize = true;
       this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonFilter.Location = new System.Drawing.Point(598, 2);
@@ -114,7 +114,7 @@ namespace CsvTools
       // 
       this.textBoxValue.Location = new System.Drawing.Point(176, 4);
       this.textBoxValue.Name = "textBoxValue";
-      this.textBoxValue.Size = new System.Drawing.Size(211, 20);
+      this.textBoxValue.Size = new System.Drawing.Size(188, 20);
       this.textBoxValue.TabIndex = 1;
       this.toolTip.SetToolTip(this.textBoxValue, "Text to filter.  Please use decimal point for numbers");
       this.textBoxValue.Visible = false;
@@ -159,13 +159,13 @@ namespace CsvTools
       // 
       // radioButtonEven
       // 
-      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonEven.AutoSize = true;
-      this.radioButtonEven.Location = new System.Drawing.Point(542, 5);
+      this.radioButtonEven.Location = new System.Drawing.Point(510, 5);
       this.radioButtonEven.Name = "radioButtonEven";
-      this.radioButtonEven.Size = new System.Drawing.Size(50, 17);
+      this.radioButtonEven.Size = new System.Drawing.Size(82, 17);
       this.radioButtonEven.TabIndex = 4;
-      this.radioButtonEven.Text = "Even";
+      this.radioButtonEven.Text = "By Numbers";
       this.toolTip.SetToolTip(this.radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only avaliba" +
         "le with numbers and dates");
       this.radioButtonEven.UseVisualStyleBackColor = true;
@@ -173,9 +173,9 @@ namespace CsvTools
       // 
       // radioButtonCombine
       // 
-      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonCombine.AutoSize = true;
-      this.radioButtonCombine.Location = new System.Drawing.Point(470, 5);
+      this.radioButtonCombine.Location = new System.Drawing.Point(438, 5);
       this.radioButtonCombine.Name = "radioButtonCombine";
       this.radioButtonCombine.Size = new System.Drawing.Size(66, 17);
       this.radioButtonCombine.TabIndex = 4;
@@ -187,10 +187,10 @@ namespace CsvTools
       // 
       // radioButtonReg
       // 
-      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.radioButtonReg.AutoSize = true;
       this.radioButtonReg.Checked = true;
-      this.radioButtonReg.Location = new System.Drawing.Point(402, 5);
+      this.radioButtonReg.Location = new System.Drawing.Point(370, 5);
       this.radioButtonReg.Name = "radioButtonReg";
       this.radioButtonReg.Size = new System.Drawing.Size(62, 17);
       this.radioButtonReg.TabIndex = 4;
@@ -209,13 +209,13 @@ namespace CsvTools
       // 
       // labelError
       // 
-      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.labelError.AutoSize = true;
       this.labelError.BackColor = System.Drawing.SystemColors.Info;
       this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelError.ForeColor = System.Drawing.SystemColors.InfoText;
       this.labelError.Location = new System.Drawing.Point(25, 90);
       this.labelError.Margin = new System.Windows.Forms.Padding(0);
@@ -251,7 +251,7 @@ namespace CsvTools
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FromRowsFilter_FormClosing);
       this.Load += new System.EventHandler(this.FromDataGridViewFilter_Load);
       this.Resize += new System.EventHandler(this.FromDataGridViewFilter_Resize);
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
       this.panelTop.ResumeLayout(false);
       this.panelTop.PerformLayout();
       this.ResumeLayout(false);

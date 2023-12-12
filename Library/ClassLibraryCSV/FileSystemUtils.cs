@@ -252,11 +252,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Get teh last file of a given pattern in a folder
+    ///  Get the last file of a given pattern in a folder
     /// </summary>
     /// <param name="folder">The dierectory to look in</param>
     /// <param name="searchPattern">The pattern to look for</param>
-    /// <returns>No matching file is found of teh folder does not exists an empty string is returned</returns>
+    /// <returns>No matching file is found of the folder does not exists an empty string is returned</returns>
     public static string GetLatestFileOfPattern(string folder, in string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
