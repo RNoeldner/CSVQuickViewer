@@ -1,16 +1,17 @@
+using CsvTools;
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -163,6 +164,24 @@ namespace CsvTools.Tests
       Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0));
       Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1));
       Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2));
+    }
+
+    [TestMethod()]
+    public void IsErrorMessageTest()
+    {
+      Assert.IsTrue("Test".IsErrorMessage());
+      Assert.IsFalse("Test".AddWarningId().IsErrorMessage());
+    }
+
+    [TestMethod()]
+    public void AddMessageTest()
+    {
+      var warning = "Test2".AddWarningId();
+      Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
+      Assert.AreEqual("Test2", "Test2".AddMessage("Test2"));
+      Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
+      Assert.AreEqual($"Test\n{warning}", "Test".AddMessage(warning));
+
     }
   }
 }

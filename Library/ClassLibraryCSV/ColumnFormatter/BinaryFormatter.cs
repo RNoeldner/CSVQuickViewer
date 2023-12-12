@@ -52,14 +52,12 @@ namespace CsvTools
     {
       var fileName = inputString.ToString().FullPath(m_RootFolderRead);
       var fi = new FileSystemUtils.FileInfo(fileName);
-      if (!fi.Exists)
-        return Array.Empty<char>();
-      return fileName.LongPathPrefix().AsSpan();      
+      return !fi.Exists ? Array.Empty<char>() : fileName.LongPathPrefix().AsSpan();
     }
 
 
     /// <inheritdoc/>
-    public override string Write(in object? binaryContet, in IDataRecord? dataRow, in Action<string>? handleWarning)
+    public override string Write(in object? binaryContent, in IDataRecord? dataRow, in Action<string>? handleWarning)
     {
       var fileName = m_FileOutPutPlaceholder;
 
@@ -69,20 +67,17 @@ namespace CsvTools
         for (var colOrdinal = 0; colOrdinal<dataRow.FieldCount; colOrdinal++)
           fileName = fileName.PlaceholderReplace2(dataRow.GetName(colOrdinal), dataRow.GetValue(colOrdinal).ToString() ?? dataRow.GetName(colOrdinal));
 
-        if ((fileName == m_FileOutPutPlaceholder || fileName.IndexOfAny(new[] { '{', '[' })!=-1) && RaiseWarning)
+        if ((fileName == m_FileOutPutPlaceholder || fileName.IndexOfAny(new[] { '{', '[', })!=-1) && RaiseWarning)
           handleWarning?.Invoke("Placeholder columns not found");
 
         // Need to make sure the resulting filename does not contain invalid characters 
         foreach (var invalid in Path.GetInvalidFileNameChars())
         {
           var index = fileName.IndexOf(invalid);
-          if (index != -1)
-          {
-            if (RaiseWarning)
-              handleWarning?.Invoke($"Invalid charcater {invalid} removed from {fileName} ");
-            fileName = fileName.Remove(index);
-          }
-
+          if (index == -1) continue;
+          if (RaiseWarning)
+            handleWarning?.Invoke($"Invalid character {invalid} removed from {fileName} ");
+          fileName = fileName.Remove(index);
         }
       }
       // make sure the folder exists
@@ -94,19 +89,19 @@ namespace CsvTools
       if (m_Overwrite)
         FileSystemUtils.FileDelete(fullPath);
 
-      if (binaryContet is byte[] bytes)
+      if (binaryContent is byte[] bytes)
         FileSystemUtils.WriteAllBytes(fullPath, bytes);
-      else if (binaryContet is string base64 && !string.IsNullOrEmpty(base64))
+      else if (binaryContent is string base64 && !string.IsNullOrEmpty(base64))
         FileSystemUtils.WriteAllBytes(fullPath, Convert.FromBase64String(base64));
 
       return fileName;
     }
 
     /// <summary>
-    /// Replaces possible relative paths in ReadFolder and WriteFolder of Binarywriters to absolute paths
+    /// Replaces possible relative paths in ReadFolder and WriteFolder of Binary writers to absolute paths
     /// </summary>
     /// <param name="columnDefinition">The existing columns definitions</param>
-    /// <param name="rootFolder">The root folder for possible realtive pathes</param>
+    /// <param name="rootFolder">The root folder for possible relative path's</param>
     /// <returns>A corrected list of Columns</returns>
     public static IEnumerable<Column> FoldersAbsolutePath(IEnumerable<Column> columnDefinition, string rootFolder)
     {
@@ -114,9 +109,9 @@ namespace CsvTools
       {
         if (item.ValueFormat.DataType == DataTypeEnum.Binary && item.Convert && !item.Ignore)
         {
-          var format = new ValueFormat(item.ValueFormat.DataType,
-              readFolder: FileSystemUtils.GetAbsolutePath(item.ValueFormat.ReadFolder, rootFolder),
-              writeFolder: FileSystemUtils.GetAbsolutePath(item.ValueFormat.WriteFolder, rootFolder),
+          var format = new ValueFormat(DataTypeEnum.Binary,
+              readFolder: item.ValueFormat.ReadFolder.GetAbsolutePath(rootFolder),
+              writeFolder: item.ValueFormat.WriteFolder.GetAbsolutePath(rootFolder),
               fileOutPutPlaceholder: item.ValueFormat.FileOutPutPlaceholder,
               overwrite: item.ValueFormat.Overwrite);
           yield return new Column(item.Name, format, item.ColumnOrdinal, item.Ignore, item.Convert, item.DestinationName, item.TimePart, item.TimePartFormat, item.TimeZonePart);
@@ -126,10 +121,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Replaces possible Absolute paths in ReadFolder and WriteFolder of Binarywriters to relative paths
+    /// Replaces possible Absolute paths in ReadFolder and WriteFolder of Binary writers to relative paths
     /// </summary>
     /// <param name="columnDefinition">The existing columns definitions</param>
-    /// <param name="rootFolder">The root folder to be relaced with .</param>
+    /// <param name="rootFolder">The root folder to be replaced with .</param>
     /// <returns>A corrected list of Columns</returns>
     public static IEnumerable<Column> FoldersRealtivePath(IEnumerable<Column> columnDefinition, string rootFolder)
     {
@@ -138,8 +133,8 @@ namespace CsvTools
         if (item.ValueFormat.DataType == DataTypeEnum.Binary && item.Convert && !item.Ignore)
         {
           var format = new ValueFormat(item.ValueFormat.DataType,
-              readFolder: FileSystemUtils.GetRelativePath(item.ValueFormat.ReadFolder, rootFolder),
-              writeFolder: FileSystemUtils.GetRelativePath(item.ValueFormat.WriteFolder, rootFolder),
+              readFolder: item.ValueFormat.ReadFolder.GetRelativePath(rootFolder),
+              writeFolder: item.ValueFormat.WriteFolder.GetRelativePath(rootFolder),
               fileOutPutPlaceholder: item.ValueFormat.FileOutPutPlaceholder,
               overwrite: item.ValueFormat.Overwrite);
           yield return new Column(item.Name, format, item.ColumnOrdinal, item.Ignore, item.Convert, item.DestinationName, item.TimePart, item.TimePartFormat, item.TimeZonePart);

@@ -83,7 +83,7 @@ namespace CsvTools
     public string PercentDisplay => Percent < 10 ? $"{Percent:F1}%" : $"{Percent:F0}%";
 
 
-    public string EstimatedPercentDisplay => EstimatedPercent < 10 ? "{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
+    public string EstimatedPercentDisplay => EstimatedPercent < 10 ? $"{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
 
     /// <summary>
     ///   Gets or sets the target value / maximum that would match 100%.

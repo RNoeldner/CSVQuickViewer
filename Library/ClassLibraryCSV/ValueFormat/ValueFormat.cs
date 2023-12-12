@@ -137,7 +137,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
-    ///   some circumstances you might want to have n/a etc.
+    ///   some circumstances you might want to have 'n/a'
     /// </summary>
     /// <value>Text used if the value is NULL</value>
     [DefaultValue("")]
@@ -146,7 +146,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the representation for true.
     /// </summary>
-    /// <value>The true.</value>
+    /// <value>The representation for true.</value>
     [DefaultValue(cTrueDefault)]
     public string True { get; }
 
@@ -173,7 +173,7 @@ namespace CsvTools
     /// <summary>
     ///   Determine if a part should end with the next splitter
     /// </summary>
-    /// <value><c>true</c> if all of the remaining text should be returned in the part</value>
+    /// <value><c>true</c> if all the remaining text should be returned in the part</value>
     [DefaultValue(cPartToEndDefault)]
     public bool PartToEnd { get; }
 
@@ -279,14 +279,14 @@ namespace CsvTools
     /// </returns>
     /// <remarks>
     ///   Is matching only looks at data type and some formats, it is assumed that we do not
-    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
+    ///   distinguish between numeric formats, it is O.K. to expect a money value but have an integer
     /// </remarks>
     public bool IsMatching(in ValueFormat expectedFormat)
     {
       if (expectedFormat.DataType == DataType)
         return true;
 
-      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
+      // if one is integer, but we expect numeric or vice versa, assume it's OK, one of the sides does
       // not have a decimal separator
       if ((expectedFormat.DataType == DataTypeEnum.Numeric || expectedFormat.DataType == DataTypeEnum.Double || expectedFormat.DataType == DataTypeEnum.Integer)
           && DataType == DataTypeEnum.Integer)
@@ -317,7 +317,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the a description of the Date or Number format
+    ///   Gets the description of the Date or Number format
     /// </summary>
     /// <returns></returns>
     public string GetFormatDescription() =>
