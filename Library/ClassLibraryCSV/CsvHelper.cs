@@ -127,7 +127,7 @@ namespace CsvTools
       {
         // assume the very first was correct
         inspectionResult.FieldDelimiter = disallowedDelimiter[0];
-        // and rerun teh detection
+        // and rerun detection
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
           guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
@@ -190,7 +190,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The open read stream</param>
     /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
-    /// <param name="skipRows">The number of ros in teh beginning of the stream to skip</param>
+    /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
     public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)

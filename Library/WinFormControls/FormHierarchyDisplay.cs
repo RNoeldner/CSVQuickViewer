@@ -504,7 +504,7 @@ namespace CsvTools
       this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
       this.m_ComboBoxParentID.Size = new System.Drawing.Size(422, 21);
       this.m_ComboBoxParentID.TabIndex = 1;
-      this.toolTip.SetToolTip(this.m_ComboBoxParentID, "Column with tehg Parent, can be used for grouping as well");
+      this.toolTip.SetToolTip(this.m_ComboBoxParentID, "Column with the Parent, can be used for grouping as well");
       this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // m_TreeView

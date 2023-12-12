@@ -99,7 +99,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Deserialize a file, looking at teh file its determined if it should be read as json or xml
+    ///   Deserialize a file, looking at the file its determined if it should be read as json or xml
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="fileName">Name of the file</param>
@@ -136,7 +136,7 @@ namespace CsvTools
     ///   Deserializes the text as Json Object
     /// </summary>
     /// <param name="content">The Json content as text</param>
-    /// <returns>A <see cref="JObject" /> when teh text could be parsed</returns>
+    /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
     /// <exception cref="JsonException">$"Returned content xxx could not be read as Json</exception>
     public static JContainer DeserializeJson(this string content)
     {
@@ -182,11 +182,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Serialize the data class and store teh result in a file. If the file exists it will be checked if there are changes to teh current content.
+    ///   Serialize the data class and store the result in a file. If the file exists it will be checked if there are changes to the current content.
     /// </summary>
     /// <param name="data">The class to be serialized</param>
     /// <param name="fileName">The filename to store the serialization text</param>
-    /// <param name="askOverwrite">Function to call if teh file does exist, if left empty the file will be overwritten</param>
+    /// <param name="askOverwrite">Function to call if the file does exist, if left empty the file will be overwritten</param>
     /// <param name="withBackup">If <c>true</c> backups are </param>
     /// <returns></returns>
     public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null,

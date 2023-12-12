@@ -53,17 +53,17 @@ namespace CsvTools
     /// Abstract implementation of all FileWriters
     /// </summary>
     /// <param name="id">Information for  Placeholder of ID</param>
-    /// <param name="fullPath">Fully qualified path of teh file to write</param>
+    /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="valueFormatGeneral">Fallback value format for typed values that do not have a column setup</param>
-    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
+    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
     /// <param name="header">Header to be written before data and/or Header is written</param>
     /// <param name="columnDefinition">Individual column definitions for formatting</param>
     /// <param name="fileSettingDisplay">Info text for logging and process report</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
-    /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
+    /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// <exception cref="ArgumentException"></exception>
     protected BaseFileWriter(
       in string id,

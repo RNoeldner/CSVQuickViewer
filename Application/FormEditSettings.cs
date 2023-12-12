@@ -96,7 +96,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       if (!m_ViewSettings.GuessStartRow)
         m_ViewSettings.DefaultInspectionResult.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
-      // if this is not for a specific file store teh value in the defaults
+      // if this is not for a specific file store the value in the defaults
       if (m_FileSetting != null)
         return;
 #if SupportPGP

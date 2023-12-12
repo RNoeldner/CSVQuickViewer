@@ -67,7 +67,7 @@ namespace CsvTools.Tests
     public async Task GuessHeaderAllFormatsAsync2()
     {
       using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
-      // this time skipping teh firs row we start wih a adata row
+      // this time skipping the firs row we start wih a adata row
       using var reader = new ImprovedTextReader(improvedStream,skipLines:1);
 
       var result = await reader.InspectHasHeaderAsync('\t', char.MinValue, char.MinValue, "", UnitTestStatic.Token);

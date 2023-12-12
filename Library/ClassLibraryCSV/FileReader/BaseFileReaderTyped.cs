@@ -35,7 +35,7 @@ namespace CsvTools
     /// <summary>
     /// Gets the current object stored in CurrentValues and does checks
     /// </summary>
-    /// <param name="ordinal">The ordinal of teh column</param>
+    /// <param name="ordinal">The ordinal of the column</param>
     /// <returns></returns>
     /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
     /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>

@@ -22,6 +22,7 @@ namespace CsvTools
   using System.Text;
   using System.Threading;
   using System.Windows.Forms;
+  using UtfUnknown.Core.Models.SingleByte.French;
 
   /// <summary>
   ///   Control to allow entering filters
@@ -198,7 +199,7 @@ namespace CsvTools
 
     private void FromDataGridViewFilter_Resize(object sender, EventArgs e)
     {
-      colText.Width = listViewCluster.Width - listViewCluster.Columns[1].Width - 28;
+      listViewCluster.Columns[0].Width = listViewCluster.Width - listViewCluster.Columns[1].Width - 28;
     }
 
     private void ListViewCluster_KeyUp(object sender, KeyEventArgs e)
@@ -245,10 +246,15 @@ namespace CsvTools
     private void timerRebuild_Tick(object sender, EventArgs e)
     {
       timerRebuild.Stop();
-      buttonFilter.RunWithHourglass(() =>
+
+      using var frm = new FormProgress("Building", false, FontConfig, cancellationTokenSource.Token);
+      frm.SetMaximum(0);
+      frm.Show();
+      frm.Report(new ProgressInfo("Building clusters", 0));
+      try
       {
         var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, cancellationTokenSource.Token);
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm.CancellationToken);
         if (result == BuildValueClustersResult.ListFilled)
         {
           FilterItems("");
@@ -275,7 +281,12 @@ namespace CsvTools
           toolTip.SetToolTip(this.labelError, explain);
           listViewCluster.Enabled = false;
         }
-      });
+      }
+      catch (Exception ex)
+      {
+        frm.Close();
+        this.ShowError(ex, "Filter");
+      }
     }
 
     private void ClusterTypeChanged(object sender, EventArgs e)
