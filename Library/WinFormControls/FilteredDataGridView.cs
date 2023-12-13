@@ -689,13 +689,13 @@ namespace CsvTools
       if (e.Control && e.KeyCode == Keys.F2)
       {
         OpenEditor(CurrentCell);
-        e.Handled = true;
-        return;
+        e.Handled = true;        
       }
-      if (!e.Control || e.KeyCode != Keys.C)
-        return;
-      Copy(!e.Alt, e.Shift);
-      e.Handled = true;
+      else if (e.Control && e.KeyCode == Keys.C)
+      {
+        Copy(!e.Alt, e.Shift);
+        e.Handled = true;
+      }           
     }
 
     /// <summary>
@@ -1057,7 +1057,7 @@ namespace CsvTools
     }
 
     private void OpenFilterDialog(object? sender, EventArgs e)
-    {      
+    {
       if (!m_DataLoaded && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Incomplete data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel)
         return;
 
