@@ -76,7 +76,7 @@ namespace CsvTools
     /// <summary>
     ///   An array of column
     /// </summary>
-    protected Column[] Column = Array.Empty<Column>();
+    public Column[] Column = Array.Empty<Column>();
 
     /// <summary>
     ///   An array of current row column text
