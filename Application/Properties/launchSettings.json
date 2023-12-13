@@ -2,7 +2,7 @@
   "profiles": {
     "CSVQuickViewer": {
       "commandName": "Project",
-      "commandLineArgs": "c:\\Users\\rnoldner\\EdCast\\Danone\\danone.pilot_User\\USER_2023-12-05T09-44-58Z_output.csv"
+      "commandLineArgs": "c:\\Users\\rnoldner\\EdCast\\DPDHL\\Mapping\\Pilot\\Import_Content_3\\unprocessedRecords.csv"
     }
   }
 }
