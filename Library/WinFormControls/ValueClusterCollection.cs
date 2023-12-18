@@ -661,23 +661,31 @@ namespace CsvTools
       {
         // Sometimes we still have a single entry for 4 ,
         // make the text as long as possible
-        if (clusterFour.Count ==1)
+        if (clusterFour.Count == 1)
         {
-          var test = cluster.First();
-          for (var i = 4; i < 140; i++)
+          var test = values.First();
+          var i = 4;
+          var prevI = -1;
+          var maxnum = values.Count(x => x.StartsWith(test.Substring(0, 3)));
+          while (i < 200)
           {
-            if (cluster.Count(x => x.StartsWith(test.Substring(0, i))) < clusterFour.Count)
+            if (values.Count(x => x.StartsWith(test.Substring(0, i))) < maxnum)
             {
-              // TODO: this is not great, still have only one entry but still better than only having 4
-              AddUnique(new ValueCluster($"{test.Substring(0, i-1)}…", $"({escapedName} LIKE '{test.Substring(0, i-1).SqlQuote()}%')", clusterFour.Count, test.Substring(0, i-1)));
-              return BuildValueClustersResult.ListFilled;
+              break;
+      
+
             }
+            prevI = i;
+            i++;
             // make the steps bigger later
             if (i>10)
               i++;
             if (i>=50)
               i+=3;
           }
+          // TODO: this is not great, since we have only one entry but still better than only having a short text
+          AddUnique(new ValueCluster($"{test.Substring(0, prevI-1)}…", $"({escapedName} LIKE '{test.Substring(0, prevI-1).SqlQuote()}%')", maxnum, test.Substring(0, i-1)));
+          return BuildValueClustersResult.ListFilled;
         }
 
         var clusterBegin = clusterOne;
