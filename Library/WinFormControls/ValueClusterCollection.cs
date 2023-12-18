@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace CsvTools
@@ -611,7 +612,55 @@ namespace CsvTools
       if (cluster.Count == 0)
         return BuildValueClustersResult.NoValues;
       if (clusterOne.Count >max)
-        return BuildValueClustersResult.TooManyValues;
+      {
+        var countC1 = values.Count(x => x.Length >0 && ((x[0] >='a' && x[0]<='f') || (x[0]>='A' && x[0]<='F')));
+        if (countC1>0)
+          m_ValueClusters.Add(new ValueCluster("A-F",
+            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'f')", countC1, "a", "f", false));
+
+        var countC2 = values.Count(x => x.Length >0 && ((x[0] >='g' && x[0]<='l') || (x[0]>='G' && x[0]<='L')));
+        if (countC2>0)
+          m_ValueClusters.Add(new ValueCluster("G-L",
+            $"(SUBSTRING({escapedName},1,1) >= 'g' AND SUBSTRING({escapedName},1,1) <= 'l')", countC2, "g", "l", false));
+
+
+        var countC3 = values.Count(x => x.Length >0 && ((x[0] >='m' && x[0]<='s') || (x[0]>='M' && x[0]<='S')));
+        if (countC3>0)
+          m_ValueClusters.Add(new ValueCluster("M-S",
+            $"(SUBSTRING({escapedName},1,1) >= 'm' AND SUBSTRING({escapedName},1,1) <= 's')", countC2, "m", "s", false));
+
+
+        var countC4 = values.Count(x => x.Length >0 && ((x[0] >='t' && x[0]<='z') || (x[0]>='T' && x[0]<='Z')));
+        if (countC4>0)
+          m_ValueClusters.Add(new ValueCluster("T-Z",
+            $"(SUBSTRING({escapedName},1,1) >= 't' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "t", "z", false));
+
+        var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
+        if (countN>0)
+          m_ValueClusters.Add(new ValueCluster("0-9",
+             $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9", false));
+
+        var countS = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <97));
+        if (countS>0)
+          m_ValueClusters.Add(new ValueCluster("Special",
+             $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
+
+
+        var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
+        if (countP>0)
+          m_ValueClusters.Add(new ValueCluster("Puctuation",
+             $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
+             $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
+             $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
+             $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~')))", countP, null, null, false));
+
+        var countR = values.Count() - countS -countN- countC1- countC2- countC3- countC4 -countP;
+        if (countR>0)
+          m_ValueClusters.Add(new ValueCluster("Other",
+             $"(SUBSTRING({escapedName},1,1) > '~')", countR, null, null, false));
+
+        return BuildValueClustersResult.ListFilled;
+      }
 
       if (cluster.Count <= max)
       {
@@ -634,13 +683,47 @@ namespace CsvTools
         else if (allow2 &&  clusterTwo.Count <= max)
           clusterBegin = clusterTwo;
 
+        // Look at the data like something%, check if there are large cumbs in there like something XXX is making up 50%
+        // add something XXX and a something% (without something XXX)
         foreach (var text in clusterBegin.OrderBy(x => x))
         {
+          if (string.IsNullOrEmpty(text))
+            continue;
           cancellationToken.ThrowIfCancellationRequested();
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
           {
-            m_Last = new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", values.Count(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)), text);
-            m_ValueClusters.Add(m_Last);
+            var parts = values.Where(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)).ToArray();
+            var countall = parts.Length;
+            if (countall > 100)
+            {
+              Dictionary<string, int> bigger = new Dictionary<string, int>();
+              foreach (var test in parts)
+              {
+                if (bigger.ContainsKey(test))
+                  continue;
+                var counter = values.Count(y => y.Equals(test, StringComparison.OrdinalIgnoreCase));
+                if (counter > countall/25)
+                  bigger.Add(test, counter);
+              }
+              if (bigger.Count>0)
+              {
+                var sbExluded = new StringBuilder();
+                sbExluded.Append($"{escapedName} LIKE '{text.SqlQuote()}%' AND NOT(");
+                foreach (var kvp in bigger)
+                {
+                  countall -= kvp.Value;
+                  sbExluded.Append($"{escapedName} = '{kvp.Key.SqlQuote()}' OR");
+                }
+                sbExluded.Length -= 3;
+                if (countall >0)
+                  m_ValueClusters.Add(new ValueCluster($"{text}… (remaining)", $"({sbExluded}))", countall, text));
+
+                foreach (var kvp in bigger)
+                  m_ValueClusters.Add(new ValueCluster($"{kvp.Key}", $"({escapedName} = '{kvp.Key.SqlQuote()}')", kvp.Value, text));
+                continue;
+              }
+            }
+            m_ValueClusters.Add(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countall, text));
           }
         }
       }

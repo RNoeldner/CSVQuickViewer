@@ -22,8 +22,7 @@ namespace CsvTools
   using System.Text;
   using System.Threading;
   using System.Windows.Forms;
-  using UtfUnknown.Core.Models.SingleByte.French;
-
+  
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
