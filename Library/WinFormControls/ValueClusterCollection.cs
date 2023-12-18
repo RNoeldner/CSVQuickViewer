@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -208,7 +209,7 @@ namespace CsvTools
 
         // In case there is a cluster that is overlapping do not add a cluster
         if (!hasPrevious || !HasOverlappingCluster(minValue, keyValue.Key))
-          m_ValueClusters.Add(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key), bucketCount, minValue, keyValue.Key));
+          AddUnique(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key), bucketCount, minValue, keyValue.Key));
 
         minValue = keyValue.Key;
         bucketCount = keyValue.Value;
@@ -216,7 +217,7 @@ namespace CsvTools
 
       // Make one last bucket for the rest
       if (!hasPrevious || !m_ValueClusters.Any(x => x.End == null || x.End is T se && se.CompareTo(minValue)>=0))
-        m_ValueClusters.Add(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
+        AddUnique(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
 
       return BuildValueClustersResult.ListFilled;
     }
@@ -360,7 +361,7 @@ namespace CsvTools
         _ => string.Empty
       }, string.Format(CultureInfo.InvariantCulture,
         "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, from, to), count, from, to);
-      m_ValueClusters.Add(m_Last);
+      AddUnique(m_Last);
     }
 
     private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName, int max, bool combine, CancellationToken cancellationToken)
@@ -575,6 +576,7 @@ namespace CsvTools
       return BuildValueClustersResult.ListFilled;
     }
 
+
     /// <summary>
     ///   Builds the data grid view column filter values.
     /// </summary>
@@ -613,51 +615,33 @@ namespace CsvTools
         return BuildValueClustersResult.NoValues;
       if (clusterOne.Count >max)
       {
-        var countC1 = values.Count(x => x.Length >0 && ((x[0] >='a' && x[0]<='f') || (x[0]>='A' && x[0]<='F')));
-        if (countC1>0)
-          m_ValueClusters.Add(new ValueCluster("A-E",
-            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "e", false));
+        var countC1 = values.Count(x => x.Length >0 && ((x[0] >='a' && x[0]<='e') || (x[0]>='A' && x[0]<='E')));
+        AddUnique(new ValueCluster("A-E", $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "e", false));
 
         var countC2 = values.Count(x => x.Length >0 && ((x[0] >='f' && x[0]<='k') || (x[0]>='F' && x[0]<='K')));
-        if (countC2>0)
-          m_ValueClusters.Add(new ValueCluster("F-K",
-            $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k", false));
-
+        AddUnique(new ValueCluster("F-K", $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k", false));
 
         var countC3 = values.Count(x => x.Length >0 && ((x[0] >='l' && x[0]<='r') || (x[0]>='L' && x[0]<='R')));
-        if (countC3>0)
-          m_ValueClusters.Add(new ValueCluster("L-R",
-            $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r", false));
-
+        AddUnique(new ValueCluster("L-R", $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r", false));
 
         var countC4 = values.Count(x => x.Length >0 && ((x[0] >='s' && x[0]<='z') || (x[0]>='S' && x[0]<='Z')));
-        if (countC4>0)
-          m_ValueClusters.Add(new ValueCluster("S-Z",
-            $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z", false));
+        AddUnique(new ValueCluster("S-Z", $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z", false));
 
         var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
-        if (countN>0)
-          m_ValueClusters.Add(new ValueCluster("0-9",
-             $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9", false));
+        AddUnique(new ValueCluster("0-9", $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9", false));
 
         var countS = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <97));
-        if (countS>0)
-          m_ValueClusters.Add(new ValueCluster("Special",
-             $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
-
+        AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
 
         var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
-        if (countP>0)
-          m_ValueClusters.Add(new ValueCluster("Puctuation",
+        AddUnique(new ValueCluster("Puctuation",
              $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
              $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
              $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
              $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~'))", countP, null, null, false));
 
         var countR = values.Count() - countS -countN- countC1- countC2- countC3- countC4 -countP;
-        if (countR>0)
-          m_ValueClusters.Add(new ValueCluster("Other",
-             $"(SUBSTRING({escapedName},1,1) > '~')", countR, null, null, false));
+        AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null, null, false));
 
         return BuildValueClustersResult.ListFilled;
       }
@@ -669,7 +653,7 @@ namespace CsvTools
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
           {
             m_Last = new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')", values.Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)), text);
-            m_ValueClusters.Add(m_Last);
+            AddUnique(m_Last);
           }
         }
       }
@@ -683,8 +667,9 @@ namespace CsvTools
         else if (allow2 &&  clusterTwo.Count <= max)
           clusterBegin = clusterTwo;
 
-        // Look at the data like something%, check if there are large cumbs in there like something XXX is making up 50%
-        // add something XXX and a something% (without something XXX)
+        // Look at the data "some%", check if there are large blocks in there like somethingXXX is making up 50%
+        // add "somethingXXX" and a "something% (without something XXX)"
+
         foreach (var text in clusterBegin.OrderBy(x => x))
         {
           if (string.IsNullOrEmpty(text))
@@ -716,14 +701,14 @@ namespace CsvTools
                 }
                 sbExluded.Length -= 3;
                 if (countall >0)
-                  m_ValueClusters.Add(new ValueCluster($"{text}… (remaining)", $"({sbExluded}))", countall, text));
+                  AddUnique(new ValueCluster($"{text}… (remaining)", $"({sbExluded}))", countall, text));
 
                 foreach (var kvp in bigger)
-                  m_ValueClusters.Add(new ValueCluster($"{kvp.Key}", $"({escapedName} = '{kvp.Key.SqlQuote()}')", kvp.Value, text));
+                  AddUnique(new ValueCluster($"{kvp.Key}", $"({escapedName} = '{kvp.Key.SqlQuote()}')", kvp.Value, text));
                 continue;
               }
             }
-            m_ValueClusters.Add(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countall, text));
+            AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countall, text));
           }
         }
       }
@@ -734,8 +719,7 @@ namespace CsvTools
     {
       if (count <= 0 || m_ValueClusters.Any(x => x.Start is null))
         return;
-      m_ValueClusters.Add(new ValueCluster(ColumnFilterLogic.OperatorIsNull,
-        string.Format($"({escapedName} IS NULL)"), count, null));
+      AddUnique(new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count, null));
     }
 
     /// <summary>
@@ -752,6 +736,16 @@ namespace CsvTools
     public void Clear() => m_ValueClusters.Clear();
     public bool Contains(ValueCluster item) => m_ValueClusters.Contains(item);
     public void Add(ValueCluster item) => m_ValueClusters.Add(item);
+    private void AddUnique(in ValueCluster item)
+    {
+      if (item.Count>0)
+      {
+        foreach (var existing in m_ValueClusters)
+          if (existing.Display.Equals(item.Display, StringComparison.OrdinalIgnoreCase))
+            return;
+        m_ValueClusters.Add(item);
+      }
+    }
     public void CopyTo(ValueCluster[] array, int arrayIndex) => m_ValueClusters.CopyTo(array, arrayIndex);
     public bool Remove(ValueCluster item) => m_ValueClusters.Remove(item);
     public IEnumerator<ValueCluster> GetEnumerator() => m_ValueClusters.GetEnumerator();
