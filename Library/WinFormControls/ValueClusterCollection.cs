@@ -630,7 +630,7 @@ namespace CsvTools
         var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
         AddUnique(new ValueCluster("0-9", $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9", false));
 
-        var countS = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <97));
+        var countS = values.Count(x => x.Length >0 && (x[0] < 32));
         AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
 
         var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
@@ -659,6 +659,27 @@ namespace CsvTools
       }
       else
       {
+        // Sometimes we still have a single entry for 4 ,
+        // make the text as long as possible
+        if (clusterFour.Count ==1)
+        {
+          var test = cluster.First();
+          for (var i = 4; i < 140; i++)
+          {
+            if (cluster.Count(x => x.StartsWith(test.Substring(0, i))) < clusterFour.Count)
+            {
+              // TODO: this is not great, still have only one entry but still better than only having 4
+              AddUnique(new ValueCluster($"{test.Substring(0, i-1)}…", $"({escapedName} LIKE '{test.Substring(0, i-1).SqlQuote()}%')", clusterFour.Count, test.Substring(0, i-1)));
+              return BuildValueClustersResult.ListFilled;
+            }
+            // make the steps bigger later
+            if (i>10)
+              i++;
+            if (i>=50)
+              i+=3;
+          }
+        }
+
         var clusterBegin = clusterOne;
         if (allow4 && clusterFour.Count <= max)
           clusterBegin = clusterFour;
