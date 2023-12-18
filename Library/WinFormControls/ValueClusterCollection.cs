@@ -615,25 +615,25 @@ namespace CsvTools
       {
         var countC1 = values.Count(x => x.Length >0 && ((x[0] >='a' && x[0]<='f') || (x[0]>='A' && x[0]<='F')));
         if (countC1>0)
-          m_ValueClusters.Add(new ValueCluster("A-F",
-            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'f')", countC1, "a", "f", false));
+          m_ValueClusters.Add(new ValueCluster("A-E",
+            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "e", false));
 
-        var countC2 = values.Count(x => x.Length >0 && ((x[0] >='g' && x[0]<='l') || (x[0]>='G' && x[0]<='L')));
+        var countC2 = values.Count(x => x.Length >0 && ((x[0] >='f' && x[0]<='k') || (x[0]>='F' && x[0]<='K')));
         if (countC2>0)
-          m_ValueClusters.Add(new ValueCluster("G-L",
-            $"(SUBSTRING({escapedName},1,1) >= 'g' AND SUBSTRING({escapedName},1,1) <= 'l')", countC2, "g", "l", false));
+          m_ValueClusters.Add(new ValueCluster("F-K",
+            $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k", false));
 
 
-        var countC3 = values.Count(x => x.Length >0 && ((x[0] >='m' && x[0]<='s') || (x[0]>='M' && x[0]<='S')));
+        var countC3 = values.Count(x => x.Length >0 && ((x[0] >='l' && x[0]<='r') || (x[0]>='L' && x[0]<='R')));
         if (countC3>0)
-          m_ValueClusters.Add(new ValueCluster("M-S",
-            $"(SUBSTRING({escapedName},1,1) >= 'm' AND SUBSTRING({escapedName},1,1) <= 's')", countC2, "m", "s", false));
+          m_ValueClusters.Add(new ValueCluster("L-R",
+            $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r", false));
 
 
-        var countC4 = values.Count(x => x.Length >0 && ((x[0] >='t' && x[0]<='z') || (x[0]>='T' && x[0]<='Z')));
+        var countC4 = values.Count(x => x.Length >0 && ((x[0] >='s' && x[0]<='z') || (x[0]>='S' && x[0]<='Z')));
         if (countC4>0)
-          m_ValueClusters.Add(new ValueCluster("T-Z",
-            $"(SUBSTRING({escapedName},1,1) >= 't' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "t", "z", false));
+          m_ValueClusters.Add(new ValueCluster("S-Z",
+            $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z", false));
 
         var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
         if (countN>0)
