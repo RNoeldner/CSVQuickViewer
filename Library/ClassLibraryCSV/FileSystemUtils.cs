@@ -24,6 +24,10 @@ using System.Threading;
 using System.Threading.Tasks;
 #if !QUICK
 using System.Collections.Generic;
+// ReSharper disable UseIndexFromEndExpression
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+// ReSharper disable ReplaceSubstringWithRangeIndexer
 #endif
 
 
@@ -35,7 +39,7 @@ namespace CsvTools
   public static class FileSystemUtils
   {
     /// <summary>
-    ///   On windows we need to take care of filename that might exceed 248 characters, they need to
+    ///   On windows, we need to take care of filename that might exceed 248 characters, they need to
     ///   be escaped.
     /// </summary>
     private const string cLongPathPrefix = @"\\?\";
@@ -239,7 +243,7 @@ namespace CsvTools
         if (split == -1)
           return Path.Combine(GetFullPath(basePath), fileName).RemovePrefix();
 
-        // the Filename could contains wildcards, that is not supported when extending relative path
+        // the Filename could contain wildcards, that is not supported when extending relative path
         // the path part though ca not contain wildcards, so combine base and path
         return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))), fileName.Substring(split))
           .RemovePrefix();
@@ -254,9 +258,9 @@ namespace CsvTools
     /// <summary>
     ///  Get the last file of a given pattern in a folder
     /// </summary>
-    /// <param name="folder">The dierectory to look in</param>
+    /// <param name="folder">The directory to look in</param>
     /// <param name="searchPattern">The pattern to look for</param>
-    /// <returns>No matching file is found of the folder does not exists an empty string is returned</returns>
+    /// <returns>No matching file is found of the folder does not exist an empty string is returned</returns>
     public static string GetLatestFileOfPattern(string folder, in string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
@@ -410,7 +414,7 @@ namespace CsvTools
     ///   Gets filename that is usable in the file system.
     /// </summary>
     /// <param name="original">The original text.</param>
-    /// <param name="replaceInvalid">The replace invalid.</param>
+    /// <param name="replaceInvalid">The replacement for invalid chars</param>
     /// <returns>A text that is allowed in the file system as filename</returns>
     public static string SafePath(this string original, in string replaceInvalid = "")
     {
@@ -600,7 +604,7 @@ namespace CsvTools
       var split = SplitPath(withoutPlaceHolder);
 
       // search for the file
-      return GetLatestFileOfPattern(split.DirectoryName, split.FileName)!;
+      return GetLatestFileOfPattern(split.DirectoryName, split.FileName);
     }
 
     public static string GetFileName(in string? path)
@@ -653,8 +657,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   In general a wrapper for for <see cref="System.IO.FileInfo" />, but it does allow to store
-    ///   information from other sources (sFTP, Zip etc) Provides properties for a files, it has a
+    ///   In general a wrapper for <see cref="System.IO.FileInfo" />, but it does allow to store
+    ///   information from other sources (sFTP, Zip etc.) Provides properties for a files, it has a
     ///   reduced property set. Allows the update of LastWriteTimeUtc
     /// </summary>
     public class FileInfo
