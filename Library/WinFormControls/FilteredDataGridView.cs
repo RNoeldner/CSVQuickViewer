@@ -440,7 +440,7 @@ namespace CsvTools
           toolStripMenuItemSortAscending.Text = columnIndex > -1
             ? string.Format(
               CultureInfo.CurrentCulture,
-              Convert.ToString(toolStripMenuItemSortAscending.Tag),
+              Convert.ToString(toolStripMenuItemSortAscending.Tag) ?? string.Empty,
               Columns[columnIndex].DataPropertyName)
             : "Sort ascending";
 

@@ -41,7 +41,7 @@ namespace CsvTools.Tests
       await xml.ReadAsync(UnitTestStatic.Token);
 
       Assert.AreEqual("Bloodroot", xml.GetString(0));
-      Assert.AreEqual(4l, xml.GetInt64(2));
+      Assert.AreEqual(4L, xml.GetInt64(2));
       xml.Close();
     }
 
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       xml.Read(UnitTestStatic.Token);
 
       Assert.AreEqual("Bloodroot", xml.GetString(0));
-      Assert.AreEqual(4l, xml.GetInt64(2));
+      Assert.AreEqual(4L, xml.GetInt64(2));
       xml.Close();
     }
 
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
       await xmlReader.OpenAsync(UnitTestStatic.Token);
       await xmlReader.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Bloodroot", xmlReader.GetString(0));
-      Assert.AreEqual(4l, xmlReader.GetInt64(2));
+      Assert.AreEqual(4L, xmlReader.GetInt64(2));
     }
 
 
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
-      Assert.AreEqual(4l, xmlReader.GetInt64(2));
+      Assert.AreEqual(4L, xmlReader.GetInt64(2));
       Assert.AreEqual((int) 4, xmlReader.GetInt32(2));
       Assert.AreEqual("$2.44", xmlReader.GetString(4));
       Assert.AreEqual(2.44d, xmlReader.GetDouble(4));

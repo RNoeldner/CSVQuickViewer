@@ -163,7 +163,7 @@ namespace CsvTools
             if (value is DateTime dateTime)
               columnFilters.ValueDateTime = dateTime;
             else
-              columnFilters.ValueText = Convert.ToString(value);
+              columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
             columnFilters.ApplyFilter();
           }
         );
@@ -419,8 +419,7 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString().IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
-                -1)
+            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
               continue;
 
             found.Add(cell);
