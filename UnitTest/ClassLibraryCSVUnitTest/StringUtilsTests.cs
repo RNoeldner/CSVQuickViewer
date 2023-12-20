@@ -298,7 +298,9 @@ namespace CsvTools.Tests
 
       try
       {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         StringUtils.ToSecureString(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
       }
       catch (ArgumentNullException)
       {

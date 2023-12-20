@@ -147,7 +147,7 @@ namespace CsvTools
           var dataRow = m_DataRow[rowIndex];
           if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal))
             continue;
-          var id = dataRow[dataColumnID.Ordinal].ToString().Trim().ToLowerInvariant();
+          var id = dataRow[dataColumnID.Ordinal].ToString()?.Trim().ToLowerInvariant() ?? string.Empty;
           if (dictIDToRow.ContainsKey(id))
             dictIDToCount[id]++;
           else
