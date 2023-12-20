@@ -671,7 +671,7 @@ namespace CsvTools
             if (values.Count(x => x.StartsWith(test.Substring(0, i))) < maxnum)
             {
               break;
-      
+
 
             }
             prevI = i;
