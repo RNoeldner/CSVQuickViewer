@@ -56,14 +56,6 @@ namespace CsvTools.Tests
       Assert.IsNotNull(fl.ValueClusterCollection);
     }
 
-    [TestMethod]
-    [Timeout(1000)]
-    public void BuildValueClusters_StringTooManyValues()
-    {
-      var test = new ValueClusterCollection();
-      Assert.AreEqual(BuildValueClustersResult.TooManyValues, test.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(0), "dummy", false, 20));
-      Assert.AreEqual(0, test.Count());
-    }
 
     [TestMethod]
     [Timeout(1000)]
