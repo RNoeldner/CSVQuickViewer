@@ -7,6 +7,9 @@ using System.Reflection;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(false)]
+#if NET6_0_OR_GREATER
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
 
 // Version information for an assembly consists of the following four values: Major Version Minor
 // Version Build Number Revision You can specify all the values or you can default the Build and.Json
