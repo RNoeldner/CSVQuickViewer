@@ -12,11 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj" />
-    
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="TestFiles\AllFormats.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

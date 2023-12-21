@@ -13,6 +13,8 @@
  */
 
 using System;
+using System.IO;
+
 #if !QUICK
 using System.Threading;
 #endif
@@ -36,9 +38,9 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, string> GetPassphraseForFile = _ => string.Empty;
 
-
     public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile = _ => (string.Empty, string.Empty, string.Empty);
 
+    public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
 
 #if !QUICK
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

@@ -31,7 +31,7 @@ namespace CsvTools
   /// </summary>
   public sealed class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private Stream? m_ImprovedStream;
+    private Stream? m_Stream;
 
     private JsonTextReader? m_JsonTextReader;
 
@@ -50,7 +50,7 @@ namespace CsvTools
       bool allowPercentage,
       bool removeCurrency)
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
-      m_ImprovedStream = stream;
+      m_Stream = stream;
 
     public JsonFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
@@ -89,8 +89,8 @@ namespace CsvTools
       m_StreamReader?.Dispose();
       m_StreamReader = null;
       if (!SelfOpenedStream) return;
-      m_ImprovedStream?.Dispose();
-      m_ImprovedStream = null;
+      m_Stream?.Dispose();
+      m_Stream = null;
     }
 
     public new void Dispose() => Dispose(true);
@@ -98,8 +98,8 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+      if (m_Stream != null)
+        await m_Stream.DisposeAsync().ConfigureAwait(false);
       Dispose(false);
     }
 #endif
@@ -173,12 +173,12 @@ namespace CsvTools
 
     protected override void Dispose(bool disposing)
     {
-      if (disposing) m_ImprovedStream?.Dispose();
+      if (disposing) m_Stream?.Dispose();
 
       m_StreamReader?.Dispose();
       (m_JsonTextReader as IDisposable)?.Dispose();
       m_JsonTextReader = null;
-      m_ImprovedStream = null;
+      m_Stream = null;
     }
 
     /// <inheritdoc />
@@ -188,7 +188,7 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      if (m_ImprovedStream is ImprovedStream imp)
+      if (m_Stream is IImprovedStream imp)
         return imp.Percentage;
 
       return base.GetRelativePosition();
@@ -364,18 +364,18 @@ namespace CsvTools
       if (SelfOpenedStream)
       {
         // Better would bve DisposeAsync(), but method is synchronous
-        m_ImprovedStream?.Dispose();
-        m_ImprovedStream = new ImprovedStream(new SourceAccess(FullPath));
+        m_Stream?.Dispose();
+        m_Stream =  FunctionalDI.GetStream(new SourceAccess(FullPath));
       }
       else
       {
-        m_ImprovedStream!.Seek(0, SeekOrigin.Begin);
+        m_Stream!.Seek(0, SeekOrigin.Begin);
       }
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();
       m_StreamReader = new StreamReader(
-        m_ImprovedStream ?? throw new InvalidOperationException(),
+        m_Stream ?? throw new InvalidOperationException(),
         Encoding.UTF8,
         true,
         4096,

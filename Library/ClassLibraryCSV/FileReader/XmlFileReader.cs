@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   {
-    private Stream? m_ImprovedStream;
+    private Stream? m_Stream;
     private readonly XmlDocument m_Doc = new XmlDocument();
     // private XmlReader? m_XmlReader;
     private XmlNode? m_CurrentNode;
@@ -47,7 +47,7 @@ namespace CsvTools
       bool allowPercentage,
       bool removeCurrency)
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
-      m_ImprovedStream = stream;
+      m_Stream = stream;
 
     public XmlFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
@@ -82,8 +82,8 @@ namespace CsvTools
       m_Doc.RemoveAll();
 
       if (!SelfOpenedStream) return;
-      m_ImprovedStream?.Dispose();
-      m_ImprovedStream = null;
+      m_Stream?.Dispose();
+      m_Stream = null;
     }
 
     public new void Dispose() => Dispose(true);
@@ -91,8 +91,8 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+      if (m_Stream != null)
+        await m_Stream.DisposeAsync().ConfigureAwait(false);
       Dispose(false);
     }
 #endif
@@ -144,10 +144,10 @@ namespace CsvTools
       {
         ResetPositionToStartOrOpen();
         // load the XML        
-        //m_XmlReader = XmlReader.Create(m_ImprovedStream!);
+        //m_XmlReader = XmlReader.Create(m_Stream!);
         //m_XmlReader.ReadStartElement();
 
-        m_Doc.Load(m_ImprovedStream!);
+        m_Doc.Load(m_Stream!);
         // Support a root node, or an array                
         m_CurrentNode  = GetStartNode();
         if (m_CurrentNode != null)
@@ -214,8 +214,8 @@ namespace CsvTools
 
     protected override void Dispose(bool disposing)
     {
-      if (disposing) m_ImprovedStream?.Dispose();
-      m_ImprovedStream = null;
+      if (disposing) m_Stream?.Dispose();
+      m_Stream = null;
     }
 
     /// <inheritdoc />
@@ -225,7 +225,7 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      if (m_ImprovedStream is ImprovedStream imp)
+      if (m_Stream is IImprovedStream imp)
         return imp.Percentage;
 
       return base.GetRelativePosition();
@@ -293,12 +293,12 @@ namespace CsvTools
       if (SelfOpenedStream)
       {
         // Better would bve DisposeAsync(), but method is synchronous
-        m_ImprovedStream?.Dispose();
-        m_ImprovedStream = new ImprovedStream(new SourceAccess(FullPath));
+        m_Stream?.Dispose();
+        m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
       }
       else
       {
-        m_ImprovedStream!.Seek(0, SeekOrigin.Begin);
+        m_Stream!.Seek(0, SeekOrigin.Begin);
       }
 
       // End Line should be at 1, later on as the line is read the start line s set to this value

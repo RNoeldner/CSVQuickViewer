@@ -23,34 +23,9 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace CsvTools
 {
-  public sealed class ImprovedStream : Stream
+  public class ImprovedStream : Stream, IImprovedStream
   {
-    private readonly SourceAccess m_SourceAccess;
-
-#if SupportPGP
-    /// <summary>
-    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
-    /// </summary>
-    /// <remarks>
-    /// This is usually the literal stream that is the Access stream as well</remarks>
-    private Stream? m_StreamClosedFirst;
-
-    /// <summary>
-    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
-    /// </summary>
-    /// <remarks>
-    /// This is usually the compress stream
-    /// </remarks>
-    private Stream? m_StreamClosedSecond;
-
-    /// <summary>
-    ///   A PGP stream, has a few underlying streams that need to be closed in the right order
-    /// </summary>
-    /// <remarks>
-    /// This is usually the encryption stream
-    /// </remarks>
-    private Stream? m_StreamClosedThird;
-#endif
+    protected readonly SourceAccess m_SourceAccess;
 
     /// <summary>
     /// Buffer for Compression Streams
@@ -65,18 +40,6 @@ namespace CsvTools
       BaseStream = m_SourceAccess.OpenStream();
       // ReSharper disable once VirtualMemberCallInConstructor
       OpenByFileType(m_SourceAccess.FileType);
-    }
-
-    /// <summary>
-    ///   Create an improved stream based on another stream
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="type"></param>
-    /// <remarks>Make sure the source stream is disposed</remarks>
-    // ReSharper disable once NotNullMemberIsNotInitialized
-    // ReSharper disable once UnusedMember.Global
-    public ImprovedStream(in Stream stream, FileTypeEnum type) : this(new SourceAccess(stream, type))
-    {
     }
 
     /// <inheritdoc cref="Stream.CanRead"/>
@@ -109,50 +72,8 @@ namespace CsvTools
       set => BaseStream.Position = value;
     }
 
-    private Stream? AccessStream { get; set; }
-    private Stream BaseStream { get; set; }
-
-
-#if SupportPGP
-    /// <summary>
-    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
-    /// </summary>
-    private void ClosePgp(bool createdFile)
-    {
-
-      if (m_SourceAccess.FileType != FileTypeEnum.Pgp)
-        return;
-      if (m_StreamClosedFirst != null)
-      {
-        m_StreamClosedFirst!.Close();
-        m_StreamClosedSecond?.Close();
-        m_StreamClosedThird?.Close();
-        m_StreamClosedThird?.Dispose();
-        m_StreamClosedSecond?.Dispose();
-        m_StreamClosedFirst!.Dispose();
-        m_StreamClosedFirst = null;
-      }
-
-      if (m_SourceAccess.KeepEncrypted && createdFile)
-      {
-        // We have written to the encrypted file, now its time to make an encrypted copy.
-        BaseStream.Close();
-
-        var split = FileSystemUtils.SplitPath(m_SourceAccess.FullPath);
-        var fn = Path.Combine(split.DirectoryName, split.FileNameWithoutExtension);
-        // Encrypt the created not encrypted file file to an encrypted version
-        if (!FileSystemUtils.FileExists(fn))
-          throw new FileNotFoundException($"Could not find not encrypted file {fn} for encryption");
-
-        var key = m_SourceAccess.PgpKey;
-        if (string.IsNullOrEmpty(key))
-          key =  FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
-
-        var publicKey = PgpHelper.ParsePublicKey(key);
-        publicKey.EncryptFileAsync(fn, m_SourceAccess.FullPath, null, System.Threading.CancellationToken.None).GetAwaiter().GetResult();
-      }
-    }
-#endif
+    protected Stream? AccessStream { get; set; }
+    protected Stream BaseStream { get; set; }
 
     /// <inheritdoc cref="Stream.Close()"/>
     /// <summary>
@@ -162,9 +83,6 @@ namespace CsvTools
     {
       try
       {
-#if SupportPGP
-        ClosePgp(true);
-#endif
         try
         {
           m_ZipFile?.Close();
@@ -205,10 +123,6 @@ namespace CsvTools
     {
       try
       {
-#if SupportPGP
-        m_StreamClosedThird?.Flush();
-        m_StreamClosedSecond?.Flush();
-#endif
         if (AccessStream != BaseStream)
           AccessStream?.Flush();
         BaseStream.Flush();
@@ -279,28 +193,6 @@ namespace CsvTools
       {
         AccessStream = null;
       }
-#if SupportPGP
-      try
-      {
-        m_StreamClosedSecond?.Dispose();
-      }
-      finally
-      {
-        m_StreamClosedSecond = null;
-      }
-
-      try
-      {
-        m_StreamClosedThird?.Dispose();
-      }
-      finally
-      {
-        m_StreamClosedThird = null;
-      }
-#endif
-      if (AccessStream != BaseStream)
-        AccessStream?.Dispose();
-
       if (!m_SourceAccess.LeaveOpen)
         BaseStream.Dispose();
 
@@ -310,15 +202,10 @@ namespace CsvTools
     /// <summary>
     /// Depending on type call other Methods to work with the stream
     /// </summary>
-    private void OpenByFileType(FileTypeEnum fileType)
+    protected virtual void OpenByFileType(FileTypeEnum fileType)
     {
       switch (fileType)
       {
-#if SupportPGP
-        case FileTypeEnum.Pgp:
-          OpenPgpOverBase();
-          break;
-#endif
         case FileTypeEnum.GZip:
           OpenZGipOverBase();
           break;
@@ -336,72 +223,6 @@ namespace CsvTools
           break;
       }
     }
-
-#if SupportPGP
-    private void OpenPgpOverBase()
-    {
-
-      ClosePgp(false);
-
-      // Reading / Decrypting
-      if (m_SourceAccess.Reading)
-      {
-        try
-        {
-          Logger.Debug("Decrypt from PGP file {filename}", m_SourceAccess.Identifier);
-
-          var key = m_SourceAccess.PgpKey;
-          var passphrase = m_SourceAccess.Passphrase;
-          var keyFile = string.Empty;
-
-          if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(passphrase))
-          {
-            var res = FunctionalDI.GetKeyAndPassphraseForFile(m_SourceAccess.FullPath);
-            key = res.key;
-            passphrase = res.passphrase;
-            keyFile = res.keyFile;
-          }
-
-          var privateKey = PgpHelper.ParsePrivateKey(key);
-          m_StreamClosedFirst = privateKey.GetReadStream(passphrase, BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
-          AccessStream = m_StreamClosedFirst;
-
-          // Opening the stream did work store the information for later use
-          PgpHelper.StorePassphrase(m_SourceAccess.FullPath, passphrase);
-          PgpHelper.StoreKeyFile(m_SourceAccess.FullPath, keyFile);
-          PgpHelper.StoreKey(m_SourceAccess.FullPath, key);
-        }
-        catch (Exception ex)
-        {
-          throw new EncryptionException("Could not decrypt file", ex);
-        }
-      }
-
-      // Writing / Encrypting
-      else
-      {
-        // Do not write PGP file imitate but encrypt when closing...
-        if (!m_SourceAccess.KeepEncrypted)
-        {
-          Logger.Debug("Encrypt to PGP {filename}", m_SourceAccess.Identifier);
-
-          var key = m_SourceAccess.PgpKey;
-          if (string.IsNullOrEmpty(key))
-            key = FunctionalDI.GetKeyForFile(m_SourceAccess.FullPath);
-
-          var publicKey = PgpHelper.ParsePublicKey(key);
-          // Access Stream will be the PgpLiteralDataGenerator (last stream opened)
-          m_StreamClosedFirst = publicKey.GetWriteStream(BaseStream, out m_StreamClosedSecond, out m_StreamClosedThird);
-          AccessStream = m_StreamClosedFirst;
-          PgpHelper.StoreKey(m_SourceAccess.FullPath, key);
-        }
-        else
-        {
-          AccessStream = BaseStream;
-        }
-      }
-    }
-#endif
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     private async ValueTask DisposeAsyncCore()
@@ -470,12 +291,6 @@ namespace CsvTools
         try
         {
           m_ZipFile.GetEnumerator();
-
-#if SupportPGP
-          // store the password it is correct...
-          if (!string.IsNullOrEmpty(pass))
-            PgpHelper.StorePassphrase(m_SourceAccess.FullPath, pass);
-#endif
         }
         catch (ZipException)
         {
