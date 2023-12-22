@@ -907,7 +907,7 @@ namespace CsvTools
                              || m_CsvFile.FieldQualifierChar == char.MinValue;
         m_ErrorProvider!.SetError(m_CheckBoxDuplicateQuotingToEscape, canContainQuotes ? null : "Text can not contain qualifier");
         m_ErrorProvider.SetError(m_CheckBoxAlternateQuoting, canContainQuotes ? null : "Text can not contain qualifier");
-        m_ErrorProvider.SetError(m_FastColoredTextBox11, canContainQuotes ? null : "The contained quote would cause closing of the column unless placeholder, repeated quotes or context sensitive quoting is used.");
+        m_ErrorProvider.SetError(m_FastColoredTextBox11!, canContainQuotes ? null : "The contained quote would cause closing of the column unless placeholder, repeated quotes or context sensitive quoting is used.");
 
         var delimiter = m_CsvFile.FieldDelimiterChar;
         var quote = m_CsvFile.FieldQualifierChar;

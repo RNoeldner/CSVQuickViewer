@@ -726,7 +726,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = new ImprovedStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
+        using var iStream = FunctionalDI.GetStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
         using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
         for (var i = 0; i < physSource.SkipRows; i++)
           skippedLines.AppendLine(await sr.ReadLineAsync());

@@ -69,8 +69,9 @@ namespace CsvTools
           csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer,
           csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar,
           csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder,
-          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id,publicKey, csv.KeepUnencrypted
+          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
           ),
+#if !CsvQuickViewer
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
           jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull,
           jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString(),
@@ -80,18 +81,20 @@ namespace CsvTools
           xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection,
           xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
           ),
+#endif
         _ => null
       };
 
       if (writer is null)
         throw new FileWriterException($"Writer for {fileSetting} not found");
-
+#if !CsvQuickViewer
       writer.WriteFinished += (sender, args) =>
-      {
-        fileSetting.ProcessTimeUtc = DateTime.UtcNow;
+      {        
+        fileSetting.ProcessTimeUtc = DateTime.UtcNow;        
         if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
           new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
       };
+#endif
       return writer;
     }
   }

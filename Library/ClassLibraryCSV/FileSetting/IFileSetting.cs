@@ -23,15 +23,19 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>,
-    ICollectionIdentity
+  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>
+#if !CsvQuickViewer
+    ,ICollectionIdentity
+#endif
   {
-    event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;    
+#if !CsvQuickViewer
+    event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
 
     /// <summary>
     ///   Status of long running processing on the FileSettings, used to synchronise over independent threads
     /// </summary>
     FileStettingStatus Status { get; set; }
+#endif
 
     /// <summary>
     ///   Gets or sets the column formats
@@ -65,10 +69,12 @@ namespace CsvTools
     /// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>
     bool DisplayStartLineNo { get; set; }
 
+#if !CsvQuickViewer
     /// <summary>
     ///   Gets or sets the number records with errors
     /// </summary>
     long ErrorCount { get; set; }
+#endif
 
     /// <summary>
     ///   Gets or sets the Footer.
@@ -94,6 +100,7 @@ namespace CsvTools
     /// <value>The ID.</value>
     string ID { get; set; }
 
+#if !CsvQuickViewer 
     /// <summary>
     ///   Gets or sets a value indicating whether this setting is critical for the export, meaning
     ///   the processing will throw an error in case of problems. You can flag a setting to not be
@@ -118,6 +125,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if this instance is enabled; otherwise, <c>false</c>.</value>
     bool IsEnabled { get; set; }
+#endif
 
     /// <summary>
     ///   When a file is encrypted the not encrypted version temporary file is removed When data is
@@ -126,17 +134,20 @@ namespace CsvTools
     /// </summary>
     bool KeepUnencrypted { get; set; }
 
+#if !CsvQuickViewer 
     /// <summary>
     ///   The latest value of possible sources, e.G. the file time from the sources in a SQL, As
     ///   calculating might be time consuming, use CalculateLatestSource to rebuild the value
     /// </summary>
     DateTime LatestSourceTimeUtc { get; set; }
 
+
     /// <summary>
     ///   Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
     MappingCollection MappingCollection { get; }
+
 
     /// <summary>
     ///   Gets or sets the number records that have been processed
@@ -149,7 +160,16 @@ namespace CsvTools
     /// </summary>
     /// <value>UTC time of last file write</value>
     DateTime ProcessTimeUtc { get; set; }
+#endif
 
+
+    /// <summary>
+    ///   Gets or sets the record limit.
+    /// </summary>
+    /// <value>The record limit. if set to 0 there is no limit</value>
+    long RecordLimit { get; set; }
+
+#if !CsvQuickViewer
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
     ///   validation is happening and validation errors are stored this is false again. This is
@@ -159,16 +179,25 @@ namespace CsvTools
     bool RecentlyLoaded { get; set; }
 
     /// <summary>
-    ///   Gets or sets the record limit.
-    /// </summary>
-    /// <value>The record limit. if set to 0 there is no limit</value>
-    long RecordLimit { get; set; }
-
-    /// <summary>
     ///   Storage for Sample and error records, used in the validator only, TODO: move to other
     ///   library or wait for Extension of Classes
     /// </summary>
     SampleAndErrorsInformation SamplesAndErrors { get; }
+
+    
+    /// <summary>
+    ///   Storage for the settings used as direct or indirect sources.
+    /// </summary>
+    /// <remarks>
+    ///   This is used for queries that might refer to data that is produced by other settings but
+    ///   not for file setting pointing to a specific physical file
+    /// </remarks>
+    /// <example>
+    ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
+    ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
+    /// </example>
+    IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
+#endif
 
     /// <summary>
     ///   Gets or sets a value indicating whether to show progress.
@@ -194,19 +223,7 @@ namespace CsvTools
     /// <value>The skip rows.</value>
     int SkipRows { get; set; }
 
-    /// <summary>
-    ///   Storage for the settings used as direct or indirect sources.
-    /// </summary>
-    /// <remarks>
-    ///   This is used for queries that might refer to data that is produced by other settings but
-    ///   not for file setting pointing to a specific physical file
-    /// </remarks>
-    /// <example>
-    ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
-    ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
-    /// </example>
-    IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
-
+#if !CsvQuickViewer 
     /// <summary>
     ///   Gets or sets the SQL statement.
     /// </summary>
@@ -220,11 +237,13 @@ namespace CsvTools
     /// <value>The name of the template.</value>
     string TemplateName { get; set; }
 
+
     /// <summary>
     ///   Gets or sets the timeout value mainly used in Web or SQL Calls.
     /// </summary>
     /// <value>The timeout in seconds.</value>
     int Timeout { get; set; }
+#endif
 
     /// <summary>
     ///   Gets or sets a value indicating whether to treat NBSP as space.
@@ -242,6 +261,7 @@ namespace CsvTools
     /// </summary>
     TrimmingOptionEnum TrimmingOption { get; set; }
 
+#if !CsvQuickViewer
     /// <summary>
     ///   Gets or sets a value indicating whether this instance is imported, and should be validated
     /// </summary>
@@ -268,5 +288,6 @@ namespace CsvTools
     /// <param name="other"></param>
     /// <returns>List of differences as string</returns>
     IEnumerable<string> GetDifferences(IFileSetting other);
+#endif
   }
 }

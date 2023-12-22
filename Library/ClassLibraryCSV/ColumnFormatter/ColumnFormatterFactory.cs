@@ -29,7 +29,7 @@ namespace CsvTools
         DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
         DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
         DataTypeEnum.Binary => new BinaryFormatter(valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
-#if !QUICK
+#if !QUICK && !CsvQuickViewer
         DataTypeEnum.Markdown2Html => Markdown2HtmlFormatter.Instance,
 #endif
         _ => EmptyFormatter.Instance

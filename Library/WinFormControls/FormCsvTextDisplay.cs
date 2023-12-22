@@ -76,18 +76,20 @@ namespace CsvTools
       await
 #endif
       // ReSharper disable once UseAwaitUsing
-      using var stream = new ImprovedStream(sa);
+      using var stream = FunctionalDI.GetStream(sa);
       using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
 
       var sb = new StringBuilder();
       char[] buffer = ArrayPool<char>.Shared.Rent(64000);
       int len;
-      formProgress.SetMaximum(1000);
+      const int cMax = 1000;
+      formProgress.SetMaximum(cMax);
       while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
       {
         cancellationToken.ThrowIfCancellationRequested();
         sb.Append(buffer, 0, len);
-        formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", Convert.ToInt64(stream.Percentage * 1000)));
+        var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * cMax) : 0L;
+        formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
       }
 
       formProgress.SetMaximum(0);
