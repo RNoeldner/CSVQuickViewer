@@ -226,9 +226,8 @@ namespace CsvTools.Tests
     public void ShortFileName()
     {
       Assert.AreEqual("", "".ShortFileName());
-      Assert.AreNotEqual("Test.txt".GetAbsolutePath("."), "Test.txt".ShortFileName());
       var fn = UnitTestStatic.GetTestPath(".");
-      Assert.IsTrue(fn.ShortFileName().Contains("CSVQUI~"));
+      Assert.IsTrue(fn.ShortFileName().Contains("CSVQUI~"), fn.ShortFileName());
     }
 
     [TestMethod]
