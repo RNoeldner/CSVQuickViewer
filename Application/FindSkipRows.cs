@@ -54,7 +54,7 @@ namespace CsvTools
       using var formProgress = new FormProgress("Check", true, FontConfig, CancellationToken.None);
       formProgress.Show(this);
       formProgress.Maximum = 0;
-      using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));
+      using var stream = FunctionalDI.GetStream(new SourceAccess(m_CsvFile));
       using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
       m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Character, m_TextBoxQuote.Character,
         textBoxEscape.Character, textBoxComment.Text,

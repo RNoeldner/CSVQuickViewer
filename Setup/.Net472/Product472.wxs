@@ -34,11 +34,13 @@
             <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
             <File Id="CSVQuickViewerConfig" Name="CSVQuickViewer.exe.Config" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe.Config" />
+<!---
             <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
             <File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
-            <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
-            <File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />
             <File Id="Markdown" Name="Markdown.dll" Source="$(var.CSVQuickViewer.TargetPath)\Markdown.dll" />
+-->
+            <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
+            <File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />            
             <File Id="MicrosoftExtensionsDependencyInjectionAbstractions" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
             <File Id="MicrosoftExtensionsLogging" Name="Microsoft.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.dll" />
             <File Id="MicrosoftExtensionsLoggingAbstractions" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.Abstractions.dll" />

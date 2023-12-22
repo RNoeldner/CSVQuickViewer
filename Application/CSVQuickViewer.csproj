@@ -8,34 +8,34 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>Picture.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
-		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
-		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<RootNamespace>CsvTools</RootNamespace>
-		<Nullable>enable</Nullable>
-		<WarningsAsErrors>nullable</WarningsAsErrors>
-		<Configurations>Debug;Release</Configurations>
-		<LangVersion>latest</LangVersion>		
-		<RepositoryType>git</RepositoryType>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<IsPublishable>False</IsPublishable>
-		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
-		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
-		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DefineConstants>TRACE;Windows</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DefineConstants>TRACE;Windows</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
-	  <DebugType>none</DebugType>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>CsvTools</RootNamespace>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <Configurations>Debug;Release</Configurations>
+    <LangVersion>latest</LangVersion>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IsPublishable>False</IsPublishable>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+    <PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
+    <PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>TRACE;Windows</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>TRACE;Windows</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
+    <DebugType>none</DebugType>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>CsvTools</RootNamespace>
@@ -63,29 +63,228 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
     <DebugType>none</DebugType>
+    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
     <DebugType>none</DebugType>
     <WarningLevel>5</WarningLevel>
+    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
     <DebugType>embedded</DebugType>
+    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
     <DebugType>embedded</DebugType>
     <WarningLevel>5</WarningLevel>
+    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="App.config" />
     <None Remove="CSVQuickViewer.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="ClassLibraryCSV\BiDirectionalDictionary.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\CheckSamples.cs" Link="ClassLibraryCSV\CheckSamples.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ClassLibraryCSV\ColumnErrorDictionary.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" Link="ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\EmptyFormatter.cs" Link="ClassLibraryCSV\ColumnFormatter\EmptyFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="ClassLibraryCSV\TextPartFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\TextReplaceFormatter.cs" Link="ClassLibraryCSV\ColumnFormatter\TextReplaceFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\TextToHtmlFormatter.cs" Link="ClassLibraryCSV\TextToHtmlFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="ClassLibraryCSV\TextToHtmlFullFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ColumnFormatter\TextUnescapeFormatter.cs" Link="ClassLibraryCSV\TextUnescapeFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Column\Column.cs" Link="ClassLibraryCSV\Column\Column.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Column\ColumnCollection.cs" Link="ClassLibraryCSV\Column\ColumnCollection.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Column\ColumnMut.cs" Link="ClassLibraryCSV\Column\ColumnMut.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Column\WriterColumn.cs" Link="ClassLibraryCSV\Column\WriterColumn.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\CsvHelper.cs" Link="ClassLibraryCSV\CsvHelper.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DateTimeConstants.cs" Link="ClassLibraryCSV\DateTimeConstants.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="ClassLibraryCSV\DateTimeFormatCollection.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionDelimiter.cs" Link="ClassLibraryCSV\DetectionDelimiter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="ClassLibraryCSV\DetectionEscapePrexfix.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionHeader.cs" Link="ClassLibraryCSV\DetectionHeader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionLineComment.cs" Link="ClassLibraryCSV\DetectionLineComment.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionQualifier.cs" Link="ClassLibraryCSV\DetectionQualifier.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionRecordDelimiter.cs" Link="ClassLibraryCSV\DetectionRecordDelimiter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetectionStartRow.cs" Link="ClassLibraryCSV\DetectionStartRow.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DetermineColumnFormat.cs" Link="ClassLibraryCSV\DetermineColumnFormat.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\DisposableBase.cs" Link="ClassLibraryCSV\DisposableBase.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\EncodingHelper.cs" Link="ClassLibraryCSV\EncodingHelper.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Enum\DataTypeEnum.cs" Link="ClassLibraryCSV\Enum\DataTypeEnum.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Enum\FileTypeEnum.cs" Link="ClassLibraryCSV\Enum\FileTypeEnum.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Enum\FilterTypeEnum.cs" Link="ClassLibraryCSV\Enum\FilterTypeEnum.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Enum\RecordDelimiterTypeEnum.cs" Link="ClassLibraryCSV\Enum\RecordDelimiterTypeEnum.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Enum\TrimmingOptionEnum.cs" Link="ClassLibraryCSV\Enum\TrimmingOptionEnum.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ErrorInformation.cs" Link="ClassLibraryCSV\ErrorInformation.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Exceptions\FileReaderException.cs" Link="ClassLibraryCSV\Exceptions\FileReaderException.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Exceptions\FileWriterException.cs" Link="ClassLibraryCSV\Exceptions\FileWriterException.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\BaseFileReader.cs" Link="ClassLibraryCSV\FileReader\BaseFileReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\BaseFileReaderTyped.cs" Link="ClassLibraryCSV\FileReader\BaseFileReaderTyped.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\ClassLibraryCsvFileReaderWriterFactory.cs" Link="ClassLibraryCSV\FileReader\ClassLibraryCsvFileReaderWriterFactory.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\CsvFileReader.cs" Link="ClassLibraryCSV\FileReader\CsvFileReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="ClassLibraryCSV\FileReader\DataReaderWrapper.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="ClassLibraryCSV\FileReader\DataTableWrapper.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\IFileReader.cs" Link="ClassLibraryCSV\FileReader\IFileReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\IFileReaderWriterFactory.cs" Link="ClassLibraryCSV\FileReader\IFileReaderWriterFactory.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\JsonFileReader.cs" Link="ClassLibraryCSV\FileReader\JsonFileReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\ReaderConstants.cs" Link="ClassLibraryCSV\FileReader\ReaderConstants.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileReader\XmlFileReader.cs" Link="ClassLibraryCSV\FileReader\XmlFileReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\BaseSettingPhysicalFile.cs" Link="ClassLibraryCSV\FileSetting\BaseSettingPhysicalFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\BaseSettings.cs" Link="ClassLibraryCSV\FileSetting\BaseSettings.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\CsvFile.cs" Link="ClassLibraryCSV\FileSetting\CsvFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\ICsvFile.cs" Link="ClassLibraryCSV\FileSetting\ICsvFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\IFileSetting.cs" Link="ClassLibraryCSV\FileSetting\IFileSetting.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\IFileSettingPhysicalFile.cs" Link="ClassLibraryCSV\FileSetting\IFileSettingPhysicalFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\IJsonFile.cs" Link="ClassLibraryCSV\FileSetting\IJsonFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\JsonFile.cs" Link="ClassLibraryCSV\FileSetting\JsonFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\IXmlFile.cs" Link="ClassLibraryCSV\FileSetting\IXmlFile.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\XmlFile.cs" Link="ClassLibraryCSV\FileSetting\XmlFile.cs" />    
+    <Compile Include="..\Library\ClassLibraryCSV\FileSetting\StructuredFile.cs" Link="ClassLibraryCSV\FileSetting\StructuredFile.cs" />        
+    <Compile Include="..\Library\ClassLibraryCSV\FileSystemUtils.cs" Link="ClassLibraryCSV\FileSystemUtils.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileWriter\BaseFileWriter.cs" Link="ClassLibraryCSV\FileWriter\BaseFileWriter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileWriter\CsvFileWriter.cs" Link="ClassLibraryCSV\FileWriter\CsvFileWriter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FileWriter\IFileWriter.cs" Link="ClassLibraryCSV\FileWriter\IFileWriter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FilterDataTable.cs" Link="ClassLibraryCSV\FilterDataTable.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\FunctionalDI.cs" Link="ClassLibraryCSV\FunctionalDI.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\HTMLStyle.cs" Link="ClassLibraryCSV\HTMLStyle.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ICollectionIdentity.cs" Link="ClassLibraryCSV\ICollectionIdentity.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IColumnFormatter.cs" Link="ClassLibraryCSV\IColumnFormatter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IFontConfig.cs" Link="ClassLibraryCSV\IFontConfig.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IImprovedStream.cs" Link="ClassLibraryCSV\IImprovedStream.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IProcessDisplayTime.cs" Link="ClassLibraryCSV\IProcessDisplayTime.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IWithCopyTo.cs" Link="ClassLibraryCSV\IWithCopyTo.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="ClassLibraryCSV\DateTimeFormatInformation.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Immutable\DateTimeFormatLength.cs" Link="ClassLibraryCSV\DateTimeFormatLength.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Immutable\DisplayItem.cs" Link="ClassLibraryCSV\Immutable\DisplayItem.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Immutable\ManifestData.cs" Link="ClassLibraryCSV\Immutable\ManifestData.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ImprovedStream.cs" Link="ClassLibraryCSV\ImprovedStream.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ImprovedTextReader.cs" Link="ClassLibraryCSV\ImprovedTextReader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" Link="ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\InspectionResult.cs" Link="ClassLibraryCSV\InspectionResult.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\IntervalAction.cs" Link="ClassLibraryCSV\IntervalAction.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Logger.cs" Link="ClassLibraryCSV\Logger.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Mutable\CheckResult.cs" Link="ClassLibraryCSV\CheckResult.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="ClassLibraryCSV\DelimiterCounter.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="ClassLibraryCSV\FillGuessSettings.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Mutable\SourceAccess.cs" Link="ClassLibraryCSV\Mutable\SourceAccess.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ObservableObject.cs" Link="ClassLibraryCSV\ObservableObject.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ClassLibraryCSV\ProcessDisplayTime.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ProgressInfo.cs" Link="ClassLibraryCSV\ProgressInfo.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\PropertyChangedEventArgs.cs" Link="ClassLibraryCSV\PropertyChangedEventArgs.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\Punctuation.cs" Link="ClassLibraryCSV\Punctuation.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ReAlignColumns.cs" Link="ClassLibraryCSV\ReAlignColumns.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ReaderMapping.cs" Link="ClassLibraryCSV\ReaderMapping.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\RetryEventArgs.cs" Link="ClassLibraryCSV\RetryEventArgs.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\SerializedFilesLib.cs" Link="ClassLibraryCSV\SerializedFilesLib.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ShortDescriptionAttribute.cs" Link="ClassLibraryCSV\ShortDescriptionAttribute.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\StandardTimeZoneAdjust.cs" Link="ClassLibraryCSV\StandardTimeZoneAdjust.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\StaticCollections.cs" Link="ClassLibraryCSV\StaticCollections.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\SteppedDataTableLoader.cs" Link="ClassLibraryCSV\SteppedDataTableLoader.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\StringConversion.cs" Link="ClassLibraryCSV\StringConversion.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\StringConversionSpan.cs" Link="ClassLibraryCSV\StringConversionSpan.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\StringUtils.cs" Link="ClassLibraryCSV\StringUtils.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\TimeToCompletion.cs" Link="ClassLibraryCSV\TimeToCompletion.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\UniqueObservableCollection.cs" Link="ClassLibraryCSV\UniqueObservableCollection.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\UserInterfaceSettings\ViewSettings.cs" Link="ClassLibraryCSV\UserInterfaceSettings\ViewSettings.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ValueFormat\ValueFormat.cs" Link="ClassLibraryCSV\ValueFormat\ValueFormat.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\ValueFormat\ValueFormatMut.cs" Link="ClassLibraryCSV\ValueFormat\ValueFormatMut.cs" />
+    <Compile Include="..\Library\ClassLibraryCSV\WarningEventArgs.cs" Link="ClassLibraryCSV\WarningEventArgs.cs" />
+    <Compile Include="..\Library\WinFormControls\BuildValueClustersResult.cs" Link="WinFormControls\BuildValueClustersResult.cs" />
+    <Compile Include="..\Library\WinFormControls\ColumnFilterLogic.cs" Link="WinFormControls\ColumnFilterLogic.cs" />
+    <Compile Include="..\Library\WinFormControls\ColumnSetting.cs" Link="WinFormControls\ColumnSetting.cs" />
+    <Compile Include="..\Library\WinFormControls\DataGridViewCopyPaste.cs" Link="WinFormControls\DataGridViewCopyPaste.cs" />
+    <Compile Include="..\Library\WinFormControls\DetailControl.Designer.cs" Link="WinFormControls\DetailControl.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\DetailControl.cs" Link="WinFormControls\DetailControl.cs" />
+    <Compile Include="..\Library\WinFormControls\Extensions.cs" Link="WinFormControls\Extensions.cs" />
+    <Compile Include="..\Library\WinFormControls\FillGuessSettingEdit.Designer.cs" Link="WinFormControls\FillGuessSettingEdit.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FillGuessSettingEdit.cs" Link="WinFormControls\FillGuessSettingEdit.cs" />
+    <Compile Include="..\Library\WinFormControls\FilteredDataGridView.Designer.cs" Link="WinFormControls\FilteredDataGridView.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FilteredDataGridView.cs" Link="WinFormControls\FilteredDataGridView.cs" />
+    <Compile Include="..\Library\WinFormControls\FormColumnUIRead.Designer.cs" Link="WinFormControls\FormColumnUIRead.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormColumnUIRead.cs" Link="WinFormControls\FormColumnUIRead.cs" />
+    <Compile Include="..\Library\WinFormControls\FormCsvTextDisplay.Designer.cs" Link="WinFormControls\FormCsvTextDisplay.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormCsvTextDisplay.cs" Link="WinFormControls\FormCsvTextDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FormDuplicatesDisplay.Designer.cs" Link="WinFormControls\FormDuplicatesDisplay.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormDuplicatesDisplay.cs" Link="WinFormControls\FormDuplicatesDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FormHierarchyDisplay.cs" Link="WinFormControls\FormHierarchyDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FormPasswordAndKey.cs" Link="WinFormControls\FormPasswordAndKey.cs" />
+    <Compile Include="..\Library\WinFormControls\FormProcessDisplay.cs" Link="WinFormControls\FormProcessDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FormSelectInDropdown.Designer.cs" Link="WinFormControls\FormSelectInDropdown.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormSelectInDropdown.cs" Link="WinFormControls\FormSelectInDropdown.cs" />
+    <Compile Include="..\Library\WinFormControls\FormShowMaxLength.cs" Link="WinFormControls\FormShowMaxLength.cs" />
+    <Compile Include="..\Library\WinFormControls\FormTextDisplay.Designer.cs" Link="WinFormControls\FormTextDisplay.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormTextDisplay.cs" Link="WinFormControls\FormTextDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FormUniqueDisplay.Designer.cs" Link="WinFormControls\FormUniqueDisplay.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FormUniqueDisplay.cs" Link="WinFormControls\FormUniqueDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\FoundEventArgs.cs" Link="WinFormControls\FoundEventArgs.cs" />
+    <Compile Include="..\Library\WinFormControls\FromColumnsFilter.Designer.cs" Link="WinFormControls\FromColumnsFilter.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FromColumnsFilter.cs" Link="WinFormControls\FromColumnsFilter.cs" />
+    <Compile Include="..\Library\WinFormControls\FromRowsFilter.Designer.cs" Link="WinFormControls\FromRowsFilter.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\FromRowsFilter.cs" Link="WinFormControls\FromRowsFilter.cs" />
+    <Compile Include="..\Library\WinFormControls\LoggerDisplay.cs" Link="WinFormControls\LoggerDisplay.cs" />
+    <Compile Include="..\Library\WinFormControls\MultiSelectTreeView.cs" Link="WinFormControls\MultiSelectTreeView.cs" />
+    <Compile Include="..\Library\WinFormControls\PersistentChoice.cs" Link="WinFormControls\PersistentChoice.cs" />
+    <Compile Include="..\Library\WinFormControls\PunctuationTextBox.cs" Link="WinFormControls\PunctuationTextBox.cs" />
+    <Compile Include="..\Library\WinFormControls\QuotingControl.cs" Link="WinFormControls\QuotingControl.cs" />
+    <Compile Include="..\Library\WinFormControls\ResizeForm.cs" Link="WinFormControls\ResizeForm.cs" />
+    <Compile Include="..\Library\WinFormControls\Search.cs" Link="WinFormControls\Search.cs" />
+    <Compile Include="..\Library\WinFormControls\SearchEventArgs.cs" Link="WinFormControls\SearchEventArgs.cs" />
+    <Compile Include="..\Library\WinFormControls\SelectFont.Designer.cs" Link="WinFormControls\SelectFont.Designer.cs" />
+    <Compile Include="..\Library\WinFormControls\SelectFont.cs" Link="WinFormControls\SelectFont.cs" />
+    <Compile Include="..\Library\WinFormControls\SyntaxHighlighterBase.cs" Link="WinFormControls\SyntaxHighlighterBase.cs" />
+    <Compile Include="..\Library\WinFormControls\SyntaxHighlighterDelimitedText.cs" Link="WinFormControls\SyntaxHighlighterDelimitedText.cs" />
+    <Compile Include="..\Library\WinFormControls\SyntaxHighligtherJson.cs" Link="WinFormControls\SyntaxHighligtherJson.cs" />
+    <Compile Include="..\Library\WinFormControls\TimedMessage.cs" Link="WinFormControls\TimedMessage.cs" />
+    <Compile Include="..\Library\WinFormControls\ToolStripCheckedListBox.cs" Link="WinFormControls\ToolStripCheckedListBox.cs" />
+    <Compile Include="..\Library\WinFormControls\ValueCluster.cs" Link="WinFormControls\ValueCluster.cs" />
+    <Compile Include="..\Library\WinFormControls\ValueClusterCollection.cs" Link="WinFormControls\ValueClusterCollection.cs" />
+    <Compile Include="..\Library\WinFormControls\ViewSetting.cs" Link="WinFormControls\ViewSetting.cs" />
+    <Compile Include="..\Library\WinFormControls\WinAppLogging.cs" Link="WinFormControls\WinAppLogging.cs" />
+    <Compile Include="..\Library\WinFormControls\WindowState.cs" Link="WinFormControls\WindowState.cs" />
+    <Compile Include="..\Library\WinFormControls\WindowsAPICodePackWrapper.cs" Link="WinFormControls\WindowsAPICodePackWrapper.cs" />
+    <Compile Include="..\Library\WinFormControls\_MessageBox.cs" Link="WinFormControls\_MessageBox.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
-    <ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
+    <EmbeddedResource Include="..\Library\WinFormControls\DetailControl.resx" Link="WinFormControls\DetailControl.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FillGuessSettingEdit.resx" Link="WinFormControls\FillGuessSettingEdit.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FilteredDataGridView.resx" Link="WinFormControls\FilteredDataGridView.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormColumnUIRead.resx" Link="WinFormControls\FormColumnUIRead.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormCsvTextDisplay.resx" Link="WinFormControls\FormCsvTextDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormDuplicatesDisplay.resx" Link="WinFormControls\FormDuplicatesDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormHierarchyDisplay.resx" Link="WinFormControls\FormHierarchyDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormPasswordAndKey.resx" Link="WinFormControls\FormPasswordAndKey.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormProcessDisplay.resx" Link="WinFormControls\FormProcessDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormSelectInDropdown.resx" Link="WinFormControls\FormSelectInDropdown.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormShowMaxLength.resx" Link="WinFormControls\FormShowMaxLength.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormTextDisplay.resx" Link="WinFormControls\FormTextDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FormUniqueDisplay.resx" Link="WinFormControls\FormUniqueDisplay.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FromColumnsFilter.resx" Link="WinFormControls\FromColumnsFilter.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\FromRowsFilter.resx" Link="WinFormControls\FromRowsFilter.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\QuotingControl.resx" Link="WinFormControls\QuotingControl.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\ResizeForm.resx" Link="WinFormControls\ResizeForm.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\Search.resx" Link="WinFormControls\Search.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\SelectFont.resx" Link="WinFormControls\SelectFont.resx" />
+    <EmbeddedResource Include="..\Library\WinFormControls\TimedMessage.resx" Link="WinFormControls\TimedMessage.resx" />
+    <EmbeddedResource Include="..\Library\ClassLibraryCSV\DateTimeFormats.txt" Link="ClassLibraryCSV\DateTimeFormats.txt" />
+
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="FCTB" Version="2.16.*" />
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />        
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.*" />
+    <PackageReference Include="Ben.Demystifier" Version="*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="TimeZoneConverter" Version="6.1.*" />
+    <PackageReference Include="UTF.Unknown" Version="2.5.*" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
     <Reference Include="System" />

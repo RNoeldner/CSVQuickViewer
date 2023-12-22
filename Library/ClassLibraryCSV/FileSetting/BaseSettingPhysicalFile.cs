@@ -54,10 +54,10 @@ namespace CsvTools
       else
         m_FileName = fileName;
     }
-
+#if !CsvQuickViewer
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
-
+#endif
     [DefaultValue("")]
     public string KeyFile
     {
@@ -347,6 +347,8 @@ namespace CsvTools
       return base.BaseSettingsEquals(other);
     }
 
+
+#if !CsvQuickViewer
     public override IEnumerable<string> GetDifferences(IFileSetting other)
     {
       if (other is IFileSettingPhysicalFile physicalFile)
@@ -387,5 +389,6 @@ namespace CsvTools
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }
+#endif
   }
 }

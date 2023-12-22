@@ -258,7 +258,9 @@ namespace CsvTools
       // 
       // m_ImageList
       // 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
       this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("m_ImageList.ImageStream")));
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
       this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
       this.m_ImageList.Images.SetKeyName(0, "Info-icon.bmp");
       this.m_ImageList.Images.SetKeyName(1, "icon-warning.bmp");

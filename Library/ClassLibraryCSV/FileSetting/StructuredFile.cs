@@ -50,7 +50,7 @@ namespace CsvTools
     public string Row
     {
       get => m_Row;
-      set => SetProperty(ref m_Row, value ?? string.Empty);      
+      set => SetProperty(ref m_Row, value ?? string.Empty);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      
+
       return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
     }
 
@@ -83,6 +83,7 @@ namespace CsvTools
       otherSwf.Row = m_Row;
     }
 
+#if !CsvQuickViewer
     public override IEnumerable<string> GetDifferences(IFileSetting other)
     {
       if (other is StructuredFile structured)
@@ -91,5 +92,7 @@ namespace CsvTools
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }
+#endif
+
   }
 }

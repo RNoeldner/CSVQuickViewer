@@ -531,6 +531,7 @@ namespace CsvTools
              && string.Equals(QualifierPlaceholder, other.QualifierPlaceholder, StringComparison.Ordinal);
     }
 
+    #if !CsvQuickViewer
     /// <inheritdoc />
     public override IEnumerable<string> GetDifferences(IFileSetting other)
     {
@@ -621,5 +622,6 @@ namespace CsvTools
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }
+    #endif
   }
 }

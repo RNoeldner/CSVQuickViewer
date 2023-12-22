@@ -444,12 +444,14 @@ namespace CsvTools
               Columns[columnIndex].DataPropertyName)
             : "Sort ascending";
 
+#pragma warning disable CS8604 // Possible null reference argument.
           toolStripMenuItemSortDescending.Text = columnIndex > -1
             ? string.Format(
               CultureInfo.CurrentCulture,
               Convert.ToString(toolStripMenuItemSortDescending.Tag),
               Columns[columnIndex].DataPropertyName)
             : "Sort descending";
+#pragma warning restore CS8604 // Possible null reference argument.
           var columnFormat = GetColumnFormat(columnIndex);
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
@@ -1267,7 +1269,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif          
-          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
 
 #if NET5_0_OR_GREATER
           await

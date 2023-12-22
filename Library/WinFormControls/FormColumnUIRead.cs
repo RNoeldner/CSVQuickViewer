@@ -677,7 +677,7 @@ namespace CsvTools
               goto retry;
             }
 
-            throw new FileException($"Column {columnName} not found.");
+            throw new ApplicationException($"Column {columnName} not found.");
           }
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,

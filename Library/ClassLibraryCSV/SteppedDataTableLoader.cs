@@ -15,7 +15,7 @@ namespace CsvTools
     private IFileReader? m_FileReader;
     private string m_Id = string.Empty;
     public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
-    
+
     /// <summary>
     /// Starts the load of data from a file setting into the data table from m_GetDataTable
     /// </summary>
@@ -46,7 +46,7 @@ namespace CsvTools
         throw new FileReaderException($"Could not get reader for {fileSetting}");
       if (progress != null)
         m_FileReader.ReportProgress = progress;
-
+#if !CsvQuickViewer
       RowErrorCollection? warningList = null;
       if (addWarning != null)
       {
@@ -54,15 +54,16 @@ namespace CsvTools
         m_FileReader.Warning += addWarning;
         m_FileReader.Warning -= warningList.Add;
       }
+#endif
       Logger.Debug("Opening reader");
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-
+#if !CsvQuickViewer
       if (addWarning != null)
       {
         warningList!.HandleIgnoredColumns(m_FileReader);
         warningList.PassWarning += addWarning;
       }
-
+#endif
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField);
 
       // the initial progress is set on the source reader, no need to pass it in, when calling GetNextBatch this needs to be set though

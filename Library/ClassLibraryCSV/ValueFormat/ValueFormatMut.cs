@@ -14,6 +14,7 @@
 
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -121,8 +122,8 @@ namespace CsvTools
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
       m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
-      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).FromText(); 
-      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).FromText(); 
+      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).FromText();
+      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).FromText();
 
       m_DisplayNullAs = displayNullAs ?? string.Empty;
       m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;
@@ -360,7 +361,7 @@ namespace CsvTools
     public bool Equals(ValueFormatMut? other)
     {
       if (other is null) return false;
-      
+
       return DataType == other.DataType
              && DateFormat == other.DateFormat
              && DateSeparator == other.DateSeparator
@@ -387,6 +388,32 @@ namespace CsvTools
 #pragma warning restore CS0659
       obj is ValueFormatMut other && Equals(other);
 
+    public override int GetHashCode()
+    {
+      var hashCode = -373284191;
+      hashCode=hashCode*-1521134295+DataType.GetHashCode();
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DateFormat);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DateSeparator);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DecimalSeparator);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DisplayNullAs);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(False);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(FileOutPutPlaceholder);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(GroupSeparator);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(NumberFormat);
+      hashCode=hashCode*-1521134295+Overwrite.GetHashCode();
+      hashCode=hashCode*-1521134295+Part.GetHashCode();
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(PartSplitter);
+      hashCode=hashCode*-1521134295+PartToEnd.GetHashCode();
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(ReadFolder);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(RegexReplacement);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(RegexSearchPattern);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(TimeSeparator);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(True);
+      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(WriteFolder);
+      return hashCode;
+    }
+
+
     /// <summary>
     /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created
     /// </summary>
@@ -397,5 +424,6 @@ namespace CsvTools
         DecimalSeparator, True, False, DisplayNullAs,
         Part, PartSplitter, PartToEnd, RegexSearchPattern,
         RegexReplacement, ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
+
   }
 }

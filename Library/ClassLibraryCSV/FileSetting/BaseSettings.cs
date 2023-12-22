@@ -47,30 +47,33 @@ namespace CsvTools
     private bool m_DisplayEndLineNo;
     private bool m_DisplayRecordNo;
     private bool m_DisplayStartLineNo = true;
-    private long m_ErrorCount;
     private string m_Footer = string.Empty;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
     private string m_Id;
-    private bool m_InOverview;
-    private bool m_IsEnabled = true;
     private bool m_KeepUnencrypted;
-    private DateTime m_LatestSourceTimeUtc = ZeroTime;
-    private long m_NumRecords;
-    private DateTime m_ProcessTimeUtc = ZeroTime;
     private long m_RecordLimit;
     private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
-    private int m_SkipRows;
-    private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
-    private string m_SqlStatement = string.Empty;
-    private string m_TemplateName = string.Empty;
-    private int m_Timeout = 90;
+    private int m_SkipRows;    
     private bool m_TreatNbspAsSpace;
     private string m_TreatTextAsNull = cTreatTextAsNull;
     private TrimmingOptionEnum m_TrimmingOption = TrimmingOptionEnum.Unquoted;
+    
+#if !CsvQuickViewer
+    private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
+    private long m_ErrorCount;
+    private bool m_InOverview;
+    private bool m_IsEnabled = true;
+    private DateTime m_LatestSourceTimeUtc = ZeroTime;
+    private long m_NumRecords;
+    private DateTime m_ProcessTimeUtc = ZeroTime;    
+    private string m_SqlStatement = string.Empty;
+    private string m_TemplateName = string.Empty;
+    private int m_Timeout = 90;
+    
     private bool m_Validate = true;
     private long m_WarningCount;
     private int m_Order = 100;
@@ -79,6 +82,7 @@ namespace CsvTools
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
     public event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
+#endif
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -93,7 +97,7 @@ namespace CsvTools
           NotifyPropertyChanged(nameof(ColumnCollection));
       };
       ColumnCollection.CollectionItemPropertyChanged += (sender, e) => NotifyPropertyChanged(nameof(ColumnCollection));
-
+#if !CsvQuickViewer
       MappingCollection.CollectionChanged += (sender, e) =>
       {
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
@@ -101,8 +105,10 @@ namespace CsvTools
       };
       MappingCollection.CollectionItemPropertyChanged +=
         (sender, e) => NotifyPropertyChanged(nameof(MappingCollection));
+#endif
     }
 
+#if !CsvQuickViewer
     /// <inheritdoc />
 #if XmlSerialization
     [XmlIgnore]
@@ -153,6 +159,7 @@ namespace CsvTools
       }
     }
 
+#endif
     /// <inheritdoc />
 #if XmlSerialization
     [XmlElement]
@@ -229,8 +236,8 @@ namespace CsvTools
       set => SetProperty(ref m_DisplayEndLineNo, value);
     }
 
+#if !CsvQuickViewer
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -242,11 +249,11 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlElement]
 #endif
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
+#endif
 
     /// <inheritdoc />
     [DefaultValue("")]
@@ -287,12 +294,16 @@ namespace CsvTools
       {
         var oldVal = m_Id;
         if (SetProperty(ref m_Id, value ?? string.Empty))
+#if !CsvQuickViewer
           IdChanged?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldVal, m_Id));
+#else
+          ;
+#endif
       }
     }
 
+#if !CsvQuickViewer
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute(AttributeName = "IsCritical")]
 #endif
@@ -304,7 +315,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -316,7 +326,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -328,7 +337,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -338,6 +346,7 @@ namespace CsvTools
       get => m_IsEnabled;
       set => SetProperty(ref m_IsEnabled, value);
     }
+#endif
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -350,8 +359,8 @@ namespace CsvTools
       set => SetProperty(ref m_KeepUnencrypted, value);
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+#if !CsvQuickViewer
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlIgnore]
 #endif
@@ -369,14 +378,12 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlElement("Mapping")]
 #endif
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -398,13 +405,13 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlIgnore]
 #endif
     [JsonIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
+#endif
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -417,8 +424,7 @@ namespace CsvTools
       set => SetProperty(ref m_RecordLimit, value > 0 ? value : 0);
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -461,8 +467,8 @@ namespace CsvTools
       set => SetProperty(ref m_SkipRows, value > 0 ? value : 0);
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+#if !CsvQuickViewer
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlIgnore]
 #endif
@@ -477,8 +483,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlIgnore]
 #endif
@@ -498,8 +503,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlElement]
 #endif
@@ -510,8 +514,7 @@ namespace CsvTools
       set => SetProperty(ref m_TemplateName, value ?? string.Empty);
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -521,6 +524,7 @@ namespace CsvTools
       get => m_Timeout;
       set => SetProperty(ref m_Timeout, value > 0 ? value : 0);
     }
+#endif
 
     /// <inheritdoc />
 #if XmlSerialization
@@ -555,8 +559,8 @@ namespace CsvTools
       set => SetProperty(ref m_TrimmingOption, value);
     }
 
+#if !CsvQuickViewer
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
     [XmlAttribute(AttributeName = "IsImported")]
 #endif
@@ -567,8 +571,7 @@ namespace CsvTools
       set => SetProperty(ref m_Validate, value);
     }
 
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
+    /// <inheritdoc />    
 #if XmlSerialization
     [XmlAttribute]
 #endif
@@ -578,10 +581,11 @@ namespace CsvTools
       get => m_WarningCount;
       set => SetProperty(ref m_WarningCount, value > 0 ? value : 0);
     }
-    
+
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
+#endif
 
     /// <inheritdoc />
     public abstract object Clone();
@@ -614,22 +618,15 @@ namespace CsvTools
     {
       if (other is null)
         return;
-      other.MappingCollection.Clear();
-      other.MappingCollection.AddRange(MappingCollection);
 
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
-      other.TemplateName = TemplateName;
-      other.IsEnabled = IsEnabled;
       other.DisplayStartLineNo = DisplayStartLineNo;
-      other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
       other.DisplayEndLineNo = DisplayEndLineNo;
       other.DisplayRecordNo = DisplayRecordNo;
       other.HasFieldHeader = HasFieldHeader;
-      other.IsEnabled = IsEnabled;
       other.ShowProgress = ShowProgress;
       other.TreatTextAsNull = TreatTextAsNull;
-      other.Validate = Validate;
       other.RecordLimit = RecordLimit;
       other.SkipRows = SkipRows;
       other.SkipEmptyLines = SkipEmptyLines;
@@ -638,7 +635,16 @@ namespace CsvTools
       other.TreatNBSPAsSpace = TreatNBSPAsSpace;
       other.ColumnCollection.Clear();
       other.ColumnCollection.AddRange(ColumnCollection);
-
+      other.Footer = Footer;
+      other.Header = Header;
+#if !CsvQuickViewer
+      other.MappingCollection.Clear();
+      other.MappingCollection.AddRange(MappingCollection);
+      other.TemplateName = TemplateName;
+      other.IsEnabled = IsEnabled;
+      other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
+      other.IsEnabled = IsEnabled;
+      other.Validate = Validate;
       other.SqlStatement = SqlStatement;
       other.InOverview = InOverview;
       other.Timeout = Timeout;
@@ -648,14 +654,13 @@ namespace CsvTools
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;
       other.Order = Order;
       other.Comment = Comment;
-      other.Footer = Footer;
-      other.Header = Header;
-      SamplesAndErrors.CopyTo(other.SamplesAndErrors);
-
-      other.ID = ID;
       other.NumRecords = NumRecords;
       other.WarningCount = WarningCount;
-      other.ErrorCount = ErrorCount;      
+      SamplesAndErrors.CopyTo(other.SamplesAndErrors);
+      other.ErrorCount = ErrorCount;
+#endif
+      other.ID = ID;
+
     }
 
     /// <summary>
@@ -674,11 +679,9 @@ namespace CsvTools
         return false;
       if (other.SkipRows != SkipRows || other.HasFieldHeader != HasFieldHeader)
         return false;
-      if (other.RecentlyLoaded != RecentlyLoaded || other.IsEnabled != IsEnabled || other.InOverview != InOverview
-          || other.Validate != Validate || other.ShowProgress != ShowProgress)
-        return false;
-      if (other.NumRecords != NumRecords || other.WarningCount != WarningCount || other.ErrorCount != ErrorCount)
-        return false;
+
+
+
       if (other.TreatNBSPAsSpace != TreatNBSPAsSpace || other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
         return false;
       if (other.DisplayStartLineNo != DisplayStartLineNo || other.DisplayEndLineNo != DisplayEndLineNo
@@ -688,33 +691,44 @@ namespace CsvTools
         return false;
       if (other.SkipEmptyLines != SkipEmptyLines || other.SkipDuplicateHeader != SkipDuplicateHeader)
         return false;
-      if (other.Timeout != Timeout || other.SetLatestSourceTimeForWrite != SetLatestSourceTimeForWrite)
-        return false;
-      if ((other.ProcessTimeUtc - ProcessTimeUtc).TotalSeconds > 1)
-        return false;
-      if ((other.LatestSourceTimeUtc - LatestSourceTimeUtc).TotalSeconds > 1)
-        return false;
       if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase)
           || other.TrimmingOption != TrimmingOption)
-        return false;
-      if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal)
-          || !other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase))
         return false;
       if (!other.Footer.Equals(Footer, StringComparison.Ordinal)
           || !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
         return false;
       if (other.KeepUnencrypted != KeepUnencrypted)
         return false;
+#if !CsvQuickViewer
+
+      if (other.RecentlyLoaded != RecentlyLoaded || other.IsEnabled != IsEnabled || other.InOverview != InOverview
+          || other.Validate != Validate || other.ShowProgress != ShowProgress)
+        return false;
+      if (other.NumRecords != NumRecords || other.WarningCount != WarningCount || other.ErrorCount != ErrorCount)
+        return false;
+      
+      if (other.Timeout != Timeout || other.SetLatestSourceTimeForWrite != SetLatestSourceTimeForWrite)
+        return false;
+      if ((other.ProcessTimeUtc - ProcessTimeUtc).TotalSeconds > 1)
+        return false;
+      if ((other.LatestSourceTimeUtc - LatestSourceTimeUtc).TotalSeconds > 1)
+        return false;
+      if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal)
+          || !other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase))
+        return false;
+
       if (!other.MappingCollection.Equals(MappingCollection))
         return false;
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
         return false;
       if (other.Order != Order || !other.Comment.Equals(Comment))
         return false;
+#endif
+
 
       return other.ColumnCollection.Equals(ColumnCollection);
     }
-
+#if !CsvQuickViewer
     /// <inheritdoc />
     public virtual IEnumerable<string> GetDifferences(IFileSetting other)
     {
@@ -805,7 +819,8 @@ namespace CsvTools
       if (!other.ColumnCollection.Equals(ColumnCollection))
         yield return $"{nameof(ColumnCollection)} different";
     }
-
+    
     [JsonIgnore] public int CollectionIdentifier => ID.GetHashCode();
+#endif
   }
 }
