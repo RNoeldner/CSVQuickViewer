@@ -134,7 +134,7 @@
 		<Compile Include="..\ClassLibraryCSV\PropertyChangedEventArgs.cs" Link="PropertyChangedEventArgs.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ImprovedStream.cs" Link="ImprovedStream.cs" />
-
+		<Compile Include="..\ClassLibraryCSV\IImprovedStream.cs" Link="IImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" Link="ImprovedTextReaderPositionStore.cs" />
 		<Compile Include="..\ClassLibraryCSV\Immutable\ManifestData.cs" Link="Immutable\ManifestData.cs" />
 
