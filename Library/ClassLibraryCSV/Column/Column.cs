@@ -62,7 +62,7 @@ namespace CsvTools
       TimePart = timePart ?? string.Empty;
       TimePartFormat = timePartFormat ?? cDefaultTimePartFormat;
       TimeZonePart = timeZonePart ?? string.Empty;
-      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ValueFormat);
+      ColumnFormatter = FunctionalDI.GetColumnFormatter(ValueFormat);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace CsvTools
     public int CollectionIdentifier => Name.IdentifierHash();
 
     /// <summary>
-    ///  Get the ColumnFormatter Class from <see cref="ColumnFormatterFactory"/>
+    ///  Get the ColumnFormatter Class from <see cref="FunctionalDI.GetColumnFormatter"/>
     ///  Only an Immutable Column does have a ColumnFormatter
     /// </summary>
     [JsonIgnore]

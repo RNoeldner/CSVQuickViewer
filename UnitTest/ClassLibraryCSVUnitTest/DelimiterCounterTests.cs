@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterTest()
     {
-      var i = new DelimiterCounter(100, Array.Empty<char>(), '"');
+      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
       Assert.AreEqual(100, i.NumRows);
       Assert.AreEqual(0, i.FilledRows);
     }
@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterScore()
     {
-      var i = new DelimiterCounter(100, Array.Empty<char>(), '"');
+      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
       Assert.AreEqual(100, i.NumRows);
       
       i.CheckChar(';', ';');
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterDisallowTest()
     {
-      var i = new DelimiterCounter(50, new[] { '\t', '|' }, '"');
+      var i = new DetectionDelimiter.DelimiterCounter(50, new[] { '\t', '|' }, '"');
       Assert.AreEqual(-1, i.Separators.IndexOf('\t'));
       Assert.AreEqual(-1, i.Separators.IndexOf('|'));
       Assert.AreEqual(50, i.NumRows);
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterCheckCharTest()
     {
-      var i = new DelimiterCounter(50, Array.Empty<char>(), '"');
+      var i = new DetectionDelimiter.DelimiterCounter(50, Array.Empty<char>(), '"');
       Assert.IsFalse(i.CheckChar('a', char.MinValue));
       Assert.IsTrue(i.CheckChar(';', char.MinValue));
     }

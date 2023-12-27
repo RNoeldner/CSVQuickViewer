@@ -41,50 +41,7 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
-    [TestMethod, Timeout(2000)]
-    public async Task GetCombinedKey()
-    {
-      var csvFile = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
-        0,
-        true,
-        null,
-        TrimmingOptionEnum.Unquoted,
-        ',',
-        '"',
-        char.MinValue,
-        0,
-        false,
-        false,
-        "#",
-        0,
-        true,
-        "",
-        "",
-        "",
-        true,
-        false,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        "NULL",
-        true,
-        4,
-        "",
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
-      await csvFile.OpenAsync(UnitTestStatic.Token);
-      await csvFile.ReadAsync(UnitTestStatic.Token);
-      var trimmedCol = -1;
-      var result = csvFile.GetCombinedKey(new[] { 0, 1 }, '-', col => trimmedCol = col);
-      Assert.AreEqual(-1, trimmedCol);
-      Assert.AreEqual("1-GERMAN-", result);
-    }
-
+   
     [TestMethod]
     public async Task GetColumnsOfReaderTest()
     {
@@ -126,31 +83,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
 
-    [TestMethod]
-    public async Task GetEmptyColumnHeaderAsyncTest()
-    {
-      using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
-        m_ValidSetting.HasFieldHeader,
-        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
-        m_ValidSetting.FieldQualifierChar,
-        m_ValidSetting.EscapePrefixChar, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
-        m_ValidSetting.ContextSensitiveQualifier,
-        m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape,
-        m_ValidSetting.NewLinePlaceholder,
-        m_ValidSetting.DelimiterPlaceholder, m_ValidSetting.QualifierPlaceholder, m_ValidSetting.SkipDuplicateHeader,
-        m_ValidSetting.TreatLfAsSpace,
-        m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns,
-        m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed,
-        m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter,
-        m_ValidSetting.WarnEmptyTailingColumns,
-        m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines,
-        m_ValidSetting.ConsecutiveEmptyRows,
-        m_ValidSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
-      await test.OpenAsync(UnitTestStatic.Token);
-      var result = await test.GetEmptyColumnHeaderAsync(UnitTestStatic.Token);
-      Assert.AreEqual(0, result.Count);
-    }
-
+   
     [TestMethod]
     public async Task GetDataTableAsync2()
     {

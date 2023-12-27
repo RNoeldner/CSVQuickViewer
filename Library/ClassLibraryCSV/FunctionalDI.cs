@@ -42,7 +42,18 @@ namespace CsvTools
 
     public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
 
-
+    public static Func<ValueFormat, IColumnFormatter> GetColumnFormatter = valueFormat => 
+    valueFormat.DataType switch
+      {
+        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter,
+          valueFormat.PartToEnd),
+        DataTypeEnum.TextToHtml => TextToHtmlFormatter.Instance,
+        DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
+        DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
+        DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
+        _ => EmptyFormatter.Instance
+      };
+    
 #if !QUICK 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; }
