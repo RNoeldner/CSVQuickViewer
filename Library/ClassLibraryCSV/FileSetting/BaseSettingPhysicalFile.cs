@@ -342,9 +342,8 @@ namespace CsvTools
       if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal))
         return false;
 
-      if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
-        return false;
-      return base.BaseSettingsEquals(other);
+      return string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase) 
+             && base.BaseSettingsEquals(other);
     }
 
 

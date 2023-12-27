@@ -77,7 +77,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(textReader));
 
       var starts =
-        new[] { "<!--", "##", "//", "==", "\\\\", "''", "#", "/", "\\", "'", }.ToDictionary(test => test, _ => 0);
+        new[] { "<!--", "##", "//", "==", @"\\", "''", "#", "/", "\\", "'", }.ToDictionary(test => test, _ => 0);
 
       // Comments are mainly at the start of a file
       textReader.ToBeginning();

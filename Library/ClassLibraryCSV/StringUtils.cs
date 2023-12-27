@@ -151,7 +151,7 @@ namespace CsvTools
           lastC = '\0';
           continue;
         }
-        else if (chr=='\r' || chr == '\n')
+        if (chr=='\r' || chr == '\n')
           sb.Append(replace);
         else
           sb.Append(chr);
@@ -370,7 +370,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Processes the each charter of the string by category, if the test function return false,
+    ///   Processes each charter of the string by category, if the test function return false,
     ///   the charter is omitted
     /// </summary>
     /// <param name="original">The original.</param>
@@ -417,12 +417,8 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull)
-    {
-      if (value is null)
-        return true;
-      return ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
-    }
+    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull) => 
+      value is null || ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
 
     /// <summary>
     ///   Checks if the provided text should be treated as NULL
@@ -448,7 +444,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Splits the given string at the given set of delimiters to be used as replacement for Split"/>
+    ///   Splits the given string at the given set of delimiters to be used as replacement for Split
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <param name="splitter">The characters to split with</param>

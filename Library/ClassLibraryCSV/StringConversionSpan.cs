@@ -631,9 +631,7 @@ namespace CsvTools
       if (part > list.Count)
         return ReadOnlySpan<char>.Empty;
 
-      if (!toEnd)
-        return text.Slice(list[part - 1].start, list[part - 1].length);
-      return text.Slice(list[part - 1].start);
+      return !toEnd ? text.Slice(list[part - 1].start, list[part - 1].length) : text.Slice(list[part - 1].start);
     }
 
     /// <summary>

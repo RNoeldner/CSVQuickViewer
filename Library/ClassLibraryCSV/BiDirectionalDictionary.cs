@@ -98,7 +98,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.BiDirectionalDictionary`2" /> class.
     /// </summary>
     /// <param name="dictionary">
-    ///   A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copied to the new class
+    ///   A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copy to the new class
     /// </param>
     /// <exception cref="T:System.ArgumentException">Duplicate key - key or Duplicate value - value</exception>
     public BiDirectionalDictionary(in IDictionary<TKey, TValue>? dictionary)

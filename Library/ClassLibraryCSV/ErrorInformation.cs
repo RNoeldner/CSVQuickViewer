@@ -68,7 +68,7 @@ namespace CsvTools
 
       var sb = new StringBuilder(errorList.Length + newError.Length +1);
 
-      // If the new message is considered an error put it in front, this way its easier to check if
+      // If the new message is considered an error put it in front, this way it's easier to check if
       // there is an error
       if (isWarning)
       {
@@ -233,7 +233,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>
-    ///   <c>true</c> if the text should be regarded as a error message, <c>false</c> if it's a
+    ///   <c>true</c> if the text should be regarded as an error message, <c>false</c> if it's a
     ///   warning message or empty
     /// </returns>
     public static bool IsErrorMessage(this string errorList)
@@ -345,7 +345,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
-    public static string WithoutWarningId(this string errorList) =>
+    private static string WithoutWarningId(this string errorList) =>
       errorList.Length <= cWarningId.Length ? errorList : errorList.Substring(cWarningId.Length);
 
     /// <summary>

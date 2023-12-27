@@ -29,7 +29,7 @@ namespace CsvTools
     string FormatInputText(in string inputString, in Action<string>? handleWarning);
 
     /// <summary>
-    /// Format the text while reading, unlike in the string implemenation this is built for speed, no warning will be raised.
+    /// Format the text while reading, unlike in the string implementation this is built for speed, no warning will be raised.
     /// </summary>
     /// <param name="inputString">The input span that need to be processed</param>    
     /// <returns>The formatted text span </returns>

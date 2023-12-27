@@ -20,9 +20,6 @@ namespace CsvTools
   [DebuggerStepThrough]
   public sealed class ProgressTime : Progress<ProgressInfo>, IProgressTime
   {
-    public ProgressTime() =>
-      TimeToCompletion = new TimeToCompletion();
-
     /// <inheritdoc cref="IProgressTime.Maximum" />
     public long Maximum
     {
@@ -30,7 +27,7 @@ namespace CsvTools
       set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
     }
 
-    public TimeToCompletion TimeToCompletion { get; }
+    public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
 
     public void Report(ProgressInfo  args)
     {

@@ -3,7 +3,7 @@
 namespace CsvTools
 {
   /// <summary>
-  /// Class to represent a character but it does support recognition and conversion to written punctuation like "Tab"
+  /// Class to represent a character, but it does support recognition and conversion to written punctuation like "Tab"
   /// </summary>
   public static class Punctuation
   {
@@ -97,9 +97,7 @@ namespace CsvTools
       {
         if (inputString.Equals("␍", StringComparison.Ordinal))
           return '\r';
-        if (inputString.Equals("␊", StringComparison.Ordinal))
-          return '\n';
-        return inputString[0];
+        return inputString.Equals("␊", StringComparison.Ordinal) ? '\n' : inputString[0];
       }
 
       // Only do a trim if we do not have a single char, otherwise Space or Tab are removed

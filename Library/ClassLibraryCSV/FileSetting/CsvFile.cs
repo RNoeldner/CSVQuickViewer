@@ -29,7 +29,7 @@ namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.ICsvFile" />
   /// <summary>
-  ///   Setting file for CSV files, its an implementation of <see cref="T:CsvTools.BaseSettings" />
+  ///   Setting file for CSV files, it's an implementation of <see cref="T:CsvTools.BaseSettings" />
   /// </summary>
   [Serializable]
   public sealed class CsvFile : BaseSettingPhysicalFile, ICsvFile
@@ -42,7 +42,6 @@ namespace CsvTools
     private const string cNewLinePlaceholderDefault = "";
     private const string cQuotePlaceholderDefault = "";
     
-    private const string cFieldDelimiterTextDefault = ",";
     private const string cFieldQualifierTextDefault = "\"";
     private const string cEscapePrefixTextDefault = "";
     private const char cFieldDelimiterDefault = ',';    
@@ -82,7 +81,7 @@ namespace CsvTools
     private bool m_WarnQuotes;
     private bool m_WarnQuotesInQuotes = true;
     private bool m_WarnUnknownCharacter = true;
-    private bool m_WriteFixedLength = false;
+    private bool m_WriteFixedLength;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.

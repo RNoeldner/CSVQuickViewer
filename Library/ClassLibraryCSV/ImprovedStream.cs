@@ -25,7 +25,7 @@ namespace CsvTools
 {
   public class ImprovedStream : Stream, IImprovedStream
   {
-    protected readonly SourceAccess m_SourceAccess;
+    protected readonly SourceAccess SourceAccess;
 
     /// <summary>
     /// Buffer for Compression Streams
@@ -36,10 +36,10 @@ namespace CsvTools
 
     public ImprovedStream(in SourceAccess sourceAccess)
     {
-      m_SourceAccess = sourceAccess;
-      BaseStream = m_SourceAccess.OpenStream();
+      SourceAccess = sourceAccess;
+      BaseStream = SourceAccess.OpenStream();
       // ReSharper disable once VirtualMemberCallInConstructor
-      OpenByFileType(m_SourceAccess.FileType);
+      OpenByFileType(SourceAccess.FileType);
     }
 
     /// <inheritdoc cref="Stream.CanRead"/>
@@ -103,7 +103,7 @@ namespace CsvTools
             // ignored
           }
 
-        if (!m_SourceAccess.LeaveOpen)
+        if (!SourceAccess.LeaveOpen)
           BaseStream.Close();
       }
       catch (Exception ex)
@@ -160,8 +160,8 @@ namespace CsvTools
 
       // Reopen Completely      
       Close();
-      BaseStream = m_SourceAccess.OpenStream();
-      OpenByFileType(m_SourceAccess.FileType);
+      BaseStream = SourceAccess.OpenStream();
+      OpenByFileType(SourceAccess.FileType);
 
       return 0;
     }
@@ -193,7 +193,7 @@ namespace CsvTools
       {
         AccessStream = null;
       }
-      if (!m_SourceAccess.LeaveOpen)
+      if (!SourceAccess.LeaveOpen)
         BaseStream.Dispose();
 
       m_DisposedValue = true;
@@ -233,7 +233,7 @@ namespace CsvTools
         await AccessStream.DisposeAsync().ConfigureAwait(false);
         AccessStream = null;
       }
-      if (!m_SourceAccess.LeaveOpen)
+      if (!SourceAccess.LeaveOpen)
       {
         await BaseStream.DisposeAsync().ConfigureAwait(false);
       }
@@ -249,42 +249,42 @@ namespace CsvTools
 
     private void OpenDeflateOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-        Logger.Debug("Deflating {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, m_SourceAccess.LeaveOpen),
+        Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, m_SourceAccess.LeaveOpen),
+        Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
 
     private void OpenZGipOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-        Logger.Debug("Decompressing from GZip {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, m_SourceAccess.LeaveOpen),
+        Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, m_SourceAccess.LeaveOpen),
+        Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
 
     private void OpenZipOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, m_SourceAccess.LeaveOpen);
-        var pass = m_SourceAccess.Passphrase;
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, SourceAccess.LeaveOpen);
+        var pass = SourceAccess.Passphrase;
 
         retry:
         m_ZipFile.Password = pass;
@@ -294,16 +294,16 @@ namespace CsvTools
         }
         catch (ZipException)
         {
-          pass = FunctionalDI.GetPassphraseForFile(m_SourceAccess.FullPath);
+          pass = FunctionalDI.GetPassphraseForFile(SourceAccess.FullPath);
           if (pass.Length > 0)
             goto retry;
           throw;
         }
 
         var hasFile = false;
-        if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
+        if (string.IsNullOrEmpty(SourceAccess.IdentifierInContainer))
         {
-          // get csv with highest priority
+          // get csv with the highest priority
           // get txt with second priority
           // the by index in file
           var bestEntry = m_ZipFile.GetFilesInZip().OrderBy(x => x.ZipFileIndex +
@@ -311,19 +311,19 @@ namespace CsvTools
                       x.Name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? 500 :
                       1000)).First();
 
-          m_SourceAccess.IdentifierInContainer = bestEntry.Name;
-          Logger.Information("Using {container}", m_SourceAccess.IdentifierInContainer);
+          SourceAccess.IdentifierInContainer = bestEntry.Name;
+          Logger.Information("Using {container}", SourceAccess.IdentifierInContainer);
           AccessStream = m_ZipFile.GetInputStream(bestEntry);
           hasFile = true;
         }
         else
         {
-          var entryIndex = m_ZipFile.FindEntry(m_SourceAccess.IdentifierInContainer, true);
+          var entryIndex = m_ZipFile.FindEntry(SourceAccess.IdentifierInContainer, true);
           if (entryIndex == -1)
             throw new FileNotFoundException(
-              $"Could not find {m_SourceAccess.IdentifierInContainer} in {m_SourceAccess.Identifier}");
+              $"Could not find {SourceAccess.IdentifierInContainer} in {SourceAccess.Identifier}");
 
-          Logger.Information("Using {container}", m_SourceAccess.IdentifierInContainer);
+          Logger.Information("Using {container}", SourceAccess.IdentifierInContainer);
           AccessStream = m_ZipFile.GetInputStream(entryIndex);
           hasFile = true;
         }
@@ -331,20 +331,20 @@ namespace CsvTools
         if (!hasFile)
           Logger.Warning(
             "No zip entry found in {filename} {container}",
-            m_SourceAccess.Identifier,
-            m_SourceAccess.IdentifierInContainer);
+            SourceAccess.Identifier,
+            SourceAccess.IdentifierInContainer);
       }
       // is writing
       else
       {
         var zipOutputStream = new ZipOutputStream(BaseStream, cBufferSize);
-        if (!string.IsNullOrEmpty(m_SourceAccess.Passphrase))
-          zipOutputStream.Password = m_SourceAccess.Passphrase;
+        if (!string.IsNullOrEmpty(SourceAccess.Passphrase))
+          zipOutputStream.Password = SourceAccess.Passphrase;
         zipOutputStream.IsStreamOwner = false;
         zipOutputStream.SetLevel(5);
-        if (m_SourceAccess.IdentifierInContainer.Length == 0)
-          m_SourceAccess.IdentifierInContainer = "File1.txt";
-        var cleanName = ZipEntry.CleanName(m_SourceAccess.IdentifierInContainer);
+        if (SourceAccess.IdentifierInContainer.Length == 0)
+          SourceAccess.IdentifierInContainer = "File1.txt";
+        var cleanName = ZipEntry.CleanName(SourceAccess.IdentifierInContainer);
         var copyOtherFiles = false;
         // Check the stream if it already contains the file; if so remove the old file
         using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
@@ -366,11 +366,11 @@ namespace CsvTools
 
         if (copyOtherFiles)
         {
-          Logger.Debug("Keeping already existing entries in {filename}", m_SourceAccess.Identifier);
+          Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);
           var tmpName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
           try
           {
-            File.Copy(m_SourceAccess.FullPath, tmpName, true);
+            File.Copy(SourceAccess.FullPath, tmpName, true);
 
             // build a new Zip file with the contents of the old one but export the file we are about
             // to write
@@ -398,8 +398,8 @@ namespace CsvTools
 
         Logger.Debug(
           "Zipping {container} into {filename}",
-          m_SourceAccess.IdentifierInContainer,
-          m_SourceAccess.Identifier);
+          SourceAccess.IdentifierInContainer,
+          SourceAccess.Identifier);
 
         zipOutputStream.PutNextEntry(new ZipEntry(cleanName));
         AccessStream = zipOutputStream;

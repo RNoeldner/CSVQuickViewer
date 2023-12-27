@@ -18,7 +18,7 @@ namespace CsvTools
     /// <param name="escapePrefixChar">Used to escape a delimiter or quoting char</param>
     /// ///
     /// <param name="possibleQuotes">Possibles quotes to test, usually its ' and "</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>
     ///   Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
@@ -57,7 +57,7 @@ namespace CsvTools
     /// <param name="skipRows">The number of lines at beginning to disregard</param>
     /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
     /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifierAsync(
       this Stream stream,
@@ -174,7 +174,7 @@ namespace CsvTools
       else
       {
         // normalize this, line should start and end with delimiter
-        //  t","t","t",t,t,t't,t"t,t -> ,t","t","t",t,t,t't,t"t,t,,
+        //  t","t","t",t,t,t't,t"t,t -> ,t","t","t",t,t,t't,t"t,t,
         var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar + delimiterChar;
 
         for (var index = 1; index < line.Length - 2; index++)
@@ -185,7 +185,7 @@ namespace CsvTools
 
           if (line[index - 1] == delimiterChar)
           {
-            // having a delimiter before is good, but it would be even better if its followed by text
+            // having a delimiter before is good, but it would be even better if it's followed by text
             counterOpenSimple++;
             if (line[index + 1] == placeHolderText || (line[index + 1] == quoteChar && line[index + 2] != delimiterChar))
               counterOpenStrict++;
@@ -214,13 +214,10 @@ namespace CsvTools
         if (counterTotal < 50 && filter.Length > 100)
           res.DuplicateQualifier = true;
 
-        // try to normalize the score, depenedning on the length of the filter build a percaneta score that  should indicate how sure
-        if (totalScore > filter.Length)
-          res.Score = 99;
-        else
-          res.Score = Convert.ToInt32(totalScore / (double) filter.Length * 100);
+        // try to normalize the score, depending on the length of the filter build a percent score that  should indicate how sure
+        res.Score = totalScore > filter.Length ? 99 : Convert.ToInt32(totalScore / (double) filter.Length * 100);
       }
-      // if we could not find opening and closing because we has a lot of ,", take the absolute numbers
+      // if we could not find opening and closing because we have a lot of ,", take the absolute numbers
       return res;
     }
 

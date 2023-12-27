@@ -163,7 +163,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The enum value</param>
     /// <returns>The short description attribute of the value or the name, if that is not set empty string</returns>
-    public static string ShortDescription(this Enum value)
+    private static string ShortDescription(this Enum value)
     {
       var fieldInfo = value.GetType().GetField(value.ToString());
       ShortDescriptionAttribute? attribute = null;
@@ -283,15 +283,15 @@ namespace CsvTools
                                                   || x == UnicodeCategory.OtherPunctuation
                                                   || x == UnicodeCategory.DecimalDigitNumber);
 
-      const string timeSep = @"(:|-|_)?";
+      const string timeSep = "(:|-|_)?";
       const string dateSep = @"(\/|\.|-|_)?";
 
       const string hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
-      const string minSec = @"([0-5][0-9])"; // 00-59
-      const string amPm = @"((_| )?(AM|PM))?";
+      const string minSec = "([0-5][0-9])"; // 00-59
+      const string amPm = "((_| )?(AM|PM))?";
 
       const string year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string month = @"(0[1-9]|1[012])"; // 01-12
+      const string month = "(0[1-9]|1[012])"; // 01-12
       const string day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
@@ -490,10 +490,7 @@ namespace CsvTools
         @"(?:[\{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-      if (regEx2.IsMatch(input))
-        return string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime);
-
-      return PlaceholderReplace(input, placeholder, formatedDateTime);
+      return regEx2.IsMatch(input) ? string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime) : PlaceholderReplace(input, placeholder, formatedDateTime);
     }
 
     /// <summary>

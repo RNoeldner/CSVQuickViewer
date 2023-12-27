@@ -205,10 +205,7 @@ namespace CsvTools
         return StartLineNumber;
       if (ordinal == ReaderMapping.ColNumEndLine)
         return EndLineNumber;
-      if (ordinal == ReaderMapping.ColNumRecNum)
-        return RecordNumber;
-
-      return DataReader.GetInt64(ReaderMapping.DataTableToReader(ordinal));
+      return ordinal == ReaderMapping.ColNumRecNum ? RecordNumber : DataReader.GetInt64(ReaderMapping.DataTableToReader(ordinal));
     }
     /// <inheritdoc />
     public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
