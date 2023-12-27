@@ -29,7 +29,7 @@ namespace CsvTools
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {    
     /// <summary>
-    ///   Event to be raised on Collection Level if properties of a item in the collection changes
+    ///   Event to be raised on Collection Level if properties of an item in the collection changes
     /// </summary>
     public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
 
@@ -74,7 +74,7 @@ namespace CsvTools
     ///   Name of the property that needs to be adjusted to make the item unique
     /// </param>
     /// <remarks>
-    ///   In case the the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
+    ///   In case the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
     ///   this case any change to the passed in item would not be reflected in the collection
     /// </remarks>
     /// <returns>
@@ -120,7 +120,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="ICollection{T}" />
-    public new virtual void Remove(T item)
+    public new void Remove(T item)
     {
       var index = IndexOf(item);
       if (index==-1)
@@ -129,7 +129,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="ICollection{T}"/>
-    public new virtual void RemoveAt(int index)
+    public new void RemoveAt(int index)
     {
       var item = Items[index];
        // ReSharper disable once SuspiciousTypeConversion.Global
@@ -190,9 +190,7 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ICollection<T>? other)
     {
-      if (other is null)
-        return false;
-      return this.CollectionEqualWithOrder(other);
+      return other is { } && this.CollectionEqualWithOrder(other);
     }
 
     /// <inheritdoc cref="IList{T}" />

@@ -33,7 +33,7 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Gets the current object stored in CurrentValues and does checks
+    /// Gets the current object stored in CurrentValues and does check
     /// </summary>
     /// <param name="ordinal">The ordinal of the column</param>
     /// <returns></returns>
@@ -97,7 +97,7 @@ namespace CsvTools
 
     /// <inheritdoc cref="BaseFileReader" />
     /// <summary>
-    ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
+    ///   Returns a <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
     /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The <see cref="IDataReader" /> for the specified column ordinal.</returns>
@@ -292,9 +292,9 @@ namespace CsvTools
           inputString = inputString.Trim();
 
         if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
-          return (StringUtils.ShouldBeTreatedAsNull(inputString.ToString().Replace((char) 0xA0, ' ').AsSpan(), m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
-        else
-          return (StringUtils.ShouldBeTreatedAsNull(inputString, m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
+          return (inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
+
+        return (inputString.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
       }
     }
 

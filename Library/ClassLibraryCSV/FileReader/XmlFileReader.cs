@@ -126,13 +126,8 @@ namespace CsvTools
       return columns;
     }
 
-    public static string GetFullPath(XmlNode node)
-    {
-      if (node.ParentNode is null)
-        return string.Empty;
-      else
-        return $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";
-    }
+    public static string GetFullPath(XmlNode node) => 
+      node.ParentNode is null ? string.Empty : $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";
 
     public override async Task OpenAsync(CancellationToken token)
     {

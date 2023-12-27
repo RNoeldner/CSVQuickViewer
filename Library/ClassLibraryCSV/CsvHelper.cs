@@ -258,9 +258,10 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
+    /// <param name="selectFile">´Function to be called if a file needs to be picked</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
     /// <param name="privateKey"></param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
     /// </returns>
@@ -386,7 +387,7 @@ namespace CsvTools
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
       try
       {
-        using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings() { Async = true });
+        using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings { Async = true });
         await xmlReader.MoveToContentAsync().ConfigureAwait(false);
         return true;
       }
@@ -567,7 +568,7 @@ CommentLine
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, new[] { '"', '\'' }, cancellationToken);
+          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, new[] { '"', '\'', }, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;
           inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);
@@ -668,7 +669,7 @@ CommentLine
         guessHasHeader: true,
         guessNewLine: false,
         guessCommentLine: true,
-        inspectionResult: new InspectionResult()
+        inspectionResult: new InspectionResult
         {
           IdentifierInContainer = csvFile.IdentifierInContainer,
           FileName = csvFile.FileName,

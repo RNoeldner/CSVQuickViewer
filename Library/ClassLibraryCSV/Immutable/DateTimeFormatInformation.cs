@@ -41,7 +41,7 @@ namespace CsvTools
       .Replace("\\s", ".")
       .Replace("\\F", ".")
       .Replace("\\t", ".")
-      .Replace("\\\\", ".")
+      .Replace(@"\\", ".")
       .Replace("\\", "")
       // HandleLiteral string delimiter '
       // This is actually not precise enough as ' minutes' will not be handled properly

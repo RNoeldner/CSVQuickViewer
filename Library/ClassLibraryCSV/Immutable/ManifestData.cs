@@ -60,7 +60,7 @@ namespace CsvTools
 
     public string PubName { get; }
 
-    public static async Task<InspectionResult> ReadManifestFileSystem(string fileName)
+    public static Task<InspectionResult> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
@@ -73,13 +73,11 @@ namespace CsvTools
       Logger.Information("Configuration read from manifest file {filename}", manifest);
 
       if (FileSystemUtils.FileExists(dataFile))
-        return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty)
-          .ConfigureAwait(false);
+        return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
       dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
       if (FileSystemUtils.FileExists(dataFile))
-        return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty)
-          .ConfigureAwait(false);
+        return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
       throw new FileNotFoundException(dataFile);
     }
 
@@ -88,13 +86,13 @@ namespace CsvTools
       using var archive = new ZipFile(fileName.LongPathPrefix());
 
       // Find Manifest      
-      var mainfestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
-      if (mainfestEntry is null)
+      var manifestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+      if (manifestEntry is null)
         return null;
-      Logger.Information("Configuration read from manifest file {filename}", mainfestEntry.Name);
+      Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name);
           
-      return await ReadManifestFromStream(archive.GetInputStream(mainfestEntry), fileName,
-        mainfestEntry.Name.Substring(0, mainfestEntry.Name.Length - cCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
+      return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,
+        manifestEntry.Name.Substring(0, manifestEntry.Name.Length - cCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
     }
 
     private static async Task<InspectionResult> ReadManifestFromStream(

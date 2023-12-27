@@ -57,7 +57,7 @@ namespace CsvTools
       get
       {
         var sb = new StringBuilder();
-        // Go though all rows
+        // Go through all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
         foreach (var message in errorsInColumn.Values)
@@ -76,7 +76,7 @@ namespace CsvTools
       get
       {
         var sb = new StringBuilder();
-        // Go though all rows
+        // Go through all rows
         foreach (var pair in m_RowErrorCollection)
         {
           if (sb.Length > 0)

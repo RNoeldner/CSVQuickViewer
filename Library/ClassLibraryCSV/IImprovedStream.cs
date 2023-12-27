@@ -12,8 +12,6 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
   public interface IImprovedStream 
@@ -21,7 +19,6 @@ namespace CsvTools
     /// <summary>
     /// Percentage of read source as decimal between 0.0 and 1.0
     /// </summary>
-    double Percentage { get; }    
-        
+    double Percentage { get; }
   }
 }

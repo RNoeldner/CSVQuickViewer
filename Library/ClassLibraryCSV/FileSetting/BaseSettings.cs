@@ -41,7 +41,7 @@ namespace CsvTools
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : ObservableObject, IFileSetting
   {
-    public const string cTreatTextAsNull = "NULL";
+    private const string cTreatTextAsNull = "NULL";
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
