@@ -345,7 +345,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
-    private static string WithoutWarningId(this string errorList) =>
+    public static string WithoutWarningId(this string errorList) =>
       errorList.Length <= cWarningId.Length ? errorList : errorList.Substring(cWarningId.Length);
 
     /// <summary>

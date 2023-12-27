@@ -51,7 +51,7 @@ namespace CsvTools
           return xmlSerializerNamespaces;
         });
 #endif
-    private static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
+    public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
       () =>
       {
         var setting = new JsonSerializerSettings
