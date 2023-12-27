@@ -24,7 +24,7 @@ namespace CsvTools
   /// </summary>
   public sealed class CheckResult
   {
-    private readonly HashSet<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private readonly ICollection<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public IReadOnlyCollection<ReadOnlyMemory<char>> ExampleNonMatch => m_ExampleNonMatch.Select(x=> x.AsMemory()).ToArray();
 
     /// <summary>

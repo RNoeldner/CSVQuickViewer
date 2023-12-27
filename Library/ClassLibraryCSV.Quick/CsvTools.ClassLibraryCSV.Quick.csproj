@@ -39,11 +39,8 @@
 		<Compile Include="..\ClassLibraryCSV\Enum\DataTypeEnum.cs" Link="Enum\DataTypeEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\TrimmingOptionEnum.cs" Link="Enum\TrimmingOptionEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\RecordDelimiterTypeEnum.cs" Link="Enum\RecordDelimiterTypeEnum.cs" />
-
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="ColumnFormatter\BinaryFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" Link="ColumnFormatter\BaseColumnFormatter.cs" />
     <Compile Include="..\ClassLibraryCSV\ColumnFormatter\EmptyFormatter.cs" Link="ColumnFormatter\EmptyFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ColumnFormatter\ColumnFormatterFactory.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextReplaceFormatter.cs" Link="ColumnFormatter\TextReplaceFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />
 		<Compile Include="..\ClassLibraryCSV\Punctuation.cs" Link="Punctuation.cs" />
@@ -57,13 +54,12 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderConstants.cs" Link="FileReader\ReaderConstants.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
-		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="FileReader\ReaderExtensionMethods.cs" />
-		<Compile Include="..\ClassLibraryCSV\UserInterfaceSettings\ViewSettings.cs" Link="UserInterfaceSettings\ViewSettings.cs" />
-		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextUnescapeFormatter.cs" Link="TextUnescapeFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFormatter.cs" Link="TextToHtmlFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="FileReader\ReaderExtensionMethods.cs" />		
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\IColumnFormatter.cs" Link="ColumnFormatter\IColumnFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="ColumnFormatter\TextPartFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="ColumnFormatter\TextToHtmlFullFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextUnescapeFormatter.cs" Link="ColumnFormatter\TextUnescapeFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFormatter.cs" Link="ColumnFormatter\TextToHtmlFormatter.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\FileWriter\BaseFileWriter.cs" Link="FileWriter\BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileWriter\CsvFileWriter.cs" Link="FileWriter\CsvFileWriter.cs" />
@@ -115,9 +111,9 @@
 		<Compile Include="..\ClassLibraryCSV\CheckSamples.cs" Link="CheckSamples.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="DateTimeFormatInformation.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatLength.cs" Link="DateTimeFormatLength.cs" />
-		<Compile Include="..\ClassLibraryCSV\Mutable\CheckResult.cs" Link="CheckResult.cs" />
+		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="Immutable\DateTimeFormatInformation.cs" />
+		<Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatLength.cs" Link="Immutable\DateTimeFormatLength.cs" />
+		<Compile Include="..\ClassLibraryCSV\Mutable\CheckResult.cs" Link="Mutable\CheckResult.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\EncodingHelper.cs" Link="EncodingHelper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FunctionalDI.cs" Link="FunctionalDI.cs" />
@@ -128,8 +124,8 @@
 
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
 
-		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />
-		<Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="DelimiterCounter.cs" />
+		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="Mutable\FillGuessSettings.cs" />
+		<Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="Mutable\DelimiterCounter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ObservableObject.cs" Link="ObservableObject.cs" />
 		<Compile Include="..\ClassLibraryCSV\PropertyChangedEventArgs.cs" Link="PropertyChangedEventArgs.cs" />
 

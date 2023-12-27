@@ -48,11 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
     <DebugType>none</DebugType>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Immutable\W3C_CSV_Schema.cs" />
-    <Compile Remove="RangeForStandard.cs" />
-  </ItemGroup>
+  </PropertyGroup> 
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
@@ -60,13 +56,15 @@
     <EmbeddedResource Include="DateTimeFormats.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="*" />
-    
+    <PackageReference Include="Ben.Demystifier" Version="*" />    
     <PackageReference Include="Markdown" Version="2.2.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="TimeZoneConverter" Version="6.1.*" />
     <PackageReference Include="UTF.Unknown" Version="2.5.*" />    
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UserInterfaceSettings\" />
   </ItemGroup>
 </Project>

@@ -99,47 +99,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a text representing all columns of a reader in a way that its comparable 
-    /// </summary>
-    /// <param name="dataReader">The dataReader / row with the columns</param>
-    /// <param name="columns">A collection of columns indexes to combine</param>
-    /// <param name="combineWith">A separator for the columns contend</param>
-    /// <param name="trimming">The columns will be trimmed, if trimming happens, this action is to be performed</param>
-    /// <returns>An upper case text representation</returns>
-    public static string GetCombinedKey(this IDataReader dataReader, IReadOnlyCollection<int>? columns, char combineWith, Action<int>? trimming = null)
-    {
-      if (columns is null || columns.Count == 0)
-        return string.Empty;
-
-      var stringBuilder = new StringBuilder();
-      foreach (var columnNo in columns)
-      {
-        if (!dataReader.IsDBNull(columnNo))
-        {
-          var currentValue = dataReader.GetValue(columnNo).ToString()!.Replace(combineWith, (char) 0);
-          var trimmed = currentValue.Trim();
-          if (trimmed.Length != currentValue.Length && trimming != null)
-            try
-            {
-              trimming.Invoke(columnNo);
-            }
-            catch (Exception ex)
-            {
-              Logger.Warning(ex, "Get Combined Keys Trimming Notification");
-            }
-
-
-          stringBuilder.Append(trimmed);
-        }
-        stringBuilder.Append(combineWith);
-      }
-
-      return stringBuilder.ToString().ToUpperInvariant();
-    }
-
-
-
-    /// <summary>
     ///   Stores all rows from te reader into a DataTable, form the current position of the reader onwards.
     /// </summary>
     /// <param name="reader">
@@ -208,30 +167,7 @@ namespace CsvTools
         .ConfigureAwait(false);
     }
 
-    public static async Task<ICollection<string>> GetEmptyColumnHeaderAsync(
-      this IFileReader fileReader,
-      CancellationToken cancellationToken)
-    {
-      if (fileReader is null) throw new ArgumentNullException(nameof(fileReader));
-      var emptyColumns = new List<string>();
 
-      var needToCheck = new List<int>(fileReader.FieldCount);
-      for (var column = 0; column < fileReader.FieldCount; column++)
-        needToCheck.Add(column);
-
-      while (await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false)
-             && !cancellationToken.IsCancellationRequested && needToCheck.Count > 0)
-      {
-        var check = needToCheck.Where(col => !string.IsNullOrEmpty(fileReader.GetString(col))).ToList();
-        foreach (var col in check) needToCheck.Remove(col);
-      }
-
-      for (var column = 0; column < fileReader.FieldCount; column++)
-        if (needToCheck.Contains(column))
-          emptyColumns.Add(fileReader.GetColumn(column).Name);
-
-      return emptyColumns;
-    }
 #endif
     public static async Task<DataTable> GetDataTableAsync(
       this DataReaderWrapper wrapper,

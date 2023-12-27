@@ -8,6 +8,82 @@ namespace CsvTools
 {
   public static class DetectionDelimiter
   {
+    public sealed class DelimiterCounter
+    {      
+      public readonly int NumRows;
+      public readonly int[] SeparatorRows;
+      public readonly string Separators;
+      public readonly int[] SeparatorScore;
+      public readonly int[,] SeparatorsCount;
+      public int LastRow;
+      private readonly char m_FieldQualifier;
+
+      /// <summary>
+      ///  Creates an instance of a delimiter counter
+      /// </summary>
+      /// <param name="numRows">Number of rows to expect</param>
+      /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
+      /// if you know that a delimiter is defiantly not suitable.</param>
+      /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+      public DelimiterCounter(int numRows, IEnumerable<char> disallowedDelimiter, char fieldQualifier)
+      {
+        NumRows = numRows;
+        m_FieldQualifier = fieldQualifier;
+        Separators = new string((StaticCollections.DelimiterChars.Where(x => !disallowedDelimiter.Contains(x))).ToArray());
+        SeparatorsCount = new int[Separators.Length, NumRows];
+        SeparatorRows = new int[Separators.Length];
+        SeparatorScore= new int[Separators.Length];
+      }
+
+      public int FilledRows
+      {
+        get
+        {
+          while (LastRow > 1 && RowEmpty(LastRow - 1))
+            LastRow--;
+
+          var res = 0;
+          for (var line = 0; line < LastRow; line++)
+            if (!RowEmpty(line))
+              res++;
+          return res;
+        }
+      }
+
+      /// <summary>
+      /// Main method called with the current char and the last char
+      /// </summary>
+      /// <param name="read">The character to check</param>
+      /// <param name="last">The previous char, this char allows scoring</param>
+      /// <returns><c>true</c> if the char was a delimiter</returns>
+      public bool CheckChar(char read, char last)
+      {
+        var index = Separators.IndexOf(read);
+        if (index == -1)
+          return false;
+
+        if (SeparatorsCount[index, LastRow] == 0)
+          SeparatorRows[index]++;
+
+        ++SeparatorsCount[index, LastRow];
+        // A separator its worth more if the previous char was the quote
+        if (last == m_FieldQualifier)
+          SeparatorScore[index] += 2;
+        else if (last != read && last!=' ' && last!='\r' && last!='\n')
+          // its also worth something if previous char appears to be a text
+          SeparatorScore[index]++;
+
+        return true;
+      }
+
+      private bool RowEmpty(int line)
+      {
+        for (var x = 0; x < Separators.Length; x++)
+          if (SeparatorsCount[x, line] != 0)
+            return false;
+        return true;
+      }
+    }
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if they are the same it will look at 
@@ -93,7 +169,7 @@ namespace CsvTools
       else
       {
         // otherwise find the best
-        var sums = new Dictionary<int, long>();        
+        var sums = new Dictionary<int, long>();
         foreach (var index in validSeparatorIndex)
         {
           var intEmptyRows = 0;
@@ -211,9 +287,9 @@ namespace CsvTools
         if (readChar == '\n' || readChar == '\r')
         {
           if (readChar == '\n' && lastChar != '\r' ||
-              readChar == '\r' && lastChar != '\n' )
-            dc.LastRow++;          
-        }          
+              readChar == '\r' && lastChar != '\n')
+            dc.LastRow++;
+        }
         else
           dc.CheckChar(readChar, lastChar);
       }
