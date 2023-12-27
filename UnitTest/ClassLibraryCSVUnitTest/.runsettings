@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- MSTest adapter -->
+  <MSTest>
+    <Parallelize>
+      <Workers>4</Workers>
+      <Scope>ClassLevel</Scope>
+    </Parallelize>
+    <MapInconclusiveToFailed>true</MapInconclusiveToFailed>
+    <CaptureTraceOutput>true</CaptureTraceOutput>
+    <DeleteDeploymentDirectoryAfterTestRunIsComplete>true</DeleteDeploymentDirectoryAfterTestRunIsComplete>
+    <DeploymentEnabled>true</DeploymentEnabled>
+    <DeployTestSourceDependencies>true</DeployTestSourceDependencies>
+    <MapNotRunnableToFailed>false</MapNotRunnableToFailed>    
+    <TestTimeout>5000</TestTimeout>
+    <ForcedLegacyMode>false</ForcedLegacyMode>
+  </MSTest>
+</RunSettings>

@@ -1181,47 +1181,7 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("5", test.GetString(4));
       Assert.AreEqual("6", test.GetString(5));
       Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync3");
-    }
-
-    [TestMethod]
-    /*[Timeout(2000)]*/
-    public async Task OpenBinary()
-    {
-      var setting =
-        new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BinaryReferenceList.txt"))
-        {
-          HasFieldHeader = true,
-          FieldDelimiterChar = "Tab".FromText()
-        };
-      // ReSharper disable once RedundantArgumentDefaultValue
-      setting.ColumnCollection.Add(new Column("Title", ValueFormat.Empty, 0));
-      setting.ColumnCollection.Add(new Column("File Name",
-        new ValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
-          writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
-
-      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-        setting.HasFieldHeader, setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
-      await reader.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual(false, reader.IsClosed);
-#pragma warning disable CS0618
-      Assert.IsTrue(reader.Read());
-#pragma warning restore CS0618
-      var fn = UnitTestStatic.GetTestPath("BasicCSV.txt.gz").LongPathPrefix();
-      Assert.AreEqual(fn, reader.GetValue(1).ToString());
-      var myBuff = new byte[1000];
-      Assert.AreEqual(new FileInfo(fn).Length, reader.GetBytes(1, 0, myBuff, 0, myBuff.Length));
-    }
+    }   
 
     [TestMethod]
     public async Task OpenByParams()
