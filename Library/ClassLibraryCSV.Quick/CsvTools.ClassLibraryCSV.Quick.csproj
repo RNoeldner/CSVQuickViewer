@@ -124,8 +124,7 @@
 
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
 
-		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="Mutable\FillGuessSettings.cs" />
-		<Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="Mutable\DelimiterCounter.cs" />
+		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="Mutable\FillGuessSettings.cs" />		
 		<Compile Include="..\ClassLibraryCSV\ObservableObject.cs" Link="ObservableObject.cs" />
 		<Compile Include="..\ClassLibraryCSV\PropertyChangedEventArgs.cs" Link="PropertyChangedEventArgs.cs" />
 
