@@ -163,7 +163,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The enum value</param>
     /// <returns>The short description attribute of the value or the name, if that is not set empty string</returns>
-    private static string ShortDescription(this Enum value)
+    public static string ShortDescription(this Enum value)
     {
       var fieldInfo = value.GetType().GetField(value.ToString());
       ShortDescriptionAttribute? attribute = null;
