@@ -1,3 +1,0 @@
-﻿Title	File Name
-Embedded File	BasicCSV.txt.gz
-Zip File	ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip
