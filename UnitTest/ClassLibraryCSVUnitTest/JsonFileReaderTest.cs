@@ -303,7 +303,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(7, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\Validator\\Setting.xml",
+      Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml",
         jfr.GetValue(6));
       while (await jfr.ReadAsync(UnitTestStatic.Token))
       {
