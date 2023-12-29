@@ -632,7 +632,7 @@ namespace CsvTools
             if (!fileReader.SupportsReset)
               break;
             fileReader.ResetPositionToFirstDataRow();
-            // uif we started at the beginning and we are now back, exist if we started and we can
+            // uif we started at the beginning, and we are now back, exist if we started, and we can
             // not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
@@ -834,8 +834,8 @@ namespace CsvTools
     /// <param name="trueValue">The text to be regarded as <c>true</c></param>
     /// <param name="falseValue">The text to be regarded as <c>false</c></param>
     /// <param name="guessBoolean">Try to identify a boolean</param>
-    /// <param name="guessGuid">Try to determine if its a GUID</param>
-    /// <param name="guessNumeric">Try to determine if its a Number</param>
+    /// <param name="guessGuid">Try to determine if it's a GUID</param>
+    /// <param name="guessNumeric">Try to determine if it's a Number</param>
     /// <param name="guessDateTime">Try to determine if it is a date time</param>
     /// <param name="guessPercentage">Accept percentage values</param>
     /// <param name="serialDateTime">Allow serial Date time</param>
@@ -916,7 +916,7 @@ namespace CsvTools
 
       // Assume dates are of the same format across the files we check if the dates we have would
       // possibly match no matter how many samples we have this time we do not care about matching
-      // length Check Date will cut off time information , this is independent from minRequiredSamples
+      // length Check Date will cut off time information , this is independent of minRequiredSamples
       if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StaticCollections.StandardDateTimeFormats.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = samples.CheckDate(
@@ -945,7 +945,7 @@ namespace CsvTools
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // We need to have at least 10 sample values here its too dangerous to assume it is a date
+        // We need to have at least 10 sample values here it's too dangerous to assume it is a date
         if (guessDateTime && serialDateTime && samples.Count > 10)
         {
           var checkResultDateTime = samples.CheckSerialDate(true, cancellationToken);
@@ -1075,7 +1075,7 @@ namespace CsvTools
       if (!fillGuessSettings.Enabled || fillGuessSettings is { DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false, DetectPercentage: false, SerialDateTime: false })
         return (new List<string>(), fileSetting.ColumnCollection);
 
-      // in case there is no delimiter but its a delimited file, do nothing
+      // in case there is no delimiter but it's a delimited file, do nothing
       if (fileSetting is ICsvFile { FieldDelimiterChar: char.MinValue })
         return (new List<string>(), fileSetting.ColumnCollection);
 

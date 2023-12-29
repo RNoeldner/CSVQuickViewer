@@ -73,6 +73,27 @@ namespace CsvTools
       }
     }
 
+    public void Invoke(in Action<long> action, long number)
+    {
+      // do nothing if the timespan between invokes is not reached
+      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+
+      m_LastNotification = DateTime.UtcNow;
+      try
+      {
+        action.Invoke(number);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
+      }
+    }
+
     public void Invoke(in Action<string> action, in string txt)
     {
       // do nothing if the timespan between invokes is not reached

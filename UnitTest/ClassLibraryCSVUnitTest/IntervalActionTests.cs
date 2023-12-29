@@ -54,7 +54,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, called);
 
       // rapid call should be swallowed
-      intervalAction.Invoke(() => { setValue = 669; called++; });
+      intervalAction.Invoke(num => { setValue = num; called++; }, 669);
       Assert.AreEqual(666L, setValue);
       Assert.AreEqual(1, called);
 
