@@ -73,10 +73,13 @@ namespace CsvTools
       m_EmptyAsNull = emptyAsNull;
     }
 
+    /// <inheritdoc />
     protected override string RecordDelimiter() => ",";
 
+    /// <inheritdoc />
     protected override string ElementName(string input) => HtmlStyle.JsonElementName(input);
 
+    /// <inheritdoc />
     protected override string Escape(object? input, in WriterColumn columnInfo, in IDataRecord? reader)
     {
       if (columnInfo.ValueFormat.DataType == DataTypeEnum.String && string.IsNullOrEmpty(input?.ToString()))
@@ -84,11 +87,11 @@ namespace CsvTools
 
       var typedValue = ValueConversion(reader, input, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
 
-      // sepcial handling of null
+      // special handling of null
       if (m_EmptyAsNull && (typedValue is null  || typedValue == DBNull.Value))
         return "null";
 
-      // Sepcial handling of DateTime
+      // Special handling of DateTime
       if (typedValue is DateTime dtmVal)
       {
         if (dtmVal.Minute==0 && dtmVal.Hour==0 && dtmVal.Second==0)
@@ -128,6 +131,7 @@ namespace CsvTools
       return new WriterColumn(string.Empty, new ValueFormat(), -1);
     }
 
+    /// <inheritdoc />
     public static string GetJsonRow(IEnumerable<Column> cols)
     {
       var sb = new StringBuilder("{");
@@ -140,6 +144,7 @@ namespace CsvTools
       return sb.ToString();
     }
 
+    /// <inheritdoc />
     public override string BuildRow(in string placeHolderText, in IDataReader reader)
     {
       var row = base.BuildRow(placeHolderText, reader);
@@ -178,7 +183,7 @@ namespace CsvTools
       {
         if (input[pos] == split)
         {
-          // FOR XML always adds a leading seperator, so we ingore an empty part if its the very first one
+          // FOR XML always adds a leading separator, so we ignore an empty part if its the very first one
           if (res.Count == 0 && pos==0)
             continue;
           res.Add(sb.ToString().Trim());
@@ -187,7 +192,7 @@ namespace CsvTools
         }
         // Handle escaped 
         if (pos < input.Length-1 && input[pos]== escape && input[pos+1] == split)
-          // eat the escape and store the split as is but do not seperate
+          // eat the escape and store the split as is but do not separate
           pos++;
         sb.Append(input[pos]);
       }
@@ -196,7 +201,11 @@ namespace CsvTools
       return res;
     }
 
-
+    /// <summary>
+    /// Handles an array
+    /// </summary>
+    /// <param name="arrayPart">The array part.</param>
+    /// <param name="columnInfoRoot">The column information root.</param>    
     public string HandleArray(string arrayPart, in WriterColumn columnInfoRoot)
     {
       var start = arrayPart.IndexOf('[');
@@ -248,7 +257,7 @@ namespace CsvTools
           if (prop.Value.Count <numMatches && prop.Value.Count!=0)
           {
             if (numMatches != int.MaxValue)
-              Logger.Warning($"List does not contain the same number of of entries, {prop.Key.Name} has less than before");
+              Logger.Warning($"List does not contain the same number of entries, {prop.Key.Name} has less than before");
             numMatches =prop.Value.Count;
           }
         }

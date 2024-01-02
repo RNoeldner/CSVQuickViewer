@@ -21,8 +21,7 @@ namespace CsvTools
 {
   /// <summary>
   /// ERror and Sample information
-  /// </summary>
-  /// <seealso cref="System.IEquatable&lt;CsvTools.SampleRecordEntry&gt;" />
+  /// </summary>  
   /// <seealso cref="System.ICloneable" />
   /// <seealso cref="CsvTools.ICollectionIdentity" />
   [Serializable]
@@ -91,7 +90,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      
+
       return RecordNumber == other.RecordNumber
              && ProvideEvidence == other.ProvideEvidence
              && string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
@@ -132,7 +131,7 @@ namespace CsvTools
     /// <remarks>
     /// In case a required property is not set, this should raise an error
     /// </remarks>
-    [JsonIgnore] 
+    [JsonIgnore]
     public int CollectionIdentifier => RecordNumber.GetHashCode();
   }
 }
