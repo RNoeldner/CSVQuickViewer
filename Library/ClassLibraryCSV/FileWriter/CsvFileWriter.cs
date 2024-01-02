@@ -66,10 +66,10 @@ namespace CsvTools
     /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
     /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
     /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
-    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the <see cref="fieldDelimiterChar"/> this text will be written</param>
-    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the <see cref="fieldQualifierChar"/> this text will be written</param>
+    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the fieldDelimiterChar this text will be written</param>
+    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the fieldQualifierChar this text will be written</param>
     /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
-    /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> <see cref="fieldQualifierChar"/> is ignored</param>
+    /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
     /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>

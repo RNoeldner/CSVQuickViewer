@@ -50,11 +50,21 @@ namespace CsvTools
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global    
+
+    /// <summary>
+    /// The record limit
+    /// </summary>
     protected long RecordLimit;
 
     private IProgress<ProgressInfo>? m_ReportProgress;
 
+    /// <summary>
+    /// Gets or sets the report progress.
+    /// </summary>
+    /// <value>
+    /// The report progress.
+    /// </value>
     public IProgress<ProgressInfo> ReportProgress
     {
       protected get
@@ -102,8 +112,19 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
+    /// <summary>
+    /// The time zone to convert the read data to, assuming the source time zone is part of the data
+    /// </summary>
     protected readonly string DestTimeZone;
+
+    /// <summary>
+    /// If the stream is opened by the reader this is true
+    /// </summary>
     protected bool SelfOpenedStream;
+
+    /// <summary>
+    /// The routine used for time zone adjustment
+    /// </summary>
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
     /// <inheritdoc />
@@ -165,8 +186,14 @@ namespace CsvTools
     /// <value>Number of field in the file.</value>
     public override int FieldCount => m_FieldCount;
 
+    /// <summary>
+    /// Gets a value that indicates whether this <see cref="T:System.Data.Common.DbDataReader"></see> contains one or more rows.
+    /// </summary>
     public override bool HasRows => !EndOfFile;
 
+    /// <summary>
+    /// Open the reader asynchronously
+    /// </summary>
     public Func<Task>? OnOpenAsync { private get; set; }
 
     /// <summary>
@@ -197,12 +224,33 @@ namespace CsvTools
     /// </summary>
     public virtual long StartLineNumber { get; protected set; }
 
+    /// <summary>
+    /// Gets a value indicating whether the reader can restart at the beginning. 
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if supports reset; otherwise, <c>false</c>.
+    /// </value>
     public virtual bool SupportsReset => true;
 
+    /// <summary>
+    /// Gets the number of fields in the <see cref="T:System.Data.Common.DbDataReader"></see> that are not hidden.
+    /// </summary>
     public override int VisibleFieldCount => Column.Count(x => !x.Ignore);
 
+    /// <summary>
+    /// Gets the name of the file.
+    /// </summary>
+    /// <value>
+    /// The name of the file.
+    /// </value>
     protected string FileName { get; }
 
+    /// <summary>
+    /// Gets the full path.
+    /// </summary>
+    /// <value>
+    /// The full path.
+    /// </value>
     protected string FullPath { get; }
 
     /// <inheritdoc />
@@ -306,8 +354,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the boolean.
     /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
+    /// <param name="ordinal">The zero-based column ordinal.</param>    
     public override bool GetBoolean(int ordinal)
     {
       var parsed = GetBooleanNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
@@ -478,6 +525,12 @@ namespace CsvTools
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
     }
 
+    /// <summary>
+    /// Returns an <see cref="T:System.Collections.IEnumerator"></see> that can be used to iterate through the rows in the data reader.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="T:System.Collections.IEnumerator"></see> that can be used to iterate through the rows in the data reader.
+    /// </returns>
     public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
 
     /// <inheritdoc />
@@ -581,8 +634,7 @@ namespace CsvTools
     ///   Gets the int32 value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
-    /// <returns></returns>
+    /// <param name="column">The column.</param>    
     public long? GetInt64Null(ReadOnlySpan<char> inputValue, in Column column)
     {
       var ret = inputValue.StringToInt64(
@@ -657,6 +709,13 @@ namespace CsvTools
       return dataTable;
     }
 
+    /// <summary>
+    /// Retrieves data as a <see cref="T:System.IO.Stream"></see>.
+    /// </summary>
+    /// <param name="ordinal">Retrieves data as a <see cref="T:System.IO.Stream"></see>.</param>
+    /// <returns>
+    /// The returned object.
+    /// </returns>
     public override Stream GetStream(int ordinal)
     {
       if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
@@ -676,6 +735,13 @@ namespace CsvTools
     /// <returns></returns>    
     public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
 
+    /// <summary>
+    /// Retrieves data as a <see cref="T:System.IO.TextReader"></see>.
+    /// </summary>
+    /// <param name="ordinal">Retrieves data as a <see cref="T:System.IO.TextReader"></see>.</param>
+    /// <returns>
+    /// The returned object.
+    /// </returns>
     public override TextReader GetTextReader(int ordinal)
     {
       if (IsDBNull(ordinal))
@@ -788,6 +854,13 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool NextResult() => false;
 
+    /// <summary>
+    /// This is the asynchronous version of <see cref="M:System.Data.Common.DbDataReader.NextResult"></see>. Providers should override with an appropriate implementation. The <paramref name="cancellationToken">cancellationToken</paramref> may optionally be ignored.   The default implementation invokes the synchronous <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> method and returns a completed task, blocking the calling thread. The default implementation will return a cancelled task if passed an already cancelled <paramref name="cancellationToken">cancellationToken</paramref>. Exceptions thrown by <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> will be communicated via the returned Task Exception property.   Other methods and properties of the DbDataReader object should not be invoked while the returned Task is not yet completed.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation.
+    /// </returns>
     public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => Task.FromResult(false);
 
     /// <summary>
@@ -796,7 +869,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
-    
+
     /// <summary>
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
     ///   ParseColumnName and last FinishOpen
@@ -813,6 +886,12 @@ namespace CsvTools
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
+    /// <summary>
+    /// Advances the reader to the next record in a result set.
+    /// </summary>
+    /// <returns>
+    /// true if there are more rows; otherwise false.
+    /// </returns>
     public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
@@ -825,6 +904,14 @@ namespace CsvTools
       EndOfFile = false;
     }
 
+    /// <summary>
+    /// Treats the non breaking space and null 
+    /// </summary>
+    /// <param name="inputString">The input string.</param>
+    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat NBSP as space.</param>
+    /// <param name="treatTextAsNull">The treat text as null.</param>
+    /// <param name="trim">if set to <c>true</c> remove leading and trailing spaces.</param>
+    /// <returns></returns>
     protected static ReadOnlySpan<char> TreatNbspAsNullTrim(
       ReadOnlySpan<char> inputString,
       bool treatNbspAsSpace,
@@ -1030,6 +1117,12 @@ namespace CsvTools
         ? Array.Empty<char>()
         : CurrentRowColumnText[AssociatedTimeCol[i]].AsSpan();
 
+    /// <summary>
+    /// Gets the warning event arguments.
+    /// </summary>
+    /// <param name="ordinal">The ordinal.</param>
+    /// <param name="message">The message.</param>
+    /// <returns></returns>
     protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
       new WarningEventArgs(
         RecordNumber,
@@ -1095,6 +1188,11 @@ namespace CsvTools
         HandleShowProgressPeriodic($"Record {RecordNumber:N0}");
     }
 
+
+    /// <summary>
+    /// Initializes the column and arrays once its known how many columns there are
+    /// </summary>
+    /// <param name="fieldCount">The field count.</param>
     protected virtual void InitColumn(int fieldCount)
     {
       m_FieldCount = fieldCount;
@@ -1222,6 +1320,12 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
+    /// <summary>
+    /// Checks if we should retry to access the data
+    /// </summary>
+    /// <param name="ex">The exception.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns></returns>
     protected bool ShouldRetry(in Exception ex, in CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
@@ -1293,6 +1397,9 @@ namespace CsvTools
       throw WarnAddFormatException(ordinal, $"'{value.ToString()}' is not a short");
     }
 
+    /// <summary>
+    /// Occurs when opening is at its end.
+    /// </summary>
     public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
   }
 }

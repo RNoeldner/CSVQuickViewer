@@ -53,8 +53,10 @@ namespace CsvTools
     {
     }
 
+    /// <inheritdoc />
     protected override string ElementName(string input) => HtmlStyle.XmlElementName(input);
 
+    /// <inheritdoc />
     protected override string Escape(object? input, in WriterColumn columnInfo, in IDataRecord? reader)
     {
       if (input is null || input == DBNull.Value)
@@ -62,8 +64,14 @@ namespace CsvTools
       return SecurityElement.Escape(TextEncodeField(input, columnInfo, reader)) ?? string.Empty;
     }
 
+    /// <inheritdoc />
     protected override string RecordDelimiter() => "";
 
+    /// <summary>
+    /// Gets the header and row.
+    /// </summary>
+    /// <param name="cols">The cols.</param>
+    /// <returns></returns>
     public static (string Header, string Row) GetXMLHeaderAndRow(IEnumerable<Column> cols)
     {
       var sb = new StringBuilder();

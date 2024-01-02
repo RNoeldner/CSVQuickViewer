@@ -239,21 +239,24 @@ namespace CsvTools
       return base.GetInt64(ordinal);
     }
 
+    /// <inheritdoc />
     public override string GetString(int ordinal)
     {
       return Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
     }
 
+    /// <inheritdoc />
     public override ReadOnlySpan<char> GetSpan(int ordinal)
       => GetString(ordinal).AsSpan();
 
-
+    /// <inheritdoc />
     public override int GetValues(object[] values)
     {
       Array.Copy(CurrentValues, values, FieldCount);
       return FieldCount;
     }
 
+    /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
     {
       if ((ordinal < 0 && ordinal >= FieldCount) || (CurrentValues.Length <= ordinal))
@@ -276,12 +279,14 @@ namespace CsvTools
       return false;
     }
 
+    /// <inheritdoc />
     protected override void InitColumn(int fieldCount)
     {
       CurrentValues = new object[fieldCount];
       base.InitColumn(fieldCount);
     }
 
+    /// <inheritdoc />
     protected string TreatNbspTestAsNullTrim(ReadOnlySpan<char> inputString)
     {
       {

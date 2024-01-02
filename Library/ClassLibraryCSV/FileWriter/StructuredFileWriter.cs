@@ -96,10 +96,23 @@ namespace CsvTools
       WriterColumns = Array.Empty<WriterColumn>();
     }
 
+    /// <summary>
+    /// Escape the name of the Element
+    /// </summary>
+    /// <param name="input">The input names</param>    
     protected abstract string ElementName(string input);
 
+    /// <summary>
+    /// The delimiter between two rows, closing the previous one and starting th new
+    /// </summary>    
     protected abstract string RecordDelimiter();
 
+    /// <summary>
+    /// Escapes the specified input.
+    /// </summary>
+    /// <param name="input">The input text</param>
+    /// <param name="columnInfo">The column information.</param>
+    /// <param name="reader">The reader for placeholders</param>    
     protected abstract string Escape(object? input, in WriterColumn columnInfo, in IDataRecord? reader);
 
     /// <summary>
@@ -121,6 +134,10 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Sets the writer columns based on the reader
+    /// </summary>
+    /// <param name="reader">The reader.</param>
     public void SetWriterColumns(in IFileReader reader)
     {
       WriterColumns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
@@ -187,6 +204,11 @@ namespace CsvTools
 #endif
     }
 
+    /// <summary>
+    /// Builds the row.
+    /// </summary>
+    /// <param name="placeHolderText">The place holder text.</param>
+    /// <param name="reader">The reader.</param>    
     public virtual string BuildRow(in string placeHolderText, in IDataReader reader)
     {
       var row = placeHolderText;
