@@ -166,16 +166,13 @@ namespace CsvTools
         return ':';
 
       // ReSharper disable once StringLiteralTypo
-      if (compareText.Equals("Doublequote", StringComparison.OrdinalIgnoreCase)
-          // ReSharper disable once StringLiteralTypo
-          || compareText.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase)
+      if (compareText.StartsWith("Doublequote", StringComparison.OrdinalIgnoreCase)                    
           || compareText.Equals("Quote", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase))
         return '"';
 
-      if (compareText.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase)
-          // ReSharper disable once StringLiteralTypo
-          || compareText.Equals("Singlequote", StringComparison.OrdinalIgnoreCase)
+      if (compareText.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase)          
+          || compareText.StartsWith("Singlequote", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("tick", StringComparison.OrdinalIgnoreCase))
         return '\'';
 

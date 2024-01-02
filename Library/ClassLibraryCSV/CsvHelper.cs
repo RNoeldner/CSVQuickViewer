@@ -378,7 +378,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
     /// <param name="encoding">The encoding.</param>
-    /// <returns><c>true</c> if xml could be read from stream; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if XML could be read from stream; otherwise, <c>false</c>.</returns>
     public static async Task<bool> InspectIsXmlReadableAsync(
       this Stream stream,
       Encoding encoding)
@@ -513,12 +513,12 @@ CommentLine
       if (guessJson)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        Logger.Information("Checking Xml format");
+        Logger.Information("Checking XML format");
         inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
       }
       if (inspectionResult.IsXml)
       {
-        Logger.Information("Detected xml file, no further checks done");
+        Logger.Information("Detected XML file, no further checks done");
         return;
       }
       if (guessJson)

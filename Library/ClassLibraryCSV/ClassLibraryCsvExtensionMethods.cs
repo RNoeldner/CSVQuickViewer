@@ -29,15 +29,21 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
+  /// <summary>Delegate for a routine that will handle time zone conversion</summary>
+  /// <param name="input">The input date / Time</param>
+  /// <param name="srcTimeZone">The source time zone.</param>
+  /// <param name="destTimeZone">The destination time zone.</param>
+  /// <param name="handleWarning">An action to be called when a warning should be passed on, e.G. time zone is not known</param>
+  /// <returns>
+  ///   Converted date / time
+  /// </returns>
   public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone, in Action<string>? handleWarning);
-
-
 
   /// <summary>
   ///   Class with extensions used in the class Library
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
-  {    
+  {
     /// <summary>
     /// Move the field from on position in the list to another
     /// </summary>
@@ -54,13 +60,28 @@ namespace CsvTools
       list.Insert(newIndex, removedItem);
     }
 
+    /// <summary>    
+    /// Generate a hash for a case insensitive text
+    /// </summary>
+    /// <param name="name">The identifier to base the hash on.</param>
     public static int IdentifierHash(this string name)
       => name.ToUpperInvariant().GetHashCode();
 
+    /// <summary>    
+    /// Generate a hash for two texts both  case insensitive
+    /// </summary>    
     public static int IdentifierHash(this string name, in string name2)
       => name.ToUpperInvariant().GetHashCode() + name2.ToUpperInvariant().GetHashCode();
 
 
+    /// <summary>
+    ///   <para>
+    /// Assumes compression method "deflate" based on file extension</para>
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns>
+    ///   <br />
+    /// </returns>
     public static bool AssumeDeflate(this string fileName) =>
       fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase)
       || fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
@@ -90,6 +111,11 @@ namespace CsvTools
     /// <returns></returns>
     public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>Assumes its a delimited file, based on extension</summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns>
+    ///   <br />
+    /// </returns>
     public static bool AssumeDelimited(this string fileName) =>
       fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)||
@@ -173,7 +199,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the Display Text of an Enum, using <see cref="ShortDescription"/> and as fallback <see cref="Description"/>
+    ///   Get the Display Text of an Enum, using <see cref="ShortDescription"/> and as fall back <see cref="Description"/>
     /// </summary>
     public static string Display(this Enum value)
     {
@@ -339,6 +365,10 @@ namespace CsvTools
     public static IEnumerable<DataColumn> GetRealColumns(this DataTable dataTable) =>
       dataTable.Columns.Cast<DataColumn>().Where(col => NoArtificialField(col.ColumnName));
 
+    /// <summary>
+    /// Checks if a field  name seem to be a field created by the reader
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>    
     public static bool NoArtificialField(this string columnName) => !ReaderConstants.ArtificialFields.Contains(columnName);
 
     /// <summary>
@@ -377,6 +407,10 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Translates RecordDelimiterTypeEnum into text representation
+    /// </summary>
+    /// <param name="type">The delimited type.</param>    
     public static string NewLineString(this RecordDelimiterTypeEnum type) =>
       type switch
       {
@@ -469,6 +503,13 @@ namespace CsvTools
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
+    /// <summary>
+    /// Replace placeholder in  the text
+    /// </summary>
+    /// <param name="input">The input text with possible placeholders.</param>
+    /// <param name="placeholder">The identifiers of the placeholder.</param>
+    /// <param name="formatedDateTime">The date time format in  case the placeholder has a format description</param>
+    /// <returns></returns>
     public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime)
     {
       // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
@@ -612,9 +653,9 @@ namespace CsvTools
     //{
     //  if (inputValue.IsEmpty)
     //    return;
-        
+
     //  // Assume the text stays the same, it could only be shorter
-      
+
     //  int pos = 0;
     //  // ReSharper disable once ForCanBeConvertedToForeach
     //  for (int i = 0; i < inputValue.Length; i++)
@@ -742,6 +783,11 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
+    /// <summary>
+    /// Sets the maximum if possible
+    /// </summary>
+    /// <param name="progress">The progress reporter</param>
+    /// <param name="maximum">The maximum value</param>
     public static void SetMaximum(this IProgress<ProgressInfo>? progress, long maximum)
     {
       if (!(progress is IProgressTime progressTime)) return;
@@ -769,11 +815,34 @@ namespace CsvTools
       return loop.Message;
     }
 
+    /// <summary>
+    /// Converts a text to a char, in case the text is empty it return /0
+    /// </summary>
+    /// <param name="inputString">The input string.</param>    
     public static char StringToChar(this string inputString) =>
       string.IsNullOrEmpty(inputString) ? char.MinValue : inputString[0];
 
+        /// <summary>
+    /// Converts a char to a string and \0 is an empty string
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns></returns>
+    public static string ToStringHandle0(this char input) =>
+      input == char.MinValue ? string.Empty : input.ToString();
+
+
+    /// <summary>
+    /// Converts the value to an integer and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
     public static int ToInt(this ulong value) => value > int.MaxValue ? int.MaxValue : Convert.ToInt32(value);
 
+    /// <summary>
+    /// Converts the value to an integer and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
     public static int ToInt(this long value)
     {
       if (value > int.MaxValue)
@@ -781,6 +850,11 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
+    /// <summary>
+    /// Converts the value to an integer and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
     public static int ToInt(this decimal value)
     {
       if (value > int.MaxValue)
@@ -788,6 +862,11 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
+    /// <summary>
+    /// Converts the value to an integer and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
     public static int ToInt(this double value)
     {
       if (value > int.MaxValue)
@@ -795,6 +874,10 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
+    /// <summary>
+    /// Converts a double to int64 and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>    
     public static long ToInt64(this double value)
     {
       if (value > long.MaxValue)
@@ -804,17 +887,16 @@ namespace CsvTools
 
       return value.Equals(double.NaN) ? default : Convert.ToInt64(value);
     }
-
+    /// <summary>
+    /// Converts a decimal to int64 and cuts off in case the value is too small or too large
+    /// </summary>
+    /// <param name="value">The value.</param>    
     public static long ToInt64(this decimal value)
     {
       if (value > long.MaxValue)
         return long.MaxValue;
       return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
     }
-
-    public static string ToStringHandle0(this char input) =>
-      input == char.MinValue ? string.Empty : input.ToString();
-
 
 #if !GetHashByGUID
 

@@ -13,6 +13,7 @@
  */
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -28,6 +29,12 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
+    /// <summary>
+    /// Get a common date format along the given columns
+    /// </summary>
+    /// <param name="columns">The columns.</param>
+    /// <param name="guessDefault">The default value</param>
+    /// <returns></returns>
     public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, in string guessDefault)
     {
       ValueFormat? best = null;
@@ -632,7 +639,7 @@ namespace CsvTools
             if (!fileReader.SupportsReset)
               break;
             fileReader.ResetPositionToFirstDataRow();
-            // uif we started at the beginning, and we are now back, exist if we started, and we can
+            // if we started at the beginning, and we are now back, exist if we started, and we can
             // not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
@@ -670,7 +677,7 @@ namespace CsvTools
                 }
               }
             }
-            catch 
+            catch
             {
               Logger.Warning("Issue reading line {line}, possible empty training column", fileReader.StartLineNumber);
             }
@@ -729,7 +736,7 @@ namespace CsvTools
         best = kv.Value;
         possibleDateSeparators.Add(kv.Key);
       }
-     
+
 
       foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
@@ -740,10 +747,7 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = samples.CheckDate(
-              fmt.AsSpan(),
-              sep,
-              ':', CultureInfo.CurrentCulture, cancellationToken);
+            var res = samples.CheckDate(fmt.AsSpan(), sep, ':', CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -753,11 +757,7 @@ namespace CsvTools
         else
         {
           // we have no date separator in the format no need to test different separators
-          var res = samples.CheckDate(
-            fmt.AsSpan(),
-            char.MinValue,
-            ':',
-            CultureInfo.CurrentCulture, cancellationToken);
+          var res = samples.CheckDate(fmt.AsSpan(), char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -909,7 +909,7 @@ namespace CsvTools
 
       cancellationToken.ThrowIfCancellationRequested();
 
-      // ---------------- Confirm old provided format would be ok --------------------------
+      // ---------------- Confirm old provided format would be OK --------------------------
       // ---------------- No matter if we have enough samples 
 
       var firstValue = samples.First();
@@ -1010,28 +1010,25 @@ namespace CsvTools
       return checkResult;
     }
 
+    /// <summary>
+    /// Class storing samples in random order
+    /// </summary>
     [DebuggerDisplay("SampleResult: {Values.Count} of {RecordsRead}")]
     public class SampleResult
     {
-      private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
-
       /// <summary>
       ///   Initializes a new instance of the class and stores all passed in values in random order
       /// </summary>
       /// <param name="items">The initial set of sample values</param>
       /// <param name="records">The number of records that have been read to obtain the values</param>
-      public SampleResult(IList<string> items, int records)
+      public SampleResult(IEnumerable<string> items, int records)
       {
         RecordsRead = records;
-
-        // mix order of results
-        for (var i = 0; i < items.Count / 2; i++)
-        {
-          var pos = m_Random.Next(i, items.Count);
-          (items[i], items[pos]) = (items[pos], items[i]);
-        }
-
-        Values = new ReadOnlyCollection<ReadOnlyMemory<char>>(items.Select(x => x.AsMemory()).ToList());
+        var random = new Random(Guid.NewGuid().GetHashCode());
+        var valueList = new List<ReadOnlyMemory<char>>();
+        foreach (var item in items)
+          valueList.Insert(random.Next(0, valueList.Count + 1), item.AsMemory());
+        Values = valueList;
       }
 
       /// <summary>

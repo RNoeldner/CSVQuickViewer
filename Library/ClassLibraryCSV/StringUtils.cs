@@ -29,6 +29,10 @@ namespace CsvTools
   [DebuggerStepThrough]
   public static class StringUtils
   {
+    /// <summary>
+    /// Gets the not secured text
+    /// </summary>
+    /// <param name="secPassword">The secured text.</param>    
     public static string GetText(this System.Security.SecureString secPassword)
     {
       var unmanagedString = IntPtr.Zero;
@@ -43,6 +47,11 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Converts a text to a secured text
+    /// </summary>
+    /// <param name="text">The plain text</param>    
+    /// <exception cref="System.ArgumentNullException">text</exception>
     public static System.Security.SecureString ToSecureString(this string text)
     {
       if (text is null)
@@ -57,35 +66,22 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks whether a column name text ends on the text ID or Ref
+    /// Determines if a column name indicates that its an identifier column.
     /// </summary>
     /// <param name="columnName">The column name</param>
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIdColumn(in string columnName)
-    {
-      if (columnName.TrimEnd().Length == 0)
-        return 0;
+    public static int AssumeIdColumn(in string columnName) => AssumeIdColumn(columnName.AsSpan());
 
-      if (columnName.EndsWith(" Text", StringComparison.OrdinalIgnoreCase))
-        return 5;
-      if (columnName.EndsWith("Text", StringComparison.Ordinal))
-        return 4;
 
-      if (columnName.EndsWith(" Ref", StringComparison.OrdinalIgnoreCase))
-        return 4;
-      if (columnName.EndsWith("Ref", StringComparison.Ordinal))
-        return 3;
-
-      if (columnName.EndsWith(" ID", StringComparison.OrdinalIgnoreCase))
-        return 3;
-      if ((columnName.EndsWith("ID", StringComparison.Ordinal) || columnName.EndsWith("Id", StringComparison.Ordinal)) &&
-          !columnName.EndsWith("GUID", StringComparison.OrdinalIgnoreCase))
-        return 2;
-      return 0;
-    }
-
+    /// <summary>
+    /// Determines if a column name indicates that its an identifier column.
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>
+    /// <returns>
+    ///   The number of charters at the end that did match, 0 if it does not end on ID
+    /// </returns>
     public static int AssumeIdColumn(in ReadOnlySpan<char> columnName)
     {
       if (columnName.TrimEnd().Length == 0)
@@ -283,6 +279,10 @@ namespace CsvTools
         x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
                                                   || x == UnicodeCategory.DecimalDigitNumber);
 
+    /// <summary>
+    ///   Used to get only text representation without umlaut or accents, allowing upper and lower
+    ///   case characters and numbers
+    /// </summary>    
     public static ReadOnlySpan<char> NoSpecials(this ReadOnlySpan<char> original) =>
       ProcessByCategory(
         original,
@@ -392,7 +392,11 @@ namespace CsvTools
 
       return new string(chars, 0, count);
     }
-
+    /// <summary>Processes each char by category, if the test function return false,
+    /// the charter is omitted</summary>
+    /// <param name="original">The original text as span</param>
+    /// <param name="testFunction">The test function called on each individual char</param>
+    /// <returns>A test with only allowed characters</returns>
     public static ReadOnlySpan<char> ProcessByCategory(this ReadOnlySpan<char> original, Func<UnicodeCategory, bool> testFunction)
     {
       if (original.Length==0)
@@ -417,7 +421,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull) => 
+    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull) =>
       value is null || ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
 
     /// <summary>
@@ -473,6 +477,9 @@ namespace CsvTools
     public static string SqlName(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
+    /// <summary>
+    ///   Escapes SQL names; does not include the brackets or quotes
+    /// </summary>
     public static ReadOnlySpan<char> SqlName(this ReadOnlySpan<char> contents) =>
       contents.IsEmpty || contents.IndexOf(']') == -1 ? contents : contents.ToString().Replace("]", "]]").AsSpan();
 
@@ -482,6 +489,10 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     public static string SqlQuote(this string? contents) =>
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
+
+    /// <summary>
+    ///   Handles quotes in SQLs, does not include the outer quotes
+    /// </summary>
     public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents) =>
       contents.IsEmpty || contents.IndexOf('\'') == -1 ? contents : contents.ToString().Replace("'", "''").AsSpan();
 
@@ -513,7 +524,11 @@ namespace CsvTools
       result = entry;
       return true;
     }
-
+    
+    /// <summary>
+    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
+    ///   if it's a number; if not its assume is a reference to another field
+    /// </summary>
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
       result = entry;
@@ -530,7 +545,7 @@ namespace CsvTools
         return true;
       }
 
-      // Should be a english number
+      // Should be a English number
 #if NET7_0_OR_GREATER
       return Regex.IsMatch(entry, @"[+\-]?[0-9]+\.?[0-9]*");
 #else

@@ -18,7 +18,7 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Collection of Columns, this class is not serializable
+  ///   Collection of Columns
   /// </summary>
   public sealed class ColumnCollection : UniqueObservableCollection<Column>
   {

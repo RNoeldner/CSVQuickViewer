@@ -173,7 +173,7 @@ namespace CsvTools
           goto Retry;
         Close();
         var appEx = new FileReaderException(
-          "Error opening xml text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
+          "Error opening XML text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
           ex);
         HandleError(-1, appEx.ExceptionMessages());
         HandleReadFinished();
@@ -287,7 +287,7 @@ namespace CsvTools
     {
       if (SelfOpenedStream)
       {
-        // Better would bve DisposeAsync(), but method is synchronous
+        // Better would be DisposeAsync(), but method is synchronous
         m_Stream?.Dispose();
         m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
       }

@@ -292,7 +292,7 @@ namespace CsvTools
               break;
 
             default:
-              throw new ArgumentOutOfRangeException($"Unkown TokenType {m_JsonTextReader.TokenType}");
+              throw new ArgumentOutOfRangeException($"Unknown TokenType {m_JsonTextReader.TokenType}");
           }
 
           token.ThrowIfCancellationRequested();
@@ -363,7 +363,7 @@ namespace CsvTools
     {
       if (SelfOpenedStream)
       {
-        // Better would bve DisposeAsync(), but method is synchronous
+        // Better would be DisposeAsync(), but method is synchronous
         m_Stream?.Dispose();
         m_Stream =  FunctionalDI.GetStream(new SourceAccess(FullPath));
       }
