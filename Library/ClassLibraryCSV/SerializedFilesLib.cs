@@ -22,11 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-#if XmlSerialization
-using System.Xml;
-using System.Xml.Serialization;
-#endif
-
 namespace CsvTools
 {
   /// <summary>
@@ -41,16 +36,7 @@ namespace CsvTools
       m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
 
     private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
-#if XmlSerialization
-    private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
-      new Lazy<XmlSerializerNamespaces>(
-        () =>
-        {
-          var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-          xmlSerializerNamespaces.Add(string.Empty, string.Empty);
-          return xmlSerializerNamespaces;
-        });
-#endif
+
     public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
       () =>
       {
@@ -67,23 +53,6 @@ namespace CsvTools
         setting.Converters.Add(new StringEnumConverter());
         return setting;
       });
-
-#if XmlSerialization
-    /// <summary>
-    ///   Serialize an object with formatting
-    /// </summary>
-    /// <param name="data">The object to be serialized</param>
-    /// <param name="serializer">The serializer for the passed in object</param>
-    /// <returns>The XML string</returns>
-    public static string SerializeIndentedXml<T>(this T data, in XmlSerializer serializer) where T : class
-    {
-      using var stringWriter = new StringWriter();
-      using var textWriter = new XmlTextWriter(stringWriter);
-      textWriter.Formatting = System.Xml.Formatting.Indented;
-      serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
-      return stringWriter.ToString();
-    }
-#endif
 
     /// <summary>
     ///   Serialize an object with formatting
@@ -114,14 +83,6 @@ namespace CsvTools
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
-#if XmlSerialization
-      if (text.StartsWith("<?xml "))
-      {
-        if (new XmlSerializer(typeof(T)).Deserialize(new StringReader(text)) is T retVal)
-          return retVal;
-        throw new XmlException($"Could not deserialize {text}");
-      }
-#endif
       return DeserializeText<T>(text);
     }
 

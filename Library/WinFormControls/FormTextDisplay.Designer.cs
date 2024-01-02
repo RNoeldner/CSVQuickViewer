@@ -172,7 +172,6 @@ namespace CsvTools
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(0, 0);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);
@@ -220,7 +219,6 @@ namespace CsvTools
       this.fastColoredTextBoxRO.DelayedTextChangedInterval = 50;
       this.fastColoredTextBoxRO.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.fastColoredTextBoxRO.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fastColoredTextBoxRO.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBoxRO.IsReplaceMode = false;
       this.fastColoredTextBoxRO.Location = new System.Drawing.Point(0, 0);
       this.fastColoredTextBoxRO.Margin = new System.Windows.Forms.Padding(2);

@@ -7,17 +7,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializationTest
   {
-#if XmlSerialization
-    [TestMethod]
-    public async Task CsvSettingsXml()
-    {
-      var ret = await UnitTestStatic.GetTestPath("Read.setting").DeserializeFileAsync<CsvFile>();
-      Assert.IsNotNull(ret);
-      ret.FileName = UnitTestStatic.GetTestPath("Read3.csv");
-      await SerializedFilesLib.SaveSettingFileAsync(ret, null, CancellationToken.None);
-    }
-#endif
-
     [TestMethod]
     public void CsvSettingsProperties()
     {

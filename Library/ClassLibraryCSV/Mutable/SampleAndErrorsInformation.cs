@@ -18,9 +18,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
 
 namespace CsvTools
 {
@@ -36,29 +33,37 @@ namespace CsvTools
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
-    [JsonConstructor]
-    public SampleAndErrorsInformation() : this(-1, Array.Empty<SampleRecordEntry>(), Array.Empty<SampleRecordEntry>(), 0)
-    {
-    }
 
-    public SampleAndErrorsInformation(int numErrors, in IEnumerable<SampleRecordEntry> errors,
-      in IEnumerable<SampleRecordEntry> samples, int minSampleRecords)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SampleAndErrorsInformation"/> class.
+    /// </summary>
+    /// <param name="numErrors">The number errors.</param>
+    /// <param name="errors">The errors.</param>
+    /// <param name="samples">The samples.</param>
+    /// <param name="minSampleRecords">The minimum sample records.</param>
+    [JsonConstructor]
+    public SampleAndErrorsInformation(int? numErrors = null, IEnumerable<SampleRecordEntry>? errors = null, IEnumerable<SampleRecordEntry>? samples = null, int? minSampleRecords = null)
     {
-      m_NumErrors = numErrors;
-      m_MinSampleRecords = minSampleRecords;
+      m_NumErrors = numErrors ?? -1;
+      m_MinSampleRecords = minSampleRecords ?? 0;
 
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
-      m_Errors.AddRangeNoClone(errors);
+      if (errors != null)
+        m_Errors.AddRangeNoClone(errors);
       m_Errors.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Errors));
 
       m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
-      m_Samples.AddRangeNoClone(samples);
+      if (samples != null)
+        m_Samples.AddRangeNoClone(samples);
       m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
     }
 
-#if XmlSerialization  
-    [XmlAttribute]
-#endif
+    /// <summary>
+    /// Gets or sets the number sample records 
+    /// </summary>
+    /// <value>
+    /// The minimum sample records.
+    /// </value>
     [DefaultValue(0)]
     public int MinSampleRecords
     {
@@ -72,9 +77,6 @@ namespace CsvTools
     /// <value>
     ///   The number of errors, usually matches the number of entries in <see cref="Errors" />
     /// </value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(-1)]
     public int NumErrors
     {
@@ -123,7 +125,7 @@ namespace CsvTools
       other.m_Errors.Clear();
       other.m_Errors.AddRange(m_Errors);
       other.m_NumErrors = m_NumErrors;
-      other.m_NumErrors = m_NumErrors;
+      other.m_MinSampleRecords = m_MinSampleRecords;
     }
 
     /// <summary>
@@ -135,10 +137,11 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      
+
       return m_NumErrors == other.m_NumErrors
-             && m_Samples.Equals(other.m_Samples)
-             && m_Errors.Equals(other.m_Errors);
+             && m_MinSampleRecords == other.m_MinSampleRecords
+             && m_Samples.CollectionEqual(other.m_Samples)
+             && m_Errors.CollectionEqual(other.m_Errors);
     }
   }
 }

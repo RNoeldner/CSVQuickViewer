@@ -140,7 +140,7 @@ namespace CsvTools
         {
           col.Visible = m_Protected.Contains(col.DataPropertyName) || listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
         }
-        // if nothing is visible any more un-hide first column
+        // if nothing is visible any more unhide first column
         if (m_Columns.Count>0 && !m_Columns.Any(x => x.Visible))
           m_Columns.First().Visible = true;
       });

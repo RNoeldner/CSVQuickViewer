@@ -16,9 +16,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
 namespace CsvTools
 {
   /// <inheritdoc cref="System.ICloneable" />
@@ -45,13 +42,10 @@ namespace CsvTools
     private bool m_DateParts;
     private bool m_RemoveCurrencySymbols;
 
+    /// <summary>
+    /// Default instance for FillGuessSettings
+    /// </summary>
     public static FillGuessSettings Default = new FillGuessSettings();
-
-#if XmlSerialization
-    [Obsolete("Used for XML Serialization")]
-    public FillGuessSettings() : this(enabled: true)
-    { }
-#endif
 
     [JsonConstructor]
     public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
@@ -79,9 +73,6 @@ namespace CsvTools
     }
 
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool Enabled
     {
       get => m_Enabled;
@@ -89,9 +80,6 @@ namespace CsvTools
     }
 
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool RemoveCurrencySymbols
     {
       get => m_RemoveCurrencySymbols;
@@ -101,9 +89,6 @@ namespace CsvTools
     /// <summary>
     ///   Number of records to parse to get the sample values, default is <c>30000</c>
     /// </summary>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(30000)]
     public long CheckedRecords
     {
@@ -115,9 +100,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they have a date part like a time or time, default is <c>false</c>
     /// </summary>
     [DefaultValue(false)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DateParts
     {
       get => m_DateParts;
@@ -128,9 +110,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DetectNumbers
     {
       get => m_DetectNumbers;
@@ -141,9 +120,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be Percentages, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DetectPercentage
     {
       get => m_DetectPercentage;
@@ -154,9 +130,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be Boolean, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DetectBoolean
     {
       get => m_DetectBoolean;
@@ -167,9 +140,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be Date or Times, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DetectDateTime
     {
       get => m_DetectDateTime;
@@ -180,24 +150,16 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be GUIDs, default is <c>False</c>
     /// </summary>
     [DefaultValue(false)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool DetectGuid
     {
       get => m_DetectGuid;
       set => SetProperty(ref m_DetectGuid, value);
     }
 
-
-
     /// <summary>
     ///   Flag to ignore columns that seem to be Identifiers, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
@@ -208,9 +170,6 @@ namespace CsvTools
     ///   Number of sample values, default is <c>5</c>
     /// </summary>
     [DefaultValue(5)]
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     public int MinSamples
     {
       get => m_MinSamples;
@@ -221,9 +180,6 @@ namespace CsvTools
     ///   Number of sample values, default is <c>150</c>
     /// </summary>
     [DefaultValue(150)]
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     public int SampleValues
     {
       get => m_SampleValues;
@@ -234,9 +190,6 @@ namespace CsvTools
     ///   If set to <c>True</c> values are checked if they could be serial Date or Times
     /// </summary>
     [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
     public bool SerialDateTime
     {
       get => m_SerialDateTime;
@@ -247,9 +200,6 @@ namespace CsvTools
     ///   List of text to be regarded as <c>true</c>
     /// </summary>
     [DefaultValue("True")]
-#if XmlSerialization
-    [XmlElement]
-#endif
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -264,9 +214,6 @@ namespace CsvTools
     ///   List of text to be regarded as <c>false</c>, default text is <c>"False"</c>
     /// </summary>
     [DefaultValue("False")]
-#if XmlSerialization
-    [XmlElement]
-#endif
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -278,9 +225,6 @@ namespace CsvTools
     }
 
     [DefaultValue("")]
-#if XmlSerialization
-    [XmlElement]
-#endif
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -303,7 +247,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      
+
       return m_Enabled == other.Enabled &&
              m_CheckedRecords == other.CheckedRecords &&
              m_DateParts == other.DateParts &&

@@ -17,23 +17,24 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
-
 namespace CsvTools
 {
+  /// <summary>
+  /// ERror and Sample information
+  /// </summary>
+  /// <seealso cref="System.IEquatable&lt;CsvTools.SampleRecordEntry&gt;" />
+  /// <seealso cref="System.ICloneable" />
+  /// <seealso cref="CsvTools.ICollectionIdentity" />
   [Serializable]
   public sealed class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable, ICollectionIdentity
   {
-#if XmlSerialization
-    [Obsolete("Only needed for XmlSerialization")]
-    public SampleRecordEntry()
-      : this(0, true, string.Empty)
-    {
-    }
-#endif
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SampleRecordEntry"/> class.
+    /// </summary>
+    /// <param name="recordNumber">The record number.</param>
+    /// <param name="provideEvidence">The provide evidence.</param>
+    /// <param name="error">The error.</param>
     [JsonConstructor]
     public SampleRecordEntry(long? recordNumber, bool? provideEvidence = true, string? error = "")
     {
@@ -46,48 +47,30 @@ namespace CsvTools
     ///   Gets or sets the record number.
     /// </summary>
     /// <value>The record number.</value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(0)]
     public long RecordNumber
     {
       get;
-#if XmlSerialization
-      set;
-#endif
     }
 
     /// <summary>
     ///   Gets or sets a value indicating whether [provide evidence].
     /// </summary>
     /// <value><c>true</c> if [provide evidence]; otherwise, <c>false</c>.</value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public bool ProvideEvidence
     {
       get;
-#if XmlSerialization
-      set;
-#endif
     }
 
     /// <summary>
     ///   Gets or sets the error.
     /// </summary>
     /// <value>The error.</value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue("")]
     public string Error
     {
       get;
-#if XmlSerialization
-      set;
-#endif
     }
 
     /// <summary>
@@ -142,6 +125,14 @@ namespace CsvTools
       }
     }
 
-    [JsonIgnore] public int CollectionIdentifier => RecordNumber.GetHashCode();
+    /// <summary>
+    /// Identifier in collections, similar to a hashcode based on a properties that should be
+    /// unique in a collection
+    /// </summary>
+    /// <remarks>
+    /// In case a required property is not set, this should raise an error
+    /// </remarks>
+    [JsonIgnore] 
+    public int CollectionIdentifier => RecordNumber.GetHashCode();
   }
 }

@@ -168,7 +168,7 @@ namespace CsvTools
       {
         if (!SetProperty(ref m_DataPropertyName, value))
           return;
-        // Un-escape the name in case its escaped
+        // Unescape the name in case its escaped
         if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
             && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
         {
@@ -219,7 +219,7 @@ namespace CsvTools
       set
       {
         if (SetProperty(ref m_ValueDateTime, value))
-          // in case the text is chnaged rebuild the filter
+          // in case the text is changed rebuild the filter
           ApplyFilter();
       }
     }
@@ -234,7 +234,7 @@ namespace CsvTools
       set
       {
         if (SetProperty(ref m_ValueText, value))
-          // in case the text is chnaged rebuild the filter
+          // in case the text is changed rebuild the filter
           ApplyFilter();
       }
     }
@@ -405,7 +405,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the filter expression for this column for Operator based filter
     /// </summary>
-    /// <returns>a sql statement</returns>
+        /// <returns>A SQL Condition to be used on DataTable</returns>
     private string BuildFilterExpressionOperator()
     {
       switch (m_Operator)
@@ -495,7 +495,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the filter expression for this column for value based filter
     /// </summary>
-    /// <returns>a sql statement</returns>
+    /// <returns>A SQL Condition to be used on DataTable</returns>
     public string BuildFilterExpressionValues()
     {
       var sql = new StringBuilder();

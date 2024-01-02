@@ -107,34 +107,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, key);
     }
 
-#if XmlSerialization
-    [TestMethod]
-    public void BiDirectionalDictionaryIXmlSerializable()
-
-    {
-      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 12 } };
-      Assert.IsNull(bi.GetSchema());
-      using var sw = new StringWriter();
-      using var xmlWriter = XmlWriter.Create(sw);
-      xmlWriter.WriteStartDocument();
-      xmlWriter.WriteStartElement("test");
-      bi.WriteXml(xmlWriter);
-      xmlWriter.WriteEndElement();
-      xmlWriter.WriteEndDocument();
-      var res = sw.ToString();
-      Assert.IsTrue( res.Contains(@"<int>1</int><int>1</int>", StringComparison.OrdinalIgnoreCase), res);
-      Assert.IsTrue( res.Contains(@"<int>2</int><int>12</int>", StringComparison.OrdinalIgnoreCase), res);
-      
-      var bi2 = new BiDirectionalDictionary<int, int>();
-      using var xmlReader = new XmlTextReader(new StringReader(
-        @"<test><item><int>5</int><int>1</int></item><item><int>2</int><int>12</int></item></test>"));
-      xmlReader.Read();
-      bi2.ReadXml(xmlReader);
-
-      Assert.IsTrue(bi2.TryGetByValue(1, out var key));
-      Assert.AreEqual(5, key);
-    }
-#endif
     [TestMethod]
     public void BiDirectionalDictionaryGetByValue()
 

@@ -18,9 +18,7 @@ using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
+
 
 namespace CsvTools
 {
@@ -32,13 +30,13 @@ namespace CsvTools
   [Serializable]
   public sealed class Mapping : IEquatable<Mapping>, ICloneable, ICollectionIdentity
   {
-#if XmlSerialization
-    public Mapping()
-      : this(string.Empty, string.Empty)
-    {
-    }
-#endif
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Mapping"/> class.
+    /// </summary>
+    /// <param name="fileColumn">The file column.</param>
+    /// <param name="templateField">The template field.</param>
+    /// <param name="update">The update.</param>
+    /// <param name="attention">The attention.</param>
     [JsonConstructor]
     public Mapping(string? fileColumn, string? templateField, bool? update = false, bool? attention = false)
     {
@@ -52,9 +50,6 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether this <see cref="Mapping" /> required additional attention
     /// </summary>
     /// <value><c>true</c> if attention; otherwise, <c>false</c>.</value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool Attention
     {
@@ -67,9 +62,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The source.</value>
     /// <remarks>The set operator is only present to allow serialization</remarks>
-#if XmlSerialization
-    [XmlAttribute("Column")]
-#endif
     public string FileColumn { get; set; }
 
     /// <summary>
@@ -77,18 +69,12 @@ namespace CsvTools
     /// </summary>
     /// <value>The destination.</value>
     /// <remarks>The set operator is only present to allow serialization</remarks>
-#if XmlSerialization
-    [XmlAttribute("Field")]
-#endif
     public string TemplateField { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
     /// </summary>
     /// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool Update
     {

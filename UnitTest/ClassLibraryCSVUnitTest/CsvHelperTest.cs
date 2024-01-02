@@ -108,17 +108,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(1200, tuple.CodePageId);
     }
 
-#if XmlSerialization
-    [TestMethod]
-    public async Task GetCsvFileSettingFromExtensionAsync()
-    {
-      var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).InspectFileAsync(true,
-        true, true,
-        true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
-      Assert.IsNotNull(tuple);
-      Assert.AreEqual(1200, tuple.CodePageId);
-    }
-#endif
 
     [TestMethod]
     public async Task GuessCodePageAsync()

@@ -34,10 +34,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
-
 // ReSharper disable StringLiteralTypo
 namespace CsvTools.Tests
 {

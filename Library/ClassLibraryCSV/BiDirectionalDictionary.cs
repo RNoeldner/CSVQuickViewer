@@ -16,66 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
 
 namespace CsvTools
 {
-#if XmlSerialization
-  [XmlRoot("dictionary")]
-#endif
   public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
-#if XmlSerialization
-, IXmlSerializable
-#endif
     where TKey : notnull where TValue : notnull
   {
-#if XmlSerialization
-    #region IXmlSerializable Members
-
-    public System.Xml.Schema.XmlSchema? GetSchema() => null;
-
-    public void ReadXml(System.Xml.XmlReader reader)
-    {
-      var keySerializer = new XmlSerializer(typeof(TKey));
-      var valueSerializer = new XmlSerializer(typeof(TValue));
-
-      var wasEmpty = reader.IsEmptyElement;
-      reader.Read();
-
-      if (wasEmpty)
-        return;
-
-      while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
-      {
-        reader.ReadStartElement("item");
-        var key = (TKey) (keySerializer.Deserialize(reader) ?? throw new InvalidOperationException("Deserializing Dictionary Key"));
-        var value = (TValue) (valueSerializer.Deserialize(reader) ?? throw new InvalidOperationException("Deserializing Dictionary Value"));
-        Add(key, value);
-        reader.ReadEndElement();
-        reader.MoveToContent();
-      }
-      reader.ReadEndElement();
-    }
-
-    public void WriteXml(System.Xml.XmlWriter writer)
-    {
-      var keySerializer = new XmlSerializer(typeof(TKey));
-      var valueSerializer = new XmlSerializer(typeof(TValue));
-
-      foreach (var key in Keys)
-      {
-        writer.WriteStartElement("item");
-        keySerializer.Serialize(writer, key);
-        valueSerializer.Serialize(writer, this[key]);
-        writer.WriteEndElement();
-      }
-    }
-
-    #endregion
-#endif
-
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 
     /// <inheritdoc />

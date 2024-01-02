@@ -23,10 +23,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
-#if XmlSerialization
-using System.Xml;
-using System.Xml.Serialization;
-#endif
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -41,7 +37,14 @@ namespace CsvTools
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : ObservableObject, IFileSetting
   {
+    /// <summary>
+    /// The default text to be treated as NULL
+    /// </summary>
     public const string cTreatTextAsNull = "NULL";
+    
+    /// <summary>
+    /// The default time if none is chosen
+    /// </summary>
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
@@ -81,6 +84,9 @@ namespace CsvTools
     private FileStettingStatus m_Status = FileStettingStatus.None;
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
+    /// <summary>
+    /// Occurs when the identifier is changed, used to handle reference operations
+    /// </summary>
     public event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
 #endif
 
@@ -110,9 +116,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public FileStettingStatus Status
     {
@@ -142,9 +145,6 @@ namespace CsvTools
     /// <summary>
     ///   Workaround to serialize the ColumnCollection, only needed for XML Serialization
     /// </summary>
-#if XmlSerialization
-    [XmlElement]
-#endif
     [JsonIgnore]
     public virtual ColumnMut[] Format
     {
@@ -161,9 +161,7 @@ namespace CsvTools
 
 #endif
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
+
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
     {
@@ -172,9 +170,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
+
     [DefaultValue(true)]
     public virtual bool DisplayStartLineNo
     {
@@ -182,9 +178,7 @@ namespace CsvTools
       set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
-#if XmlSerialization
-    [XmlElement]
-#endif
+    /// <inheritdoc />
     [DefaultValue(false)]
     public virtual bool SetLatestSourceTimeForWrite
     {
@@ -192,32 +186,10 @@ namespace CsvTools
       set => SetProperty(ref m_SetLatestSourceTimeForWrite, value);
     }
 
-#if XmlSerialization
-    /// <summary>
-    ///   Utility calls to get or set the SQL Statement as CDataSection
-    /// </summary>
-    [DefaultValue("")]
-    [JsonIgnore]
-    public XmlCDataSection SqlStatementCData
-    {
-      get
-      {
-        var doc = new XmlDocument();
-        return doc.CreateCDataSection(SqlStatement);
-      }
-      set => m_SqlStatement = value.Value ?? string.Empty;
-    }
-#endif
-
-#if XmlSerialization
-    [XmlIgnore]
-#endif
+    /// <inheritdoc />
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(5)]
     public virtual int ConsecutiveEmptyRows
     {
@@ -226,9 +198,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
     [DefaultValue(false)]
     public virtual bool DisplayEndLineNo
     {
@@ -238,9 +207,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(0)]
     public virtual long ErrorCount
     {
@@ -249,9 +215,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 #endif
 
@@ -264,9 +227,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public virtual bool HasFieldHeader
     {
@@ -283,9 +243,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue("")]
     public virtual string ID
     {
@@ -304,9 +261,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute(AttributeName = "IsCritical")]
-#endif
     [DefaultValue(false)]
     public virtual bool InOverview
     {
@@ -315,9 +269,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(100)]
     public virtual int Order
     {
@@ -326,9 +277,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue("")]
     public virtual string Comment
     {
@@ -337,9 +285,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public virtual bool IsEnabled
     {
@@ -349,9 +294,6 @@ namespace CsvTools
 #endif
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool KeepUnencrypted
     {
@@ -361,9 +303,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public DateTime LatestSourceTimeUtc
     {
@@ -378,15 +317,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement("Mapping")]
-#endif
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(0)]
     public virtual long NumRecords
     {
@@ -395,9 +328,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     public virtual DateTime ProcessTimeUtc
     {
       get => m_ProcessTimeUtc;
@@ -405,18 +335,12 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
 #endif
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
     [DefaultValue(0)]
     public virtual long RecordLimit
     {
@@ -425,9 +349,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public virtual bool ShowProgress
     {
@@ -435,9 +356,7 @@ namespace CsvTools
       set => SetProperty(ref m_ShowProgress, value);
     }
 
-#if XmlSerialization
-    [XmlAttribute]
-#endif
+    /// <inheritdoc />    
     [DefaultValue(false)]
     public virtual bool SkipDuplicateHeader
     {
@@ -446,9 +365,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public virtual bool SkipEmptyLines
     {
@@ -457,9 +373,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(0)]
     public virtual int SkipRows
     {
@@ -469,9 +382,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
@@ -484,9 +394,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [DefaultValue("")]
     public virtual string SqlStatement
     {
@@ -504,9 +411,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlElement]
-#endif
     [DefaultValue("")]
     public virtual string TemplateName
     {
@@ -515,9 +419,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(90)]
     public virtual int Timeout
     {
@@ -527,9 +428,6 @@ namespace CsvTools
 #endif
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public virtual bool TreatNBSPAsSpace
     {
@@ -538,9 +436,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
@@ -549,9 +444,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(TrimmingOptionEnum.Unquoted)]
     public virtual TrimmingOptionEnum TrimmingOption
     {
@@ -561,9 +453,6 @@ namespace CsvTools
 
 #if !CsvQuickViewer
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute(AttributeName = "IsImported")]
-#endif
     [DefaultValue(true)]
     public virtual bool Validate
     {
@@ -572,9 +461,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />    
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(0)]
     public virtual long WarningCount
     {

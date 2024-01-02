@@ -186,7 +186,7 @@ namespace CsvTools
       // selecting twice the node while pressing CTRL ?
       if (bControl && SelectedTreeNode.Contains(e.Node))
       {
-        // un-select it (let framework know we don't want selection this time)
+        // un select it (let framework know we don't want selection this time)
         e.Cancel = true;
 
         // update nodes

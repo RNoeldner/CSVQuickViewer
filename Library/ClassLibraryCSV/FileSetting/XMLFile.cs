@@ -25,7 +25,6 @@ namespace CsvTools
   /// </summary>
   [Serializable]
   public sealed class XmlFile : StructuredFile, IXmlFile
-
   {
     /// <inheritdoc />
     /// <summary>
@@ -39,16 +38,8 @@ namespace CsvTools
       : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)
     {
     }
-
-#if XmlSerialization
+    
     /// <inheritdoc />
-    [Obsolete("Only needed for XML Serialization")]
-    public XmlFile()
-      : this(string.Empty, string.Empty, string.Empty)
-    {
-    }
-#endif
-
     public override object Clone()
     {
       var other = new XmlFile(ID, FileName, Row);
@@ -56,6 +47,7 @@ namespace CsvTools
       return other;
     }
 
+    /// <inheritdoc />
     public override bool Equals(IFileSetting? other) =>
       other is IXmlFile json && BaseSettingsEquals(json as StructuredFile);
   }

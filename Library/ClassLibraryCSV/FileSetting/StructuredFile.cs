@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Xml.Serialization;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -42,10 +41,7 @@ namespace CsvTools
       m_Row = row;
     }
 
-    /// <summary>
-    ///   Template for a row
-    /// </summary>
-    [XmlElement]
+    /// <inheritdoc />
     [DefaultValue("")]
     public string Row
     {
@@ -53,14 +49,7 @@ namespace CsvTools
       set => SetProperty(ref m_Row, value ?? string.Empty);
     }
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
+    /// <inheritdoc />
     public bool BaseSettingsEquals(in StructuredFile? other)
     {
       if (other is null)
@@ -69,10 +58,7 @@ namespace CsvTools
       return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
     }
 
-    /// <summary>
-    ///   Copies all values to other instance
-    /// </summary>
-    /// <param name="other">The other.</param>
+    /// <inheritdoc />
     public override void CopyTo(IFileSetting other)
     {
       BaseSettingsCopyTo((BaseSettings) other);
@@ -83,7 +69,8 @@ namespace CsvTools
       otherSwf.Row = m_Row;
     }
 
-#if !CsvQuickViewer
+#if !CsvQuickViewer        
+    /// <inheritdoc />
     public override IEnumerable<string> GetDifferences(IFileSetting other)
     {
       if (other is StructuredFile structured)
