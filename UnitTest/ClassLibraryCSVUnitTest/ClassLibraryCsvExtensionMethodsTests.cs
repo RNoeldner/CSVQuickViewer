@@ -36,18 +36,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(5, items[4]);
     }
 
-#if XmlSerialization
-    [TestMethod()]
-    public void SerializeIndented()
-    {
-      var csv = new CsvFile(id: string.Empty, fileName: "test") { TemplateName = "Check" };
-      csv.MappingCollection.Add(new Mapping("Test", "Test"));
-      var ser = new XmlSerializer(typeof(CsvFile));
-
-      var res = csv.SerializeIndentedXml(ser);
-      Assert.IsTrue(res.Contains("  "));
-    }
-#endif
 
     [TestMethod()]
     public void JsonIndented()

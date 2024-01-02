@@ -19,10 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
-
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
@@ -94,25 +90,11 @@ namespace CsvTools
     {
     }
 
-#if XmlSerialization
-    /// <inheritdoc />
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="T:CsvTools.CsvFile" /> class.
-    /// </summary>
-    [Obsolete("Only needed for XML Serialization")]
-    public CsvFile()
-      : this(id: string.Empty, fileName: string.Empty)
-    {
-    }
-#endif
 
     /// <summary>
     ///   Gets current encoding.
     /// </summary>
     /// <value>The current encoding.</value>
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public Encoding CurrentEncoding
     {
@@ -121,9 +103,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cContextSensitiveQualifierDefault)]
     public bool ContextSensitiveQualifier
     {
@@ -132,9 +111,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cCommentLineDefault)]
     public string CommentLine
     {
@@ -143,9 +119,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cDelimiterPlaceholderDefault)]
     public string DelimiterPlaceholder
     {
@@ -154,9 +127,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cDuplicateQualifierToEscapeDefault)]
     public bool DuplicateQualifierToEscape
     {
@@ -164,10 +134,7 @@ namespace CsvTools
       set => SetProperty(ref m_DuplicateQualifierToEscape, value);
     }
 
-   
-#if XmlSerialization
-    [XmlAttribute]
-#endif
+    /// <inheritdoc />   
     [DefaultValue(cEscapePrefixTextDefault)]
     public string EscapePrefix
     {
@@ -184,10 +151,8 @@ namespace CsvTools
       set => SetProperty(ref m_EscapePrefixPunc, value);
     }
 
-#if XmlSerialization
-    [XmlAttribute]
-    [DefaultValue(cFieldDelimiterTextDefault)]
-#endif    
+    /// <inheritdoc />
+    [DefaultValue(cFieldDelimiterDefault)]
     public string FieldDelimiter
     {
       get => m_FieldDelimiterPunc.Text();
@@ -202,10 +167,8 @@ namespace CsvTools
       get => m_FieldDelimiterPunc;
       set => SetProperty(ref m_FieldDelimiterPunc, value);
     }
-    
-#if XmlSerialization
-    [XmlAttribute]
-#endif
+
+    /// <inheritdoc />
     [DefaultValue(cFieldQualifierTextDefault)]
     public string FieldQualifier
     {
@@ -223,9 +186,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cNewLineDefault)]
     public RecordDelimiterTypeEnum NewLine
     {
@@ -234,9 +194,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cNewLinePlaceholderDefault)]
     public string NewLinePlaceholder
     {
@@ -245,9 +202,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cQualifyAlwaysDefault)]
     public bool QualifyAlways
     {
@@ -264,9 +218,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cQualifyOnlyIfNeededDefault)]
     public bool QualifyOnlyIfNeeded
     {
@@ -284,9 +235,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(cQuotePlaceholderDefault)]
     public string QualifierPlaceholder
     {
@@ -294,9 +242,7 @@ namespace CsvTools
       set => SetProperty(ref m_QualifierPlaceholder, value);
     }
 
-#if XmlSerialization
-    [XmlAttribute]
-#endif
+    /// <inheritdoc />
     [DefaultValue(false)]
     public bool AllowRowCombining
     {
@@ -305,9 +251,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public bool NoDelimitedFile
     {
@@ -316,9 +259,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlElement]
-#endif
     [DefaultValue(0)]
     public int NumWarnings
     {
@@ -327,9 +267,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool TreatLfAsSpace
     {
@@ -338,9 +275,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool TreatUnknownCharacterAsSpace
     {
@@ -349,9 +283,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool TryToSolveMoreColumns
     {
@@ -360,9 +291,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool WarnDelimiterInValue
     {
@@ -371,9 +299,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
-#endif
     [DefaultValue(true)]
     public bool WarnEmptyTailingColumns
     {
@@ -382,9 +307,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool WarnLineFeed
     {
@@ -393,9 +315,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public bool WarnNBSP
     {
@@ -404,9 +323,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool WarnQuotes
     {
@@ -415,9 +331,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public bool WarnQuotesInQuotes
     {
@@ -426,9 +339,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(true)]
     public bool WarnUnknownCharacter
     {
@@ -436,9 +346,6 @@ namespace CsvTools
       set => SetProperty(ref m_WarnUnknownCharacter, value);
     }
      /// <inheritdoc />
-#if XmlSerialization
-    [XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool WriteFixedLength
     {

@@ -17,9 +17,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -40,13 +37,10 @@ namespace CsvTools
     private string m_TimeZonePart;
     private int m_ColumnOrdinal;
 
-#if XmlSerialization
-    [Obsolete("Only needed for XML Serialization")]
-    public ColumnMut()
-      : this(string.Empty)
-    {
-    }
-#endif
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColumnMut"/> class.
+    /// </summary>
+    /// <param name="source">The source.</param>
     public ColumnMut(Column source) : this(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Ignore,
       source.Convert, source.DestinationName, source.TimePart, source.TimePartFormat, source.TimeZonePart)
     {
@@ -97,181 +91,7 @@ namespace CsvTools
       m_Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     }
 
-#if XmlSerialization
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    [XmlAttribute("Type")]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(DataTypeEnum.String)]
-    [JsonProperty]
-    public DataTypeEnum DataType
-    {
-      get => m_ValueFormatMut.DataType;
-      set => m_ValueFormatMut.DataType = value;
-    }
 
-    /// <summary>
-    ///   Gets or sets the date format.
-    /// </summary>
-    /// <value>The date format.</value>
-
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cDateFormatDefault)]
-    public string DateFormat
-    {
-      get => m_ValueFormatMut.DateFormat;
-      set => m_ValueFormatMut.DateFormat = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the date separator.
-    /// </summary>
-    /// <value>The date separator.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cDateSeparatorDefault)]
-    public string DateSeparator
-    {
-      get => m_ValueFormatMut.DateSeparator;
-      set => m_ValueFormatMut.DateSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the decimal separator.
-    /// </summary>
-    /// <value>The decimal separator.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
-    public string DecimalSeparator
-    {
-      get => m_ValueFormatMut.DecimalSeparator;
-      set => m_ValueFormatMut.DecimalSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the representation for false.
-    /// </summary>
-    /// <value>The false.</value>
-
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cFalseDefault)]
-    public string False
-    {
-      // Identifiers should not match keywords
-      get => m_ValueFormatMut.False;
-      set => m_ValueFormatMut.False = value;
-    }
-
-
-    /// <summary>
-    ///   Gets or sets the group separator.
-    /// </summary>
-    /// <value>The group separator.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
-    public string GroupSeparator
-    {
-      get => m_ValueFormatMut.GroupSeparator;
-      set => m_ValueFormatMut.GroupSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the number format.
-    /// </summary>
-    /// <value>The number format.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cNumberFormatDefault)]
-    public string NumberFormat
-    {
-      get => m_ValueFormatMut.NumberFormat;
-      set => m_ValueFormatMut.NumberFormat = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the part for splitting.
-    /// </summary>
-    /// <value>The part starting with 1</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cPartDefault)]
-    public int Part
-    {
-      get => m_ValueFormatMut.Part;
-      set => m_ValueFormatMut.Part = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the splitter.
-    /// </summary>
-    /// <value>The splitter.</value>
-    [XmlElement]
-    [JsonIgnore]
-    [DefaultValue(ValueFormat.cPartSplitterDefault)]
-    //[Obsolete("Use ValueFormat instead")]
-    public string PartSplitter
-    {
-      get => m_ValueFormatMut.PartSplitter;
-      set => m_ValueFormatMut.PartSplitter = value;
-    }
-
-
-    /// <summary>
-    ///   Gets or sets the part for splitting.
-    /// </summary>
-    /// <value>The part starting with 1</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cPartToEndDefault)]
-    public bool PartToEnd
-    {
-      get => m_ValueFormatMut.PartToEnd;
-      set => m_ValueFormatMut.PartToEnd = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the time separator.
-    /// </summary>
-    /// <value>The time separator.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
-    public string TimeSeparator
-    {
-      get => m_ValueFormatMut.TimeSeparator;
-      set => m_ValueFormatMut.TimeSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the representation for true.
-    /// </summary>
-    /// <value>The true.</value>
-    [XmlAttribute]
-    [JsonIgnore]
-    //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormat.cTrueDefault)]
-    public string True
-    {
-      // Identifiers should not match keywords
-      get => m_ValueFormatMut.True;
-      set => m_ValueFormatMut.True = value;
-    }
-#endif
     private ValueFormatMut m_ValueFormatMut;
 
     [JsonIgnore]
@@ -284,9 +104,6 @@ namespace CsvTools
     /// <summary>
     ///   The Ordinal Position of the column
     /// </summary>
-#if XmlSerialization
-    [XmlIgnore]
-#endif
     [JsonIgnore]
     public int ColumnOrdinal
     {
@@ -299,9 +116,6 @@ namespace CsvTools
     ///   to read a typed value as text
     /// </summary>
     /// <value><c>true</c> if the column should be converted; otherwise, <c>false</c>.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue(true)]
     public bool Convert
     {
@@ -313,9 +127,6 @@ namespace CsvTools
     ///   Gets or sets the name in a destination. This is only used for writing
     /// </summary>
     /// <value>The name of the column in the destination.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue("")]
     public string DestinationName
     {
@@ -327,9 +138,6 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the column should be ignored reading a file
     /// </summary>
     /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue(false)]
     public bool Ignore
     {
@@ -341,9 +149,6 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-#if XmlSerialization
-[XmlAttribute("Column")]
-#endif
     public string Name
     {
       get => m_Name;
@@ -354,9 +159,6 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue("")]
     public string TimePart
     {
@@ -368,9 +170,6 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue(Column.cDefaultTimePartFormat)]
     public string TimePartFormat
     {
@@ -382,9 +181,6 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-#if XmlSerialization
-[XmlAttribute]
-#endif
     [DefaultValue("")]
     public string TimeZonePart
     {

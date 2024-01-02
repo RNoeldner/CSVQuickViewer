@@ -48,7 +48,7 @@
       this.comboBoxFont.Name = "comboBoxFont";
       this.comboBoxFont.Size = new System.Drawing.Size(511, 21);
       this.comboBoxFont.TabIndex = 12;
-      this.toolTip.SetToolTip(this.comboBoxFont, "All avalibale fonts will be listed, Sysbol like fonts should not be used");
+      this.toolTip.SetToolTip(this.comboBoxFont, "All available fonts will be listed, Symbol like fonts should not be used");
       this.comboBoxFont.SelectedIndexChanged += new System.EventHandler(this.ComboBoxFont_SelectedIndexChanged);
       // 
       // labelFontSize

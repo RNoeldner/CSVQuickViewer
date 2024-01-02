@@ -17,9 +17,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-#if XmlSerialization
-using System.Xml.Serialization;
-#endif
 
 namespace CsvTools
 {
@@ -32,17 +29,6 @@ namespace CsvTools
   {
     private bool m_EmptyAsNull = true;
 
-#if XmlSerialization
-    [XmlElement]
-#endif
-    [DefaultValue(true)]
-    public bool EmptyAsNull
-    {
-      get => m_EmptyAsNull;
-      set => SetProperty(ref m_EmptyAsNull, value);      
-    }
-
-    /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
@@ -55,15 +41,17 @@ namespace CsvTools
     {
     }
 
-#if XmlSerialization
-    /// <inheritdoc />
-    [Obsolete("Only needed for XML Serialization")]
-    public JsonFile()
-      : this(string.Empty, string.Empty, string.Empty)
-    {
-    }
-#endif
 
+    /// <inheritdoc />
+    [DefaultValue(true)]
+    public bool EmptyAsNull
+    {
+      get => m_EmptyAsNull;
+      set => SetProperty(ref m_EmptyAsNull, value);
+    }
+
+
+    /// <inheritdoc />
     public override object Clone()
     {
       var other = new JsonFile(ID, FileName, Row);
@@ -71,6 +59,7 @@ namespace CsvTools
       return other;
     }
 
+    /// <inheritdoc />
     public override void CopyTo(IFileSetting other)
     {
       base.CopyTo(other);
@@ -80,6 +69,7 @@ namespace CsvTools
       otherJson.EmptyAsNull = EmptyAsNull;
     }
 
+    /// <inheritdoc />
     public override bool Equals(IFileSetting? other) =>
       other is IJsonFile json && BaseSettingsEquals(json as StructuredFile) && json.EmptyAsNull == EmptyAsNull;
   }

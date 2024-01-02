@@ -10,25 +10,18 @@ namespace CsvTools
   public sealed class WindowState
   {
     public static readonly WindowState Default =
-      new WindowState(10, 10, 600, 600);
-
-    [Obsolete("Used for XML Serialization")]
-    public WindowState() : this(10, 10, 600, 600)
-    {
-    }
+      new WindowState(10, 10, 600, 600, FormWindowState.Normal, int.MinValue, string.Empty);
 
     [JsonConstructor]
-    public WindowState(int? left, int? top, int? width, int? height, FormWindowState state = FormWindowState.Normal,
-      int customInt = -2147483648,
-      string customText = "")
+    public WindowState(int? left, int? top, int? width, int? height, FormWindowState? state = null, int? customInt = null, string? customText = null)
     {
       Left = left ?? 10;
       Top = top ?? 10;
       Width = width ?? 600;
       Height = height ?? 600;
-      State = state;
-      CustomInt = customInt;
-      CustomText = customText;
+      State = state ?? FormWindowState.Normal;
+      CustomInt = customInt ?? int.MinValue;
+      CustomText = customText ?? string.Empty;
     }
 
     public readonly int Left;
@@ -36,16 +29,19 @@ namespace CsvTools
     public readonly int Width;
     public readonly int Height;
 
-    [DefaultValue(FormWindowState.Normal)] public readonly FormWindowState State;
+    [DefaultValue(FormWindowState.Normal)]
+    public readonly FormWindowState State;
 
     /// <summary>
     ///   Store form specific values like selected Tab or Splitter distance, can store any value but -1
     /// </summary>
-    [DefaultValue(-2147483648)] public readonly int CustomInt;
+    [DefaultValue(-2147483648)]
+    public readonly int CustomInt;
 
     /// <summary>
     ///   Store form specific values like a filterText
     /// </summary>
-    [DefaultValue("")] public readonly string CustomText;
+    [DefaultValue("")]
+    public readonly string CustomText;
   }
 }

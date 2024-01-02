@@ -97,7 +97,7 @@ namespace CsvTools
       this.comboBoxOperator.Name = "comboBoxOperator";
       this.comboBoxOperator.Size = new System.Drawing.Size(103, 21);
       this.comboBoxOperator.TabIndex = 2;
-      this.toolTip.SetToolTip(this.comboBoxOperator, "Operator for comparsion");
+      this.toolTip.SetToolTip(this.comboBoxOperator, "Operator for comparison");
       this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
       // 
       // dateTimePickerValue
@@ -166,8 +166,8 @@ namespace CsvTools
       this.radioButtonEven.Size = new System.Drawing.Size(82, 17);
       this.radioButtonEven.TabIndex = 4;
       this.radioButtonEven.Text = "By Numbers";
-      this.toolTip.SetToolTip(this.radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only avaliba" +
-        "le with numbers and dates");
+      this.toolTip.SetToolTip(this.radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only available" +
+        " with numbers and dates");
       this.radioButtonEven.UseVisualStyleBackColor = true;
       this.radioButtonEven.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
@@ -180,7 +180,7 @@ namespace CsvTools
       this.radioButtonCombine.Size = new System.Drawing.Size(66, 17);
       this.radioButtonCombine.TabIndex = 4;
       this.radioButtonCombine.Text = "Combine";
-      this.toolTip.SetToolTip(this.radioButtonCombine, "Combine close custers that do not have many records, only avalibale with numbers " +
+      this.toolTip.SetToolTip(this.radioButtonCombine, "Combine close clusters that do not have many records, only available with numbers " +
         "and dates");
       this.radioButtonCombine.UseVisualStyleBackColor = true;
       this.radioButtonCombine.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
@@ -197,7 +197,7 @@ namespace CsvTools
       this.radioButtonReg.TabStop = true;
       this.radioButtonReg.Text = "Regular";
       this.toolTip.SetToolTip(this.radioButtonReg, "Separate all values into clusters of even ranges, the number of entries may vary " +
-        "a lot, only avalibale with numbers and dates");
+        "a lot, only available with numbers and dates");
       this.radioButtonReg.UseVisualStyleBackColor = true;
       this.radioButtonReg.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
       // 
@@ -214,8 +214,7 @@ namespace CsvTools
             | System.Windows.Forms.AnchorStyles.Right)));
       this.labelError.AutoSize = true;
       this.labelError.BackColor = System.Drawing.SystemColors.Info;
-      this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;      
       this.labelError.ForeColor = System.Drawing.SystemColors.InfoText;
       this.labelError.Location = new System.Drawing.Point(25, 90);
       this.labelError.Margin = new System.Windows.Forms.Padding(0);

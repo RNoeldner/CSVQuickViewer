@@ -633,7 +633,7 @@ namespace CsvTools
         AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
 
         var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
-        AddUnique(new ValueCluster("Puctuation",
+        AddUnique(new ValueCluster("Punctuation",
              $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
              $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
              $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
