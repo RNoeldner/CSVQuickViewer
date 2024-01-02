@@ -36,8 +36,9 @@ namespace CsvTools
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
-#endif
-
+#endif        
+    /// <summary>Gets an IntervalAction for a Progress report</summary>
+    /// <param name="progress">The progress, in case its null, null is returned</param>
     public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) => progress is null ? null : new IntervalAction();
 
     /// <summary>
@@ -46,6 +47,12 @@ namespace CsvTools
     /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
     public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
 
+    /// <summary>
+    /// Gets or sets the value after how many seconds the action should be invoked again
+    /// </summary>
+    /// <value>
+    /// The notify after seconds.
+    /// </value>
     public double NotifyAfterSeconds { get; set; }
 
     /// <summary>
@@ -73,6 +80,11 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Invoke progress on given interval
+    /// </summary>
+    /// <param name="action">The action to be done</param>
+    /// <param name="number">The number parameter</param>
     public void Invoke(in Action<long> action, long number)
     {
       // do nothing if the timespan between invokes is not reached
@@ -94,6 +106,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Invoke progress on given interval
+    /// </summary>
     public void Invoke(in Action<string> action, in string txt)
     {
       // do nothing if the timespan between invokes is not reached
@@ -114,6 +129,7 @@ namespace CsvTools
         Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
       }
     }
+
     /// <summary>
     ///   Invoke progress on given interval
     /// </summary>

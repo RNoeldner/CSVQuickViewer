@@ -40,6 +40,10 @@ namespace CsvTools
     /// <param name="reader"></param>
     public RowErrorCollection(in IFileReader reader) => reader.Warning += Add;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RowErrorCollection"/> class.
+    /// </summary>
+    /// <param name="maxRows">The maximum rows.</param>
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
     /// <summary>
@@ -71,6 +75,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Gets the text representation for errors in a data table row error collection
+    /// </summary>
+    /// <value>
+    /// All errors for all rows
+    /// </value>
     public string DisplayByRecordNumber
     {
       get
@@ -106,6 +116,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Occurs when warning needs to be passed on 
+    /// </summary>
     public event EventHandler<WarningEventArgs>? PassWarning;
 
     /// <summary>
@@ -134,6 +147,11 @@ namespace CsvTools
     /// </summary>
     public void Clear() => m_RowErrorCollection.Clear();
 
+    /// <summary>
+    /// Handles the ignored columns.
+    /// </summary>
+    /// <param name="reader">The reader.</param>
+    /// <exception cref="System.InvalidOperationException">Reader has not been opened.</exception>
     public void HandleIgnoredColumns(in IFileReader reader)
     {
       if (reader.IsClosed)

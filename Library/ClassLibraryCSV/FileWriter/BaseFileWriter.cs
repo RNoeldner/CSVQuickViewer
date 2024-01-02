@@ -25,11 +25,14 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   Base class with methods used by all <see cref="IFileWriter" />
+  ///   Base class with methods used by all <see cref="IFileWriter" />.
   /// </summary>
   public abstract class BaseFileWriter
   {
+    /// <summary>The column definition</summary>
     protected readonly IReadOnlyCollection<Column> ColumnDefinition;
+    
+    /// <summary>The display text for the writer</summary>
     protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string FullPath;
@@ -37,12 +40,22 @@ namespace CsvTools
     private readonly bool m_KeepUnencrypted;
     private readonly string m_PublicKey;
 
+    /// <summary>The general value format in case no special value format is defined for a column</summary>
     protected readonly ValueFormat ValueFormatGeneral;
+
+    /// <summary>The routine to adjust datTime for time zones</summary>
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
+
+    /// <summary>The header written before the records are stored</summary>
     protected string Header;
+
+    /// <summary>The source time zone, used in time zone conversion; is assumed the date time of the read is in this timezone</summary>
     protected readonly string SourceTimeZone;
+
     private DateTime m_LastNotification = DateTime.Now;
 
+    /// <summary>Gets or sets the progress reporter</summary>
+    /// <value>The report progress.</value>
     public IProgress<ProgressInfo>? ReportProgress
     {
       protected get;
@@ -50,11 +63,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Abstract implementation of all FileWriters
+    /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
+    /// Abstract implementation of all FileWriters.
     /// </summary>
     /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of the file to write</param>
-    /// <param name="valueFormatGeneral">Fallback value format for typed values that do not have a column setup</param>
+    /// <param name="valueFormatGeneral">Fall back value format for typed values that do not have a column setup</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
     /// <param name="header">Header to be written before data and/or Header is written</param>
@@ -64,7 +78,6 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
-    /// <exception cref="ArgumentException"></exception>
     protected BaseFileWriter(
       in string id,
       in string fullPath,
@@ -94,12 +107,10 @@ namespace CsvTools
       FileSettingDisplay = fileSettingDisplay;
 
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
-    }
+    }   
 
-
-    protected void HandleShowProgressPeriodic(string text, long value)
-      => ReportProgress?.Report(new ProgressInfo(text, value));
-
+    /// <summary>Gets or sets the number of records written</summary>
+    /// <value>The records.</value>
     public long Records { get; protected set; }
 
     /// <summary>
@@ -111,7 +122,9 @@ namespace CsvTools
     ///   Event to be raised if writing is finished
     /// </summary>
     public event EventHandler? WriteFinished;
+
     private static readonly char[] timeIdentifiers = new[] { 'h', 'H', 'm', 's' };
+
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
@@ -129,7 +142,7 @@ namespace CsvTools
     {
       var result = new List<WriterColumn>();
 
-      // Make names unique 
+      // Make names unique
       var colNames = new BiDirectionalDictionary<int, string>();
       var columns = reader.GetColumnsOfReader().ToList();
 
@@ -288,23 +301,30 @@ namespace CsvTools
       return Records;
     }
 
+    /// <summary>Footers added once all records are processed, placeholder "Records" is replaced with the number of records processed
+    /// "FileName" is replace with current filename without folder. "CDate" is replaced with current date in "dd-MMM-yyyy" </summary>
     protected string Footer() =>
       m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:N0}", Records));
 
     /// <summary>
-    ///   Handles the error.
+    ///   Handles an error message by raising it as event
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
     protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
+    /// <summary>Is called whenever there is progress to report</summary>
+    /// <param name="text">The text.</param>
     protected void HandleProgress(string text) => Logger.Information(text);
 
+    /// <summary>Should be called whenever the writing starts</summary>
     protected virtual void HandleWriteStart() => Records = 0;
 
+    /// <summary>Should be called whenever the writer finished</summary>
     protected virtual void HandleWriteEnd() => WriteFinished?.Invoke(this, EventArgs.Empty);
 
+    /// <summary>Called when the next record is written, handles counters and progress</summary>
     protected void NextRecord()
     {
       Records++;
@@ -392,6 +412,14 @@ namespace CsvTools
       }
     }
 
+    /// <summary>Converts a typed field the text written</summary>
+    /// <param name="dataObject">The data object.</param>
+    /// <param name="columnInfo">The column information.</param>
+    /// <param name="dataRecord">The data record.</param>
+    /// <returns>
+    ///   <br />
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">columnInfo</exception>
     protected string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
     {
       if (columnInfo is null)

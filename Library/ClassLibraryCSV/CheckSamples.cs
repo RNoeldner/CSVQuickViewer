@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace CsvTools
 {
+  /// <summary>
+  ///   <para>Static class to deal with value conversion detetion, delaing with text to determine if a value format can be used</para>
+  /// </summary>
   public static class CheckTexts
   {
     /// <summary>

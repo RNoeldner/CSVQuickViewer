@@ -26,10 +26,15 @@ namespace CsvTools
   /// </summary>
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
+    /// <summary>
+    ///   <para>
+    /// The default date format "MM/dd/yyyy"; as american expect everything to be their way</para>
+    /// </summary>
     public const string cDateFormatDefault = "MM/dd/yyyy";
     private const char cDateSeparatorDefaultChar = '/';
     internal const string cDateSeparatorDefault = "/";
     private const char cDecimalSeparatorDefaultChar = '.';
+    /// <summary>The default decimal separator "."; as american expect everything to be their way</summary>
     public const string cDecimalSeparatorDefault = ".";
     private const char cGroupSeparatorDefaultChar = char.MinValue;
     internal const string cGroupSeparatorDefault = "";
@@ -44,8 +49,34 @@ namespace CsvTools
     internal const string cTrueDefault = "";
     internal const bool cOverwriteDefault = true;
 
+    /// <summary>An empty/default ValueFormat</summary>
     public static readonly ValueFormat Empty = new ValueFormat();
 
+
+     /// <summary>
+    ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
+    /// </summary>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="dateFormat">The date format.</param>
+    /// <param name="dateSeparator">The date separator (usually /).</param>
+    /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="groupSeparator">The group separator.</param>
+    /// <param name="decimalSeparator">The decimal separator.</param>
+    /// <param name="asTrue">Text to be regarded as true.</param>
+    /// <param name="asFalse">Text to be regarded as false.</param>
+    /// <param name="displayNullAs">While writing display a null values as this</param>
+    /// <param name="part">The part number in case of splitting.</param>
+    /// <param name="partSplitter">The part splitter.</param>
+    /// <param name="partToEnd">
+    ///   if set to <c>true</c> the part will contain everything from the start of the part to the end.
+    /// </param>
+    /// <param name="regexSearchPattern">The regex search pattern.</param>
+    /// <param name="regexReplacement">The regex replacement.</param>
+    /// <param name="readFolder">The read folder.</param>
+    /// <param name="writeFolder">The write folder.</param>
+    /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
+    /// <param name="overwrite">if set to <c>true</c> we should overwrite.</param>        
     [JsonConstructor]
     public ValueFormat(
       in DataTypeEnum? dataType = DataTypeEnum.String,
@@ -190,7 +221,7 @@ namespace CsvTools
     public string RegexSearchPattern { get; }
 
     /// <summary>
-    /// PlaceHolder for the file name placeholders are replaced with current records fields if empty the source name is used
+    /// PlaceHolder for the file name; placeholders are replaced with current records fields if empty the source name is used
     /// </summary>
     [DefaultValue("")]
     public string FileOutPutPlaceholder { get; }

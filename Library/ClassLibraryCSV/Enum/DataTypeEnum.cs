@@ -95,7 +95,7 @@ namespace CsvTools
     TextUnescape = 14,
 
     /// <summary>
-    ///   Binary data usually usually stored in a file
+    ///   Binary data usually stored in a file
     /// </summary>
     [Description("Binary (File Reference)")]
     [ShortDescription("Binary")]

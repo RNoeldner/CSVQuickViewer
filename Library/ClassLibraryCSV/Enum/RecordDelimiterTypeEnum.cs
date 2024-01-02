@@ -11,7 +11,7 @@ namespace CsvTools
     Lf,
 
     [ShortDescription("CR")]
-    [Description("Carriage Return (rarly used)")]
+    [Description("Carriage Return (uncommon)")]
     Cr = 2,
 
     [ShortDescription("CR LF")]
@@ -19,15 +19,15 @@ namespace CsvTools
     Crlf = 3,
 
     [ShortDescription("LF CR")]
-    [Description("Line feed / Carriage Return (rarly used)")]
+    [Description("Line feed / Carriage Return (rarely used)")]
     Lfcr = 4,
 
     [ShortDescription("RS")]
-    [Description("Record Seperator (QNX rarly used)")]
+    [Description("Record Separator (QNX rarely used)")]
     Rs = 5,
 
     [ShortDescription("US")]
-    [Description("Unit Seperator (rarly used)")]
+    [Description("Unit Separator (rarely used)")]
     Us = 6,
 
     [ShortDescription("NL")]

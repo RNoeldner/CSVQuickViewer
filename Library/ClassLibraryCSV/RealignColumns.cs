@@ -36,6 +36,10 @@ namespace CsvTools
 
     private readonly List<string[]> m_GoodRows = new List<string[]>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ReAlignColumns"/> class.
+    /// </summary>
+    /// <param name="expectedColumns">The expected columns.</param>
     public ReAlignColumns(int expectedColumns) => m_ExpectedColumns = expectedColumns;
 
     /// <summary>

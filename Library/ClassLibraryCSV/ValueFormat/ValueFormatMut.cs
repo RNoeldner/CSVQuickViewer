@@ -56,6 +56,8 @@ namespace CsvTools
     {
     }
 
+    /// <summary>Initializes a new instance of the <see cref="ValueFormatMut" /> class from a immutable <see cref="ValueFormat"/>.</summary>
+    /// <param name="source">The source <see cref="ValueFormat"/></param>
     public ValueFormatMut(ValueFormat source) : this(source.DataType, source.DateFormat, source.DateSeparator.Text(),
       source.TimeSeparator.Text(), source.NumberFormat, source.GroupSeparator.Text(), source.DecimalSeparator.Text(), source.True,
       source.False, source.DisplayNullAs, source.Part, source.PartSplitter.Text(), source.PartToEnd, source.RegexSearchPattern,
@@ -141,6 +143,8 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
+    /// <summary>Gets or sets the datatype of this value.</summary>
+    /// <value>The type of the data.</value>
     [XmlAttribute]
     [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType
@@ -149,6 +153,8 @@ namespace CsvTools
       set => SetProperty(ref m_DataType, value);
     }
 
+    /// <summary>Gets or sets the date format.</summary>
+    /// <value>The date format.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cDateFormatDefault)]
     public string DateFormat
@@ -157,6 +163,9 @@ namespace CsvTools
       set => SetProperty(ref m_DateFormat, value);
     }
 
+    /// <summary>Gets or sets the date separator.
+    /// e.g. / or .</summary>
+    /// <value>The date separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cDateSeparatorDefault)]
     public string DateSeparator
@@ -169,6 +178,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>Gets or sets the decimal separator.
+    /// e.g. , or .</summary>
+    /// <value>The decimal separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
     public string DecimalSeparator
@@ -184,6 +196,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>Gets or sets a text that should be treated as null.
+    /// e.g. "&lt;NIL&gt;", "null" or "n/a"</summary>
+    /// <value>The display null as.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string DisplayNullAs
@@ -192,6 +207,20 @@ namespace CsvTools
       set => SetProperty(ref m_DisplayNullAs, value);
     }
 
+    /// <summary>Gets or sets the text that shoudl be reagrded as true.
+    /// e.G. "Yes"</summary>
+    /// <value>The true.</value>
+    [XmlElement]
+    [DefaultValue(ValueFormat.cTrueDefault)]
+    public string True
+    {
+      get => m_True;
+      set => SetProperty(ref m_True, value);
+    }
+
+    /// <summary>Gets or sets the text that should be regarded as false.
+    /// e.g. "False"</summary>
+    /// <value>The false.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cFalseDefault)]
     public string False
@@ -200,6 +229,8 @@ namespace CsvTools
       set => SetProperty(ref m_False, value);
     }
 
+    /// <summary>PlaceHolder for the file name; placeholders are replaced with current records fields if empty the source name is used</summary>
+    /// <value>The file out put placeholder.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string FileOutPutPlaceholder
@@ -208,6 +239,8 @@ namespace CsvTools
       set => SetProperty(ref m_FileOutPutPlaceholder, value);
     }
 
+    /// <summary>Gets or sets the group separator. Digit grouping. Numbers with many digits may be divided into groups using a delimiter.</summary>
+    /// <value>The group separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
     public string GroupSeparator
@@ -228,6 +261,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Gets or sets the number format.
+    /// </summary>
+    /// <value>
+    /// The number format.
+    /// </value>
     [XmlElement]
     [DefaultValue(ValueFormat.cNumberFormatDefault)]
     public string NumberFormat
@@ -236,14 +275,13 @@ namespace CsvTools
       set => SetProperty(ref m_NumberFormat, value);
     }
 
-    [XmlAttribute]
-    [DefaultValue(ValueFormat.cOverwriteDefault)]
-    public bool Overwrite
-    {
-      get => m_Overwrite;
-      set => SetProperty(ref m_Overwrite, value);
-    }
 
+    /// <summary>
+    /// If a text is split into parts the number determines which part of the split to take
+    /// </summary>
+    /// <value>
+    /// The part (starting with 1).
+    /// </value>
     [XmlAttribute]
     [DefaultValue(ValueFormat.cPartDefault)]
     public int Part
@@ -256,8 +294,10 @@ namespace CsvTools
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
 
+    /// <summary>If a text is split into parts the text determines which how these pars are split from eachother</summary>
+    /// <value>The part splitter.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cPartSplitterDefault)]
+    [DefaultValue(ValueFormat.cPartSplitterDefault)]    
     public string PartSplitter
     {
       get => m_PartSplitter.Text();
@@ -268,6 +308,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>Gets or sets a value indicating whether the part number determines this one part or anything from thiis part to the</summary>
+    /// <value>
+    ///   <c>true</c> if reading part to end; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormat.cPartToEndDefault)]
     public bool PartToEnd
@@ -276,14 +319,9 @@ namespace CsvTools
       set => SetProperty(ref m_PartToEnd, value);
     }
 
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string ReadFolder
-    {
-      get => m_ReadFolder;
-      set => SetProperty(ref m_ReadFolder, value);
-    }
 
+    /// <summary>Gets or sets the replacement for regex replacement</summary>
+    /// <value>The regex replacement.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string RegexReplacement
@@ -292,6 +330,8 @@ namespace CsvTools
       set => SetProperty(ref m_RegexReplacement, value);
     }
 
+    /// <summary>Gets or sets the regex search pattern for regex replacement</summary>
+    /// <value>The regex search pattern.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string RegexSearchPattern
@@ -300,6 +340,8 @@ namespace CsvTools
       set => SetProperty(ref m_RegexSearchPattern, value);
     }
 
+    /// <summary>Gets or sets the time separator. the txet to seperate hours from minutes. e.G. ":"</summary>
+    /// <value>The time separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
     public string TimeSeparator
@@ -312,14 +354,29 @@ namespace CsvTools
       }
     }
 
-    [XmlElement]
-    [DefaultValue(ValueFormat.cTrueDefault)]
-    public string True
+    /// <summary>Gets or sets a value indicating whether exsting files should be overwriten during for binary formatters .</summary>
+    /// <value>
+    ///   <c>true</c> if existing files should be overwritten; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormat.cOverwriteDefault)]
+    public bool Overwrite
     {
-      get => m_True;
-      set => SetProperty(ref m_True, value);
+      get => m_Overwrite;
+      set => SetProperty(ref m_Overwrite, value);
     }
 
+    /// <summary>Gets or sets the read folder for binary formatters</summary>
+    /// <value>The read folder.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string ReadFolder
+    {
+      get => m_ReadFolder;
+      set => SetProperty(ref m_ReadFolder, value);
+    }
+
+    /// <summary>Gets or sets the write folder for binary formatters.</summary>
+    /// <value>The write folder.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string WriteFolder
@@ -358,6 +415,7 @@ namespace CsvTools
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
 
+    /// <inheritdoc/>
     public bool Equals(ValueFormatMut? other)
     {
       if (other is null) return false;
@@ -384,10 +442,12 @@ namespace CsvTools
     }
 
 #pragma warning disable CS0659
+    /// <inheritdoc/>
     public override bool Equals(object? obj) =>
 #pragma warning restore CS0659
       obj is ValueFormatMut other && Equals(other);
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       var hashCode = -373284191;

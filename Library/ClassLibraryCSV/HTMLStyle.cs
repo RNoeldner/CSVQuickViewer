@@ -32,6 +32,7 @@ namespace CsvTools
   /// </remarks>
   public sealed class HtmlStyle
   {
+    /// <summary>Default HtmlStyle</summary>
     public static readonly HtmlStyle Default = new HtmlStyle(cDefaultStyle);
     private string m_Style;
 
