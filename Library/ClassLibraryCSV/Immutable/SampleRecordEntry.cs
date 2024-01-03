@@ -20,7 +20,7 @@ using System.ComponentModel;
 namespace CsvTools
 {
   /// <summary>
-  /// ERror and Sample information
+  /// Error and Sample information
   /// </summary>  
   /// <seealso cref="System.ICloneable" />
   /// <seealso cref="CsvTools.ICollectionIdentity" />

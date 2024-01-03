@@ -300,6 +300,15 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
+    private static string SpecialFolders(in string fileName, in string dir, in string placeHolder)
+    {
+      if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
+        return placeHolder;
+      if (fileName.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
+        return placeHolder + fileName.Substring(dir.Length + 1);
+      return string.Empty;
+    }
+
     /// <summary>
     ///   Get a relative path to the file
     /// </summary>
@@ -315,10 +324,25 @@ namespace CsvTools
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
 
-      if (fileName.Equals(basePath, StringComparison.OrdinalIgnoreCase))
-        return ".";
-      if (fileName.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
-        return fileName.Substring(basePath.Length + 1);
+      var test = SpecialFolders(fileName, basePath, ".");
+      if (test.Length>0)
+        return test;
+
+      if (m_IsWindows)
+      {
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%");
+        if (test.Length>0)
+          return test;
+
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%");
+        if (test.Length>0)
+          return test;
+
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LocalAppData%");
+        if (test.Length>0)
+          return test;
+      }
+
       var otherDir = Path.GetFullPath(fileName);
 
       var folder = GetRelativeFolder(otherDir, basePath);
@@ -679,10 +703,11 @@ namespace CsvTools
       if (fileName is null || fileName.Length == 0)
         return string.Empty;
 
-      var withoutPlaceHolder = fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
+      // expand %AppData%, %LOCALAPPDATA% or %USERPROFILE% and alike
+      var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
                          .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
                          .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)));
 
       // only if we have wild cards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
