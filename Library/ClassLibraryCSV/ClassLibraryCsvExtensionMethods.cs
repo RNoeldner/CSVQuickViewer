@@ -262,53 +262,19 @@ namespace CsvTools
     /// <param name="type">The type.</param>
     /// <returns>The matching <see cref="DataTypeEnum" />.</returns>
     public static DataTypeEnum GetDataType(this Type type)
+    => Type.GetTypeCode(type) switch
     {
-      switch (Type.GetTypeCode(type))
-      {
-        case TypeCode.Boolean:
-          return DataTypeEnum.Boolean;
-
-        case TypeCode.DateTime:
-          return DataTypeEnum.DateTime;
-
-        case TypeCode.Single:
-        case TypeCode.Double:
-          return DataTypeEnum.Double;
-
-        case TypeCode.Decimal:
-          return DataTypeEnum.Numeric;
-
-        case TypeCode.Byte:
-        case TypeCode.Int16:
-        case TypeCode.Int32:
-        case TypeCode.Int64:
-        case TypeCode.SByte:
-        case TypeCode.UInt16:
-        case TypeCode.UInt32:
-        case TypeCode.UInt64:
-          return DataTypeEnum.Integer;
-
-        case TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal):
-          return DataTypeEnum.Binary;
-
-        case TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal):
-          return DataTypeEnum.DateTime;
-
-        case TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal):
-          return DataTypeEnum.Guid;
-
-        case TypeCode.Char:
-        case TypeCode.String:
-        case TypeCode.Object:
-        case TypeCode.Empty:
-        case TypeCode.DBNull:
-          return DataTypeEnum.String;
-
-        default:
-          return DataTypeEnum.String;
-      }
-    }
-
+      TypeCode.Boolean => DataTypeEnum.Boolean,
+      TypeCode.DateTime => DataTypeEnum.DateTime,
+      TypeCode.Double => DataTypeEnum.Double,
+      TypeCode.Decimal => DataTypeEnum.Numeric,
+      TypeCode.UInt64 => DataTypeEnum.Integer,
+      TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal) => DataTypeEnum.Binary,
+      TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal) => DataTypeEnum.DateTime,
+      TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal) => DataTypeEnum.Guid,
+      TypeCode.DBNull => DataTypeEnum.String,
+      _ => DataTypeEnum.String,
+    };
 
     /// <summary>
     ///   Gets a suitable ID for a filename
