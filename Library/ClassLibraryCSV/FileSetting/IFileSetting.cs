@@ -29,10 +29,14 @@ namespace CsvTools
 #endif
   {
 #if !CsvQuickViewer
+
+    /// <summary>
+    /// Occurs when identifier is changed
+    /// </summary>
     event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
 
     /// <summary>
-    ///   Status of long running processing on the FileSettings, used to synchronise over independent threads
+    ///   Status of long running processing on the FileSettings, used to synchronize over independent threads
     /// </summary>
     FileStettingStatus Status { get; set; }
 #endif
@@ -43,6 +47,12 @@ namespace CsvTools
     /// <value>The column format.</value>
     ColumnCollection ColumnCollection { get; }
 
+    /// <summary>
+    /// Converts to string.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
     string ToString();
 
     /// <summary>
