@@ -44,6 +44,9 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    // RegEx to get placeholders in brackets {} or {{ }}
+    private static readonly Regex m_BracesRegEx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
+
     /// <summary>
     /// Move the field from on position in the list to another
     /// </summary>
@@ -136,6 +139,19 @@ namespace CsvTools
       other.Clear();
       foreach (var item in self)
         other.Add((T) item.Clone());
+    }
+
+    /// <summary>
+    /// Clones all items from a collection
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="self">The source collection</param>
+    /// <returns>A list with clones entries</returns>
+    public static List<T> Clone<T>(this IReadOnlyCollection<T> self) where T : ICloneable
+    {
+      var result = new List<T>(self.Count);
+      self.CollectionCopy(result);
+      return result;
     }
 
     /// <summary>
@@ -709,6 +725,8 @@ namespace CsvTools
       return inputValue;
     }
 
+
+
     /// <summary>
     ///   Replace placeholder in a template with value of property
     /// </summary>
@@ -723,12 +741,8 @@ namespace CsvTools
       var placeholder = new Dictionary<string, string>();
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
-
-      // get all placeholders in brackets {} or {{ }}
-      var rgx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
-
       // ReSharper disable once RedundantEnumerableCastCall
-      foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
+      foreach (var value in m_BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (string.IsNullOrEmpty(value) || placeholder.ContainsKey(value) || value.Length < 2)
           continue;
@@ -764,12 +778,10 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      // get all placeholders in brackets {} or {{ }}
-      var rgx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
       var placeholder = new Dictionary<string, string>();
       var index = 0;
       // ReSharper disable once RedundantEnumerableCastCall
-      foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
+      foreach (var value in m_BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (index >= values.Length)
           break;
@@ -822,7 +834,7 @@ namespace CsvTools
     public static char StringToChar(this string inputString) =>
       string.IsNullOrEmpty(inputString) ? char.MinValue : inputString[0];
 
-        /// <summary>
+    /// <summary>
     /// Converts a char to a string and \0 is an empty string
     /// </summary>
     /// <param name="input">The input.</param>

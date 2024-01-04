@@ -242,7 +242,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="basePath">The base path.</param>
     /// <returns>The combined filename with the LongPathPrefix if necessary</returns>
-    public static string GetAbsolutePath(this string? fileName, string? basePath)
+    public static string GetAbsolutePath(this string? fileName, string? basePath = null)
     {
       if (fileName is null || fileName.Length == 0)
         return string.Empty;
@@ -304,8 +304,15 @@ namespace CsvTools
     {
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
+
       if (fileName.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
-        return placeHolder + fileName.Substring(dir.Length + 1);
+      {
+        if (placeHolder == ".")
+          return fileName.Substring(dir.Length + 1);
+        else
+          return placeHolder + fileName.Substring(dir.Length);
+      }
+
       return string.Empty;
     }
 
@@ -324,7 +331,7 @@ namespace CsvTools
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
 
-      var test = SpecialFolders(fileName, basePath, ".");
+      var test = SpecialFolders(fileName, GetFullPath(basePath), ".");
       if (test.Length>0)
         return test;
 

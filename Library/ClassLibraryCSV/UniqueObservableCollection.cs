@@ -91,11 +91,11 @@ namespace CsvTools
           throw new ArgumentException($"The property {propertyName} must be a string value");
 
         // now make the name unique
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the null ability of reference types.
 #pragma warning disable CS8604 // Possible null reference argument.
         property.SetValue(item, Items.Select(prev => property.GetValue(prev) as string).ToList().MakeUniqueInCollection(property.GetValue(item) as string));
 #pragma warning restore CS8604 // Possible null reference argument.
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the null ability of reference types.
       }
       Add(item);
     }
@@ -142,7 +142,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   A slightly faster method to add a number of items in one go, if the item is cloneable a copy is made
+    ///   A slightly faster method to add a number of items in one go, if the item is clone able a copy is made
     /// </summary>
     /// <param name="items">Some items to add</param>
     public void AddRange(IEnumerable<T> items)
@@ -156,6 +156,7 @@ namespace CsvTools
           else
             Add(enumerator.Current);
     }
+
     /// <summary>
     ///   A slightly faster method to add a number of items in one go, the collection gets a reference to the passed in values
     /// </summary>
