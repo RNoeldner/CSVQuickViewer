@@ -29,6 +29,9 @@ namespace CsvTools
     private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
     private readonly bool m_Trim;
+    /// <summary>
+    /// The values of the current row
+    /// </summary>
     protected object?[] CurrentValues;
 
 
@@ -96,11 +99,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="BaseFileReader" />
-    /// <summary>
-    ///   Returns a <see cref="IDataReader" /> for the specified column ordinal.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The <see cref="IDataReader" /> for the specified column ordinal.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
@@ -286,7 +284,7 @@ namespace CsvTools
       base.InitColumn(fieldCount);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="BaseFileReader" />
     protected string TreatNbspTestAsNullTrim(ReadOnlySpan<char> inputString)
     {
       {
