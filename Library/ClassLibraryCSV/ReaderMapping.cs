@@ -80,7 +80,7 @@ namespace CsvTools
           addErrorField = false;
         }
 
-        // Do not add an source field in case we have a matching artificial field, unless its an #Error, this will stay in source and artificial
+        // Do not add a source field in case we have a matching artificial field, unless it's an #Error, this will stay in source and artificial
         if ((column.Name.Equals(ReaderConstants.cStartLineNumberFieldName) && addStartLine)
          || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName) && addEndLine)
          || (column.Name.Equals(ReaderConstants.cRecordNumberFieldName) && addRecNum))
