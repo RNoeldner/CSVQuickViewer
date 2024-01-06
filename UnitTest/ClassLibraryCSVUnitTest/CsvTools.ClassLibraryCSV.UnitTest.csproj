@@ -25,6 +25,9 @@
 
 	<ItemGroup>
 	  <None Remove=".runsettings" />
+	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
+	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
+	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\\Microsoft.TestPlatform.AdapterUtilities.dll" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -47,6 +50,10 @@
 		<None Update="TestFiles\*.*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Database\" />
 	</ItemGroup>
 	
 </Project>

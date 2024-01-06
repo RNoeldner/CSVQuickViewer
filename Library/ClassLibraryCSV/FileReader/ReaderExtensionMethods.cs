@@ -34,19 +34,28 @@ namespace CsvTools
     ///   Gets all not ignored columns from the reader, an ignored column is present in as columns
     ///   but should not be regarded
     /// </summary>
-    /// <param name="reader">A file reader</param>
+    /// <param name="reader">A file reader or any data reader</param>
     /// <returns></returns>
-    public static IEnumerable<Column> GetColumnsOfReader(this IFileReader reader)
+    public static IEnumerable<Column> GetColumnsOfReader(this IDataReader reader)
     {
       if (reader is null) throw new ArgumentNullException(nameof(reader));
       var retList = new List<Column>();
-      for (var col = 0; col < reader.FieldCount; col++)
+      if (reader is IFileReader fileReader)
       {
-        var column = reader.GetColumn(col);
-        if (!column.Ignore)
-          retList.Add(column);
+        for (var col = 0; col < reader.FieldCount; col++)
+        {
+          var column = fileReader.GetColumn(col);
+          if (!column.Ignore)
+            retList.Add(column);
+        }
       }
-
+      else
+      {
+        for (var col = 0; col < reader.FieldCount; col++)
+        {
+          retList.Add(new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col));
+        }
+      }
       return retList;
     }
 
@@ -91,7 +100,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
       await
 #endif
-  using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         res.Add(fileReader.GetColumn(colIndex));

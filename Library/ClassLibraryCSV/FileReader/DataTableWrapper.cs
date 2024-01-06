@@ -26,9 +26,28 @@ namespace CsvTools
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
   public sealed class DataTableWrapper : DataReaderWrapper
   {
-    public DataTableWrapper(in DataTable dataTable)
-      : base(dataTable.CreateDataReader()) => DataTable = dataTable;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataTableWrapper"/> class.
+    /// </summary>
+    /// <param name="dataTable">The data table.</param>
+    /// <param name="addStartLine">if set to <c>true</c> [add start line].</param>
+    /// <param name="addEndLine">if set to <c>true</c> [add end line].</param>
+    /// <param name="addRecNum">if set to <c>true</c> [add record number].</param>
+    /// <param name="addErrorField">if set to <c>true</c> [add error field].</param>
+    public DataTableWrapper(in DataTable dataTable,
+      bool addStartLine = false,
+      bool addEndLine = false,
+      bool addRecNum = false,
+      bool addErrorField = false)
+      : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField) => DataTable = dataTable;
+
+    /// <summary>
+    /// Gets the data table that stores the data
+    /// </summary>
+    /// <value>
+    /// The data table.
+    /// </value>
     public DataTable DataTable { get; }
 
     /// <inheritdoc />
@@ -48,7 +67,7 @@ namespace CsvTools
 
     /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
-    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;   
+    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
     /// <inheritdoc />
     public override void ResetPositionToFirstDataRow()
