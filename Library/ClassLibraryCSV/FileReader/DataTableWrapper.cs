@@ -14,6 +14,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace CsvTools
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
   public sealed class DataTableWrapper : DataReaderWrapper
   {
-
+    private readonly bool m_AddErrorField;
     /// <summary>
     /// Initializes a new instance of the <see cref="DataTableWrapper"/> class.
     /// </summary>
@@ -36,34 +37,42 @@ namespace CsvTools
     /// <param name="addRecNum">if set to <c>true</c> [add record number].</param>
     /// <param name="addErrorField">if set to <c>true</c> [add error field].</param>
     public DataTableWrapper(in DataTable dataTable,
-      bool addStartLine = false,
-      bool addEndLine = false,
-      bool addRecNum = false,
-      bool addErrorField = false)
-      : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField) => DataTable = dataTable;
+      bool addStartLine = false, bool addEndLine = false,
+      bool addRecNum = false, bool addErrorField = false)
+      : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField, dataTable.Rows.Count)
+    {
+      DataTable = dataTable;
+      m_AddErrorField = addErrorField;
+    }
 
     /// <summary>
-    /// Gets the data table that stores the data
+    /// Gets the data table that stores the data, only used for shortcuts
     /// </summary>
     /// <value>
     /// The data table.
     /// </value>
-    public DataTable DataTable { get; }
+    internal DataTable DataTable { get; }
 
     /// <inheritdoc />
     public override int RecordsAffected => DataTable.Rows.Count;
 
     /// <inheritdoc />
-    public override bool EndOfFile => RecordNumber >= DataTable.Rows.Count;
-
-    /// <inheritdoc />
-    public override int Percent => RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) DataTable.Rows.Count * 100d);
-
-    /// <inheritdoc />
     public override bool SupportsReset => true;
 
-    /// <inheritdoc cref="IFileReader" />
-    public new Column GetColumn(int column) => ReaderMapping.Column[column];
+    /// <inheritdoc />
+    public override object GetValue(int ordinal)
+    {
+      var src = base.GetValue(ordinal);
+      // in case of the error column add the information that stored in columns and row errors
+      if (m_AddErrorField && GetColumn(ordinal).Name == ReaderConstants.cErrorField)
+      {
+        var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
+        var dbRowError = row.GetErrorInformation();
+        if (dbRowError.Length > 0)
+          src = IsDBNull(ordinal) ? dbRowError : src.ToString()!.AddMessage(dbRowError);
+      }
+      return src;
+    }
 
     /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]

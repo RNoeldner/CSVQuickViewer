@@ -46,29 +46,9 @@ namespace CsvTools.Tests
       Assert.AreEqual(9, wrapper.Depth);
     }
 
-    [TestMethod()]
-    public async Task ArtificalFields()
-    {
-      using var reader = GetReader(m_Setting);
-      await reader.OpenAsync(UnitTestStatic.Token);
-      
-      var wrapper = new DataReaderWrapper(reader, true, true, true, true);
-      await wrapper.ReadAsync(UnitTestStatic.Token);
-
-      Assert.AreEqual((long) 2, wrapper.GetInt64(wrapper.ReaderMapping.ColNumStartLine), "StartLine");
-      Assert.AreEqual((long) 3, wrapper.GetInt64(wrapper.ReaderMapping.ColNumEndLine));
-      Assert.AreEqual((long) 1, wrapper.GetInt64(wrapper.ReaderMapping.ColNumRecNum));
-      Assert.AreEqual("", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
-
-      await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(reader.StartLineNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumStartLine), "StartLine");
-      Assert.AreEqual(reader.EndLineNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumEndLine));
-      Assert.AreEqual(reader.RecordNumber, wrapper.GetInt64(wrapper.ReaderMapping.ColNumRecNum));
-      Assert.AreEqual("", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
-    }
     
     [TestMethod()]
-    public async Task DataTableWrapperErrorPassthoughTest()
+    public void DataTableWrapperErrorPassthoughTest()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
       dataTable.Columns.Add("ID", typeof(int));
@@ -103,11 +83,11 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
       using var reader = dataTable.CreateDataReader();
-      var wrapper = new DataReaderWrapper(reader, false, false, false, true);
+      var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual("Error0", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+      Assert.AreEqual("Error0", wrapper.GetString(wrapper.FieldCount-1));      
       await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual("Error1", wrapper.GetValue(wrapper.ReaderMapping.ColNumErrorField));      
+      Assert.AreEqual("Error1", wrapper.GetString(wrapper.FieldCount-1));      
     }
     
 

@@ -290,14 +290,14 @@ namespace CsvTools
       set => SetProperty(ref m_Part, value);
     }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
 
     /// <summary>If a text is split into parts the text determines which how these pars are split from eachother</summary>
     /// <value>The part splitter.</value>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cPartSplitterDefault)]    
+    [DefaultValue(ValueFormat.cPartSplitterDefault)]
     public string PartSplitter
     {
       get => m_PartSplitter.Text();

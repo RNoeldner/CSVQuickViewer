@@ -754,7 +754,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var dt = new DataTableWrapper(
+        using var reader = new DataTableWrapper(
           FilteredDataGridView.DataView.ToTable(false,
             // Restrict to shown data
             FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
@@ -762,7 +762,7 @@ namespace CsvTools
               .OrderBy(col => col.DisplayIndex)
               .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(dt, formProgress.CancellationToken);
+        await writer.WriteAsync(reader, formProgress.CancellationToken);
       }
       catch (Exception ex)
       {
@@ -915,7 +915,7 @@ namespace CsvTools
       catch (InvalidOperationException exception)
       {
         Logger.Warning(exception, "Issue updating the UI");
-        // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
+        // ignore error in regard to cross thread issues, SafeBeginInvoke should have handled
         // this though
       }
       finally

@@ -133,7 +133,7 @@ namespace CsvTools
     /// <param name="text">The Text</param>
     /// <param name="replace">The replacement value default is \n.</param>
     /// <returns>
-    ///   The text with every combination of line feed replaced with <see cref="replace" />
+    ///   The text with every combination of line feed replaced with teh given replacement
     /// </returns>
     public static string HandleCrlfCombinations(this string text, in string replace = "\n")
     {

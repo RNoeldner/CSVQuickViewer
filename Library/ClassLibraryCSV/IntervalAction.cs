@@ -34,11 +34,11 @@ namespace CsvTools
     {
     }
 
+    /// <summary>Gets an IntervalAction for a Progress report</summary>
+    /// <param name="progress">The progress, in case its null, null is returned</param>
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
 #endif        
-    /// <summary>Gets an IntervalAction for a Progress report</summary>
-    /// <param name="progress">The progress, in case its null, null is returned</param>
     public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) => progress is null ? null : new IntervalAction();
 
     /// <summary>

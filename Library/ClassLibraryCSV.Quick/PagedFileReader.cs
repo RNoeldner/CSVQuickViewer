@@ -84,7 +84,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addStartLine, addEndLine, addRecNum, addErrorField);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader,  addStartLine, addEndLine, addRecNum, addErrorField);
       await MoveToPageAsync(1, cancellationToken).ConfigureAwait(false);
     }
 

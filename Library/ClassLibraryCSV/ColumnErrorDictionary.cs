@@ -17,29 +17,27 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
   /// <summary>
-  ///   Column errors for one row
+  ///   Collection of column errors for one row
   /// </summary>
   public sealed class ColumnErrorDictionary : Dictionary<int, string>
   {
-    private readonly ICollection<int> m_IgnoredColumns = new HashSet<int>();
+    private readonly HashSet<int> m_IgnoredColumns = new HashSet<int>();
 
-    public ColumnErrorDictionary()
+    /// <summary>
+    /// Create instance of ColumnErrorDictionary
+    /// </summary>
+    /// <param name="reader">Possibly a file reader, in this case ignored columns are checked and will be ignored in case errors are added</param>
+    public ColumnErrorDictionary(in IFileReader? reader = null)
     {
-    }
-
-    public ColumnErrorDictionary(in IFileReader reader)
-    {
-      if (reader is null)
-        throw new ArgumentNullException(nameof(reader));
+      if (reader == null)
+        return;
       for (var col = 0; col < reader.FieldCount; col++)
       {
         var column = reader.GetColumn(col);
-        if (!column.Ignore) continue;
-        m_IgnoredColumns.Add(col);
+        if (column.Ignore)
+          m_IgnoredColumns.Add(col);
       }
-
       reader.Warning += (_, args) => { Add(args.ColumnNumber, args.Message); };
     }
 

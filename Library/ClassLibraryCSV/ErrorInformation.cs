@@ -88,7 +88,7 @@ namespace CsvTools
 
       return sb.ToString();
     }
-       /// <summary>
+    /// <summary>
     ///   String method to append a message an error list text
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
@@ -326,7 +326,7 @@ namespace CsvTools
             if (end == -1)
               end = parts.Column.Length;
             var colName = parts.Column.Substring(start, end - start);
-            if (row.Table.Columns.Contains(colName) && !string.IsNullOrEmpty(parts.Message) )
+            if (row.Table.Columns.Contains(colName) && !string.IsNullOrEmpty(parts.Message))
               row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(parts.Message));
             else
             {
@@ -387,11 +387,26 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Struct for Column and Message information
+    /// </summary>
     public readonly struct ColumnAndMessage
     {
+      /// <summary>
+      /// Name of the Column
+      /// </summary>
       public readonly string Column;
+
+      /// <summary>
+      /// Message for this column
+      /// </summary>
       public readonly string Message;
 
+      /// <summary>
+      /// Constructor
+      /// </summary>
+      /// <param name="column"></param>
+      /// <param name="message"></param>
       public ColumnAndMessage(in string column, in string message)
       {
         Column = column;
