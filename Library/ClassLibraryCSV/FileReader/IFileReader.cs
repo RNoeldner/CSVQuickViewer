@@ -83,7 +83,7 @@ namespace CsvTools
     int Percent { get; }
 
     /// <summary>
-    ///   Gets the record number of a the records that just had been read (1 after the first read)
+    ///   Gets the record number of the record that just had been read (staring with 1)
     /// </summary>
     /// <value>The record number.</value>
     long RecordNumber { get; }

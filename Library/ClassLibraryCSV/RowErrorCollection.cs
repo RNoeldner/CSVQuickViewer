@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CsvTools
@@ -29,7 +30,7 @@ namespace CsvTools
     /// <summary>
     ///   A List containing warnings by row/column
     /// </summary>
-    private readonly IDictionary<long, ColumnErrorDictionary> m_RowErrorCollection =
+    private readonly Dictionary<long, ColumnErrorDictionary> m_RowErrorCollection =
       new Dictionary<long, ColumnErrorDictionary>();
 
     private ICollection<int>? m_IgnoredColumns;
@@ -62,9 +63,7 @@ namespace CsvTools
       {
         var sb = new StringBuilder();
         // Go through all rows
-        foreach (var errorsInColumn in m_RowErrorCollection.Values)
-          // And all columns
-        foreach (var message in errorsInColumn.Values)
+        foreach (var message in m_RowErrorCollection.Values.SelectMany(errorsInColumn => errorsInColumn.Values))
         {
           if (sb.Length > 0)
             sb.Append(ErrorInformation.cSeparator);
@@ -87,17 +86,16 @@ namespace CsvTools
       {
         var sb = new StringBuilder();
         // Go through all rows
-        foreach (var pair in m_RowErrorCollection)
+        foreach (var keyValuePair in m_RowErrorCollection)
         {
           if (sb.Length > 0)
             sb.Append(ErrorInformation.cSeparator);
-          var start = $"Row {pair.Key:N0}";
+          var start = $"Row {keyValuePair.Key:N0}";
           sb.Append(start);
           sb.Append('\t');
-          var errorsInColumn = pair.Value;
           var first = true;
           // And all columns
-          foreach (var message in errorsInColumn.Values)
+          foreach (var message in keyValuePair.Value.Values)
           {
             // indent next message
             if (!first)

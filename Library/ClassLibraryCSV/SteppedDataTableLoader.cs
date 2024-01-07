@@ -64,7 +64,7 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 #endif
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField, fileSetting.RecordLimit);
 
       // the initial progress is set on the source reader, no need to pass it in, when calling GetNextBatch this needs to be set though
       await GetNextBatch(null, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);

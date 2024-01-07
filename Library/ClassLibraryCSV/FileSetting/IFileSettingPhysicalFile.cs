@@ -16,6 +16,9 @@ using System.Security;
 
 namespace CsvTools
 {
+  /// <summary>
+  ///  Interface for a file based settings
+  /// </summary>
   public interface IFileSettingPhysicalFile : IFileSetting
   {
     /// <summary>
@@ -72,6 +75,9 @@ namespace CsvTools
     /// <value>The code page.</value>
     int CodePageId { get; set; }
 
+    /// <summary>
+    /// The base folder for relative path
+    /// </summary>
     string RootFolder { get; set; }
 
     /// <summary>

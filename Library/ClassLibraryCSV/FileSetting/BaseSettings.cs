@@ -158,10 +158,9 @@ namespace CsvTools
         ColumnCollection.AddRange(value.Select(x => x.ToImmutableColumn()));
       }
     }
-
 #endif
-    /// <inheritdoc />
 
+    /// <inheritdoc />
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
     {
@@ -170,7 +169,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-
     [DefaultValue(true)]
     public virtual bool DisplayStartLineNo
     {
@@ -178,7 +176,9 @@ namespace CsvTools
       set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Flag indicating that on write the latest source time should be used, instead of teh current time
+    /// </summary>
     [DefaultValue(false)]
     public virtual bool SetLatestSourceTimeForWrite
     {
@@ -469,7 +469,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
 #endif
 
@@ -705,8 +704,10 @@ namespace CsvTools
       if (!other.ColumnCollection.Equals(ColumnCollection))
         yield return $"{nameof(ColumnCollection)} different";
     }
-    
-    [JsonIgnore] public int CollectionIdentifier => ID.GetHashCode();
+
+    /// <inheritdoc />
+    [JsonIgnore] 
+    public int CollectionIdentifier => ID.GetHashCode();
 #endif
   }
 }

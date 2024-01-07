@@ -29,6 +29,9 @@ using System.Text;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Setting for a file based setting
+  /// </summary>
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
@@ -47,6 +50,11 @@ namespace CsvTools
     private long m_KeyId;
     private string m_KeyFile = string.Empty;
 
+    /// <summary>
+    /// New instance of a physical file
+    /// </summary>
+    /// <param name="id">ID to be passed on to <see cref="BaseSettings"/></param>
+    /// <param name="fileName">The path to teh file</param>
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
       if (fileName.Length>2 && fileName[0] == '.' &&  fileName[1] == Path.DirectorySeparatorChar)
@@ -54,10 +62,14 @@ namespace CsvTools
       else
         m_FileName = fileName;
     }
+
 #if !CsvQuickViewer
+    /// <inheritdoc />
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 #endif
+
+    /// <inheritdoc />
     [DefaultValue("")]
     public string KeyFile
     {
@@ -152,8 +164,8 @@ namespace CsvTools
         SetProperty(ref m_ValueFormatWrite, value);
       }
     }
-    
-    /// <inheritdoc />
+
+    /// <inheritdoc cref="IFileSetting" />
     [JsonIgnore]
     public virtual ValueFormatMut ValueFormatMut
     {
@@ -206,7 +218,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [JsonIgnore]
-    [DefaultValue("")] 
+    [DefaultValue("")]
     public string RootFolder { get; set; } = string.Empty;
 
     /// <inheritdoc />    
@@ -217,7 +229,7 @@ namespace CsvTools
       set => SetProperty(ref m_ThrowErrorIfNotExists, value);
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc cref="IFileSettingPhysicalFile"/>  
     [DefaultValue(0)]
     public long KeyID
     {
@@ -289,7 +301,7 @@ namespace CsvTools
       if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal))
         return false;
 
-      return string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase) 
+      return string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase)
              && base.BaseSettingsEquals(other);
     }
 
