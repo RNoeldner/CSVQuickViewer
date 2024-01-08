@@ -31,7 +31,7 @@ namespace CsvTools
   {
     /// <summary>The column definition</summary>
     protected readonly IReadOnlyCollection<Column> ColumnDefinition;
-    
+
     /// <summary>The display text for the writer</summary>
     protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
@@ -107,7 +107,7 @@ namespace CsvTools
       FileSettingDisplay = fileSettingDisplay;
 
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
-    }   
+    }
 
     /// <summary>Gets or sets the number of records written</summary>
     /// <value>The records.</value>

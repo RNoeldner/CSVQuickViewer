@@ -42,28 +42,28 @@ namespace CsvTools
     private readonly IFileReader? m_FileReader;
     private readonly ReaderMapping m_ReaderMapping;
     private readonly long m_RecordLimit;
-    private long m_NumberRowWarnings;
+    private long m_NumberRowWarnings;   
 
     /// <summary>
     ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
     ///   Start and End Line or Record number in needed and handles the return of these artificial fields in GetValue
     /// </summary>
     /// <param name="reader">Regular framework IDataReader</param>
-    /// <param name="addStartLine">Add artificial field Start Line</param>
-    /// <param name="addEndLine">Add artificial field End Line</param>
-    /// <param name="addRecNum">Add artificial field Records Number</param>
-    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="startLine">Add artificial field Start Line</param>
+    /// <param name="endLine">Add artificial field End Line</param>
+    /// <param name="recNum">Add artificial field Records Number</param>
+    /// <param name="errorField">Add artificial field Error</param>
     /// <param name="recordLimit">Maximum number of records to read</param>
     public DataReaderWrapper(in IDataReader reader,
-      bool addStartLine = false, bool addEndLine = false,
-      bool addRecNum = false, bool addErrorField = false, long recordLimit = -1)
+      bool startLine = false, bool endLine = false,
+      bool recNum = false, bool errorField = false, long recordLimit = -1)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
       m_FileReader = reader as IFileReader;
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader can not be closed");
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-      m_ReaderMapping = new ReaderMapping(reader, addStartLine, addEndLine, addRecNum, addErrorField);
+      m_ReaderMapping = new ReaderMapping(reader, startLine, endLine, recNum, errorField);
 
       if (m_FileReader != null)
         m_FileReader.Warning += (o, e) => Warning?.Invoke(o, e);

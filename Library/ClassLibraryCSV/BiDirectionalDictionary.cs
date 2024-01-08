@@ -15,10 +15,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace CsvTools
-{
+{  
+  [DebuggerDisplay("Count = {Count}")]
+  [DefaultMember("Item")]
   public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     where TKey : notnull where TValue : notnull
   {
@@ -55,12 +61,7 @@ namespace CsvTools
         Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    /// <summary>
-    ///   Adds a key / value to the dictionary
-    /// </summary>
-    /// <param name="key">The key of the dictionary.</param>
-    /// <param name="value">the value for the key, there can not be two keys with the same value</param>
-    /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
+    /// <inheritdoc />
     public void Add(in TKey key, in TValue value)
     {
       if (ContainsKey(key))
@@ -72,15 +73,14 @@ namespace CsvTools
       m_SecondToFirst.Add(value, key);
     }
 
+    /// <inheritdoc />
     public new void Remove(TKey key)
     {
       m_SecondToFirst.Remove(base[key]);
       base.Remove(key);
     }
 
-    /// <summary>
-    ///   Removes all items from the dictionary.
-    /// </summary>
+    /// <inheritdoc />
     public new void Clear()
     {
       m_SecondToFirst.Clear();
@@ -128,7 +128,5 @@ namespace CsvTools
       [MaybeNullWhen(false)]
 #endif
       out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
-
-
   }
 }
