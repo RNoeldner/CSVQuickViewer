@@ -583,9 +583,6 @@ namespace CsvTools
       if (samples.Keys.Count == 0)
         return new Dictionary<int, SampleResult>();
 
-      if (fileReader.IsClosed)
-        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-
       var hasWarning = false;
       var remainingShows = 10;
 
@@ -634,7 +631,7 @@ namespace CsvTools
             Logger.Information(
               $"Getting sample values {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"));
           // if at the end start from the beginning
-          if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && fileReader.EndOfFile)
+          if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
             if (!fileReader.SupportsReset)
               break;

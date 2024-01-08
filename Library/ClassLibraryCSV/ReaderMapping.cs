@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 
 namespace CsvTools
 {
@@ -9,6 +10,7 @@ namespace CsvTools
   ///   Handles mapping of a data reader to a resulting data reader columns ignored will be omitted
   ///   and artificial columns for Line, record and error information is added
   /// </summary>
+  [DebuggerDisplay("{m_Mapping}")]
   public sealed class ReaderMapping
   {
     /// <summary>
@@ -32,9 +34,9 @@ namespace CsvTools
     /// </summary>
     public readonly int ColNumStartLine;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
-    private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
-    private readonly List<Column> m_ReaderColumnNotIgnored = new List<Column>();
-    private readonly List<string> m_ReaderColumnsAll = new List<string>();
+    private readonly BiDirectionalDictionary<int, int> m_Mapping;
+    private readonly List<Column> m_ReaderColumnNotIgnored;
+    private readonly List<string> m_ReaderColumnsAll;
     private readonly IDataRecord m_DataReader;
 
     /// <summary>
@@ -44,16 +46,17 @@ namespace CsvTools
     /// <param name="dataReader">
     ///   <see cref="IDataRecord" /> usually a <see cref="IFileReader" /> or <see cref="IDataReader" />
     /// </param>
-    /// <param name="addStartLine">Add artificial field Start Line, if false the data will be passed on from the source (if existing)</param>
-    /// <param name="addEndLine">Add artificial field End Line, if false the data will be passed on from the source (if existing)</param>
-    /// <param name="addRecNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>
-    /// <param name="addErrorField">Add artificial field Error but only if the source does not have the information</param>
-    public ReaderMapping(in IDataRecord dataReader,
-      bool addStartLine, bool addEndLine,
-      bool addRecNum, bool addErrorField)
+    /// <param name="startLine">Add artificial field Start Line, if false the data will be passed on from the source (if existing)</param>
+    /// <param name="endLine">Add artificial field End Line, if false the data will be passed on from the source (if existing)</param>
+    /// <param name="recNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>
+    /// <param name="errorField">Add artificial field Error but only if the source does not have the information</param>
+    public ReaderMapping(in IDataRecord dataReader, bool startLine, bool endLine, bool recNum, bool errorField)
     {
       m_DataReader = dataReader;
       var fileReader = dataReader as IFileReader;
+      m_Mapping = new BiDirectionalDictionary<int, int>();
+      m_ReaderColumnNotIgnored = new List<Column>();
+      m_ReaderColumnsAll = new List<string>();
       m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 
       var fieldCount = 0;
@@ -63,6 +66,10 @@ namespace CsvTools
       m_ColNumErrorFieldSource = -1;
       ColNumRecNum = -1;
       ColNumStartLine = -1;
+
+      // var orgStartLine = -1;
+      // var orgRecNum = -2;
+      // var orgEndLine = -3;
 
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
@@ -74,32 +81,58 @@ namespace CsvTools
         if (column.Name.Equals(ReaderConstants.cErrorField))
         {
           m_ColNumErrorFieldSource = col;
-          addErrorField = true;
+          errorField = true;
+          continue;
+        }
+        // Do not add a source field in case we have a matching artificial field, unless it's an #Error, this will stay in source and artificial
+        if (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+        {
+          // orgStartLine = col;
+          startLine = true;
+          continue;
+        }
+        if (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+        {
+          // orgEndLine = col;
+          endLine = true;
+          continue;
         }
 
-        // Do not add a source field in case we have a matching artificial field, unless it's an #Error, this will stay in source and artificial
-        if ((column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) && addStartLine)
-         || (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase) && addEndLine)
-         || (column.Name.Equals(ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase) && addRecNum)
-         || column.Name.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase))
+        if (column.Name.Equals(ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase))
+        {
+          // orgRecNum = col;
+          recNum = true;
           continue;
+        }
 
         m_ReaderColumnNotIgnored.Add(column);
         m_Mapping.Add(col, fieldCount++);
       }
 
       // Possibly add artificial fields
-      if (addRecNum)
+      if (recNum)
+      {
+        // m_Mapping.Add(orgRecNum, fieldCount);
         m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumRecNum = fieldCount++));
+      }
 
-      if (addEndLine)
+      if (endLine)
+      {
+        // m_Mapping.Add(orgEndLine, fieldCount);
         m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumEndLine = fieldCount++));
+      }
 
-      if (addErrorField)
+      if (errorField)
+      {
+        // m_Mapping.Add(m_ColNumErrorFieldSource, fieldCount);
         m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
+      }
 
-      if (addStartLine)
+      if (startLine)
+      {
+        // m_Mapping.Add(orgStartLine, fieldCount);
         m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumStartLine = fieldCount));
+      }
     }
 
     /// <summary>

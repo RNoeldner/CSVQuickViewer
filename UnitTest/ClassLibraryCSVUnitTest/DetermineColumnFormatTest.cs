@@ -235,20 +235,20 @@ namespace CsvTools.Tests
         "int (Integer)"
         "DateTime (Date Time (MM/dd/yyyy))"
         "bool (Boolean)"
+        "guid"
         "double (Money (High Precision) (0,#####))"
         "numeric (Money (High Precision) (0,#####))"
         "ID (Integer)"
         "#Line (Integer)"
        */
-      Assert.AreEqual(7, columns.Count(), "Recognized columns");
-      Assert.AreEqual(8, information.Count, "Information Lines");
+      Assert.AreEqual(8, columns.Count(), "Recognized columns");
+      Assert.AreEqual(9, information.Count, "Information Lines");
 
       // with Text columns
       var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
         new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
-      Assert.AreEqual(10, columns2.Count());
-      // Added 4 text columns,
-      Assert.AreEqual(10, information2.Count);
+      Assert.AreEqual(11, columns2.Count(), "Recognized columns 2");      
+      Assert.AreEqual(11, information2.Count, "Information Lines 2");
     }
 
 
@@ -274,7 +274,7 @@ namespace CsvTools.Tests
     }
 
 
-    [TestMethod]
+    [TestMethod, Timeout(2000)]
     public async Task DetermineColumnFormatGetSampleRollOverAsync()
     {
       using var dt = new DataTable();
