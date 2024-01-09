@@ -649,8 +649,10 @@ namespace CsvTools
             {
               foreach (var columnIndex in samples.Keys.Except(enough))
               {
+                if (fileReader.IsDBNull(columnIndex))
+                  continue;
                 // value must be string as spans are not supported in lambda
-                var value = fileReader.GetString(columnIndex).Trim();
+                var value = fileReader.GetValue(columnIndex)!.ToString()!.Trim();
                 // Any non existing value is not of interest
                 if (value.Length==0)
                   continue;

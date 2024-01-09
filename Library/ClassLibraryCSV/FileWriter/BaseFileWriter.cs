@@ -138,7 +138,7 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">reader</exception>
     public static IReadOnlyCollection<WriterColumn> GetColumnInformation(in ValueFormat generalFormat,
       in IReadOnlyCollection<Column> columnDefinitions,
-      in IFileReader reader)
+      in IDataReader reader)
     {
       var result = new List<WriterColumn>();
 

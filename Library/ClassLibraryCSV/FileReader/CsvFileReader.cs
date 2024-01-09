@@ -412,7 +412,7 @@ namespace CsvTools
 
         ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
-        // Turn off un  escaped warning based on WarnLineFeed
+        // Turn off un-escaped warning based on WarnLineFeed
         if (!m_WarnLineFeed)
           foreach (var col in Column)
             if (col.ColumnFormatter is TextUnescapeFormatter unescapedFormatter)

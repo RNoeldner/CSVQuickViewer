@@ -29,9 +29,7 @@ namespace CsvTools
   ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
   /// </summary>
   /// <remarks>
-  ///   Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo. <br
-  ///   /> This does not need to be disposed the passed in Reader though need to be disposed. <br />
-  ///   Closing does close the passed in reader
+  ///   Allow any IDataReader to be used as IFileReader
   /// </remarks>
   public class DataReaderWrapper : DbDataReader, IFileReader
   {
@@ -42,7 +40,10 @@ namespace CsvTools
     private readonly IFileReader? m_FileReader;
     private readonly ReaderMapping m_ReaderMapping;
     private readonly long m_RecordLimit;
-    private long m_NumberRowWarnings;   
+    private long m_NumberRowWarnings;
+    private long m_NumberRowError;
+    private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
+    private string RowErrorInformation;
 
     /// <summary>
     ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
@@ -62,11 +63,13 @@ namespace CsvTools
       m_FileReader = reader as IFileReader;
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader can not be closed");
+      RowErrorInformation = string.Empty;
+      m_ColumnErrorDictionary = new ColumnErrorDictionary(m_FileReader);
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       m_ReaderMapping = new ReaderMapping(reader, startLine, endLine, recNum, errorField);
 
       if (m_FileReader != null)
-        m_FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
+        m_FileReader.Warning += (o, e) => m_ColumnErrorDictionary.Add(e.ColumnNumber, e.Message);      
     }
 
     /// <inheritdoc />
@@ -83,9 +86,14 @@ namespace CsvTools
     public override bool HasRows => !DataReader.IsClosed;
 
     /// <summary>
-    /// Get the number of roes with issues
+    /// Get the number of rows with issues
     /// </summary>
     public long NumberRowWarnings => m_NumberRowWarnings;
+
+    /// <summary>
+    /// Get the number of rows with errors (a least one row is missing)
+    /// </summary>
+    public long NumberRowError => m_NumberRowError;
 
     /// <inheritdoc />
     public event EventHandler<RetryEventArgs>? OnAskRetry;
@@ -171,14 +179,13 @@ namespace CsvTools
       DataReader.GetChars(m_ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
 
     /// <inheritdoc />
-    public new IDataReader GetData(int i) => DataReader.GetData(i)!;
+    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.DataTableToReader(ordinal))!;
 
     /// <inheritdoc />
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     /// <inheritdoc />
-    public override DateTime GetDateTime(int ordinal) =>
-      DataReader.GetDateTime(m_ReaderMapping.DataTableToReader(ordinal));
+    public override DateTime GetDateTime(int ordinal) => DataReader.GetDateTime(m_ReaderMapping.DataTableToReader(ordinal));
 
     /// <inheritdoc />
     public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.DataTableToReader(ordinal));
@@ -230,16 +237,6 @@ namespace CsvTools
       return -1;
     }
 
-    /// <summary>
-    /// Stores error information in the data row
-    /// </summary>
-    /// <param name="dataRow">The data row.</param>
-    public void SetErrorInformation(in DataRow dataRow)
-    {
-      if (m_ReaderMapping.HasErrors)
-        m_ReaderMapping.SetErrorInformation(dataRow);
-    }
-
     /// <inheritdoc />
     public override DataTable GetSchemaTable()
     {
@@ -249,16 +246,10 @@ namespace CsvTools
       for (var col = 0; col < FieldCount; col++)
       {
         var column = m_ReaderMapping.Column[col];
-
         schemaRow[1] = column.Name; // Column name
-        schemaRow[4] = column.Name; // Column name
+        schemaRow[4] = column.Name; // Column name         
         schemaRow[5] = col; // Column ordinal
-
-        // If there is a conversion get the information
-        if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
-          schemaRow[7] = column.ValueFormat.DataType.GetNetType();
-        else
-          schemaRow[7] = typeof(string);
+        schemaRow[7] = column.ValueFormat.DataType.GetNetType();
         dataTable.Rows.Add(schemaRow);
       }
       return dataTable;
@@ -266,7 +257,8 @@ namespace CsvTools
 
     /// <inheritdoc />
     // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-    public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal)) ?? string.Empty;
+    public override string GetString(int ordinal)
+      => (ordinal == m_ReaderMapping.ColNumErrorField) ? RowErrorInformation : DataReader.GetString(m_ReaderMapping.DataTableToReader(ordinal));
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -279,13 +271,24 @@ namespace CsvTools
       if (ordinal == m_ReaderMapping.ColNumRecNum)
         return RecordNumber;
       return ordinal == m_ReaderMapping.ColNumErrorField ?
-        m_ReaderMapping.RowErrorInformation :
+        RowErrorInformation :
         DataReader.GetValue(m_ReaderMapping.DataTableToReader(ordinal));
     }
 
     /// <inheritdoc />
     public override int GetValues(object[] values)
-      => DataReader.GetValues(values);
+    {
+      if (values is null) throw new ArgumentNullException(nameof(values));
+
+      var maxFld = values.Length;
+      if (maxFld > FieldCount) maxFld = FieldCount;
+
+      for (var col = 0; col < maxFld; col++)
+        values[col] = GetValue(col);
+
+      return maxFld;
+    }
+
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -295,25 +298,54 @@ namespace CsvTools
           ordinal == m_ReaderMapping.ColNumRecNum)
         return false;
       if (ordinal == m_ReaderMapping.ColNumErrorField)
-        return m_ReaderMapping.HasErrors;
+        return RowErrorInformation.Length>0;
       return DataReader.IsDBNull(m_ReaderMapping.DataTableToReader(ordinal));
     }
 
     /// <inheritdoc cref="IFileReader" />
     public override bool NextResult() => false;
 
+    /// <summary>
+    /// Takes care of internal counters being updated
+    /// </summary>
+    private void FinishRead()
+    {
+      RecordNumber++;
+
+      RowErrorInformation = (m_ReaderMapping.ColNumErrorFieldSource != -1)
+        ? (DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource) ? string.Empty : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource)?.ToString() ?? string.Empty)
+        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderMapping.ReaderColumnsAll);
+      if (!string.IsNullOrEmpty(RowErrorInformation))
+      {
+        if (RowErrorInformation.IsErrorMessage())
+          m_NumberRowError++;
+        else
+          m_NumberRowWarnings++;
+
+        if (Warning!=null && RowErrorInformation.Length>0)
+        {
+          Warning?.Invoke(this, new WarningEventArgs(RecordNumber, 0, RowErrorInformation, StartLineNumber, EndLineNumber, string.Empty));
+          /*
+          if (m_ReaderMapping.ColNumErrorFieldSource == -1)
+            foreach (var entry in m_ColumnErrorDictionary)
+              Warning?.Invoke(this, new WarningEventArgs(RecordNumber-1, entry.Key, entry.Value, 0, 0, GetName(entry.Key)));
+          else
+            Warning?.Invoke(this, new WarningEventArgs(RecordNumber-1, 0, DataReader.GetString(m_ReaderMapping.ColNumErrorFieldSource), 0, 0, string.Empty));
+          */
+        }
+      }
+    }
+
     /// <inheritdoc cref="IFileReader" />
     public override bool Read()
     {
       if (EndOfFile)
         return false;
-      m_ReaderMapping.PrepareRead();
+      m_ColumnErrorDictionary.Clear();
 
       if (DataReader.Read())
       {
-        RecordNumber++;
-        if (m_ReaderMapping.HasErrors)
-          m_NumberRowWarnings++;
+        FinishRead();
         return true;
       }
       return false;
@@ -324,15 +356,13 @@ namespace CsvTools
     {
       if (cancellationToken.IsCancellationRequested || EndOfFile)
         return false;
-      m_ReaderMapping.PrepareRead();
+      m_ColumnErrorDictionary.Clear();
 
       if (DataReader is DbDataReader dbDataReader
             ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
             : DataReader.Read())
       {
-        RecordNumber++;
-        if (m_ReaderMapping.HasErrors)
-          m_NumberRowWarnings++;
+        FinishRead();
         return true;
       }
 
@@ -362,7 +392,8 @@ namespace CsvTools
     public virtual void ResetPositionToFirstDataRow()
     {
       m_FileReader?.ResetPositionToFirstDataRow();
-      m_ReaderMapping.PrepareRead();
+      m_ColumnErrorDictionary.Clear();
+      RowErrorInformation = string.Empty;
       RecordNumber = 0;
       m_NumberRowWarnings = 0;
     }
