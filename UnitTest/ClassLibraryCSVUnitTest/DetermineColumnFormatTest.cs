@@ -223,6 +223,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
     {
+      // Make sure we do not have errors in table as this would invalidate the rows for detection
       using var dt = UnitTestStaticData.GetDataTable(100, false);
       using var reader = new DataTableWrapper(dt);
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
@@ -289,7 +290,7 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      using var reader = new DataTableWrapper(dt);
+      using var reader = new DataTableWrapper(dt, false, false, false, false);
       // Move the reader to a late record
       for (var i = 0; i < dt.Rows.Count / 2; i++)
         await reader.ReadAsync(UnitTestStatic.Token);
@@ -556,7 +557,8 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task GetSampleValuesAsyncTest2()
     {
-      using var dt = UnitTestStaticData.GetDataTable(1000);
+      // make sure we do not have errors as these could void the records in GetSampleValuesAsync
+      using var dt = UnitTestStaticData.GetDataTable(1000, false);
 
       var reader = new DataTableWrapper(dt);
       foreach (DataColumn col in dt.Columns)
@@ -566,9 +568,9 @@ namespace CsvTools.Tests
           UnitTestStatic.Token);
 
         if (col.ColumnName != "AllEmpty")
-          Assert.AreNotEqual(0, res[col.Ordinal].Values.Count, col.ColumnName);
+          Assert.AreNotEqual(0, res[col.Ordinal].Values.Count, $"Column {col.ColumnName} has {res[col.Ordinal].Values.Count} entries");
         else
-          Assert.AreEqual(0, res[col.Ordinal].Values.Count, col.ColumnName);
+          Assert.AreEqual(0, res[col.Ordinal].Values.Count, $"Column {col.ColumnName} has {res[col.Ordinal].Values.Count} entries");
       }
     }
 

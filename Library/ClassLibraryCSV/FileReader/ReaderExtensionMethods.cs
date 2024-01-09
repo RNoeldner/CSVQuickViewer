@@ -22,6 +22,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
+using System.Data.Common;
+
 
 #if !QUICK
 using System.Text;
@@ -114,7 +116,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Stores all rows from te reader into a DataTable, form the current position of the reader onwards.
+    ///   Stores all rows from the reader into a DataTable, form the current position of the reader onwards.
     /// </summary>
     /// <param name="reader">
     ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
@@ -152,19 +154,15 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns>A Data Table with all records from the reader</returns>
     /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
-    public static async Task<DataTable> GetDataTableAsync(this IFileReader reader, TimeSpan maxDuration,
+    public static async Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
       bool restoreErrorsFromColumn, bool startLine, bool endLine, bool recNum, bool errorField,
       IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;
 
-      if (reader.IsClosed)
-        await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-      //if (reader is DataReaderWrapper alreadyWrapper)
-      //  return await alreadyWrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
-      //  .ConfigureAwait(false);
+      if (reader is DataReaderWrapper alreadyWrapper)
+        return await alreadyWrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken).ConfigureAwait(false);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
@@ -191,10 +189,14 @@ namespace CsvTools
       // Shortcut if the wrapper is a DataTableWrapper
       if (wrapper is DataTableWrapper dtw)
         return dtw.DataTable;
-
+      var colError = -1;
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
       for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
+      {
         dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+        if (wrapper.GetName(colIndex) == ReaderConstants.cErrorField)
+          colError = colIndex;
+      }
 
       if (wrapper.EndOfFile)
         return dataTable;
@@ -214,7 +216,7 @@ namespace CsvTools
                                                    .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
-          dataTable.Rows.Add(dataRow);
+          dataTable.Rows.Add(dataRow);          
           for (var i = 0; i < wrapper.FieldCount; i++)
             try
             {
@@ -228,8 +230,8 @@ namespace CsvTools
           intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
           // This gets the errors from the fileReader
-          if (restoreErrorsFromColumn)
-            wrapper.SetErrorInformation(dataRow);
+          if (restoreErrorsFromColumn && colError!=-1)
+            dataRow.SetErrorInformation(wrapper.GetString(colError));
         }
       }
       finally

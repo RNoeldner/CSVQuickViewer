@@ -7,8 +7,8 @@ using System.Diagnostics;
 namespace CsvTools
 {
   /// <summary>
-  ///   Handles mapping of a data reader to a resulting data reader columns ignored will be omitted
-  ///   and artificial columns for Line, record and error information is added
+  ///   Handles mapping of a data reader to a resulting data reader ignored columns will be omitted
+  ///   and artificial columns for Line, record and error information are added at the correct places
   /// </summary>
   [DebuggerDisplay("{m_Mapping}")]
   public sealed class ReaderMapping
@@ -17,27 +17,33 @@ namespace CsvTools
     /// The col number end line column, -1 if not present
     /// </summary>
     public readonly int ColNumEndLine;
+
     /// <summary>
     /// The col number of the artificial error column, -1 if not present
     /// </summary>
     public readonly int ColNumErrorField;
+
     /// <summary>
     /// The col number of the source error column, -1 if not present, in this case use RowErrorInformation
     /// </summary>
-    private readonly int m_ColNumErrorFieldSource;
+    public readonly int ColNumErrorFieldSource;
+
     /// <summary>
     /// The col number of the record number column, -1 if not present
     /// </summary>
     public readonly int ColNumRecNum;
+
     /// <summary>
     /// The col number of the start line column, -1 if not present
     /// </summary>
     public readonly int ColNumStartLine;
-    private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
     private readonly BiDirectionalDictionary<int, int> m_Mapping;
     private readonly List<Column> m_ReaderColumnNotIgnored;
-    private readonly List<string> m_ReaderColumnsAll;
-    private readonly IDataRecord m_DataReader;
+
+    /// <summary>
+    /// All original reader columns for mapping of columns
+    /// </summary>
+    public readonly List<string> ReaderColumnsAll;    
 
     /// <summary>
     ///   Maps the columns of the data reader for a reader wrapper, taking care of ignored and
@@ -51,36 +57,33 @@ namespace CsvTools
     /// <param name="recNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>
     /// <param name="errorField">Add artificial field Error but only if the source does not have the information</param>
     public ReaderMapping(in IDataRecord dataReader, bool startLine, bool endLine, bool recNum, bool errorField)
-    {
-      m_DataReader = dataReader;
-      var fileReader = dataReader as IFileReader;
+    {           
       m_Mapping = new BiDirectionalDictionary<int, int>();
       m_ReaderColumnNotIgnored = new List<Column>();
-      m_ReaderColumnsAll = new List<string>();
-      m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
-
+      ReaderColumnsAll = new List<string>();
+      
       var fieldCount = 0;
 
       ColNumEndLine = -1;
       ColNumErrorField = -1;
-      m_ColNumErrorFieldSource = -1;
+      ColNumErrorFieldSource = -1;
       ColNumRecNum = -1;
       ColNumStartLine = -1;
 
       // var orgStartLine = -1;
       // var orgRecNum = -2;
       // var orgEndLine = -3;
-
+       var fileReader = dataReader as IFileReader;
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
         var column = (fileReader != null) ? fileReader.GetColumn(col) : new Column(dataReader.GetName(col), new ValueFormat(dataReader.GetFieldType(col).GetDataType()), col);
-        m_ReaderColumnsAll.Add(column.Name);
+        ReaderColumnsAll.Add(column.Name);
         if (column.Ignore)
           continue;
 
         if (column.Name.Equals(ReaderConstants.cErrorField))
         {
-          m_ColNumErrorFieldSource = col;
+          ColNumErrorFieldSource = col;
           errorField = true;
           continue;
         }
@@ -106,7 +109,7 @@ namespace CsvTools
         }
 
         m_ReaderColumnNotIgnored.Add(column);
-        m_Mapping.Add(col, fieldCount++);
+        m_Mapping.Add(col, fieldCount++);        
       }
 
       // Possibly add artificial fields
@@ -124,7 +127,7 @@ namespace CsvTools
 
       if (errorField)
       {
-        // m_Mapping.Add(m_ColNumErrorFieldSource, fieldCount);
+        // m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
         m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
       }
 
@@ -136,61 +139,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance has errors.
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if this instance has errors; otherwise, <c>false</c>.
-    /// </value>
-    public bool HasErrors => (m_ColNumErrorFieldSource != -1) ? !m_DataReader.IsDBNull(m_ColNumErrorFieldSource) : m_ColumnErrorDictionary.Count > 0;
-
-    /// <summary>
     /// Gets the columns that can be accessed (not ignored or artificial columns)
     /// </summary>
     /// <value>
     /// The columns
     /// </value>
-    public IReadOnlyList<Column> Column => m_ReaderColumnNotIgnored;
-
-    /// <summary>
-    /// Gets the row error information.
-    /// </summary>
-    /// <value>
-    /// The row error information.
-    /// </value>
-    public string RowErrorInformation => (m_ColNumErrorFieldSource != -1)
-      ? (m_DataReader.IsDBNull(m_ColNumErrorFieldSource) ? string.Empty : m_DataReader.GetString(m_ColNumErrorFieldSource))
-      : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumnsAll);
-
-    /// <summary>
-    /// Prepares the reading a new records, emptying out the error information
-    /// </summary>
-    public void PrepareRead() => m_ColumnErrorDictionary.Clear();
-
-    /// <summary>
-    /// Stores error information in the data row
-    /// </summary>
-    /// <param name="dataRow">The data row.</param>
-    public void SetErrorInformation(DataRow dataRow)
-    {
-      if (m_ColNumErrorFieldSource != -1)
-      {
-        // get the errors from the source
-        if (!m_DataReader.IsDBNull(m_ColNumErrorFieldSource))
-          dataRow.SetErrorInformation(m_DataReader.GetString(m_ColNumErrorFieldSource));
-      }
-      else
-      {
-        // This gets the errors from the fileReader
-        foreach (var keyValuePair in m_ColumnErrorDictionary)
-          if (keyValuePair.Key == -1)
-            dataRow.RowError = keyValuePair.Value;
-          else
-          {
-            if (m_Mapping.TryGetValue(keyValuePair.Key, out var column))
-              dataRow.SetColumnError(column, keyValuePair.Value);
-          }
-      }
-    }
+    public IReadOnlyList<Column> Column => m_ReaderColumnNotIgnored;    
 
     /// <summary>
     /// Get the column number of the source, taking care of ignored columns and artificial columns

@@ -804,7 +804,7 @@ namespace CsvTools
       for (var col = 0; col < maxFld; col++)
         values[col] = GetValue(col);
 
-      return FieldCount;
+      return maxFld;
     }
 
     /// <summary>
@@ -855,7 +855,12 @@ namespace CsvTools
     public override bool NextResult() => false;
 
     /// <summary>
-    /// This is the asynchronous version of <see cref="M:System.Data.Common.DbDataReader.NextResult"></see>. Providers should override with an appropriate implementation. The <paramref name="cancellationToken">cancellationToken</paramref> may optionally be ignored.   The default implementation invokes the synchronous <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> method and returns a completed task, blocking the calling thread. The default implementation will return a cancelled task if passed an already cancelled <paramref name="cancellationToken">cancellationToken</paramref>. Exceptions thrown by <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> will be communicated via the returned Task Exception property.   Other methods and properties of the DbDataReader object should not be invoked while the returned Task is not yet completed.
+    /// This is the asynchronous version of <see cref="M:System.Data.Common.DbDataReader.NextResult"></see>. Providers should override with an appropriate implementation. 
+    /// The <paramref name="cancellationToken">cancellationToken</paramref> may optionally be ignored.   
+    /// The default implementation invokes the synchronous <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> method and returns a completed task, 
+    /// blocking the calling thread. The default implementation will return a canceled task if passed an already canceled <paramref name="cancellationToken">cancellationToken</paramref>. 
+    /// Exceptions thrown by <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> will be communicated via the returned Task Exception property.   
+    /// Other methods and properties of the DbDataReader object should not be invoked while the returned Task is not yet completed.
     /// </summary>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
@@ -1190,7 +1195,7 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Initializes the column and arrays once its known how many columns there are
+    /// Initializes the column and arrays once it's known how many columns there are
     /// </summary>
     /// <param name="fieldCount">The field count.</param>
     protected virtual void InitColumn(int fieldCount)
