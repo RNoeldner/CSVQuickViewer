@@ -28,6 +28,9 @@ namespace CsvTools
   [DebuggerDisplay("Column {Name}")]
   public class Column : IEquatable<Column>, ICollectionIdentity
   {
+    /// <summary>
+    /// Default Format for Time is 24 hrs clock with seconds
+    /// </summary>
     public const string cDefaultTimePartFormat = "HH:mm:ss";
 
     /// <summary>
@@ -142,6 +145,7 @@ namespace CsvTools
     [DefaultValue("")]
     public string TimeZonePart { get; }
 
+    /// <inheritdoc />
     public bool Equals(Column? other)
     {
       if (other is null) return false;
@@ -155,6 +159,7 @@ namespace CsvTools
              && ValueFormat.Equals(other.ValueFormat);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
       unchecked
@@ -167,22 +172,22 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ TimePart.GetHashCode();
         hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
         hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         hashCode = (hashCode * 397) ^ ValueFormat.GetHashCode();
         return hashCode;
       }
     }
 
+    /// <inheritdoc />
     public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
 
+    /// <summary>
+    ///  Create a copy of the current column with different value format
+    /// </summary>
+    /// <param name="newFormat"></param>
+    /// <returns></returns>
     public Column ReplaceValueFormat(in ValueFormat newFormat) =>
-      new Column(
-        Name,
-        newFormat,
-        ColumnOrdinal,
-        Ignore,
-        Convert,
-        DestinationName,
-        TimePart, TimePartFormat, TimeZonePart);
+      new Column(Name, newFormat, ColumnOrdinal, Ignore, Convert, DestinationName, TimePart, TimePartFormat, TimeZonePart);
 
     /// <summary>
     ///   Gets the description.

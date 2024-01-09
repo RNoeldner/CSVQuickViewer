@@ -15,6 +15,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -27,34 +28,35 @@ namespace CsvTools.Tests
   public static class UnitTestStaticData
   {
 #if !QUICK
-    public static ColumnMut[] ColumnsDt =
+    public static readonly List<Column> ColumnsDt = new List<Column>(new[]
     {
-      new ColumnMut("string"), //0
-      new ColumnMut("int", new ValueFormat(DataTypeEnum.Integer)), //1
-      new ColumnMut("DateTime", new ValueFormat(DataTypeEnum.DateTime)), //2
-      new ColumnMut("bool", new ValueFormat(DataTypeEnum.Boolean)), //3
-      new ColumnMut("double", new ValueFormat(DataTypeEnum.Double)), //4
-      new ColumnMut("numeric", new ValueFormat(DataTypeEnum.Numeric)), //5
-      new ColumnMut("guid", new ValueFormat(DataTypeEnum.Numeric)), // 6
-      new ColumnMut("AllEmpty"), //7
-      new ColumnMut("PartEmpty"), //8
-      new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //9
-    };
+      new Column("string", columnOrdinal:0), //0
+      new Column("int", new ValueFormat(DataTypeEnum.Integer), 1),
+      new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), 2, timePart: "Time", timePartFormat: "HH:mm:ss"),
+      new Column("bool", new ValueFormat(DataTypeEnum.Boolean),3),
+      new Column("double", new ValueFormat(DataTypeEnum.Double, decimalSeparator: "."),4),
+      new Column("numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."),5),
+      new Column("guid", new ValueFormat(DataTypeEnum.Guid),6),
+      new Column("AllEmpty",columnOrdinal:7),
+      new Column("PartEmpty",columnOrdinal:8),
+      new Column("ID", new ValueFormat(DataTypeEnum.Integer),9),
+      new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), 10, ignore: true), //10
+    });
 #endif
-
 
 
     /// <summary>
     /// Adds the row to data table, the table should have the right columns already added
     /// </summary>
     /// <param name="dataTable">The data table.</param>
-    /// <param name="recNum">The record number.</param>
-    /// <param name="addError">if set to <c>true</c> add error column, this is independent from Row And Column Errors</param>
-    /// <param name="addStartLineNo">if set to <c>true</c> add start line no.</param>
-    /// <param name="addRecordNumber">if set to <c>true</c> add record number.</param>
-    /// <param name="addEndLineNo">if set to <c>true</c> add end line no.</param>
-    /// <returns>Total number or errors / warning added to the Row</returns>
-    public static (int warnings, int errors) AddRowToDataTable(DataTable dataTable, int recNum, bool addError, bool addStartLineNo, bool addRecordNumber, bool addEndLineNo)
+    /// <param name="recordNumber">The record number.</param>
+    /// <param name="startLine">if set to <c>true</c> add start line no.</param>
+    /// <param name="endLine">if set to <c>true</c> add end line no.</param>
+    /// <param name="recNum">if set to <c>true</c> add record number.</param>
+    /// <param name="errorField">if set to <c>true</c> add error column, this is independent of Row And Column Errors</param>
+    /// <returns>Total number of errors / warning added to the Row</returns>
+    public static (int warnings, int errors) AddRowToDataTable(DataTable dataTable, int recordNumber, bool startLine,
+      bool endLine, bool recNum, bool errorField)
     {
       var minDate = DateTime.Now.AddYears(-20).Ticks;
       var maxDate = DateTime.Now.AddYears(5).Ticks;
@@ -64,14 +66,14 @@ namespace CsvTools.Tests
 
       // 0
       dr[colIndex] = UnitTestStatic.GetRandomText(25);
-      if (recNum % 10 == 0) dr[colIndex] = dr[colIndex] + "\r\nA Second Line";
+      if (recordNumber % 10 == 0) dr[colIndex] = dr[colIndex] + "\r\nA Second Line";
 
       // 1
       dr[++colIndex] = UnitTestStatic.Random.Next(-300, +600);
 
       // 2
       colIndex++;
-      if (recNum % 5 == 0)
+      if (recordNumber % 5 == 0)
         dr[colIndex] = new DateTime((((maxDate - minDate) * UnitTestStatic.Random.NextDouble()) + minDate).ToInt64());
 
       // 3 bool
@@ -82,21 +84,21 @@ namespace CsvTools.Tests
 
       // 5 numeric
       colIndex++;
-      if (recNum % 4 == 0) dr[colIndex] = Math.Round(UnitTestStatic.Random.NextDouble(), 4);
+      if (recordNumber % 4 == 0) dr[colIndex] = Math.Round(UnitTestStatic.Random.NextDouble(), 4);
 
       // 6 guid
       colIndex++;
-      if (recNum % 3 == 0) dr[colIndex] = Guid.NewGuid();
+      if (recordNumber % 3 == 0) dr[colIndex] = Guid.NewGuid();
 
       // 7 All empty
       colIndex++;
 
       // 8 PartEmpty
       colIndex++;
-      if (recNum % 2 == 0) dr[colIndex] = UnitTestStatic.GetRandomText(100);
+      if (recordNumber % 2 == 0) dr[colIndex] = UnitTestStatic.GetRandomText(100);
 
       // 9 ID
-      dr[++colIndex] = recNum;
+      dr[++colIndex] = recordNumber;
 
       // Add Errors and Warnings to Columns and Rows
       var rand = UnitTestStatic.Random.Next(0, 100);
@@ -143,20 +145,20 @@ namespace CsvTools.Tests
       }
 
       // 10
-      if (addError)
+      if (errorField)
         dr[++colIndex] = dr.GetErrorInformation();
 
       // 11
-      if (addStartLineNo)
-        dr[++colIndex] = recNum * 2+1;
+      if (startLine)
+        dr[++colIndex] = recordNumber * 2;
 
       // 12
-      if (addRecordNumber)
-        dr[++colIndex] = recNum;
+      if (recNum)
+        dr[++colIndex] = recordNumber;
 
       // 13
-      if (addEndLineNo)
-        dr[++colIndex] = recNum * 2;
+      if (endLine)
+        dr[++colIndex] = recordNumber * 2 +1;
 
       dataTable.Rows.Add(dr);
       return (warnings, errors);
@@ -174,47 +176,42 @@ namespace CsvTools.Tests
     /// Get a data table with random sample data
     /// </summary>
     /// <param name="numRecords">The number records the table should have.</param>
-    /// <param name="addStartLineNo">if set to <c>true</c> add a start line column.</param>
-    /// <param name="addEndLineNo">if set to <c>true</c> add end line column.</param>
-    /// <param name="addRecordNumber">if set to <c>true</c> add a record number column.</param>
-    /// <param name="addError">if set to <c>true</c> add an error column.</param>
+    /// <param name="startLine">if set to <c>true</c> add a start line column.</param>
+    /// <param name="endLine">if set to <c>true</c> add end line column.</param>
+    /// <param name="recNum">if set to <c>true</c> add a record number column.</param>
+    /// <param name="errorField">if set to <c>true</c> add an error column.</param>
     /// <param name="errorCount">The error count in the table.</param>
-    /// <param name="warningCount">The warning count in the table..</param>
+    /// <param name="warningCount">The warning count in the table.</param>
     /// <returns>A data table with sample data</returns>
-    public static DataTable GetDataTable(int numRecords, bool addStartLineNo, bool addEndLineNo, bool addRecordNumber, bool addError, out long errorCount, out long warningCount)
+    public static DataTable GetDataTable(int numRecords, bool startLine, bool endLine, bool recNum, bool errorField, out long errorCount, out long warningCount)
     {
       warningCount = 0;
       errorCount = 0;
 
       var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") };
-      dataTable.Columns.Add("string", typeof(string));
-      dataTable.Columns.Add("int", typeof(int));
-      dataTable.Columns.Add("DateTime", typeof(DateTime));
-      dataTable.Columns.Add("bool", typeof(bool));
-      dataTable.Columns.Add("double", typeof(double));
-      dataTable.Columns.Add("numeric", typeof(decimal));
-      dataTable.Columns.Add("guid", typeof(Guid));
-      dataTable.Columns.Add("AllEmpty", typeof(string));
-      dataTable.Columns.Add("PartEmpty", typeof(string));
-      dataTable.Columns.Add("ID", typeof(long));
+      foreach (var col in ColumnsDt)
+      {
+        if (!col.Ignore)
+          dataTable.Columns.Add(col.Name, col.ValueFormat.DataType.GetNetType());
+      }
 
       // Order of artificial columns based on ReaderMapping
-      if (addRecordNumber)
+      if (recNum)
         dataTable.Columns.Add(ReaderConstants.cRecordNumberFieldName, typeof(long));
 
-      if (addEndLineNo)
+      if (endLine)
         dataTable.Columns.Add(ReaderConstants.cEndLineNumberFieldName, typeof(long));
 
-      if (addError)
+      if (errorField)
         dataTable.Columns.Add(ReaderConstants.cErrorField, typeof(string));
 
-      if (addStartLineNo)
+      if (startLine)
         dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
 
       dataTable.BeginLoadData();
       for (var i = 1; i <= numRecords; i++)
       {
-        (var newWarning, var newErrors) = AddRowToDataTable(dataTable, i, addError, addStartLineNo, addEndLineNo, addRecordNumber);
+        var (newWarning, newErrors) = AddRowToDataTable(dataTable, i, startLine, recNum, endLine, errorField);
         warningCount += newWarning;
         errorCount += newErrors;
       }
@@ -256,13 +253,13 @@ namespace CsvTools.Tests
       var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
       {
         HasFieldHeader = true,
-        FieldDelimiterChar = '\t'
+        FieldDelimiterChar = '\t',
       };
+      // columns from the file
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]
         {
-          new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"),
-            timePart: "Time", timePartFormat: "HH:mm:ss"),
+          new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer)),
           new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".")),
           new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")),
@@ -278,6 +275,7 @@ namespace CsvTools.Tests
     {
       var readFile =
         new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath(("BasicCSV.txt")))) { CommentLine = "#" };
+      // columns from the file
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]
         {

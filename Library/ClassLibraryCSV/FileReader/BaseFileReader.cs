@@ -347,7 +347,10 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    public new virtual async Task CloseAsync() => await Task.Run(() => base.Close()).ConfigureAwait(false);
+    /// <summary>
+    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
+    /// </summary>
+    public new virtual Task CloseAsync() => Task.Run(() => base.Close());
 #endif
 
     /// <inheritdoc />
@@ -525,28 +528,13 @@ namespace CsvTools
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
     }
 
-    /// <summary>
-    /// Returns an <see cref="T:System.Collections.IEnumerator"></see> that can be used to iterate through the rows in the data reader.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.IEnumerator"></see> that can be used to iterate through the rows in the data reader.
-    /// </returns>
+    /// <inheritdoc />
     public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the type of the field.
-    /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <returns>The .NET type of the column</returns>
     public override Type GetFieldType(int ordinal) => GetColumn(ordinal).ValueFormat.DataType.GetNetType();
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the single-precision floating point number of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The single-precision floating point number of the specified field.</returns>
     public override float GetFloat(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
@@ -557,11 +545,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the unique identifier.
-    /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <returns></returns>
     public override Guid GetGuid(int ordinal)
     {
       var parsed = GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
@@ -572,19 +555,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the 16-bit signed integer value of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The 16-bit signed integer value of the specified field.</returns>
     public override short GetInt16(int ordinal) => GetInt16(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the int32.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override int GetInt32(int ordinal)
     {
       var column = GetColumn(ordinal);
@@ -615,11 +588,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the int64.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override long GetInt64(int ordinal)
     {
       var column = GetColumn(ordinal);
@@ -630,6 +598,7 @@ namespace CsvTools
 
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
     }
+
     /// <summary>
     ///   Gets the int32 value or null.
     /// </summary>
@@ -647,23 +616,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the name for the field to find.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The name of the field or the empty string (""), if there is no value to return.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see
-    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
     public override string GetName(int ordinal) => GetColumn(ordinal).Name;
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Return the index of the named field.
-    /// </summary>
-    /// <param name="name">The name of the field to find.</param>
-    /// <returns>The index of the named field. If not found -1</returns>
     public override int GetOrdinal(string name)
     {
       if (string.IsNullOrEmpty(name))
@@ -675,14 +630,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column metadata of
-    ///   the <see cref="T:System.Data.IDataReader" /> .
-    /// </summary>
-    /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column metadata.</returns>
-    /// <exception cref="T:System.InvalidOperationException">
-    ///   The <see cref="T:System.Data.IDataReader" /> is closed.
-    /// </exception>
     public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
@@ -754,12 +701,6 @@ namespace CsvTools
 
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the value of a column, any integer will be returned a long integer no matter if 32 or
-    ///   64 bit
-    /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <returns>The value of the specific field</returns>
     public override object GetValue(int ordinal)
     {
       if (IsDBNull(ordinal))
@@ -789,11 +730,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets all the attribute fields in the collection for the current record.
-    /// </summary>
-    /// <param name="values">An array of object to copy the attribute fields into.</param>
-    /// <returns>The number of instances of object in the array.</returns>
     public override int GetValues(object[] values)
     {
       if (values is null) throw new ArgumentNullException(nameof(values));
@@ -824,15 +760,6 @@ namespace CsvTools
       Warning?.Invoke(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Return whether the specified field is set to null.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>true if the specified field is set to null; otherwise, false.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see
-    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
     public override bool IsDBNull(int ordinal)
     {
       if (CurrentRowColumnText.Length <= ordinal) return true;
@@ -848,10 +775,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool NextResult() => false;
 
     /// <summary>
@@ -886,17 +809,11 @@ namespace CsvTools
     ///   Overrides the column format from setting.
     /// </summary>
     /// <returns>true if read was successful</returns>
-    /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
-    /// <summary>
-    /// Advances the reader to the next record in a result set.
-    /// </summary>
-    /// <returns>
-    /// true if there are more rows; otherwise false.
-    /// </returns>
+    /// <inheritdoc />
     public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
@@ -910,7 +827,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Treats the non breaking space and null 
+    /// Treats the non-breaking space and null 
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="treatNbspAsSpace">if set to <c>true</c> treat NBSP as space.</param>
@@ -939,11 +856,10 @@ namespace CsvTools
     ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if it's a
     ///   physical file
     /// </summary>
-    protected async Task BeforeOpenAsync(string message)
+    protected Task BeforeOpenAsync(string message)
     {
       HandleShowProgress(message, 0);
-      if (OnOpenAsync != null)
-        await OnOpenAsync.Invoke().ConfigureAwait(false);
+      return OnOpenAsync != null ? OnOpenAsync.Invoke() : Task.CompletedTask;
     }
 
     /// <summary>
@@ -1127,7 +1043,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The ordinal.</param>
     /// <param name="message">The message.</param>
-    /// <returns></returns>
     protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
       new WarningEventArgs(
         RecordNumber,
