@@ -44,8 +44,7 @@ namespace CsvTools
     private long m_NumberRowError;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
     private string m_RowErrorInformation;
-    private string[] m_SourceColumnNames = Array.Empty<string>();
-
+    
     /// <summary>
     ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
     ///   Start and End Line or Record number in needed and handles the return of these artificial fields in GetValue
@@ -73,8 +72,7 @@ namespace CsvTools
         var column = (m_FileReader != null) ? m_FileReader.GetColumn(col) : new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col);
         m_SourceColumns.Add(column);
       }
-      m_ReaderMapping = new ReaderMapping(m_SourceColumns, startLine, endLine, recNum, errorField);
-      m_SourceColumnNames = (m_ReaderMapping.ColNumErrorFieldSource == -1) ? m_SourceColumns.Select(x => x.Name).ToArray() : Array.Empty<string>();
+      m_ReaderMapping = new ReaderMapping(m_SourceColumns, startLine, endLine, recNum, errorField);      
 
       if (m_FileReader != null)
         m_FileReader.Warning += (o, e) => m_ColumnErrorDictionary.Add(e.ColumnNumber, e.Message);
@@ -320,7 +318,7 @@ namespace CsvTools
 
       m_RowErrorInformation = (m_ReaderMapping.ColNumErrorFieldSource != -1)
         ? (DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource) ? string.Empty : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource)?.ToString() ?? string.Empty)
-        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_SourceColumnNames);
+        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, (sourceCol) => m_ReaderMapping.SourceToResult(sourceCol, out var result) ? m_ReaderMapping.ResultingColumns[result].Name : string.Empty);
       if (string.IsNullOrEmpty(m_RowErrorInformation))
         return;
       if (m_RowErrorInformation.IsErrorMessage())

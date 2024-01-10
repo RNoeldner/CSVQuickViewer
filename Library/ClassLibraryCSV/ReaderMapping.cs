@@ -146,8 +146,16 @@ namespace CsvTools
     /// <summary>
     /// Get the column number of the source, taking care of ignored columns and artificial columns
     /// </summary>
-    /// <param name="tableColumn">The column number in the reader with artificial columns</param>
+    /// <param name="resultColumn">The column number in the reader with artificial columns</param>
     /// <returns>The column number in the source</returns>
-    public int ResultToSource(int tableColumn) => m_Mapping.GetByValue(tableColumn);
+    public int ResultToSource(int resultColumn) => m_Mapping.GetByValue(resultColumn);
+
+    /// <summary>
+    /// Get the column number of the source, taking care of ignored columns and artificial columns
+    /// </summary>
+    /// <param name="sourceColumn">The column number in the source reader</param>
+    /// <param name="resultColumn">The column number in the reader with artificial columns</param>
+    /// <returns>True if found</returns>
+    public bool SourceToResult(int sourceColumn, out int resultColumn) => m_Mapping.TryGetValue(sourceColumn, out resultColumn);
   }
 }

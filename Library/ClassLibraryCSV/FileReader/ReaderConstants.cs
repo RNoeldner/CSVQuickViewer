@@ -21,6 +21,9 @@ using System.Globalization;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static Methods for SchemaTables and the names of the generic columns
+  /// </summary>
   public static class ReaderConstants
   {
     /// <summary>

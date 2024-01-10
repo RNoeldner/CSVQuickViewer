@@ -160,10 +160,7 @@ namespace CsvTools
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;
-
-      //if (reader is DataReaderWrapper alreadyWrapper)
-      //  return await alreadyWrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken).ConfigureAwait(false);
-
+      
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
