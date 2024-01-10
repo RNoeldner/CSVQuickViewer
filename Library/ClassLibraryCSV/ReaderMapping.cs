@@ -58,75 +58,79 @@ namespace CsvTools
 
       var fieldCount = 0;
 
+      var orgEndLine = -1;
       ColNumEndLine = -1;
-      ColNumErrorField = -1;
+
       ColNumErrorFieldSource = -1;
+      ColNumErrorField = -1;
+
+      var orgRecNum = -1;
       ColNumRecNum = -1;
-      ColNumStartLine = -1;
 
       var orgStartLine = -1;
-      var orgRecNum = -2;
-      var orgEndLine = -3;
-      var col = -1;
+      ColNumStartLine = -1;
+
+      var index = -1;
       foreach (var column in columns)
       {
-        col++;
+        index++;
         if (column.Ignore)
           continue;
 
-        if (column.Name.Equals(ReaderConstants.cErrorField))
+        // Handle special columns,  
+        if (column.Name.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase))
         {
-          ColNumErrorFieldSource = col;
+          ColNumErrorFieldSource = index;
           errorField = true;
           continue;
         }
-        // Do not add a source field in case we have a matching artificial field, unless it's an #Error, this will stay in source and artificial
         if (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          orgStartLine = col;
+          orgStartLine = index;
           startLine = true;
           continue;
         }
         if (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          orgEndLine = col;
+          orgEndLine = index;
           endLine = true;
           continue;
         }
 
         if (column.Name.Equals(ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          orgRecNum = col;
+          orgRecNum = index;
           recNum = true;
           continue;
         }
 
-        m_ResultingColumns.Add(column);
-        m_Mapping.Add(col, fieldCount++);
+        // Arriving here we take the source column but make sure the ColumnOrdinal is set properly
+        m_ResultingColumns.Add(new Column(column.Name, column.ValueFormat, m_ResultingColumns.Count, false, null, column.DestinationName, column.TimePart, column.TimePartFormat, column.TimeZonePart));
+        m_Mapping.Add(index, fieldCount++);
       }
 
-      // Possibly add artificial fields
+      // Add required columns in the right order at the end
       if (recNum)
       {
-        m_Mapping.Add(orgRecNum, fieldCount);
+        if (orgRecNum>=0) m_Mapping.Add(orgRecNum, fieldCount);
         m_ResultingColumns.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumRecNum = fieldCount++));
       }
 
       if (endLine)
       {
-        m_Mapping.Add(orgEndLine, fieldCount);
+        if (orgEndLine>=0) m_Mapping.Add(orgEndLine, fieldCount);
         m_ResultingColumns.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumEndLine = fieldCount++));
       }
 
       if (errorField)
       {
-        m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
+        if (ColNumErrorFieldSource>=0) m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
         m_ResultingColumns.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
       }
 
       if (startLine)
       {
-        m_Mapping.Add(orgStartLine, fieldCount);
+        if (orgStartLine>=0) m_Mapping.Add(orgStartLine, fieldCount);
         m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumStartLine = fieldCount));
       }
     }
