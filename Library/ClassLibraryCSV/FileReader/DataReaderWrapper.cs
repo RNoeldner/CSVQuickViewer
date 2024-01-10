@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,6 +44,7 @@ namespace CsvTools
     private long m_NumberRowError;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
     private string m_RowErrorInformation;
+    private string[] m_SourceColumnNames = Array.Empty<string>();
 
     /// <summary>
     ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
@@ -65,10 +67,17 @@ namespace CsvTools
       m_RowErrorInformation = string.Empty;
       m_ColumnErrorDictionary = new ColumnErrorDictionary(m_FileReader);
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-      m_ReaderMapping = new ReaderMapping(reader, startLine, endLine, recNum, errorField);
+      var m_SourceColumns = new List<Column>();
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        var column = (m_FileReader != null) ? m_FileReader.GetColumn(col) : new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col);
+        m_SourceColumns.Add(column);
+      }
+      m_ReaderMapping = new ReaderMapping(m_SourceColumns, startLine, endLine, recNum, errorField);
+      m_SourceColumnNames = (m_ReaderMapping.ColNumErrorFieldSource == -1) ? m_SourceColumns.Select(x => x.Name).ToArray() : Array.Empty<string>();
 
       if (m_FileReader != null)
-        m_FileReader.Warning += (o, e) => m_ColumnErrorDictionary.Add(e.ColumnNumber, e.Message);      
+        m_FileReader.Warning += (o, e) => m_ColumnErrorDictionary.Add(e.ColumnNumber, e.Message);
     }
 
     /// <inheritdoc />
@@ -119,7 +128,7 @@ namespace CsvTools
     public virtual bool EndOfFile => RecordNumber > m_RecordLimit || (m_FileReader?.EndOfFile ??  DataReader.IsClosed);
 
     /// <inheritdoc />
-    public override int FieldCount => m_ReaderMapping.Column.Count;
+    public override int FieldCount => m_ReaderMapping.ResultingColumns.Count;
 
     /// <inheritdoc />
     public override bool IsClosed => DataReader.IsClosed;
@@ -161,51 +170,51 @@ namespace CsvTools
 #endif
 
     /// <inheritdoc />
-    public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(m_ReaderMapping.DataTableToReader(ordinal));
+    public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override byte GetByte(int ordinal) => DataReader.GetByte(m_ReaderMapping.DataTableToReader(ordinal));
+    public override byte GetByte(int ordinal) => DataReader.GetByte(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
-      DataReader.GetBytes(m_ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+      DataReader.GetBytes(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
     /// <inheritdoc />
-    public override char GetChar(int ordinal) => DataReader.GetChar(m_ReaderMapping.DataTableToReader(ordinal));
+    public override char GetChar(int ordinal) => DataReader.GetChar(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
     public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
-      DataReader.GetChars(m_ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+      DataReader.GetChars(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
     /// <inheritdoc />
-    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.DataTableToReader(ordinal))!;
+    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal))!;
 
     /// <inheritdoc />
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     /// <inheritdoc />
-    public override DateTime GetDateTime(int ordinal) => DataReader.GetDateTime(m_ReaderMapping.DataTableToReader(ordinal));
+    public override DateTime GetDateTime(int ordinal) => DataReader.GetDateTime(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.DataTableToReader(ordinal));
+    public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override double GetDouble(int ordinal) => DataReader.GetDouble(m_ReaderMapping.DataTableToReader(ordinal));
+    public override double GetDouble(int ordinal) => DataReader.GetDouble(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override Type GetFieldType(int ordinal) => m_ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
+    public override Type GetFieldType(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].ValueFormat.DataType.GetNetType();
 
     /// <inheritdoc />
-    public override float GetFloat(int ordinal) => DataReader.GetFloat(m_ReaderMapping.DataTableToReader(ordinal));
+    public override float GetFloat(int ordinal) => DataReader.GetFloat(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override Guid GetGuid(int ordinal) => DataReader.GetGuid(m_ReaderMapping.DataTableToReader(ordinal));
+    public override Guid GetGuid(int ordinal) => DataReader.GetGuid(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.DataTableToReader(ordinal));
+    public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
-    public override int GetInt32(int ordinal) => DataReader.GetInt32(m_ReaderMapping.DataTableToReader(ordinal));
+    public override int GetInt32(int ordinal) => DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
     public override long GetInt64(int ordinal)
@@ -214,11 +223,11 @@ namespace CsvTools
         return StartLineNumber;
       if (ordinal == m_ReaderMapping.ColNumEndLine)
         return EndLineNumber;
-      return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : DataReader.GetInt64(m_ReaderMapping.DataTableToReader(ordinal));
+      return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : DataReader.GetInt64(m_ReaderMapping.ResultToSource(ordinal));
     }
 
     /// <inheritdoc />
-    public override string GetName(int ordinal) => m_ReaderMapping.Column[ordinal].Name;
+    public override string GetName(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].Name;
 
     /// <inheritdoc />
     public override int GetOrdinal(string name)
@@ -226,7 +235,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(name))
         return -1;
       var count = 0;
-      foreach (var column in m_ReaderMapping.Column)
+      foreach (var column in m_ReaderMapping.ResultingColumns)
       {
         if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
           return count;
@@ -244,10 +253,10 @@ namespace CsvTools
 
       for (var col = 0; col < FieldCount; col++)
       {
-        var column = m_ReaderMapping.Column[col];
-        schemaRow[1] = column.Name; // Column name
-        schemaRow[4] = column.Name; // Column name         
-        schemaRow[5] = col; // Column ordinal
+        var column = m_ReaderMapping.ResultingColumns[col];
+        schemaRow[1] = column.Name; // ResultingColumns name
+        schemaRow[4] = column.Name; // ResultingColumns name         
+        schemaRow[5] = col; // ResultingColumns ordinal
         schemaRow[7] = column.ValueFormat.DataType.GetNetType();
         dataTable.Rows.Add(schemaRow);
       }
@@ -257,7 +266,7 @@ namespace CsvTools
     /// <inheritdoc />
     // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
     public override string GetString(int ordinal)
-      => (ordinal == m_ReaderMapping.ColNumErrorField) ? m_RowErrorInformation : DataReader.GetString(m_ReaderMapping.DataTableToReader(ordinal));
+      => (ordinal == m_ReaderMapping.ColNumErrorField) ? m_RowErrorInformation : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
     public override object GetValue(int ordinal)
@@ -270,7 +279,7 @@ namespace CsvTools
         return RecordNumber;
       return ordinal == m_ReaderMapping.ColNumErrorField ?
         m_RowErrorInformation :
-        DataReader.GetValue(m_ReaderMapping.DataTableToReader(ordinal));
+        DataReader.GetValue(m_ReaderMapping.ResultToSource(ordinal));
     }
 
     /// <inheritdoc />
@@ -296,7 +305,7 @@ namespace CsvTools
         return false;
       if (ordinal == m_ReaderMapping.ColNumErrorField)
         return m_RowErrorInformation.Length==0;
-      return DataReader.IsDBNull(m_ReaderMapping.DataTableToReader(ordinal));
+      return DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
     }
 
     /// <inheritdoc cref="IFileReader" />
@@ -311,8 +320,8 @@ namespace CsvTools
 
       m_RowErrorInformation = (m_ReaderMapping.ColNumErrorFieldSource != -1)
         ? (DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource) ? string.Empty : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource)?.ToString() ?? string.Empty)
-        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderMapping.ReaderColumnsAll);
-      if (string.IsNullOrEmpty(m_RowErrorInformation)) 
+        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_SourceColumnNames);
+      if (string.IsNullOrEmpty(m_RowErrorInformation))
         return;
       if (m_RowErrorInformation.IsErrorMessage())
         m_NumberRowError++;
@@ -367,7 +376,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public Column GetColumn(int column) => m_ReaderMapping.Column[column];
+    public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
 
     /// <inheritdoc />
     [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
@@ -377,7 +386,7 @@ namespace CsvTools
       {
         OnOpenAsync?.Invoke();
         ResetPositionToFirstDataRow();
-        OpenFinished?.Invoke(this, m_ReaderMapping.Column);
+        OpenFinished?.Invoke(this, m_ReaderMapping.ResultingColumns);
 
         return Task.CompletedTask;
       }
