@@ -38,12 +38,7 @@ namespace CsvTools
     /// </summary>
     public readonly int ColNumStartLine;
     private readonly BiDirectionalDictionary<int, int> m_Mapping;
-    private readonly List<Column> m_ReaderColumnNotIgnored;
-
-    /// <summary>
-    /// All original reader columns for mapping of columns
-    /// </summary>
-    public readonly List<string> ReaderColumnsAll;    
+    private readonly List<Column> m_ResultingColumns;
 
     /// <summary>
     ///   Maps the columns of the data reader for a reader wrapper, taking care of ignored and
@@ -56,12 +51,11 @@ namespace CsvTools
     /// <param name="endLine">Add artificial field End Line, if false the data will be passed on from the source (if existing)</param>
     /// <param name="recNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>
     /// <param name="errorField">Add artificial field Error but only if the source does not have the information</param>
-    public ReaderMapping(in IDataRecord dataReader, bool startLine, bool endLine, bool recNum, bool errorField)
-    {           
+    public ReaderMapping(IEnumerable<Column> columns, bool startLine, bool endLine, bool recNum, bool errorField)
+    {
       m_Mapping = new BiDirectionalDictionary<int, int>();
-      m_ReaderColumnNotIgnored = new List<Column>();
-      ReaderColumnsAll = new List<string>();
-      
+      m_ResultingColumns = new List<Column>();
+
       var fieldCount = 0;
 
       ColNumEndLine = -1;
@@ -70,14 +64,13 @@ namespace CsvTools
       ColNumRecNum = -1;
       ColNumStartLine = -1;
 
-      // var orgStartLine = -1;
-      // var orgRecNum = -2;
-      // var orgEndLine = -3;
-       var fileReader = dataReader as IFileReader;
-      for (var col = 0; col < dataReader.FieldCount; col++)
+      var orgStartLine = -1;
+      var orgRecNum = -2;
+      var orgEndLine = -3;
+      var col = -1;
+      foreach (var column in columns)
       {
-        var column = (fileReader != null) ? fileReader.GetColumn(col) : new Column(dataReader.GetName(col), new ValueFormat(dataReader.GetFieldType(col).GetDataType()), col);
-        ReaderColumnsAll.Add(column.Name);
+        col++;
         if (column.Ignore)
           continue;
 
@@ -90,51 +83,51 @@ namespace CsvTools
         // Do not add a source field in case we have a matching artificial field, unless it's an #Error, this will stay in source and artificial
         if (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          // orgStartLine = col;
+          orgStartLine = col;
           startLine = true;
           continue;
         }
         if (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          // orgEndLine = col;
+          orgEndLine = col;
           endLine = true;
           continue;
         }
 
         if (column.Name.Equals(ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          // orgRecNum = col;
+          orgRecNum = col;
           recNum = true;
           continue;
         }
 
-        m_ReaderColumnNotIgnored.Add(column);
-        m_Mapping.Add(col, fieldCount++);        
+        m_ResultingColumns.Add(column);
+        m_Mapping.Add(col, fieldCount++);
       }
 
       // Possibly add artificial fields
       if (recNum)
       {
-        // m_Mapping.Add(orgRecNum, fieldCount);
-        m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumRecNum = fieldCount++));
+        m_Mapping.Add(orgRecNum, fieldCount);
+        m_ResultingColumns.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumRecNum = fieldCount++));
       }
 
       if (endLine)
       {
-        // m_Mapping.Add(orgEndLine, fieldCount);
-        m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumEndLine = fieldCount++));
+        m_Mapping.Add(orgEndLine, fieldCount);
+        m_ResultingColumns.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumEndLine = fieldCount++));
       }
 
       if (errorField)
       {
-        // m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
-        m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
+        m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
+        m_ResultingColumns.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
       }
 
       if (startLine)
       {
-        // m_Mapping.Add(orgStartLine, fieldCount);
-        m_ReaderColumnNotIgnored.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumStartLine = fieldCount));
+        m_Mapping.Add(orgStartLine, fieldCount);
+        m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumStartLine = fieldCount));
       }
     }
 
@@ -144,13 +137,13 @@ namespace CsvTools
     /// <value>
     /// The columns
     /// </value>
-    public IReadOnlyList<Column> Column => m_ReaderColumnNotIgnored;    
+    public IReadOnlyList<Column> ResultingColumns => m_ResultingColumns;
 
     /// <summary>
     /// Get the column number of the source, taking care of ignored columns and artificial columns
     /// </summary>
     /// <param name="tableColumn">The column number in the reader with artificial columns</param>
     /// <returns>The column number in the source</returns>
-    public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
+    public int ResultToSource(int tableColumn) => m_Mapping.GetByValue(tableColumn);
   }
 }
