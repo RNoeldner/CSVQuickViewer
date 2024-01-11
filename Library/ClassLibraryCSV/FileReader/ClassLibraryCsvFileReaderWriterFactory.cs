@@ -65,11 +65,11 @@ namespace CsvTools
       var publicKey = string.Empty;
       IFileWriter? writer = fileSetting switch
       {
-        ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite,
-          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer,
-          csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar,
-          csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder,
-          csv.QualifyAlways, csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
+        ICsvFile csv => new CsvFileWriter(csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite, csv.CodePageId,
+          csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer, csv.Header,
+          csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+          csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
+          csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
           ),
 #if !CsvQuickViewer
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
@@ -77,9 +77,9 @@ namespace CsvTools
           jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString(),
           jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted
           ),
-        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.IdentifierInContainer,
-          xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection,
-          xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
+        IXmlFile xmlFile => new XmlFileWriter(xmlFile.FullPath, xmlFile.IdentifierInContainer, xmlFile.Footer,
+          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.ToString(),
+          xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
           ),
 #endif
         _ => null

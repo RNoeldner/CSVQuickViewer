@@ -14,11 +14,15 @@
 
 #nullable enable
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -34,6 +38,35 @@ namespace CsvTools
     public bool IsReadOnly => m_ValueClusters.IsReadOnly;
     private ValueCluster m_Last = new ValueCluster("Dummy", string.Empty, int.MaxValue, null);
 
+    private static int Loop<T>(in ICollection<object> values, in List<T> typedValues, Func<object, T> convert, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+    {
+      var countNull = 0;
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Collecting values from the {values.Count:N0} rows";
+      ia?.Invoke(progress!, msg, 0);
+      int counter = 0;
+      foreach (var obj in values)
+      {
+        counter++;
+        cancellationToken.ThrowIfCancellationRequested();
+        if (obj is DBNull || obj == null)
+        {
+          countNull++;
+          continue;
+        }
+        try
+        {
+          typedValues.Add(convert(obj));
+        }
+        catch
+        {
+          countNull++;
+        }
+        ia?.Invoke(progress!, msg, Convert.ToInt64(counter / (double) values.Count * 100));
+      }
+      return countNull;
+    }
+
     /// <summary>
     /// Parse the data to create clusters for these found values
     /// </summary>
@@ -47,109 +80,73 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values, in string escapedName, bool isActive, int maxNumber = 50, bool combine = true, bool even = false, CancellationToken cancellationToken = default)
+    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values, in string escapedName, bool isActive, int maxNumber = 50,
+      bool combine = true, bool even = false, IProgress<ProgressInfo>? progress = null, CancellationToken cancellationToken = default)
     {
       if (values is null)
         throw new ArgumentNullException(nameof(values));
 
-      if (maxNumber < 1 || maxNumber > 500)
-        maxNumber = 500;
+      if (maxNumber < 1 || maxNumber > 200)
+        maxNumber = 200;
 
       if (isActive)
         ClearNotActive();
       else
         Clear();
 
+      // For guid it does not make much sense to build clusters, any other type has a limit of 100k, its just too slow otherwise
+      if ((values.Count > 50000 && type == DataTypeEnum.Guid) || values.Count > 200000)
+        return BuildValueClustersResult.TooManyValues;
+
       try
       {
+        progress?.SetMaximum(100);
         if (type == DataTypeEnum.String || type == DataTypeEnum.Guid  || type == DataTypeEnum.Boolean)
         {
-          var countNull = 0;
           var typedValues = new List<string>();
-          foreach (var obj in values)
-          {
-            if (obj is DBNull || obj == null)
-            {
-              countNull++;
-              continue;
-            }
-            var str = obj.ToString();
-            if (string.IsNullOrEmpty(str))
-            {
-              countNull++;
-              continue;
-            }
-            typedValues.Add(str);
-          }
+          var countNull = Loop(values, typedValues, Convert.ToString, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
+          progress?.Report(new ProgressInfo("Combining values to clusters"));
           return BuildValueClustersString(typedValues, escapedName, maxNumber, cancellationToken);
         }
+
         if (type == DataTypeEnum.DateTime)
         {
-          var countNull = 0;
           var typedValues = new List<DateTime>();
-          foreach (var obj in values)
-          {
-            if (obj is DBNull || obj == null)
-            {
-              countNull++;
-              continue;
-            }
-            if (obj is DateTime value)
-              typedValues.Add(value);
-            else
-              countNull++;
+          var countNull = Loop(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
 
-          }
           AddValueClusterNull(escapedName, countNull);
+          if (even)
+            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
+          else
+            progress?.Report(new ProgressInfo("Combining values to clusters"));
+
           return even ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, cancellationToken) :
                         BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
+
         if (type == DataTypeEnum.Integer)
         {
-          var countNull = 0;
+
           var typedValues = new List<long>();
-          foreach (var obj in values)
-          {
-            if (obj is DBNull || obj == null)
-            {
-              countNull++;
-              continue;
-            }
-            try
-            {
-              typedValues.Add(Convert.ToInt64(obj));
-            }
-            catch
-            {
-              countNull++;
-            }
-          }
+          var countNull = Loop(values, typedValues, Convert.ToInt64, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
+          if (even)
+            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
+          else
+            progress?.Report(new ProgressInfo("Combining values to clusters"));
           return even ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, cancellationToken) : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
 
         if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
         {
-          var countNull = 0;
           var typedValues = new List<double>();
-          foreach (var obj in values)
-          {
-            if (obj is DBNull || obj == null)
-            {
-              countNull++;
-              continue;
-            }
-            try
-            {
-              typedValues.Add(Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d);
-            }
-            catch
-            {
-              countNull++;
-            }
-          }
+          var countNull = Loop(values, typedValues, (obj) => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
+          if (even)
+            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
+          else
+            progress?.Report(new ProgressInfo("Combining values to clusters"));
           return even ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, cancellationToken) :
             BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
@@ -159,6 +156,7 @@ namespace CsvTools
       catch (Exception ex)
       {
         Logger.Error(ex);
+        progress?.Report(new ProgressInfo(ex.Message));
         return BuildValueClustersResult.Error;
       }
     }

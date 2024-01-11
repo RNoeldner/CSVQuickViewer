@@ -42,8 +42,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Initializes a new instance class used for <see cref="JsonFileWriter"/> and <see cref="XmlFileWriter"/>/>
-    /// </summary>
-    /// <param name="id">Information for  Placeholder of ID</param>
+    /// </summary>    
     /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
     /// <param name="footer">Footer to be written after all rows are written</param>
@@ -57,23 +56,20 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-    protected StructuredFileWriter(in string id,
-      in string fullPath,
-      in string? identifierInContainer,
-      in string? footer,
-      in string? header,
-      int codePageId,
-      bool byteOrderMark,
-      in IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay,
-      in string row,
-      in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted
-      )
+    protected StructuredFileWriter(in string fullPath,
+                                   in string? identifierInContainer,
+                                   in string? footer,
+                                   in string? header,
+                                   int codePageId,
+                                   bool byteOrderMark,
+                                   in IEnumerable<Column>? columnDefinition,
+                                   in string fileSettingDisplay,
+                                   in string row,
+                                   in TimeZoneChangeDelegate timeZoneAdjust,
+                                   in string sourceTimeZone,
+                                   in string publicKey,
+                                   bool unencrypted)
       : base(
-        id,
         fullPath,
         null,
         identifierInContainer,

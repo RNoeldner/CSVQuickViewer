@@ -22,7 +22,7 @@ namespace CsvTools
   using System.Text;
   using System.Threading;
   using System.Windows.Forms;
-  
+
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
@@ -253,7 +253,7 @@ namespace CsvTools
       try
       {
         var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm.CancellationToken);
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm, frm.CancellationToken);
         if (result == BuildValueClustersResult.ListFilled)
         {
           FilterItems("");
@@ -268,7 +268,7 @@ namespace CsvTools
               explain="Data type did not match";
               break;
             case BuildValueClustersResult.TooManyValues:
-              explain="Too many different values";
+              explain="Too many values building would take too long";
               break;
             case BuildValueClustersResult.NoValues:
               explain="No value found";

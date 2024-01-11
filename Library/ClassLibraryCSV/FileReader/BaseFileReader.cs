@@ -25,13 +25,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-// ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedMemberInSuper.Global
-// ReSharper disable MergeIntoPattern
-// ReSharper disable ArrangeObjectCreationWhenTypeEvident
-// ReSharper disable VirtualMemberNeverOverridden.Global
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable MemberCanBeProtected.Global
 
 namespace CsvTools
 {
@@ -46,37 +39,20 @@ namespace CsvTools
     /// </summary>
     public const int cMaxProgress = 10000;
 
-    private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
-
-    private readonly IntervalAction m_IntervalAction = new IntervalAction();
-
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global    
+    /// <summary>
+    ///   An array of column
+    /// </summary>
+    public Column[] Column = Array.Empty<Column>();
 
     /// <summary>
-    /// The record limit
+    /// The time zone to convert the read data to, assuming the source time zone is part of the data
     /// </summary>
-    protected long RecordLimit;
-
-    private IProgress<ProgressInfo>? m_ReportProgress;
+    protected readonly string DestTimeZone;
 
     /// <summary>
-    /// Gets or sets the report progress.
+    /// The routine used for time zone adjustment
     /// </summary>
-    /// <value>
-    /// The report progress.
-    /// </value>
-    public IProgress<ProgressInfo> ReportProgress
-    {
-      protected get
-      {
-        return m_ReportProgress!;
-      }
-      set
-      {
-        value.SetMaximum(cMaxProgress);
-        m_ReportProgress = value;
-      }
-    }
+    protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
     /// <summary>
     ///   An array of associated col
@@ -84,14 +60,24 @@ namespace CsvTools
     protected int[] AssociatedTimeCol = Array.Empty<int>();
 
     /// <summary>
-    ///   An array of column
-    /// </summary>
-    public Column[] Column = Array.Empty<Column>();
-
-    /// <summary>
     ///   An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText = Array.Empty<string>();
+
+    /// <summary>
+    /// The record limit
+    /// </summary>
+    protected long RecordLimit;
+
+    /// <summary>
+    /// If the stream is opened by the reader this is true
+    /// </summary>
+    protected bool SelfOpenedStream;
+
+    private readonly bool m_AllowPercentage;
+    private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
+    private readonly IntervalAction m_IntervalAction = new IntervalAction();
+    private readonly bool m_RemoveCurrency;
 
     /// <summary>
     ///   An array of associated col
@@ -103,29 +89,14 @@ namespace CsvTools
     /// </summary>
     private int m_FieldCount;
 
-    private readonly bool m_AllowPercentage;
-    private readonly bool m_RemoveCurrency;
-
     /// <summary>
     ///   used to avoid reporting a fished execution twice it might be called on error before being
     ///   called once execution is done
     /// </summary>
     private bool m_IsFinished;
 
-    /// <summary>
-    /// The time zone to convert the read data to, assuming the source time zone is part of the data
-    /// </summary>
-    protected readonly string DestTimeZone;
-
-    /// <summary>
-    /// If the stream is opened by the reader this is true
-    /// </summary>
-    protected bool SelfOpenedStream;
-
-    /// <summary>
-    /// The routine used for time zone adjustment
-    /// </summary>
-    protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global    
+    private IProgress<ProgressInfo>? m_ReportProgress;
 
     /// <inheritdoc />
     /// <summary>
@@ -158,6 +129,27 @@ namespace CsvTools
       m_AllowPercentage = allowPercentage;
       m_RemoveCurrency = removeCurrency;
     }
+
+    /// <summary>
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
+    /// </summary>
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
+
+    /// <summary>
+    /// Occurs when opening is at its end.
+    /// </summary>
+    public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
+
+    /// <summary>
+    ///   Event to be raised if reading the files is completed
+    /// </summary>
+    public event EventHandler? ReadFinished;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public event EventHandler<WarningEventArgs>? Warning;
 
     /// <inheritdoc />
     /// <summary>
@@ -220,6 +212,24 @@ namespace CsvTools
     public override int RecordsAffected => -1;
 
     /// <summary>
+    /// Gets or sets the report progress.
+    /// </summary>
+    /// <value>
+    /// The report progress.
+    /// </value>
+    public IProgress<ProgressInfo> ReportProgress
+    {
+      protected get
+      {
+        return m_ReportProgress!;
+      }
+      set
+      {
+        value.SetMaximum(cMaxProgress);
+        m_ReportProgress = value;
+      }
+    }
+    /// <summary>
     ///   Current Line Number in the text file where the record has started
     /// </summary>
     public virtual long StartLineNumber { get; protected set; }
@@ -254,104 +264,18 @@ namespace CsvTools
     protected string FullPath { get; }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the <see cref="T:System.Object" /> with the specified name.
-    /// </summary>
-    /// <value></value>
     public override object this[string columnName] => GetValue(GetOrdinal(columnName));
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets the <see cref="T:System.Object" /> with the specified column.
-    /// </summary>
-    /// <value></value>
+    /// <inheritdoc />    
     public override object this[int ordinal] => GetValue(ordinal);
 
-    /// <summary>
-    ///   Event to be raised if reading the files is completed
-    /// </summary>
-    public event EventHandler? ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public event EventHandler<WarningEventArgs>? Warning;
-
-    /// <summary>
-    ///   Does look at the provided column names, and checks them for valid entry, makes sure the
-    ///   column names are unique and not empty, have the right size etc.
-    /// </summary>
-    /// <param name="columns">The columns as read / provided</param>
-    /// <param name="fieldCount">
-    ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
-    /// </param>
-    /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
-    /// <returns></returns>
-    internal static IEnumerable<string> AdjustColumnName(
-      in IEnumerable<string> columns,
-      int fieldCount,
-      in ColumnErrorDictionary? warnings)
-    {
-      var newNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      using var enumerator = columns.GetEnumerator();
-      for (var counter = 0; counter < fieldCount; counter++)
-      {
-        var columnName = enumerator.MoveNext() ? enumerator.Current : string.Empty;
-        string resultingName;
-        if (string.IsNullOrEmpty(columnName))
-        {
-          resultingName = GetDefaultName(counter);
-          warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
-        }
-        else
-        {
-          resultingName = columnName.Trim();
-
-          if (columnName.Length != resultingName.Length)
-            warnings?.Add(
-              counter,
-              $"Column title '{columnName}' had leading or tailing spaces, these have been removed.".AddWarningId());
-
-          if (resultingName.Length > 128)
-          {
-            resultingName = resultingName.Substring(0, 128);
-            warnings?.Add(
-              counter,
-              $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters."
-                .AddWarningId());
-          }
-
-          var newName = newNames.MakeUniqueInCollection(resultingName);
-          if (newName != resultingName)
-          {
-            warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
-            resultingName = newName;
-          }
-        }
-
-        newNames.Add(resultingName);
-      }
-
-      return newNames;
-    }
-
-    /// <inheritdoc />
-    /// <summary>
-    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
-    /// </summary>
+    /// <inheritdoc />   
     public override void Close()
     {
       if (!EndOfFile)
         EndOfFile = true;
       base.Close();
     }
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <summary>
-    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
-    /// </summary>
-    public new virtual Task CloseAsync() => Task.Run(() => base.Close());
-#endif
 
     /// <inheritdoc />
     /// <summary>
@@ -391,20 +315,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Reads a stream of bytes from the file specified by the value in the specified column into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal containing the filename.</param>
-    /// <param name="dataOffset">The index within the field from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferOffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="T:System.NotImplementedException"></exception>    
+    /// <inheritdoc />    
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
     {
       if (buffer is null) throw new ArgumentNullException(nameof(buffer));
@@ -415,34 +326,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the character value of the specified column.
-    /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal.</param>
-    /// <returns>The character value of the specified column.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see
-    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
     public override char GetChar(int ordinal) => GetString(ordinal)[0];
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal.</param>
-    /// <param name="dataOffset">The index within the row from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferOffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <returns>The actual number of characters read.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see
-    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
     public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
     {
       if (buffer is null) throw new ArgumentNullException(nameof(buffer));
@@ -467,20 +353,9 @@ namespace CsvTools
     public virtual Column GetColumn(int ordinal) => Column[ordinal];
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the data type information for the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The data type information for the specified field.</returns>
-    /// <exception cref="T:System.NotImplementedException"></exception>
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the date and time data value of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The date and time data value of the specified field.</returns>
     public override DateTime GetDateTime(int ordinal)
     {
       var dt = GetDateTimeNull(
@@ -499,11 +374,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the decimal.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override decimal GetDecimal(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
@@ -514,11 +384,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the double.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override double GetDouble(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
@@ -600,7 +465,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the int32 value or null.
+    ///   Gets the long value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>    
@@ -657,6 +522,13 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets the originally provided text of a column
+    /// </summary>
+    /// <param name="ordinal">The column number.</param>
+    /// <returns></returns>    
+    public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
+
+    /// <summary>
     /// Retrieves data as a <see cref="T:System.IO.Stream"></see>.
     /// </summary>
     /// <param name="ordinal">Retrieves data as a <see cref="T:System.IO.Stream"></see>.</param>
@@ -676,13 +548,6 @@ namespace CsvTools
       CurrentRowColumnText[ordinal];
 
     /// <summary>
-    ///   Gets the originally provided text of a column
-    /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <returns></returns>    
-    public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
-
-    /// <summary>
     /// Retrieves data as a <see cref="T:System.IO.TextReader"></see>.
     /// </summary>
     /// <param name="ordinal">Retrieves data as a <see cref="T:System.IO.TextReader"></see>.</param>
@@ -698,7 +563,6 @@ namespace CsvTools
       else
         return new StringReader(CurrentRowColumnText[ordinal]);
     }
-
 
     /// <inheritdoc />
     public override object GetValue(int ordinal)
@@ -744,18 +608,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the error.
+    ///   Calls the event handler for errors <see cref="Warning"/>
     /// </summary>
-    /// <param name="ordinal">The column number.</param>
-    /// <param name="message">The message.</param>
+    /// <param name="ordinal">The column ordinal number.</param>
+    /// <param name="message">The message to raise.</param>
     public void HandleError(int ordinal, in string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(ordinal, message));
 
     /// <summary>
-    ///   Calls the event handler for warnings
+    ///   Calls the event handler for warnings <see cref="Warning"/>
     /// </summary>
-    /// <param name="ordinal">The column.</param>
-    /// <param name="message">The message.</param>
+    /// <param name="ordinal">The column ordinal number</param>
+    /// <param name="message">The message to raise.</param>
     public void HandleWarning(int ordinal, string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
 
@@ -777,39 +641,17 @@ namespace CsvTools
     /// <inheritdoc />
     public override bool NextResult() => false;
 
-    /// <summary>
-    /// This is the asynchronous version of <see cref="M:System.Data.Common.DbDataReader.NextResult"></see>. Providers should override with an appropriate implementation. 
-    /// The <paramref name="cancellationToken">cancellationToken</paramref> may optionally be ignored.   
-    /// The default implementation invokes the synchronous <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> method and returns a completed task, 
-    /// blocking the calling thread. The default implementation will return a canceled task if passed an already canceled <paramref name="cancellationToken">cancellationToken</paramref>. 
-    /// Exceptions thrown by <see cref="M:System.Data.Common.DbDataReader.NextResult"></see> will be communicated via the returned Task Exception property.   
-    /// Other methods and properties of the DbDataReader object should not be invoked while the returned Task is not yet completed.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation.
-    /// </returns>
+    /// <inheritdoc />
     public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => Task.FromResult(false);
 
-    /// <summary>
-    ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
-    ///   ParseColumnName and last FinishOpen
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-    public abstract Task OpenAsync(CancellationToken cancellationToken);
-
-    /// <summary>
-    ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
-    ///   ParseColumnName and last FinishOpen
-    /// </summary>
+    /// <inheritdoc />
     [Obsolete("Use OpenAsync instead")]
     public virtual void Open() => OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-    /// <summary>
-    ///   Overrides the column format from setting.
-    /// </summary>
-    /// <returns>true if read was successful</returns>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
+    /// <inheritdoc />
+    public abstract Task OpenAsync(CancellationToken cancellationToken);
+
+    /// <inheritdoc />
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
@@ -826,6 +668,69 @@ namespace CsvTools
       EndOfFile = false;
     }
 
+    /// <summary>
+    ///   Does look at the provided column names, and checks them for valid entry, makes sure the
+    ///   column names are unique and not empty, have the right size etc.
+    /// </summary>
+    /// <param name="columns">The columns as read / provided</param>
+    /// <param name="fieldCount">
+    ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
+    /// </param>
+    /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
+    /// <returns></returns>
+    internal static IEnumerable<string> AdjustColumnName(
+      in IEnumerable<string> columns,
+      int fieldCount,
+      in ColumnErrorDictionary? warnings)
+    {
+      var newNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      using var enumerator = columns.GetEnumerator();
+      for (var counter = 0; counter < fieldCount; counter++)
+      {
+        var columnName = enumerator.MoveNext() ? enumerator.Current : string.Empty;
+        string resultingName;
+        if (string.IsNullOrEmpty(columnName))
+        {
+          resultingName = GetDefaultName(counter);
+          warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
+        }
+        else
+        {
+          resultingName = columnName.Trim();
+
+          if (columnName.Length != resultingName.Length)
+            warnings?.Add(
+              counter,
+              $"Column title '{columnName}' had leading or tailing spaces, these have been removed.".AddWarningId());
+
+          if (resultingName.Length > 128)
+          {
+            resultingName = resultingName.Substring(0, 128);
+            warnings?.Add(
+              counter,
+              $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters."
+                .AddWarningId());
+          }
+
+          var newName = newNames.MakeUniqueInCollection(resultingName);
+          if (newName != resultingName)
+          {
+            warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
+            resultingName = newName;
+          }
+        }
+
+        newNames.Add(resultingName);
+      }
+
+      return newNames;
+    }
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <summary>
+    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
+    /// </summary>
+    public new virtual Task CloseAsync() => Task.Run(() => base.Close());
+#endif
     /// <summary>
     /// Treats the non-breaking space and null 
     /// </summary>
@@ -1235,12 +1140,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file
-    ///   does not exist or a query ran into a timeout
-    /// </summary>
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    /// <summary>
     /// Checks if we should retry to access the data
     /// </summary>
     /// <param name="ex">The exception.</param>
@@ -1316,10 +1215,5 @@ namespace CsvTools
       // Warning was added by GetInt32Null
       throw WarnAddFormatException(ordinal, $"'{value.ToString()}' is not a short");
     }
-
-    /// <summary>
-    /// Occurs when opening is at its end.
-    /// </summary>
-    public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
   }
 }

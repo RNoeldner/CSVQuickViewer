@@ -17,12 +17,9 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
-using System.Data.Common;
 
 
 #if !QUICK
@@ -31,6 +28,9 @@ using System.Text;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Extension methods for <see cref="IDataReader"/> <see cref="IFileSetting"/> and <see cref="DataReaderWrapper"/>
+  /// </summary>
   public static class ReaderExtensionMethods
   {
     /// <summary>
@@ -126,48 +126,41 @@ namespace CsvTools
     ///   Timeout duration for reading data, if the reader is slow, or it has many rows make sure the
     ///   timespan is big enough, otherwise the result is cut off
     /// </param>
-    /// <param name="restoreErrorsFromColumn">
-    ///   if the source is a persisted table, restore the error information
-    /// </param>
     /// <param name="startLine">
-    ///   if <c>true</c> add a column for the start line: <see
-    ///                                                     cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   if <c>true</c> add a column for the start line: <see cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
     ///   delimited text
     /// </param>
     /// <param name="endLine">
-    ///   if <c>true</c> add a column for the end line: <see
-    ///                                                   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   if <c>true</c> add a column for the end line: <see cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
     ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="recNum">
-    ///   if <c>true</c> add a column for the records number: <see
-    ///                                                         cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   if <c>true</c> add a column for the records number: <see cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
     ///   it will not start with 1)
     /// </param>
     /// <param name="errorField">
-    ///   if <c>true</c> add a column with error information: <see
-    ///                                                         cref="ReaderConstants.cErrorField" />
+    ///   if <c>true</c> add a column with error information: <see cref="ReaderConstants.cErrorField" />
     /// </param>
     /// <param name="progress">
     ///   Used to pass on progress information with number of records and percentage
     /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
+    /// 
     /// <returns>A Data Table with all records from the reader</returns>
     /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
     public static async Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
-      bool restoreErrorsFromColumn, bool startLine, bool endLine, bool recNum, bool errorField,
-      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      bool startLine, bool endLine, bool recNum, bool errorField, IProgress<ProgressInfo>? progress,
+      CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;
-      
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var wrapper = new DataReaderWrapper(reader, startLine, endLine, recNum, errorField);
 
-      return await wrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
-        .ConfigureAwait(false);
+      return await wrapper.GetDataTableAsync(maxDuration, progress, cancellationToken).ConfigureAwait(false);
     }
 
 #endif
@@ -176,24 +169,18 @@ namespace CsvTools
     /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors
     /// </summary>
     /// <param name="wrapper"></param>
-    /// <param name="maxDuration">Initial Duration for first return</param>
-    /// <param name="restoreErrorsFromColumn">if <c>true</c> do restore the error information into the table rows and columns</param>
+    /// <param name="maxDuration">Initial Duration for first return</param>    
     /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
-    /// <param name="cancellationToken">Token to cancel the long running async method</param>
-    public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration, bool restoreErrorsFromColumn,
-      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+    /// <param name="cancellationToken">Token to cancel the long running async method</param>    
+    public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Shortcut if the wrapper is a DataTableWrapper
       if (wrapper is DataTableWrapper dtw)
         return dtw.DataTable;
-      var colError = -1;
+
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
       for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
-      {
         dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
-        if (wrapper.GetName(colIndex) == ReaderConstants.cErrorField)
-          colError = colIndex;
-      }
 
       if (wrapper.EndOfFile)
         return dataTable;
@@ -213,7 +200,7 @@ namespace CsvTools
                                                    .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
-          dataTable.Rows.Add(dataRow);          
+          dataTable.Rows.Add(dataRow);
           for (var i = 0; i < wrapper.FieldCount; i++)
             try
             {
@@ -226,9 +213,7 @@ namespace CsvTools
 
           intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
-          // This gets the errors from the fileReader
-          if (restoreErrorsFromColumn && colError!=-1)
-            dataRow.SetErrorInformation(wrapper.GetString(colError));
+          dataRow.SetErrorInformation(wrapper.RowErrorInformation);
         }
       }
       finally

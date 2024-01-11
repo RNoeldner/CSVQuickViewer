@@ -74,7 +74,7 @@ namespace CsvTools
     /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-    public CsvFileWriter(in string id,
+    public CsvFileWriter(
       in string fullPath,
       bool hasFieldHeader,
       in ValueFormat? valueFormat,
@@ -101,7 +101,6 @@ namespace CsvTools
       bool unencrypted
       )
       : base(
-        id,
         fullPath,
         valueFormat,
         identifierInContainer,
@@ -168,7 +167,7 @@ namespace CsvTools
         qualifyList.Add(m_FieldQualifier);
         qualifyList.Add(m_FieldDelimiter);
       }
-        
+
 
       m_QualifyCharArray = qualifyList.ToArray();
     }

@@ -31,8 +31,8 @@ namespace CsvTools
 {
   /// <summary>
   /// Setting for a file based setting
-  /// </summary>
-  [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
+  /// </summary>  
+  [DebuggerDisplay("File: {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
     private ValueFormat m_ValueFormatWrite = ValueFormat.Empty;
@@ -54,7 +54,7 @@ namespace CsvTools
     /// New instance of a physical file
     /// </summary>
     /// <param name="id">ID to be passed on to <see cref="BaseSettings"/></param>
-    /// <param name="fileName">The path to teh file</param>
+    /// <param name="fileName">The path to the file</param>
     protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
       if (fileName.Length>2 && fileName[0] == '.' &&  fileName[1] == Path.DirectorySeparatorChar)
