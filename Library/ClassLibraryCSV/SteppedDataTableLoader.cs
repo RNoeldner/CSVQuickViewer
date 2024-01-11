@@ -21,23 +21,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="actionSetDataTable">Action to pass on the data table</param>
-    /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
-    /// <param name="addErrorField">if set to <c>true</c> include error column.</param>
-    /// <param name="restoreError">Restore column and row errors from error columns</param>
+    /// <param name="setRefreshDisplayAsync">>Action to display and filter the data table</param>
     /// <param name="durationInitial">The duration for the initial load</param>
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
+    /// 
+    /// 
     /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
     public async Task StartAsync(
       IFileSetting fileSetting,
       Action<DataTable> actionSetDataTable,
       Action<CancellationToken> setRefreshDisplayAsync,
-      bool addErrorField,
-      bool restoreError,
       TimeSpan durationInitial,
       IProgress<ProgressInfo>? progress,
-      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
+      EventHandler<WarningEventArgs>? addWarning,
+      CancellationToken cancellationToken)
     {
       Logger.Debug("Starting to load data");
       m_Id = fileSetting.ID;
@@ -64,29 +63,27 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 #endif
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, addErrorField, fileSetting.RecordLimit);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 
       // the initial progress is set on the source reader, no need to pass it in, when calling GetNextBatch this needs to be set though
-      await GetNextBatch(null, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
+      await GetNextBatch(null, durationInitial, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Loads the next batch of data from a file setting into the data table from m_GetDataTable
     /// </summary>
     /// <param name="actionSendNewDataTable">Action to pass on the data table, if called a second time make sure data is merged</param>
-    /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
+    /// <param name="setRefreshDisplayAsync">>Action to display and filter the data table</param>
     /// <param name="progress">Process display to pass on progress information, ideally the underlying m_FileReader.ReportProgress is used though</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <param name="duration">For maximum duration for the read process</param>
-    /// <param name="restoreError">Restore column and row errors from error columns</param>
-    public async Task GetNextBatch(IProgress<ProgressInfo>? progress, TimeSpan duration, bool restoreError,
-      Action<DataTable> actionSendNewDataTable, Action<CancellationToken> setRefreshDisplayAsync,
-      CancellationToken cancellationToken)
+    /// <param name="duration">For maximum duration for the read process</param>    
+    public async Task GetNextBatch(IProgress<ProgressInfo>? progress, TimeSpan duration, Action<DataTable> actionSendNewDataTable,
+      Action<CancellationToken> setRefreshDisplayAsync, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return;
       Logger.Debug("Getting batch");
-      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, restoreError, progress, cancellationToken).ConfigureAwait(false);
+      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress, cancellationToken).ConfigureAwait(false);
 
       // for Debugging It's nice to know where it all came form
       if (!string.IsNullOrEmpty(m_Id))

@@ -26,35 +26,16 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
-    private readonly bool m_TreatNbspAsSpace;
-    private readonly string m_TreatTextAsNull;
-    private readonly bool m_Trim;
     /// <summary>
     /// The values of the current row
     /// </summary>
     protected object?[] CurrentValues;
 
+    private readonly bool m_TreatNbspAsSpace;
+    private readonly string m_TreatTextAsNull;
+    private readonly bool m_Trim;
 
-    /// <summary>
-    /// Gets the current object stored in CurrentValues and does check
-    /// </summary>
-    /// <param name="ordinal">The ordinal of the column</param>
-    /// <returns></returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
-    /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
-    // ReSharper disable once MemberCanBePrivate.Global
-    protected object? GetCurrentValue(int ordinal)
-    {
-      if (ordinal < 0 || ordinal >= FieldCount)
-        throw new ArgumentOutOfRangeException(nameof(ordinal), $"Value is out of range 0-{FieldCount}");
 
-      if (CurrentValues is null || ordinal > CurrentValues.Length)
-        throw new NullReferenceException("CurrentValues is not set, please open the reader before accessing data");
-
-      return CurrentValues[ordinal];
-    }
-
-    /// <inheritdoc />
     /// <summary>
     ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see
     ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQl
@@ -97,8 +78,7 @@ namespace CsvTools
       EnsureTextFilled(ordinal);
       return base.GetBoolean(ordinal);
     }
-
-    /// <inheritdoc cref="BaseFileReader" />
+    
     /// <exception cref="NotImplementedException"></exception>
     public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
@@ -238,14 +218,12 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public override string GetString(int ordinal)
-    {
-      return Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
-    }
-
-    /// <inheritdoc />
     public override ReadOnlySpan<char> GetSpan(int ordinal)
       => GetString(ordinal).AsSpan();
+
+    /// <inheritdoc />
+    public override string GetString(int ordinal) 
+      => Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
 
     /// <inheritdoc />
     public override int GetValues(object[] values)
@@ -275,6 +253,24 @@ namespace CsvTools
         return string.IsNullOrEmpty(str);
 
       return false;
+    }
+
+    /// <summary>
+    /// Gets the current object stored in CurrentValues and does check
+    /// </summary>
+    /// <param name="ordinal">The ordinal of the column</param>
+    /// <returns></returns>
+    /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
+    /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
+    private object? GetCurrentValue(int ordinal)
+    {
+      if (ordinal < 0 || ordinal >= FieldCount)
+        throw new ArgumentOutOfRangeException(nameof(ordinal), $"Value is out of range 0-{FieldCount}");
+
+      if (CurrentValues is null || ordinal > CurrentValues.Length)
+        throw new NullReferenceException("CurrentValues is not set, please open the reader before accessing data");
+
+      return CurrentValues[ordinal];
     }
 
     /// <inheritdoc />

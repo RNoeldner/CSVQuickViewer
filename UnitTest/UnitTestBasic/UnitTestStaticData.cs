@@ -27,8 +27,7 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStaticData
   {
-#if !QUICK
-    public static readonly List<Column> ColumnsDt = new List<Column>(new[]
+    private static readonly List<Column> ColumnsDt = new List<Column>(new[]
     {
       new Column("string", columnOrdinal:0), //0
       new Column("int", new ValueFormat(DataTypeEnum.Integer), 1),
@@ -42,7 +41,6 @@ namespace CsvTools.Tests
       new Column("ID", new ValueFormat(DataTypeEnum.Integer),9),
       new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), 10, ignore: true), //10
     });
-#endif
 
 
     /// <summary>

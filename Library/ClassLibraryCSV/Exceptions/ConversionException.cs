@@ -16,13 +16,18 @@ using System;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Raised if the a conversion of types of or timezone conversion has issues
+  /// </summary>
+  /// <seealso cref="System.ApplicationException" />
   public sealed class ConversionException : ApplicationException
   {
+    /// <inheritdoc />
     public ConversionException(string message)
       : base(message)
     {
     }
-
+    /// <inheritdoc />
     public ConversionException(string message, Exception inner)
       : base(message, inner)
     {

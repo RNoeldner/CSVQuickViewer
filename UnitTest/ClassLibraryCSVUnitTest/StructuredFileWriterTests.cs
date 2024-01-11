@@ -108,7 +108,6 @@ namespace CsvTools.Tests
       fileSetting.Footer = "</rowset>";
 
       var writer = new XmlFileWriter(
-        fileSetting.ID,
         fileSetting.FullPath,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
@@ -119,7 +118,8 @@ namespace CsvTools.Tests
         "Test",
         fileSetting.Row,
         StandardTimeZoneAdjust.ChangeTimeZone,
-        TimeZoneInfo.Local.Id, string.Empty, fileSetting.KeepUnencrypted);
+        TimeZoneInfo.Local.Id,
+        string.Empty, fileSetting.KeepUnencrypted);
       await writer.WriteAsync(reader, UnitTestStatic.Token);
     }
   }

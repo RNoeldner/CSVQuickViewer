@@ -148,8 +148,11 @@ namespace CsvTools.Tests
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull,
         cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
         cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
-      var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
-        true, false, false, false, null, formProgress.CancellationToken);
+      
+      await csvDataReader.OpenAsync(formProgress.CancellationToken);
+
+      var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
+        false, false, false, null, formProgress.CancellationToken);
 
       UnitTestStaticForms.ShowForm(() => new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default), .1, frm =>
       {

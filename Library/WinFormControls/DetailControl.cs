@@ -50,14 +50,20 @@ namespace CsvTools
     private bool m_UpdateVisibility = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
-
-    public Task LoadSettingAsync(IFileSetting fileSetting,
-      bool addErrorField, bool restoreError, TimeSpan durationInitial, FilterTypeEnum filterType,
-      IProgress<ProgressInfo>? progress, EventHandler<WarningEventArgs>? addWarning,
-      CancellationToken cancellationToken)
-    => m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
-        t => RefreshDisplay(filterType, t), addErrorField, restoreError,
-        durationInitial, progress, addWarning, cancellationToken);
+    /// <summary>
+    /// Loads the setting asynchronous and displays the result
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="durationInitial">The duration initial.</param>
+    /// <param name="filterType">Type of the filter.</param>
+    /// <param name="progress">The progress.</param>
+    /// <param name="addWarning">The add warning.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    ///     
+    public Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
+                                 FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
+                                 EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
+    => m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable, t => RefreshDisplay(filterType, t), durationInitial, progress, addWarning, cancellationToken);
 
     /// <inheritdoc />
     /// <summary>
@@ -175,6 +181,7 @@ namespace CsvTools
     }
 
     public string GetViewStatus() => FilteredDataGridView.GetViewStatus;
+
     public void SetViewStatus(string newStatus) => FilteredDataGridView.SetViewStatus(newStatus);
 
     /// <summary>
@@ -737,17 +744,17 @@ namespace CsvTools
         formProgress.Show(this);
         BeforeFileStored?.Invoke(this, WriteSetting);
 
-        var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
-          WriteSetting.ValueFormatWrite,
+        var writer = new CsvFileWriter(fileName, WriteSetting.HasFieldHeader, WriteSetting.ValueFormatWrite,
           WriteSetting.CodePageId,
-          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer,
-          skippedLines.ToString(),
-          WriteSetting.Footer, string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar,
-          WriteSetting.FieldQualifierChar,
+          WriteSetting.ByteOrderMark,
+          WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer, skippedLines.ToString(),
+          WriteSetting.Footer,
+          string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar, WriteSetting.FieldQualifierChar,
           WriteSetting.EscapePrefixChar,
           WriteSetting.NewLinePlaceholder,
-          WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways,
-          WriteSetting.QualifyOnlyIfNeeded, WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
+          WriteSetting.DelimiterPlaceholder,
+          WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded,
+          WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
 
           );
 
@@ -837,9 +844,9 @@ namespace CsvTools
         formProgress.Show(this);
         formProgress.Maximum = 100;
 
-        await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), true,
-          dataTable => DataTable.Merge(dataTable),
-          token => RefreshDisplay(GetCurrentFilter(), token), formProgress.CancellationToken);
+        await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), dataTable => DataTable.Merge(dataTable),
+          token => RefreshDisplay(GetCurrentFilter(), token),
+          formProgress.CancellationToken);
       }, ParentForm);
     }
 

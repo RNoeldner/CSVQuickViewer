@@ -315,6 +315,7 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public override bool IsClosed => m_TextReader is null;
 
+    /// <inheritdoc />
     public override void Close()
     {
       base.Close();
@@ -324,6 +325,7 @@ namespace CsvTools
       m_NumWarningsNbspChar = 0;
     }
 
+    /// <inheritdoc />
     public new void Dispose()
     {
       Dispose(true);

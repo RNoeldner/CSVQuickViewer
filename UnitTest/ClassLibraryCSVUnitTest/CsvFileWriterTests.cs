@@ -64,10 +64,10 @@ namespace CsvTools.Tests
       writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
           timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "TZ"));
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-        writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-        writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+      var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
 
       using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
@@ -87,10 +87,10 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FieldDelimiterChar = '|';
 
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-        writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-        writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
+      var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
 
 
       using var sqlReader = new DataTableWrapper(UnitTestStaticData.RandomDataTable(100));
@@ -113,11 +113,11 @@ namespace CsvTools.Tests
       var cf = new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, "yyyyMMdd"),
         timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "\"UTC\"");
       writeFile.ColumnCollection.Add(cf);
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-        writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-        writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, 
-        writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);      
+      var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength,
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);      
 
 
       using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
@@ -144,10 +144,10 @@ namespace CsvTools.Tests
 
       var writeFile = new CsvFile("Test.txt", UnitTestStatic.GetTestPath("Test.txt")) { SqlStatement = "Hello" };
 
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-        writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-        writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+      var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
       using var reader = new DataTableWrapper(dataTable);
       // await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
@@ -175,10 +175,10 @@ namespace CsvTools.Tests
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
       {
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-          writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-          writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+        var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+          writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+          "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+          writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
         writer.Warning += (o, a) => { count++; };
         using (var reader = new DataTableWrapper(dataTable))
         {
@@ -217,11 +217,11 @@ namespace CsvTools.Tests
         await file.WriteLineAsync("Hello");
         try
         {
-          var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-            writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-            writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-            writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength,
-            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+          var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+            writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+            "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+            writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone,
+            TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
           using var reader = new DataTableWrapper(dataTable);
 
           await writer.WriteAsync(reader, UnitTestStatic.Token);
@@ -246,10 +246,10 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FieldDelimiterChar = "|".FromText();
 
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header,
-        writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder,
-        writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
+      var writer = new CsvFileWriter(writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
+        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
+        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
+        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
 
       using var reader = new DataTableWrapper(UnitTestStaticData.RandomDataTable(100));
 

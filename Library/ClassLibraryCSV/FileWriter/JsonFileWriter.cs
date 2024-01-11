@@ -54,7 +54,6 @@ namespace CsvTools
 
       )
       : base(
-        id,
         fullPath,
         identifierInContainer,
         footer,
@@ -65,8 +64,8 @@ namespace CsvTools
         fileSettingDisplay,
         row,
         timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone, 
-        publicKey, 
+        sourceTimeZone,
+        publicKey,
         unencrypted
         )
     {

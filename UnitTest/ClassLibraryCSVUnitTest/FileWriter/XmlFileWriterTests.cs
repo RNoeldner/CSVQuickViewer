@@ -32,8 +32,8 @@ namespace CsvTools.Tests
       var cols = new[] { new Column("ID", new ValueFormat(DataTypeEnum.Integer)), new Column("Text"), };
       (var h, var r)=  XmlFileWriter.GetXMLHeaderAndRow(cols);
 
-      var writer = new XmlFileWriter("id", fn, "", "<rowset/>", h, 65001, true,
-          Array.Empty<Column>(), "Display", r, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      var writer = new XmlFileWriter(fn, "", "<rowset/>", h, 65001, true, Array.Empty<Column>(),
+          "Display", r, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
       using (var reader = new DataTableWrapper(dataTable))
       {
         using (var output = File.OpenWrite(fn))

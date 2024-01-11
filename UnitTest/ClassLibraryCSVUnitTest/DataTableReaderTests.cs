@@ -14,8 +14,8 @@ namespace CsvTools.Tests
     public async Task GetDataTableAsyncTest1Async()
     {
       using var test = new DataTableWrapper(m_DataTable);
-      var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
-        true, false, false, false, null, UnitTestStatic.Token);
+      var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
+        false, false, false, null, UnitTestStatic.Token);
       Assert.AreEqual(m_DataTable, dt);
     }
 

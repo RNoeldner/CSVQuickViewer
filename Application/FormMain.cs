@@ -234,7 +234,7 @@ namespace CsvTools
           }, m_ViewSettings.DefaultInspectionResult,
 #if SupportPGP
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),
-          #else
+#else
           string.Empty,
 #endif
           cancellationToken);
@@ -282,7 +282,7 @@ namespace CsvTools
         Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
         ButtonAsText(false);
 
-        this.SafeInvoke(async ()=>await OpenDataReaderAsync(cancellationToken));
+        this.SafeInvoke(async () => await OpenDataReaderAsync(cancellationToken));
       }
       catch (Exception ex)
       {
@@ -605,18 +605,20 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
             formProgress.Show(this);
-            await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
-              FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
-
+            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, FilterTypeEnum.All, formProgress,
+              AddWarning, formProgress.CancellationToken);
           }
 
           var keepVisible = new List<string>();
           if (m_FileSetting.DisplayEndLineNo)
             keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
+
           if (m_FileSetting.DisplayStartLineNo)
             keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
+
           if (m_FileSetting.DisplayRecordNo)
             keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
+
           detailControl.UniqueFieldName = keepVisible;
 
           Logger.Debug("Batch Loaded");

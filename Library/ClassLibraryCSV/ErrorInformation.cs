@@ -264,70 +264,35 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Stores the error information in a single string
-    /// </summary>
-    /// <param name="columnErrors">The column errors by column number</param>
-    /// <param name="columnNames">The column names, for replacing the index to the name</param>
-    /// <returns>The error message with a resulting of the column number to the column name</returns>
-    public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, string[] columnNames)
-    => ReadErrorInformation(columnErrors, (i) => columnNames.Length > i ? columnNames[i] : string.Empty);
-
-    /// <summary>
-    ///   Stores the error information in a single string
+    ///   Stores the error information in a single string (usually stored in #error )
     /// </summary>
     /// <param name="columnErrors">The column errors by column number</param>
     /// <param name="getColumnName">A Function to get the column name</param>
-    /// <returns>The error message with a resulting of the column number to the column name</returns>    
+    /// <returns>The error message with a resulting of the column number to the column name</returns>
     public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, Func<int, string> getColumnName)
     {
       if (columnErrors is null || columnErrors.Count == 0)
         return string.Empty;
 
-      // Split the messages from columnErrors
-      var splitMessages = new Dictionary<string, string>();
-      foreach (var entry in columnErrors.OrderBy(x=> x.Key))
+      var list = new List<ColumnAndMessage>();
+      // Parallel.Foreach but it not reliable
+      foreach (var entry in columnErrors)
       {
-        if (entry.Key < -1)
-          continue;
-        var parts = entry.Value.Split(cSeparator);
-        if (parts.Length == 0)
-          continue;
-        var msg = string.Empty;
-        foreach (var part in parts)
-            msg = msg.AddMessage(part);
-        if (entry.Key ==0)
-          splitMessages.Add(string.Empty, msg);
-        else
+        if (entry.Key < -1) continue;
+        var colName = getColumnName(entry.Key);
+        var start = 0;
+        while (start < entry.Value.Length)
         {
-          var colName = getColumnName(entry.Key);
-          if (colName.Length>0)
-            splitMessages.Add(colName, msg);          
-        }
-      }
-      // Error messages should be in front
-      var result = new StringBuilder();
-      foreach (var entry in splitMessages)
-      {
-        foreach (var part in entry.Value.Where(x => x.IsErrorMessage()))
-        {
-          if (result.Length > 0)
-            result.Append(cSeparator);
-          result.Append(CombineColumnAndError(entry.Key, part));
-        }
-      }
-      // Followed by warnings
-      foreach (var entry in splitMessages)
-      {
-        foreach (var part in entry.Value.Where(x => x.IsWarningMessage()))
-        {
-          if (result.Length > 0)
-            result.Append(cSeparator);
-          result.Append(CombineColumnAndError(entry.Key, part));
+          var end = entry.Value.IndexOf(cSeparator, start + 1);
+          if (end == -1)
+            end = entry.Value.Length;
+          // Add one Line for each error in the column
+          list.Add(new ColumnAndMessage(colName, entry.Value.Substring(start, end - start)));
+          start = end + 1;
         }
       }
 
-      // now get only the warnings
-      return result.ToString();
+      return BuildList(list);
     }
 
     /// <summary>

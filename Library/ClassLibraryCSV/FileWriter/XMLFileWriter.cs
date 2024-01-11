@@ -29,26 +29,24 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="XmlFileWriter" /> class.
     /// </summary>
-    public XmlFileWriter(in string id,
-      in string fullPath,
-      in string? identifierInContainer,
-      in string? footer,
-      in string? header,
-      int codePageId,
-      bool byteOrderMark,
-      IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay,
-      in string row,
-      TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted
-      )
+    public XmlFileWriter(in string fullPath,
+                         in string? identifierInContainer,
+                         in string? footer,
+                         in string? header,
+                         int codePageId,
+                         bool byteOrderMark,
+                         IEnumerable<Column>? columnDefinition,
+                         in string fileSettingDisplay,
+                         in string row,
+                         TimeZoneChangeDelegate timeZoneAdjust,
+                         in string sourceTimeZone,
+                         in string publicKey,
+                         bool unencrypted)
       : base(
-        id, fullPath,
-        identifierInContainer, footer, header, codePageId,
-        byteOrderMark, columnDefinition, fileSettingDisplay, row,
-        timeZoneAdjust, sourceTimeZone, publicKey, unencrypted
+        fullPath, identifierInContainer,
+        footer, header, codePageId, byteOrderMark,
+        columnDefinition, fileSettingDisplay, row, timeZoneAdjust,
+        sourceTimeZone, publicKey, unencrypted
         )
     {
     }

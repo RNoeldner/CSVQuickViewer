@@ -66,7 +66,6 @@ namespace CsvTools
     /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
     /// Abstract implementation of all FileWriters.
     /// </summary>
-    /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="valueFormatGeneral">Fall back value format for typed values that do not have a column setup</param>
     /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
@@ -78,8 +77,8 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
+    /// 
     protected BaseFileWriter(
-      in string id,
       in string fullPath,
       in ValueFormat? valueFormatGeneral,
       in string? identifierInContainer,
@@ -88,9 +87,9 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone
-
-      , in string publicKey, bool unencrypted
+      in string sourceTimeZone,
+      in string publicKey,
+      bool unencrypted
       )
     {
       SourceTimeZone = sourceTimeZone;
@@ -99,8 +98,8 @@ namespace CsvTools
       m_KeepUnencrypted = unencrypted;
       FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(FullPath);
-      Header = ReplacePlaceHolder(header, fileName, id);
-      m_Footer = ReplacePlaceHolder(footer, fileName, id);
+      Header = ReplacePlaceHolder(header, fileName);
+      m_Footer = ReplacePlaceHolder(footer, fileName);
 
       ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition is null ? new List<Column>() : new List<Column>(columnDefinition);
@@ -336,9 +335,8 @@ namespace CsvTools
     /// <inheritdoc cref="IFileWriter"/>
     public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
-    private static string ReplacePlaceHolder(string? input, string fileName, string id) =>
-      input?.PlaceholderReplace("ID", id)
-        .PlaceholderReplace("FileName", fileName)
+    private static string ReplacePlaceHolder(string? input, string fileName) =>
+      input?.PlaceholderReplace("FileName", fileName)
         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;
 
