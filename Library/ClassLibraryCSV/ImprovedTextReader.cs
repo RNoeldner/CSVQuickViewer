@@ -50,7 +50,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
-        Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
+        Logger.Warning("Code page {0} not supported, using UTF8", codePageId);
         codePageId = Encoding.UTF8.CodePage;
       }
 
@@ -181,6 +181,12 @@ namespace CsvTools
       return await StreamReader.ReadLineAsync().ConfigureAwait(false) ?? string.Empty;
     }
 
+    [Obsolete("Better use ReadLineAsync ")]
+    public string ReadLine()
+    {
+      LineNumber++;
+      return StreamReader.ReadLine() ?? string.Empty;
+    }
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
     ///   scratch This is fast in case the text fitted into the buffer or the underlying stream

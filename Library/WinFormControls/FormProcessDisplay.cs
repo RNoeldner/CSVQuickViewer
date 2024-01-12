@@ -58,7 +58,7 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig fontConfig, in CancellationToken cancellationToken)
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig? fontConfig, in CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
@@ -85,7 +85,7 @@ namespace CsvTools
       ResumeLayout(false);
       PerformLayout();
       Application.EnableVisualStyles();
-      FontConfig = fontConfig;
+      FontConfig = fontConfig ?? new FontConfig();
 
       Maximum = 0;
     }

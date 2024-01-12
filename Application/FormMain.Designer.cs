@@ -120,14 +120,12 @@ namespace CsvTools
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.detailControl.FileSetting = null;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
       this.detailControl.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.detailControl.MenuDown = false;
       this.detailControl.Name = "detailControl";
       this.detailControl.Size = new System.Drawing.Size(900, 429);
-      this.detailControl.TabIndex = 1;
-      this.detailControl.WriteSetting = null;
+      this.detailControl.TabIndex = 1;      
       // 
       // toolStripLog
       // 

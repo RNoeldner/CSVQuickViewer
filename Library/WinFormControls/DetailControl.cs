@@ -18,9 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -89,8 +87,8 @@ namespace CsvTools
       m_ToolStripItems.Add(m_ToolStripButtonStore);
     }
 
-    public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
-    public EventHandler<IFileSettingPhysicalFile>? FileStored;
+    //public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
+    //public EventHandler<IFileSettingPhysicalFile>? FileStored;
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -256,26 +254,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   A File Setting
+    /// Async Action to be invoked when Display Source Button is pressed
     /// </summary>
-    public IFileSetting? FileSetting
-    {
-      get => FilteredDataGridView.FileSetting;
-      set
-      {
-        FilteredDataGridView.FileSetting = value;
-        //        m_UpdateVisibility = true;
-      }
-    }
+    public Func<CancellationToken, Task>? DisplaySourceAsync;
 
     /// <summary>
-    ///   A File Setting
+    /// Async Action to be invoked when Write File Button is pressed
     /// </summary>
-    public ICsvFile? WriteSetting
-    {
-      get;
-      set;
-    }
+    public Func<CancellationToken, IFileReader, Task>? WriteFileAsync;
 
     /// <summary>
     ///   A File Setting
@@ -401,7 +387,7 @@ namespace CsvTools
         m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
         m_SteppedDataTableLoader.Dispose();
-        m_SourceDisplay?.Dispose();
+        // m_SourceDisplay?.Dispose();
       }
 
       base.Dispose(disposing);
@@ -462,9 +448,9 @@ namespace CsvTools
       FilteredDataGridView.Refresh();
     }
 
-    private bool CancelMissingData()      
+    private bool CancelMissingData()
         => FilteredDataGridView.Columns.Count <= 0 || (!m_SteppedDataTableLoader.EndOfFile && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel);
-    
+
     /// <summary>
     ///   Handles the Click event of the buttonTableSchema control.
     /// </summary>
@@ -473,7 +459,7 @@ namespace CsvTools
     private void ButtonColumnLength_Click(object? sender, EventArgs e)
     {
       if (CancelMissingData()) return;
-      
+
       m_ToolStripButtonColumnLength.RunWithHourglass(() =>
       {
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
@@ -497,7 +483,7 @@ namespace CsvTools
     private void ButtonDuplicates_Click(object? sender, EventArgs e)
     {
       if (CancelMissingData()) return;
-    
+
       m_ToolStripButtonDuplicates.RunWithHourglass(() =>
       {
         var columnName = FilteredDataGridView.CurrentCell != null
@@ -557,7 +543,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonUniqueValues_Click(object? sender, EventArgs e)
     {
-     if (CancelMissingData()) return;
+      if (CancelMissingData()) return;
       m_ToolStripButtonUniqueValues.RunWithHourglass(() =>
       {
         try
@@ -716,98 +702,117 @@ namespace CsvTools
 
 
     // ReSharper disable once MemberCanBePrivate.Global
-    public async Task SafeCurrentFile(string fileName)
-    {
-      if (FilteredDataGridView.DataView is null)
-        return;
-      if (WriteSetting is null)
-      {
-        WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
-        FileSetting?.CopyTo(WriteSetting);
-      }
+    //    public async Task SafeCurrentFile(string fileName)
+    //    {
+    //      if (FilteredDataGridView.DataView is null)
+    //        return;
 
-      var skippedLines = new StringBuilder();
-      // in case we skipped lines read them as Header so we do not loose them
-      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
-      {
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var iStream = FunctionalDI.GetStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
-        using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
-        for (var i = 0; i < physSource.SkipRows; i++)
-          skippedLines.AppendLine(await sr.ReadLineAsync());
-      }
-      using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
-      try
-      {
-        formProgress.Show(this);
-        BeforeFileStored?.Invoke(this, WriteSetting);
+    //      if (WriteSetting is null)
+    //      {
+    //        WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
+    //        FileSetting?.CopyTo(WriteSetting);
+    //      }
 
-        var writer = new CsvFileWriter(fileName, WriteSetting.HasFieldHeader, WriteSetting.ValueFormatWrite,
-          WriteSetting.CodePageId,
-          WriteSetting.ByteOrderMark,
-          WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer, skippedLines.ToString(),
-          WriteSetting.Footer,
-          string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar, WriteSetting.FieldQualifierChar,
-          WriteSetting.EscapePrefixChar,
-          WriteSetting.NewLinePlaceholder,
-          WriteSetting.DelimiterPlaceholder,
-          WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded,
-          WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
+    //      var skippedLines = new StringBuilder();
+    //      // in case we skipped lines read them as Header so we do not loose them
+    //      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
+    //      {
+    //#if NET5_0_OR_GREATER
+    //        await
+    //#endif
+    //        using var iStream = FunctionalDI.GetStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
+    //        using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
+    //        for (var i = 0; i < physSource.SkipRows; i++)
+    //          skippedLines.AppendLine(await sr.ReadLineAsync());
+    //      }
+    //      using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
+    //      try
+    //      {
+    //        formProgress.Show(this);
+    //        BeforeFileStored?.Invoke(this, WriteSetting);
 
-          );
+    //        var writer = new CsvFileWriter(fileName, WriteSetting.HasFieldHeader, WriteSetting.ValueFormatWrite,
+    //          WriteSetting.CodePageId,
+    //          WriteSetting.ByteOrderMark,
+    //          WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer, skippedLines.ToString(),
+    //          WriteSetting.Footer,
+    //          string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar, WriteSetting.FieldQualifierChar,
+    //          WriteSetting.EscapePrefixChar,
+    //          WriteSetting.NewLinePlaceholder,
+    //          WriteSetting.DelimiterPlaceholder,
+    //          WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded,
+    //          WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
 
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var reader = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-              .OrderBy(col => col.DisplayIndex)
-              .Select(col => col.DataPropertyName).ToArray()));
-        // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(reader, formProgress.CancellationToken);
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
-      finally
-      {
-        FileStored?.Invoke(this, WriteSetting);
-      }
-    }
+    //          );
+
+    //#if NET5_0_OR_GREATER
+    //        await
+    //#endif
+    //        using var reader = new DataTableWrapper(
+    //          FilteredDataGridView.DataView.ToTable(false,
+    //            // Restrict to shown data
+    //            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+    //              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+    //              .OrderBy(col => col.DisplayIndex)
+    //              .Select(col => col.DataPropertyName).ToArray()));
+    //        // can not use filteredDataGridView.Columns directly
+    //        await writer.WriteAsync(reader, formProgress.CancellationToken);
+    //      }
+    //      catch (Exception ex)
+    //      {
+    //        ParentForm.ShowError(ex);
+    //      }
+    //      finally
+    //      {
+    //        FileStored?.Invoke(this, WriteSetting);
+    //      }
+    //    }
 
     private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {
-      try
+      if (WriteFileAsync==null || FilteredDataGridView.DataView == null)
+        return;
+
+      await m_ToolStripButtonStore.RunWithHourglassAsync(async () =>
       {
-        FileSystemUtils.SplitResult split;
+        var reader = new DataTableWrapper(
+              FilteredDataGridView.DataView.ToTable(false,
+                // Restrict to shown data
+                FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                  .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+                  .OrderBy(col => col.DisplayIndex)
+                  .Select(col => col.DataPropertyName).ToArray()));
 
-        if (FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
-          split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
-        else
-          split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
-            $"{FileSetting!.ID}.txt");
+        await WriteFileAsync.Invoke(m_CancellationToken, reader);
 
-        var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File",
-          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
-          ".csv",
-          false,
-          split.FileName);
+      }, ParentForm);
 
-        if (fileName is null || fileName.Length == 0)
-          return;
 
-        await SafeCurrentFile(fileName);
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
+      //try
+      //{
+      //  FileSystemUtils.SplitResult split;
+
+      //  if (FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
+      //    split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
+      //  else
+      //    split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
+      //      $"{FileSetting!.ID}.txt");
+
+      //  var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File",
+      //    "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
+      //    ".csv",
+      //    false,
+      //    split.FileName);
+
+      //  if (fileName is null || fileName.Length == 0)
+      //    return;
+
+      //  await SafeCurrentFile(fileName);
+      //}
+      //catch (Exception ex)
+      //{
+      //  ParentForm.ShowError(ex);
+      //}
     }
 
     public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
@@ -900,10 +905,10 @@ namespace CsvTools
         m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
         m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
         m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
-        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
-        m_ToolStripButtonSource.Visible = m_ShowButtons && (FileSetting is IFileSettingPhysicalFile);
+        m_ToolStripButtonStore.Visible = m_ShowButtons && (WriteFileAsync != null);
+        m_ToolStripButtonSource.Visible = m_ShowButtons && (DisplaySourceAsync != null);
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-                        
+
         m_ToolStripButtonStore.Enabled = hasData;
         toolStripButtonMoveLastItem.Enabled = hasData;
         FilteredDataGridView.DataLoaded  =hasData;
@@ -943,33 +948,33 @@ namespace CsvTools
       Font = frm.Font;
     }
 
-    private FormCsvTextDisplay? m_SourceDisplay;
+    //private FormCsvTextDisplay? m_SourceDisplay;
 
-    private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
-    {
-      m_SourceDisplay?.Dispose();
-      m_SourceDisplay = null;
-    }
+    //private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
+    //{
+    //  m_SourceDisplay?.Dispose();
+    //  m_SourceDisplay = null;
+    //}
+
 
     private async void DisplaySource_Click(object sender, EventArgs e)
     {
-      if (m_SourceDisplay != null) return;
-      if (!(FileSetting is IFileSettingPhysicalFile phys))
+      if (DisplaySourceAsync== null)
         return;
+
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       {
-        m_ToolStripButtonSource.Enabled = false;
-        m_SourceDisplay = new FormCsvTextDisplay(phys.FileName, null);
-        m_SourceDisplay.ShowWithFont(this);
-        m_SourceDisplay.FormClosed += SourceDisplayClosed;
+        await DisplaySourceAsync.Invoke(m_CancellationToken);
+        //m_SourceDisplay = new FormCsvTextDisplay(phys.FileName, null);
+        //m_SourceDisplay.ShowWithFont(this);
+        //m_SourceDisplay.FormClosed += SourceDisplayClosed;
 
-        if (FileSetting is ICsvFile csv)
-          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
-            csv.CodePageId,
-            FileSetting.SkipRows, csv.CommentLine, m_CancellationToken);
-        else
-          await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, '\0', '\0', '\0', 65001, FileSetting.SkipRows, "",
-            m_CancellationToken);
+        //if (FileSetting is ICsvFile csv)
+        //  await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
+        //    csv.CodePageId, FileSetting.SkipRows, csv.CommentLine, m_CancellationToken);
+        //else
+        //  await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, '\0', '\0', '\0', 65001, FileSetting.SkipRows, "",
+        //    m_CancellationToken);
       }, ParentForm);
     }
   }

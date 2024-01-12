@@ -27,7 +27,7 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStaticData
   {
-    private static readonly List<Column> ColumnsDt = new List<Column>(new[]
+    public static readonly List<Column> Columns = new List<Column>(new[]
     {
       new Column("string", columnOrdinal:0), //0
       new Column("int", new ValueFormat(DataTypeEnum.Integer), 1),
@@ -187,7 +187,7 @@ namespace CsvTools.Tests
       errorCount = 0;
 
       var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") };
-      foreach (var col in ColumnsDt)
+      foreach (var col in Columns)
       {
         if (!col.Ignore)
           dataTable.Columns.Add(col.Name, col.ValueFormat.DataType.GetNetType());

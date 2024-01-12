@@ -66,11 +66,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
-    /// <param name="id">The identifier for the file for logging etc</param>
-    /// <param name="passPhrase">Known passphrase for Zip or PGP file</param>
+    /// <param name="passPhrase">Known pass phrase for Zip or PGP file</param>
     /// <param name="keepEncrypted"></param>
-    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
-    public SourceAccess(in string fileName, bool isReading = true, in string? id = null, in string passPhrase = "", bool keepEncrypted = false, in string pgpKey = "")
+    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>    
+    public SourceAccess(in string fileName, bool isReading = true, in string passPhrase = "", bool keepEncrypted = false, in string pgpKey = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -83,7 +82,7 @@ namespace CsvTools
 
       FullPath = fileName;
       Reading = isReading;
-      Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
+      Identifier = FileSystemUtils.GetShortDisplayFileName(fileName, 40);
       Passphrase = passPhrase;
 
 
@@ -125,7 +124,7 @@ namespace CsvTools
     /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
-      : this(setting.FullPath, isReading, setting.ID, setting.Passphrase, keepEncrypted: setting.KeepUnencrypted)
+      : this(setting.FullPath, isReading, setting.Passphrase, keepEncrypted: setting.KeepUnencrypted)
     {
       if (FileType != FileTypeEnum.Pgp) return;
       PgpKey = FileSystemUtils.ReadAllText(setting.KeyFile);

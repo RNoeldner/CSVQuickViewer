@@ -10,7 +10,7 @@ namespace CsvTools
   public partial class SelectFont : UserControl
   {
     [Category("Action")] public event EventHandler? ValueChanged;
-
+    
     private bool m_UiChange = true;
 
     [Browsable(true)]

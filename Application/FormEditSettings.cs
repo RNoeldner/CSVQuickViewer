@@ -38,7 +38,7 @@ namespace CsvTools
       {
         bindingSourceCsvFile.DataSource = csvFile;
         quotingControl.CsvFile = csvFile;
-        textBoxFile_TextChanged(this, EventArgs.Empty);
+        TextBoxFile_TextChanged(this, EventArgs.Empty);
       }
     }
 
@@ -411,20 +411,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       m_ViewSettings.FontSize = selectFont.FontSize;
     }
 
-    private void checkBoxCopySkipped_MouseClick(object sender, MouseEventArgs e)
+    private void CheckBoxCopySkipped_MouseClick(object sender, MouseEventArgs e)
     {
       if (!checkBoxCopySkipped.Checked)
         m_ViewSettings.WriteSetting.SkipRows = 0;
     }
 
-    private void numericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
+    private void NumericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
     {
       if (numericUpDownSkipRows.Value > 0)
         checkBoxCopySkipped.Checked = true;
       checkBoxCopySkipped.Enabled = (numericUpDownSkipRows.Value > 0);
     }
 
-    private async void buttonEscapeSequence_Click(object sender, EventArgs e)
+    private async void ButtonEscapeSequence_Click(object sender, EventArgs e)
     {
       if (m_FileSetting is ICsvFile csvFile)
         await buttonEscapeSequence.RunWithHourglassAsync(async () =>
@@ -439,10 +439,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         });
     }
 
-    private void buttonKeyFileRead_Click(object sender, EventArgs e)
+    private void ButtonKeyFileRead_Click(object sender, EventArgs e)
      => SetPpgFile(textBoxKeyFileRead);
 
-    private void buttonKeyFileWrite_Click(object sender, EventArgs e)
+    private void ButtonKeyFileWrite_Click(object sender, EventArgs e)
       => SetPpgFile(textBoxKeyFileWrite);
 
     private void SetPpgFile(Control sourceTextBox)
@@ -466,7 +466,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
     }
 
-    private void textBoxFile_TextChanged(object sender, EventArgs e)
+    private void TextBoxFile_TextChanged(object sender, EventArgs e)
     {
       bool isPgp = textBoxFile.Text.AssumePgp();
       textBoxKeyFileRead.Enabled = isPgp;

@@ -28,7 +28,7 @@ namespace CsvTools
   ///   Setting file for CSV files, it's an implementation of <see cref="T:CsvTools.BaseSettings" />
   /// </summary>
   [Serializable]
-  public sealed class CsvFile : BaseSettingPhysicalFile, ICsvFile
+  public sealed class CsvFile : BaseSettingPhysicalFile, ICsvFile, IValidatorSetting
   {
     private const bool cContextSensitiveQualifierDefault = false;
     private const bool cQualifyAlwaysDefault = false;

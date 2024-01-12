@@ -63,22 +63,23 @@ namespace CsvTools
     public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
       var publicKey = string.Empty;
+      
       IFileWriter? writer = fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite, csv.CodePageId,
           csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer, csv.Header,
-          csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+          csv.Footer, csv.ToString()!, csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
           csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
           csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
           ),
 #if !CsvQuickViewer
-        IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath,
-          jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull,
-          jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString(),
-          jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted
+        IJsonFile jsonFile => new JsonFileWriter(jsonFile.FullPath, jsonFile.IdentifierInContainer,
+          jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull, jsonFile.CodePageId,
+          jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString()!, jsonFile.Row,
+          m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted
           ),
         IXmlFile xmlFile => new XmlFileWriter(xmlFile.FullPath, xmlFile.IdentifierInContainer, xmlFile.Footer,
-          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.ToString(),
+          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.ToString()!,
           xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
           ),
 #endif
@@ -87,12 +88,15 @@ namespace CsvTools
 
       if (writer is null)
         throw new FileWriterException($"Writer for {fileSetting} not found");
+
 #if !CsvQuickViewer
+      if (fileSetting is IValidatorSetting validator)
+
       writer.WriteFinished += (sender, args) =>
       {        
-        fileSetting.ProcessTimeUtc = DateTime.UtcNow;        
+        validator.ProcessTimeUtc = DateTime.UtcNow;        
         if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
-          new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
+          new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = validator.LatestSourceTimeUtc;
       };
 #endif
       return writer;

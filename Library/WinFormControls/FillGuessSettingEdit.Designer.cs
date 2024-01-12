@@ -42,7 +42,6 @@ namespace CsvTools
       System.Windows.Forms.Label label20;
       System.Windows.Forms.Label label5;
       this.trackBarCheckedRecords = new System.Windows.Forms.TrackBar();
-      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.checkBoxDectectNumbers = new System.Windows.Forms.CheckBox();
       this.checkBoxDectectPercentage = new System.Windows.Forms.CheckBox();
       this.checkBoxDetectDateTime = new System.Windows.Forms.CheckBox();
@@ -63,6 +62,7 @@ namespace CsvTools
       this.checkBoxRemoveCurrencySymbols = new System.Windows.Forms.CheckBox();
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       label21 = new System.Windows.Forms.Label();
       label22 = new System.Windows.Forms.Label();
       label23 = new System.Windows.Forms.Label();
@@ -74,12 +74,12 @@ namespace CsvTools
       label20 = new System.Windows.Forms.Label();
       label5 = new System.Windows.Forms.Label();
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMin)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSampleValues)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownChecked)).BeginInit();
       this.tableLayoutPanel1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // label21
@@ -213,11 +213,6 @@ namespace CsvTools
       this.trackBarCheckedRecords.TabIndex = 3;
       this.trackBarCheckedRecords.TickFrequency = 2000;
       this.trackBarCheckedRecords.Value = 250;
-      // 
-      // fillGuessSettingsBindingSource
-      // 
-      this.fillGuessSettingsBindingSource.AllowNew = false;
-      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
       // 
       // checkBoxDectectNumbers
       // 
@@ -536,6 +531,11 @@ namespace CsvTools
       // 
       this.errorProvider.ContainerControl = this;
       // 
+      // fillGuessSettingsBindingSource
+      // 
+      this.fillGuessSettingsBindingSource.AllowNew = false;
+      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
+      // 
       // FillGuessSettingEdit
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -546,13 +546,13 @@ namespace CsvTools
       this.Name = "FillGuessSettingEdit";
       this.Size = new System.Drawing.Size(656, 300);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMin)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSampleValues)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownChecked)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 

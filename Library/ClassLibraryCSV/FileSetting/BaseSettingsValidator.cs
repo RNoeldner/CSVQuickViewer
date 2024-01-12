@@ -25,7 +25,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <inheritdoc cref="IValidatorSetting" />  
-  public abstract class BaseSettingsValidator : ObservableObject, IValidatorSetting
+  public abstract class BaseSettingsValidator : BaseSettings, IValidatorSetting
   {
     /// <summary>
     /// The default time if none is chosen
@@ -36,15 +36,14 @@ namespace CsvTools
     private long m_ErrorCount;
     private string m_Id;
     private bool m_InOverview;
-    private bool m_IsEnabled = true;
-    private bool m_KeepUnencrypted;
+    private bool m_IsEnabled = true;    
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
     private long m_NumRecords;
     private int m_Order = 100;
     private DateTime m_ProcessTimeUtc = ZeroTime;
     private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
-    private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
+    private IReadOnlyCollection<IValidatorSetting>? m_SourceFileSettings;
     private string m_SqlStatement = string.Empty;
     private FileStettingStatus m_Status = FileStettingStatus.None;
     private string m_TemplateName = string.Empty;
@@ -121,14 +120,7 @@ namespace CsvTools
       get => m_IsEnabled;
       set => SetProperty(ref m_IsEnabled, value);
     }
-
-    /// <inheritdoc />
-    [DefaultValue(false)]
-    public bool KeepUnencrypted
-    {
-      get => m_KeepUnencrypted;
-      set => SetProperty(ref m_KeepUnencrypted, value);
-    }
+    
 
     /// <inheritdoc />    
     [JsonIgnore]
@@ -196,7 +188,7 @@ namespace CsvTools
 
     /// <inheritdoc />    
     [JsonIgnore]
-    public IReadOnlyCollection<IFileSetting>? SourceFileSettings
+    public IReadOnlyCollection<IValidatorSetting>? SourceFileSettings
     {
       get => m_SourceFileSettings;
       set
@@ -296,12 +288,14 @@ namespace CsvTools
       if (!other.SqlStatement.Equals(SqlStatement, StringComparison.Ordinal)) yield return $"{nameof(SqlStatement)} : {SqlStatement} - {other.SqlStatement}";
       if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal)) yield return $"{nameof(TemplateName)} : {TemplateName} - {other.TemplateName}";
       if (other.InOverview != InOverview) yield return $"{nameof(InOverview)} : {InOverview} - {other.InOverview}";
-      if (other.IsEnabled != IsEnabled) yield return $"{nameof(IsEnabled)} : {IsEnabled} - {other.IsEnabled}";
-      if (other.KeepUnencrypted != KeepUnencrypted) yield return $"{nameof(KeepUnencrypted)} : {KeepUnencrypted} - {other.KeepUnencrypted}";
+      if (other.IsEnabled != IsEnabled) yield return $"{nameof(IsEnabled)} : {IsEnabled} - {other.IsEnabled}";      
       if (other.RecentlyLoaded != RecentlyLoaded) yield return $"{nameof(RecentlyLoaded)} : {RecentlyLoaded} - {other.RecentlyLoaded}";
       if (other.ShowProgress != ShowProgress) yield return $"{nameof(ShowProgress)} : {ShowProgress} - {other.ShowProgress}";
       if (other.Timeout != Timeout) yield return $"{nameof(Timeout)} : {Timeout} - {other.Timeout}";
       if (other.Validate != Validate) yield return $"{nameof(Validate)} : {Validate} - {other.Validate}";
+
+      foreach (var ret in base.GetDifferences(other as IFileSetting))
+        yield return ret;
     }
 
     /// <inheritdoc />
@@ -326,6 +320,7 @@ namespace CsvTools
 
       other.MappingCollection.Clear();
       other.MappingCollection.AddRange(MappingCollection);
+      other.ShowProgress = ShowProgress;
       other.TemplateName = TemplateName;
       other.IsEnabled = IsEnabled;
       other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
@@ -336,7 +331,6 @@ namespace CsvTools
       other.Timeout = Timeout;
       other.ProcessTimeUtc = ProcessTimeUtc;
       other.RecentlyLoaded = RecentlyLoaded;
-      other.KeepUnencrypted = KeepUnencrypted;
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;
       other.Order = Order;
       other.Comment = Comment;
@@ -345,6 +339,9 @@ namespace CsvTools
       SamplesAndErrors.CopyTo(other.SamplesAndErrors);
       other.ErrorCount = ErrorCount;
       other.ID = ID;
+
+      if (other is BaseSettings baseSettings)
+        base.BaseSettingsCopyTo(baseSettings);
     }
 
     /// <summary>
@@ -360,9 +357,7 @@ namespace CsvTools
       if (other is null)
         return false;
       if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
-        return false;
-      if (other.KeepUnencrypted != KeepUnencrypted)
-        return false;
+        return false;      
       if (other.RecentlyLoaded != RecentlyLoaded || other.IsEnabled != IsEnabled || other.InOverview != InOverview
           || other.Validate != Validate || other.ShowProgress != ShowProgress)
         return false;
@@ -386,6 +381,9 @@ namespace CsvTools
       if (other.Order != Order || !other.Comment.Equals(Comment))
         return false;
 
+
+      if (other is BaseSettings baseSettings)
+        base.BaseSettingsCopyTo(baseSettings);
       return true;
     }
   }
