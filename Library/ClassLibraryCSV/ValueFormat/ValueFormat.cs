@@ -323,6 +323,7 @@ namespace CsvTools
           && DataType == DataTypeEnum.Integer)
         return true;
 
+      // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
       switch (expectedFormat.DataType)
       {
         case DataTypeEnum.Integer when DataType == DataTypeEnum.Numeric || DataType == DataTypeEnum.Double

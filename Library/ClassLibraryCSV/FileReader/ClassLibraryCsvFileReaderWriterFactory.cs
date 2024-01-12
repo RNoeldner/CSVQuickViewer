@@ -92,12 +92,12 @@ namespace CsvTools
 #if !CsvQuickViewer
       if (fileSetting is IValidatorSetting validator)
 
-      writer.WriteFinished += (sender, args) =>
-      {        
-        validator.ProcessTimeUtc = DateTime.UtcNow;        
-        if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
-          new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = validator.LatestSourceTimeUtc;
-      };
+        writer.WriteFinished += (sender, args) =>
+        {        
+          validator.ProcessTimeUtc = DateTime.UtcNow;        
+          if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
+            new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = validator.LatestSourceTimeUtc;
+        };
 #endif
       return writer;
     }

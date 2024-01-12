@@ -31,7 +31,7 @@ namespace CsvTools
   ///   cref="P:CsvTools.BaseSettings.ColumnCollection" /> and <see
   ///   cref="P:CsvTools.BaseSettings.MappingCollection" />
   /// </summary>
-  [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
+  [DebuggerDisplay("Settings: ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : ObservableObject, IFileSetting
   {
     /// <summary>
@@ -200,7 +200,11 @@ namespace CsvTools
     /// <inheritdoc />
     public abstract bool Equals(IFileSetting? other);
 
-    /// <inheritdoc />
+#if !CsvQuickViewer
+    /// <summary>
+    /// List all difference between two instances
+    /// </summary>
+    /// <param name="other">The other IFileSetting </param>
     public virtual IEnumerable<string> GetDifferences(IFileSetting other)
     {
       if (!other.ColumnCollection.Equals(ColumnCollection)) yield return $"{nameof(ColumnCollection)} different";
@@ -220,6 +224,7 @@ namespace CsvTools
       if (other.TreatTextAsNull != TreatTextAsNull) yield return $"{nameof(TreatTextAsNull)} : {TreatTextAsNull} - {other.TreatTextAsNull}";
       if (other.KeepUnencrypted != KeepUnencrypted) yield return $"{nameof(KeepUnencrypted)} : {KeepUnencrypted} - {other.KeepUnencrypted}";
     }
+#endif
 
     /// <summary>
     ///   Copies all values to other instance

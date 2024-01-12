@@ -22,7 +22,8 @@ using System.Diagnostics.CodeAnalysis;
 #endif
 
 namespace CsvTools
-{  
+{
+  /// <inheritdoc />
   [DebuggerDisplay("Count = {Count}")]
   [DefaultMember("Item")]
   public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
@@ -61,7 +62,7 @@ namespace CsvTools
         Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
     public void Add(in TKey key, in TValue value)
     {
       if (ContainsKey(key))
@@ -73,14 +74,14 @@ namespace CsvTools
       m_SecondToFirst.Add(value, key);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
     public new void Remove(TKey key)
     {
       m_SecondToFirst.Remove(base[key]);
       base.Remove(key);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
     public new void Clear()
     {
       m_SecondToFirst.Clear();

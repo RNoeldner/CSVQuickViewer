@@ -187,9 +187,9 @@ namespace CsvTools
     ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public bool Equals(ICollection<T>? other)
+    public bool Equals(IEnumerable<T> other)
     {
-      return other is { } && this.CollectionEqualWithOrder(other);
+      return this.CollectionEqualWithOrder(other);
     }
 
     /// <inheritdoc cref="IList{T}" />

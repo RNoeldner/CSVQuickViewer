@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class with methods to detect the correct delimiter char
+  /// </summary>
   public static class DetectionEscapePrefix
   {
-    
-
     /// <summary>
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
     /// </summary>

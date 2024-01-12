@@ -18,9 +18,15 @@ using System.Data;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+  /// </summary>
   public class TextToHtmlFormatter : BaseColumnFormatter
   {
-    public static TextToHtmlFormatter Instance = new TextToHtmlFormatter();
+    /// <summary>
+    /// Static instance of the formatter
+    /// </summary>
+    public static readonly TextToHtmlFormatter Instance = new TextToHtmlFormatter();
 
     /// <inheritdoc/>
     public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
@@ -39,6 +45,7 @@ namespace CsvTools
       return output;
     }
 
+    /// <inheritdoc/>
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
       => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();    
   }

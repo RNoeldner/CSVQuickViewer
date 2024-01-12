@@ -21,10 +21,14 @@ namespace CsvTools
   [AttributeUsage(AttributeTargets.All)]
   public class ShortDescriptionAttribute : Attribute
   {
+    /// <inheritdoc />
     public string ShortDescription { get; protected set; }
+    
+    /// <inheritdoc />
     public ShortDescriptionAttribute() : this(string.Empty)
     { }
 
+    /// <inheritdoc />
     public ShortDescriptionAttribute(string value) => ShortDescription = value;
   }
 }

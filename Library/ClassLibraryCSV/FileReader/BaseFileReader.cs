@@ -539,8 +539,7 @@ namespace CsvTools
     {
       if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
         return new FileStream(path: CurrentRowColumnText[ordinal], mode: FileMode.Open, access: FileAccess.Read);
-      else
-        return new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
+      return new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
     }
 
     /// <inheritdoc />
@@ -560,8 +559,7 @@ namespace CsvTools
         return new StringReader(string.Empty);
       if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
         return File.OpenText(path: CurrentRowColumnText[ordinal]);
-      else
-        return new StringReader(CurrentRowColumnText[ordinal]);
+      return new StringReader(CurrentRowColumnText[ordinal]);
     }
 
     /// <inheritdoc />
@@ -644,14 +642,14 @@ namespace CsvTools
     /// <inheritdoc />
     public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => Task.FromResult(false);
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IDataReader" />
     [Obsolete("Use OpenAsync instead")]
     public virtual void Open() => OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IDataReader" />
     public abstract Task OpenAsync(CancellationToken cancellationToken);
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IDataReader" />
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
@@ -753,8 +751,7 @@ namespace CsvTools
 
       if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
         return inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
-      else
-        return inputString.ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
+      return inputString.ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
     }
 
     /// <summary>

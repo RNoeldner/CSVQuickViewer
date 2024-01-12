@@ -19,21 +19,24 @@ namespace CsvTools
   /// <inheritdoc />
   public sealed class FileReaderOpenException : FileReaderException
   {
+    /// <inheritdoc />
     public FileReaderOpenException()
       : base(GetMessage(string.Empty))
     {
     }
 
+    /// <inheritdoc />
     public FileReaderOpenException(string message)
       : base(GetMessage(message))
     {
     }
 
+    /// <inheritdoc />
     public FileReaderOpenException(string message, Exception inner)
       : base(GetMessage(message), inner)
     {
     }
-
+    
     private static string GetMessage(string message) =>
       message.Length > 0
         ? $"A file reader has to be opened before reading data. Please execute Open() or OpenAsync().\n{message}"

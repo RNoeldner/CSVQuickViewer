@@ -39,6 +39,11 @@ namespace CsvTools
     };
 
     // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// Determine the length of the BO´M
+    /// </summary>
+    /// <param name="codePage">Code Page</param>
+    /// <returns>Length in Bytes</returns>
     public static byte BOMLength(int codePage)
     {
       // ReSharper disable once ConvertIfStatementToSwitchStatement
@@ -119,13 +124,19 @@ namespace CsvTools
       return null;
     }
 
+    /// <summary>
+    ///   Gets the name of the encoding.
+    /// </summary>
+    /// <param name="encoding">Encoding enumerable</param>
+    /// <param name="hasBom">Flag indicating that byte order mark should be noted</param>
+    /// <returns>The name</returns>
     public static string GetEncodingName(Encoding encoding, bool hasBom) => GetEncodingName(encoding.CodePage, hasBom);
 
     /// <summary>
     ///   Gets the name of the encoding.
     /// </summary>
     /// <param name="codePage">The code page ID.</param>
-    /// <param name="hasBom">Flag indicating that byte order mark is present</param>
+    /// <param name="hasBom">Flag indicating that byte order mark should be noted</param>
     /// <returns>The name</returns>
     public static string GetEncodingName(int codePage, bool hasBom)
     {

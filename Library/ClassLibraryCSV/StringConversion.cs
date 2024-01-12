@@ -23,6 +23,12 @@ namespace CsvTools
   /// </summary>
   public static class StringConversion
   {
+    /// <summary>
+    /// Convert a DateTime to a text in a given format
+    /// </summary>
+    /// <param name="dateTime">The date time value</param>
+    /// <param name="format">The ValueFormat</param>
+    /// <returns>Formatted value</returns>
     public static string DateTimeToString(this in DateTime dateTime, in ValueFormat format) =>
       DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
 

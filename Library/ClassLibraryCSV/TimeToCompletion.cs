@@ -25,6 +25,9 @@ namespace CsvTools
   /// </summary>
   public sealed class TimeToCompletion
   {
+    /// <summary>
+    /// Maximum TimeSpan
+    /// </summary>
     public static readonly TimeSpan Max = TimeSpan.FromDays(2);
     private readonly TimeSpan m_MaximumAge;
     private readonly byte m_MinimumData;
@@ -52,6 +55,10 @@ namespace CsvTools
     /// <value>The estimated time remaining.</value>
     public TimeSpan EstimatedTimeRemaining { get; private set; } = Max;
 
+    
+    /// <summary>
+    ///   Displays the remaining timespan in a human-readable format
+    /// </summary>
     public string EstimatedTimeRemainingDisplay => DisplayTimespan(EstimatedTimeRemaining);
 
     /// <summary>
@@ -80,9 +87,14 @@ namespace CsvTools
     /// <value>Percent (usually between 0 and 1)</value>
     public double EstimatedPercent { get; private set; }
 
+    /// <summary>
+    ///   Gets the estimated percentage as Text 
+    /// </summary>
     public string PercentDisplay => Percent < 10 ? $"{Percent:F1}%" : $"{Percent:F0}%";
 
-
+    /// <summary>
+    ///   Gets the estimated percentage as Text 
+    /// </summary>
     public string EstimatedPercentDisplay => EstimatedPercent < 10 ? $"{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
 
     /// <summary>

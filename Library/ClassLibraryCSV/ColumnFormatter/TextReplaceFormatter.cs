@@ -24,6 +24,7 @@ namespace CsvTools
     private readonly string m_Replacement = string.Empty;
     private readonly Regex? m_Regex;
 
+    /// <inheritdoc />
     public TextReplaceFormatter(in string searchPattern, in string replace)
     {
       if (string.IsNullOrWhiteSpace(searchPattern))
@@ -46,6 +47,8 @@ namespace CsvTools
 
       return inputString;
     }
+
+    /// <inheritdoc />
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
     {
       if (m_Regex?.IsMatch(inputString.ToString()) ?? false)

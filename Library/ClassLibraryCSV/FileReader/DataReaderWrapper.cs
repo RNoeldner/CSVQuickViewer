@@ -192,7 +192,7 @@ namespace CsvTools
     public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
 
     /// <inheritdoc />
-    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal))!;
+    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
@@ -382,10 +382,10 @@ namespace CsvTools
       RecordNumber++;
 
       if (m_ReaderMapping.ColNumErrorFieldSource != -1)
-        m_RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource) ? string.Empty : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource)?.ToString() ?? string.Empty;
+        m_RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource) ? string.Empty : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
       else
       {
-        m_RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, (i) => i>=0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
+        m_RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => i>=0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
         m_ColumnErrorDictionary.Clear();
       }
       if (string.IsNullOrEmpty(m_RowErrorInformation))

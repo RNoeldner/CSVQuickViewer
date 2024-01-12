@@ -173,6 +173,10 @@ namespace CsvTools
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
     public CsvFileReader(in string fileName, int codePageId, int skipRows, bool hasFieldHeader,
       in IEnumerable<Column>? columnDefinition,
       in TrimmingOptionEnum trimmingOption,
@@ -481,6 +485,7 @@ namespace CsvTools
         ReadNextRow(false);
     }
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (disposing)
@@ -1192,7 +1197,7 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-
+    /// <inheritdoc />
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
