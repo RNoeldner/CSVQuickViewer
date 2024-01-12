@@ -36,38 +36,13 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
-    public JsonFileWriter(in string id,
-      in string fullPath,
-      in string? identifierInContainer,
-      in string? footer,
-      in string? header,
-      bool emptyAsNull,
-      int codePageId,
-      bool byteOrderMark,
-      IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay,
-      in string row,
-      TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted
-
-      )
-      : base(
-        fullPath,
-        identifierInContainer,
-        footer,
-        header,
-        codePageId,
-        byteOrderMark,
-        columnDefinition,
-        fileSettingDisplay,
-        row,
-        timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone,
-        publicKey,
-        unencrypted
-        )
+    public JsonFileWriter(in string fullPath, in string? identifierInContainer, in string? footer, in string? header,
+                          bool emptyAsNull, int codePageId, bool byteOrderMark, IEnumerable<Column>? columnDefinition,
+                          in string fileSettingDisplay, in string row, TimeZoneChangeDelegate? timeZoneAdjust,
+                          in string sourceTimeZone, in string publicKey, bool unencrypted)
+      : base(fullPath, identifierInContainer, footer, header, codePageId, byteOrderMark, columnDefinition,
+             fileSettingDisplay, row, timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone, publicKey,
+             unencrypted)
     {
       m_EmptyAsNull = emptyAsNull;
     }

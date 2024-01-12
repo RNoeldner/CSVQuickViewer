@@ -23,7 +23,7 @@ namespace CsvTools
   /// <summary>
 ///  Interface for Settings used in the validator
 /// </summary>
-  public interface IValidatorSetting : INotifyPropertyChanged, ICollectionIdentity
+  public interface IValidatorSetting : INotifyPropertyChanged, ICollectionIdentity, IFileSetting
   {
     /// <summary>
     /// Occurs when identifier is changed
@@ -59,13 +59,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if this instance is enabled; otherwise, <c>false</c>.</value>
     bool IsEnabled { get; set; }
-
-    /// <summary>
-    ///   When a file is encrypted the not encrypted version temporary file is removed When data is
-    ///   sent into a steam the data can not be access Set to <c>true</c> a readable file is not
-    ///   removed / is created
-    /// </summary>
-    bool KeepUnencrypted { get; set; }
 
     /// <summary>
     ///   The latest value of possible sources, e.G. the file time from the sources in a SQL, As
@@ -121,7 +114,7 @@ namespace CsvTools
     ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
-    IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
+    IReadOnlyCollection<IValidatorSetting>? SourceFileSettings { get; set; }
 
     /// <summary>
     /// Gets or sets the SQL statement used in case the Setting does read data from the connected database

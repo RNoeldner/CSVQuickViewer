@@ -120,6 +120,82 @@ namespace CsvTools
 
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
+
+
+      detailControl.WriteFileAsync = async (ct, reader) =>
+      {
+        if (m_FileSetting==null)
+          return;
+        try
+        {
+          var split = FileSystemUtils.SplitPath(m_FileSetting.FullPath);
+
+          var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File",
+            "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
+            ".csv", true, split.FileName);
+
+          if (fileName is null || fileName.Length == 0)
+            return;
+          m_ViewSettings.WriteSetting.FileName = fileName;
+
+          var skippedLines = new StringBuilder();
+          // in case we skipped lines read them as Header so we do not loose them
+          if (m_FileSetting.SkipRows > 0)
+          {
+#if NET5_0_OR_GREATER
+        await
+#endif
+            using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath, true));
+            using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
+            for (var i = 0; i < m_FileSetting.SkipRows; i++)
+              skippedLines.AppendLine(await sr.ReadLineAsync());
+          }
+          using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), ct);
+
+          formProgress.Show(this);
+          fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
+          fileSystemWatcher.EnableRaisingEvents = false;
+
+          var writer = new CsvFileWriter(fileName, m_ViewSettings.WriteSetting.HasFieldHeader, m_ViewSettings.WriteSetting.ValueFormatWrite,
+            m_ViewSettings.WriteSetting.CodePageId,
+            m_ViewSettings.WriteSetting.ByteOrderMark,
+            m_ViewSettings.WriteSetting.ColumnCollection, m_ViewSettings.WriteSetting.IdentifierInContainer, skippedLines.ToString(),
+            m_FileSetting.Footer,
+            string.Empty, m_ViewSettings.WriteSetting.NewLine, m_ViewSettings.WriteSetting.FieldDelimiterChar, m_ViewSettings.WriteSetting.FieldQualifierChar,
+            m_ViewSettings.WriteSetting.EscapePrefixChar,
+            m_ViewSettings.WriteSetting.NewLinePlaceholder,
+            m_ViewSettings.WriteSetting.DelimiterPlaceholder,
+            m_ViewSettings.WriteSetting.QualifierPlaceholder, m_ViewSettings.WriteSetting.QualifyAlways, m_ViewSettings.WriteSetting.QualifyOnlyIfNeeded,
+            m_ViewSettings.WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, m_ViewSettings.WriteSetting.KeepUnencrypted);
+
+          // can not use filteredDataGridView.Columns directly
+          await writer.WriteAsync(reader, formProgress.CancellationToken);
+
+          fileSystemWatcher.Changed += FileSystemWatcher_Changed;
+          fileSystemWatcher.EnableRaisingEvents = true;
+
+          m_ShouldReloadData = false;
+          if (m_ViewSettings.StoreSettingsByFile)
+            await SerializedFilesLib.SaveSettingFileAsync(m_ViewSettings.WriteSetting, () => true, m_CancellationTokenSource.Token);
+        }
+        catch (Exception ex)
+        {
+          this.ShowError(ex);
+        }
+      };
+
+      detailControl.DisplaySourceAsync = async (ct) =>
+      {
+        using var m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath, null);
+        m_SourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
+        if (m_FileSetting is ICsvFile csv)
+          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
+            csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine, ct);
+        else
+          await m_SourceDisplay.OpenFileAsync(m_FileSetting is IJsonFile, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
+            ct);
+        m_SourceDisplay.ShowDialog();
+      };
     }
 
     /// <summary>
@@ -497,21 +573,6 @@ namespace CsvTools
       }
     }
 
-    private void BeforeFileStored(object? sender, IFileSettingPhysicalFile e)
-    {
-      fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
-      fileSystemWatcher.EnableRaisingEvents = false;
-    }
-
-    private async void FileStored(object? sender, IFileSettingPhysicalFile e)
-    {
-      fileSystemWatcher.Changed += FileSystemWatcher_Changed;
-      fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
-      m_ShouldReloadData = false;
-      if (m_ViewSettings.StoreSettingsByFile)
-        await SerializedFilesLib.SaveSettingFileAsync(e, () => true, m_CancellationTokenSource.Token);
-    }
-
     /// <summary>
     ///   Handles the Changed event of the fileSystemWatcher control.
     /// </summary>
@@ -532,10 +593,7 @@ namespace CsvTools
 
     private void FormMain_Loaded(object? sender, EventArgs e)
     {
-      // Handle Events
-      detailControl.BeforeFileStored += BeforeFileStored;
-      detailControl.FileStored += FileStored;
-
+      // Handle Events      
       m_ViewSettings.PropertyChanged += (o, args) =>
       {
         if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
@@ -594,8 +652,6 @@ namespace CsvTools
           detailControl.SafeInvoke(() =>
           {
             ShowTextPanel(true);
-            detailControl.FileSetting = m_FileSetting;
-            detailControl.WriteSetting = m_ViewSettings.WriteSetting;
             detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
             detailControl.CancellationToken = cancellationToken;
             detailControl.ShowInfoButtons = false;

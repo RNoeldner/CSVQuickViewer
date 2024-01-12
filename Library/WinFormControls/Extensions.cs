@@ -115,14 +115,12 @@ namespace CsvTools
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A process display, if the stetting want a process</returns>
-    public static FormProgress? GetProgress(
+    public static FormProgress GetProgress(
       this IFileSetting fileSetting,
       Form? owner,
       bool withLogger,
       in CancellationToken cancellationToken)
     {
-      if (!fileSetting.ShowProgress)
-        return null;
       var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
       formProgress.Show(owner);
 

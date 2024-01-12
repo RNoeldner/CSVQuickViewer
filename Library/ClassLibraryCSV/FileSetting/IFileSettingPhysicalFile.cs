@@ -12,14 +12,12 @@
  *
  */
 
-using System.Security;
-
 namespace CsvTools
 {
   /// <summary>
   ///  Interface for a file based settings
   /// </summary>
-  public interface IFileSettingPhysicalFile : IFileSetting
+  public interface IFileSettingPhysicalFile : IValidatorSetting
   {
     /// <summary>
     ///   May store information on columns to show, filtering and sorting

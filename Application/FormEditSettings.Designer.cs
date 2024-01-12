@@ -246,7 +246,7 @@ namespace CsvTools
       this.textBoxFile.Name = "textBoxFile";
       this.textBoxFile.Size = new System.Drawing.Size(466, 20);
       this.textBoxFile.TabIndex = 0;
-      this.textBoxFile.TextChanged += new System.EventHandler(this.textBoxFile_TextChanged);
+      this.textBoxFile.TextChanged += new System.EventHandler(this.TextBoxFile_TextChanged);
       this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
       // 
       // buttonGuessDelimiter
@@ -487,7 +487,7 @@ namespace CsvTools
       this.buttonEscapeSequence.TabIndex = 30;
       this.buttonEscapeSequence.Text = "Detect Escape";
       this.buttonEscapeSequence.UseVisualStyleBackColor = true;
-      this.buttonEscapeSequence.Click += new System.EventHandler(this.buttonEscapeSequence_Click);
+      this.buttonEscapeSequence.Click += new System.EventHandler(this.ButtonEscapeSequence_Click);
       // 
       // textBoxDelimiter
       // 
@@ -535,7 +535,7 @@ namespace CsvTools
       this.numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
       this.numericUpDownSkipRows.TabIndex = 19;
       this.toolTip.SetToolTip(this.numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
-      this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
+      this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.NumericUpDownSkipRows_ValueChanged);
       // 
       // buttonInteractiveSettings
       // 
@@ -680,7 +680,7 @@ namespace CsvTools
       this.buttonKeyFileRead.TabIndex = 33;
       this.buttonKeyFileRead.Text = "Select File";
       this.buttonKeyFileRead.UseVisualStyleBackColor = true;
-      this.buttonKeyFileRead.Click += new System.EventHandler(this.buttonKeyFileRead_Click);
+      this.buttonKeyFileRead.Click += new System.EventHandler(this.ButtonKeyFileRead_Click);
       // 
       // checkBoxTreatNBSPAsSpace
       // 
@@ -1105,7 +1105,7 @@ namespace CsvTools
       this.checkBoxCopySkipped.Text = "Copy Skipped Lines";
       this.toolTip.SetToolTip(this.checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
       this.checkBoxCopySkipped.UseVisualStyleBackColor = true;
-      this.checkBoxCopySkipped.MouseClick += new System.Windows.Forms.MouseEventHandler(this.checkBoxCopySkipped_MouseClick);
+      this.checkBoxCopySkipped.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CheckBoxCopySkipped_MouseClick);
       // 
       // textBoxKeyFileWrite
       // 
@@ -1530,7 +1530,7 @@ namespace CsvTools
       this.buttonKeyFileWrite.TabIndex = 17;
       this.buttonKeyFileWrite.Text = "Select File";
       this.buttonKeyFileWrite.UseVisualStyleBackColor = true;
-      this.buttonKeyFileWrite.Click += new System.EventHandler(this.buttonKeyFileWrite_Click);
+      this.buttonKeyFileWrite.Click += new System.EventHandler(this.ButtonKeyFileWrite_Click);
       // 
       // FormEditSettings
       // 

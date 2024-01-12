@@ -32,13 +32,7 @@ namespace CsvTools
   ///   cref="P:CsvTools.BaseSettings.MappingCollection" />
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettings :
-#if !CsvQuickViewer
-      BaseSettingsValidator
-#else
-      ObservableObject 
-#endif
-    , IFileSetting
+  public abstract class BaseSettings : ObservableObject, IFileSetting
   {
     /// <summary>
     /// The default text to be treated as NULL
@@ -51,6 +45,7 @@ namespace CsvTools
     private string m_Footer = string.Empty;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
+    private bool m_KeepUnencrypted;
     private long m_RecordLimit;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
@@ -62,10 +57,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
-    protected BaseSettings(in string id)
-#if !CsvQuickViewer
-       : base(id)
-#endif
+    protected BaseSettings()
     {
       // adding or removing columns should cause a property changed for ColumnCollection
       ColumnCollection.CollectionChanged += (sender, e) =>
@@ -75,23 +67,6 @@ namespace CsvTools
       };
       ColumnCollection.CollectionItemPropertyChanged += (sender, e) => NotifyPropertyChanged(nameof(ColumnCollection));
     }
-
-    /// <inheritdoc />
-    [DefaultValue(false)]
-    public virtual bool DisplayRecordNo
-    {
-      get => m_DisplayRecordNo;
-      set => SetProperty(ref m_DisplayRecordNo, value);
-    }
-
-    /// <inheritdoc />
-    [DefaultValue(true)]
-    public virtual bool DisplayStartLineNo
-    {
-      get => m_DisplayStartLineNo;
-      set => SetProperty(ref m_DisplayStartLineNo, value);
-    }
-
     /// <inheritdoc />
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
@@ -109,6 +84,22 @@ namespace CsvTools
     {
       get => m_DisplayEndLineNo;
       set => SetProperty(ref m_DisplayEndLineNo, value);
+    }
+
+    /// <inheritdoc />
+    [DefaultValue(false)]
+    public virtual bool DisplayRecordNo
+    {
+      get => m_DisplayRecordNo;
+      set => SetProperty(ref m_DisplayRecordNo, value);
+    }
+
+    /// <inheritdoc />
+    [DefaultValue(true)]
+    public virtual bool DisplayStartLineNo
+    {
+      get => m_DisplayStartLineNo;
+      set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
     /// <inheritdoc />
@@ -135,6 +126,13 @@ namespace CsvTools
       set => SetProperty(ref m_Header, (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine));
     }
 
+    /// <inheritdoc />
+    [DefaultValue(false)]
+    public bool KeepUnencrypted
+    {
+      get => m_KeepUnencrypted;
+      set => SetProperty(ref m_KeepUnencrypted, value);
+    }
     /// <inheritdoc />
     [DefaultValue(0)]
     public virtual long RecordLimit
@@ -202,85 +200,6 @@ namespace CsvTools
     /// <inheritdoc />
     public abstract bool Equals(IFileSetting? other);
 
-    /// <summary>
-    ///   Copies all values to other instance
-    /// </summary>
-    /// <param name="other">The other.</param>
-    protected virtual void BaseSettingsCopyTo(in BaseSettings? other)
-    {
-      if (other is null)
-        return;
-
-      other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
-      other.TrimmingOption = TrimmingOption;
-      other.DisplayStartLineNo = DisplayStartLineNo;
-      other.DisplayEndLineNo = DisplayEndLineNo;
-      other.DisplayRecordNo = DisplayRecordNo;
-      other.HasFieldHeader = HasFieldHeader;
-      other.ShowProgress = ShowProgress;
-      other.TreatTextAsNull = TreatTextAsNull;
-      other.RecordLimit = RecordLimit;
-      other.SkipRows = SkipRows;
-      other.SkipEmptyLines = SkipEmptyLines;
-      other.SkipDuplicateHeader = SkipDuplicateHeader;
-
-      other.TreatNBSPAsSpace = TreatNBSPAsSpace;
-      other.ColumnCollection.Clear();
-      other.ColumnCollection.AddRange(ColumnCollection);
-      other.Footer = Footer;
-      other.Header = Header;
-
-#if !CsvQuickViewer
-      base.BaseSettingsCopyTo(other);
-#endif     
-    }
-
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    protected virtual bool BaseSettingsEquals(in BaseSettings? other)
-    {
-      if (other is null)
-        return false;
-      if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
-        return false;
-
-      if (!base.BaseSettingsEquals(other))
-        return false;
-      if (other.SkipRows != SkipRows || other.HasFieldHeader != HasFieldHeader)
-        return false;
-
-      if (other.TreatNBSPAsSpace != TreatNBSPAsSpace || other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
-        return false;
-      if (other.DisplayStartLineNo != DisplayStartLineNo || other.DisplayEndLineNo != DisplayEndLineNo
-                                                         || other.DisplayRecordNo != DisplayRecordNo)
-        return false;
-      if (other.RecordLimit != RecordLimit)
-        return false;
-      if (other.SkipEmptyLines != SkipEmptyLines || other.SkipDuplicateHeader != SkipDuplicateHeader)
-        return false;
-      if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase)
-          || other.TrimmingOption != TrimmingOption)
-        return false;
-      if (!other.Footer.Equals(Footer, StringComparison.Ordinal)
-          || !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
-        return false;
-      if (other.KeepUnencrypted != KeepUnencrypted)
-        return false;
-
-#if !CsvQuickViewer
-      if (!base.BaseSettingsEquals(other))
-        return false;
-#endif
-      return other.ColumnCollection.Equals(ColumnCollection);
-    }
-
-#if !CsvQuickViewer
     /// <inheritdoc />
     public virtual IEnumerable<string> GetDifferences(IFileSetting other)
     {
@@ -299,11 +218,61 @@ namespace CsvTools
       if (other.SkipRows != SkipRows) yield return $"{nameof(SkipRows)}: {SkipRows} - {other.SkipRows}";
       if (other.TreatNBSPAsSpace != TreatNBSPAsSpace) yield return $"{nameof(TreatNBSPAsSpace)} : {TreatNBSPAsSpace} - {other.TreatNBSPAsSpace}";
       if (other.TreatTextAsNull != TreatTextAsNull) yield return $"{nameof(TreatTextAsNull)} : {TreatTextAsNull} - {other.TreatTextAsNull}";
-
-      if (other is BaseSettingsValidator baseSettingsValidator)
-        foreach (var baseReturn in base.GetDifferences(baseSettingsValidator))
-          yield return baseReturn;
+      if (other.KeepUnencrypted != KeepUnencrypted) yield return $"{nameof(KeepUnencrypted)} : {KeepUnencrypted} - {other.KeepUnencrypted}";
     }
+
+    /// <summary>
+    ///   Copies all values to other instance
+    /// </summary>
+    /// <param name="other">The other.</param>
+    protected virtual void BaseSettingsCopyTo(in BaseSettings? other)
+    {
+      if (other is null)
+        return;
+
+      other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
+      other.TrimmingOption = TrimmingOption;
+      other.DisplayStartLineNo = DisplayStartLineNo;
+      other.DisplayEndLineNo = DisplayEndLineNo;
+      other.DisplayRecordNo = DisplayRecordNo;
+      other.HasFieldHeader = HasFieldHeader;
+      other.TreatTextAsNull = TreatTextAsNull;
+      other.RecordLimit = RecordLimit;
+      other.SkipRows = SkipRows;
+      other.SkipEmptyLines = SkipEmptyLines;
+      other.SkipDuplicateHeader = SkipDuplicateHeader;
+      other.KeepUnencrypted = KeepUnencrypted;
+      other.TreatNBSPAsSpace = TreatNBSPAsSpace;
+      other.ColumnCollection.Clear();
+      other.ColumnCollection.AddRange(ColumnCollection);
+      other.Footer = Footer;
+      other.Header = Header;
+    }
+
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
+    /// </returns>
+    protected virtual bool BaseSettingsEquals(in BaseSettings? other)
+    {
+      if (other is null)
+        return false;
+      if (other.KeepUnencrypted != KeepUnencrypted) return false;
+      if (other.SkipRows != SkipRows || other.HasFieldHeader != HasFieldHeader) return false;
+      if (other.TreatNBSPAsSpace != TreatNBSPAsSpace || other.ConsecutiveEmptyRows != ConsecutiveEmptyRows) return false;
+      if (other.DisplayStartLineNo != DisplayStartLineNo || other.DisplayEndLineNo != DisplayEndLineNo || other.DisplayRecordNo != DisplayRecordNo) return false;
+      if (other.RecordLimit != RecordLimit) return false;
+      if (other.SkipEmptyLines != SkipEmptyLines || other.SkipDuplicateHeader != SkipDuplicateHeader) return false;
+      if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase) || other.TrimmingOption != TrimmingOption) return false;
+      if (!other.Footer.Equals(Footer, StringComparison.Ordinal)           || !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase)) return false;
+      return other.ColumnCollection.Equals(ColumnCollection);
+    }
+
+#if !CsvQuickViewer
 #endif
 
   }

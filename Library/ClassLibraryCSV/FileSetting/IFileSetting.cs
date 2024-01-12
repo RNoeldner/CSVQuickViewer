@@ -18,14 +18,10 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
-
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
   public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>
-#if !CsvQuickViewer
-    ,IValidatorSetting
-#endif
   {
     /// <summary>
     ///   Gets or sets the column formats
@@ -76,6 +72,13 @@ namespace CsvTools
     string Header { get; set; }
 
     /// <summary>
+    ///   When a file is encrypted the not encrypted version temporary file is removed When data is
+    ///   sent into a steam the data can not be access Set to <c>true</c> a readable file is not
+    ///   removed / is created
+    /// </summary>
+    bool KeepUnencrypted { get; set; }
+
+    /// <summary>
     ///   Gets or sets the record limit.
     /// </summary>
     /// <value>The record limit. if set to 0 there is no limit</value>
@@ -86,7 +89,6 @@ namespace CsvTools
     ///   happens if two delimited files are appended without removing the header of the appended file
     /// </summary>
     bool SkipDuplicateHeader { get; set; }
-
     /// <summary>
     ///   Gets or sets a value indicating if the reader will skip empty lines.
     /// </summary>
@@ -114,13 +116,5 @@ namespace CsvTools
     ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
     TrimmingOptionEnum TrimmingOption { get; set; }
-
-    /// <summary>
-    /// Converts to string.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="System.String" /> that represents this instance.
-    /// </returns>
-    string ToString();
   }
 }

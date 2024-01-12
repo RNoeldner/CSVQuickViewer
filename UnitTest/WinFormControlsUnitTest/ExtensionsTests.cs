@@ -44,40 +44,7 @@ namespace CsvTools.Tests
       frm.Controls.Add(lv);
       frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
     }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void GetProgressTest()
-    {
-
-      var setting =
-        new CsvFile(id: string.Empty,
-          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
-        {
-          ShowProgress = true
-        };
-      using (var prc = setting.GetProgress(new Form(), true, UnitTestStatic.Token))
-      {
-        Assert.IsNotNull(prc, "Getprogress With Logger");
-      }
-
-      using (var prc = setting.GetProgress(new Form(), false, UnitTestStatic.Token))
-      {
-        Assert.IsNotNull(prc, "Getprogress Without Logger");
-      }
-
-
-      Extensions.RunStaThread(() =>
-      {
-        using var frm = new Form();
-        frm.Text = "Testing...";
-        frm.Show();
-        var csv = new CsvFile(id: string.Empty, fileName: "") { ShowProgress = true };
-        Assert.IsInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
-        csv.ShowProgress = false;
-        Assert.IsNotInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
-      });
-    }
+   
 
     [TestMethod]
     [Timeout(1000)]

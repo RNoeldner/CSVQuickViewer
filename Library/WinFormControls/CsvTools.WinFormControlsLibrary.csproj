@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
-		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>    
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <OutputType>Library</OutputType>

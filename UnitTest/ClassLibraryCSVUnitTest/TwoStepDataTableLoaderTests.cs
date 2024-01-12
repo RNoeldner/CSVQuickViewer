@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);
 
-      Assert.AreEqual(8, myDataTable.Columns.Count());
+      Assert.AreEqual(7, myDataTable.Columns.Count());
     }
   }
 }

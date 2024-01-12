@@ -806,8 +806,7 @@ namespace CsvTools
     public class FileInfo
     {
       private readonly System.IO.FileInfo? m_Info;
-
-      private DateTime m_LastWriteTimeUtc = new DateTime(0, DateTimeKind.Utc);
+      private DateTime m_LastWriteTimeUtc =  new DateTime(0, DateTimeKind.Utc);
 
       /// <summary>
       /// Initializes a new instance of the <see cref="FileInfo"/> class.

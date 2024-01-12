@@ -12,8 +12,7 @@ namespace CsvTools
 #endif
   {
     private DataReaderWrapper? m_DataReaderWrapper;
-    private IFileReader? m_FileReader;
-    private string m_Id = string.Empty;
+    private IFileReader? m_FileReader;    
     public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
 
     /// <summary>
@@ -39,7 +38,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       Logger.Debug("Starting to load data");
-      m_Id = fileSetting.ID;
+      //m_Id = fileSetting.ID;
       m_FileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
@@ -84,10 +83,7 @@ namespace CsvTools
         return;
       Logger.Debug("Getting batch");
       var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress, cancellationToken).ConfigureAwait(false);
-
-      // for Debugging It's nice to know where it all came form
-      if (!string.IsNullOrEmpty(m_Id))
-        dt.TableName = m_Id;
+     
       try
       {
         progress?.Report(new ProgressInfo("Setting DataTable"));

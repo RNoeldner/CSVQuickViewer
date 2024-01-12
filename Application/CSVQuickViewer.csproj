@@ -8,7 +8,7 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>Picture.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
-    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>    
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>CsvTools</RootNamespace>
@@ -87,7 +87,7 @@
     <PackageReference Include="FCTB" Version="2.16.*" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />        
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.*" />
     <PackageReference Include="Ben.Demystifier" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />

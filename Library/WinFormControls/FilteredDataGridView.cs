@@ -487,14 +487,7 @@ namespace CsvTools
 
       base.Dispose(disposing);
     }
-
-    private static string DefFileNameColSetting(IFileSetting fileSetting, string extension)
-    {
-      var defFileName = fileSetting.ID;
-      var index = defFileName.LastIndexOf('.');
-      return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
-    }
-
+    
     private static int Measure(Graphics grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
       Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
     {
@@ -1046,7 +1039,7 @@ namespace CsvTools
     {
       this.RunWithHourglass(() =>
       {
-        // This does not work proprtly
+        // This does not work properly
         var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
         using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
           m_DataLoaded);
@@ -1211,26 +1204,25 @@ namespace CsvTools
       }
     }
 
-    private void ToolStripMenuItemLoadCol_Click(object? sender, EventArgs e)
-    {
-      if (m_FileSetting is null)
-        return;
+    //private void ToolStripMenuItemLoadCol_Click(object? sender, EventArgs e)
+    //{
+    //  if (m_FileSetting is null)
+    //    return;
 
-      try
-      {
+    //  try
+    //  {
+    //    var fileName = WindowsAPICodePackWrapper.Open(
+    //      m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
+    //      "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
+    //    if (fileName != null)
+    //      ReStoreViewSetting(fileName);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    FindForm()?.ShowError(ex);
+    //  }
 
-        var fileName = WindowsAPICodePackWrapper.Open(
-          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
-        if (fileName != null)
-          ReStoreViewSetting(fileName);
-      }
-      catch (Exception ex)
-      {
-        FindForm()?.ShowError(ex);
-      }
-
-    }
+    //}
 
     /// <summary>
     /// Get an Array of ColumnSetting serialized as Json Text
@@ -1249,44 +1241,44 @@ namespace CsvTools
       );
     }
 
-    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
-    {
-      if (m_FileSetting is null)
-        return;
-      try
-      {
-        var text = GetViewStatus;
-        if (!string.IsNullOrEmpty(text))
-        {
-          // Select Path
-          var fileName = WindowsAPICodePackWrapper.Save(
-            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+//    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
+//    {
+//      if (m_FileSetting is null)
+//        return;
+//      try
+//      {
+//        var text = GetViewStatus;
+//        if (!string.IsNullOrEmpty(text))
+//        {
+//          // Select Path
+//          var fileName = WindowsAPICodePackWrapper.Save(
+//            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+//            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
 
-          if (fileName is null || fileName.Length == 0)
-            return;
+//          if (fileName is null || fileName.Length == 0)
+//            return;
 
-#if NET5_0_OR_GREATER
-          await
-#endif          
-          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
+//#if NET5_0_OR_GREATER
+//          await
+//#endif          
+//          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
 
-#if NET5_0_OR_GREATER
-          await
-#endif
-          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-          await writer.WriteAsync(GetViewStatus);
-          await writer.FlushAsync();
+//#if NET5_0_OR_GREATER
+//          await
+//#endif
+//          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+//          await writer.WriteAsync(GetViewStatus);
+//          await writer.FlushAsync();
 
-          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-            basePhysical.ColumnFile = fileName;
-        }
-      }
-      catch (Exception ex)
-      {
-        FindForm()?.ShowError(ex);
-      }
-    }
+//          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+//            basePhysical.ColumnFile = fileName;
+//        }
+//      }
+//      catch (Exception ex)
+//      {
+//        FindForm()?.ShowError(ex);
+//      }
+//    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.

@@ -28,9 +28,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CalculateLatestSourceTime()
     {
-      var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      // ReSharper disable once RedundantCast
-      ((BaseSettings) setting).CalculateLatestSourceTime();
+      var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"));           
       setting.CalculateLatestSourceTime();
 
       var setting2 = new JsonFile("JsonFile", "MyTest.txt");

@@ -33,7 +33,7 @@ namespace CsvTools
   /// Setting for a file based setting
   /// </summary>  
   [DebuggerDisplay("File: {m_FileName} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
+  public abstract class BaseSettingPhysicalFile : BaseSettingsValidator, IFileSettingPhysicalFile
   {
     private ValueFormat m_ValueFormatWrite = ValueFormat.Empty;
     private string m_ColumnFile = string.Empty;
@@ -68,6 +68,26 @@ namespace CsvTools
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 #endif
+
+    /// <inheritdoc />
+    [JsonIgnore]
+    [DefaultValue(false)]
+    public override bool RecentlyLoaded
+    {
+      get
+      {
+        if (base.RecentlyLoaded)
+          return true;
+        else if (ProcessTimeUtc!= ZeroTime)
+        {
+          var fi = new FileSystemUtils.FileInfo(FullPath);
+          if (fi.Exists && fi.LastWriteTimeUtc < ProcessTimeUtc)
+            base.RecentlyLoaded = true;
+        }
+        return base.RecentlyLoaded;
+      }
+      set => base.RecentlyLoaded=value;
+    }
 
     /// <inheritdoc />
     [DefaultValue("")]
