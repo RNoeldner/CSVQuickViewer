@@ -27,6 +27,9 @@ namespace CsvTools
     /// </summary>
     public readonly FileTypeEnum FileType;
 
+    /// <summary>
+    /// Full Path of the file
+    /// </summary>
     public readonly string FullPath;
 
     /// <summary>
@@ -49,6 +52,9 @@ namespace CsvTools
     /// </summary>
     public readonly string PgpKey;
 
+    /// <summary>
+    /// Passphrase for decryption
+    /// </summary>
     public readonly string Passphrase;
 
     /// <summary>

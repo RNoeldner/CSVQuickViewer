@@ -17,9 +17,15 @@ using System;
 
 
 namespace CsvTools
-{
+{ 
+  /// <summary>
+  /// Formatted that does nothing
+  /// </summary>
   public sealed class EmptyFormatter : BaseColumnFormatter
   {
+    /// <summary>
+    /// Static instance
+    /// </summary>
     public static readonly EmptyFormatter Instance = new EmptyFormatter();
 
     /// <inheritdoc/>

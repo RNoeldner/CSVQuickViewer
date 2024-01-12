@@ -13,6 +13,7 @@ namespace CsvTools
   {
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;    
+    
     public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
 
     /// <summary>
@@ -25,8 +26,6 @@ namespace CsvTools
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// 
-    /// 
     /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
     public async Task StartAsync(
       IFileSetting fileSetting,

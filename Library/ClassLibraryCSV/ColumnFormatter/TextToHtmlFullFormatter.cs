@@ -19,8 +19,14 @@ using System.Data;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Formatter to handle HTML, much slower than <see cref="TextToHtmlFormatter"/> but handling all characters
+  /// </summary>
   public class TextToHtmlFullFormatter : BaseColumnFormatter
   {
+    /// <summary>
+    /// Static instance of the formatter
+    /// </summary>
     public static readonly TextToHtmlFullFormatter Instance = new TextToHtmlFullFormatter();
 
     /// <inheritdoc/>

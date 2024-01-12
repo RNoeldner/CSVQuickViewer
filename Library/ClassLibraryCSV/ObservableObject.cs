@@ -21,6 +21,9 @@ using System.Runtime.CompilerServices;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Base class for classes that will raise NotifyPropertyChanged events
+  /// </summary>
   public abstract class ObservableObject : INotifyPropertyChanged
   {
     /// <inheritdoc />

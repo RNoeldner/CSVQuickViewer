@@ -20,8 +20,17 @@ using System.Linq;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Collection for Mappings
+  /// </summary>
   public sealed class MappingCollection : UniqueObservableCollection<Mapping>
   {
+
+    /// <summary>
+    /// Get the mapping for a column
+    /// </summary>
+    /// <param name="columnName">Name of the column / target</param>
+    /// <returns></returns>
     public IEnumerable<Mapping> GetByColumn(string columnName) =>
       Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
@@ -37,6 +46,11 @@ namespace CsvTools
         map => map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Get the name of a column  for a field
+    /// </summary>
+    /// <param name="templateFieldName"></param>
+    /// <returns></returns>
     public string? GetColumnName(string? templateFieldName) => GetByField(templateFieldName)?.FileColumn;
 
     /// <summary>

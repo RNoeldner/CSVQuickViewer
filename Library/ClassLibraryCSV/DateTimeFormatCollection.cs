@@ -17,6 +17,9 @@ using System.Globalization;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Class with information on DateTime formats
+  /// </summary>
   public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
   {
     /// <summary>

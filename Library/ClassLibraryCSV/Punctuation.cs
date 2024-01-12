@@ -71,6 +71,11 @@ namespace CsvTools
       return true;
     }
 
+    /// <summary>
+    ///   Return a string resolving written punctuation
+    /// </summary>
+    /// <param name="inputString"></param>
+    /// <returns></returns>
     public static string HandleLongText(this string? inputString)
     {
       if (inputString is null)

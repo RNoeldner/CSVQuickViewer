@@ -19,6 +19,9 @@ using System.Globalization;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class with information on DateTime Formats
+  /// </summary>
   public static class DateTimeConstants
   {
     /// <summary>
@@ -58,12 +61,16 @@ namespace CsvTools
         "yyyy/MM/ddTHH:mm:ss",
         "yyyy/MM/dd HH:mm:ss.FFF",
         "yyyyMMdd",
-        "yyyyMMddTHH:mm:ss.FFF"
+        "yyyyMMddTHH:mm:ss.FFF",
       };
       foreach (var format in m_CommonTimeFormats)
         m_CommonDateTimeFormats.Add(format);
     }
 
+    /// <summary>
+    ///  Get the most common date time formats
+    /// </summary>
+    /// <param name="known">Format that should be added to the list if not already present</param>
     public static IEnumerable<string> CommonDateTimeFormats(string known)
     {
       // add the existing data
@@ -72,6 +79,9 @@ namespace CsvTools
       return m_CommonDateTimeFormats;
     }
 
+    /// <summary>
+    ///  Get the most common time formats
+    /// </summary>
     public static IEnumerable<string> CommonTimeFormats() => m_CommonTimeFormats;
   }
 }

@@ -19,9 +19,15 @@ using System.Text;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Formatter to handle c# escaped text like \t or \r
+  /// </summary>
   public class TextUnescapeFormatter : BaseColumnFormatter
   {
-    public static TextUnescapeFormatter Instance = new TextUnescapeFormatter();
+    /// <summary>
+    /// Static instance of the formatter
+    /// </summary>
+    public static readonly TextUnescapeFormatter Instance = new TextUnescapeFormatter();
 
     private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
     {
@@ -45,13 +51,6 @@ namespace CsvTools
           return new Tuple<int, int>(pos, charValue);
 
       return new Tuple<int, int>(-1, -1);
-    }
-
-    public static ReadOnlySpan<char> Unescape(ReadOnlySpan<char> text)
-    {
-      if (text.IndexOf('\\') == -1)
-        return text;
-      return Unescape(text.ToString()).AsSpan();
     }
 
     /// <summary>
@@ -96,6 +95,7 @@ namespace CsvTools
       return retValue;
     }
 
+    /// <inheritdoc />
     public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
@@ -104,7 +104,8 @@ namespace CsvTools
       return output;
     }
 
+    /// <inheritdoc />
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-      => Unescape(inputString);
+      => inputString.IndexOf('\\') == -1 ? inputString : Unescape(inputString.ToString()).AsSpan();
   }
 }

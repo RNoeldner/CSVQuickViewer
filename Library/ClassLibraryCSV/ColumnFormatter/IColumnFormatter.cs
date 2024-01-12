@@ -18,6 +18,9 @@ using System.Data;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Interface for a read and write formatter
+  /// </summary>
   public interface IColumnFormatter
   {
     /// <summary>

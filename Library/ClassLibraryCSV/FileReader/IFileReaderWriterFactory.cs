@@ -16,6 +16,9 @@ using System.Threading;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Factory to create <see cref="IFileReader"/>  or <see cref="IFileWriter"/> 
+  /// </summary>
   public interface IFileReaderWriterFactory
   {
     /// <summary>

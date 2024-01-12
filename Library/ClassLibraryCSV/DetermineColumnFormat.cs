@@ -13,7 +13,6 @@
  */
 #nullable enable
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -652,7 +651,7 @@ namespace CsvTools
                 if (fileReader.IsDBNull(columnIndex))
                   continue;
                 // value must be string as spans are not supported in lambda
-                var value = fileReader.GetValue(columnIndex)!.ToString()!.Trim();
+                var value = fileReader.GetValue(columnIndex).ToString()!.Trim();
                 // Any non existing value is not of interest
                 if (value.Length==0)
                   continue;

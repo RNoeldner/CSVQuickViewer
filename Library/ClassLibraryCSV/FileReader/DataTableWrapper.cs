@@ -75,6 +75,7 @@ namespace CsvTools
 
     /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
+    // ReSharper disable once UnusedParameter.Global
     public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
     /// <inheritdoc />

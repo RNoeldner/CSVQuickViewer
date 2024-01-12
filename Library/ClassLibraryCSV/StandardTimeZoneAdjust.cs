@@ -24,7 +24,11 @@ namespace CsvTools
   /// </summary>
   public static class StandardTimeZoneAdjust 
   {
+    /// <summary>
+    /// Representation for current system timezone
+    /// </summary>
     public const string cIdLocal = "(local)";
+
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
     private static TimeZoneInfo FindTimeZoneInfo(in string timeZone)
@@ -39,6 +43,13 @@ namespace CsvTools
           : timeZone);
     }
 
+    /// <summary>
+    /// Apply timezone conversion
+    /// </summary>
+    /// <param name="input">Source dateTime</param>
+    /// <param name="srcTimeZone">Source TimeZone</param>
+    /// <param name="destTimeZone">Destination TimeZone</param>
+    /// <param name="handleWarning">Action to be called if a warning is raised</param>
     public static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone, in string destTimeZone,
       in Action<string>? handleWarning)
     {

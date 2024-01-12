@@ -231,7 +231,7 @@ namespace CsvTools
               // decimal numeric entity
               sb.Append("&#");
               sb.Append(((int) text[i]).ToString(CultureInfo.InvariantCulture));
-              sb.Append(";");
+              sb.Append(',');
             }
             else
             {

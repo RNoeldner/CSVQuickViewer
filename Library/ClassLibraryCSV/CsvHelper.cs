@@ -539,7 +539,6 @@ CommentLine
       int tryCount = 0;
       retest:
       tryCount++;
-      bool changedEscapePrefix;
       bool changedDelimiter = false;
       bool changedFieldQualifier = false;
       bool changedSkipRows = false;
@@ -601,7 +600,7 @@ CommentLine
         }
       }
 
-      changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
+      var changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
       if (changedEscapePrefix)
         inspectionResult.EscapePrefix =  newPrefix;
 
@@ -656,6 +655,12 @@ CommentLine
     }
 
 #if !QUICK
+    /// <summary>
+    /// Read a CsfFile to check wither teh settings are fine
+    /// </summary>
+    /// <param name="csvFile"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
 

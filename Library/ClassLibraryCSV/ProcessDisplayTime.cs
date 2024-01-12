@@ -27,8 +27,10 @@ namespace CsvTools
       set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
     }
 
+    /// <inheritdoc />
     public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
 
+    /// <inheritdoc />
     public void Report(ProgressInfo  args)
     {
       TimeToCompletion.Value = args.Value;

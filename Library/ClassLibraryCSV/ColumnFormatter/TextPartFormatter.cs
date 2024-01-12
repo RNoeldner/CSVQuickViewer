@@ -18,12 +18,19 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   public sealed class TextPartFormatter : BaseColumnFormatter
   {
     private readonly int m_Part;
     private readonly char m_PartSplitter;
     private readonly bool m_PartToEnd;
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="part">Part number to pick</param>
+    /// <param name="partSplitter">Splitter to take a text apart with</param>
+    /// <param name="partToEnd">if <c>true</c> start at that part but take all till the end</param>
     public TextPartFormatter(int part, char partSplitter, bool partToEnd)
     {
       m_Part = part;
@@ -40,6 +47,7 @@ namespace CsvTools
       return output.ToString();
     }
 
+    /// <inheritdoc/>
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
     => inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
   }

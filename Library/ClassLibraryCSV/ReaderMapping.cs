@@ -44,9 +44,7 @@ namespace CsvTools
     ///   Maps the columns of the data reader for a reader wrapper, taking care of ignored and
     ///   artificial columns
     /// </summary>
-    /// <param name="dataReader">
-    ///   <see cref="IDataRecord" /> usually a <see cref="IFileReader" /> or <see cref="IDataReader" />
-    /// </param>
+    /// <param name="columns"> Collection of column information</param>
     /// <param name="startLine">Add artificial field Start Line, if false the data will be passed on from the source (if existing)</param>
     /// <param name="endLine">Add artificial field End Line, if false the data will be passed on from the source (if existing)</param>
     /// <param name="recNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>

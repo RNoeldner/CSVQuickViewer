@@ -19,6 +19,9 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Store for static collection
+  /// </summary>
   public static class StaticCollections
   {
     /// <summary>
