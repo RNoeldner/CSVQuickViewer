@@ -66,7 +66,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines if a column name indicates that its an identifier column.
+    /// Determines if a column name indicates that it's an identifier column.
     /// </summary>
     /// <param name="columnName">The column name</param>
     /// <returns>
@@ -76,7 +76,7 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Determines if a column name indicates that its an identifier column.
+    /// Determines if a column name indicates that it's an identifier column.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <returns>

@@ -32,8 +32,9 @@ namespace CsvTools.Tests
 
     static DataReaderWrapperTests()
     {
-      m_Setting = new CsvFileDummy(Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
+      m_Setting = new CsvFileDummy()
       {
+        FileName = Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")),
         HasFieldHeader = true,
         FieldDelimiterChar = '\t',
       };

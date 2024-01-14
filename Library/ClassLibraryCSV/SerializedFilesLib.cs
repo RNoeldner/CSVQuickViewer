@@ -83,7 +83,7 @@ namespace CsvTools
     /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
-      Logger.Debug("Loading information from file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName));
+      Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
@@ -145,7 +145,7 @@ namespace CsvTools
     {
       try
       {
-        Logger.Information($"Getting content for file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
+        Logger.Information($"Getting content for file {fileName.GetShortDisplayFileName()}");
         var content = await GetNewContentJsonAsync(fileName, data).ConfigureAwait(false);
 
         // no update
@@ -166,7 +166,7 @@ namespace CsvTools
         if (delete)
           FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-        Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
+        Logger.Information($"Writing file {fileName.GetShortDisplayFileName()}");
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif

@@ -29,9 +29,9 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
-    private CsvFileDummy m_FileSetting;
+    private IFileSettingPhysicalFile? m_FileSetting;
 
-    private void SetFileSetting(CsvFileDummy fileSetting)
+    private void SetFileSetting(IFileSettingPhysicalFile fileSetting)
     {
       m_FileSetting = fileSetting;
       if (m_FileSetting is ICsvFile csvFile)
@@ -42,14 +42,14 @@ namespace CsvTools
       }
     }
 
-    public ICsvFile? FileSetting
+    public IFileSettingPhysicalFile? FileSetting
     {
       get => m_FileSetting;
     }
 
     private bool m_IsDisposed;
 
-    public FormEditSettings(ViewSettings viewSettings, CsvFileDummy setting)
+    public FormEditSettings(ViewSettings viewSettings, IFileSettingPhysicalFile? setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_FileSetting = setting;
@@ -119,7 +119,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (newFileName is null || newFileName.Length == 0)
           return;
 
-        if (m_FileSetting is null)
+        if (m_FileSetting == null)
         {
           SetDefaultInspectionResult();
 
@@ -144,13 +144,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             }, m_ViewSettings.DefaultInspectionResult,
 #if SupportPGP
             PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead),
-            #else
+#else
             string.Empty,
 #endif
             formProgress.CancellationToken);
 
           ir.CopyToCsv(m_FileSetting);
-
           SetFileSetting(m_FileSetting);
 
           formProgress.Close();

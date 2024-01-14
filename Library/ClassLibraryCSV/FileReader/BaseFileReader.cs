@@ -109,8 +109,8 @@ namespace CsvTools
     /// <param name="destTimeZone">
     ///   Name of the time zone datetime values that have a source time zone should be converted to
     /// </param>
-    /// <param name="allowPercentage">If <c>true</c> a percentage is converted to a decimal</param>
-    /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed top parse a currency value as decimal</param>
+    /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
+    /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
     protected BaseFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,

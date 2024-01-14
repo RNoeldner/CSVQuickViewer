@@ -38,7 +38,7 @@ namespace CsvTools
     [DefaultValue(',')] public char FieldDelimiter = ',';
     /// <summary>Qualifier of a columns to allow linefeed or delimiter</summary>
     [DefaultValue('"')] public char FieldQualifier = '"';
-    /// <summary>Context sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
+    /// <summary>Context-sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
     [DefaultValue(false)] public bool ContextSensitiveQualifier = false;
     /// <summary>In case a quote is part of a quoted column, the quote should be repeated</summary>
     [DefaultValue(true)] public bool DuplicateQualifierToEscape = true;
@@ -55,19 +55,19 @@ namespace CsvTools
     public string FileName = string.Empty;
 
     /// <summary>
-    /// Flag to indicate that its a Json file
+    /// Flag to indicate that it's a Json file
     /// </summary>    
     [DefaultValue(false)]
     public bool IsJson = false;
 
     /// <summary>
-    /// Flag to indicate that its a XML file
+    /// Flag to indicate that it's an XML file
     /// </summary>    
     [DefaultValue(false)]
     public bool IsXml = false;
 
     /// <summary>
-    /// Flag to indicate that its not a delimiter, Json or XMl file
+    /// Flag to indicate that it's not a delimiter, Json or XMl file
     /// </summary>    
     [DefaultValue(false)]
     public bool NoDelimitedFile = false;
@@ -94,40 +94,51 @@ namespace CsvTools
     /// <summary>
     /// Initializes a new instance of the <see cref="InspectionResult"/> class.
     /// </summary>
-    /// <param name="csvFile">The CSV file.</param>
-    public InspectionResult(ICsvFile csvFile)
+    /// <param name="fileSetting">The setting.</param>
+    public InspectionResult(IFileSettingPhysicalFile fileSetting)
     {
-      FileName = csvFile.FullPath;
-      SkipRows = csvFile.SkipRows;
-      CodePageId = csvFile.CodePageId;
-      ByteOrderMark = csvFile.ByteOrderMark;
-      IdentifierInContainer = csvFile.IdentifierInContainer;
-      CommentLine = csvFile.CommentLine;
-      EscapePrefix = csvFile.EscapePrefixChar;
-      FieldQualifier =  csvFile.FieldQualifierChar;
-      ContextSensitiveQualifier =  csvFile.ContextSensitiveQualifier;
-      DuplicateQualifierToEscape =  csvFile.DuplicateQualifierToEscape;
-      HasFieldHeader = csvFile.HasFieldHeader;
-      NewLine = csvFile.NewLine;
-      Columns.AddRange(csvFile.ColumnCollection);
+      FileName = fileSetting.FullPath;
+      SkipRows = fileSetting.SkipRows;
+      CodePageId = fileSetting.CodePageId;
+      ByteOrderMark = fileSetting.ByteOrderMark;
+      IdentifierInContainer = fileSetting.IdentifierInContainer;
+      HasFieldHeader = fileSetting.HasFieldHeader;
+      Columns.AddRange(fileSetting.ColumnCollection);
+
+      if (fileSetting is ICsvFile csvFile)
+      {
+        CommentLine = csvFile.CommentLine;
+        EscapePrefix = csvFile.EscapePrefixChar;
+        FieldQualifier = csvFile.FieldQualifierChar;
+        ContextSensitiveQualifier = csvFile.ContextSensitiveQualifier;
+        DuplicateQualifierToEscape = csvFile.DuplicateQualifierToEscape;
+        NewLine = csvFile.NewLine;
+      }
     }
 
-    public void CopyToCsv(ICsvFile csvFile)
+    /// <summary>
+    /// Copy Inspection results to setting
+    /// </summary>
+    /// <param name="fileSetting"></param>
+    public void CopyToCsv(IFileSettingPhysicalFile fileSetting)
     {
-      csvFile.FileName = FileName;
-      csvFile.SkipRows = SkipRows;
-      csvFile.CodePageId = CodePageId;
-      csvFile.ByteOrderMark = ByteOrderMark;
-      csvFile.IdentifierInContainer = IdentifierInContainer;
-      csvFile.CommentLine = CommentLine;
-      csvFile.EscapePrefixChar = EscapePrefix;
-      csvFile.FieldQualifierChar= FieldQualifier;
-      csvFile.ContextSensitiveQualifier =  ContextSensitiveQualifier;
-      csvFile.DuplicateQualifierToEscape =  DuplicateQualifierToEscape;
-      csvFile.HasFieldHeader = HasFieldHeader;
-      csvFile.NewLine = NewLine;
-      csvFile.ColumnCollection.Clear();
-      csvFile.ColumnCollection.AddRange(Columns);
+      fileSetting.FileName = FileName;
+      fileSetting.SkipRows = SkipRows;
+      fileSetting.CodePageId = CodePageId;
+      fileSetting.ByteOrderMark = ByteOrderMark;
+      fileSetting.IdentifierInContainer = IdentifierInContainer;
+      fileSetting.HasFieldHeader = HasFieldHeader;
+      fileSetting.ColumnCollection.Clear();
+      fileSetting.ColumnCollection.AddRange(Columns);
+      if (fileSetting is ICsvFile csvFile)
+      {
+        csvFile.CommentLine = CommentLine;
+        csvFile.EscapePrefixChar = EscapePrefix;
+        csvFile.FieldQualifierChar = FieldQualifier;
+        csvFile.ContextSensitiveQualifier = ContextSensitiveQualifier;
+        csvFile.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
+        csvFile.NewLine = NewLine;
+      }
     }
 #endif
   }

@@ -83,12 +83,12 @@ namespace CsvTools
       // as of now a physical file must exist
       if (isReading && !FileSystemUtils.FileExists(fileName))
         throw new FileNotFoundException(
-          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
           fileName);
 
       FullPath = fileName;
       Reading = isReading;
-      Identifier = FileSystemUtils.GetShortDisplayFileName(fileName, 40);
+      Identifier = fileName.GetShortDisplayFileName(40);
       Passphrase = passPhrase;
 
 
@@ -155,7 +155,7 @@ namespace CsvTools
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
       {
-        Identifier = FileSystemUtils.GetShortDisplayFileName(fs.Name);
+        Identifier = fs.Name.GetShortDisplayFileName();
         if (type == FileTypeEnum.Stream)
           FileType = FromExtension(fs.Name);
       }

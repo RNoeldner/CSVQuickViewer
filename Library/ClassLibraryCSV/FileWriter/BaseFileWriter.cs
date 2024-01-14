@@ -157,9 +157,7 @@ namespace CsvTools
       {
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-        var writeFolder = FileSystemUtils.GetAbsolutePath(
-                  string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat.WriteFolder,
-                  string.Empty);
+        var writeFolder = (string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column?.ValueFormat.WriteFolder).GetAbsolutePath(string.Empty);
 
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
