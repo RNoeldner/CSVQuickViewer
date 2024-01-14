@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static call with methods for Header Detection
+  /// </summary>
   public static class DetectionHeader
   {
     /// <summary>
@@ -20,18 +23,25 @@ namespace CsvTools
     /// </summary>
     private const char cLf = (char) 0x0a;
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    /// <summary>
+    /// Helper method to read columns from the file, taking care of commented Lines
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="fieldDelimiter"></param>
+    /// <param name="fieldQualifier"></param>
+    /// <param name="escapePrefix"></param>
+    /// <param name="commentLine"></param>
+    /// <returns>All columns of the next row</returns>
     public static ICollection<string> DelimitedRecord(in ImprovedTextReader reader, char fieldDelimiter,
       char fieldQualifier, char escapePrefix, string commentLine)
     {
-      bool restart;
+      bool restartLineCommented;
       bool endOfLine;
       string columnText;
       do
       {
-        restart = false;
-        columnText =
-          ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
+        restartLineCommented = false;
+        columnText = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
 
         // An empty line does not have a first column
         if (columnText.Length == 0 && endOfLine)
@@ -41,31 +51,28 @@ namespace CsvTools
         }
 
         // Skip commented lines
-        if (commentLine.Length > 0 && columnText.StartsWith(commentLine, StringComparison.Ordinal))
+        if (commentLine.Length > 0 && columnText.TrimStart().StartsWith(commentLine, StringComparison.Ordinal))
         {
-          // read to the end of the line if not already there
+          restartLineCommented = true;
+          // "Eat" the remaining columns of the commented line
           if (!endOfLine)
           {
             while (!reader.EndOfStream)
             {
               var character = reader.Read();
-              if (character == cCr || character == cLf)
+              if (character != cCr && character != cLf)
+                continue;
+              if (!reader.EndOfStream)
               {
-                if (!reader.EndOfStream)
-                {
-                  var nextChar = reader.Peek();
-                  if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
-                    reader.MoveNext();
-                }
-
-                break;
+                var nextChar = reader.Peek();
+                if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
+                  reader.MoveNext();
               }
+              break;
             }
           }
-
-          restart = true;
         }
-      } while (restart);
+      } while (restartLineCommented);
 
       var columns = new List<string> { columnText };
       while (!endOfLine)

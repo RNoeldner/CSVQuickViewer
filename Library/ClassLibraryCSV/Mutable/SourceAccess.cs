@@ -180,7 +180,7 @@ namespace CsvTools
       // in case the SourceAccess initialized with a function, the stream is only known now...
       if (Identifier.Length == 0)
         Identifier = stream is FileStream fs
-          ? FileSystemUtils.GetShortDisplayFileName(fs.Name)
+          ? fs.Name.GetShortDisplayFileName()
           : $"{stream.GetType().Name}_{FileType}";
       return stream;
     }

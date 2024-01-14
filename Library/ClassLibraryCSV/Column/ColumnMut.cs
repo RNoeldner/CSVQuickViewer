@@ -28,6 +28,7 @@ namespace CsvTools
   [Serializable]
   public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
   {
+    private int m_ColumnOrdinal;
     private bool m_Convert;
     private string m_DestinationName;
     private bool m_Ignore;
@@ -35,7 +36,7 @@ namespace CsvTools
     private string m_TimePart;
     private string m_TimePartFormat;
     private string m_TimeZonePart;
-    private int m_ColumnOrdinal;
+    private ValueFormatMut m_ValueFormatMut;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ColumnMut"/> class.
@@ -91,15 +92,14 @@ namespace CsvTools
       m_Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     }
 
-
-    private ValueFormatMut m_ValueFormatMut;
-
+    /// <summary>
+    /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
+    /// </summary>
+    /// <remarks>
+    /// In case a required property is not set, this should raise an error
+    /// </remarks>
     [JsonIgnore]
-    public ValueFormatMut ValueFormatMut
-    {
-      get => m_ValueFormatMut;
-      set => SetProperty(ref m_ValueFormatMut, value);
-    }
+    public int CollectionIdentifier => Name.IdentifierHash();
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -194,6 +194,31 @@ namespace CsvTools
     /// <value>The value format.</value>
     public ValueFormat ValueFormat => m_ValueFormatMut.ToImmutable();
 
+    /// <summary>
+    ///   Mutable Value format.
+    /// </summary>
+    [JsonIgnore]
+    public ValueFormatMut ValueFormatMut
+    {
+      get => m_ValueFormatMut;
+      set => SetProperty(ref m_ValueFormatMut, value);
+    }
+
+    /// <summary>
+    ///   Copies to.
+    /// </summary>
+    /// <param name="other">The other.</param>
+    public void CopyTo(ColumnMut other)
+    {
+      other.ValueFormatMut.CopyFrom(ValueFormat);
+      other.TimePartFormat = m_TimePartFormat;
+      other.TimePart = m_TimePart;
+      other.TimeZonePart = m_TimeZonePart;
+      other.ColumnOrdinal = ColumnOrdinal;
+      other.Name = m_Name;
+      other.Ignore = m_Ignore;
+      other.Convert = m_Convert;
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -222,39 +247,6 @@ namespace CsvTools
                                                   && Convert == other.Convert
                                                   && m_ValueFormatMut.Equals(new ValueFormatMut(other.ValueFormat));
     }
-
-    /// <summary>
-    ///   Copies to.
-    /// </summary>
-    /// <param name="other">The other.</param>
-    public void CopyTo(ColumnMut other)
-    {
-      other.ValueFormatMut.CopyFrom(ValueFormat);
-      other.TimePartFormat = m_TimePartFormat;
-      other.TimePart = m_TimePart;
-      other.TimeZonePart = m_TimeZonePart;
-      other.ColumnOrdinal = ColumnOrdinal;
-      other.Name = m_Name;
-      other.Ignore = m_Ignore;
-      other.Convert = m_Convert;
-    }
-
-    /// <summary>
-    ///   Returns a <see cref="string" /> that represents this instance.
-    /// </summary>
-    /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString() => $"{Name} ({this.ToImmutableColumn().GetTypeAndFormatDescription()})";
-
-    /// <summary>
-    /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
-    /// </summary>
-    /// <remarks>
-    /// In case a required property is not set, this should raise an error
-    /// </remarks>
-    [JsonIgnore]
-    public int CollectionIdentifier => Name.IdentifierHash();
-
-
     /// <summary>
     /// Returns  an immutable column 
     /// </summary>
@@ -268,5 +260,11 @@ namespace CsvTools
         Convert,
         DestinationName,
         TimePart, TimePartFormat, TimeZonePart);
+
+    /// <summary>
+    ///   Returns a <see cref="string" /> that represents this instance.
+    /// </summary>
+    /// <returns>A <see cref="string" /> that represents this instance.</returns>
+    public override string ToString() => $"{Name} ({this.ToImmutableColumn().GetTypeAndFormatDescription()})";
   }
 }

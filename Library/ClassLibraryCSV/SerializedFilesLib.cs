@@ -42,6 +42,9 @@ namespace CsvTools
 
     private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 
+    /// <summary>
+    /// Serialization Settings
+    /// </summary>
     public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
       () =>
       {

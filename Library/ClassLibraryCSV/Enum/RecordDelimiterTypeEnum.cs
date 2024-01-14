@@ -2,6 +2,9 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Line/Record Seperator for text files
+  /// </summary>
   public enum RecordDelimiterTypeEnum
   {
     /// <summary>Unspecified</summary>

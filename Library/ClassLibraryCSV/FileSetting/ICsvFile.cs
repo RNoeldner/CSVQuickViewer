@@ -109,13 +109,13 @@ namespace CsvTools
     /// <summary>
     ///   Gets a value indicating whether to qualify every text even if number or empty.
     /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if qualify even when not needed; otherwise, <c>false</c>.</value>
     bool QualifyAlways { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to qualify only if needed.
     /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if qualify only when required; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; set; }
 
     /// <summary>

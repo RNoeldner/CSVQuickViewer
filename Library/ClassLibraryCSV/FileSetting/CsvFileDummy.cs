@@ -13,7 +13,6 @@
  */
 
 
-using System.ComponentModel;
 using System;
 
 namespace CsvTools
@@ -25,6 +24,11 @@ namespace CsvTools
   public sealed class CsvFileDummy : ICsvFile
   {
     /// <summary>
+    /// Static CsvFileDummy
+    /// </summary>
+    public static readonly CsvFileDummy Empty = new CsvFileDummy();
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CsvFileDummy"/> class.
     /// </summary>
     /// <param name="fileName">Name of the csv file.</param>
@@ -32,12 +36,6 @@ namespace CsvTools
     {
       FileName = fileName;
     }
-
-    /// <summary>
-    /// Static CsvFileDummy
-    /// </summary>
-    public readonly static CsvFileDummy Empty = new CsvFileDummy();
-
     /// <inheritdoc />
     public bool AllowRowCombining { get; set; }
     /// <inheritdoc />
@@ -59,7 +57,7 @@ namespace CsvTools
     /// <inheritdoc />
     public string NewLinePlaceholder { get; set; } = string.Empty;
     /// <inheritdoc />
-    public bool NoDelimitedFile { get; set; } = false;
+    public bool NoDelimitedFile { get; set; }
     /// <inheritdoc />
     public int NumWarnings { get; set; } = 0;
     /// <inheritdoc />
@@ -94,12 +92,18 @@ namespace CsvTools
     public bool Equals(ICsvFile? other) => ReferenceEquals(this, other);
 
     #region IFileSettingPhysicalFile        
-    private string? m_FullPath = null;
+    private string? m_FullPath;
+
+    /// <inheritdoc />
+    public bool ByteOrderMark { get; set; } = true;
+
+    /// <inheritdoc />
+    public int CodePageId { get; set; } = 65001;
 
     /// <inheritdoc />
     public string ColumnFile { get; set; } = string.Empty;
     /// <inheritdoc />
-    public string FileName { get; set; } = string.Empty;
+    public string FileName { get; set; }
     /// <inheritdoc />
     public long FileSize { get; set; }
     /// <inheritdoc />
@@ -107,30 +111,26 @@ namespace CsvTools
     /// <inheritdoc />
     public string IdentifierInContainer { get; set; } = string.Empty;
     /// <inheritdoc />
-    public string Passphrase { get; set; } = string.Empty;
-    /// <inheritdoc />
     public string KeyFile { get; set; } = string.Empty;
+
+    /// <inheritdoc />
+    public string Passphrase { get; set; } = string.Empty;
     /// <inheritdoc />
     public string RemoteFileName { get; set; } = string.Empty;
     /// <inheritdoc />
-    public bool ByteOrderMark { get; set; } = true;
-    /// <inheritdoc />
-    public int CodePageId { get; set; } = 65001;
-    /// <inheritdoc />
     public string RootFolder { get; set; } = string.Empty;
+    /// <inheritdoc />
+    public bool SetLatestSourceTimeForWrite { get; set; }
+
     /// <inheritdoc />
     public bool ThrowErrorIfNotExists { get; set; }
     /// <inheritdoc />
     public ValueFormat ValueFormatWrite { get; set; } = ValueFormat.Empty;
     /// <inheritdoc />
-    public bool SetLatestSourceTimeForWrite { get; set; }
-    /// <inheritdoc />
-    public void ResetFullPath() => m_FullPath = FileSystemUtils.FullPath(FileName, RootFolder);
+    public void ResetFullPath() => m_FullPath = FileName.FullPath(RootFolder);
     #endregion
-
+    
     #region IFileSetting
-    /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
     /// <inheritdoc />
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
     /// <inheritdoc />
@@ -162,15 +162,18 @@ namespace CsvTools
     /// <inheritdoc />
     public string TreatTextAsNull { get; set; } = "NULL";
     /// <inheritdoc />
+    public bool Trim { get; set; } = false;
+
+    /// <inheritdoc />
     public TrimmingOptionEnum TrimmingOption { get; set; } = TrimmingOptionEnum.Unquoted;
     /// <inheritdoc />
-    public bool Trim { get; set; } = false;
-    /// <inheritdoc />
-    public bool Equals(IFileSetting? other) => ReferenceEquals(this, other);
-    /// <inheritdoc />
     public object Clone() => throw new NotImplementedException();
+
     /// <inheritdoc />
     public void CopyTo(IFileSetting other) => throw new NotImplementedException();
+
+    /// <inheritdoc />
+    public bool Equals(IFileSetting? other) => ReferenceEquals(this, other);
     /// <inheritdoc />
     public string GetDisplay() => "CSV";
     #endregion

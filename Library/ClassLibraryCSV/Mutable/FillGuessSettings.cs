@@ -23,7 +23,9 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
+#pragma warning disable CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
   public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable<FillGuessSettings>
+#pragma warning restore CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
   {
     private long m_CheckedRecords;
     private bool m_DetectBoolean;
@@ -47,6 +49,7 @@ namespace CsvTools
     /// </summary>
     public static FillGuessSettings Default = new FillGuessSettings();
 
+    /// <inheritdoc />
     [JsonConstructor]
     public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
       bool? detectDateTime = true,
@@ -72,6 +75,9 @@ namespace CsvTools
       m_RemoveCurrencySymbols = removeCurrencySymbols ?? true;
     }
 
+    /// <summary>
+    /// If  guessing the values types is enabled in general
+    /// </summary>
     [DefaultValue(true)]
     public bool Enabled
     {
@@ -79,6 +85,9 @@ namespace CsvTools
       set => SetProperty(ref m_Enabled, value);
     }
 
+    /// <summary>
+    /// Allowing currency symbols to be part of teh input, storing only the values
+    /// </summary>
     [DefaultValue(true)]
     public bool RemoveCurrencySymbols
     {
@@ -224,6 +233,9 @@ namespace CsvTools
       set => SetProperty(ref m_FalseValue, value ?? "False");
     }
 
+    /// <summary>
+    /// General format for Dates, e.G. YYYY/MM/DD
+    /// </summary>
     [DefaultValue("")]
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]

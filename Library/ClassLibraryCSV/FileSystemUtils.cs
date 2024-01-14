@@ -309,8 +309,7 @@ namespace CsvTools
       {
         if (placeHolder == ".")
           return fileName.Substring(dir.Length + 1);
-        else
-          return placeHolder + fileName.Substring(dir.Length);
+        return placeHolder + fileName.Substring(dir.Length);
       }
 
       return string.Empty;
@@ -666,10 +665,7 @@ namespace CsvTools
       if (!m_IsWindows)
         return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
 
-      if (shortPath.Contains('~'))
-        return shortPath.LongFileNameKernel();
-
-      return shortPath;
+      return shortPath.Contains('~') ? shortPath.LongFileNameKernel() : shortPath;
     }
 
     /// <summary>

@@ -23,8 +23,14 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Stream that allows to open Zip files and shows percentage
+  /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
+    /// <summary>
+    ///   Contains all information needed to access the input or output
+    /// </summary>
     protected readonly SourceAccess SourceAccess;
 
     /// <summary>
@@ -34,6 +40,10 @@ namespace CsvTools
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;
 
+    /// <summary>
+    /// Constructor based on SourceAccess information
+    /// </summary>
+    /// <param name="sourceAccess">Contains all information needed to access the input or output</param>
     public ImprovedStream(in SourceAccess sourceAccess)
     {
       SourceAccess = sourceAccess;
@@ -72,7 +82,14 @@ namespace CsvTools
       set => BaseStream.Position = value;
     }
 
+    /// <summary>
+    /// The stream to read from, e.g. the file in a zip file
+    /// </summary>
     protected Stream? AccessStream { get; set; }
+
+    /// <summary>
+    /// The underlying stream, e.g. ZIP file
+    /// </summary>
     protected Stream BaseStream { get; set; }
 
     /// <inheritdoc cref="Stream.Close()"/>
@@ -116,6 +133,7 @@ namespace CsvTools
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
+    /// <inheritdoc cref="IDisposable" />
     public new void Dispose() => Dispose(true);
 
     /// <inheritdoc cref="Stream.Flush()"/>
@@ -142,7 +160,7 @@ namespace CsvTools
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
 
-    /// <summary>   Sets the position within the current stream.  IImprovedStream will allow you to seek to the beginning of a actually non seekable stream by re-opening the stream </summary>
+    /// <summary>   Sets the position within the current stream.  IImprovedStream will allow you to seek to the beginning of an actually non seekable stream by re-opening the stream </summary>
     /// <param name="offset"> A byte offset relative to the origin parameter.</param>
     /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
     /// <returns>The new position within the current stream.</returns>
@@ -239,6 +257,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     public override async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
@@ -290,6 +309,7 @@ namespace CsvTools
         m_ZipFile.Password = pass;
         try
         {
+          // ReSharper disable once NotDisposedResource
           m_ZipFile.GetEnumerator();
         }
         catch (ZipException)
@@ -300,7 +320,7 @@ namespace CsvTools
           throw;
         }
 
-        var hasFile = false;
+        bool hasFile;
         if (string.IsNullOrEmpty(SourceAccess.IdentifierInContainer))
         {
           // get csv with the highest priority
@@ -349,6 +369,7 @@ namespace CsvTools
         // Check the stream if it already contains the file; if so remove the old file
         using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
         {
+          // ReSharper disable once NotDisposedResource
           var entryEnumerator = zipFileTest.GetEnumerator();
 
           while (entryEnumerator.MoveNext())
@@ -375,6 +396,7 @@ namespace CsvTools
             // build a new Zip file with the contents of the old one but export the file we are about
             // to write
             using var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName));
+            // ReSharper disable once NotDisposedResource
             var entryEnumerator = zipFile.GetEnumerator();
             while (entryEnumerator.MoveNext())
             {

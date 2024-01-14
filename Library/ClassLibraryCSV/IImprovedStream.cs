@@ -14,6 +14,9 @@
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Stream that shows Percentage
+  /// </summary>
   public interface IImprovedStream 
   {    
     /// <summary>
