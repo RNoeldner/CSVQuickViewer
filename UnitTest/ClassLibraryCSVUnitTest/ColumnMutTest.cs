@@ -182,7 +182,7 @@ namespace CsvTools.Tests
         dateSeparator: ".", decimalSeparator: ",", asFalse: @"Falsch", groupSeparator: ".", numberFormat: "0.##",
         timeSeparator: ":", asTrue: @"Wahr");
 
-      var ff = new CsvFile(id: "csv", fileName: "Dummy");
+      var ff = new CsvFileDummy(fileName: "Dummy");
       var col = new Column("StartDate", valueFormatGerman, ignore: true);
 
       ff.ColumnCollection.Add(col);

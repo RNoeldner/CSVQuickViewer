@@ -114,7 +114,7 @@ namespace CsvTools.Tests
        */
       Assert.IsTrue(
         @"Raphael N&ouml;ldner" == HtmlStyle.HtmlEncode("Raphael Nöldner")
-        || @"Raphael N&#246;ldner" == HtmlStyle.HtmlEncode("Raphael Nöldner"));
+        || @"Raphael N&#246;ldner" == HtmlStyle.HtmlEncode("Raphael Nöldner"), $"Is { HtmlStyle.HtmlEncode("Raphael Nöldner")}");
     }
 
     [TestMethod]

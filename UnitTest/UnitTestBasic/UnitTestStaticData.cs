@@ -245,45 +245,5 @@ namespace CsvTools.Tests
       return dataTable;
     }
 
-#if !QUICK
-    public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
-    {
-      var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
-      {
-        HasFieldHeader = true,
-        FieldDelimiterChar = '\t',
-      };
-      // columns from the file
-      readFile.ColumnCollection.AddRangeNoClone(
-        new Column[]
-        {
-          new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer)),
-          new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".")),
-          new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")),
-          new Column("Boolean", new ValueFormat(DataTypeEnum.Boolean)),
-          new Column("GUID", new ValueFormat(DataTypeEnum.Guid)),
-          new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
-        });
-
-      return readFile;
-    }
-
-    public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
-    {
-      var readFile =
-        new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath(("BasicCSV.txt")))) { CommentLine = "#" };
-      // columns from the file
-      readFile.ColumnCollection.AddRangeNoClone(
-        new Column[]
-        {
-          new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")),
-          new Column("Score", new ValueFormat(DataTypeEnum.Integer)),
-          new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)),
-          new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean))
-        });
-      return readFile;
-    }
-#endif
   }
 }

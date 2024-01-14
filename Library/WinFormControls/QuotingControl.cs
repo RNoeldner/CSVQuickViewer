@@ -95,8 +95,7 @@ namespace CsvTools
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
       InitializeComponent();
-      CsvFile = new CsvFile(id: "placeholder", fileName: string.Empty);
-      m_ComboBoxTrim!.SetEnumDataSource(m_CsvFile!.TrimmingOption);
+      m_ComboBoxTrim!.SetEnumDataSource(TrimmingOptionEnum.Unquoted);
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -108,16 +107,17 @@ namespace CsvTools
       get { return m_CsvFile; }
       set
       {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (m_CsvFile != null)
         {
-          m_CsvFile.PropertyChanged -= FormatPropertyChanged;
+          if (m_CsvFile is INotifyPropertyChanged notify1)
+            notify1.PropertyChanged -= FormatPropertyChanged;
           if (m_CsvFile.Equals(value))
             return;
         }
 
         m_CsvFile = value;
-        m_CsvFile.PropertyChanged += FormatPropertyChanged;
+        if (m_CsvFile is INotifyPropertyChanged notify2)
+          notify2.PropertyChanged += FormatPropertyChanged;
         m_CsvSettingBindingSource!.DataSource = m_CsvFile;
         m_HasChanges = true;
         m_TimerRebuilt.Enabled = true;
@@ -275,7 +275,7 @@ namespace CsvTools
       // m_CsvSettingBindingSource
       // 
       this.m_CsvSettingBindingSource.AllowNew = false;
-      this.m_CsvSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
+      this.m_CsvSettingBindingSource.DataSource = typeof(CsvTools.ICsvFile);
       // 
       // m_RadioButtonAlways
       // 
@@ -402,7 +402,7 @@ namespace CsvTools
       this.m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
       this.m_FastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox00.ReadOnly = true;
-      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
+      this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox00.ShowLineNumbers = false;
       this.m_FastColoredTextBox00.ShowScrollBars = false;
       this.m_FastColoredTextBox00.Size = new System.Drawing.Size(92, 18);
@@ -449,7 +449,7 @@ namespace CsvTools
       this.m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
       this.m_FastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox12.ReadOnly = true;
-      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
+      this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox12.ShowLineNumbers = false;
       this.m_FastColoredTextBox12.Size = new System.Drawing.Size(197, 33);
       this.m_FastColoredTextBox12.TabIndex = 5;
@@ -631,7 +631,7 @@ namespace CsvTools
       this.m_FastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox.ReadOnly = true;
       this.m_TableLayoutPanelText.SetRowSpan(this.m_FastColoredTextBox, 3);
-      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));      
+      this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
       this.m_FastColoredTextBox.Size = new System.Drawing.Size(362, 95);
       this.m_FastColoredTextBox.TabIndex = 0;
       this.m_FastColoredTextBox.TabLength = 1;

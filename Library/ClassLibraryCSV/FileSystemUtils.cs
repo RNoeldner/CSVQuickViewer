@@ -407,7 +407,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="length">The length.</param>
     /// <returns></returns>
-    public static string GetShortDisplayFileName(in string fileName, int length = 80)
+    public static string GetShortDisplayFileName(this string fileName, int length = 80)
     {
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
@@ -461,6 +461,7 @@ namespace CsvTools
       var lastIndex = fileOrDirectory.LastIndexOf(Path.DirectorySeparatorChar);
       return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : string.Empty;
     }
+
     /// <summary>
     ///   Gets filename that is usable in the file system.
     /// </summary>
@@ -806,7 +807,7 @@ namespace CsvTools
     public class FileInfo
     {
       private readonly System.IO.FileInfo? m_Info;
-      private DateTime m_LastWriteTimeUtc =  new DateTime(0, DateTimeKind.Utc);
+      private DateTime m_LastWriteTimeUtc = new DateTime(0, DateTimeKind.Utc);
 
       /// <summary>
       /// Initializes a new instance of the <see cref="FileInfo"/> class.

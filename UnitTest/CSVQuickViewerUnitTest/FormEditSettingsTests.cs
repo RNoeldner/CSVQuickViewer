@@ -10,7 +10,7 @@ namespace CsvTools.Tests
     public void FormEditSettings()
     {
       UnitTestStaticForms.ShowForm(() => 
-        new FormEditSettings(new ViewSettings(), new CsvFile(id: "csv", fileName: "Dummy1")));
+        new FormEditSettings(new ViewSettings(), new CsvFileDummy("Dummy1")));
     }
   }
 }

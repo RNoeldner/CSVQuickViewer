@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class ReaderExtensionMethodsTest
   {
-    private readonly CsvFile m_ValidSetting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+    private readonly ICsvFile m_ValidSetting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
       FieldDelimiterChar = ',',
       CommentLine = "#"
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      var test2 = (CsvFile) m_ValidSetting.Clone();
+      var test2 = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"));
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader,
         test2.ColumnCollection, test2.TrimmingOption,
@@ -112,8 +112,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      var test3 =
-        new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiterChar = '\t' };
+      var test3 =        new CsvFileDummy(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiterChar = '\t' };
       test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,

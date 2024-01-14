@@ -20,8 +20,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
+
 namespace CsvTools
 {
   /// <summary>
@@ -29,6 +29,11 @@ namespace CsvTools
   /// </summary>
   public static class SerializedFilesLib
   {
+    /// <summary>
+    ///   File ending for a setting file
+    /// </summary>
+    public const string cSettingExtension = ".setting";
+
     private static readonly Lazy<Regex> m_RemoveEmpty =
       new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
 
@@ -68,11 +73,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Deserialize a file, looking at the file its determined if it should be read as json or xml
+    ///   De serialize a file, looking at the file its determined if it should be read as json or xml
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">A class</typeparam>
     /// <param name="fileName">Name of the file</param>
-    /// <returns></returns>
+    /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
       Logger.Debug("Loading information from file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName));
@@ -87,43 +92,24 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Deserializes the text as specific type
+    ///   De serialize the text as specific type
     /// </summary>
     /// <param name="content">The Json content as text</param>
     public static T DeserializeText<T>(this string content) where T : class =>
       JsonConvert.DeserializeObject<T>(content, JsonSerializerSettings.Value)!;
 
     /// <summary>
-    ///   Deserializes the text as Json Object
+    ///   De serializes the text as Json Object
     /// </summary>
     /// <param name="content">The Json content as text</param>
     /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
-    /// <exception cref="JsonException">$"Returned content xxx could not be read as Json</exception>
+    /// <exception cref="JsonException">$"Returned content could not be read as Json</exception>
     public static JContainer DeserializeJson(this string content)
     {
       if (JsonConvert.DeserializeObject(content, JsonSerializerSettings.Value) is JContainer jsonData)
         return jsonData;
       throw new JsonException($"Content '{content.Substring(0, 150)}' could not be read as Json");
     }
-
-    /*
-    public static JContainer DeserializeJson(this Stream stream)
-    {
-      if (stream is null)
-        throw new ArgumentNullException(nameof(stream));
-      using var sr = new StreamReader(stream);
-      using var reader = new JsonTextReader(sr);
-      var serializer = new JsonSerializer();
-      if (serializer.Deserialize(reader) is JContainer jsonData)
-        return jsonData;
-
-      if (!stream.CanSeek)
-        throw new JsonException("Stream could not be read as Json");
-      sr.DiscardBufferedData();
-      stream.Seek(0, System.IO.SeekOrigin.Begin);
-      throw new JsonException($"Stream '{sr.ReadLine()?.Substring(0, 150)}' could not be read as Json");
-    }
-    */
 
     private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)
     {
@@ -136,7 +122,7 @@ namespace CsvTools
       using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
-      if (oldContent != newContent) 
+      if (oldContent != newContent)
         return newContent;
       Logger.Debug("No change to file {filename}", fileName);
       return null;
@@ -194,38 +180,6 @@ namespace CsvTools
       }
 
       return true;
-    }
-
-    /// <summary>
-    ///   Saves the setting for a physical file
-    /// </summary>
-    /// <param name="fileSettingPhysicalFile">The file setting to serialize.</param>
-    /// <param name="askOverwrite">
-    ///   The function to decide if we want to overwrite, usually a user prompt
-    /// </param>
-    /// <param name="cancellationToken"></param>
-    public static async Task SaveSettingFileAsync(IFileSettingPhysicalFile fileSettingPhysicalFile,
-      Func<bool> askOverwrite, CancellationToken cancellationToken)
-    {
-      var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
-
-      if (!(fileSettingPhysicalFile.Clone() is CsvFile saveSetting))
-        return;
-      // Remove possibly set but irrelevant properties for reading
-      saveSetting.FileName = string.Empty;
-      saveSetting.ID = string.Empty;
-      saveSetting.Header = string.Empty;
-      saveSetting.Footer = string.Empty;
-
-      // remove not needed Columns, so they do not play into comparison
-      saveSetting.ColumnCollection.Clear();
-      foreach (var col in fileSettingPhysicalFile.ColumnCollection)
-        if (col.Ignore || (col.ValueFormat.DataType == DataTypeEnum.String && col.Convert)
-                       || col.ValueFormat.DataType != DataTypeEnum.String)
-          saveSetting.ColumnCollection.Add(col);
-
-      if (!cancellationToken.IsCancellationRequested)
-        await saveSetting.SerializeAsync(fileName, askOverwrite).ConfigureAwait(false);
-    }
+    }    
   }
 }

@@ -40,8 +40,8 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void JsonIndented()
     {
-      var csv = new CsvFile(id: string.Empty, fileName: "test") { TemplateName = "Check" };
-      csv.MappingCollection.Add(new Mapping("Test", "Test"));
+      var csv = new CsvFileDummy(fileName: "test");
+      csv.ColumnCollection.Add(new Column("Test"));
 
       var res = csv.SerializeIndentedJson();
       Assert.IsTrue(res.Contains("  "));

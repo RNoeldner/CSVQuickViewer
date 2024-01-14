@@ -22,72 +22,112 @@ namespace CsvTools
   /// </summary>
   public sealed class InspectionResult
   {
+    /// <summary>Number of rows to skip</summary>
     [DefaultValue(0)] public int SkipRows = 0;
+    /// <summary>.NET CodePage ID</summary>
     [DefaultValue(65001)] public int CodePageId = 65001;
+    /// <summary>Does encoding use BOM</summary>
     [DefaultValue(false)] public bool ByteOrderMark = false;
+    /// <summary>Identifier in container like zip</summary>
     [DefaultValue("")] public string IdentifierInContainer = string.Empty;
+    /// <summary>Prefix for lines to be ignored</summary>
     [DefaultValue("#")] public string CommentLine = "#";
+    /// <summary>Prefix for Escaping linefeed or qualifier</summary>
     [DefaultValue('\\')] public char EscapePrefix = '\\';
+    /// <summary>Delimiter between two columns</summary>
     [DefaultValue(',')] public char FieldDelimiter = ',';
+    /// <summary>Qualifier of a columns to allow linefeed or delimiter</summary>
     [DefaultValue('"')] public char FieldQualifier = '"';
+    /// <summary>Context sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
     [DefaultValue(false)] public bool ContextSensitiveQualifier = false;
+    /// <summary>In case a quote is part of a quoted column, the quote should be repeated</summary>
     [DefaultValue(true)] public bool DuplicateQualifierToEscape = true;
+    /// <summary>Does the file have a header row</summary>
     [DefaultValue(true)] public bool HasFieldHeader = true;
+    /// <summary>Record Separator</summary>
     [DefaultValue(RecordDelimiterTypeEnum.None)] public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
 
+    /// <summary>
+    /// The file name
+    /// </summary>
     [JsonIgnore]
     [DefaultValue("")]
     public string FileName = string.Empty;
 
-    [JsonIgnore]
+    /// <summary>
+    /// Flag to indicate that its a Json file
+    /// </summary>    
     [DefaultValue(false)]
     public bool IsJson = false;
 
-    [JsonIgnore]
+    /// <summary>
+    /// Flag to indicate that its a XML file
+    /// </summary>    
     [DefaultValue(false)]
     public bool IsXml = false;
 
-    [JsonIgnore]
+    /// <summary>
+    /// Flag to indicate that its not a delimiter, Json or XMl file
+    /// </summary>    
     [DefaultValue(false)]
     public bool NoDelimitedFile = false;
 
-    [JsonIgnore]
+    /// <summary>
+    /// File containing Column definitions
+    /// </summary>    
     [DefaultValue("")]
     public string ColumnFile = string.Empty;
 
-    [JsonIgnore]
+    /// <summary>
+    /// The identified columns
+    /// </summary>    
     public ColumnCollection Columns = new ColumnCollection();
 
-#if !QUICK
-    public IFileSettingPhysicalFile PhysicalFile()
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InspectionResult"/> class.
+    /// </summary>
+    public InspectionResult()
     {
-      IFileSettingPhysicalFile? ret = null;
-      if (IsXml)
-        ret = new XmlFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
-      else if (IsJson)
-        ret = new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
-      else
-        ret = new CsvFile(id: string.Empty, fileName: FileName)
-        {
-          CommentLine = CommentLine,
-          EscapePrefixChar = EscapePrefix,
-          FieldDelimiterChar = FieldDelimiter,
-          FieldQualifierChar = FieldQualifier,
-          ContextSensitiveQualifier = ContextSensitiveQualifier,
-          DuplicateQualifierToEscape = DuplicateQualifierToEscape,
-          NewLine = NewLine,
-          ByteOrderMark = ByteOrderMark,
-          CodePageId = CodePageId,
-          HasFieldHeader = HasFieldHeader,
-          NoDelimitedFile = NoDelimitedFile,
-          IdentifierInContainer = IdentifierInContainer,
-          SkipRows = SkipRows
-        };
+    }
 
-      ret!.ColumnCollection.AddRangeNoClone(Columns);
-      ret.ColumnFile = ColumnFile;
+#if !QUICK
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InspectionResult"/> class.
+    /// </summary>
+    /// <param name="csvFile">The CSV file.</param>
+    public InspectionResult(ICsvFile csvFile)
+    {
+      FileName = csvFile.FullPath;
+      SkipRows = csvFile.SkipRows;
+      CodePageId = csvFile.CodePageId;
+      ByteOrderMark = csvFile.ByteOrderMark;
+      IdentifierInContainer = csvFile.IdentifierInContainer;
+      CommentLine = csvFile.CommentLine;
+      EscapePrefix = csvFile.EscapePrefixChar;
+      FieldQualifier =  csvFile.FieldQualifierChar;
+      ContextSensitiveQualifier =  csvFile.ContextSensitiveQualifier;
+      DuplicateQualifierToEscape =  csvFile.DuplicateQualifierToEscape;
+      HasFieldHeader = csvFile.HasFieldHeader;
+      NewLine = csvFile.NewLine;
+      Columns.AddRange(csvFile.ColumnCollection);
+    }
 
-      return ret;
+    public void CopyToCsv(ICsvFile csvFile)
+    {
+      csvFile.FileName = FileName;
+      csvFile.SkipRows = SkipRows;
+      csvFile.CodePageId = CodePageId;
+      csvFile.ByteOrderMark = ByteOrderMark;
+      csvFile.IdentifierInContainer = IdentifierInContainer;
+      csvFile.CommentLine = CommentLine;
+      csvFile.EscapePrefixChar = EscapePrefix;
+      csvFile.FieldQualifierChar= FieldQualifier;
+      csvFile.ContextSensitiveQualifier =  ContextSensitiveQualifier;
+      csvFile.DuplicateQualifierToEscape =  DuplicateQualifierToEscape;
+      csvFile.HasFieldHeader = HasFieldHeader;
+      csvFile.NewLine = NewLine;
+      csvFile.ColumnCollection.Clear();
+      csvFile.ColumnCollection.AddRange(Columns);
     }
 #endif
   }

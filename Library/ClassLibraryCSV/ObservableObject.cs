@@ -24,16 +24,19 @@ namespace CsvTools
   /// <summary>
   /// Base class for classes that will raise NotifyPropertyChanged events
   /// </summary>
-  public abstract class ObservableObject : INotifyPropertyChanged
+  public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPropertyChanging
   {
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc />
+    //public event PropertyChangingEventHandler? PropertyChanging;
 
     /// <summary>
     ///   Notifies the completed property changed through <see cref="PropertyChanged" />
     /// </summary>
     /// <param name="propertyName">The property name.</param>
-    protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+    protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
     {
       if (PropertyChanged is null)
         return;
@@ -53,6 +56,29 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Notifies a watcher that a property changing (before its actually changed)
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    //protected void NotifyPropertyChanging([CallerMemberName] string propertyName = "")
+    //{
+    //  if (PropertyChanging is null)
+    //    return;
+    //  try
+    //  {
+    //    // ReSharper disable once PolymorphicFieldLikeEventInvocation
+    //    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
+    //  }
+    //  catch (TargetInvocationException)
+    //  {
+    //    // Ignore
+    //  }
+    //  catch (ArgumentOutOfRangeException)
+    //  {
+    //    // some UI elements raise this error if the value is not valid (e.G. not in range
+    //  }
+    //}
+
+    /// <summary>
     ///   Sets the collection of a backing store and raises <see cref="PropertyChanged" /> after the
     ///   value is changed
     /// </summary>
@@ -65,6 +91,7 @@ namespace CsvTools
       if (field.CollectionEqualWithOrder(value))
         return false;
 
+      //NotifyPropertyChanging(propertyName);
       field.Clear();
       if (value != null)
       {
@@ -92,6 +119,7 @@ namespace CsvTools
     {
       if (value.Equals(field))
         return false;
+      //NotifyPropertyChanging(propertyName);
       value.CopyTo(field);
       NotifyPropertyChanged(propertyName);
       return true;
@@ -111,6 +139,7 @@ namespace CsvTools
       comparison ??= EqualityComparer<T>.Default;
       if (comparison.Equals(field, value))
         return false;
+      //NotifyPropertyChanging(propertyName);
       field = value;
       NotifyPropertyChanged(propertyName);
       return true;

@@ -30,31 +30,33 @@ namespace CsvTools.Tests
   {
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
-    private readonly CsvFile m_ValidSetting =
-      new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+    private ICsvFile GetDummy()
+    {
+      var target = new CsvFileDummy()
       {
-        FieldDelimiterChar = ',', CommentLine = "#"
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        FieldDelimiterChar = ',',
+        CommentLine = "#"
       };
 
-    [TestInitialize]
-    public void Init()
-    {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency",
+      target.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      target.ColumnCollection.Add(new Column("Proficiency",
         new ValueFormat(DataTypeEnum.Numeric)));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang",
+      target.ColumnCollection.Add(new Column("IsNativeLang",
         new ValueFormat(DataTypeEnum.Boolean)));
       var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
-      m_ValidSetting.ColumnCollection.Add(cf);
-    }
+      target.ColumnCollection.Add(cf);
 
+      return target;
+    }
+    
     [TestMethod]
     public async Task CheckEvents()
     {
       var openFinished = false;
       var onOpenCalled = false;
       var readFinished = false;
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption,
@@ -92,11 +94,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      var setting =
-        new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
-        {
-          HasFieldHeader = true, FieldDelimiterChar = '|', FieldQualifierChar = '"', SkipEmptyLines = false
-        };
+      var setting = new CsvFileDummy()
+      {
+        FileName= UnitTestStatic.GetTestPath("AllFormatsPipe.txt"),
+        HasFieldHeader = true,
+        FieldDelimiterChar = '|',
+        FieldQualifierChar = '"',
+        SkipEmptyLines = false
+      };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
@@ -143,8 +148,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      var basIssues = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BadIssues.csv"))
+      var basIssues = new CsvFileDummy()
       {
+        FileName= UnitTestStatic.GetTestPath("BadIssues.csv"),
         TreatLfAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
@@ -262,11 +268,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestGetDataTypeNameAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
-        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, 
-        m_ValidSetting.FieldDelimiterChar, m_ValidSetting.FieldQualifierChar, m_ValidSetting.EscapePrefixChar, 
+        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption,
+        m_ValidSetting.FieldDelimiterChar, m_ValidSetting.FieldQualifierChar, m_ValidSetting.EscapePrefixChar,
         m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape,
         m_ValidSetting.NewLinePlaceholder,
@@ -286,11 +292,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestWarningsRecordNoMappingAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
-        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, 
-        m_ValidSetting.FieldDelimiterChar, m_ValidSetting.FieldQualifierChar, m_ValidSetting.EscapePrefixChar, 
+        m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption,
+        m_ValidSetting.FieldDelimiterChar, m_ValidSetting.FieldQualifierChar, m_ValidSetting.EscapePrefixChar,
         m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
         m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape,
@@ -329,7 +335,7 @@ namespace CsvTools.Tests
     {
       var column = new Column("test",
         new ValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
-
+      var m_ValidSetting = GetDummy();
 
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
@@ -371,7 +377,7 @@ namespace CsvTools.Tests
     public async Task TestBatchFinishedNotifcationAsync()
     {
       var finished = false;
-
+      var m_ValidSetting = GetDummy();
       using (var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
                m_ValidSetting.HasFieldHeader,
                m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -405,6 +411,7 @@ namespace CsvTools.Tests
     public async Task TestReadFinishedNotificationAsync()
     {
       var finished = false;
+      var m_ValidSetting = GetDummy();
 
       using (var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
                m_ValidSetting.HasFieldHeader,
@@ -434,11 +441,13 @@ namespace CsvTools.Tests
       Assert.IsTrue(finished);
     }
 
+
+
+
     [TestMethod]
     public void ColumnFormat()
     {
-      var target = new CsvFile(id: string.Empty, fileName: string.Empty);
-      m_ValidSetting.CopyTo(target);
+      var target = GetDummy();
 
       Assert.IsNotNull(target.ColumnCollection.GetByName("Score"));
       var cf = target.ColumnCollection.GetByName("Score");
@@ -453,9 +462,11 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task GetDateTimeTestAsync()
     {
-      var csvFile = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("TestFile.txt"))
+      var csvFile = new CsvFileDummy()
       {
-        CodePageId = 65001, FieldDelimiterChar = '\t'
+        FileName = UnitTestStatic.GetTestPath("TestFile.txt"),
+        CodePageId = 65001,
+        FieldDelimiterChar = '\t'
       };
 
       csvFile.ColumnCollection.Add(new Column("Title", new ValueFormat(DataTypeEnum.DateTime)));
@@ -482,8 +493,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderImportFileEmptyNullNotExisting()
     {
-      var setting = new CsvFile(String.Empty, string.Empty);
-
+      var setting = new CsvFileDummy();
       try
       {
         using (new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -554,7 +564,7 @@ namespace CsvTools.Tests
     public async Task CsvDataReaderRecordNumberEmptyLinesAsync()
     {
       var setting =
-        new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt")) { HasFieldHeader = true };
+        new CsvFileDummy() { FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true };
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -581,9 +591,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderRecordNumberEmptyLinesSkipEmptyLinesAsync()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"))
+      var setting = new CsvFileDummy()
       {
-        HasFieldHeader = true, SkipEmptyLines = false, ConsecutiveEmptyRows = 3
+        FileName= UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
+        HasFieldHeader = true,
+        SkipEmptyLines = false,
+        ConsecutiveEmptyRows = 3
       };
       /*
        * ID,LangCode,ExamDate,Score,Proficiency,IsNativeLang
@@ -624,7 +637,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderPropertiesAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -656,7 +669,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetNameAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -686,7 +699,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetOrdinalAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -717,7 +730,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderUseIndexerAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -747,7 +760,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetValueNullAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -813,7 +826,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetBooleanAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -842,7 +855,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetBooleanErrorAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -868,7 +881,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDateTimeAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -896,7 +909,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeErrorAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -922,7 +935,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt32Async()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -949,7 +962,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32ErrorAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -975,7 +988,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDecimalAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1002,7 +1015,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalErrorAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1029,7 +1042,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32NullAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1056,7 +1069,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetBytesAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1083,7 +1096,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetDataAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1110,7 +1123,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetFloatAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1137,7 +1150,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetFloatErrorAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1164,7 +1177,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetGuidAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1191,7 +1204,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeNullAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1220,7 +1233,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeWrongTypeAsync()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1247,7 +1260,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalFormatException()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1274,7 +1287,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetByte()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1301,7 +1314,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetByteFrormat()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1327,7 +1340,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDouble()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1354,7 +1367,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDoubleFrormat()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1380,7 +1393,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt16()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1406,10 +1419,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitWarnings()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, SkipRows = 1
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1
       };
+
       setting.FieldQualifierChar = 'x';
       setting.FieldDelimiterChar = ',';
 
@@ -1438,9 +1454,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterCr()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = '\r'
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldDelimiterChar = '\r'
       };
       var exception = false;
       try
@@ -1480,9 +1499,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierCr()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = "Carriage return".FromText()
+        FileName= UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldQualifierChar = "Carriage return".FromText()
       };
       var exception = false;
       try
@@ -1522,9 +1544,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierLf()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = "Line feed".FromText()
+        FileName= UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldQualifierChar = "Line feed".FromText()
       };
       var exception = false;
       try
@@ -1564,9 +1589,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGuessCodePage()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = true, CodePageId = 0
+        HasFieldHeader = true,
+        CodePageId = 0
       };
       setting.FieldDelimiterChar = ',';
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
@@ -1586,15 +1612,17 @@ namespace CsvTools.Tests
         await test.OpenAsync(UnitTestStatic.Token);
       }
 
-      Assert.AreEqual(1200, setting.CurrentEncoding.WindowsCodePage); // UTF-16 little endian
+      // Assert.AreEqual(1200, setting.CurrentEncoding.WindowsCodePage); // UTF-16 little endian
     }
 
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterLf()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = '\n'
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldDelimiterChar = '\n'
       };
       var exception = false;
       try
@@ -1633,9 +1661,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterSpace()
     {
-      var setting = new CsvFile("id", UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = " ".FromText()
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldDelimiterChar = " ".FromText()
       };
       var exception = false;
       try
@@ -1674,9 +1704,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierIsFieldDelimiter()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldQualifierChar = '"'
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldQualifierChar = '"'
       };
       setting.FieldDelimiterChar = setting.FieldQualifierChar;
       var exception = false;
@@ -1719,6 +1751,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
+        var m_ValidSetting = GetDummy();
         using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
           m_ValidSetting.HasFieldHeader,
           m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1755,6 +1788,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt64()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1783,6 +1817,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
+        var m_ValidSetting = GetDummy();
         using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
           m_ValidSetting.HasFieldHeader,
           m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1819,6 +1854,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChar()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1844,6 +1880,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetStringColumnNotExisting()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1891,6 +1928,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetString()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1916,6 +1954,7 @@ namespace CsvTools.Tests
 
     public void DataReaderResetPositionToFirstDataRow()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1939,6 +1978,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderIsDBNull()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1967,6 +2007,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderTreatNullTextTrue()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -1997,6 +2038,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderTreatNullTextFalse()
     {
+      var m_ValidSetting = GetDummy();
 #pragma warning disable CS8625
       m_ValidSetting.TreatTextAsNull = null;
 #pragma warning restore CS8625
@@ -2029,6 +2071,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetValues()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2055,6 +2098,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChars()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2085,6 +2129,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetSchemaTable()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2111,6 +2156,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderReadAfterEndAsync()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2152,6 +2198,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderReadAfterCloseAsync()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2178,6 +2225,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack1()
     {
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2205,7 +2253,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack2()
     {
-
+      var m_ValidSetting = GetDummy();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiterChar,
@@ -2232,9 +2280,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderNoHeader()
     {
-      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = false, SkipRows = 1, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,

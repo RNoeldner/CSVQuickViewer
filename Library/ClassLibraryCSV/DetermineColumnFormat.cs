@@ -651,11 +651,14 @@ namespace CsvTools
                 if (fileReader.IsDBNull(columnIndex))
                   continue;
                 // value must be string as spans are not supported in lambda
-                var value = fileReader.GetValue(columnIndex).ToString()!.Trim();
-                // Any non existing value is not of interest
-                if (value.Length==0)
+                var value = fileReader.GetValue(columnIndex).ToString();
+                if (value == null)
                   continue;
-
+                value = value.Trim();
+                // Any non existing value is not of interest
+                if (value == null || value.Length==0)
+                  continue;
+                
                 // Always do treat Text "Null" as Null, 
                 if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
                   continue;

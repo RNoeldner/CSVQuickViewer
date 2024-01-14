@@ -98,7 +98,7 @@
       // bindingSourceCsvFile
       // 
       this.bindingSourceCsvFile.AllowNew = false;
-      this.bindingSourceCsvFile.DataSource = typeof(CsvTools.CsvFile);
+      this.bindingSourceCsvFile.DataSource = typeof(CsvTools.ICsvFile);
       // 
       // label2
       // 

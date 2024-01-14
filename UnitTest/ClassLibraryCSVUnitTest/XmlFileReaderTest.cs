@@ -28,10 +28,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task XmlFileAsync()
     {
-      var setting =
-        new XmlFile(string.Empty, UnitTestStatic.GetTestPath("PlantSample.xml"));
-
-      using var xml = new XmlFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
+      var setting = CsvFileDummy.Empty;
+        
+      using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
       await xml.OpenAsync(UnitTestStatic.Token);
@@ -48,10 +47,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void XmlFileSync()
     {
-      var setting =
-        new XmlFile(string.Empty, UnitTestStatic.GetTestPath("PlantSample.xml"));
-
-      using var xml = new XmlFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit,
+      var setting = CsvFileDummy.Empty;
+        
+      using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
       xml.Open();

@@ -129,11 +129,11 @@ namespace CsvTools.Tests
       using var formProgress = new FormProgress("FileWithHierarchy");
       formProgress.Show();
       var cvsSetting =
-        new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"))
+        new CsvFileDummy()
         {
           FieldDelimiterChar = '\t'
         };
-      using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows,
+      using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), cvsSetting.CodePageId, cvsSetting.SkipRows,
         cvsSetting.HasFieldHeader,
         cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiterChar, cvsSetting.FieldQualifierChar,
         cvsSetting.EscapePrefixChar,

@@ -13,15 +13,12 @@
  */
 
 #nullable enable
-
-using System.ComponentModel;
-
 namespace CsvTools
 {
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>
+  public interface IFileSetting : IWithCopyTo<IFileSetting>
   {
     /// <summary>
     ///   Gets or sets the column formats
@@ -113,8 +110,13 @@ namespace CsvTools
     string TreatTextAsNull { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    ///   Gets or sets a value indicating if values should be trimmed.
     /// </summary>
-    TrimmingOptionEnum TrimmingOption { get; set; }
+    bool Trim { get; set; }
+
+    /// <summary>
+    ///   Get a description of for debugging and UI display
+    /// </summary>
+    string GetDisplay();
   }
 }

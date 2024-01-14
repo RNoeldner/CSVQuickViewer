@@ -18,6 +18,7 @@ using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -26,8 +27,29 @@ namespace CsvTools.Tests
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class DataReaderWrapperTests
   {
-    private static readonly CsvFile m_Setting = UnitTestStaticData.ReaderGetAllFormats();
+    private static readonly ICsvFile m_Setting;
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
+
+    static DataReaderWrapperTests()
+    {
+      m_Setting = new CsvFileDummy(Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
+      {
+        HasFieldHeader = true,
+        FieldDelimiterChar = '\t',
+      };
+      // columns from the file
+      m_Setting.ColumnCollection.AddRangeNoClone(
+        new Column[]
+        {
+          new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer)),
+          new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".")),
+          new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")),
+          new Column("Boolean", new ValueFormat(DataTypeEnum.Boolean)),
+          new Column("GUID", new ValueFormat(DataTypeEnum.Guid)),
+          new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
+        });
+    }
 
     [TestMethod()]
     public async Task GetColumnIndexFromErrorColumnTest()
@@ -46,7 +68,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(9, wrapper.Depth);
     }
 
-    
+
     [TestMethod()]
     public void DataTableWrapperErrorPassthoughTest()
     {
@@ -66,7 +88,7 @@ namespace CsvTools.Tests
       reader.Read();
       Assert.AreEqual("Error0", reader.GetValue(2));
     }
-    
+
     [TestMethod()]
     public async Task PassthroughErrorTest()
     {
@@ -85,11 +107,11 @@ namespace CsvTools.Tests
       using var reader = dataTable.CreateDataReader();
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual("Error0", wrapper.GetString(wrapper.FieldCount-1));      
+      Assert.AreEqual("Error0", wrapper.GetString(wrapper.FieldCount-1));
       await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual("Error1", wrapper.GetString(wrapper.FieldCount-1));      
+      Assert.AreEqual("Error1", wrapper.GetString(wrapper.FieldCount-1));
     }
-    
+
 
     [TestMethod()]
     public async Task GetIntegerTest()
@@ -129,7 +151,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("1BD10E34-7D66-481B-A7E3-AE817B5BEE02", wrapper.GetString(7).ToUpper());
     }
 
-    private static CsvFileReader GetReader(CsvFile setting)
+    private static CsvFileReader GetReader(ICsvFile setting)
     {
       return new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,

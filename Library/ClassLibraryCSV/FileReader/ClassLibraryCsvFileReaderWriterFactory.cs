@@ -40,19 +40,17 @@ namespace CsvTools
     {
       IFileReader retReader = setting switch
       {
-        IJsonFile csv1 => new JsonFileReader(csv1.FullPath, csv1.ColumnCollection, csv1.RecordLimit,
-          csv1.TrimmingOption == TrimmingOptionEnum.All, csv1.TreatTextAsNull, csv1.TreatNBSPAsSpace, m_TimeZoneAdjust,
+        IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim, json.TreatTextAsNull, json.TreatNBSPAsSpace, m_TimeZoneAdjust,
           TimeZoneInfo.Local.Id, false, false),
-        IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit,
-          xml.TrimmingOption == TrimmingOptionEnum.All, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false),
-        ICsvFile csv2 => new CsvFileReader(csv2.FullPath, csv2.CodePageId, csv2.SkipRows, csv2.HasFieldHeader,
-          csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiterChar, csv2.FieldQualifierChar, csv2.EscapePrefixChar,
-          csv2.RecordLimit, csv2.AllowRowCombining, csv2.ContextSensitiveQualifier, csv2.CommentLine, csv2.NumWarnings,
-          csv2.DuplicateQualifierToEscape, csv2.NewLinePlaceholder, csv2.DelimiterPlaceholder,
-          csv2.QualifierPlaceholder, csv2.SkipDuplicateHeader, csv2.TreatLfAsSpace, csv2.TreatUnknownCharacterAsSpace,
-          csv2.TryToSolveMoreColumns, csv2.WarnDelimiterInValue, csv2.WarnLineFeed, csv2.WarnNBSP, csv2.WarnQuotes,
-          csv2.WarnUnknownCharacter, csv2.WarnEmptyTailingColumns, csv2.TreatNBSPAsSpace, csv2.TreatTextAsNull,
-          csv2.SkipEmptyLines, csv2.ConsecutiveEmptyRows, csv2.IdentifierInContainer, m_TimeZoneAdjust,
+        IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit, xml.Trim, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false),
+        ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
+          csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+          csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
+          csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
+          csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
+          csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
+          csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
+          csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, m_TimeZoneAdjust,
           TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
@@ -63,23 +61,23 @@ namespace CsvTools
     public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
       var publicKey = string.Empty;
-      
+
       IFileWriter? writer = fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite, csv.CodePageId,
           csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer, csv.Header,
-          csv.Footer, csv.ToString()!, csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+          csv.Footer, csv.GetDisplay(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
           csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
           csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
           ),
 #if !CsvQuickViewer
         IJsonFile jsonFile => new JsonFileWriter(jsonFile.FullPath, jsonFile.IdentifierInContainer,
           jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull, jsonFile.CodePageId,
-          jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.ToString()!, jsonFile.Row,
+          jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.GetDisplay(), jsonFile.Row,
           m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted
           ),
         IXmlFile xmlFile => new XmlFileWriter(xmlFile.FullPath, xmlFile.IdentifierInContainer, xmlFile.Footer,
-          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.ToString()!,
+          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.GetDisplay(),
           xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
           ),
 #endif
@@ -93,8 +91,8 @@ namespace CsvTools
       if (fileSetting is IValidatorSetting validator)
 
         writer.WriteFinished += (sender, args) =>
-        {        
-          validator.ProcessTimeUtc = DateTime.UtcNow;        
+        {
+          validator.ProcessTimeUtc = DateTime.UtcNow;
           if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
             new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = validator.LatestSourceTimeUtc;
         };

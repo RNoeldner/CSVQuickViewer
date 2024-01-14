@@ -43,7 +43,7 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly ColumnMut m_ColumnEdit;
-    private readonly IFileSetting m_FileSetting;
+    private readonly IFileSetting m_FileSetting;    
     private readonly FillGuessSettings m_FillGuessSettings;
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
@@ -63,7 +63,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FormColumnUiRead" /> class.
     /// </summary>
     /// <param name="column">The column.</param>
-    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="fileSetting">The file setting (need a setting to actually look into the source).</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
     /// <param name="showWriteNull">If set to true, the "write null" option will be shown.</param>
@@ -78,7 +78,7 @@ namespace CsvTools
       bool enableChangeColumn)
     {
       m_ColumnEdit = new ColumnMut(column);
-      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));      
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
 
       InitializeComponent();

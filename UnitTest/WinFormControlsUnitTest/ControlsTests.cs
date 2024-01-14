@@ -131,7 +131,7 @@ namespace CsvTools.Tests
       UnitTestStaticForms.ShowControl(() =>
       {
         var ctrl = new QuotingControl();
-        ctrl.CsvFile = new CsvFile(id: "CSV", fileName: "");
+        ctrl.CsvFile = new CsvFileDummy();
         return ctrl;
       });
     }
@@ -139,7 +139,7 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(1000)]
     public void QuotingControl2()
     {
-      UnitTestStaticForms.ShowControl(() => new QuotingControl(), 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
+      UnitTestStaticForms.ShowControl(() => new QuotingControl(), 0.1, control => control.CsvFile = new CsvFileDummy());
     }
 
     [TestMethod, Timeout(2000)]
