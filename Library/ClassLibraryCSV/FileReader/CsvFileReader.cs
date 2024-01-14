@@ -205,7 +205,7 @@ namespace CsvTools
         throw new ArgumentException("File can not be empty", nameof(fileName));
       if (!FileSystemUtils.FileExists(fileName))
         throw new FileNotFoundException(
-          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
           fileName);
     }
 
@@ -387,7 +387,7 @@ namespace CsvTools
     /// </summary>
     public override async Task OpenAsync(CancellationToken token)
     {
-      await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FullPath)}\"")
+      await BeforeOpenAsync($"Opening delimited file \"{FullPath.GetShortDisplayFileName()}\"")
         .ConfigureAwait(false);
       try
       {

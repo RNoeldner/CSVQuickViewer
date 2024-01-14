@@ -38,23 +38,31 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, string> GetPassphraseForFile = _ => string.Empty;
 
+    /// <summary>
+    /// Function that will return encryption related information for a file
+    /// </summary>
     public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile = _ => (string.Empty, string.Empty, string.Empty);
 
+    /// <summary>
+    /// Function that will return an open stream  for SourceAccess
+    /// </summary>
     public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
 
-    public static Func<ValueFormat, IColumnFormatter> GetColumnFormatter = valueFormat => 
+    /// <summary>
+    /// Function that will return the proper instance for ColumnFormatters
+    /// </summary>
+    public static Func<ValueFormat, IColumnFormatter> GetColumnFormatter = valueFormat =>
     valueFormat.DataType switch
       {
-        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter,
-          valueFormat.PartToEnd),
+        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
         DataTypeEnum.TextToHtml => TextToHtmlFormatter.Instance,
         DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
         DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
         DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
         _ => EmptyFormatter.Instance
       };
-    
-#if !QUICK 
+
+#if !QUICK
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

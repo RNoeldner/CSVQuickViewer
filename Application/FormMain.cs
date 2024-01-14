@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -42,7 +41,7 @@ namespace CsvTools
     private bool m_FileChanged;
     private bool m_RunDetection;
     private bool m_AskOpenFile = true;
-    private CsvFileDummy? m_FileSetting;
+    private IFileSettingPhysicalFile? m_FileSetting;
     private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
@@ -139,13 +138,13 @@ namespace CsvTools
           m_ViewSettings.WriteSetting.FileName = fileName;
 
           var skippedLines = new StringBuilder();
-          // in case we skipped lines read them as Header so we do not loose them
+          // in case we skipped lines read them as Header, so we do not lose them
           if (m_FileSetting.SkipRows > 0)
           {
 #if NET5_0_OR_GREATER
         await
 #endif
-            using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath, true));
+            using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
             for (var i = 0; i < m_FileSetting.SkipRows; i++)
               skippedLines.AppendLine(await sr.ReadLineAsync());
@@ -175,8 +174,6 @@ namespace CsvTools
           fileSystemWatcher.EnableRaisingEvents = true;
 
           m_ShouldReloadData = false;
-          //if (m_ViewSettings.StoreSettingsByFile)
-          //  await SerializedFilesLib.SaveSettingFileAsync(m_ViewSettings.WriteSetting, () => true, m_CancellationTokenSource.Token);
         }
         catch (Exception ex)
         {
@@ -184,17 +181,17 @@ namespace CsvTools
         }
       };
 
-      detailControl.DisplaySourceAsync = async (ct) =>
+      detailControl.DisplaySourceAsync = async ct =>
       {
-        using var m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath, null);
-        m_SourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
+        using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath, null);
+        sourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
         if (m_FileSetting is ICsvFile csv)
-          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
+          await sourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
             csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine, ct);
         else
-          await m_SourceDisplay.OpenFileAsync(m_FileSetting is IJsonFile, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
+          await sourceDisplay.OpenFileAsync(m_FileSetting is IJsonFile, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
             ct);
-        m_SourceDisplay.ShowDialog();
+        sourceDisplay.ShowDialog();
       };
     }
 
@@ -315,9 +312,9 @@ namespace CsvTools
 #endif
           cancellationToken);
 
-
-        m_FileSetting =  new CsvFileDummy(fileName)
+        m_FileSetting =  new CsvFileDummy
         {
+          FileName = fileName,
           CommentLine = detection.CommentLine,
           EscapePrefixChar = detection.EscapePrefix,
           FieldDelimiterChar = detection.FieldDelimiter,
@@ -337,7 +334,7 @@ namespace CsvTools
         m_FileSetting.ColumnFile = detection.ColumnFile;
 
 #if SupportPGP
-        // If keyFile was set in the process its not yet stored
+        // If keyFile was set in the process it's not yet stored
         m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
 #endif
         // formProgress.Close();
@@ -357,13 +354,14 @@ namespace CsvTools
         SetFileSystemWatcher(fileName);
 
         // update the UI
+        // ReSharper disable once AsyncVoidLambda
         this.SafeInvoke(async () =>
         {
           var display = fileName;
           if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
             display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
-          var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
+          var title = new StringBuilder(display.GetShortDisplayFileName(50));
           if (m_FileSetting is ICsvFile csv)
           {
             title.Append(" - ");
@@ -390,7 +388,7 @@ namespace CsvTools
     }
 
     // ReSharper disable StringLiteralTypo
-    private async Task SelectFile()
+    private Task SelectFile()
     {
       var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                       + "Delimited files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
@@ -406,7 +404,8 @@ namespace CsvTools
         m_ViewSettings.InitialFolder = ".";
       var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
       if (!(fileName is null || fileName.Length == 0))
-        await LoadCsvOrZipFileAsync(fileName, m_CancellationTokenSource.Token);
+        return LoadCsvOrZipFileAsync(fileName, m_CancellationTokenSource.Token);
+      return Task.CompletedTask;
     }
 
     private void AddWarning(object? sender, WarningEventArgs args)
@@ -426,7 +425,6 @@ namespace CsvTools
     {
       if (m_FileSetting != null)
       {
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
         m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
       }
 
@@ -500,7 +498,6 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Stop();
 
       if (m_FileSetting is null) return;
-      m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
       m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
 
       try
@@ -542,58 +539,6 @@ namespace CsvTools
       if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) &&
           !WindowsAPICodePackWrapper.IsDialogOpen)
         e.Effect = DragDropEffects.All;
-    }
-
-    /// <summary>
-    ///   Handles the PropertyChanged event of the FileSetting control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
-    /// </param>
-    private void FileSetting_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
-          || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
-          || e.PropertyName == nameof(ICsvFile.CodePageId)
-          || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
-          || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
-          || e.PropertyName == nameof(ICsvFile.NumWarnings)
-          || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
-          || e.PropertyName == nameof(ICsvFile.SkipRows)
-          || e.PropertyName == nameof(ICsvFile.TreatLfAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
-          || e.PropertyName == nameof(ICsvFile.TreatUnknownCharacterAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
-          || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
-          || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
-          || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
-          || e.PropertyName == nameof(ICsvFile.WarnNBSP)
-          || e.PropertyName == nameof(ICsvFile.WarnQuotes)
-          || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
-          || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
-          || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.FieldDelimiterChar)
-          || e.PropertyName == nameof(ICsvFile.FieldQualifierChar)
-          || e.PropertyName == nameof(ICsvFile.EscapePrefixChar)
-          || e.PropertyName == nameof(ICsvFile.DelimiterPlaceholder)
-          || e.PropertyName == nameof(ICsvFile.NewLinePlaceholder)
-          || e.PropertyName == nameof(ICsvFile.NewLinePlaceholder)
-          || e.PropertyName == nameof(ICsvFile.QualifierPlaceholder)
-          || e.PropertyName == nameof(ICsvFile.CommentLine)
-          || e.PropertyName == nameof(ICsvFile.ContextSensitiveQualifier)
-          || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)
-          || e.PropertyName == nameof(ICsvFile.FileName))
-        m_ShouldReloadData = true;
-
-      // if the header information is changed, rerun detection,
-      // we might not come to a different result but the column names are reset.
-      if (e.PropertyName == nameof(ICsvFile.HasFieldHeader))
-      {
-        m_RunDetection = true;
-      }
     }
 
     /// <summary>
@@ -670,7 +615,7 @@ namespace CsvTools
         m_ToolStripButtonAsText.Enabled = true;
         await Extensions.InvokeWithHourglassAsync(async () =>
         {
-          var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
+          var fileNameShort = m_FileSetting.FileName.GetShortDisplayFileName(60);
 
           detailControl.SafeInvoke(() =>
           {
@@ -761,7 +706,7 @@ namespace CsvTools
         {
           var fileName = m_FileSetting.FileName + SerializedFilesLib.cSettingExtension;
           await new InspectionResult(m_FileSetting).SerializeAsync(fileName, () => MessageBox.Show(
-              $"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ",
+              $"Setting {fileName.GetShortDisplayFileName(50)} has been changed.\nReplace with new setting? ",
               "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes).ConfigureAwait(false);
         }
 
@@ -788,26 +733,59 @@ namespace CsvTools
 
     private async void ShowSettings(object? sender, EventArgs e)
     {
-      if (m_FileSetting == null)
-        return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
       {
-
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
-        using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
+
+        var editSetting = m_FileSetting?.Clone() as IFileSettingPhysicalFile;
+        using var frm = new FormEditSettings(m_ViewSettings, editSetting);
         frm.ShowDialog(this);
         await m_ViewSettings.SaveViewSettingsAsync();
+        editSetting = frm.FileSetting;
+        
+        if (frm.FileSetting == null)
+          return;
+
+        // Update Setting
         if (m_FileSetting != null)
         {
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
           SetFileSystemWatcher(m_FileSetting.FileName);
-          m_RunDetection = !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
-          m_ShouldReloadData = m_ShouldReloadData || m_RunDetection || m_FileChanged;
+
+          // If field headers or FillGuess has changed we need to run  Detection again
+          m_RunDetection = m_FileSetting.HasFieldHeader != frm.FileSetting.HasFieldHeader || !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
+          // if the file has changed need to load all
+          m_FileChanged = !frm.FileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
+          m_RunDetection |= m_FileChanged;
+          if (m_FileSetting is ICsvFile oldCsv && frm.FileSetting is ICsvFile newCsv)
+          {
+            if (oldCsv.AllowRowCombining != newCsv.AllowRowCombining
+                || oldCsv.ByteOrderMark != newCsv.ByteOrderMark  || oldCsv.CodePageId != newCsv.CodePageId
+                || oldCsv.ConsecutiveEmptyRows != newCsv.ConsecutiveEmptyRows || oldCsv.HasFieldHeader != newCsv.HasFieldHeader
+                || oldCsv.NumWarnings != newCsv.NumWarnings  || oldCsv.SkipEmptyLines != newCsv.SkipEmptyLines
+                || oldCsv.SkipRows != newCsv.SkipRows  || oldCsv.TreatLfAsSpace != newCsv.TreatLfAsSpace
+                || oldCsv.TreatNBSPAsSpace != newCsv.TreatNBSPAsSpace  || oldCsv.TreatTextAsNull != newCsv.TreatTextAsNull
+                || oldCsv.TreatUnknownCharacterAsSpace != newCsv.TreatUnknownCharacterAsSpace
+                || oldCsv.TryToSolveMoreColumns != newCsv.TryToSolveMoreColumns || oldCsv.WarnDelimiterInValue != newCsv.WarnDelimiterInValue
+                || oldCsv.WarnEmptyTailingColumns != newCsv.WarnEmptyTailingColumns || oldCsv.WarnLineFeed != newCsv.WarnLineFeed
+                || oldCsv.WarnNBSP != newCsv.WarnNBSP  || oldCsv.WarnQuotes != newCsv.WarnQuotes
+                || oldCsv.WarnQuotesInQuotes != newCsv.WarnQuotesInQuotes || oldCsv.WarnUnknownCharacter != newCsv.WarnUnknownCharacter
+                || oldCsv.DisplayStartLineNo != newCsv.DisplayStartLineNo || oldCsv.DisplayRecordNo != newCsv.DisplayRecordNo
+                || oldCsv.FieldDelimiterChar != newCsv.FieldDelimiterChar || oldCsv.FieldQualifierChar != newCsv.FieldQualifierChar
+                || oldCsv.EscapePrefixChar != newCsv.EscapePrefixChar  || oldCsv.DelimiterPlaceholder != newCsv.DelimiterPlaceholder
+                || oldCsv.NewLinePlaceholder != newCsv.NewLinePlaceholder  || oldCsv.NewLinePlaceholder != newCsv.NewLinePlaceholder
+                || oldCsv.QualifierPlaceholder != newCsv.QualifierPlaceholder || oldCsv.CommentLine != newCsv.CommentLine
+                || oldCsv.ContextSensitiveQualifier != newCsv.ContextSensitiveQualifier || oldCsv.DuplicateQualifierToEscape != newCsv.DuplicateQualifierToEscape)
+              m_ShouldReloadData = true;
+          }
+          frm.FileSetting.CopyTo(m_FileSetting);
+          m_ShouldReloadData |= m_RunDetection;
         }
-        else if (frm.FileSetting != null)
+        // Set Setting
+        else
         {
-          m_FileSetting = (CsvFileDummy) frm.FileSetting;
+          m_FileSetting = editSetting;
           m_FileChanged = true;
           m_AskOpenFile = false;
         }
@@ -895,6 +873,6 @@ namespace CsvTools
 
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
-    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await m_ToolStripButtonLoadFile.RunWithHourglassAsync(async () => await SelectFile(), this);
+    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await m_ToolStripButtonLoadFile.RunWithHourglassAsync(SelectFile, this);
   }
 }

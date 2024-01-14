@@ -42,7 +42,7 @@ namespace CsvTools
       m_FullPath = fullPath;
       m_GetContent = getText;
       InitializeComponent();
-      base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath?? "Source");
+      base.Text = (m_FullPath?? "Source").GetShortDisplayFileName();
     }
 
     private void HighlightVisibleRange()

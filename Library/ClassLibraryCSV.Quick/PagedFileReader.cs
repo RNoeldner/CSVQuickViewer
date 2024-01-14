@@ -20,6 +20,12 @@ namespace CsvTools
     private readonly int m_PageSize;
     private DataReaderWrapper? m_DataReaderWrapper;
 
+    /// <summary>
+    /// Constructor for Paged Reader
+    /// </summary>
+    /// <param name="fileReader">Source of the data</param>
+    /// <param name="pageSize">Number of records in one page</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public PagedFileReader(in IFileReader fileReader, int pageSize)
     {
       m_FileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));

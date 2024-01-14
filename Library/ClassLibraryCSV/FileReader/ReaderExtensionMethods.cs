@@ -29,7 +29,7 @@ using System.Text;
 namespace CsvTools
 {
   /// <summary>
-  /// Extension methods for <see cref="IDataReader"/> <see cref="IFileSetting"/> and <see cref="DataReaderWrapper"/>
+  /// Extension methods for <see cref="IDataReader"/> and <see cref="DataReaderWrapper"/>
   /// </summary>
   public static class ReaderExtensionMethods
   {

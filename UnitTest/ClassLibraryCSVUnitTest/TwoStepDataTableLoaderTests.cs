@@ -18,8 +18,9 @@ namespace CsvTools.Tests
 
       // ReSharper disable once UseAwaitUsing
       using var tsde = new SteppedDataTableLoader();
-      var csv = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var csv = new CsvFileDummy
       {
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         FieldDelimiterChar = ',',
         CommentLine = "#"
       };

@@ -121,7 +121,7 @@ namespace CsvTools
       bool withLogger,
       in CancellationToken cancellationToken)
     {
-      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
+      var formProgress = new FormProgress(fileSetting.GetDisplay(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
       formProgress.Show(owner);
 
       return formProgress;

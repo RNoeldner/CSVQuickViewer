@@ -17,7 +17,7 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for an progress
+  ///   Interface for a progress
   /// </summary>
   public interface IProgressTime : IProgress<ProgressInfo>
   {

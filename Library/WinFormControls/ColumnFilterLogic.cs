@@ -190,7 +190,7 @@ namespace CsvTools
     {
       get
       {
-        // if a Value value filer is active ignore Operator filer
+        // if a Value filer is active ignore Operator filer
         return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
@@ -285,12 +285,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="valueText">The value text.</param>
     /// <returns></returns>
-    public string BuildSqlCommand(in string valueText)
-    {
-      if (valueText == OperatorIsNull)
-        return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_DataType));
-    }
+    //public string BuildSqlCommand(in string valueText)
+    //{
+    //  if (valueText == OperatorIsNull)
+    //    return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
+    //  return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_DataType));
+    //}
 
     /// <summary>
     ///   Set the Filter to a value

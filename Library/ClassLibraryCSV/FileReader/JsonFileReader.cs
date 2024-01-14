@@ -37,7 +37,20 @@ namespace CsvTools
 
     private StreamReader? m_StreamReader;
 
-    // ReSharper disable once UnusedMember.Global
+    
+    /// <summary>
+    /// Constructor for Json Reader
+    /// </summary>
+    /// <param name="stream">Stream to read from</param>
+    /// <param name="columnDefinition">List of column definitions</param>
+    /// <param name="recordLimit">Number of records that should be read</param>
+    /// <param name="trim">Trim all read text</param>
+    /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
+    /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
+    /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
+    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
+    /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
+    /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
     public JsonFileReader(
       in Stream stream,
       in IEnumerable<Column>? columnDefinition,
@@ -51,7 +64,22 @@ namespace CsvTools
       bool removeCurrency)
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
       m_Stream = stream;
-
+    
+    /// <summary>
+    /// Constructor for Json Reader
+    /// </summary>
+    /// <param name="fileName">Path to a physical file (if used)</param>
+    /// <param name="columnDefinition">List of column definitions</param>
+    /// <param name="recordLimit">Number of records that should be read</param>
+    /// <param name="trim">Trim all read text</param>
+    /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
+    /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
+    /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
+    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
+    /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
+    /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
     public JsonFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
@@ -68,17 +96,14 @@ namespace CsvTools
         throw new ArgumentException("File can not be null or empty", nameof(fileName));
       if (!FileSystemUtils.FileExists(fileName))
         throw new FileNotFoundException(
-          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
           fileName);
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets a value indicating whether this instance is closed.
-    /// </summary>
-    /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public override bool IsClosed => m_StreamReader is null;
 
+    /// <inheritdoc />
     public override void Close()
     {
       base.Close();
@@ -93,6 +118,7 @@ namespace CsvTools
       m_Stream = null;
     }
 
+    /// <inheritdoc />
     public new void Dispose() => Dispose(true);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -104,10 +130,11 @@ namespace CsvTools
     }
 #endif
 
+    /// <inheritdoc cref="IFileReader" />
     public override async Task OpenAsync(CancellationToken token)
     {
       HandleShowProgress($"Opening JSON file {FileName}", 0);
-      await BeforeOpenAsync($"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
+      await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
         .ConfigureAwait(false);
       Retry:
       try
@@ -152,6 +179,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
       if (!EndOfFile && !cancellationToken.IsCancellationRequested)
@@ -169,8 +197,10 @@ namespace CsvTools
       return false;
     }
 
+    /// <inheritdoc cref="IFileReader" />
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (disposing) m_Stream?.Dispose();
@@ -182,10 +212,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
       if (m_Stream is IImprovedStream imp)
@@ -391,7 +417,5 @@ namespace CsvTools
       m_JsonTextReader?.Close();
       m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
-
-
   }
 }

@@ -17,6 +17,7 @@ using System.Diagnostics;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="IProgressTime" />
   [DebuggerStepThrough]
   public sealed class ProgressTime : Progress<ProgressInfo>, IProgressTime
   {

@@ -35,7 +35,7 @@ namespace CsvTools
     private readonly string m_TreatTextAsNull;
     private readonly bool m_Trim;
 
-
+    /// <inheritdoc />
     /// <summary>
     ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see
     ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQl
@@ -43,13 +43,13 @@ namespace CsvTools
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
-    /// <param name="trim">Trim all read text</param>
+    /// <param name="trim">Trim read text</param>
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
     /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
-    /// <param name="allowPercentage"></param>
-    /// <param name="removeCurrency"></param>
+    /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
+    /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
     protected BaseFileReaderTyped(
       in string fileName,
       in IEnumerable<Column>? columnDefinition,
