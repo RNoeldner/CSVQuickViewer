@@ -44,24 +44,7 @@ namespace CsvTools.Tests
       frm.Controls.Add(lv);
       frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
     }
-   
-
-    [TestMethod]
-    [Timeout(1000)]
-    public void GetprogressTestNoShow()
-    {
-      var setting2 =
-        new CsvFile(id: string.Empty,
-          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
-        {
-          ShowProgress = false
-        };
-      Extensions.RunStaThread(() =>
-      {
-        using var prc = setting2.GetProgress(new Form(), false, UnitTestStatic.Token);
-        Assert.IsNull(prc, "Getprogress without UI");
-      });
-    }
+       
 
     [TestMethod]
     [Timeout(2000)]

@@ -21,6 +21,7 @@ namespace CsvTools
   /// </summary>
   public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
   {
+
     /// <summary>
     ///   Gets or sets a value indicating whether rows should combined if there are fewer columns.
     /// </summary>
@@ -28,6 +29,60 @@ namespace CsvTools
     ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
     /// </value>
     bool AllowRowCombining { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+    ///   line starts with the given text, it is ignored in the data grid.
+    /// </summary>    
+    string CommentLine { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether context-sensitive qualification is used
+    /// </summary>    
+    bool ContextSensitiveQualifier { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
+    ///   similar to escaping but could replace a Quote with something completely different or a
+    ///   longer text, e.G. {Delimiter}
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string DelimiterPlaceholder { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes 
+    /// </summary>
+    bool DuplicateQualifierToEscape { get; set; }
+
+    /// <summary>
+    ///   Gets the escape prefix as character
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    /// <remarks>If \0, the quote are often repeated to escape them</remarks>
+    char EscapePrefixChar { get; set; }
+
+    /// <summary>
+    ///   Gets the field delimiter as character
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    char FieldDelimiterChar { get; set; }
+
+    /// <summary>
+    ///  Gets the qualifier character as character
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    char FieldQualifierChar { get; set; }
+
+    /// <summary>
+    ///  Get or Sets a value determining the record separator used writing a delimited text file
+    /// </summary>
+    RecordDelimiterTypeEnum NewLine { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string NewLinePlaceholder { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether a file is most likely not a delimited file
@@ -44,6 +99,26 @@ namespace CsvTools
     int NumWarnings { get; set; }
 
     /// <summary>
+    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, It's
+    ///   similar to escaping but could replace a Quote with something completely different or a
+    ///   longer text, e.G. {Quote}
+    /// </summary>
+    /// <value>The quote placeholder.</value>
+    string QualifierPlaceholder { get; set; }
+
+    /// <summary>
+    ///   Gets a value indicating whether to qualify every text even if number or empty.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    bool QualifyAlways { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify only if needed.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    bool QualifyOnlyIfNeeded { get; set; }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether to treat a single LF as space
     /// </summary>
     /// <value>
@@ -56,6 +131,11 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
     bool TreatUnknownCharacterAsSpace { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    /// </summary>
+    TrimmingOptionEnum TrimmingOption { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether the reader should try to solve more columns.
@@ -110,82 +190,8 @@ namespace CsvTools
     bool WarnUnknownCharacter { get; set; }
 
     /// <summary>
-    ///   Gets the escape prefix as character
-    /// </summary>
-    /// <value>The field delimiter char.</value>
-    /// <remarks>If \0, the quote are often repeated to escape them</remarks>
-    char EscapePrefixChar { get; set; }
-
-    /// <summary>
-    ///   Gets the field delimiter as character
-    /// </summary>
-    /// <value>The field delimiter char.</value>
-    char FieldDelimiterChar { get; set; }
-
-    /// <summary>
-    ///  Gets the qualifier character as character
-    /// </summary>
-    /// <value>The field delimiter char.</value>
-    char FieldQualifierChar { get; set; }
-
-    /// <summary>
-    ///  Get or Sets a value determining the record separator used writing a delimited text file
-    /// </summary>
-    RecordDelimiterTypeEnum NewLine { get; set; }
-
-    /// <summary>
-    ///   Gets a value indicating whether to qualify every text even if number or empty.
-    /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
-    bool QualifyAlways { get; set; }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to qualify only if needed.
-    /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
-    bool QualifyOnlyIfNeeded { get; set; }
-
-    /// <summary>
     ///  The resulting file should not use delimiters but instead use fixed length columns
     /// </summary>
     bool WriteFixedLength { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, It's
-    ///   similar to escaping but could replace a Quote with something completely different or a
-    ///   longer text, e.G. {Quote}
-    /// </summary>
-    /// <value>The quote placeholder.</value>
-    string QualifierPlaceholder { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
-    /// </summary>
-    /// <value>The new line placeholder.</value>
-    string NewLinePlaceholder { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
-    ///   similar to escaping but could replace a Quote with something completely different or a
-    ///   longer text, e.G. {Delimiter}
-    /// </summary>
-    /// <value>The new line placeholder.</value>
-    string DelimiterPlaceholder { get; set; }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether context-sensitive qualification is used
-    /// </summary>    
-    bool ContextSensitiveQualifier { get; set; }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes 
-    /// </summary>
-    bool DuplicateQualifierToEscape { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
-    ///   line starts with the given text, it is ignored in the data grid.
-    /// </summary>    
-    string CommentLine { get; set; }
   }
 }

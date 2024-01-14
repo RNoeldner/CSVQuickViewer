@@ -10,8 +10,7 @@ namespace CsvTools
     private readonly ICsvFile m_CsvFile;
     private SyntaxHighlighterDelimitedText m_HighLighter;
 
-
-    public FindSkipRows() : this(new CsvFile(id: "csv", fileName: "Dummy.csv"))
+    public FindSkipRows() : this(new CsvFileDummy())
     {
     }
 

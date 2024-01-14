@@ -21,13 +21,13 @@ using System.ComponentModel;
 namespace CsvTools
 {
   /// <summary>
-///  Interface for Settings used in the validator
-/// </summary>
+  ///  Interface for Settings used in the validator
+  /// </summary>
   public interface IValidatorSetting : INotifyPropertyChanged, ICollectionIdentity, IFileSetting
   {
     /// <summary>
-    /// Occurs when identifier is changed
-    /// </summary>
+    /// Occurs when the identifier is changed, used to handle reference operations
+    /// </summary>    
     event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace CsvTools
     long ErrorCount { get; set; }
 
     /// <summary>
-    ///   Gets or sets the ID.
+    ///   Gets or sets the ID, on change raise <see cref="IdChanged"/>
     /// </summary>
     /// <value>The ID.</value>
     string ID { get; set; }
@@ -146,7 +146,7 @@ namespace CsvTools
     /// <value>The timeout in seconds.</value>
     int Timeout { get; set; }
 
-     /// <summary>
+    /// <summary>
     ///   Gets or sets a value indicating whether this instance is imported, and should be validated
     /// </summary>
     /// <remarks>
@@ -184,6 +184,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="other"></param>
     /// <returns>List of differences as string</returns>
-    IEnumerable<string> GetDifferences(IValidatorSetting other);
+    IEnumerable<string> GetDifferences(IFileSetting other);
   }
 }

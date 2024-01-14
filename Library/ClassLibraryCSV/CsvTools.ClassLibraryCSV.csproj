@@ -54,6 +54,17 @@
     <Compile Remove="UserInterfaceSettings\**" />
     <EmbeddedResource Remove="UserInterfaceSettings\**" />
     <None Remove="UserInterfaceSettings\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="FileSetting\BaseSettingPhysicalFile.cs" />
+    <Compile Remove="FileSetting\BaseSettings.cs" />
+    <Compile Remove="FileSetting\BaseSettingsValidator.cs" />
+    <Compile Remove="FileSetting\CsvFile.cs" />
+    <Compile Remove="FileSetting\FileSettingDummy.cs" />
+    <Compile Remove="FileSetting\FileSettingPhysicalFileDummy.cs" />
+    <Compile Remove="FileSetting\JsonFile.cs" />
+    <Compile Remove="FileSetting\StructuredFile.cs" />
+    <Compile Remove="FileSetting\XMLFile.cs" />
   </ItemGroup> 
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />

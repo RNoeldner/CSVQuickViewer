@@ -29,9 +29,9 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
-    private IFileSettingPhysicalFile? m_FileSetting;
+    private CsvFileDummy m_FileSetting;
 
-    private void SetFileSetting(IFileSettingPhysicalFile fileSetting)
+    private void SetFileSetting(CsvFileDummy fileSetting)
     {
       m_FileSetting = fileSetting;
       if (m_FileSetting is ICsvFile csvFile)
@@ -42,14 +42,14 @@ namespace CsvTools
       }
     }
 
-    public IFileSettingPhysicalFile? FileSetting
+    public ICsvFile? FileSetting
     {
       get => m_FileSetting;
     }
 
     private bool m_IsDisposed;
 
-    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting)
+    public FormEditSettings(ViewSettings viewSettings, CsvFileDummy setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_FileSetting = setting;
@@ -122,12 +122,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (m_FileSetting is null)
         {
           SetDefaultInspectionResult();
+
+          m_FileSetting = new CsvFileDummy();
           using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
           formProgress.Maximum = 0;
           formProgress.Show(this);
 
-
-          SetFileSetting((await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
+          var ir = await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
@@ -146,7 +147,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             #else
             string.Empty,
 #endif
-            formProgress.CancellationToken)).PhysicalFile());
+            formProgress.CancellationToken);
+
+          ir.CopyToCsv(m_FileSetting);
+
+          SetFileSetting(m_FileSetting);
 
           formProgress.Close();
         }

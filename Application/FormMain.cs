@@ -42,7 +42,7 @@ namespace CsvTools
     private bool m_FileChanged;
     private bool m_RunDetection;
     private bool m_AskOpenFile = true;
-    private IFileSettingPhysicalFile? m_FileSetting;
+    private CsvFileDummy? m_FileSetting;
     private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
@@ -175,8 +175,8 @@ namespace CsvTools
           fileSystemWatcher.EnableRaisingEvents = true;
 
           m_ShouldReloadData = false;
-          if (m_ViewSettings.StoreSettingsByFile)
-            await SerializedFilesLib.SaveSettingFileAsync(m_ViewSettings.WriteSetting, () => true, m_CancellationTokenSource.Token);
+          //if (m_ViewSettings.StoreSettingsByFile)
+          //  await SerializedFilesLib.SaveSettingFileAsync(m_ViewSettings.WriteSetting, () => true, m_CancellationTokenSource.Token);
         }
         catch (Exception ex)
         {
@@ -315,7 +315,27 @@ namespace CsvTools
 #endif
           cancellationToken);
 
-        m_FileSetting = detection.PhysicalFile();
+
+        m_FileSetting =  new CsvFileDummy(fileName)
+        {
+          CommentLine = detection.CommentLine,
+          EscapePrefixChar = detection.EscapePrefix,
+          FieldDelimiterChar = detection.FieldDelimiter,
+          FieldQualifierChar = detection.FieldQualifier,
+          ContextSensitiveQualifier = detection.ContextSensitiveQualifier,
+          DuplicateQualifierToEscape = detection.DuplicateQualifierToEscape,
+          NewLine = detection.NewLine,
+          ByteOrderMark = detection.ByteOrderMark,
+          CodePageId = detection.CodePageId,
+          HasFieldHeader = detection.HasFieldHeader,
+          NoDelimitedFile = detection.NoDelimitedFile,
+          IdentifierInContainer = detection.IdentifierInContainer,
+          SkipRows = detection.SkipRows
+        };
+
+        m_FileSetting.ColumnCollection.AddRangeNoClone(detection.Columns);
+        m_FileSetting.ColumnFile = detection.ColumnFile;
+
 #if SupportPGP
         // If keyFile was set in the process its not yet stored
         m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
@@ -328,37 +348,40 @@ namespace CsvTools
 
         m_ViewSettings.DeriveWriteSetting(m_FileSetting);
 
+        // Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
         m_FileSetting.RootFolder = fileName.GetDirectoryName();
+
         m_FileSetting.DisplayEndLineNo = false;
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
 
+        SetFileSystemWatcher(fileName);
+
         // update the UI
-        var display = fileName;
-        if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-          display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
-
-        var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
-        if (m_FileSetting is ICsvFile csv)
+        this.SafeInvoke(async () =>
         {
+          var display = fileName;
+          if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+            display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+
+          var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
+          if (m_FileSetting is ICsvFile csv)
+          {
+            title.Append(" - ");
+            title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
+            m_WarningMax = csv.NumWarnings;
+          }
+
           title.Append(" - ");
-          title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
-          m_WarningMax = csv.NumWarnings;
-        }
+          title.Append(AssemblyTitle);
 
-        title.Append(" - ");
-        title.Append(AssemblyTitle);
-        this.SafeInvokeNoHandleNeeded(() => Text = title.ToString());
-
-        m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
+          ToolStripButtonAsText(false);
+          Text = title.ToString();
+          m_ToolStripButtonSettings.Visible = m_FileSetting != null;
+          m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                           m_FileSetting.ColumnCollection.Any(x =>
                                             x.ValueFormat.DataType != DataTypeEnum.String);
-        SetFileSystemWatcher(fileName);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
-        ButtonAsText(false);
-
-        this.SafeInvoke(async () => await OpenDataReaderAsync(cancellationToken));
+          await OpenDataReaderAsync(cancellationToken);
+        });
       }
       catch (Exception ex)
       {
@@ -373,7 +396,7 @@ namespace CsvTools
                       + "Delimited files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
       if (m_ViewSettings.StoreSettingsByFile)
-        strFilter += "Setting files|*" + CsvFile.cCsvSettingExtension + "|";
+        strFilter += "Setting files|*" + SerializedFilesLib.cSettingExtension + "|";
 
       strFilter += "Json files|*.json;*.ndjson|"
                    + "Compressed files|*.gz;*.zip|"
@@ -461,7 +484,7 @@ namespace CsvTools
 
         m_AskOpenFile = true;
         if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
-          FileSystemUtils.FileDelete(m_FileSetting.FileName + CsvFile.cCsvSettingExtension);
+          FileSystemUtils.FileDelete(m_FileSetting.FileName + SerializedFilesLib.cSettingExtension);
       }
       catch (Exception exception)
       {
@@ -736,12 +759,10 @@ namespace CsvTools
       {
         if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
         {
-          var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-          await SerializedFilesLib.SaveSettingFileAsync(m_FileSetting,
-            () => MessageBox.Show(
+          var fileName = m_FileSetting.FileName + SerializedFilesLib.cSettingExtension;
+          await new InspectionResult(m_FileSetting).SerializeAsync(fileName, () => MessageBox.Show(
               $"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ",
-              "Settings",
-              MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes, m_CancellationTokenSource.Token);
+              "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes).ConfigureAwait(false);
         }
 
         m_ShouldReloadData = false;
@@ -767,9 +788,10 @@ namespace CsvTools
 
     private async void ShowSettings(object? sender, EventArgs e)
     {
+      if (m_FileSetting == null)
+        return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
       {
-        m_ToolStripButtonSettings.Enabled = false;
 
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
         using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
@@ -785,7 +807,7 @@ namespace CsvTools
         }
         else if (frm.FileSetting != null)
         {
-          m_FileSetting = frm.FileSetting;
+          m_FileSetting = (CsvFileDummy) frm.FileSetting;
           m_FileChanged = true;
           m_AskOpenFile = false;
         }
@@ -814,22 +836,17 @@ namespace CsvTools
     }
 
 
-    private void ButtonAsText(bool asText)
+    private void ToolStripButtonAsText(bool asText)
     {
-      this.SafeInvoke(() =>
-      {
-        m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
-        m_ToolStripButtonAsText.Image = asText ? Properties.Resources.AsValue : Properties.Resources.AsText;
-      });
+      m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
+      m_ToolStripButtonAsText.Image = asText ? Properties.Resources.AsValue : Properties.Resources.AsText;
     }
 
     private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
     {
       if (m_FileSetting is null)
         return;
-
-      ButtonAsText(asText);
-
+      this.SafeInvoke(() => ToolStripButtonAsText(asText));
       m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
       m_FileSetting.ColumnCollection.Clear();
       m_FileSetting.ColumnCollection.AddRange(asText ? columns.Select(col =>

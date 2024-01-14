@@ -359,7 +359,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName) || Columns.Count == 0)
         return;
-      if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+      if (m_FileSetting is IFileSettingPhysicalFile basePhysical)
         basePhysical.ColumnFile = fileName;
 
       SetViewStatus(FileSystemUtils.ReadAllText(fileName));

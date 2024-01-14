@@ -290,20 +290,21 @@ namespace CsvTools
       var selectedFile = string.Empty;
 #if !QUICK
       // load from Setting file
-      if (fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
-          || FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
+      if (fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
+          || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.cSettingExtension))
       {
-        var fileNameSetting = !fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
-          ? fileName2 + CsvFile.cCsvSettingExtension
+        var fileNameSetting = !fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
+          ? fileName2 + SerializedFilesLib.cSettingExtension
           : fileName2;
 #pragma warning disable IDE0057
-        var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
+        var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - SerializedFilesLib.cSettingExtension.Length);
 #pragma warning restore IDE0057
 
         try
         {
           // we defiantly have a the extension with the name
-          var fileSettingSer = await fileNameSetting.DeserializeFileAsync<CsvFile>().ConfigureAwait(false);
+          // TODO : Does this work with an Interface?
+          var fileSettingSer = await fileNameSetting.DeserializeFileAsync<ICsvFile>().ConfigureAwait(false);
           Logger.Information("Configuration read from setting file {filename}",
             FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
 
@@ -332,7 +333,7 @@ namespace CsvTools
             NoDelimitedFile = fileSettingSer.NoDelimitedFile,
             NewLine = fileSettingSer.NewLine,
             Columns = columnCollection,
-            ColumnFile = fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty
+            ColumnFile = fileSettingSer is IFileSettingPhysicalFile bas ? bas.ColumnFile : string.Empty
           };
         }
         catch (Exception e)
@@ -656,7 +657,7 @@ CommentLine
 
 #if !QUICK
     /// <summary>
-    /// Read a CsfFile to check wither teh settings are fine
+    /// Read a CsfFile to check wither the settings are fine
     /// </summary>
     /// <param name="csvFile"></param>
     /// <param name="cancellationToken"></param>

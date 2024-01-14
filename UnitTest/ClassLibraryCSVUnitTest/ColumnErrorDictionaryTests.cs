@@ -11,7 +11,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ColumnErrorDictionaryTest1Async()
     {
-      var setting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
+      var setting = new CsvFileDummy(fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
       };

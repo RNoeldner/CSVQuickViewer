@@ -27,7 +27,7 @@ namespace CsvTools
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  {    
+  {
     /// <summary>
     ///   Event to be raised on Collection Level if properties of an item in the collection changes
     /// </summary>
@@ -57,12 +57,12 @@ namespace CsvTools
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
-          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;        
+          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
       }
-      
+
       base.Add(item);
     }
-  
+
     /// <summary>
     ///   Adds the specified item to the collection and makes sure the item is not already present
     ///   by changing the name in a way it is unique, if the item does support <see
@@ -100,7 +100,7 @@ namespace CsvTools
       Add(item);
     }
 
-    
+
     /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {
@@ -114,7 +114,7 @@ namespace CsvTools
       {
         if (CollectionItemPropertyChanged != null)
           notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
-       
+
       }
       base.Insert(index, item);
     }
@@ -132,11 +132,11 @@ namespace CsvTools
     public new void RemoveAt(int index)
     {
       var item = Items[index];
-       // ReSharper disable once SuspiciousTypeConversion.Global
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
-          notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;        
+          notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
       }
       base.RemoveAt(index);
     }
@@ -172,12 +172,17 @@ namespace CsvTools
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
+    /// <param name="other">The object to compare with the current object.</param>
     /// <returns>
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object? obj) => Equals(obj as ICollection<T>);
+    public override bool Equals(object? other)
+    {
+      if (!(other is ICollection<T> coll))
+        return false;
+      return Equals(coll);
+    }
 
     /// <summary>
     ///   Determines whether the other collection is equal to the current collection.

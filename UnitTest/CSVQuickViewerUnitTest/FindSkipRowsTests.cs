@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [Timeout(1000)]
     public void FindSkipRows()
     {
-      UnitTestStaticForms.ShowForm(() => new FindSkipRows(new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))));
+      UnitTestStaticForms.ShowForm(() => new FindSkipRows(new CsvFileDummy(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))));
     }
   }
 }

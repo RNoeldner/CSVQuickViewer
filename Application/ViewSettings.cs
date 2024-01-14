@@ -140,7 +140,7 @@ namespace CsvTools
 
 #if !QUICK
     [JsonIgnore]
-    public ICsvFile WriteSetting { get; } = new CsvFile(id: "Write", fileName: string.Empty);
+    public ICsvFile WriteSetting { get; } = new CsvFileDummy();
 #endif
 
     [JsonIgnore]
@@ -311,7 +311,25 @@ namespace CsvTools
 #if !QUICK
     public void DeriveWriteSetting(IFileSetting fileSetting)
     {
-      fileSetting.CopyTo(WriteSetting);
+      if (fileSetting is IFileSettingPhysicalFile phyS)
+      {
+        WriteSetting.CodePageId = phyS.CodePageId;
+        WriteSetting.ByteOrderMark = phyS.ByteOrderMark;
+      }
+      if (fileSetting is ICsvFile csvS)
+      {
+        WriteSetting.WarnDelimiterInValue = csvS.WarnDelimiterInValue;
+        WriteSetting.WarnEmptyTailingColumns = csvS.WarnEmptyTailingColumns;
+        WriteSetting.WarnLineFeed = csvS.WarnLineFeed;
+        WriteSetting.WarnNBSP = csvS.WarnNBSP;
+        WriteSetting.WarnQuotes = csvS.WarnQuotes;
+        WriteSetting.WarnUnknownCharacter = csvS.WarnUnknownCharacter;
+      }
+      WriteSetting.DisplayStartLineNo = fileSetting.DisplayStartLineNo;
+      WriteSetting.DisplayRecordNo = fileSetting.DisplayRecordNo;
+
+      WriteSetting.ColumnCollection.Clear();
+      WriteSetting.ColumnCollection.AddRange(fileSetting.ColumnCollection);
 
       // Fix No Qualifier
       if (WriteSetting.FieldQualifierChar == 0)

@@ -43,11 +43,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReplacePlaceholder()
     {
-      var csv = new CsvFile(id: "12234", fileName: "fileName");
-
-      Assert.AreEqual("This is a test 12234", "This is a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
-      Assert.AreEqual("This is fileName a test 12234",
-        "This is {FileName} a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
+      var csv = new CsvFileDummy(fileName: "fileName");
+      
+      Assert.AreEqual("This is fileName a test",
+        "This is {FileName} a test".ReplacePlaceholderWithPropertyValues(csv));
       Assert.AreEqual("This is {nonsense} a test",
         "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
     }

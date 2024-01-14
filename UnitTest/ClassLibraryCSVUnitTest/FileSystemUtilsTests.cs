@@ -18,9 +18,9 @@ namespace CsvTools.Tests
     {
       var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
       Assert.AreEqual(Path.Combine("%UserProfile%", "TestFile.txt"), FileSystemUtils.GetRelativePath(testFile1, "."));
-      
+
       var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      Assert.AreEqual("%UserProfile%", FileSystemUtils.GetRelativePath(testFile2, "."));     
+      Assert.AreEqual("%UserProfile%", FileSystemUtils.GetRelativePath(testFile2, "."));
     }
 
 
@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       var testFile2 = "Test";
       Assert.AreEqual("Test", FileSystemUtils.GetRelativePath(testFile2, "."));
     }
-     [TestMethod]
+    [TestMethod]
     public void Create()
     {
       var fn = UnitTestStatic.GetTestPath("Test2.dat");
@@ -79,13 +79,13 @@ namespace CsvTools.Tests
       var dest = UnitTestStatic.GetTestPath("xyz.txt");
       try
       {
-        var progress = new Progress<ProgressInfo>( );
+        var progress = new Progress<ProgressInfo>();
 
         Assert.IsFalse(FileSystemUtils.FileExists(dest));
         await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
           progress, UnitTestStatic.Token);
         Assert.IsTrue(FileSystemUtils.FileExists(dest));
-        
+
 
         // Copy again, the old file should be overwritten
         await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
@@ -178,12 +178,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupFromFileNameInMain()
     {
-      var setting2 =
-        new CsvFile(id: "csv", fileName: $"..{Path.DirectorySeparatorChar}TestFile.csv")
-        {
-          RootFolder = UnitTestStatic.ApplicationDirectory
-        };
-      var dn = FileSystemUtils.SplitPath(setting2.FullPath).DirectoryName;
+      var dn = FileSystemUtils.SplitPath(FileSystemUtils.FullPath($"..{Path.DirectorySeparatorChar}TestFile.csv", UnitTestStatic.ApplicationDirectory)).DirectoryName;
 
       Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));
     }
@@ -377,14 +372,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WriteAllText2()
     {
-      var text= "Contens\nSecondLine";
+      var text = "Contens\nSecondLine";
       var fileName1 = UnitTestStatic.GetTestPath("TestFile4.txt");
       FileSystemUtils.FileDelete(fileName1);
       FileSystemUtils.WriteAllText(fileName1, text, Encoding.UTF8);
       Assert.IsTrue(File.Exists(fileName1));
-      Assert.AreEqual(text,FileSystemUtils.ReadAllText(fileName1));
+      Assert.AreEqual(text, FileSystemUtils.ReadAllText(fileName1));
       FileSystemUtils.FileDelete(fileName1);
-    } 
+    }
 
     private string GetLongFileName(string fn, bool create)
     {

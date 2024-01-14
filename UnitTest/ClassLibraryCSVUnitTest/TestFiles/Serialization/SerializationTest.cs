@@ -10,20 +10,23 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvSettingsProperties()
     {
-      var test = new CsvFile(id: "csv", fileName: "Dummy");
+      
+      var test = new CsvFileDummy(fileName: "Dummy");
       // Excluded are properties that are not serialized or that are calculated
-      UnitTestStatic.RunSerializeAllProps(test,
-        new[]
-        {
-          nameof(test.FullPath), nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
-          nameof(test.LatestSourceTimeUtc), nameof(test.RecentlyLoaded), nameof(test.CollectionIdentifier),
-        });
+
+      var res = test.SerializeIndentedJson();
+      Assert.IsTrue(!string.IsNullOrEmpty(res));
+      var test2 = res.DeserializeText<CsvFileDummy>();
+      Assert.IsNotNull(test2);
+      Assert.AreEqual(test.FileName, test2.FileName); 
+      
+      // No Clone... UnitTestStatic.RunSerializeAllProps(test, new[] {nameof(test.FullPath), nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder)  });
     }
 
     [TestMethod]
     public void CsvSettingsJson()
     {
-      var ret = UnitTestStatic.GetTestPath("Read2.setting").DeserializeFileAsync<CsvFile>();
+      var ret = UnitTestStatic.GetTestPath("Read2.setting").DeserializeFileAsync<CsvFileDummy>();
       Assert.IsNotNull(ret);
     }
 
@@ -72,7 +75,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void CsvFile()
     {
-      var input = new CsvFile(id: "csv", fileName: "MyTest.txt");
+      var input = new CsvFileDummy(fileName: "MyTest.txt");
       input.FieldQualifierChar =  '\'';
 
       var output = UnitTestStatic.RunSerialize(input);

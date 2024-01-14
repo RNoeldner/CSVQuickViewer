@@ -24,6 +24,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="LoadAndSaveTest.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove=".runsettings" />
 	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
 	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
@@ -54,6 +58,7 @@
 	
 	<ItemGroup>
 	  <Folder Include="Database\" />
+	  <Folder Include="FileSetting\" />
 	</ItemGroup>
 	
 </Project>

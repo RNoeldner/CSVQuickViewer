@@ -34,7 +34,9 @@ namespace CsvTools.Tests
     {
       var manifest =
         await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
-      var setting = manifest.PhysicalFile() as CsvFile;
+      var setting = new CsvFileDummy();
+      manifest.CopyToCsv(setting);
+      
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable CS8602
       Assert.AreEqual(19, setting.ColumnCollection.Count());
@@ -66,7 +68,10 @@ namespace CsvTools.Tests
       var manifest =
         await ManifestData.ReadManifestZip(
           UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
-      var setting = manifest!.PhysicalFile() as CsvFile;
+
+      var setting = new CsvFileDummy();
+      manifest.CopyToCsv(setting);
+
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable 8602
       Assert.AreEqual(3, setting.ColumnCollection.Count());

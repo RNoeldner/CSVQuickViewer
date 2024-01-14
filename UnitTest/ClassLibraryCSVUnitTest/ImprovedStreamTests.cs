@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile("csv", UnitTestStatic.GetTestPath("BasicCsV.txt"));
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCsV.txt"));
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.IsNotNull(res);
     }
@@ -33,7 +33,7 @@ namespace CsvTools.Tests
     public async System.Threading.Tasks.Task PercentageAtEnd()
     {
       var buffer = new byte[32000];
-      var setting = new CsvFile("Warnings", UnitTestStatic.GetTestPath("Warnings.txt"));
+      var setting = new CsvFileDummy(UnitTestStatic.GetTestPath("Warnings.txt"));
       // ReSharper disable once UseAwaitUsing
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.AreEqual(0d, res.Percentage);
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void EmptyFile()
     {
-      var setting = new CsvFile("Empty", UnitTestStatic.GetTestPath("EmptyFile.txt"));
+      var setting = new CsvFileDummy( UnitTestStatic.GetTestPath("EmptyFile.txt"));
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.AreEqual(1d, res.Percentage);
       Assert.AreEqual(-1, res.ReadByte());

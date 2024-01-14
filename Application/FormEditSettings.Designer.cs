@@ -221,7 +221,7 @@ namespace CsvTools
       // bindingSourceCsvFile
       // 
       this.bindingSourceCsvFile.AllowNew = false;
-      this.bindingSourceCsvFile.DataSource = typeof(CsvTools.CsvFile);
+      this.bindingSourceCsvFile.DataSource = typeof(CsvTools.CsvFileDummy);
       // 
       // label2
       // 
@@ -971,7 +971,7 @@ namespace CsvTools
       // bindingSourceWrite
       // 
       this.bindingSourceWrite.AllowNew = false;
-      this.bindingSourceWrite.DataSource = typeof(CsvTools.CsvFile);
+      this.bindingSourceWrite.DataSource = typeof(CsvTools.ICsvFile);
       // 
       // textBox9
       // 

@@ -17,7 +17,7 @@ namespace CsvTools
   /// <summary>
   ///  Interface for a file based settings
   /// </summary>
-  public interface IFileSettingPhysicalFile : IValidatorSetting
+  public interface IFileSettingPhysicalFile : IFileSetting 
   {
     /// <summary>
     ///   May store information on columns to show, filtering and sorting
