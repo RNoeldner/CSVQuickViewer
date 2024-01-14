@@ -655,8 +655,8 @@ namespace CsvTools
                 if (value == null)
                   continue;
                 value = value.Trim();
-                // Any non existing value is not of interest
-                if (value == null || value.Length==0)
+                // Any non-existing value is not of interest
+                if (value.Length==0)
                   continue;
                 
                 // Always do treat Text "Null" as Null, 

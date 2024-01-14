@@ -69,9 +69,8 @@ namespace CsvTools
       if (typedValue is DateTime dtmVal)
       {
         if (dtmVal.Minute==0 && dtmVal.Hour==0 && dtmVal.Second==0)
-          return JsonConvert.ToString(dtmVal.ToString("yyyy\\-MM\\-dd"));
-        else
-          return JsonConvert.ToString(dtmVal, DateFormatHandling.IsoDateFormat, DateTimeZoneHandling.RoundtripKind);
+          return JsonConvert.ToString(dtmVal.ToString(@"yyyy\-MM\-dd"));
+        return JsonConvert.ToString(dtmVal, DateFormatHandling.IsoDateFormat, DateTimeZoneHandling.RoundtripKind);
       }
 
       // JsonConvert.ToString handles the different types
@@ -198,7 +197,7 @@ namespace CsvTools
           var jtoken = JToken.Parse(oneElement);
           foreach (var prop in jtoken.Children().OfType<JProperty>())
           {
-            var list = prop.Value?.ToString() ?? string.Empty;
+            var list = prop.Value.ToString() ?? string.Empty;
             var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ?? new WriterColumn(prop.Name, new ValueFormat(), -1);
             if (slpitList.ContainsKey(col))
               Logger.Error("Duplicate property {property}, property will be ignored", prop.Name);

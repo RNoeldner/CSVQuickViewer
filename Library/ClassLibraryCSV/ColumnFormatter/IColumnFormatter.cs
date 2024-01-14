@@ -24,6 +24,11 @@ namespace CsvTools
   public interface IColumnFormatter
   {
     /// <summary>
+    /// If <c>true</c> warning are raised with handle Warning
+    /// </summary>
+    bool RaiseWarning { get; set; }
+
+    /// <summary>
     /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
     /// </summary>
     /// <param name="inputString">The input text that need to be processed</param>
@@ -46,10 +51,5 @@ namespace CsvTools
     /// <param name="handleWarning"></param>
     /// <returns>An awaitable task with the text a text representation</returns>
     string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning);
-
-    /// <summary>
-    /// If <c>true</c> warning are raised with handle Warning
-    /// </summary>
-    bool RaiseWarning { get; set; }
   }
 }

@@ -4,6 +4,9 @@ using System.Threading;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class with methods for RecordDelimiter Detection
+  /// </summary>
   public static class DetectionRecordDelimiter
   {
     /// <summary>

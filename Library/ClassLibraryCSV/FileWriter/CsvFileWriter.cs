@@ -49,7 +49,6 @@ namespace CsvTools
     /// <summary>
     ///   Constructor for a delimited Text / fixed length text writer
     /// </summary>
-    /// <param name="id">Information for  Placeholder of ID</param>
     /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="hasFieldHeader">Determine if a header row should be created</param>
     /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
@@ -232,7 +231,7 @@ namespace CsvTools
           {
             row.Append(HandleText(TextEncodeField(col, columnInfo, reader),
               columnInfo.FieldLength,
-              (msg) => HandleWarning(columnInfo.Name, msg)));
+              msg => HandleWarning(columnInfo.Name, msg)));
           }
           if (m_FieldDelimiter != char.MinValue && columnInfo != lastCol)
             row.Append(m_FieldDelimiter);

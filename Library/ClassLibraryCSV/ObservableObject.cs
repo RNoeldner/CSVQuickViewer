@@ -36,7 +36,7 @@ namespace CsvTools
     ///   Notifies the completed property changed through <see cref="PropertyChanged" />
     /// </summary>
     /// <param name="propertyName">The property name.</param>
-    protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+    protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
     {
       if (PropertyChanged is null)
         return;

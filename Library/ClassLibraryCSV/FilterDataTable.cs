@@ -51,8 +51,14 @@ namespace CsvTools
         m_CacheColumns.Add(col, true);
     }
 
+    /// <summary>
+    /// Set to true if we reached the set limit (see Filter)
+    /// </summary>
     public bool CutAtLimit { get; private set; }
 
+    /// <summary>
+    /// Indicating the filtering is ongoing
+    /// </summary>
     public bool Filtering => m_Filtering;
 
     /// <summary>
@@ -61,6 +67,9 @@ namespace CsvTools
     /// <value>The error table.</value>
     public DataTable? FilterTable { get; private set; }
 
+    /// <summary>
+    /// The type of Filter
+    /// </summary>
     public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.All;
 
     /// <summary>
@@ -99,6 +108,9 @@ namespace CsvTools
       return result;
     }
 
+    /// <summary>
+    /// Method to Cancel ongoing Filtering
+    /// </summary>
     public void Cancel()
     {
       // stop old filtering
@@ -113,6 +125,12 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource = null;
     }
 
+    /// <summary>
+    /// Synchronous method to filter records
+    /// </summary>
+    /// <param name="limit">Number of maximum records</param>
+    /// <param name="newFilterType">The Filter Type</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public DataTable Filter(int limit, FilterTypeEnum newFilterType, in CancellationToken cancellationToken)
     {
       if (limit < 1)
@@ -184,6 +202,13 @@ namespace CsvTools
       return FilterTable;
     }
 
+    /// <summary>
+    /// Background method to start filtering
+    /// </summary>
+    /// <param name="limit">Number of maximum records</param>
+    /// <param name="type">The Filter Type</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns></returns>
     public Task StartFilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
@@ -210,6 +235,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       Cancel();

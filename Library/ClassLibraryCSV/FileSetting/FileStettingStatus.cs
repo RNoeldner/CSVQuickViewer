@@ -15,16 +15,32 @@
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Status of FileStetting status
+  /// </summary>
   public enum FileStettingStatus
   {
+    /// <summary>
+    /// Currently, not processing
+    /// </summary>
     None = 0,
     
+    /// <summary>
+    /// Currently Loading
+    /// </summary>
     [ShortDescription("Loading")]
     Loading = 1,
     
+    /// <summary>
+    /// Loaded but getting ValidationResults
+    /// </summary>
     [ShortDescription("Getting Results")]
     GettingValidationResults = 2,
 
+
+    /// <summary>
+    /// Queued for loading but waiting
+    /// </summary>
     [ShortDescription("Queued")]
     QueuedForLoad = 3
   }

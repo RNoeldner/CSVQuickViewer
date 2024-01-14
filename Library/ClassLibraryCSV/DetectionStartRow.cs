@@ -4,6 +4,9 @@ using System.Threading;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class with methods for StartRow Detection
+  /// </summary>
   public static class DetectionStartRow
   {
     /// <summary>

@@ -17,29 +17,50 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Filter Types supported by DataGrid
+  /// </summary>
   [Flags]
   public enum FilterTypeEnum
   {
+    /// <summary>
+    /// Display rows that have no error nor warning
+    /// </summary>
     [Description("Display rows that have no error nor warning")]
     [ShortDescription("No error or warning")]
     None = 0,
 
+    /// <summary>
+    /// Display rows that have a warning
+    /// </summary>
     [Description("Display rows that have a warning")]
     [ShortDescription("Only warnings")]
     ShowWarning = 1 << 0,
 
+    /// <summary>
+    /// Display rows that have an error
+    /// </summary>
     [Description("Display rows that have an error")]
     [ShortDescription("Only errors")]
     ShowErrors = ShowWarning << 1,
 
+    /// <summary>
+    /// A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known
+    /// </summary>
     [Description("A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known")]
     [ShortDescription("True Errors")]
     OnlyTrueErrors = ShowErrors << 1,
 
+    /// <summary>
+    /// Display rows that have an error or a warning
+    /// </summary>
     [Description("Display rows that have an error or a warning")]
     [ShortDescription("Errors or warnings")]
     ErrorsAndWarning = ShowErrors | ShowWarning,
 
+    /// <summary>
+    /// Display rows that either an error, a true error or a warning
+    /// </summary>
     [Description("Display rows that either an error, a true error or a warning")]
     [ShortDescription("All")]
     All = ShowErrors | ShowWarning | OnlyTrueErrors,

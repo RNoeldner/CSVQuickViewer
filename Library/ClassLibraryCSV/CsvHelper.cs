@@ -24,10 +24,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
 using System.Xml;
 
-#if !QUICK
-using System.Globalization;
-#endif
-
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 
@@ -36,6 +32,7 @@ namespace CsvTools
   /// <summary>
   ///   Helper class
   /// </summary>
+  // ReSharper disable once HollowTypeName
   public static class CsvHelper
   {
     /// <summary>
@@ -237,6 +234,7 @@ namespace CsvTools
     /// <param name="archive">the zip file</param>    
     public static IEnumerable<ZipEntry> GetFilesInZip(this ZipFile archive)
     {
+      // ReSharper disable once NotDisposedResource
       var entryEnumerator = archive.GetEnumerator();
       while (entryEnumerator.MoveNext())
       {
@@ -285,7 +283,7 @@ namespace CsvTools
 
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
 
-      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2, 40));
+      Logger.Information("Examining file {filename}", fileName2.GetShortDisplayFileName(40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
       var selectedFile = string.Empty;
 #if !QUICK
@@ -302,11 +300,10 @@ namespace CsvTools
 
         try
         {
-          // we defiantly have a the extension with the name
+          // we defiantly have an extension with the name
           // TODO : Does this work with an Interface?
           var fileSettingSer = await fileNameSetting.DeserializeFileAsync<ICsvFile>().ConfigureAwait(false);
-          Logger.Information("Configuration read from setting file {filename}",
-            FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+          Logger.Information("Configuration read from setting file {filename}", fileNameSetting.GetShortDisplayFileName(40));
 
           var columnCollection = new ColumnCollection();
 
@@ -338,7 +335,7 @@ namespace CsvTools
         }
         catch (Exception e)
         {
-          Logger.Warning(e, "Could not parse setting file {filename}", FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+          Logger.Warning(e, "Could not parse setting file {filename}", fileNameSetting.GetShortDisplayFileName(40));
         }
       }
 #endif
@@ -375,7 +372,7 @@ namespace CsvTools
 
 
     /// <summary>
-    ///   Determines whether data in the specified stream is a XML
+    ///   Determines whether data in the specified stream is an XML
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
     /// <param name="encoding">The encoding.</param>
@@ -587,8 +584,10 @@ CommentLine
             inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             inspectionResult.SkipRows++;
+          
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
           inspectionResult.FieldDelimiter = delimiterDet.Delimiter;
+          /// TODO: this looks odd
           inspectionResult.NoDelimitedFile = delimiterDet.IsDetected;
         }
 

@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class with methods for Qualifier Detection
+  /// </summary>
   public static class DetectionQualifier
   {
     /// <summary>
@@ -221,13 +224,38 @@ namespace CsvTools
       return res;
     }
 
+    /// <summary>
+    /// Outcome of the Tests
+    /// </summary>
     public struct QuoteTestResult
     {
+      /// <summary>
+      /// Duplicate Qualifier found
+      /// </summary>
       public bool DuplicateQualifier;
+      
+      /// <summary>
+      /// Escaped Qualifiers found
+      /// </summary>
       public bool EscapedQualifier;
-      public char QuoteChar;
+      
+      /// <summary>
+      /// Quoting char
+      /// </summary>
+      public readonly char QuoteChar;
+      
+      /// <summary>
+      /// Score for the Quote
+      /// </summary>
       public int Score;
 
+      /// <summary>
+      /// Constructor
+      /// </summary>
+      /// <param name="quoteChar"></param>
+      /// <param name="score"></param>
+      /// <param name="duplicateQualifier"></param>
+      /// <param name="escapedQualifier"></param>
       public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier = false, bool escapedQualifier = false)
       {
         QuoteChar = quoteChar;

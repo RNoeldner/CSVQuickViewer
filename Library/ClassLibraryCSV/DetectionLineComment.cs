@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Static class for LineComment detection
+  /// </summary>
   public static class DetectionLineComment
   {
     /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>

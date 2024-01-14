@@ -158,7 +158,7 @@ namespace CsvTools
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
         var writeFolder = FileSystemUtils.GetAbsolutePath(
-                  string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column?.ValueFormat.WriteFolder,
+                  string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat.WriteFolder,
                   string.Empty);
 
         var valueFormat = column?.ValueFormat is null
@@ -286,9 +286,9 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(FullPath));
+        Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());
         throw new FileWriterException(
-          $"Could not write file '{FileSystemUtils.GetShortDisplayFileName(FullPath)}'\n{exc.SourceExceptionMessage()}",
+          $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
@@ -301,7 +301,7 @@ namespace CsvTools
     }
 
     /// <summary>Footers added once all records are processed, placeholder "Records" is replaced with the number of records processed
-    /// "FileName" is replace with current filename without folder. "CDate" is replaced with current date in "dd-MMM-yyyy" </summary>
+    /// "FileName" is replaced with current filename without folder. "CDate" is replaced with current date in "dd-MMM-yyyy" </summary>
     protected string Footer() =>
       m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:N0}", Records));
 
@@ -315,7 +315,7 @@ namespace CsvTools
 
     /// <summary>Is called whenever there is progress to report</summary>
     /// <param name="text">The text.</param>
-    protected void HandleProgress(string text) => Logger.Information(text);
+    protected static void HandleProgress(string text) => Logger.Information(text);
 
     /// <summary>Should be called whenever the writing starts</summary>
     protected virtual void HandleWriteStart() => Records = 0;

@@ -16,11 +16,34 @@ namespace CsvTools
 {
   public enum FileTypeEnum
   {
+    /// <summary>
+    /// Regular Text File
+    /// </summary>
     Plain = 0,
+
+    /// <summary>
+    /// compress files (.gzip)
+    /// </summary>
     GZip = 1,
+    
+    /// <summary>
+    /// Compressed File (.cmp or .dfl)
+    /// </summary>
     Deflate = 2,
+    
+    /// <summary>
+    /// PGP encrypted file (.pgp or .gpg)
+    /// </summary>
     Pgp = 3,
+    
+    /// <summary>
+    /// Zip Archive (.zip)
+    /// </summary>
     Zip = 4,
+
+    /// <summary>
+    /// Stream
+    /// </summary>
     Stream = 5
   }
 }
