@@ -80,6 +80,9 @@
     <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="FileSettingPhysicalFile.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="App.config" />
     <None Remove="CSVQuickViewer.csproj.DotSettings" />
   </ItemGroup>

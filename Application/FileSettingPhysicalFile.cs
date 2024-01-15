@@ -12,108 +12,13 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.ICsvFile" />
-  /// <summary>
-  ///   Dummy setting for CSV files
-  /// </summary>
-  public sealed class CsvFileDummy : ICsvFile
+  /// <inheritdoc cref="CsvTools.IJsonFile" />
+  public class FileSettingPhysicalFile : IFileSettingPhysicalFile
   {
-    /// <summary>
-    /// Static CsvFileDummy
-    /// </summary>
-    public static readonly CsvFileDummy Empty = new CsvFileDummy();
-
-    /// <inheritdoc />
-    public bool AllowRowCombining { get; set; }
-
-    /// <inheritdoc />
-    public string CommentLine { get; set; } = string.Empty;
-
-    /// <inheritdoc />
-    public bool ContextSensitiveQualifier { get; set; }
-
-    /// <inheritdoc />
-    public string DelimiterPlaceholder { get; set; } = string.Empty;
-
-    /// <inheritdoc />
-    public bool DuplicateQualifierToEscape { get; set; } = true;
-
-    /// <inheritdoc />
-    public char EscapePrefixChar { get; set; } = '\0';
-
-    /// <inheritdoc />
-    public char FieldDelimiterChar { get; set; } = ',';
-
-    /// <inheritdoc />
-    public char FieldQualifierChar { get; set; } = '"';
-
-    /// <inheritdoc />
-    public RecordDelimiterTypeEnum NewLine { get; set; } = RecordDelimiterTypeEnum.Crlf;
-
-    /// <inheritdoc />
-    public string NewLinePlaceholder { get; set; } = string.Empty;
-
-    /// <inheritdoc />
-    public bool NoDelimitedFile { get; set; }
-
-    /// <inheritdoc />
-    public int NumWarnings { get; set; } = 0;
-
-    /// <inheritdoc />
-    public string QualifierPlaceholder { get; set; } = string.Empty;
-
-    /// <inheritdoc />
-    public bool QualifyAlways { get; set; }
-
-    /// <inheritdoc />
-    public bool QualifyOnlyIfNeeded { get; set; } = true;
-
-    /// <inheritdoc />
-    public bool TreatLfAsSpace { get; set; }
-
-    /// <inheritdoc />
-    public bool TreatUnknownCharacterAsSpace { get; set; }
-
-    /// <inheritdoc />
-    public bool TryToSolveMoreColumns { get; set; }
-
-    /// <inheritdoc />
-    public bool WarnDelimiterInValue { get; set; }
-
-    /// <inheritdoc />
-    public bool WarnEmptyTailingColumns { get; set; } = true;
-
-    /// <inheritdoc />
-    public bool WarnLineFeed { get; set; }
-
-    /// <inheritdoc />
-    public bool WarnNBSP { get; set; } = true;
-
-    /// <inheritdoc />
-    public bool WarnQuotes { get; set; }
-
-    /// <inheritdoc />
-    public bool WarnQuotesInQuotes { get; set; } = true;
-
-    /// <inheritdoc />
-    public bool WarnUnknownCharacter { get; set; } = true;
-
-    /// <inheritdoc />
-    public bool WriteFixedLength { get; set; }
-
-    /// <inheritdoc />
-    public bool Equals(ICsvFile? other) => ReferenceEquals(this, other);
-
-    #region IFileSettingPhysicalFile
-
-    private string? m_FullPath;
+    private string? m_FullPath;    
 
     /// <inheritdoc />
     public bool ByteOrderMark { get; set; } = true;
@@ -159,8 +64,6 @@ namespace CsvTools
 
     /// <inheritdoc />
     public void ResetFullPath() => m_FullPath = FileName.FullPath(RootFolder);
-
-    #endregion IFileSettingPhysicalFile
 
     #region IFileSetting
 
@@ -213,38 +116,26 @@ namespace CsvTools
     public bool Trim { get; set; } = false;
 
     /// <inheritdoc />
-    public TrimmingOptionEnum TrimmingOption { get; set; } = TrimmingOptionEnum.Unquoted;
-
-    /// <inheritdoc />
-    public object Clone()
+    public virtual object Clone()
     {
-      var res = new CsvFileDummy();
+      var res = new FileSettingPhysicalFile();
       CopyTo(res);
       return res;
     }
 
     /// <inheritdoc />
-    public void CopyTo(IFileSetting target)
+    public virtual  void CopyTo(IFileSetting target)
     {
-      if (!(target is ICsvFile other)) return;
-      other.AllowRowCombining = AllowRowCombining;
+      if (!(target is IFileSettingPhysicalFile other)) return;
       other.ByteOrderMark = ByteOrderMark;
       other.CodePageId = CodePageId;
-      other.ColumnCollection.Clear();
       other.ColumnCollection.AddRange(ColumnCollection);
+      other.ColumnCollection.Clear();
       other.ColumnFile = ColumnFile;
-      other.CommentLine = CommentLine;
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
-      other.ContextSensitiveQualifier = ContextSensitiveQualifier;
-      other.DelimiterPlaceholder = DelimiterPlaceholder;
       other.DisplayEndLineNo = DisplayEndLineNo;
       other.DisplayRecordNo = DisplayRecordNo;
       other.DisplayStartLineNo = DisplayStartLineNo;
-      other.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
-      other.EscapePrefixChar = EscapePrefixChar;
-      other.FieldDelimiterChar = FieldDelimiterChar;
-      other.FieldQualifierChar = FieldQualifierChar;
-      other.RootFolder = RootFolder;
       other.FileName = FileName;
       other.FileSize = FileSize;
       other.Footer = Footer;
@@ -253,65 +144,39 @@ namespace CsvTools
       other.IdentifierInContainer = IdentifierInContainer;
       other.KeepUnencrypted = KeepUnencrypted;
       other.KeyFile = KeyFile;
-      other.NewLinePlaceholder = NewLinePlaceholder;
-      other.NoDelimitedFile = NoDelimitedFile;
-      other.NumWarnings = NumWarnings;
       other.Passphrase = Passphrase;
-      other.QualifierPlaceholder = QualifierPlaceholder;
-      other.QualifyAlways = QualifyAlways;
-      other.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
-      other.NewLine = NewLine;
       other.RecordLimit = RecordLimit;
       other.RemoteFileName = RemoteFileName;
+      other.RootFolder = RootFolder;
       other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
       other.SkipDuplicateHeader = SkipDuplicateHeader;
       other.SkipEmptyLines = SkipEmptyLines;
       other.SkipRows = SkipRows;
       other.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
-      other.TreatLfAsSpace = TreatLfAsSpace;
       other.TreatNBSPAsSpace = TreatNBSPAsSpace;
       other.TreatTextAsNull = TreatTextAsNull;
-      other.TreatUnknownCharacterAsSpace = TreatUnknownCharacterAsSpace;
       other.Trim = Trim;
-      other.TrimmingOption = TrimmingOption;
-      other.TryToSolveMoreColumns = TryToSolveMoreColumns;
       other.ValueFormatWrite = ValueFormatWrite;
-      other.WarnDelimiterInValue = WarnDelimiterInValue;
-      other.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
-      other.WarnLineFeed = WarnLineFeed;
-      other.WarnNBSP = WarnNBSP;
-      other.WarnQuotes = WarnQuotes;
-      other.WarnQuotesInQuotes = WarnQuotesInQuotes;
-      other.WarnUnknownCharacter = WarnUnknownCharacter;
-      other.WriteFixedLength = WriteFixedLength;
     }
 
     /// <inheritdoc />
-    public bool Equals(IFileSetting? other2)
+    public virtual bool Equals(IFileSetting? other2)
     {
       if (other2 == null)
         return false;
       if (ReferenceEquals(this, other2))
         return true;
-      if (!(other2 is ICsvFile other))
+      if (!(other2 is IFileSettingPhysicalFile other))
         return false;
-      return 
-        other.AllowRowCombining  == AllowRowCombining &&
+      return
         other.ByteOrderMark  == ByteOrderMark &&
         other.CodePageId  == CodePageId &&
         other.ColumnCollection.CollectionEqualWithOrder(ColumnCollection) &&
         other.ColumnFile  == ColumnFile &&
-        other.CommentLine  == CommentLine &&
         other.ConsecutiveEmptyRows  == ConsecutiveEmptyRows &&
-        other.ContextSensitiveQualifier  == ContextSensitiveQualifier &&
-        other.DelimiterPlaceholder  == DelimiterPlaceholder &&
         other.DisplayEndLineNo  == DisplayEndLineNo &&
         other.DisplayRecordNo  == DisplayRecordNo &&
         other.DisplayStartLineNo  == DisplayStartLineNo &&
-        other.DuplicateQualifierToEscape  == DuplicateQualifierToEscape &&
-        other.EscapePrefixChar  == EscapePrefixChar &&
-        other.FieldDelimiterChar  == FieldDelimiterChar &&
-        other.FieldQualifierChar  == FieldQualifierChar &&
         other.FileName  == FileName &&
         other.FileSize  == FileSize &&
         other.Footer  == Footer &&
@@ -320,14 +185,7 @@ namespace CsvTools
         other.IdentifierInContainer  == IdentifierInContainer &&
         other.KeepUnencrypted  == KeepUnencrypted &&
         other.KeyFile  == KeyFile &&
-        other.NewLinePlaceholder  == NewLinePlaceholder &&
-        other.NoDelimitedFile  == NoDelimitedFile &&
-        other.NumWarnings  == NumWarnings &&
         other.Passphrase  == Passphrase &&
-        other.QualifierPlaceholder  == QualifierPlaceholder &&
-        other.QualifyAlways  == QualifyAlways &&
-        other.QualifyOnlyIfNeeded  == QualifyOnlyIfNeeded &&
-        other.NewLine  == NewLine &&
         other.RecordLimit == RecordLimit &&
         other.RemoteFileName == RemoteFileName &&
         other.RootFolder == RootFolder &&
@@ -336,28 +194,15 @@ namespace CsvTools
         other.SkipEmptyLines == SkipEmptyLines &&
         other.SkipRows == SkipRows &&
         other.ThrowErrorIfNotExists == ThrowErrorIfNotExists &&
-        other.TreatLfAsSpace == TreatLfAsSpace &&
         other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
         other.TreatTextAsNull == TreatTextAsNull &&
-        other.TreatUnknownCharacterAsSpace == TreatUnknownCharacterAsSpace &&
         other.Trim == Trim &&
-        other.TrimmingOption == TrimmingOption &&
-        other.TryToSolveMoreColumns == TryToSolveMoreColumns &&
-        other.ValueFormatWrite.Equals(ValueFormatWrite) &&
-        other.WarnDelimiterInValue == WarnDelimiterInValue &&
-        other.WarnEmptyTailingColumns == WarnEmptyTailingColumns &&
-        other.WarnLineFeed == WarnLineFeed &&
-        other.WarnNBSP == WarnNBSP &&
-        other.WarnQuotes == WarnQuotes &&
-        other.WarnQuotesInQuotes == WarnQuotesInQuotes &&
-        other.WarnUnknownCharacter == WarnUnknownCharacter &&
-        other.WriteFixedLength == WriteFixedLength;
+        other.ValueFormatWrite.Equals(ValueFormatWrite);
     }
 
     /// <inheritdoc />
-    public string GetDisplay() => "CSV";
+    public virtual string GetDisplay() => "NonCsv";
 
     #endregion IFileSetting
-
   }
 }

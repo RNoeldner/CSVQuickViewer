@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task XmlFileAsync()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
         
       using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -47,7 +47,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void XmlFileSync()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
         
       using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,

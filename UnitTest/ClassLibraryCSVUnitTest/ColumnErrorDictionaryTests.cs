@@ -11,13 +11,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ColumnErrorDictionaryTest1Async()
     {
-      var setting = new CsvFileDummy(fileName: UnitTestStatic.GetTestPath("Sessions.txt"))
+      var setting = new CsvFileDummy()
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t'
       };
       setting.ColumnCollection.Add(new Column("Start Date", ValueFormat.Empty, ignore: true));
 
-      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
+      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,

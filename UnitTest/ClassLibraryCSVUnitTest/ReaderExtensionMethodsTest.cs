@@ -23,8 +23,9 @@ namespace CsvTools.Tests
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class ReaderExtensionMethodsTest
   {
-    private readonly ICsvFile m_ValidSetting = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+    private readonly ICsvFile m_ValidSetting = new CsvFileDummy
     {
+      FileName =UnitTestStatic.GetTestPath("BasicCSV.txt"),
       FieldDelimiterChar = ',',
       CommentLine = "#"
     };
@@ -41,7 +42,7 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
-   
+
     [TestMethod]
     public async Task GetColumnsOfReaderTest()
     {
@@ -83,38 +84,38 @@ namespace CsvTools.Tests
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
 
-   
+
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      var test2 = new CsvFileDummy(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      test2.RecordLimit = 4;
-      using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader,
-        test2.ColumnCollection, test2.TrimmingOption,
-        test2.FieldDelimiterChar, test2.FieldQualifierChar, test2.EscapePrefixChar, test2.RecordLimit, test2.AllowRowCombining,
-        test2.ContextSensitiveQualifier,
-        test2.CommentLine, test2.NumWarnings, test2.DuplicateQualifierToEscape, test2.NewLinePlaceholder,
-        test2.DelimiterPlaceholder,
-        test2.QualifierPlaceholder, test2.SkipDuplicateHeader, test2.TreatLfAsSpace, test2.TreatUnknownCharacterAsSpace,
-        test2.TryToSolveMoreColumns,
-        test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter,
-        test2.WarnEmptyTailingColumns,
-        test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows,
-        test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
+      var setting = new CsvFileDummy() { RecordLimit = 4 };
+
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
+        setting.ColumnCollection, setting.TrimmingOption,
+        setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier,
+        setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder,
+        setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns,
+        setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns,
+        setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
 
       await test.OpenAsync(UnitTestStatic.Token);
 
       var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         false, false, false, null, UnitTestStatic.Token);
-      Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
+      Assert.AreEqual(setting.RecordLimit, dt.Rows.Count);
     }
 
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      var test3 =        new CsvFileDummy(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiterChar = '\t' };
+      var test3 = new CsvFileDummy() { FieldDelimiterChar = '\t' };
       test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
-      using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("WithEoFChar.txt"), test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,
         test3.FieldDelimiterChar, test3.FieldQualifierChar, test3.EscapePrefixChar, test3.RecordLimit, test3.AllowRowCombining,
         test3.ContextSensitiveQualifier,

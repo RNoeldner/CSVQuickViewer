@@ -41,7 +41,7 @@ namespace CsvTools
     private bool m_FileChanged;
     private bool m_RunDetection;
     private bool m_AskOpenFile = true;
-    private IFileSettingPhysicalFile? m_FileSetting;
+    private CsvFileDummy? m_FileSetting;
     private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
@@ -185,11 +185,11 @@ namespace CsvTools
       {
         using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath, null);
         sourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
-        if (m_FileSetting is ICsvFile csv)
-          await sourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
-            csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine, ct);
+        if (m_FileSetting.IsCsv)
+          await sourceDisplay.OpenFileAsync(false, m_FileSetting.FieldQualifierChar, m_FileSetting.FieldDelimiterChar, m_FileSetting.EscapePrefixChar,
+            m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.CommentLine, ct);
         else
-          await sourceDisplay.OpenFileAsync(m_FileSetting is IJsonFile, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
+          await sourceDisplay.OpenFileAsync(m_FileSetting.IsJson, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
             ct);
         sourceDisplay.ShowDialog();
       };
@@ -220,7 +220,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
                    + "*"
 #endif
-        ;
+            ;
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
       }
@@ -345,10 +345,7 @@ namespace CsvTools
 
         m_ViewSettings.DeriveWriteSetting(m_FileSetting);
 
-        // Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
-        m_FileSetting.RootFolder = fileName.GetDirectoryName();
-
-        m_FileSetting.DisplayEndLineNo = false;
+        m_FileSetting.RootFolder = fileName.GetDirectoryName();        
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
 
         SetFileSystemWatcher(fileName);
@@ -448,7 +445,7 @@ namespace CsvTools
         if (m_ShouldReloadData)
         {
           m_ShouldReloadData = false;
-          if (MessageBox.Show(
+          if (!m_AskOpenFile || MessageBox.Show(
                 "The configuration has changed do you want to reload the data?",
                 "Configuration changed",
                 MessageBoxButtons.YesNo,
@@ -737,30 +734,32 @@ namespace CsvTools
       {
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
 
-        var editSetting = m_FileSetting?.Clone() as IFileSettingPhysicalFile;
+        var editSetting = m_FileSetting?.Clone() as CsvFileDummy;
         using var frm = new FormEditSettings(m_ViewSettings, editSetting);
         frm.ShowDialog(this);
         await m_ViewSettings.SaveViewSettingsAsync();
         editSetting = frm.FileSetting;
-        
+
         if (frm.FileSetting == null)
           return;
 
         // Update Setting
         if (m_FileSetting != null)
         {
-          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;          
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
           SetFileSystemWatcher(m_FileSetting.FileName);
 
           // If field headers or FillGuess has changed we need to run  Detection again
           m_RunDetection = m_FileSetting.HasFieldHeader != frm.FileSetting.HasFieldHeader || !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
+          
           // if the file has changed need to load all
           m_FileChanged = !frm.FileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
-          m_RunDetection |= m_FileChanged;
+          
+          m_AskOpenFile = !(m_FileChanged || m_RunDetection);
           if (m_FileSetting is ICsvFile oldCsv && frm.FileSetting is ICsvFile newCsv)
           {
-            if (oldCsv.AllowRowCombining != newCsv.AllowRowCombining
+            if (oldCsv.AllowRowCombining != newCsv.AllowRowCombining || !oldCsv.ColumnCollection.CollectionEqualWithOrder(newCsv.ColumnCollection)
                 || oldCsv.ByteOrderMark != newCsv.ByteOrderMark  || oldCsv.CodePageId != newCsv.CodePageId
                 || oldCsv.ConsecutiveEmptyRows != newCsv.ConsecutiveEmptyRows || oldCsv.HasFieldHeader != newCsv.HasFieldHeader
                 || oldCsv.NumWarnings != newCsv.NumWarnings  || oldCsv.SkipEmptyLines != newCsv.SkipEmptyLines
@@ -779,8 +778,9 @@ namespace CsvTools
                 || oldCsv.ContextSensitiveQualifier != newCsv.ContextSensitiveQualifier || oldCsv.DuplicateQualifierToEscape != newCsv.DuplicateQualifierToEscape)
               m_ShouldReloadData = true;
           }
-          frm.FileSetting.CopyTo(m_FileSetting);
-          m_ShouldReloadData |= m_RunDetection;
+          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+          frm.FileSetting.CopyTo(m_FileSetting);          
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
         }
         // Set Setting
         else

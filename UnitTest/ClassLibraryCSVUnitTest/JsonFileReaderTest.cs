@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task OpenJsonArray()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Larger.json.gz"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -67,7 +67,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSonEmp_VariousTypedData()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task GetBytes()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -253,7 +253,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSon1Async()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Jason1.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
@@ -270,7 +270,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSon1TypedAsync()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Larger.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -292,7 +292,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSon2Async()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Jason2.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
@@ -313,7 +313,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSon3Async()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
 
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Jason3.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
@@ -335,7 +335,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task ReadJSon4Async()
     {
-      var setting = CsvFileDummy.Empty;
+      var setting = new CsvFileDummy();
 
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Jason4.json"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,

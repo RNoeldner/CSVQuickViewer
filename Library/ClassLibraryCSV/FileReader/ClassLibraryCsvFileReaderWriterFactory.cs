@@ -38,11 +38,13 @@ namespace CsvTools
     /// <inheritdoc />
     public IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
     {
-      IFileReader retReader = setting switch
+      return setting switch
       {
         IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim, json.TreatTextAsNull, json.TreatNBSPAsSpace, m_TimeZoneAdjust,
           TimeZoneInfo.Local.Id, false, false),
+
         IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit, xml.Trim, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false),
+
         ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
           csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
           csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
@@ -54,7 +56,6 @@ namespace CsvTools
           TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
-      return retReader;
     }
 
     /// <inheritdoc />
@@ -62,7 +63,7 @@ namespace CsvTools
     {
       var publicKey = string.Empty;
 
-      IFileWriter? writer = fileSetting switch
+      return fileSetting switch
       {
         ICsvFile csv => new CsvFileWriter(csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite, csv.CodePageId,
           csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer, csv.Header,
@@ -70,34 +71,19 @@ namespace CsvTools
           csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
           csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, csv.KeepUnencrypted
           ),
-#if !CsvQuickViewer
+
         IJsonFile jsonFile => new JsonFileWriter(jsonFile.FullPath, jsonFile.IdentifierInContainer,
           jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull, jsonFile.CodePageId,
           jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.GetDisplay(), jsonFile.Row,
           m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, jsonFile.KeepUnencrypted
           ),
+
         IXmlFile xmlFile => new XmlFileWriter(xmlFile.FullPath, xmlFile.IdentifierInContainer, xmlFile.Footer,
           xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.GetDisplay(),
           xmlFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, publicKey, xmlFile.KeepUnencrypted
           ),
-#endif
-        _ => null
+        _ => throw new FileWriterException($"Writer for {fileSetting} not found"),
       };
-
-      if (writer is null)
-        throw new FileWriterException($"Writer for {fileSetting} not found");
-
-#if !CsvQuickViewer
-      if (fileSetting is IValidatorSetting validator)
-
-        writer.WriteFinished += (sender, args) =>
-        {
-          validator.ProcessTimeUtc = DateTime.UtcNow;
-          if (fileSetting is IFileSettingPhysicalFile { SetLatestSourceTimeForWrite: true } physFile)
-            new FileSystemUtils.FileInfo(physFile.FullPath).LastWriteTimeUtc = validator.LatestSourceTimeUtc;
-        };
-#endif
-      return writer;
     }
   }
 }

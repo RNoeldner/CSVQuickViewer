@@ -29,27 +29,28 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
-    private IFileSettingPhysicalFile? m_FileSetting;
+    private CsvFileDummy? m_FileSetting;
 
-    private void SetFileSetting(IFileSettingPhysicalFile fileSetting)
+    private void SetFileSetting(CsvFileDummy fileSetting)
     {
       m_FileSetting = fileSetting;
       if (m_FileSetting is ICsvFile csvFile)
       {
         bindingSourceCsvFile.DataSource = csvFile;
+        bindingSourceCsvFile.ResetBindings(false);
         quotingControl.CsvFile = csvFile;
         TextBoxFile_TextChanged(this, EventArgs.Empty);
       }
     }
 
-    public IFileSettingPhysicalFile? FileSetting
+    public CsvFileDummy? FileSetting
     {
       get => m_FileSetting;
     }
 
     private bool m_IsDisposed;
 
-    public FormEditSettings(ViewSettings viewSettings, IFileSettingPhysicalFile? setting)
+    public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_FileSetting = setting;
@@ -118,17 +119,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
         if (newFileName is null || newFileName.Length == 0)
           return;
+        SetDefaultInspectionResult();
 
-        if (m_FileSetting == null)
-        {
-          SetDefaultInspectionResult();
+        using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
+        formProgress.Maximum = 0;
+        formProgress.Show(this);
 
-          m_FileSetting = new CsvFileDummy();
-          using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
-          formProgress.Maximum = 0;
-          formProgress.Show(this);
-
-          var ir = await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
+        var ir = await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
@@ -148,18 +145,17 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             string.Empty,
 #endif
             formProgress.CancellationToken);
+        formProgress.Close();
 
-          ir.CopyToCsv(m_FileSetting);
-          SetFileSetting(m_FileSetting);
+        if (m_FileSetting == null)
+          m_FileSetting = new CsvFileDummy();
 
-          formProgress.Close();
-        }
-
-        if (m_FileSetting != null)
-        {
-          m_FileSetting.FileName = newFileName;
-          m_ViewSettings.DeriveWriteSetting(m_FileSetting);
-        }
+        m_FileSetting.FileName = newFileName;
+        ir.CopyToCsv(m_FileSetting);
+        m_FileSetting.IsJson = ir.IsJson;
+        m_FileSetting.IsXml = ir.IsXml;
+        m_ViewSettings.DeriveWriteSetting(m_FileSetting);
+        SetFileSetting(m_FileSetting!);
       }
       catch (Exception ex)
       {

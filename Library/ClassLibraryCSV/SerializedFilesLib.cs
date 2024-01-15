@@ -91,6 +91,10 @@ namespace CsvTools
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
+      // Moved some classes across library, this need to be adjusted here
+      foreach(var className in new [] {".CsvFile",".JsonFile",".XMLFile" })
+        text= text.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\"");
+       
       return DeserializeText<T>(text);
     }
 

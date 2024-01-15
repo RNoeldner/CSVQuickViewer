@@ -45,7 +45,7 @@ namespace CsvTools.Tests
       columnFilterLogic.ApplyFilter();
     }
 
-    [TestMethod]
+    //[TestMethod]
     //public void BuildSQLCommand()
     //{
     //  {

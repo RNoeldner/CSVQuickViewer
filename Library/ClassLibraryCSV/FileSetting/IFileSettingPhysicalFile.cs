@@ -15,8 +15,9 @@
 namespace CsvTools
 {
   /// <summary>
-  ///  Interface for a file based settings
+  ///   Interface for a information on physical files
   /// </summary>
+  /// <seealso cref="CsvTools.IFileSetting" />
   public interface IFileSettingPhysicalFile : IFileSetting 
   {
     /// <summary>
