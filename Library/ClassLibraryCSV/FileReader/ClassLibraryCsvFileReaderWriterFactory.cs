@@ -23,8 +23,8 @@ namespace CsvTools
   /// <inheritdoc />
   public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   {
-    private readonly TimeZoneChangeDelegate m_TimeZoneAdjust;
-    private readonly FillGuessSettings m_FillGuessSettings;
+    protected readonly TimeZoneChangeDelegate m_TimeZoneAdjust;
+    protected readonly FillGuessSettings m_FillGuessSettings;
 
     /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
@@ -36,7 +36,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
+    public virtual IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
     {
       return setting switch
       {
@@ -59,7 +59,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
+    public virtual IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
       var publicKey = string.Empty;
 

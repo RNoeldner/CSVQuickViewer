@@ -63,6 +63,9 @@ namespace CsvTools
       FontConfig = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
+
+      FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, m_ViewSettings.FillGuessSettings);
+
 #if SupportPGP
       FunctionalDI.GetKeyAndPassphraseForFile = fileName =>
         fileName.GetKeyAndPassphraseForFile(
@@ -111,7 +114,6 @@ namespace CsvTools
           return string.Empty;
         });
 #endif
-      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);
 
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
@@ -327,7 +329,9 @@ namespace CsvTools
           HasFieldHeader = detection.HasFieldHeader,
           NoDelimitedFile = detection.NoDelimitedFile,
           IdentifierInContainer = detection.IdentifierInContainer,
-          SkipRows = detection.SkipRows
+          SkipRows = detection.SkipRows,
+          IsJson = detection.IsJson,
+          IsXml = detection.IsXml,
         };
 
         m_FileSetting.ColumnCollection.AddRangeNoClone(detection.Columns);
@@ -345,7 +349,7 @@ namespace CsvTools
 
         m_ViewSettings.DeriveWriteSetting(m_FileSetting);
 
-        m_FileSetting.RootFolder = fileName.GetDirectoryName();        
+        m_FileSetting.RootFolder = fileName.GetDirectoryName();
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
 
         SetFileSystemWatcher(fileName);
@@ -746,16 +750,16 @@ namespace CsvTools
         // Update Setting
         if (m_FileSetting != null)
         {
-          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;          
+          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
           SetFileSystemWatcher(m_FileSetting.FileName);
 
           // If field headers or FillGuess has changed we need to run  Detection again
           m_RunDetection = m_FileSetting.HasFieldHeader != frm.FileSetting.HasFieldHeader || !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
-          
+
           // if the file has changed need to load all
           m_FileChanged = !frm.FileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
-          
+
           m_AskOpenFile = !(m_FileChanged || m_RunDetection);
           if (m_FileSetting is ICsvFile oldCsv && frm.FileSetting is ICsvFile newCsv)
           {
@@ -779,7 +783,7 @@ namespace CsvTools
               m_ShouldReloadData = true;
           }
           m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-          frm.FileSetting.CopyTo(m_FileSetting);          
+          frm.FileSetting.CopyTo(m_FileSetting);
           m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
         }
         // Set Setting
