@@ -15,7 +15,7 @@
 namespace CsvTools
 {
   /// <summary>
-  /// Interface for Json file settings
+  /// Setting for writing Json files
   /// </summary>
   public interface IJsonFile : IFileSettingPhysicalFile
   {

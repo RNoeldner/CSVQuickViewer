@@ -40,7 +40,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void JsonIndented()
     {
-      var csv = new CsvFileDummy(fileName: "test");
+      var csv = new CsvFileDummy();
       csv.ColumnCollection.Add(new Column("Test"));
 
       var res = csv.SerializeIndentedJson();

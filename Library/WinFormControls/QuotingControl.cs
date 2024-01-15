@@ -119,6 +119,7 @@ namespace CsvTools
         if (m_CsvFile is INotifyPropertyChanged notify2)
           notify2.PropertyChanged += FormatPropertyChanged;
         m_CsvSettingBindingSource!.DataSource = m_CsvFile;
+        m_CsvSettingBindingSource.ResetBindings(false);
         m_HasChanges = true;
         m_TimerRebuilt.Enabled = true;
       }

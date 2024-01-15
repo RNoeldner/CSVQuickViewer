@@ -17,11 +17,10 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for the setting of a CSV file
+  ///   Setting for reading  or writing a delimited file
   /// </summary>
-  public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
+  public interface ICsvFile : IFileSettingPhysicalFile
   {
-
     /// <summary>
     ///   Gets or sets a value indicating whether rows should combined if there are fewer columns.
     /// </summary>
@@ -74,7 +73,7 @@ namespace CsvTools
     char FieldQualifierChar { get; set; }
 
     /// <summary>
-    ///  Get or Sets a value determining the record separator used writing a delimited text file
+    ///  Determining the record separator used writing a delimited text file, while reading it does not matter
     /// </summary>
     RecordDelimiterTypeEnum NewLine { get; set; }
 
@@ -92,8 +91,9 @@ namespace CsvTools
     /// </value>
     bool NoDelimitedFile { get; set; }
 
+    ///TODO: Needed here or push elsewhere?
     /// <summary>
-    ///   Gets or sets the maximum number of warnings.
+    ///   Gets or sets the maximum number of warnings being raised
     /// </summary>
     /// <value>The number of warnings.</value>
     int NumWarnings { get; set; }
@@ -133,7 +133,8 @@ namespace CsvTools
     bool TreatUnknownCharacterAsSpace { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    ///   Gets or sets a value indicating when leading spaces should be trimmed.
+    ///   Other than general trimming there is the option to do this based on whether the text is quoted or not
     /// </summary>
     TrimmingOptionEnum TrimmingOption { get; set; }
 

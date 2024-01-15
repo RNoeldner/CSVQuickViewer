@@ -10,17 +10,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvSettingsProperties()
     {
-      
-      var test = new CsvFileDummy(fileName: "Dummy");
+
+      var test = new CsvFileDummy{ FileName= "Dummy" };
       // Excluded are properties that are not serialized or that are calculated
 
       var res = test.SerializeIndentedJson();
       Assert.IsTrue(!string.IsNullOrEmpty(res));
       var test2 = res.DeserializeText<CsvFileDummy>();
       Assert.IsNotNull(test2);
-      Assert.AreEqual(test.FileName, test2.FileName); 
-      
-      // No Clone... UnitTestStatic.RunSerializeAllProps(test, new[] {nameof(test.FullPath), nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder)  });
+      Assert.AreEqual(test.FileName, test2.FileName);
+
+      UnitTestStatic.RunSerializeAllProps(test, new[] {nameof(test.FullPath), nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder)  });
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(ret);
     }
 
-   
+
 
     [TestMethod]
     public void ColumnMutProperties()
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void CsvFile()
     {
-      var input = new CsvFileDummy(fileName: "MyTest.txt");
+      var input = new CsvFileDummy { FileName= "MyTest.txt" };
       input.FieldQualifierChar =  '\'';
 
       var output = UnitTestStatic.RunSerialize(input);
