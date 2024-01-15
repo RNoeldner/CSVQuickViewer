@@ -110,6 +110,7 @@ namespace CsvTools
         CommentLine = csvFile.CommentLine;
         EscapePrefix = csvFile.EscapePrefixChar;
         FieldQualifier = csvFile.FieldQualifierChar;
+        FieldDelimiter = csvFile.FieldDelimiterChar;
         ContextSensitiveQualifier = csvFile.ContextSensitiveQualifier;
         DuplicateQualifierToEscape = csvFile.DuplicateQualifierToEscape;
         NewLine = csvFile.NewLine;
@@ -134,6 +135,7 @@ namespace CsvTools
       {
         csvFile.CommentLine = CommentLine;
         csvFile.EscapePrefixChar = EscapePrefix;
+        csvFile.FieldDelimiterChar = FieldDelimiter;
         csvFile.FieldQualifierChar = FieldQualifier;
         csvFile.ContextSensitiveQualifier = ContextSensitiveQualifier;
         csvFile.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
