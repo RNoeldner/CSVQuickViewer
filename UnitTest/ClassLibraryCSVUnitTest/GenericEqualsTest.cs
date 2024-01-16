@@ -24,13 +24,10 @@ namespace CsvTools.Tests
   [TestClass]
   public class GenericEqualsTest
   {
-
-  
-
     [TestMethod]
     public void RunEquals()
     {
-      
+
 
       var sb = new StringBuilder();
       foreach (var type in GetAllIEquatable())
@@ -40,17 +37,19 @@ namespace CsvTools.Tests
             continue;
           var obj1 = Activator.CreateInstance(type);
           var obj3 = Activator.CreateInstance(type);
+          if (obj3 == null || obj1 == null)
+            throw new NotSupportedException($"Could not create {type}");
 
           var properties = type.GetValueTypeProperty(null);
           if (properties.Count == 0)
             continue;
           var ignore = new List<PropertyInfo>();
-          
+
           // Set some properties that should not match the default
           foreach (var prop in properties)
             if (!prop.ChangePropertyValue(obj1))
               ignore.Add(prop);
-          
+
           var methodEquals = type.GetMethod(
             "Equals",
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
@@ -67,9 +66,7 @@ namespace CsvTools.Tests
               isEqual = (bool) methodEquals.Invoke(obj1, new[] { obj1 });
               Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
               isEqual = (bool) methodEquals.Invoke(obj1, new object[] { null });
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
               Assert.IsFalse(isEqual, $"Type: {type.FullName}");
 
               // Change only one Attribute at a time
@@ -93,13 +90,13 @@ namespace CsvTools.Tests
                   {
                     if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
                       prop.SetValue(obj2, 18);
-                    else if (prop.PropertyType == typeof(bool))
-                      prop.SetValue(obj2, !(bool) prop.GetValue(obj1));
+                    else if (prop.PropertyType == typeof(bool) && prop.GetValue(obj1) is bool currentBool)
+                      prop.SetValue(obj2, !currentBool);
                     else if (prop.PropertyType == typeof(string))
                       prop.SetValue(obj2, "Nöldner");
                     else if (prop.PropertyType == typeof(DateTime))
                       prop.SetValue(obj2, new DateTime(2015, 12, 24));
-                    if ((bool) methodEquals.Invoke(obj1, new[] { obj2 }))
+                    if (methodEquals.Invoke(obj1, new[] { obj2 }) is bool invokeOk && invokeOk)
                     {
                       sb.AppendLine(
                         $"Changing Property:{prop.Name} in Type: {type.FullName} was not seen as difference {prop.GetValue(obj1)}=>{prop.GetValue(obj2)} ");

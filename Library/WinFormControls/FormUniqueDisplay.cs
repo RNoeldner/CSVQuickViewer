@@ -42,13 +42,13 @@ namespace CsvTools
     /// <param name="dataTable">The empty data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The initial column to use</param>
-    /// <param name="hTmlStyle">The h TML style.</param>
+    /// <param name="htmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
     public FormUniqueDisplay(in DataTable dataTable, in DataRow[] dataRows, in string? initialColumn,
-      in HtmlStyle hTmlStyle)
+      in HtmlStyle htmlStyle)
     {
-      if (hTmlStyle is null)
-        throw new ArgumentNullException(nameof(hTmlStyle));
+      if (htmlStyle is null)
+        throw new ArgumentNullException(nameof(htmlStyle));
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
 
@@ -57,7 +57,7 @@ namespace CsvTools
       {
         if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
           col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
-          col.ColumnName == ReaderConstants.cErrorField ||          
+          col.ColumnName == ReaderConstants.cErrorField ||
           col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
           listRem.Add(col);
       }
@@ -67,7 +67,10 @@ namespace CsvTools
 
       m_InitialColumn = initialColumn;
       InitializeComponent();
-      detailControl.HtmlStyle = hTmlStyle;
+      detailControl.ReadOnly = true;
+      detailControl.ShowFilter = false;
+      detailControl.ShowInfoButtons = false;
+      detailControl.HtmlStyle = htmlStyle;
     }
 
     /// <summary>
@@ -181,8 +184,8 @@ namespace CsvTools
           intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex.Value]);
           if (m_DataTable.Rows.Count>0)
-          // add the counter for the values
-          m_DataTable.Rows[m_DataTable.Rows.Count-1][countCol!.Ordinal] = dictIDToCount[rowIndex.Key];
+            // add the counter for the values
+            m_DataTable.Rows[m_DataTable.Rows.Count-1][countCol!.Ordinal] = dictIDToCount[rowIndex.Key];
         }
 
         m_DataTable.EndLoadData();
