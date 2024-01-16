@@ -37,7 +37,7 @@ namespace CsvTools
 
     private StreamReader? m_StreamReader;
 
-    
+
     /// <summary>
     /// Constructor for Json Reader
     /// </summary>
@@ -64,7 +64,7 @@ namespace CsvTools
       bool removeCurrency)
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
       m_Stream = stream;
-    
+
     /// <summary>
     /// Constructor for Json Reader
     /// </summary>
@@ -243,6 +243,7 @@ namespace CsvTools
         var startKey = string.Empty;
         var endKey = "<dummy>";
         var key = string.Empty;
+        var hasAnyData = false;
 
         // sore the current Property Name in key
         StartLineNumber = m_JsonTextReader.LineNumber;
@@ -253,7 +254,7 @@ namespace CsvTools
           {
             // either the start of the row or a sub object that will be flattened
             case JsonToken.StartObject:
-              if (startKey.Length == 0)
+              if (startKey.Length == 0 || (!hasAnyData && m_JsonTextReader.Path.EndsWith("]")))
                 startKey = m_JsonTextReader.Path;
               break;
 
@@ -279,6 +280,7 @@ namespace CsvTools
             case JsonToken.Raw:
             case JsonToken.Null:
               headers[key] = true;
+              hasAnyData = true;
               break;
 
             case JsonToken.Date:
@@ -289,6 +291,7 @@ namespace CsvTools
             case JsonToken.Boolean:
               // in case there is a property it's a real column, otherwise it's used for structuring only
               headers[key] = true;
+              hasAnyData = true;
 
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
@@ -377,7 +380,7 @@ namespace CsvTools
         // A serious error will be logged and its assume the file is ended
         HandleError(-1, ex.Message);
         EndOfFile = true;
-        return  Array.Empty<KeyValuePair<string, object?>>();
+        return Array.Empty<KeyValuePair<string, object?>>();
       }
     }
 
