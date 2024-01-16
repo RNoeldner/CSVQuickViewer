@@ -201,7 +201,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           var res = await textReader.InspectHasHeaderAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
-          bindingSourceViewSetting.ResetBindings(false);          
+          bindingSourceViewSetting.ResetBindings(false);
         });
         UpdateUI();
       }
@@ -459,10 +459,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     {
       if (m_FileSetting == null)
         return;
-
-      if (cboCodePage.SelectedItem != null)
-        //m_FileSetting.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
-        m_FileSetting.CodePageId = (int) cboCodePage.SelectedValue;
+      if (cboCodePage.SelectedValue is int cboCodePageId)
+        m_FileSetting.CodePageId = cboCodePageId;
       m_FileSetting.CommentLine = textBoxComment.Text.Trim();
       m_FileSetting.FileName = textBoxFile.Text.Trim();
       m_FileSetting.HasFieldHeader = checkBoxHeader.Checked;
@@ -504,7 +502,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void UpdateUI()
     {
       if (m_FileSetting is ICsvFile csvFile)
-      {        
+      {
         //if (cboCodePage.DataSource is List<DisplayItem<int>> list)
         //  cboCodePage.SelectedItem = list.FirstOrDefault(x => x.ID == csvFile.CodePageId)  ?? list.First();
         cboCodePage.SelectedValue = csvFile.CodePageId;

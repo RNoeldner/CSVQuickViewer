@@ -49,13 +49,10 @@ namespace CsvTools.Tests
 
       Assert.AreEqual(DataTypeEnum.Integer, lng.GetType().GetDataType());
       Assert.AreEqual(DataTypeEnum.Integer, int32.GetType().GetDataType());
-      // ReSharper disable once AssignNullToNotNullAttribute
-      Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.UInt16").GetDataType());
-      // ReSharper disable once AssignNullToNotNullAttribute
-      Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.Int64").GetDataType());
+      Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.UInt16")!.GetDataType());
+      Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.Int64")!.GetDataType());
       Assert.AreEqual(DataTypeEnum.Double, dbl.GetType().GetDataType());
-      // ReSharper disable once AssignNullToNotNullAttribute
-      Assert.AreEqual(DataTypeEnum.Double, Type.GetType("System.Single").GetDataType());
+      Assert.AreEqual(DataTypeEnum.Double, Type.GetType("System.Single")!.GetDataType());
       Assert.AreEqual(DataTypeEnum.Numeric, dec.GetType().GetDataType());
       Assert.AreEqual(DataTypeEnum.DateTime, dt.GetType().GetDataType());
       Assert.AreEqual(DataTypeEnum.String, s.GetType().GetDataType());
