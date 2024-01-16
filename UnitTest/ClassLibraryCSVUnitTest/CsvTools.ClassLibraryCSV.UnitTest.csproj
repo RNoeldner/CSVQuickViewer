@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net472</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
@@ -35,7 +35,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Compile Include="..\..\Library\WinFormControls\CsvFileDummy.cs" Link="CsvFileDummy.cs" />
+		<Compile Include="..\..\Application\CsvFileDummy.cs" Link="CsvFileDummy.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 	</ItemGroup>
