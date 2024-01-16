@@ -96,10 +96,7 @@ namespace CsvTools
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.Location = new System.Drawing.Point(4, 40);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4);
-      this.detailControl.Name = "detailControl";
-      this.detailControl.ReadOnly = true;
-      this.detailControl.ShowFilter = false;
-      this.detailControl.ShowInfoButtons = false;
+      this.detailControl.Name = "detailControl";      
       this.detailControl.Size = new System.Drawing.Size(716, 682);
       this.detailControl.TabIndex = 2;
       // 

@@ -80,9 +80,7 @@ namespace CsvTools
       this.detailControl.Location = new System.Drawing.Point(4, 33);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.detailControl.Name = "detailControl";
-      this.detailControl.ReadOnly = true;
-      this.detailControl.ShowFilter = false;
-      this.detailControl.ShowInfoButtons = false;
+      
       this.detailControl.Size = new System.Drawing.Size(629, 452);
       this.detailControl.TabIndex = 2;
       // 

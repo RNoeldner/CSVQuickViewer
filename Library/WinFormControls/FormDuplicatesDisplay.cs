@@ -46,18 +46,22 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The starting column</param>
-    /// <param name="hTmlStyle">The HTML style.</param>
+    /// <param name="htmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
     public FormDuplicatesDisplay(in DataTable dataTable, in DataRow[] dataRows, in string? initialColumn,
-      in HtmlStyle hTmlStyle)
+      in HtmlStyle htmlStyle)
     {
-      if (hTmlStyle is null)
-        throw new ArgumentNullException(nameof(hTmlStyle));
+      if (htmlStyle is null)
+        throw new ArgumentNullException(nameof(htmlStyle));
       m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
       m_InitialColumn = initialColumn ?? string.Empty;
       InitializeComponent();
-      detailControl.HtmlStyle = hTmlStyle;
+      // These can not be set in Designed, not sure why
+      detailControl.ReadOnly = true;
+      detailControl.ShowFilter = false;
+      detailControl.ShowInfoButtons = false;
+      detailControl.HtmlStyle = htmlStyle;
     }
 
     /// <summary>

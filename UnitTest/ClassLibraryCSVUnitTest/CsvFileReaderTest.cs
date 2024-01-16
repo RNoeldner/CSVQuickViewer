@@ -726,7 +726,7 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
       var message = string.Empty;
-      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object? _, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("exists more than once"));
     }
@@ -1180,7 +1180,7 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("5", test.GetString(4));
       Assert.AreEqual("6", test.GetString(5));
       Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync3");
-    }   
+    }
 
     [TestMethod]
     public async Task OpenByParams()
@@ -1394,7 +1394,7 @@ Line "Test"", "22",23,"  24"
           new Column("GUID", new ValueFormat(DataTypeEnum.Guid)),
           new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
         });
-               
+
       var progress = new MockProgress();
       var stopped = false;
       progress.ProgressStopEvent += delegate { stopped = true; };
@@ -1860,7 +1860,7 @@ Line "Test"", "22",23,"  24"
     public async Task SkippingEmptyRowsWithDelimiter()
     {
       var setting = new CsvFileDummy();
-      
+
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"), setting.CodePageId, setting.SkipRows, false,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
@@ -2048,8 +2048,10 @@ Line "Test"", "22",23,"  24"
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate (object _, WarningEventArgs args) { 
-        message = args.Message; };
+      test.Warning += delegate (object? _, WarningEventArgs args)
+      {
+        message = args.Message;
+      };
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
     }
@@ -2093,7 +2095,7 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object? _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("Linefeed"));
@@ -2522,7 +2524,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task UnicodeUtf8()
     {
-      var setting = new CsvFileDummy();      
+      var setting = new CsvFileDummy();
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"), 65001, setting.SkipRows, false,
         setting.ColumnCollection,

@@ -45,6 +45,7 @@ namespace CsvTools
     private readonly ColumnMut m_ColumnEdit;
     private readonly IFileSetting m_FileSetting;    
     private readonly FillGuessSettings m_FillGuessSettings;
+    private bool m_DisposedValue;
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
