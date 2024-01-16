@@ -114,12 +114,12 @@ namespace CsvTools
       this.buttonNewLine = new System.Windows.Forms.Button();
       this.buttonKeyFileWrite = new System.Windows.Forms.Button();
       this.tableLayoutPanelFile.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceViewSetting)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownSkipRows)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceWrite)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownNumWarnings)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownLength)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
       this.tabPageBehaviour.SuspendLayout();
       this.tableLayoutPanelBehaviour.SuspendLayout();
       this.tabPageFormat.SuspendLayout();
@@ -207,7 +207,7 @@ namespace CsvTools
       // 
       // textBoxComment
       // 
-      this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;      
+      this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxComment.Location = new System.Drawing.Point(110, 129);
       this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
       this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
@@ -847,7 +847,7 @@ namespace CsvTools
       // 
       // labelLimitOpen
       // 
-      this.labelLimitOpen.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.labelLimitOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.labelLimitOpen.AutoSize = true;
       this.labelLimitOpen.Location = new System.Drawing.Point(3, 150);
       this.labelLimitOpen.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
@@ -1020,7 +1020,7 @@ namespace CsvTools
       this.checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
       // 
       // numericUpDownNumWarnings
-      //       
+      // 
       this.numericUpDownNumWarnings.Increment = new decimal(new int[] {
             10,
             0,
@@ -1213,7 +1213,7 @@ namespace CsvTools
       // 
       // label6
       // 
-      this.label6.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.label6.AutoSize = true;
       this.label6.Location = new System.Drawing.Point(25, 370);
       this.label6.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
@@ -1224,7 +1224,7 @@ namespace CsvTools
       // 
       // labelWarningLimit
       // 
-      this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.labelWarningLimit.AutoSize = true;
       this.labelWarningLimit.Location = new System.Drawing.Point(335, 239);
       this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
@@ -1504,7 +1504,7 @@ namespace CsvTools
       this.buttonKeyFileWrite.AutoSize = true;
       this.buttonKeyFileWrite.Location = new System.Drawing.Point(573, 131);
       this.buttonKeyFileWrite.Name = "buttonKeyFileWrite";
-      this.buttonKeyFileWrite.Size = new System.Drawing.Size(148, 25);
+      this.buttonKeyFileWrite.Size = new System.Drawing.Size(66, 25);
       this.buttonKeyFileWrite.TabIndex = 17;
       this.buttonKeyFileWrite.Text = "Select File";
       this.buttonKeyFileWrite.UseVisualStyleBackColor = true;
@@ -1530,13 +1530,12 @@ namespace CsvTools
       this.Load += new System.EventHandler(this.EditSettings_Load);
       this.tableLayoutPanelFile.ResumeLayout(false);
       this.tableLayoutPanelFile.PerformLayout();
-
-      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceViewSetting)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownSkipRows)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceWrite)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownNumWarnings)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.numericUpDownLength)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
       this.tabPageBehaviour.ResumeLayout(false);
       this.tabPageBehaviour.PerformLayout();
       this.tableLayoutPanelBehaviour.ResumeLayout(false);
