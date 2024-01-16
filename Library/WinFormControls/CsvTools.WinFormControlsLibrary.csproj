@@ -12,6 +12,7 @@
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+     <ImplicitUsings>enable</ImplicitUsings>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvTools.WinFormControls</AssemblyName>
@@ -63,5 +64,11 @@
   <ItemGroup>
     <EmbeddedResource Update="DetailControl.resx">
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\rnoldner\source\repos\CSVQuickViewer\Library\WinFormControls\.editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\rnoldner\source\repos\CSVQuickViewer\Library\WinFormControls\.editorconfig" />
   </ItemGroup>
 </Project>

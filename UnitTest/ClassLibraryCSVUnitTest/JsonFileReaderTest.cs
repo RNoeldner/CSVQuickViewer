@@ -26,6 +26,18 @@ namespace CsvTools.Tests
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
     [TestMethod]
+    public async Task OpenJsonArrayLevel2()
+    {
+      var setting = new CsvFileDummy();
+      
+      using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Array.json"), null, 0, false,"null", false, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+      await jfr.OpenAsync(UnitTestStatic.Token);
+      
+      await jfr.ReadAsync(UnitTestStatic.Token);
+      jfr.Close();
+    }
+
+    [TestMethod]
     public async Task OpenJsonArray()
     {
       var setting = new CsvFileDummy();
