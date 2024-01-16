@@ -12,6 +12,9 @@
  *
  */
 
+
+// Ignore Spelling: Serializer Deserialize
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
