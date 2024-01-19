@@ -12,7 +12,6 @@
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-     <ImplicitUsings>enable</ImplicitUsings>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvTools.WinFormControls</AssemblyName>

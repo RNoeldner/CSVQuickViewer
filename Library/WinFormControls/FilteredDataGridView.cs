@@ -48,6 +48,10 @@ namespace CsvTools
     private int m_MenuItemColumnIndex;
     private bool m_DataLoaded = true;
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public bool DataLoaded
     {
       get => m_DataLoaded;
@@ -251,7 +255,7 @@ namespace CsvTools
     internal DataView? DataView { get; private set; }
 
     /// <summary>
-    /// Get the filter for all columns but the one cloumn specified
+    /// Get the filter for all columns but the one column specified
     /// </summary>
     /// <param name="exclude">The column index</param>
     /// <returns>The filter statement</returns>
@@ -487,7 +491,7 @@ namespace CsvTools
 
       base.Dispose(disposing);
     }
-    
+
     private static int Measure(Graphics grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
       Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
     {
@@ -684,13 +688,13 @@ namespace CsvTools
       if (e.Control && e.KeyCode == Keys.F2)
       {
         OpenEditor(CurrentCell);
-        e.Handled = true;        
+        e.Handled = true;
       }
       else if (e.Control && e.KeyCode == Keys.C)
       {
         Copy(!e.Alt, e.Shift);
         e.Handled = true;
-      }           
+      }
     }
 
     /// <summary>
@@ -1241,44 +1245,44 @@ namespace CsvTools
       );
     }
 
-//    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
-//    {
-//      if (m_FileSetting is null)
-//        return;
-//      try
-//      {
-//        var text = GetViewStatus;
-//        if (!string.IsNullOrEmpty(text))
-//        {
-//          // Select Path
-//          var fileName = WindowsAPICodePackWrapper.Save(
-//            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-//            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+    //    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
+    //    {
+    //      if (m_FileSetting is null)
+    //        return;
+    //      try
+    //      {
+    //        var text = GetViewStatus;
+    //        if (!string.IsNullOrEmpty(text))
+    //        {
+    //          // Select Path
+    //          var fileName = WindowsAPICodePackWrapper.Save(
+    //            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+    //            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
 
-//          if (fileName is null || fileName.Length == 0)
-//            return;
+    //          if (fileName is null || fileName.Length == 0)
+    //            return;
 
-//#if NET5_0_OR_GREATER
-//          await
-//#endif          
-//          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
+    //#if NET5_0_OR_GREATER
+    //          await
+    //#endif          
+    //          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
 
-//#if NET5_0_OR_GREATER
-//          await
-//#endif
-//          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-//          await writer.WriteAsync(GetViewStatus);
-//          await writer.FlushAsync();
+    //#if NET5_0_OR_GREATER
+    //          await
+    //#endif
+    //          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+    //          await writer.WriteAsync(GetViewStatus);
+    //          await writer.FlushAsync();
 
-//          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-//            basePhysical.ColumnFile = fileName;
-//        }
-//      }
-//      catch (Exception ex)
-//      {
-//        FindForm()?.ShowError(ex);
-//      }
-//    }
+    //          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+    //            basePhysical.ColumnFile = fileName;
+    //        }
+    //      }
+    //      catch (Exception ex)
+    //      {
+    //        FindForm()?.ShowError(ex);
+    //      }
+    //    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.
