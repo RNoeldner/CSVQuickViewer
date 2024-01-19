@@ -95,9 +95,11 @@ namespace CsvTools
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
       // Moved some classes across library, this need to be adjusted here
-      foreach(var className in new [] {".CsvFile",".JsonFile",".XMLFile" })
+      foreach (var className in new[] { ".CsvFile", ".JsonFile", ".XMLFile" })
         text= text.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\"");
-       
+      
+      if (text.StartsWith("<?xml"))
+          throw new JsonReaderException("XML files are no longer supported.");
       return DeserializeText<T>(text);
     }
 
@@ -190,6 +192,6 @@ namespace CsvTools
       }
 
       return true;
-    }    
+    }
   }
 }
