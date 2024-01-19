@@ -28,84 +28,82 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      comboBox=new System.Windows.Forms.ComboBox();
-      buttonOK=new System.Windows.Forms.Button();
-      buttonCancel=new System.Windows.Forms.Button();
-      tableLayoutPanel1=new System.Windows.Forms.TableLayoutPanel();
-      tableLayoutPanel1.SuspendLayout();
-      SuspendLayout();
+      this.comboBox = new System.Windows.Forms.ComboBox();
+      this.buttonOK = new System.Windows.Forms.Button();
+      this.buttonCancel = new System.Windows.Forms.Button();
+      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+      this.tableLayoutPanel1.SuspendLayout();
+      this.SuspendLayout();
       // 
       // comboBox
       // 
-      tableLayoutPanel1.SetColumnSpan(comboBox, 3);
-      comboBox.Dock=System.Windows.Forms.DockStyle.Top;
-      comboBox.DropDownStyle=System.Windows.Forms.ComboBoxStyle.DropDownList;
-      comboBox.Location=new System.Drawing.Point(3, 3);
-      comboBox.Name="comboBox";
-      comboBox.Size=new System.Drawing.Size(430, 23);
-      comboBox.TabIndex=0;
+      this.tableLayoutPanel1.SetColumnSpan(this.comboBox, 3);
+      this.comboBox.Dock = System.Windows.Forms.DockStyle.Top;
+      this.comboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.comboBox.Location = new System.Drawing.Point(3, 3);
+      this.comboBox.Name = "comboBox";
+      this.comboBox.Size = new System.Drawing.Size(368, 21);
+      this.comboBox.TabIndex = 0;
       // 
       // buttonOK
       // 
-      buttonOK.Anchor=System.Windows.Forms.AnchorStyles.Left;
-      buttonOK.Location=new System.Drawing.Point(267, 32);
-      buttonOK.Name="buttonOK";
-      buttonOK.Size=new System.Drawing.Size(80, 25);
-      buttonOK.TabIndex=1;
-      buttonOK.Text="&OK";
-      buttonOK.UseVisualStyleBackColor=true;
-      buttonOK.Click+=OK_Click;
+      this.buttonOK.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.buttonOK.Location = new System.Drawing.Point(227, 30);
+      this.buttonOK.Name = "buttonOK";
+      this.buttonOK.Size = new System.Drawing.Size(69, 25);
+      this.buttonOK.TabIndex = 1;
+      this.buttonOK.Text = "&OK";
+      this.buttonOK.UseVisualStyleBackColor = true;
       // 
       // buttonCancel
       // 
-      buttonCancel.Anchor=System.Windows.Forms.AnchorStyles.Left;
-      buttonCancel.DialogResult=System.Windows.Forms.DialogResult.Cancel;
-      buttonCancel.Location=new System.Drawing.Point(353, 32);
-      buttonCancel.Name="buttonCancel";
-      buttonCancel.Size=new System.Drawing.Size(80, 25);
-      buttonCancel.TabIndex=2;
-      buttonCancel.Text="&Cancel";
-      buttonCancel.UseVisualStyleBackColor=true;
-      buttonCancel.Click+=Cancel_Click;
+      this.buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      this.buttonCancel.Location = new System.Drawing.Point(302, 30);
+      this.buttonCancel.Name = "buttonCancel";
+      this.buttonCancel.Size = new System.Drawing.Size(69, 25);
+      this.buttonCancel.TabIndex = 2;
+      this.buttonCancel.Text = "&Cancel";
+      this.buttonCancel.UseVisualStyleBackColor = true;
       // 
       // tableLayoutPanel1
       // 
-      tableLayoutPanel1.AutoSize=true;
-      tableLayoutPanel1.ColumnCount=3;
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel1.Controls.Add(comboBox, 0, 0);
-      tableLayoutPanel1.Controls.Add(buttonCancel, 2, 1);
-      tableLayoutPanel1.Controls.Add(buttonOK, 1, 1);
-      tableLayoutPanel1.Dock=System.Windows.Forms.DockStyle.Top;
-      tableLayoutPanel1.Location=new System.Drawing.Point(0, 0);
-      tableLayoutPanel1.Margin=new System.Windows.Forms.Padding(4, 3, 4, 3);
-      tableLayoutPanel1.Name="tableLayoutPanel1";
-      tableLayoutPanel1.RowCount=2;
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.Size=new System.Drawing.Size(436, 60);
-      tableLayoutPanel1.TabIndex=0;
+      this.tableLayoutPanel1.AutoSize = true;
+      this.tableLayoutPanel1.ColumnCount = 3;
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.Controls.Add(this.comboBox, 0, 0);
+      this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 2, 1);
+      this.tableLayoutPanel1.Controls.Add(this.buttonOK, 1, 1);
+      this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+      this.tableLayoutPanel1.RowCount = 2;
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(374, 58);
+      this.tableLayoutPanel1.TabIndex = 0;
       // 
       // FormSelectInDropdown
       // 
-      AutoScaleDimensions=new System.Drawing.SizeF(7F, 15F);
-      AutoScaleMode=System.Windows.Forms.AutoScaleMode.Font;
-      BackColor=System.Drawing.SystemColors.Control;
-      ClientSize=new System.Drawing.Size(436, 61);
-      Controls.Add(tableLayoutPanel1);
-      FormBorderStyle=System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      Margin=new System.Windows.Forms.Padding(4, 1, 4, 1);
-      MaximizeBox=false;
-      MinimizeBox=false;
-      Name="FormSelectInDropdown";
-      ShowIcon=false;
-      Text="Select";
-      TopMost=true;
-      tableLayoutPanel1.ResumeLayout(false);
-      ResumeLayout(false);
-      PerformLayout();
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.BackColor = System.Drawing.SystemColors.Control;
+      this.ClientSize = new System.Drawing.Size(374, 58);
+      this.Controls.Add(this.tableLayoutPanel1);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
+      this.MaximizeBox = false;
+      this.MinimizeBox = false;
+      this.Name = "FormSelectInDropdown";
+      this.ShowIcon = false;
+      this.Text = "Select";
+      this.TopMost = true;
+      this.tableLayoutPanel1.ResumeLayout(false);
+      this.ResumeLayout(false);
+      this.PerformLayout();
+
     }
 
     #endregion

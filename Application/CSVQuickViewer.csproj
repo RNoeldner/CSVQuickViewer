@@ -8,7 +8,7 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>Picture.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
-    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>    
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>CsvTools</RootNamespace>
@@ -25,6 +25,9 @@
     <PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
     <PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>

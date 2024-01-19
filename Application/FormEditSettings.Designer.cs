@@ -1278,7 +1278,7 @@ namespace CsvTools
       this.tabControl.Margin = new System.Windows.Forms.Padding(2);
       this.tabControl.Name = "tabControl";
       this.tabControl.SelectedIndex = 0;
-      this.tabControl.Size = new System.Drawing.Size(749, 480);
+      this.tabControl.Size = new System.Drawing.Size(762, 493);
       this.tabControl.TabIndex = 0;
       // 
       // tabPageWrite
@@ -1288,7 +1288,7 @@ namespace CsvTools
       this.tabPageWrite.Location = new System.Drawing.Point(4, 22);
       this.tabPageWrite.Name = "tabPageWrite";
       this.tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageWrite.Size = new System.Drawing.Size(741, 454);
+      this.tabPageWrite.Size = new System.Drawing.Size(754, 467);
       this.tabPageWrite.TabIndex = 10;
       this.tabPageWrite.Text = "Write Settings";
       // 
@@ -1334,7 +1334,7 @@ namespace CsvTools
       this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanelWrite.Size = new System.Drawing.Size(735, 365);
+      this.tableLayoutPanelWrite.Size = new System.Drawing.Size(748, 365);
       this.tableLayoutPanelWrite.TabIndex = 0;
       // 
       // quotingControlWrite
@@ -1514,7 +1514,7 @@ namespace CsvTools
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(749, 480);
+      this.ClientSize = new System.Drawing.Size(762, 493);
       this.Controls.Add(this.tabControl);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(2);
