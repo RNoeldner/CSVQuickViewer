@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
-using System.Xml;
+
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
@@ -286,17 +286,15 @@ namespace CsvTools
       Logger.Information("Examining file {filename}", fileName2.GetShortDisplayFileName(40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
       var selectedFile = string.Empty;
-#if !QUICK
-      // load from Setting file
+
+   // load from Setting file
       if (fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
           || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.cSettingExtension))
       {
         var fileNameSetting = !fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
           ? fileName2 + SerializedFilesLib.cSettingExtension
           : fileName2;
-#pragma warning disable IDE0057
         var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - SerializedFilesLib.cSettingExtension.Length);
-#pragma warning restore IDE0057
 
         try
         {
@@ -338,7 +336,7 @@ namespace CsvTools
           Logger.Warning(e, "Could not parse setting file {filename}", fileNameSetting.GetShortDisplayFileName(40));
         }
       }
-#endif
+
       if (fileName2.AssumeZip())
       {
         var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
@@ -385,7 +383,7 @@ namespace CsvTools
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
       try
       {
-        using var xmlReader = XmlReader.Create(streamReader, new XmlReaderSettings { Async = true });
+        using var xmlReader = System.Xml.XmlReader.Create(streamReader, new System.Xml.XmlReaderSettings { Async = true });
         await xmlReader.MoveToContentAsync().ConfigureAwait(false);
         return true;
       }
@@ -654,7 +652,6 @@ CommentLine
       }
     }
 
-#if !QUICK
     /// <summary>
     /// Read a CsfFile to check wither the settings are fine
     /// </summary>
@@ -694,8 +691,6 @@ CommentLine
       csvFile.HasFieldHeader = det.HasFieldHeader;
       csvFile.CommentLine = det.CommentLine;
     }
-
-#endif
 
     internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId, CancellationToken cancellationToken)
     {

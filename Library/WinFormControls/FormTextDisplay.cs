@@ -13,11 +13,9 @@
  */
 
 #nullable enable
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Text;
-using System.Xml;
 
 namespace CsvTools
 {
@@ -26,8 +24,17 @@ namespace CsvTools
   /// </summary>
   public partial class FormTextDisplay : ResizeForm
   {
-    private SyntaxHighlighterBase? m_HighLighter;
     private Language m_CurrentLang;
+    private SyntaxHighlighterBase? m_HighLighter;
+
+    /// <summary>
+    ///   CTOR CsvTextDisplay
+    /// </summary>
+    public FormTextDisplay(in string display)
+    {
+      InitializeComponent();
+      textBox.Text = display;
+    }
 
     private enum Language
     {
@@ -37,6 +44,33 @@ namespace CsvTools
     [Browsable(false)]
     [Bindable(false)]
     public Action<string>? SaveAction { get; set; }
+
+    private void ButtonCancel_Click(object sender, EventArgs e)
+    {
+      this.Close();
+    }
+
+    private void ButtonSave_Click(object sender, EventArgs e)
+    {
+      SaveAction?.Invoke(textBox.Text);
+      this.Close();
+    }
+
+    private void FormTextDisplay_Shown(object sender, EventArgs e)
+    {
+      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length, 50)).TrimStart('"', '\'')
+        .Replace(" ", "")
+        .Replace("\r", "")
+        .Replace("\n", "");
+
+      if (check.StartsWith("<xml", StringComparison.OrdinalIgnoreCase) ||
+          check.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
+        HandleText(Language.Xml);
+      else if (check.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+        HandleText(Language.HTML);
+      else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
+        HandleText(Language.Json);
+    }
 
     private void HandleText(in Language newLang)
     {
@@ -59,12 +93,12 @@ namespace CsvTools
           }
           case Language.Xml:
           {
-            var doc = new XmlDocument();
+            var doc = new System.Xml.XmlDocument();
             doc.LoadXml(textBox.Text.Trim('\"', '\'', ' '));
 
-            var settings = new XmlWriterSettings { Indent = true, NewLineOnAttributes = true };
+            var settings = new System.Xml.XmlWriterSettings { Indent = true, NewLineOnAttributes = true };
             var stringBuilder = new StringBuilder();
-            using var xmlWriter = XmlWriter.Create(stringBuilder, settings);
+            using var xmlWriter = System.Xml.XmlWriter.Create(stringBuilder, settings);
             doc.Save(xmlWriter);
             fastColoredTextBoxRO.Text = stringBuilder.ToString();
             radioButtonXml.Checked = true;
@@ -73,8 +107,8 @@ namespace CsvTools
           case Language.Json:
           {
             m_HighLighter ??= new SyntaxHighlighterJson(fastColoredTextBoxRO);
-            var t = JsonConvert.DeserializeObject<object>(textBox.Text.Trim('\"', '\''));
-            fastColoredTextBoxRO.Text = JsonConvert.SerializeObject(t, Newtonsoft.Json.Formatting.Indented);
+            var t = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(textBox.Text.Trim('\"', '\''));
+            fastColoredTextBoxRO.Text = Newtonsoft.Json.JsonConvert.SerializeObject(t, Newtonsoft.Json.Formatting.Indented);
             radioButtonJson.Checked = true;
             break;
           }
@@ -94,16 +128,6 @@ namespace CsvTools
         FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");        
       }
     }
-
-    /// <summary>
-    ///   CTOR CsvTextDisplay
-    /// </summary>
-    public FormTextDisplay(in string display)
-    {
-      InitializeComponent();
-      textBox.Text = display;
-    }
-
     private void HighlightVisibleRange()
     {
       try
@@ -121,11 +145,6 @@ namespace CsvTools
         // ignored
       }
     }
-
-    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) =>
-      HighlightVisibleRange();
-
-    private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
 
     private void RadioButton1_CheckedChanged(object sender, EventArgs e)
     {
@@ -151,36 +170,14 @@ namespace CsvTools
         HandleText(Language.HTML);
     }
 
-    private void FormTextDisplay_Shown(object sender, EventArgs e)
-    {
-      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length, 50)).TrimStart('"', '\'')
-        .Replace(" ", "")
-        .Replace("\r", "")
-        .Replace("\n", "");
-
-      if (check.StartsWith("<xml", StringComparison.OrdinalIgnoreCase) ||
-          check.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.Xml);
-      else if (check.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.HTML);
-      else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.Json);
-    }
-
-    private void ButtonCancel_Click(object sender, EventArgs e)
-    {
-      this.Close();
-    }
-
-    private void ButtonSave_Click(object sender, EventArgs e)
-    {
-      SaveAction?.Invoke(textBox.Text);
-      this.Close();
-    }
-
     private void TextBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
     {
       buttonSave.Enabled = textBox.IsChanged;
     }
+
+    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) =>
+                          HighlightVisibleRange();
+
+    private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
   }
 }

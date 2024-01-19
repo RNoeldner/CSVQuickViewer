@@ -25,16 +25,16 @@ namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.IFileReader" />
   /// <summary>
-  ///   Json text file reader
+  ///   Xml text file reader
   /// </summary>
   public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   {
-    private Stream? m_Stream;
     private readonly XmlDocument m_Doc = new XmlDocument();
-    // private XmlReader? m_XmlReader;
     private XmlNode? m_CurrentNode;
+    private Stream? m_Stream;
 
-    // ReSharper disable once UnusedMember.Global
+
+    /// <inheritdoc/>
     public XmlFileReader(
       in Stream stream,
       in IEnumerable<Column>? columnDefinition,
@@ -49,6 +49,7 @@ namespace CsvTools
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
       m_Stream = stream;
 
+    /// <inheritdoc />
     public XmlFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
@@ -76,6 +77,15 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public override bool IsClosed => m_Doc.ChildNodes.Count == 0;
 
+    /// <summary>
+    /// Gets the full path for an XML Node
+    /// </summary>
+    /// <param name="node">The node.</param>
+    /// <returns></returns>
+    public static string GetFullPath(XmlNode node) =>
+      node.ParentNode is null ? string.Empty : $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";
+
+    /// <inheritdoc />
     public override void Close()
     {
       base.Close();
@@ -86,6 +96,7 @@ namespace CsvTools
       m_Stream = null;
     }
 
+    /// <inheritdoc />
     public new void Dispose() => Dispose(true);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -97,38 +108,7 @@ namespace CsvTools
     }
 #endif
 
-    private static IDictionary<string, string> ReadNode(XmlNode? check)
-    {
-      var columns = new Dictionary<string, string>();
-      if (check != null)
-      {
-        if (check.ChildNodes.Count>0)
-        {
-          foreach (XmlNode attributes in check.ChildNodes)
-          {
-            if (attributes is null)
-              continue;
-            if (!columns.ContainsKey(attributes.Name))
-              columns.Add(attributes.Name, attributes.InnerText?? string.Empty);
-          }
-        }
-        if (check.Attributes != null)
-        {
-          foreach (XmlAttribute attributes in check.Attributes)
-          {
-            if (attributes is null)
-              continue;
-            if (!columns.ContainsKey($"_{attributes.Name}"))
-              columns.Add($"_{attributes.Name}", attributes.InnerText?? string.Empty);
-          }
-        }
-      }
-      return columns;
-    }
-
-    public static string GetFullPath(XmlNode node) => 
-      node.ParentNode is null ? string.Empty : $"{GetFullPath(node.ParentNode)}\\{node.ParentNode.Name}";
-
+    /// <inheritdoc />
     public override async Task OpenAsync(CancellationToken token)
     {
       HandleShowProgress($"Opening XML file {FileName}", 0);
@@ -181,6 +161,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     public override bool Read()
     {
       if (!EndOfFile)
@@ -198,15 +179,16 @@ namespace CsvTools
       return false;
     }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    /// <inheritdoc />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
       return cancellationToken.IsCancellationRequested ? false : Read();
     }
 
+    /// <inheritdoc />
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (disposing) m_Stream?.Dispose();
@@ -214,16 +196,41 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
       if (m_Stream is IImprovedStream imp)
         return imp.Percentage;
 
       return base.GetRelativePosition();
+    }
+
+    private static IDictionary<string, string> ReadNode(XmlNode? check)
+    {
+      var columns = new Dictionary<string, string>();
+      if (check != null)
+      {
+        if (check.ChildNodes.Count>0)
+        {
+          foreach (XmlNode attributes in check.ChildNodes)
+          {
+            if (attributes is null)
+              continue;
+            if (!columns.ContainsKey(attributes.Name))
+              columns.Add(attributes.Name, attributes.InnerText?? string.Empty);
+          }
+        }
+        if (check.Attributes != null)
+        {
+          foreach (XmlAttribute attributes in check.Attributes)
+          {
+            if (attributes is null)
+              continue;
+            if (!columns.ContainsKey($"_{attributes.Name}"))
+              columns.Add($"_{attributes.Name}", attributes.InnerText?? string.Empty);
+          }
+        }
+      }
+      return columns;
     }
 
     /// <summary>
@@ -305,7 +312,5 @@ namespace CsvTools
 
       m_CurrentNode  = GetStartNode();
     }
-
-
   }
 }
