@@ -64,10 +64,10 @@ namespace CsvTools
       this.listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
       this.listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
       this.listViewCluster.HideSelection = false;
-      this.listViewCluster.Location = new System.Drawing.Point(0, 32);
+      this.listViewCluster.Location = new System.Drawing.Point(0, 34);
       this.listViewCluster.Name = "listViewCluster";
       this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(535, 376);
+      this.listViewCluster.Size = new System.Drawing.Size(535, 374);
       this.listViewCluster.TabIndex = 0;
       this.listViewCluster.UseCompatibleStateImageBehavior = false;
       this.listViewCluster.View = System.Windows.Forms.View.List;
@@ -84,7 +84,7 @@ namespace CsvTools
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(535, 32);
+      this.panelTop.Size = new System.Drawing.Size(535, 34);
       this.panelTop.TabIndex = 0;
       // 
       // label1
@@ -102,7 +102,7 @@ namespace CsvTools
       this.buttonUncheck.AutoSize = true;
       this.buttonUncheck.Location = new System.Drawing.Point(65, 4);
       this.buttonUncheck.Name = "buttonUncheck";
-      this.buttonUncheck.Size = new System.Drawing.Size(66, 23);
+      this.buttonUncheck.Size = new System.Drawing.Size(66, 25);
       this.buttonUncheck.TabIndex = 1;
       this.buttonUncheck.Text = "&Uncheck";
       this.buttonUncheck.UseVisualStyleBackColor = true;
@@ -122,7 +122,7 @@ namespace CsvTools
       this.buttonEmpty.AutoSize = true;
       this.buttonEmpty.Location = new System.Drawing.Point(137, 4);
       this.buttonEmpty.Name = "buttonEmpty";
-      this.buttonEmpty.Size = new System.Drawing.Size(112, 23);
+      this.buttonEmpty.Size = new System.Drawing.Size(112, 25);
       this.buttonEmpty.TabIndex = 2;
       this.buttonEmpty.Text = "&Hide empty columns";
       this.buttonEmpty.UseVisualStyleBackColor = true;
@@ -133,7 +133,7 @@ namespace CsvTools
       this.buttonCheck.AutoSize = true;
       this.buttonCheck.Location = new System.Drawing.Point(3, 4);
       this.buttonCheck.Name = "buttonCheck";
-      this.buttonCheck.Size = new System.Drawing.Size(56, 23);
+      this.buttonCheck.Size = new System.Drawing.Size(56, 25);
       this.buttonCheck.TabIndex = 0;
       this.buttonCheck.Text = "&Check";
       this.buttonCheck.UseVisualStyleBackColor = true;
@@ -146,7 +146,7 @@ namespace CsvTools
       this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonApply.Location = new System.Drawing.Point(445, 6);
       this.buttonApply.Name = "buttonApply";
-      this.buttonApply.Size = new System.Drawing.Size(87, 23);
+      this.buttonApply.Size = new System.Drawing.Size(87, 25);
       this.buttonApply.TabIndex = 4;
       this.buttonApply.Text = "&Apply";
       this.toolTip.SetToolTip(this.buttonApply, "Apply the filter for the column");
