@@ -24,8 +24,7 @@ namespace CsvTools
   public class ViewerFileReaderWriterFactory : ClassLibraryCsvFileReaderWriterFactory
   {
     /// <summary>Initializes a new instance of the <see cref="ViewerFileReaderWriterFactory" /> class.</summary>
-    /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
-    /// <param name="fillGuessSettings">The guess settings</param>
+    /// <inheritdoc />
     public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) : base(timeZoneAdjust, fillGuessSettings)
     {
     }
@@ -33,24 +32,23 @@ namespace CsvTools
     /// <inheritdoc />
     public override IFileReader GetFileReader(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
-      if (fileSetting is CsvFileDummy csv)
-      {
-        if (csv.IsJson)
-          return new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols);
-        if (csv.IsXml)
-          return new XmlFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols);
+      if (fileSetting is not CsvFileDummy csv) 
+        return base.GetFileReader(fileSetting, cancellationToken);
+      
+      if (csv.IsJson)
+        return new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
+      if (csv.IsXml)
+        return new XmlFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
 
-        return new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
-          csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
-          csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
-          csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
-          csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
-          csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
-          csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
-          csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols);
-      }
-      return base.GetFileReader(fileSetting, cancellationToken);
+      return new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
+        csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+        csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
+        csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
+        csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
+        csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
+        csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
+        csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, TimeZoneAdjust,
+        TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
     } 
   }
 }
