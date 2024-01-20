@@ -68,14 +68,15 @@ namespace CsvTools
     public string IdentifierInContainer;
 
     /// <summary>
-    ///   Get a new SourceAccess helper class
+    ///   Get a new SourceAccess 
     /// </summary>
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="passPhrase">Known pass phrase for Zip or PGP file</param>
     /// <param name="keepEncrypted"></param>
-    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>    
-    public SourceAccess(in string fileName, bool isReading = true, in string passPhrase = "", bool keepEncrypted = false, in string pgpKey = "")
+    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
+    /// <remarks>If it's a PGP file, but no key is given GetKeyAndPassphraseForFile is called to retrieve teh information</remarks>
+    public SourceAccess(in string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -105,7 +106,18 @@ namespace CsvTools
 
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp:
-          PgpKey = pgpKey;
+          if (string.IsNullOrEmpty(pgpKey) && isReading)
+          {
+            var (passPhraseF, pgpKeyF, _) = FunctionalDI.GetKeyAndPassphraseForFile(fileName);
+            if (string.IsNullOrEmpty(passPhrase) && !string.IsNullOrEmpty(passPhraseF))
+              Passphrase = passPhraseF;
+            if (string.IsNullOrEmpty(pgpKey) && !string.IsNullOrEmpty(pgpKeyF))
+              PgpKey = pgpKeyF;
+          }
+          else
+          {
+            PgpKey = pgpKey;
+          }
           break;
       }
       if (!isReading && KeepEncrypted && FileType == FileTypeEnum.Pgp)
