@@ -22,7 +22,7 @@ namespace CsvTools
   public sealed class CsvFileDummy : ICsvFile
   {
     /// <summary>
-    /// Gets or sets a value indicating whether this this file is a Json file
+    /// Gets or sets a value indicating whether this file is a Json file
     /// </summary>
     /// <value>
     ///   <c>true</c> if this instance is json; otherwise, <c>false</c>.

@@ -112,7 +112,6 @@ namespace CsvTools.Tests
       if (prop.PropertyType == typeof(long))
       {
         var newVal = (long) prop.GetValue(obj1)! + 1;
-
         prop.SetValue(obj1, newVal);
         return ((long) prop.GetValue(obj1)!) == newVal;
       }
@@ -408,6 +407,8 @@ namespace CsvTools.Tests
     {
       foreach (var propertyInfo in obj.GetValueTypeProperty())
       {
+        if (!propertyInfo.CanWrite)
+          continue;
         if (ignore != null && ignore.Contains(propertyInfo.Name))
           continue;
         try

@@ -226,13 +226,20 @@ namespace CsvTools.Tests
       }
     }
 
+#if NETFRAMEWORK
     [TestMethod]
     public void ShortFileName()
     {
       Assert.AreEqual("", "".ShortFileName());
-      var fn = UnitTestStatic.GetTestPath(".");
-      Assert.IsTrue(fn.ShortFileName().Contains("CSVQUI~"), fn.ShortFileName());
+      var fn = UnitTestStatic.GetTestPath("SomeExtraFolder\\AnotherFolder\\");
+      FileSystemUtils.CreateDirectory(fn);
+
+      // on .NET 8.0 it will not shorten the path
+      var result = fn.ShortFileName();
+
+      Assert.IsTrue(result.Contains(@"CSVQUI~"), result);
     }
+#endif
 
     [TestMethod]
     public void SplitPath()
