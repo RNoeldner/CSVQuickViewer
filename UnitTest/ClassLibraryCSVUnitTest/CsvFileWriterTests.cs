@@ -85,7 +85,8 @@ namespace CsvTools.Tests
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName), "File created");
       Assert.AreEqual(1065, res, "Records");
     }
 
@@ -109,7 +110,7 @@ namespace CsvTools.Tests
 
       using var sqlReader = new DataTableWrapper(UnitTestStaticData.RandomDataTable(100));
       var res = await writer.WriteAsync(sqlReader, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName),"File created");
       Assert.AreEqual(100, res);
     }
 

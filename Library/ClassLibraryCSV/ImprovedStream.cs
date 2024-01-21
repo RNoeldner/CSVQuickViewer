@@ -314,9 +314,12 @@ namespace CsvTools
         }
         catch (ZipException)
         {
-          pass = FunctionalDI.GetPassphraseForFile(SourceAccess.FullPath);
-          if (pass.Length > 0)
+          var (passF, _, _) = FunctionalDI.GetKeyAndPassphraseForFile(SourceAccess.FullPath);
+          if (passF.Length > 0)
+          {
+            pass = passF;
             goto retry;
+          }
           throw;
         }
 

@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using CsvTools;
 using System.Text;
 using UtfUnknown;
 
@@ -37,6 +38,13 @@ namespace CsvTools
       Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001,
       1252, 437, 1250,  1253, 1255,  850, 852,  28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     };
+    
+    #if NET5_0_OR_GREATER
+    static EncodingHelper()
+    {
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+    }
+    #endif
 
     // ReSharper disable once InconsistentNaming
     /// <summary>

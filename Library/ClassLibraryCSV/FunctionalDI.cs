@@ -14,11 +14,6 @@
 
 using System;
 using System.IO;
-
-#if !QUICK
-using System.Threading;
-#endif
-
 namespace CsvTools
 {
   /// <summary>
@@ -29,15 +24,6 @@ namespace CsvTools
   // ReSharper disable once InconsistentNaming
   public static class FunctionalDI
   {
-    /// <summary>
-    ///   Retrieve the passphrase for a file, a passphrase store can be attached here
-    /// </summary>
-    /// <note>
-    /// Currently only used in <see cref="SourceAccess"/> to get the passphrase for a PGP encrypted file
-    /// </note>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, string> GetPassphraseForFile = _ => string.Empty;
-
     /// <summary>
     /// Function that will return encryption related information for a file
     /// </summary>
@@ -62,10 +48,9 @@ namespace CsvTools
         _ => EmptyFormatter.Instance
       };
 
-#if !QUICK
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-#endif
+    /// <summary>
+    /// IFileReaderWriterFactory for GetFileReader and GetFileWriter
+    /// </summary>
+    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; } = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));
   }
 }
