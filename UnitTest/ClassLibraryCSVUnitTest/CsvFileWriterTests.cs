@@ -47,12 +47,6 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task TimeZoneConversionsAsync()
     {
-      var writeFile = new CsvFileDummy();
-      writeFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"));
-      writeFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
-
-      FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = new CsvFileDummy
       {
         FileName = UnitTestStatic.GetTestPath("AllFormats.txt"),
@@ -72,69 +66,60 @@ namespace CsvTools.Tests
           new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
         });
 
-      writeFile.FieldDelimiterChar = '|';
-      writeFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
-          timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "TZ"));
-      var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("BasicCSVOut2tzc.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
-
       using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
+
+      var fileName = UnitTestStatic.GetTestPath("BasicCSVOut2tzc.txt");
+      var col = new ColumnCollection
+      {
+        new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"),
+        new Column("Proficiency", ValueFormat.Empty, ignore: true),
+        new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
+          timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "TZ")
+      };
+
+      FileSystemUtils.FileDelete(fileName);
+
+      var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
+        col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
+        string.Empty, string.Empty,
+        string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
 
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName), "File created");
+      Assert.IsTrue(FileSystemUtils.FileExists(fileName), "File created");
       Assert.AreEqual(1065, res, "Records");
     }
 
     [TestMethod]
     public async Task Write()
     {
-      var pd = new MockProgress();
-      var writeFile = new CsvFileDummy();
-      writeFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"));
-      writeFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
-      writeFile.FieldDelimiterChar = '|';
+      var fileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt");
 
-      FileSystemUtils.FileDelete(writeFile.FileName);
+      var col = new ColumnCollection
+      {
+        new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"),
+        new Column("Proficiency", ValueFormat.Empty, ignore: true),
+      };
 
-      var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("BasicCSVOut.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
+      FileSystemUtils.FileDelete(fileName);
+
+      var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
+        col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
+        string.Empty, string.Empty,
+        string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
 
 
-      using var sqlReader = new DataTableWrapper(UnitTestStaticData.RandomDataTable(100));
-      var res = await writer.WriteAsync(sqlReader, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName),"File created");
+      using var sqlReader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100));
+      var res = await writer.WriteAsync(sqlReader, UnitTestStatic.Token);
+      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       Assert.AreEqual(100, res);
     }
 
     [TestMethod, Timeout(2000)]
     public async Task WriteAllFormatsAsync()
     {
-      var writeFile = new CsvFileDummy();
-      writeFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"));
-      writeFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
-      writeFile.FieldDelimiterChar = '|';
-
-      FileSystemUtils.FileDelete(writeFile.FileName);
-
-
-      var cf = new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, "yyyyMMdd"),
-        timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "\"UTC\"");
-      writeFile.ColumnCollection.Add(cf);
-      var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("BasicCSVOut2.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
-
       var setting = new CsvFileDummy
       {
         FileName = Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")),
@@ -157,9 +142,24 @@ namespace CsvTools.Tests
       using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
+      var fileName = UnitTestStatic.GetTestPath("BasicCSVOut2.txt");
+      var col = new ColumnCollection
+      {
+        new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"),
+        new Column("Proficiency", ValueFormat.Empty, ignore: true),
+        new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, "yyyyMMdd"),
+          timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "\"UTC\""),
+      };
+      FileSystemUtils.FileDelete(fileName);
+
+      var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
+        col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
+        string.Empty, string.Empty,
+        string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
-      Assert.AreEqual(1065, res, "Records");
+      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
+      Assert.AreEqual(1065, res, $"Records {res}");
     }
 
     [TestMethod, Timeout(2000)]
@@ -176,18 +176,20 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFileDummy();
 
-      var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("Test.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+      var fileName = UnitTestStatic.GetTestPath("Test.txt");
+      FileSystemUtils.FileDelete(fileName);
+      var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
+        Array.Empty<Column>(), string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, ',', '"', '\0',
+        string.Empty, string.Empty,
+        string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+
 
       using var reader = new DataTableWrapper(dataTable);
       // await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
 
-      Assert.IsTrue(File.Exists(writeFile.FileName));
+      Assert.IsTrue(File.Exists(fileName));
     }
 
     [TestMethod, Timeout(1000)]
@@ -204,26 +206,24 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFileDummy();
-      writeFile.ColumnCollection.Add(new Column("Text", new ValueFormat(DataTypeEnum.Integer)));
-      writeFile.Header = "##This is a header for {FileName}";
-      writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
+      var fileName = UnitTestStatic.GetTestPath("Test.txt");
+      FileSystemUtils.FileDelete(fileName);
+
+      var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
+        new Column[] { new Column("Text", new ValueFormat(DataTypeEnum.Integer)) }, string.Empty, "##This is a header for {FileName}", "##This is a Footer\r\n{Records} in file", string.Empty, RecordDelimiterTypeEnum.Crlf, ',', '"', '\0',
+        string.Empty, string.Empty,
+        string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+
+      writer.Warning += (o, a) => { count++; };
+
+      using (var reader = new DataTableWrapper(dataTable))
       {
-        var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("Test.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-          writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-          "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-          writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
-        writer.Warning += (o, a) => { count++; };
-        using (var reader = new DataTableWrapper(dataTable))
-        {
-          Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token), "Records");
-        }
-
-        Assert.AreEqual(100, count, "Warnings");
+        Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token), "Records");
       }
+      Assert.AreEqual(100, count, "Warnings");
+      Assert.IsTrue(File.Exists(fileName));
 
-      Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
     [TestMethod, Timeout(1000)]
