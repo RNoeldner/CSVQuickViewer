@@ -1,3 +1,5 @@
+// Ignore Spelling: Dropdown
+
 #nullable enable
 
 using System;
@@ -56,17 +58,5 @@ namespace CsvTools
     /// </summary>
     /// <value>The selected text.</value>
     public virtual string SelectedText => comboBox.Text;
-
-    private void OK_Click(object? sender, EventArgs e)
-    {
-      DialogResult = DialogResult.OK;
-      Hide();
-    }
-
-    private void Cancel_Click(object? sender, EventArgs e)
-    {
-      DialogResult = DialogResult.Cancel;
-      Close();
-    }
   }
 }

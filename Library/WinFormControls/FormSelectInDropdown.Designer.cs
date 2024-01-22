@@ -42,13 +42,14 @@ namespace CsvTools
       this.comboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBox.Location = new System.Drawing.Point(3, 3);
       this.comboBox.Name = "comboBox";
-      this.comboBox.Size = new System.Drawing.Size(368, 21);
+      this.comboBox.Size = new System.Drawing.Size(365, 21);
       this.comboBox.TabIndex = 0;
       // 
       // buttonOK
       // 
       this.buttonOK.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.buttonOK.Location = new System.Drawing.Point(227, 30);
+      this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+      this.buttonOK.Location = new System.Drawing.Point(224, 30);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(69, 25);
       this.buttonOK.TabIndex = 1;
@@ -59,7 +60,7 @@ namespace CsvTools
       // 
       this.buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(302, 30);
+      this.buttonCancel.Location = new System.Drawing.Point(299, 30);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(69, 25);
       this.buttonCancel.TabIndex = 2;
@@ -74,15 +75,15 @@ namespace CsvTools
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.Controls.Add(this.comboBox, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 2, 1);
       this.tableLayoutPanel1.Controls.Add(this.buttonOK, 1, 1);
+      this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 2, 1);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 2;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(374, 58);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(371, 58);
       this.tableLayoutPanel1.TabIndex = 0;
       // 
       // FormSelectInDropdown
@@ -90,7 +91,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(374, 58);
+      this.ClientSize = new System.Drawing.Size(371, 55);
       this.Controls.Add(this.tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
