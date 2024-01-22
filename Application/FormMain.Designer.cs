@@ -150,7 +150,7 @@ namespace CsvTools
       this.m_ToolStripButtonLoadFile2.Image = global::CsvTools.Properties.Resources.LoadFile;
       this.m_ToolStripButtonLoadFile2.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonLoadFile2.Name = "m_ToolStripButtonLoadFile2";
-      this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(28, 28);
+      this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(28, 25);
       this.m_ToolStripButtonLoadFile2.Text = "Open File";
       this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.ToolStripButtonLoadFile_Click);
       // 
@@ -160,7 +160,7 @@ namespace CsvTools
       this.m_ToolStripButtonShowLog2.Image = global::CsvTools.Properties.Resources.ShowLog;
       this.m_ToolStripButtonShowLog2.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonShowLog2.Name = "m_ToolStripButtonShowLog2";
-      this.m_ToolStripButtonShowLog2.Size = new System.Drawing.Size(28, 28);
+      this.m_ToolStripButtonShowLog2.Size = new System.Drawing.Size(28, 25);
       this.m_ToolStripButtonShowLog2.Text = "Log";
       this.m_ToolStripButtonShowLog2.Click += new System.EventHandler(this.ToggleShowLog);
       // 

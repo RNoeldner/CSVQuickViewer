@@ -56,10 +56,10 @@ namespace CsvTools
       this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
       this.m_TimerVisibility = new System.Windows.Forms.Timer(this.components);
       this.searchBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-      ((System.ComponentModel.ISupportInitialize)(this.m_BindingNavigator)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_BindingNavigator)).BeginInit();
       this.m_BindingNavigator.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_BindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.FilteredDataGridView)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_BindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.FilteredDataGridView)).BeginInit();
       this.m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
       this.m_ToolStripContainer.ContentPanel.SuspendLayout();
       this.m_ToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -105,24 +105,24 @@ namespace CsvTools
       // toolStripButtonMoveFirstItem
       // 
       this.toolStripButtonMoveFirstItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.toolStripButtonMoveFirstItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveFirstItem.Image")));
+      this.toolStripButtonMoveFirstItem.Image = ((System.Drawing.Image) (resources.GetObject("toolStripButtonMoveFirstItem.Image")));
       this.toolStripButtonMoveFirstItem.Name = "toolStripButtonMoveFirstItem";
       this.toolStripButtonMoveFirstItem.RightToLeftAutoMirrorImage = true;
-      this.toolStripButtonMoveFirstItem.Size = new System.Drawing.Size(24, 24);
+      this.toolStripButtonMoveFirstItem.Size = new System.Drawing.Size(24, 25);
       this.toolStripButtonMoveFirstItem.Text = "Move first";
       // 
       // toolStripButtonMovePreviousItem
       // 
       this.toolStripButtonMovePreviousItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.toolStripButtonMovePreviousItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMovePreviousItem.Image")));
+      this.toolStripButtonMovePreviousItem.Image = ((System.Drawing.Image) (resources.GetObject("toolStripButtonMovePreviousItem.Image")));
       this.toolStripButtonMovePreviousItem.Name = "toolStripButtonMovePreviousItem";
       this.toolStripButtonMovePreviousItem.RightToLeftAutoMirrorImage = true;
-      this.toolStripButtonMovePreviousItem.Size = new System.Drawing.Size(24, 24);
+      this.toolStripButtonMovePreviousItem.Size = new System.Drawing.Size(24, 25);
       this.toolStripButtonMovePreviousItem.Text = "Move previous";
       // 
       // m_ToolStripTextBoxPos
       // 
-      this.m_ToolStripTextBoxPos.AccessibleName = "Position";      
+      this.m_ToolStripTextBoxPos.AccessibleName = "Position";
       this.m_ToolStripTextBoxPos.Name = "m_ToolStripTextBoxPos";
       this.m_ToolStripTextBoxPos.Size = new System.Drawing.Size(50, 27);
       this.m_ToolStripTextBoxPos.Text = "0";
@@ -131,27 +131,27 @@ namespace CsvTools
       // toolStripButtonMoveNextItem
       // 
       this.toolStripButtonMoveNextItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.toolStripButtonMoveNextItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveNextItem.Image")));
+      this.toolStripButtonMoveNextItem.Image = ((System.Drawing.Image) (resources.GetObject("toolStripButtonMoveNextItem.Image")));
       this.toolStripButtonMoveNextItem.Name = "toolStripButtonMoveNextItem";
       this.toolStripButtonMoveNextItem.RightToLeftAutoMirrorImage = true;
-      this.toolStripButtonMoveNextItem.Size = new System.Drawing.Size(24, 24);
+      this.toolStripButtonMoveNextItem.Size = new System.Drawing.Size(24, 25);
       this.toolStripButtonMoveNextItem.Text = "Move next";
       // 
       // toolStripButtonMoveLastItem
       // 
       this.toolStripButtonMoveLastItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.toolStripButtonMoveLastItem.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMoveLastItem.Image")));
+      this.toolStripButtonMoveLastItem.Image = ((System.Drawing.Image) (resources.GetObject("toolStripButtonMoveLastItem.Image")));
       this.toolStripButtonMoveLastItem.Name = "toolStripButtonMoveLastItem";
       this.toolStripButtonMoveLastItem.RightToLeftAutoMirrorImage = true;
-      this.toolStripButtonMoveLastItem.Size = new System.Drawing.Size(24, 24);
+      this.toolStripButtonMoveLastItem.Size = new System.Drawing.Size(24, 25);
       this.toolStripButtonMoveLastItem.Text = "Move last";
       // 
       // m_ToolStripButtonLoadRemaining
       // 
       this.m_ToolStripButtonLoadRemaining.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.m_ToolStripButtonLoadRemaining.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonLoadRemaining.Image")));
+      this.m_ToolStripButtonLoadRemaining.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonLoadRemaining.Image")));
       this.m_ToolStripButtonLoadRemaining.Name = "m_ToolStripButtonLoadRemaining";
-      this.m_ToolStripButtonLoadRemaining.Size = new System.Drawing.Size(24, 24);
+      this.m_ToolStripButtonLoadRemaining.Size = new System.Drawing.Size(24, 25);
       this.m_ToolStripButtonLoadRemaining.Text = "Load More...";
       this.m_ToolStripButtonLoadRemaining.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
       this.m_ToolStripButtonLoadRemaining.ToolTipText = "File is not read completely, load another set of records";
@@ -195,37 +195,37 @@ namespace CsvTools
       // 
       // m_ToolStripButtonDuplicates
       // 
-      this.m_ToolStripButtonDuplicates.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonDuplicates.Image")));
+      this.m_ToolStripButtonDuplicates.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonDuplicates.Image")));
       this.m_ToolStripButtonDuplicates.Name = "m_ToolStripButtonDuplicates";
-      this.m_ToolStripButtonDuplicates.Size = new System.Drawing.Size(86, 24);
+      this.m_ToolStripButtonDuplicates.Size = new System.Drawing.Size(86, 25);
       this.m_ToolStripButtonDuplicates.Text = "Duplicates";
       this.m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       this.m_ToolStripButtonDuplicates.Click += new System.EventHandler(this.ButtonDuplicates_Click);
       // 
       // m_ToolStripButtonHierarchy
       // 
-      this.m_ToolStripButtonHierarchy.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonHierarchy.Image")));
+      this.m_ToolStripButtonHierarchy.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonHierarchy.Image")));
       this.m_ToolStripButtonHierarchy.Name = "m_ToolStripButtonHierarchy";
-      this.m_ToolStripButtonHierarchy.Size = new System.Drawing.Size(82, 24);
+      this.m_ToolStripButtonHierarchy.Size = new System.Drawing.Size(82, 25);
       this.m_ToolStripButtonHierarchy.Text = "Hierarchy";
       this.m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
       this.m_ToolStripButtonHierarchy.Click += new System.EventHandler(this.ButtonHierarchy_Click);
       // 
       // m_ToolStripButtonStore
       // 
-      this.m_ToolStripButtonStore.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonStore.Image")));
+      this.m_ToolStripButtonStore.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonStore.Image")));
       this.m_ToolStripButtonStore.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonStore.Name = "m_ToolStripButtonStore";
-      this.m_ToolStripButtonStore.Size = new System.Drawing.Size(80, 24);
+      this.m_ToolStripButtonStore.Size = new System.Drawing.Size(80, 25);
       this.m_ToolStripButtonStore.Text = "Write File";
       this.m_ToolStripButtonStore.ToolTipText = "Store the currently displayed data as delimited text file";
       this.m_ToolStripButtonStore.Click += new System.EventHandler(this.ToolStripButtonStoreAsCsvAsync);
       // 
       // m_ToolStripButtonUniqueValues
       // 
-      this.m_ToolStripButtonUniqueValues.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonUniqueValues.Image")));
+      this.m_ToolStripButtonUniqueValues.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonUniqueValues.Image")));
       this.m_ToolStripButtonUniqueValues.Name = "m_ToolStripButtonUniqueValues";
-      this.m_ToolStripButtonUniqueValues.Size = new System.Drawing.Size(105, 24);
+      this.m_ToolStripButtonUniqueValues.Size = new System.Drawing.Size(105, 25);
       this.m_ToolStripButtonUniqueValues.Text = "Unique Values";
       this.m_ToolStripButtonUniqueValues.ToolTipText = "Display Unique Values";
       this.m_ToolStripButtonUniqueValues.Click += new System.EventHandler(this.ButtonUniqueValues_Click);
@@ -275,7 +275,7 @@ namespace CsvTools
       // 
       // m_Search
       // 
-      this.m_Search.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Search.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Search.AutoSize = true;
       this.m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_Search.Location = new System.Drawing.Point(662, 3);
@@ -310,19 +310,19 @@ namespace CsvTools
       // 
       // m_ToolStripButtonColumnLength
       // 
-      this.m_ToolStripButtonColumnLength.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonColumnLength.Image")));
+      this.m_ToolStripButtonColumnLength.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonColumnLength.Image")));
       this.m_ToolStripButtonColumnLength.Name = "m_ToolStripButtonColumnLength";
-      this.m_ToolStripButtonColumnLength.Size = new System.Drawing.Size(79, 24);
+      this.m_ToolStripButtonColumnLength.Size = new System.Drawing.Size(79, 25);
       this.m_ToolStripButtonColumnLength.Text = "Columns";
       this.m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information";
       this.m_ToolStripButtonColumnLength.Click += new System.EventHandler(this.ButtonColumnLength_Click);
       // 
       // m_ToolStripButtonSource
       // 
-      this.m_ToolStripButtonSource.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSource.Image")));
+      this.m_ToolStripButtonSource.Image = ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonSource.Image")));
       this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
-      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(67, 24);
+      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(67, 25);
       this.m_ToolStripButtonSource.Text = "Source";
       this.m_ToolStripButtonSource.Click += new System.EventHandler(this.DisplaySource_Click);
       // 
@@ -349,11 +349,11 @@ namespace CsvTools
       this.FontChanged += new System.EventHandler(this.DetailControl_FontChanged);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DetailControl_KeyDown);
       this.ParentChanged += new System.EventHandler(this.DetailControl_ParentChanged);
-      ((System.ComponentModel.ISupportInitialize)(this.m_BindingNavigator)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_BindingNavigator)).EndInit();
       this.m_BindingNavigator.ResumeLayout(false);
       this.m_BindingNavigator.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_BindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.FilteredDataGridView)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_BindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.FilteredDataGridView)).EndInit();
       this.m_ToolStripContainer.BottomToolStripPanel.ResumeLayout(false);
       this.m_ToolStripContainer.BottomToolStripPanel.PerformLayout();
       this.m_ToolStripContainer.ContentPanel.ResumeLayout(false);
