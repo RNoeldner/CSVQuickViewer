@@ -587,7 +587,7 @@ namespace CsvTools
         {
           height = groupBoxDate.Height;
           if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
-            m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.cDateFormatDefault;
+            m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.Empty.DateFormat;
           UpdateDateLabel();
         }
 
@@ -610,7 +610,7 @@ namespace CsvTools
         if (groupBoxBinary.Visible)
           height = groupBoxBinary.Height;
 
-        if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormat.cDateFormatDefault)
+        if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormat.Empty.DateFormat)
           m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
         flowLayoutPanel.Top = panelTop.Height;
         // Depending on OS and scaling a different value might be needed

@@ -98,41 +98,41 @@ namespace CsvTools
     /// </exception>
     public ValueFormatMut(
       in DataTypeEnum dataType = DataTypeEnum.String,
-      in string dateFormat = ValueFormat.cDateFormatDefault,
-      in string dateSeparator = ValueFormat.cDateSeparatorDefault,
-      in string timeSeparator = ValueFormat.cTimeSeparatorDefault,
-      in string numberFormat = ValueFormat.cNumberFormatDefault,
-      in string groupSeparator = ValueFormat.cGroupSeparatorDefault,
-      in string decimalSeparator = ValueFormat.cDecimalSeparatorDefault,
-      in string asTrue = ValueFormat.cTrueDefault,
-      in string asFalse = ValueFormat.cFalseDefault,
+      in string dateFormat = "",
+      in string? dateSeparator = null,
+      in string? timeSeparator = null,
+      in string? numberFormat = null,
+      in string? groupSeparator = null,
+      in string? decimalSeparator = null,
+      in string? asTrue = null,
+      in string? asFalse = null,
       in string displayNullAs = "",
-      int part = ValueFormat.cPartDefault,
-      in string partSplitter = ValueFormat.cPartSplitterDefault,
-      bool partToEnd = ValueFormat.cPartToEndDefault,
+      int part = 0,
+      in string? partSplitter = null,
+      bool partToEnd = true,
       in string regexSearchPattern = "",
       in string regexReplacement = "",
       in string readFolder = "",
       in string writeFolder = "",
       in string fileOutPutPlaceholder = "",
-      in bool overwrite = ValueFormat.cOverwriteDefault)
+      in bool overwrite = true)
     {
-      m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).FromText();
-      m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).FromText();
+      m_DecimalSeparator = decimalSeparator?.FromText() ?? ValueFormat.Empty.DecimalSeparator;
+      m_GroupSeparator = groupSeparator?.FromText() ?? ValueFormat.Empty.GroupSeparator;
       if (m_DecimalSeparator != char.MinValue && m_DecimalSeparator.Equals(m_GroupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
-      m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
-      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).FromText();
-      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).FromText();
+      m_DateFormat = dateFormat ?? ValueFormat.Empty.DateFormat;
+      m_DateSeparator = dateSeparator?.FromText() ?? ValueFormat.Empty.DateSeparator;
+      m_TimeSeparator = timeSeparator?.FromText() ?? ValueFormat.Empty.TimeSeparator;
 
       m_DisplayNullAs = displayNullAs ?? string.Empty;
-      m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;
+      m_NumberFormat = numberFormat ?? ValueFormat.Empty.NumberFormat;
 
-      m_True = asTrue ?? ValueFormat.cTrueDefault;
-      m_False = asFalse ?? ValueFormat.cFalseDefault;
+      m_True = asTrue ?? ValueFormat.Empty.True;
+      m_False = asFalse ?? ValueFormat.Empty.False;
       m_Part = part;
-      m_PartSplitter = (partSplitter ?? ValueFormat.cPartSplitterDefault).FromText();
+      m_PartSplitter = partSplitter?.FromText() ?? ValueFormat.Empty.PartSplitter;
       m_PartToEnd = partToEnd;
       m_RegexSearchPattern = regexSearchPattern ?? string.Empty;
       m_RegexReplacement = regexReplacement ?? string.Empty;
@@ -279,7 +279,7 @@ namespace CsvTools
     }
 
 
-    /// <summary>If a text is split into parts the text determines which how these pars are split from eachother</summary>
+    /// <summary>If a text is split into parts the text determines which how these pars are split from each other</summary>
     /// <value>The part splitter.</value>
     [DefaultValue(ValueFormat.cPartSplitterDefault)]
     public string PartSplitter
@@ -292,7 +292,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>Gets or sets a value indicating whether the part number determines this one part or anything from thiis part to the</summary>
+    /// <summary>Gets or sets a value indicating whether the part number determines this one part or anything from this part to the</summary>
     /// <value>
     ///   <c>true</c> if reading part to end; otherwise, <c>false</c>.</value>
     [DefaultValue(ValueFormat.cPartToEndDefault)]
@@ -456,11 +456,12 @@ namespace CsvTools
     /// </summary>
     /// <returns>and immutable column</returns>
     public ValueFormat ToImmutable()
-      => new ValueFormat(DataType, DateFormat,
-        DateSeparator, TimeSeparator, NumberFormat, GroupSeparator,
-        DecimalSeparator, True, False, DisplayNullAs,
-        Part, PartSplitter, PartToEnd, RegexSearchPattern,
-        RegexReplacement, ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
+      => new ValueFormat(DataType, DateFormat, DateSeparator, TimeSeparator,
+        NumberFormat, GroupSeparator, DecimalSeparator,
+        True, False, DisplayNullAs,
+        Part, PartSplitter, PartToEnd,
+        RegexSearchPattern, RegexReplacement,
+        ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
 
   }
 }

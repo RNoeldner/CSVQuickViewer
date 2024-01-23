@@ -26,35 +26,40 @@ namespace CsvTools
   /// </summary>
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
-    /// <summary>
-    ///   <para>
-    /// The default date format "MM/dd/yyyy"; as american expect everything to be their way</para>
-    /// </summary>
+    /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
     public const string cDateFormatDefault = "MM/dd/yyyy";
     private const char cDateSeparatorDefaultChar = '/';
-    internal const string cDateSeparatorDefault = "/";
+    /// <summary> The default date separator </summary>
+    public const string cDateSeparatorDefault = "/";
     private const char cDecimalSeparatorDefaultChar = '.';
-    /// <summary>The default decimal separator "."; as american expect everything to be their way</summary>
+    /// <summary>The default decimal separator "."; as Americans expect everything to be their way ;)</summary>
     public const string cDecimalSeparatorDefault = ".";
     private const char cGroupSeparatorDefaultChar = char.MinValue;
-    internal const string cGroupSeparatorDefault = "";
-    internal const string cFalseDefault = "";
-    internal const string cNumberFormatDefault = "0.#####";
-    internal const int cPartDefault = 2;
+    /// <summary> The default separator for the thousand grouping </summary>
+    public const string cGroupSeparatorDefault = "";
+    /// <summary>The values to be assumed false</summary>
+    public const string cFalseDefault = "";
+    /// <summary>Default numeric format</summary>
+    public const string cNumberFormatDefault = "0.#####";
+    /// <summary>For part separation number of the part</summary>
+    public const int cPartDefault = 2;
     private const char cPartSplitterDefaultChar = ':';
-    internal const string cPartSplitterDefault = ":";
-    internal const bool cPartToEndDefault = true;
-    internal const string cTimeSeparatorDefault = ":";
-
-    internal const string cTrueDefault = "";
-    internal const bool cOverwriteDefault = true;
+    /// <summary>The default splitter for part separation</summary>
+    public const string cPartSplitterDefault = ":";
+    /// <summary>The default for part separation</summary>
+    public const bool cPartToEndDefault = true;
+    /// <summary>The default time separation between hour and minutes</summary>
+    public const string cTimeSeparatorDefault = ":";
+    /// <summary> The text regarded as true</summary>
+    public const string cTrueDefault = "";
+    /// <summary>Default setting when writing files is to overwrite</summary>
+    public const bool cOverwriteDefault = true;
 
     /// <summary>An empty/default ValueFormat</summary>
     public static readonly ValueFormat Empty = new ValueFormat();
 
-
-     /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
     /// <param name="dateFormat">The date format.</param>
@@ -76,7 +81,7 @@ namespace CsvTools
     /// <param name="readFolder">The read folder.</param>
     /// <param name="writeFolder">The write folder.</param>
     /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
-    /// <param name="overwrite">if set to <c>true</c> we should overwrite.</param>        
+    /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
     [JsonConstructor]
     public ValueFormat(
       in DataTypeEnum? dataType = DataTypeEnum.String,
@@ -118,6 +123,58 @@ namespace CsvTools
       PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText();
       PartToEnd = partToEnd ?? cPartToEndDefault;
       Overwrite = overwrite ?? cOverwriteDefault;
+    }
+
+     /// <summary>
+    ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
+    /// </summary>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="dateFormat">The date format.</param>
+    /// <param name="dateSeparator">The date separator (usually /).</param>
+    /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="groupSeparator">The group separator.</param>
+    /// <param name="decimalSeparator">The decimal separator.</param>
+    /// <param name="asTrue">Text to be regarded as true.</param>
+    /// <param name="asFalse">Text to be regarded as false.</param>
+    /// <param name="displayNullAs">While writing display a null values as this</param>
+    /// <param name="part">The part number in case of splitting.</param>
+    /// <param name="partSplitter">The part splitter.</param>
+    /// <param name="partToEnd">
+    ///   if set to <c>true</c> the part will contain everything from the start of the part to the end.
+    /// </param>
+    /// <param name="regexSearchPattern">The regex search pattern.</param>
+    /// <param name="regexReplacement">The regex replacement.</param>
+    /// <param name="readFolder">The read folder.</param>
+    /// <param name="writeFolder">The write folder.</param>
+    /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
+    /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
+    public ValueFormat(DataTypeEnum dataType, in string dateFormat, char dateSeparator, char timeSeparator,
+                       in string numberFormat, char groupSeparator, char decimalSeparator,
+                       in string asTrue, in string asFalse, in string displayNullAs,
+                       int part, char partSplitter, bool partToEnd,
+                       string regexSearchPattern, string regexReplacement,
+                       string readFolder, string writeFolder, string fileOutPutPlaceholder, bool overwrite)
+    {
+      DataType = dataType;
+      False = asFalse;
+      True = asTrue;
+      DisplayNullAs = displayNullAs;
+      RegexSearchPattern = regexSearchPattern;
+      RegexReplacement = regexReplacement;
+      ReadFolder = readFolder;
+      WriteFolder = writeFolder;
+      FileOutPutPlaceholder = fileOutPutPlaceholder;
+      DateFormat = dateFormat;
+      DateSeparator = dateSeparator;
+      TimeSeparator = timeSeparator;
+      NumberFormat = numberFormat;
+      GroupSeparator = groupSeparator;
+      DecimalSeparator = decimalSeparator;
+      Part = part;
+      PartSplitter =  partSplitter;
+      PartToEnd = partToEnd;
+      Overwrite = overwrite;
     }
 
     /// <summary>
@@ -251,7 +308,7 @@ namespace CsvTools
     public bool Equals(ValueFormat? other)
     {
       if (other is null) return false;
-      
+
       return DataType == other.DataType
              && DateFormat == other.DateFormat
              && DateSeparator == other.DateSeparator
