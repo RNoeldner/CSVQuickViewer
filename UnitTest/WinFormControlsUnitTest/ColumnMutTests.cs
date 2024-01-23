@@ -218,6 +218,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(DataTypeEnum.Boolean, true.GetType().GetDataType());
       Assert.AreEqual(DataTypeEnum.Guid, g.GetType().GetDataType());
     }
+
     [TestInitialize]
     public void Init()
     {
@@ -225,15 +226,15 @@ namespace CsvTools.Tests
         dateSeparator: ".", decimalSeparator: ",", asFalse: @"Falsch", groupSeparator: ".", numberFormat: "0.##",
         timeSeparator: ":", asTrue: @"Wahr");
 
-      var ff = new CsvFileDummy();
+      var ff = new ColumnCollection();
       var col = new Column("StartDate", valueFormatGerman, ignore: true);
-
-      ff.ColumnCollection.Add(col);
+      ff.Add(col);
       Assert.AreEqual("StartDate", col.Name, "Name");
       Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormat.DataType, "DataType");
       Assert.IsTrue(col.Convert, "Convert");
       Assert.IsTrue(col.Ignore, "Ignore");
     }
+
     [TestMethod()]
     public void ToImmutableColumnTest()
     {
