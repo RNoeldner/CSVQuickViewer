@@ -19,13 +19,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class FormColumnUITests
   {
-    [ClassInitialize]
-    public static void SetupTests(TestContext testContext)
-    {
-      // need to set FileReaderWriterFactory  for FormColumnUiRead
-      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings());
-    }
-
     [TestMethod]
     [Timeout(2000)]
     public void FormColumnUI()

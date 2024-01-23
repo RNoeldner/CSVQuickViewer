@@ -176,7 +176,7 @@ namespace CsvTools
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvFileReader"/> class.
     /// </summary>
-    /// <param name="fileName">Path of the file.</param>
+        /// <param name="fullPath">Fully qualified path of the file to write</param>
     /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
     /// <param name="skipRows">Number of rows that should be ignored in the beginning, e.G. for information not related  to the data</param>
     /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read row</param>

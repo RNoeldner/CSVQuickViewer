@@ -39,6 +39,12 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStatic
   {
+    [AssemblyInitialize]
+    public static void AssemblyInitialize(TestContext context)
+    {
+      Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
+    }
+
     public static readonly string ApplicationDirectory = Path.Combine(
       (new FileInfo(Assembly.GetExecutingAssembly().Location)).DirectoryName ?? throw new InvalidOperationException(),
       "TestFiles");
@@ -374,7 +380,7 @@ namespace CsvTools.Tests
       if (obj is null)
         throw new ArgumentNullException(nameof(obj));
 
-      T ret = obj;      
+      T ret = obj;
 
       if (includeJson)
       {

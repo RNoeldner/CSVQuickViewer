@@ -149,8 +149,7 @@ namespace CsvTools
       labelIgnoreID.Name = "labelIgnoreID";
       labelIgnoreID.Size = new System.Drawing.Size(397, 13);
       labelIgnoreID.TabIndex = 26;
-      labelIgnoreID.Text = "Ignore columns that end with “Id”, “Ref” or “Text” and always process these as te" +
-    "xt";
+      labelIgnoreID.Text = "Ignore columns that end with Id, Ref or Text and always process these as text";
       // 
       // labelDetectGUID
       // 

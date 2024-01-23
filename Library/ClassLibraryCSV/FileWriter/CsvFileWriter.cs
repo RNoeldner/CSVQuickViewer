@@ -65,8 +65,8 @@ namespace CsvTools
     /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
     /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
     /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
-    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the fieldDelimiterChar this text will be written</param>
-    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the fieldQualifierChar this text will be written</param>
+    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the delimiter this text will be written</param>
+    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the qualifier this text will be written</param>
     /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
     /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
     /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
@@ -75,43 +75,36 @@ namespace CsvTools
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     public CsvFileWriter(
       in string fullPath,
-      bool hasFieldHeader,
-      in ValueFormat? valueFormat,
-      int codePageId,
-      bool byteOrderMark,
-      in IEnumerable<Column>? columnDefinition,
-      in string? identifierInContainer,
-      in string? header,
-      in string? footer,
-      in string fileSettingDisplay,
-      RecordDelimiterTypeEnum newLine,
-      char fieldDelimiterChar,
-      char fieldQualifierChar,
-      char escapePrefixChar,
-      in string newLinePlaceholder,
-      in string delimiterPlaceholder,
-      in string qualifierPlaceholder,
-      bool qualifyAlways,
-      bool qualifyOnlyIfNeeded,
-      bool fixedLength,
-      in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
-      bool unencrypted
+      bool hasFieldHeader = true,
+      in ValueFormat? valueFormat = null,
+      int codePageId = 65001,
+      bool byteOrderMark = true,
+      in IEnumerable<Column>? columnDefinition = null,
+      in string? identifierInContainer = "",
+      in string? header = "",
+      in string? footer = "",
+      in string fileSettingDisplay = "",
+      in RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
+      char fieldDelimiterChar = ',',
+      char fieldQualifierChar = '"',
+      char escapePrefixChar = '\0',
+      in string newLinePlaceholder = "",
+      in string delimiterPlaceholder = "",
+      in string qualifierPlaceholder = "",
+      bool qualifyAlways = false,
+      bool qualifyOnlyIfNeeded = true,
+      bool fixedLength = false,
+      in TimeZoneChangeDelegate? timeZoneAdjust = null,
+      in string sourceTimeZone = "",
+      in string publicKey = "",
+      bool unencrypted = false
       )
       : base(
         fullPath,
-        valueFormat,
-        identifierInContainer,
-        footer,
-        header,
-        columnDefinition,
-        fileSettingDisplay,
-        timeZoneAdjust,
-        sourceTimeZone,
-        publicKey,
-        unencrypted
-        )
+        valueFormat, identifierInContainer,
+        footer, header, columnDefinition,
+        fileSettingDisplay, timeZoneAdjust,
+        sourceTimeZone, publicKey, unencrypted)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
