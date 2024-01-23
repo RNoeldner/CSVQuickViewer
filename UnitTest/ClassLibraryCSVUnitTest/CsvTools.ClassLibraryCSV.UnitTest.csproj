@@ -60,6 +60,8 @@
 	<ItemGroup>
 	  <Folder Include="Database\" />
 	  <Folder Include="FileSetting\" />
+	  <Folder Include="Mutable\" />
+	  <Folder Include="TestFiles\Serialization\" />
 	</ItemGroup>
 	
 </Project>

@@ -740,7 +740,7 @@ CommentLine
           tryToSolveMoreColumns: false,
           warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false, warnUnknownCharacter: false, warnEmptyTailingColumns: true,
           treatNbspAsSpace: false, treatTextAsNull: string.Empty,
-          skipEmptyLines: true, consecutiveEmptyRowsMax: 4, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id,
+          skipEmptyLines: true, consecutiveEmptyRowsMax: 4, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id,
           allowPercentage: true, removeCurrency: true);
       }
 
@@ -761,7 +761,7 @@ CommentLine
         quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
         warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false, warnUnknownCharacter: false, warnEmptyTailingColumns: true,
         treatNbspAsSpace: false, treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4, identifierInContainer: inspectionResult.IdentifierInContainer,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
     }
   }
 }
