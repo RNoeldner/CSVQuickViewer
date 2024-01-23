@@ -269,8 +269,8 @@ namespace CsvTools
       TypeCode.Single => DataTypeEnum.Double,
       TypeCode.Double => DataTypeEnum.Double,
       TypeCode.Decimal => DataTypeEnum.Numeric,
-      TypeCode.SByte => DataTypeEnum.Integer,      
-      TypeCode.Byte => DataTypeEnum.Integer,      
+      TypeCode.SByte => DataTypeEnum.Integer,
+      TypeCode.Byte => DataTypeEnum.Integer,
       TypeCode.Int16 => DataTypeEnum.Integer,
       TypeCode.UInt16 => DataTypeEnum.Integer,
       TypeCode.Int32 => DataTypeEnum.Integer,
@@ -577,6 +577,10 @@ namespace CsvTools
       if (replacement.Equals(pattern, StringComparison.Ordinal))
         return original;
 
+#if NET8_0_OR_GREATER
+      // Function is available since .NET8
+      return original.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
+#else
       var inc = original.Length / pattern.Length * (replacement.Length - pattern.Length);
       var chars = new char[original.Length + Math.Max(0, inc)];
 
@@ -601,6 +605,7 @@ namespace CsvTools
         chars[count++] = original[i];
 
       return new string(chars, 0, count);
+#endif
     }
 
     /// <summary>
@@ -863,7 +868,7 @@ namespace CsvTools
     /// <summary>
     /// Converts a double to int64 and cuts off in case the value is too small or too large
     /// </summary>
-    /// <param name="value">The value.</param>    
+    /// <param name="value">The value.</param>
     public static long ToInt64(this double value)
     {
       if (value > long.MaxValue)

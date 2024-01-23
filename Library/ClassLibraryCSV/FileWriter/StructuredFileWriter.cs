@@ -209,7 +209,7 @@ namespace CsvTools
     {
       var row = placeHolderText;
       foreach (var columnInfo in WriterColumns)
-        row = row.Replace(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));
+        row = row.ReplaceCaseInsensitive(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));
       return row;
     }
   }
