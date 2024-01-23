@@ -239,19 +239,14 @@ namespace CsvTools.Tests
         row["Text"] = i.ToString(CultureInfo.InvariantCulture);
         dataTable.Rows.Add(row);
       }
-
-      var writeFile = new CsvFileDummy();
-      FileSystemUtils.FileDelete(writeFile.FileName);
-      using (var file = new StreamWriter(writeFile.FileName))
+      var fn = UnitTestStatic.GetTestPath("WriteFileLocked.txt");
+      FileSystemUtils.FileDelete(fn);
+      using (var file = new StreamWriter(fn))
       {
         await file.WriteLineAsync("Hello");
         try
         {
-          var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("WriteFileLocked.txt"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-            writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-            "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-            writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone,
-            TimeZoneInfo.Local.Id, String.Empty, writeFile.KeepUnencrypted);
+          var writer = new CsvFileWriter(fn);
           using var reader = new DataTableWrapper(dataTable);
 
           await writer.WriteAsync(reader, UnitTestStatic.Token);
@@ -264,30 +259,18 @@ namespace CsvTools.Tests
 
         await file.WriteLineAsync("World");
       }
-
-      FileSystemUtils.FileDelete(writeFile.FileName);
+      FileSystemUtils.FileDelete(fn);
     }
 
     [TestMethod, Timeout(1000)]
     public async Task WriteGZipAsync()
     {
-      var writeFile = new CsvFileDummy();
-      writeFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"));
-      writeFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
-      writeFile.FieldDelimiterChar = "|".FromText();
-
-      FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz"));
-
-      var writer = new CsvFileWriter(UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz"), writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId, writeFile.ByteOrderMark,
-        writeFile.ColumnCollection, writeFile.IdentifierInContainer, writeFile.Header, writeFile.Footer,
-        "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar, writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder,
-        writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, writeFile.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, writeFile.KeepUnencrypted);
-
-      using var reader = new DataTableWrapper(UnitTestStaticData.RandomDataTable(100));
-
+      var fn = UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz");
+      FileSystemUtils.FileDelete(fn);
+      var writer = new CsvFileWriter(fn, columnDefinition: UnitTestStaticData.Columns, fieldDelimiterChar: '|');
+      using var reader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100, false));
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.IsTrue(FileSystemUtils.FileExists(fn));
       Assert.AreEqual(100, res);
     }
   }

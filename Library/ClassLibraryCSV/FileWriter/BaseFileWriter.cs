@@ -86,14 +86,14 @@ namespace CsvTools
       in string? header,
       in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
-      in TimeZoneChangeDelegate timeZoneAdjust,
+      in TimeZoneChangeDelegate? timeZoneAdjust,
       in string sourceTimeZone,
       in string publicKey,
       bool unencrypted
       )
     {
       SourceTimeZone = sourceTimeZone;
-      TimeZoneAdjust = timeZoneAdjust;
+      TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
       m_PublicKey = publicKey;
       m_KeepUnencrypted = unencrypted;
       FullPath = fullPath;
