@@ -46,10 +46,8 @@ namespace CsvTools.Tests
       var csv = new CsvFileDummy()
       { FileName= "fileName" };
 
-      Assert.AreEqual("This is fileName a test",
-        "This is {FileName} a test".ReplacePlaceholderWithPropertyValues(csv));
-      Assert.AreEqual("This is {nonsense} a test",
-        "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is fileName a test", "This is {FileName} a test".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
     }
 
     [TestMethod]

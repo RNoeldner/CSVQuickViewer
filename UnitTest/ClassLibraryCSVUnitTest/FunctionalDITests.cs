@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReaderTestCsv()
     {
-      var setting = new CsvFileDummy() { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new CsvFileDummy { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
 
       using var test = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       Assert.IsInstanceOfType(test, typeof(CsvFileReader));

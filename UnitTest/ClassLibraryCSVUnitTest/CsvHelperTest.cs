@@ -155,9 +155,9 @@ namespace CsvTools.Tests
       {
         FileName =UnitTestStatic.GetTestPath("LateStartRow.txt"),
         SkipRows = 10,
-        CodePageId = 20127
+        CodePageId = 20127,
+        FieldQualifierChar = '"',
       };
-      test.FieldQualifierChar = '"';
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
       using var textReader = await improvedStream.GetTextReaderAsync(20127, 10, UnitTestStatic.Token);
       Assert.AreEqual('|', (await textReader.InspectDelimiterAsync('"', char.MinValue, Array.Empty<char>(), UnitTestStatic.Token)).Delimiter);
@@ -192,8 +192,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterPipeAsync()
     {
-      var test = new CsvFileDummy() { FileName = UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"), CodePageId = -1 };
-      test.EscapePrefixChar = string.Empty.FromText();
+      var test = new CsvFileDummy
+      {
+        FileName = UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"), CodePageId = -1, EscapePrefixChar = string.Empty.FromText(),
+      };
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
 
       using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
@@ -203,8 +205,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterQualifierAsync()
     {
-      ICsvFile test = new CsvFileDummy() { FileName= UnitTestStatic.GetTestPath("TextQualifiers.txt"), CodePageId = -1 };
-      test.EscapePrefixChar = string.Empty.FromText();
+      ICsvFile test = new CsvFileDummy { FileName= UnitTestStatic.GetTestPath("TextQualifiers.txt"), CodePageId = -1, EscapePrefixChar = string.Empty.FromText(), };
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
       using var textReader = await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token);
       Assert.AreEqual(',', (await textReader.InspectDelimiterAsync(test.FieldQualifierChar, test.EscapePrefixChar, Array.Empty<char>(), UnitTestStatic.Token)).Delimiter);
@@ -213,8 +214,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterTabAsync()
     {
-      ICsvFile test = new CsvFileDummy() { FileName=UnitTestStatic.GetTestPath("txTranscripts.txt"),  CodePageId = -1 };
-      test.EscapePrefixChar = '\\';
+      ICsvFile test = new CsvFileDummy() { FileName=UnitTestStatic.GetTestPath("txTranscripts.txt"),  CodePageId = -1, EscapePrefixChar = '\\',};
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
       DetectionDelimiter.DelimiterDetection ret;
       using (var textReader = await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token))
@@ -490,7 +490,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
-      var fgs = new FillGuessSettings(true);
+      var fgs = new FillGuessSettings();
 
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
         .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true, new InspectionResult(), fgs, string.Empty, UnitTestStatic.Token);

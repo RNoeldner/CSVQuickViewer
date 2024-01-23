@@ -22,7 +22,7 @@ namespace CsvTools.Tests
       {
         Name= name;
       }
-      public int CollectionIdentifier => Name.GetHashCode();
+      public int CollectionIdentifier => ID.GetHashCode() + Name.GetHashCode();
 
       public object Clone() => new TestObject(Name) { ID = ID, Cloned = true };
     }

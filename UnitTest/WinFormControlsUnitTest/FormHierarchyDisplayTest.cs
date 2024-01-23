@@ -128,27 +128,8 @@ namespace CsvTools.Tests
       // load the csvFile FileWithHierarchy
       using var formProgress = new FormProgress("FileWithHierarchy");
       formProgress.Show();
-      var cvsSetting =
-        new CsvFileDummy()
-        {
-          FieldDelimiterChar = '\t'
-        };
-      using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), cvsSetting.CodePageId, cvsSetting.SkipRows,
-        cvsSetting.HasFieldHeader,
-        cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiterChar, cvsSetting.FieldQualifierChar,
-        cvsSetting.EscapePrefixChar,
-        cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.ContextSensitiveQualifier,
-        cvsSetting.CommentLine, cvsSetting.NumWarnings,
-        cvsSetting.DuplicateQualifierToEscape, cvsSetting.NewLinePlaceholder, cvsSetting.DelimiterPlaceholder,
-        cvsSetting.QualifierPlaceholder,
-        cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLfAsSpace, cvsSetting.TreatUnknownCharacterAsSpace,
-        cvsSetting.TryToSolveMoreColumns,
-        cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes,
-        cvsSetting.WarnUnknownCharacter,
-        cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull,
-        cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
-        cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       
+      using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), fieldDelimiterChar:'\t');
       await csvDataReader.OpenAsync(formProgress.CancellationToken);
 
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
