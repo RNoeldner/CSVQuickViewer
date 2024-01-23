@@ -36,10 +36,10 @@ namespace CsvTools.Tests
     [TestMethod]
     [Timeout(20000)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void FormProgress()
+    public void FormProgressLogger()
     {
       // Log
-      using (var formProgress = new FormProgress("Test Logger", true, new FontConfig(),UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Logger", true, new FontConfig(), UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -64,9 +64,17 @@ namespace CsvTools.Tests
           $"Estimated time should be roughly {wait * (end / step)}s but is {sentTime.TotalSeconds}");
         formProgress.Close();
       }
+    }
+
+
+    [TestMethod]
+    [Timeout(20000)]
+    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
+    public void FormProgressMarquee()
+    {
 
       // marquee
-      using (var formProgress = new FormProgress("Test Marquee", false, new FontConfig(),UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Marquee", false, new FontConfig(), UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -81,7 +89,7 @@ namespace CsvTools.Tests
       }
 
       // NoLog
-      using (var formProgress = new FormProgress("Test", false,new FontConfig(), UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test", false, new FontConfig(), UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -96,6 +104,28 @@ namespace CsvTools.Tests
       }
     }
 
+
+    [TestMethod]
+    [Timeout(20000)]
+    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
+    public void FormProgressNoLog()
+    {
+
+      // NoLog
+      using (var formProgress = new FormProgress("Test", false, new FontConfig(), UnitTestStatic.Token))
+      {
+        formProgress.ShowInTaskbar = false;
+        formProgress.Show();
+        formProgress.Maximum = 100;
+        for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
+        {
+          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
+        }
+
+        formProgress.Close();
+      }
+    }
     [TestMethod]
     [Timeout(2000)]
     public void FormprogressTest()
@@ -109,7 +139,7 @@ namespace CsvTools.Tests
     public void FormprogressTest1()
     {
       using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", false,new FontConfig(), tokenSrc.Token);
+      using var formProgress = new FormProgress("Title", false, new FontConfig(), tokenSrc.Token);
       Assert.AreEqual("Title", formProgress.Text);
       Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
       tokenSrc.Cancel();
@@ -121,7 +151,7 @@ namespace CsvTools.Tests
     public void CancelTest()
     {
       using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", true, new FontConfig(),tokenSrc.Token);
+      using var formProgress = new FormProgress("Title", true, new FontConfig(), tokenSrc.Token);
       Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
       formProgress.Close();
       Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
