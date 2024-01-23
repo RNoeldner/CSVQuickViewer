@@ -93,7 +93,7 @@ namespace CsvTools
     bool SkipEmptyLines { get; set; }
 
     /// <summary>
-    ///   Gets or sets the skip rows.
+    ///   Gets or sets the values of rows that should be ignored in the beginning, e.G. for information not related  to the data
     /// </summary>
     /// <value>The skip rows.</value>
     int SkipRows { get; set; }

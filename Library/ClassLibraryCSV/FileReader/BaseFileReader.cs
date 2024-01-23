@@ -106,7 +106,7 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
-    /// <param name="destTimeZone">
+    /// <param name="returnedTimeZone">
     ///   Name of the time zone datetime values that have a source time zone should be converted to
     /// </param>
     /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
@@ -114,13 +114,13 @@ namespace CsvTools
     protected BaseFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
-      in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone,
+      in TimeZoneChangeDelegate? timeZoneAdjust,
+      in string returnedTimeZone,
       bool allowPercentage,
       bool removeCurrency)
     {
-      TimeZoneAdjust = timeZoneAdjust;
-      DestTimeZone = destTimeZone;
+      TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
+      DestTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
       m_ColumnDefinition = columnDefinition is null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;

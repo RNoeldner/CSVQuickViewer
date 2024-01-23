@@ -48,7 +48,7 @@ namespace CsvTools
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
-    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
+    /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
     /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
     /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
     public JsonFileReader(
@@ -59,10 +59,10 @@ namespace CsvTools
       in string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone,
+      string returnedTimeZone,
       bool allowPercentage,
       bool removeCurrency)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency) =>
       m_Stream = stream;
 
     /// <summary>
@@ -75,22 +75,22 @@ namespace CsvTools
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
-    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
+    /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
     /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
     /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="FileNotFoundException"></exception>
     public JsonFileReader(in string fileName,
-      in IEnumerable<Column>? columnDefinition,
-      long recordLimit,
-      bool trim,
-      string treatTextAsNull,
-      bool treatNbspAsSpace,
-      in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone,
-      bool allowPercentage,
-      bool removeCurrency)
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
+      in IEnumerable<Column>? columnDefinition = null,
+      long recordLimit = 0,
+      bool trim = false,
+      string treatTextAsNull = "null",
+      bool treatNbspAsSpace = false,
+      in TimeZoneChangeDelegate? timeZoneAdjust = null,
+      string returnedTimeZone = "",
+      bool allowPercentage = true,
+      bool removeCurrency = true)
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));

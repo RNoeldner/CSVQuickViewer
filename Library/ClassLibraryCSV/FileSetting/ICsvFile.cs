@@ -42,8 +42,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
-    ///   similar to escaping but could replace a Quote with something completely different or a
-    ///   longer text, e.G. {Delimiter}
+    ///   similar to escaping but could replace a delimiter with something completely different like an longer text, e.G. {Delimiter}
     /// </summary>
     /// <value>The new line placeholder.</value>
     string DelimiterPlaceholder { get; set; }

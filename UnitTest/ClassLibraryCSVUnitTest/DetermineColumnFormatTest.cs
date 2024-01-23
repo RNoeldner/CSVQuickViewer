@@ -136,7 +136,7 @@ namespace CsvTools.Tests
         '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
         "", true, false, false, true, true, false, true, true, true, true, false,
         treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-        identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, true, true))
+        identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
       {
         await reader.OpenAsync(CancellationToken.None);
         var (information, columns) = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,

@@ -161,34 +161,98 @@ namespace CsvTools
       bool tryToSolveMoreColumns, bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes,
       bool warnUnknownCharacter, bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull,
       bool skipEmptyLines, int consecutiveEmptyRowsMax, in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone, bool allowPercentage, bool removeCurrency)
+      in string returnedTimeZone, bool allowPercentage, bool removeCurrency)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
         contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
         delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace,
         tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
         warnEmptyTailingColumns, treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
-        string.Empty, string.Empty, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
+        string.Empty, string.Empty, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)
     {
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
-    /// <inheritdoc />
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="FileNotFoundException"></exception>
-    public CsvFileReader(in string fileName, int codePageId, int skipRows, bool hasFieldHeader,
-      in IEnumerable<Column>? columnDefinition,
-      in TrimmingOptionEnum trimmingOption,
-      char fieldDelimiterChar, char fieldQualifierChar, char escapeCharacterChar, long recordLimit,
-      bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine, int numWarning,
-      bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
-      in string quotePlaceholder,
-      bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
-      bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
-      bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull, bool skipEmptyLines,
-      int consecutiveEmptyRowsMax, in string identifierInContainer, in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone, bool allowPercentage, bool removeCurrency)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CsvFileReader"/> class.
+    /// </summary>
+    /// <param name="fileName">Path of the file.</param>
+    /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
+    /// <param name="skipRows">Number of rows that should be ignored in the beginning, e.G. for information not related  to the data</param>
+    /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read row</param>
+    /// <param name="columnDefinition">The column definition for value conversion.</param>
+    /// <param name="trimmingOption">How should leading/trailing spaces be trimmed?. Option based on information whether the text is quoted or not</param>
+    /// <param name="fieldDelimiterChar">The field delimiter character.</param>
+    /// <param name="fieldQualifierChar">The field qualifier character.</param>
+    /// <param name="escapeCharacterChar">The escape character an escaped chars is read as is, 2nd method to have quotes or delimiter in column.</param>
+    /// <param name="recordLimit">After the giving number of records stop reading</param>
+    /// <param name="allowRowCombining">if set to <c>true</c> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>
+    /// <param name="contextSensitiveQualifier">if set to <c>true</c> assume context sensitive qualifiers, context sensitive quoting looks at the surrounding character to determine if is a starting or ending quote.</param>
+    /// <param name="commentLine">Identifier for a comment line, a line starting with this text will be ignored.</param>
+    /// <param name="numWarning">Warning will stop after the given number, information losses its value if repeated over and over</param>
+    /// <param name="duplicateQualifierToEscape">if set to <c>true</c> a repeated qualifier are not ending the column but will be regarded as quote contained in the column.</param>
+    /// <param name="newLinePlaceholder">The new line placeholder, similar to escaping but does replace a the given longer test with linefeed  e.G. "[LIneFeed]" --> \n.</param>
+    /// <param name="delimiterPlaceholder">The delimiter placeholder, similar to escaping but does replace a the given longer test with the delimiter  e.G. "{Delim}" --> ","</param>
+    /// <param name="quotePlaceholder">The quote placeholder, similar to escaping but does replace the given longer test with the quote e.G. "{Quote}" --> "'"</param>
+    /// <param name="skipDuplicateHeader">if set to <c>true</c> doe not return a  row if the header is in the file multiple time, used when files where combined without removing the header.</param>
+    /// <param name="treatLfAsSpace">if set to <c>true</c> treat any found linefeed as regular space.</param>
+    /// <param name="treatUnknownCharacterAsSpace">if set to <c>true</c> treat the unknown character as space.</param>
+    /// <param name="tryToSolveMoreColumns">if set to <c>true</c> try and resolved additional columns, this happens when column content is not properly quoted.</param>
+    /// <param name="warnDelimiterInValue">if set to <c>true</c> raise a warning if the delimiter is part of a column.</param>
+    /// <param name="warnLineFeed">if set to <c>true</c> raise a warning if line feed is part of a column.</param>
+    /// <param name="warnNbsp">if set to <c>true</c> raise a warning if a non breaking space is part of a column.</param>
+    /// <param name="warnQuotes">if set to <c>true</c> raise a warning if the quoting is part of a column.</param>
+    /// <param name="warnUnknownCharacter">if set to <c>true</c> raise a warning if � is part of a column..</param>
+    /// <param name="warnEmptyTailingColumns">if set to <c>true</c> raise a warning if empty tailing columns are found.</param>
+    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat a NBSP as regular space.</param>
+    /// <param name="treatTextAsNull">The text to treat as null. c.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
+    /// <param name="skipEmptyLines">if set to <c>true</c> if empty lines should simply be skipped.</param>
+    /// <param name="consecutiveEmptyRowsMax">Number of consecutive empty rows where we should assume the file is at its end.</param>
+    /// <param name="identifierInContainer">The identifier in container, in case the file a container file like zip.</param>
+    /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "05/10/2017 17:00" & "UTC" --> 05/10/2017 17:00 in timezone specified by <see cref="returnedTimeZone"/> </param>
+    /// <param name="returnedTimeZone">The time zone input file should be converted to, only viable if you have a date / time column and timezone column in the source.</param>
+    /// <param name="allowPercentage">if set to <c>true</c> convert percentages to numeric values e.G. 17% -> 0.17.</param>
+    /// <param name="removeCurrency">if set to <c>true</c> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
+    /// <exception cref="System.ArgumentNullException">if fileName is not set</exception>
+    /// <exception cref="System.ArgumentException">File can not be empty - fileName</exception>
+    /// <exception cref="System.IO.FileNotFoundException">The file does not exist or is not accessible.</exception>
+    public CsvFileReader(in string fileName,
+                         int codePageId = 65001,
+                         int skipRows = 0,
+                         bool hasFieldHeader = true,
+                         in IEnumerable<Column>? columnDefinition = null,
+                         in TrimmingOptionEnum trimmingOption = TrimmingOptionEnum.Unquoted,
+                         char fieldDelimiterChar = ',',
+                         char fieldQualifierChar = '"',
+                         char escapeCharacterChar = '\0',
+                         long recordLimit = 0,
+                         bool allowRowCombining = false,
+                         bool contextSensitiveQualifier = false,
+                         in string commentLine = "#",
+                         int numWarning = 0,
+                         bool duplicateQualifierToEscape = true,
+                         in string newLinePlaceholder = "",
+                         in string delimiterPlaceholder = "",
+                         in string quotePlaceholder = "",
+                         bool skipDuplicateHeader = true,
+                         bool treatLfAsSpace = false,
+                         bool treatUnknownCharacterAsSpace = false,
+                         bool tryToSolveMoreColumns = false,
+                         bool warnDelimiterInValue = false,
+                         bool warnLineFeed = false,
+                         bool warnNbsp = false,
+                         bool warnQuotes = false,
+                         bool warnUnknownCharacter = false,
+                         bool warnEmptyTailingColumns = true,
+                         bool treatNbspAsSpace = false,
+                         in string treatTextAsNull = "null",
+                         bool skipEmptyLines = true,
+                         int consecutiveEmptyRowsMax = 5,
+                         in string identifierInContainer = "",
+                         in TimeZoneChangeDelegate? timeZoneAdjust = null,
+                         string returnedTimeZone = "",
+                         bool allowPercentage = true,
+                         bool removeCurrency = true)
       : this(
         columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiterChar, fieldQualifierChar, escapeCharacterChar, recordLimit, allowRowCombining,
@@ -197,7 +261,7 @@ namespace CsvTools
         tryToSolveMoreColumns,
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
         treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName,
-        timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
+        timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)
     {
       if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
@@ -242,7 +306,7 @@ namespace CsvTools
       int consecutiveEmptyRowsMax,
       in string identifierInContainer,
       in string fileName,
-      in TimeZoneChangeDelegate timeZoneAdjust,
+      in TimeZoneChangeDelegate? timeZoneAdjust,
       in string destTimeZone,
       bool allowPercentage,
       bool removeCurrency)

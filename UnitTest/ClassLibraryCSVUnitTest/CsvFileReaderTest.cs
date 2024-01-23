@@ -768,7 +768,7 @@ Line "Test"", "22",23,"  24"
           true,
           consecutiveEmptyRowsMax: 4,
           identifierInContainer: String.Empty,
-          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, true, true);
+          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true);
       }
       catch (ArgumentException)
       {
@@ -860,7 +860,7 @@ Line "Test"", "22",23,"  24"
                  skipEmptyLines: true,
                  consecutiveEmptyRowsMax: 4,
                  identifierInContainer: String.Empty,
-                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, true, true))
+                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
         {
         }
       }
@@ -1128,7 +1128,7 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
-        destTimeZone: TimeZoneInfo.Local.Id, true, true);
+        returnedTimeZone: TimeZoneInfo.Local.Id, true, true);
       Assert.IsFalse(test.NextResult());
       Assert.IsFalse(await test.NextResultAsync());
 
@@ -1220,7 +1220,7 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: String.Empty,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id, true, true);
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
