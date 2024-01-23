@@ -75,7 +75,7 @@ namespace CsvTools
     /// <param name="passPhrase">Known pass phrase for Zip or PGP file</param>
     /// <param name="keepEncrypted"></param>
     /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
-    /// <remarks>If it's a PGP file, but no key is given GetKeyAndPassphraseForFile is called to retrieve teh information</remarks>
+    /// <remarks>If it's a PGP file, but no key is given GetKeyAndPassphraseForFile is called to retrieve the information</remarks>
     public SourceAccess(in string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
