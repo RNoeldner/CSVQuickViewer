@@ -98,7 +98,7 @@ namespace CsvTools
     /// </exception>
     public ValueFormatMut(
       in DataTypeEnum dataType = DataTypeEnum.String,
-      in string dateFormat = "",
+      in string? dateFormat = null,
       in string? dateSeparator = null,
       in string? timeSeparator = null,
       in string? numberFormat = null,

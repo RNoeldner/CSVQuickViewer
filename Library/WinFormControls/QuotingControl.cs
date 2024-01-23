@@ -46,29 +46,29 @@ namespace CsvTools
       new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
 
     private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
-    private IContainer? components;
-    private FastColoredTextBox? m_FastColoredTextBox;
-    private FastColoredTextBox? m_FastColoredTextBox00;
-    private FastColoredTextBox? m_FastColoredTextBox01;
-    private FastColoredTextBox? m_FastColoredTextBox02;
-    private FastColoredTextBox? m_FastColoredTextBox10;
-    private FastColoredTextBox? m_FastColoredTextBox11;
-    private FastColoredTextBox? m_FastColoredTextBox12;
-    private Label? m_Label1;
-    private Label? m_Label2;
-    private Label? m_Label3;
-    private Label? m_Label4;
-    private Label? m_Label5;
+    private IContainer components;
+    private FastColoredTextBox m_FastColoredTextBox;
+    private FastColoredTextBox m_FastColoredTextBox00;
+    private FastColoredTextBox m_FastColoredTextBox01;
+    private FastColoredTextBox m_FastColoredTextBox02;
+    private FastColoredTextBox m_FastColoredTextBox10;
+    private FastColoredTextBox m_FastColoredTextBox11;
+    private FastColoredTextBox m_FastColoredTextBox12;
+    private Label m_Label1;
+    private Label m_Label2;
+    private Label m_Label3;
+    private Label m_Label4;
+    private Label m_Label5;
     private ICsvFile m_CsvFile;
 
     private ErrorProvider? m_ErrorProvider;
 
-    private BindingSource? m_CsvSettingBindingSource;
+    private BindingSource m_CsvSettingBindingSource;
 
     private bool m_IsDisposed;
 
     private bool m_IsWriteSetting;
-    private Label? m_Label6;
+    private Label m_Label6;
     private TableLayoutPanel m_TableLayoutPanelText;
     private TableLayoutPanel m_TableLayoutPanel;
     private RadioButton m_RadioButtonNeeded;
@@ -84,7 +84,7 @@ namespace CsvTools
     private TableLayoutPanel m_TableLayoutPanelColumns;
     private SplitContainer m_SplitContainer;
     private Timer m_TimerRebuilt;
-    private ToolTip? m_ToolTip;
+    private ToolTip m_ToolTip;
     private bool m_HasChanges;
 
     /// <summary>
@@ -262,7 +262,7 @@ namespace CsvTools
       // 
       this.m_RadioButtonNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_RadioButtonNeeded.AutoSize = true;
-      this.m_RadioButtonNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, "QualifyOnlyIfNeeded", true));
+      this.m_RadioButtonNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifyOnlyIfNeeded), true));
       this.m_RadioButtonNeeded.Location = new System.Drawing.Point(372, 3);
       this.m_RadioButtonNeeded.Name = "m_RadioButtonNeeded";
       this.m_RadioButtonNeeded.Size = new System.Drawing.Size(131, 17);
@@ -282,7 +282,7 @@ namespace CsvTools
       // 
       this.m_RadioButtonAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_RadioButtonAlways.AutoSize = true;
-      this.m_RadioButtonAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, "QualifyAlways", true));
+      this.m_RadioButtonAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifyAlways), true));
       this.m_RadioButtonAlways.Location = new System.Drawing.Point(372, 27);
       this.m_RadioButtonAlways.Name = "m_RadioButtonAlways";
       this.m_RadioButtonAlways.Size = new System.Drawing.Size(93, 17);
@@ -296,7 +296,7 @@ namespace CsvTools
       // m_ComboBoxTrim
       // 
       this.m_ComboBoxTrim.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.m_ComboBoxTrim.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.m_CsvSettingBindingSource, "TrimmingOption", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.m_ComboBoxTrim.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.m_CsvSettingBindingSource, nameof(ICsvFile.TrimmingOption), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.m_ComboBoxTrim.DisplayMember = "Display";
       this.m_ComboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxTrim.Location = new System.Drawing.Point(95, 50);
@@ -312,7 +312,7 @@ namespace CsvTools
       // 
       this.m_CheckBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_CheckBoxAlternateQuoting.AutoSize = true;
-      this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, "ContextSensitiveQualifier", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.ContextSensitiveQualifier), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(197, 3);
       this.m_CheckBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_CheckBoxAlternateQuoting.Name = "m_CheckBoxAlternateQuoting";
@@ -328,7 +328,7 @@ namespace CsvTools
       // 
       this.m_CheckBoxDuplicateQuotingToEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_CheckBoxDuplicateQuotingToEscape.AutoSize = true;
-      this.m_CheckBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, "DuplicateQualifierToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.m_CheckBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.DuplicateQualifierToEscape), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.m_CheckBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(196, 27);
       this.m_CheckBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(2);
       this.m_CheckBoxDuplicateQuotingToEscape.Name = "m_CheckBoxDuplicateQuotingToEscape";
@@ -348,7 +348,7 @@ namespace CsvTools
             "\'"});
       this.m_TextBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.m_TextBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.m_CsvSettingBindingSource, "FieldQualifierChar", true));
+      this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.m_CsvSettingBindingSource, nameof(ICsvFile.FieldQualifierChar), true));
       this.m_TextBoxQuote.Location = new System.Drawing.Point(95, 2);
       this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
@@ -364,7 +364,7 @@ namespace CsvTools
       // 
       this.m_TextBoxQuotePlaceHolder.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_CsvSettingBindingSource, "QualifierPlaceholder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifierPlaceholder), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(95, 26);
       this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
