@@ -123,7 +123,7 @@ namespace CsvTools
     /// <inheritdoc />
     public bool WriteFixedLength { get; set; }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IWithCopyTo{T}" />
     public bool Equals(ICsvFile? other) => ReferenceEquals(this, other);
 
     #region IFileSettingPhysicalFile

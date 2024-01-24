@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -108,7 +109,7 @@ namespace CsvTools
     }
 #endif
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IFileReader" />
     public override async Task OpenAsync(CancellationToken token)
     {
       HandleShowProgress($"Opening XML file {FileName}", 0);
@@ -161,7 +162,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IFileReader" />
     public override bool Read()
     {
       if (!EndOfFile)
@@ -179,7 +180,7 @@ namespace CsvTools
       return false;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="DbDataReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
       return cancellationToken.IsCancellationRequested ? false : Read();
@@ -207,29 +208,30 @@ namespace CsvTools
     private static IDictionary<string, string> ReadNode(XmlNode? check)
     {
       var columns = new Dictionary<string, string>();
-      if (check != null)
+      if (check == null) 
+        return columns;
+      if (check.ChildNodes.Count>0)
       {
-        if (check.ChildNodes.Count>0)
+        foreach (XmlNode attributes in check.ChildNodes)
         {
-          foreach (XmlNode attributes in check.ChildNodes)
-          {
-            if (attributes is null)
-              continue;
-            if (!columns.ContainsKey(attributes.Name))
-              columns.Add(attributes.Name, attributes.InnerText?? string.Empty);
-          }
-        }
-        if (check.Attributes != null)
-        {
-          foreach (XmlAttribute attributes in check.Attributes)
-          {
-            if (attributes is null)
-              continue;
-            if (!columns.ContainsKey($"_{attributes.Name}"))
-              columns.Add($"_{attributes.Name}", attributes.InnerText?? string.Empty);
-          }
+          if (attributes is null)
+            continue;
+          if (!columns.ContainsKey(attributes.Name))
+            columns.Add(attributes.Name, attributes.InnerText?? string.Empty);
         }
       }
+
+      if (check.Attributes == null) 
+        return columns;
+
+      foreach (XmlAttribute attributes in check.Attributes)
+      {
+        if (attributes is null)
+          continue;
+        if (!columns.ContainsKey($"_{attributes.Name}"))
+          columns.Add($"_{attributes.Name}", attributes.InnerText?? string.Empty);
+      }
+
       return columns;
     }
 
