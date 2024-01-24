@@ -585,7 +585,7 @@ CommentLine
           
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
           inspectionResult.FieldDelimiter = delimiterDet.Delimiter;
-          /// TODO: this looks odd
+          // TODO: this looks odd
           inspectionResult.NoDelimitedFile = delimiterDet.IsDetected;
         }
 
@@ -746,7 +746,7 @@ CommentLine
 
       if (inspectionResult.IsJson)
         return new JsonFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       if (inspectionResult.IsXml)
         return new XmlFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
@@ -754,7 +754,7 @@ CommentLine
 
       return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
         skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
-        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, fieldDelimiterChar: inspectionResult.FieldDelimiter,
+        inspectionResult.HasFieldHeader, inspectionResult.Columns, fieldDelimiterChar: inspectionResult.FieldDelimiter,
         fieldQualifierChar: inspectionResult.FieldQualifier, escapeCharacterChar: inspectionResult.EscapePrefix, recordLimit: 0L, allowRowCombining: false,
         contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier, commentLine: inspectionResult.CommentLine, numWarning: 0,
         duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape, newLinePlaceholder: string.Empty, delimiterPlaceholder: string.Empty,

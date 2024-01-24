@@ -23,8 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  [DebuggerDisplay("Count = {Count}")]
-  [DefaultMember("Item")]
+
   /// <summary>
   /// A bidirectional dictionary that maps keys to values and values to keys for fast lookups in both directions.
   /// Inherits from <see cref="Dictionary{TKey, TValue}" /> and adds reverse lookups.
@@ -33,6 +32,8 @@ namespace CsvTools
   /// <typeparam name="TKey"></typeparam>
   /// <typeparam name="TValue"></typeparam>
   /// <remarks>Adding or Removing is not thread safe</remarks>
+  [DebuggerDisplay("Count = {Count}")]
+  [DefaultMember("Item")]
   public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     where TKey : notnull where TValue : notnull
   {
@@ -125,7 +126,6 @@ namespace CsvTools
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
-      /// This should not go wrong, check keys in both dictionary before
       base.Add(key, value);
       m_SecondToFirst.Add(value, key);
       return true;

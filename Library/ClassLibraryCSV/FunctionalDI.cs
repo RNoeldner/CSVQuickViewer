@@ -51,6 +51,6 @@ namespace CsvTools
     /// <summary>
     /// IFileReaderWriterFactory for GetFileReader and GetFileWriter
     /// </summary>
-    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; } = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));
+    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; } = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings());
   }
 }

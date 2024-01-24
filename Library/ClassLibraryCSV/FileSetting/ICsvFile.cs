@@ -22,7 +22,7 @@ namespace CsvTools
   public interface ICsvFile : IFileSettingPhysicalFile
   {
     /// <summary>
-    ///   Gets or sets a value indicating whether rows should combined if there are fewer columns.
+    ///   Gets or sets a value indicating whether rows should combine if there are fewer columns.
     /// </summary>
     /// <value>
     ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
