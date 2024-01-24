@@ -23,13 +23,25 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
   [DebuggerDisplay("Count = {Count}")]
   [DefaultMember("Item")]
-  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+  /// <summary>
+  /// A bidirectional dictionary that maps keys to values and values to keys for fast lookups in both directions.
+  /// Inherits from <see cref="Dictionary{TKey, TValue}" /> and adds reverse lookups.
+  /// The keys and values cannot be null. Keys and Values are unique.
+  /// </summary>
+  /// <typeparam name="TKey"></typeparam>
+  /// <typeparam name="TValue"></typeparam>
+  /// <remarks>Adding or Removing is not thread safe</remarks>
+  public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     where TKey : notnull where TValue : notnull
   {
-    private readonly IDictionary<TValue, TKey> m_SecondToFirst;
+
+
+    /// <summary>
+    /// Dictionary mapping values to keys for fast lookups of keys from values.
+    /// </summary>
+    private readonly Dictionary<TValue, TKey> m_SecondToFirst;
 
     /// <inheritdoc />
     /// <summary>
@@ -63,6 +75,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="Dictionary{TKey,TValue}" />
+    /// <remarks>This is not thread safe</remarks>
     public void Add(in TKey key, in TValue value)
     {
       if (ContainsKey(key))
@@ -89,11 +102,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Find the TFirst corresponding to the Second value. Throws an exception if value is not in
-    ///   the dictionary.
+    ///   Reverse lookup. Throws an exception if value is not found
     /// </summary>
-    /// <param name="value">the key to search for</param>
-    /// <returns>the value corresponding to value</returns>
+    /// <param name="value">the value to search for</param>
+    /// <returns>The key corresponding to value</returns>
     public TKey GetByValue(in TValue value)
     {
       if (!m_SecondToFirst.TryGetValue(value, out var key))
@@ -103,23 +115,24 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Tries to add the pair to the dictionary. Returns false if either element is already in the dictionary
+    ///   Tries to add the pair to the dictionary. Returns false if element is already in the dictionary
     /// </summary>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
+    /// <param name="key">The key value</param>
+    /// <param name="value">The value</param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
+    /// <remarks>This is not thread safe</remarks>
     public bool TryAdd(in TKey key, in TValue value)
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
-
+      /// This should not go wrong, check keys in both dictionary before
       base.Add(key, value);
       m_SecondToFirst.Add(value, key);
       return true;
     }
 
     /// <summary>
-    ///   Find the TFirst corresponding to the TSecond value. Returns false if value is not in the dictionary.
+    ///   Reverse lookup. Returns false if value is not found.
     /// </summary>
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
