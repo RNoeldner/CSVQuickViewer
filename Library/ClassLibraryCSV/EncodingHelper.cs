@@ -13,7 +13,6 @@
  */
 #nullable enable
 
-using CsvTools;
 using System.Text;
 using UtfUnknown;
 
@@ -224,7 +223,7 @@ namespace CsvTools
       if (results.Detected.Confidence > 0.56)
         return results.Detected.Encoding;
 
-      Logger.Warning($"Confidence for detected charset {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
+      Logger.Warning($"Confidence for detected character set {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
       foreach (var res in results.Details)
       {
         if (res.Confidence>0.5 && res.Encoding.Equals(Encoding.UTF32))

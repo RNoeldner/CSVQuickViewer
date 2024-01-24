@@ -19,13 +19,17 @@ using System.Globalization;
 
 namespace CsvTools
 {
+
   /// <summary>
-  /// Static class with information on DateTime Formats
+  ///  Provides constants for common date and time formats.
+  /// Includes a static FirstDateTime property, CommonDateTimeFormats method,
+  /// and CommonTimeFormats method to retrieve standardized formats.
+  /// The class is static to allow easy access to these constants.
   /// </summary>
   public static class DateTimeConstants
   {
     /// <summary>
-    ///   A static value any time only value will have this date
+    ///   A static value any time only value will have this date, property initialized to 12/30/1899.
     /// </summary>
     public static DateTime FirstDateTime { get; }
     private static readonly HashSet<string> m_CommonDateTimeFormats;

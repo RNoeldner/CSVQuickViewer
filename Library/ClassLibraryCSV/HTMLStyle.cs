@@ -176,7 +176,8 @@ namespace CsvTools
     /// <param name="template">The template.</param>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    public static string AddTd(string? template, params object?[]? contents)
+    public static string AddTd(string? template,
+                               params object?[]? contents)
     {
       if (template is null || contents is null || template.Length == 0)
         return string.Empty;
@@ -316,7 +317,11 @@ namespace CsvTools
 
       return allowed;
     }
-
+/// <summary>
+/// Get a valid HTML document string builder that stats with common HTML tags
+/// </summary>
+/// <param name="hexColor">Background color in hex</param>
+/// <returns></returns>
     public StringBuilder StartHtmlDoc(string hexColor = "")
     {
       var text = new StringBuilder(500);

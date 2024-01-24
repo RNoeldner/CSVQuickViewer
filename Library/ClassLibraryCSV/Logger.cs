@@ -24,12 +24,20 @@ namespace CsvTools
   /// </summary>
   public static class Logger
   {
+    /// <summary>
+    /// Gets or sets the logger instance.
+    /// </summary>
     public static ILogger? LoggerInstance
     {
       get;
       set;
     }
 
+    /// <summary>
+    /// Logs a debug level message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="args">The arguments.</param>
     public static void Debug(in string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
@@ -37,6 +45,11 @@ namespace CsvTools
       LoggerInstance?.LogDebug(message, args);
     }
 
+    /// <summary>
+    /// Logs a error level message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Error(in string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
@@ -44,9 +57,17 @@ namespace CsvTools
       LoggerInstance?.LogError(message, args);
     }
 
+
+    /// <summary>Logs a error level message.</summary>
+    /// <param name="exception">Exception that need to be documented</param>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Error(in Exception exception, in string? message = null, params object[] args) =>
       LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
 
+    /// <summary>Logs a information level message.</summary>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Information(in string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
@@ -54,6 +75,10 @@ namespace CsvTools
       LoggerInstance?.LogInformation(message, args);
     }
 
+    /// <summary>Logs a information level message.</summary>
+    /// <param name="exception">Exception that need to be documented</param>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Information(in Exception exception, in string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
@@ -61,6 +86,9 @@ namespace CsvTools
       LoggerInstance?.LogInformation(exception, message, args);
     }
 
+    /// <summary>Logs a warning level message.</summary>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Warning(in string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
@@ -68,6 +96,10 @@ namespace CsvTools
       LoggerInstance?.LogWarning(message, args);
     }
 
+    /// <summary>Logs a warning level message.</summary>
+    /// <param name="exception">Exception that need to be documented</param>
+    /// <param name="message">The message.</param>
+    /// <param name="args">Message arguments.</param>
     public static void Warning(in Exception exception, in string? message, params object[] args) =>
       LoggerInstance?.LogWarning(exception.Demystify(), message ?? string.Empty, args);
   }

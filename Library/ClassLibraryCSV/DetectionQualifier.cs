@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -24,7 +37,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>
-    ///   Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
+    ///   Any line feed or carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
     ///   single quote, an \ escaped quote will be ignored
     /// </remarks>
     public static QuoteTestResult InspectQualifier(

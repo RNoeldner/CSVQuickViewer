@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -5,12 +18,12 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  /// Static class with methods for StartRow Detection
+  /// Static class with methods for StartRow Detection, analyzes the structure to find where regular data rows begin
   /// </summary>
   public static class DetectionStartRow
   {
     /// <summary>
-    ///   Guess the start row of a CSV file done with a rather simple csv parsing
+    ///   Guess the start row of a CSV file done with a rather simple csv parsing, excluding any header rows or commented rows.
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="fieldDelimiterChar">The delimiter.</param>

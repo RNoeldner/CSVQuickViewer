@@ -20,10 +20,17 @@ using System.Dynamic;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Represents a dynamic data record
+  /// </summary>
   public class DynamicDataRecord : DynamicObject
   {
     private readonly Dictionary<string, object> m_Properties;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DynamicDataRecord"/> class.
+    /// </summary>
+    /// <param name="dataRecord">The data record.</param>
     public DynamicDataRecord(in IDataRecord dataRecord)
     {
       m_Properties = new Dictionary<string, object>(dataRecord.FieldCount);
@@ -31,10 +38,13 @@ namespace CsvTools
         m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
     }
 
+
+    /// <inheritdoc/>
     public override bool TryGetMember(GetMemberBinder binder, out object? result) =>
       m_Properties.TryGetValue(binder.Name, out result);
 
 
+    /// <inheritdoc/>
     public override bool TrySetMember(SetMemberBinder binder, object? value)
     {
       try
