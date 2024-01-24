@@ -17,7 +17,9 @@ using System.Collections.Generic;
 namespace CsvTools
 {
   /// <summary>
-  ///   Collection of column errors for one row
+  ///    ColumnErrorDictionary is class to store errors for columns when reading files.
+  ///    It associates column numbers with error messages. It can optionally be constructed with an IFileReader to initialize ignored columns.
+  ///    It has methods to add errors for columns, join all errors into a string, and properties to expose the joined error string and ignored columns.
   /// </summary>
   public sealed class ColumnErrorDictionary : Dictionary<int, string>
   {
