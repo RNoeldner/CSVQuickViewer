@@ -11,7 +11,9 @@ namespace CsvTools
   public static class CheckTexts
   {
     /// <summary>
-    ///   Checks if the values are dates.
+    ///   Taking a collection of text values, tries parsing them as dates in the provided format, 
+    ///   and returns information on which succeeded or failed to help the caller determine if 
+    ///   the texts likely contain dates in that format.
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="shortDateFormat">The short date format.</param>
@@ -20,13 +22,9 @@ namespace CsvTools
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A CheckResult with information on what was found and what did not match</returns>
-    public static CheckResult CheckDate(
-      this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-      ReadOnlySpan<char> shortDateFormat,
-      char dateSeparator,
-      char timeSeparator,
-      in CultureInfo culture,
-      CancellationToken cancellationToken)
+    public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
+                                        ReadOnlySpan<char> shortDateFormat, char dateSeparator, char timeSeparator,
+                                        in CultureInfo culture, CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -79,15 +77,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the values are GUIDs
+    ///   Checks if the samples values are GUIDs
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
-    public static bool CheckGuid(
-      this IEnumerable<ReadOnlyMemory<char>> samples,
-      CancellationToken cancellationToken)
+    public static bool CheckGuid(this IEnumerable<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
     {
       var isEmpty = true;
       foreach (var value in samples)
@@ -105,7 +101,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the values are numbers
+    ///   Checks if the sample values are numbers (integer or numeric)
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="decimalSeparator">The decimal separator.</param>
@@ -116,14 +112,9 @@ namespace CsvTools
     /// <param name="removeCurrencySymbols">if set to <c>true</c> common currency symbols are removed.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A CheckResult with information on what was found and what did not match</returns>
-    public static CheckResult CheckNumber(
-      this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-      char decimalSeparator,
-      char thousandSeparator,
-      bool allowPercentage,
-      bool allowStartingZero,
-      bool removeCurrencySymbols,
-      CancellationToken cancellationToken)
+    public static CheckResult CheckNumber(this IReadOnlyCollection<ReadOnlyMemory<char>> samples, char decimalSeparator,
+                                          char thousandSeparator, bool allowPercentage, bool allowStartingZero,
+                                          bool removeCurrencySymbols, CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -138,7 +129,7 @@ namespace CsvTools
 
         var ret = value.Span.StringToDecimal(decimalSeparator, thousandSeparator, allowPercentage,
           removeCurrencySymbols);
-        // Any number with leading 0 should not be treated as numeric this is to avoid problems with
+        // Any number with leading 0 should NOT be treated as numeric this is to avoid problems with
         // 0002 etc.
         if (!ret.HasValue || (!allowStartingZero && value.Span.StartsWith("0".AsSpan(), StringComparison.Ordinal)
                                                  && Math.Floor(ret.Value) != 0))
@@ -176,7 +167,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the values are times or serial dates
+    ///   Checks if the samples values are dates, times or serial dates
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="isCloseToNow">
@@ -186,10 +177,8 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckSerialDate(
-      this IEnumerable<ReadOnlyMemory<char>> samples,
-      bool isCloseToNow,
-      CancellationToken cancellationToken)
+    public static CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow,
+                                              CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
 
@@ -242,17 +231,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
-    /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="DataTypeEnum.TextToHtml" /> is to be assumed the text has HTML encoding <see
     ///   cref="DataTypeEnum.TextUnescape" /> is to be assumed the text has C encoding otherwise
     ///   <see cref="DataTypeEnum.String" />
     /// </returns>
-    internal static DataTypeEnum CheckUnescaped(
-      this IEnumerable<ReadOnlyMemory<char>> samples,
-      int minRequiredSamples,
-      CancellationToken cancellationToken)
+    internal static DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples,
+                                                CancellationToken cancellationToken)
     {
       var foundUnescaped = 0;
       var foundHtml = 0;
