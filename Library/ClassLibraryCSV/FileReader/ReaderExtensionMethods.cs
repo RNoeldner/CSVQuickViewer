@@ -93,7 +93,7 @@ namespace CsvTools
         csv.WarnEmptyTailingColumns= false;
       }
 
-      var reader = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true)).GetFileReader(fileSettingCopy, cancellationToken);
+      var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
       await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return reader;
     }
