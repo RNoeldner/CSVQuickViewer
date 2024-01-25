@@ -21,11 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-
-#if !QUICK
-using System.Text;
-#endif
-
 namespace CsvTools
 {
   /// <summary>
@@ -84,8 +79,8 @@ namespace CsvTools
       // that might contain headers, but it's simply set as without headers.
       if (fileSettingCopy is ICsvFile csv)
       {
-        // if we do noz have a header still inore teh first row, it could be a header that was just not marked
-        // asdownside is that this does not work with a file hat only has 1 row...
+        // if we do not have a header still ignore the first row, it could be a header that was just not marked
+        // Downside is that this does not work with a file hat only has 1 row...
         if (!csv.HasFieldHeader)
           csv.SkipRows++;
         // turn off all warnings as they will cause GetSampleValues to ignore the row        

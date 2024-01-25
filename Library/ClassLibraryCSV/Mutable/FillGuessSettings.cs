@@ -86,7 +86,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Allowing currency symbols to be part of teh input, storing only the values
+    /// Allowing currency symbols to be part of the input, storing only the values
     /// </summary>
     [DefaultValue(true)]
     public bool RemoveCurrencySymbols

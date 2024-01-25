@@ -1045,8 +1045,6 @@ namespace CsvTools
       public IReadOnlyCollection<ReadOnlyMemory<char>> Values { get; }
     }
 
-#if !QUICK
-
     /// <summary>
     ///   Fills the ColumnCollection for reader fileSettings
     /// </summary>
@@ -1090,7 +1088,5 @@ namespace CsvTools
         fileSetting.TreatTextAsNull,
         cancellationToken).ConfigureAwait(false);
     }
-#endif
-
   }
 }
