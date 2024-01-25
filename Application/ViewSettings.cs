@@ -22,10 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
-  public sealed class ViewSettings : ObservableObject
-#if !QUICK
-    , IFontConfig
-#endif
+  public sealed class ViewSettings : ObservableObject, IFontConfig
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
@@ -44,11 +41,9 @@ namespace CsvTools
     private bool m_WarnNbsp = true;
     private bool m_WarnQuotes = true;
     private bool m_WarnUnknownCharacter = true;
-#if !QUICK
     // ReSharper disable once StringLiteralTypo
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
-#endif
     private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
@@ -91,7 +86,6 @@ namespace CsvTools
       set;
     } = ".";
 
-#if !QUICK
     // ReSharper disable once StringLiteralTypo
     [DefaultValue("Tahoma")]
     public string Font
@@ -106,7 +100,6 @@ namespace CsvTools
       get => m_FontSize;
       set => SetProperty(ref m_FontSize, value);
     }
-#endif
 
     public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
 
@@ -138,10 +131,8 @@ namespace CsvTools
       set => SetProperty(ref m_DetectFileChanges, value);
     }
 
-#if !QUICK
     [JsonIgnore]
     public ICsvFile WriteSetting { get; } = new CsvFileDummy();
-#endif
 
     [JsonIgnore]
     public TimeSpan DurationTimeSpan
@@ -308,7 +299,6 @@ namespace CsvTools
       set => SetProperty(ref m_ShowButtonAtLength, value);
     }
 
-#if !QUICK
     public void DeriveWriteSetting(IFileSetting fileSetting)
     {
       if (fileSetting is IFileSettingPhysicalFile phyS)
@@ -366,6 +356,5 @@ namespace CsvTools
       fileSetting.DisplayStartLineNo = DisplayStartLineNo;
       fileSetting.DisplayRecordNo = DisplayRecordNo;
     }
-#endif
   }
 }

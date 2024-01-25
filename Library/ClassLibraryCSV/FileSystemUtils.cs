@@ -22,13 +22,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if !QUICK
 using System.Collections.Generic;
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 // ReSharper disable ReplaceSubstringWithRangeIndexer
-#endif
 
 
 namespace CsvTools
@@ -55,7 +53,6 @@ namespace CsvTools
     public static string FullPath(this string? fileName, in string? root) =>
       ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
-#if !QUICK
     /// <summary>
     /// Creates a directory if it does not exist
     /// </summary>
@@ -111,9 +108,9 @@ namespace CsvTools
         Logger.Information(ex, "DeleteWithBackup {fileName}", fileName);
       }
     }
-#endif    
+  
     /// <summary>
-    /// Check if an directory exists.
+    /// Check if a directory exists.
     /// </summary>
     /// <param name="directoryName">Name of the directory.</param>    
     public static bool DirectoryExists(in string? directoryName) =>
@@ -133,8 +130,6 @@ namespace CsvTools
         ? Directory.GetCurrentDirectory()
         : Path.GetDirectoryName(directory.LongPathPrefix()))!;
     }
-
-#if !QUICK    
 
     /// <summary>
     /// Copy the content from one stream to another
@@ -216,7 +211,6 @@ namespace CsvTools
       await StreamCopy(fromStream, toStream, progress, cancellationToken).ConfigureAwait(false);
     }
 
-#endif
     /// <summary>
     ///   Deletes a file if it exists.
     /// </summary>
@@ -230,7 +224,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Checks if a file the exist
+    /// Checks if a file exists
     /// </summary>
     /// <param name="fileName">Name of the file.</param>    
     public static bool FileExists(in string? fileName) =>
@@ -439,7 +433,7 @@ namespace CsvTools
 
       return ret;
     }
-#if !QUICK
+
     /// <summary>
     ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case
     ///   the input was a directory already
@@ -591,7 +585,6 @@ namespace CsvTools
     public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
-#endif    
 
     /// <summary>
     /// Gets the full path of a file, taking case of Prefixes
