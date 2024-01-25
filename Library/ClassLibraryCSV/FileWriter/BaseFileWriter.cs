@@ -27,7 +27,7 @@ namespace CsvTools
   /// <summary>
   ///   Base class with methods used by all <see cref="IFileWriter" />.
   /// </summary>
-  public abstract class BaseFileWriter
+  public abstract class BaseFileWriter : IFileWriter
   {
     /// <summary>The column definition</summary>
     protected readonly IReadOnlyCollection<Column> ColumnDefinition;
@@ -428,7 +428,6 @@ namespace CsvTools
         if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
           displayAs = convertedValue switch
           {
             long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
@@ -440,7 +439,6 @@ namespace CsvTools
             DateTime aDTm => aDTm.DateTimeToString(columnInfo.ValueFormat),
             _ => convertedValue.ToString()
           };
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
       }
       catch (Exception ex)
       {

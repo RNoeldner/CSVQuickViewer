@@ -29,14 +29,13 @@ namespace CsvTools
   /// <summary>
   ///   Json text file reader
   /// </summary>
-  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReader
+  public sealed class JsonFileReader : BaseFileReaderTyped
   {
     private Stream? m_Stream;
 
     private JsonTextReader? m_JsonTextReader;
 
     private StreamReader? m_StreamReader;
-
 
     /// <summary>
     /// Constructor for Json Reader
@@ -121,7 +120,9 @@ namespace CsvTools
     /// <inheritdoc />
     public new void Dispose() => Dispose(true);
 
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <inheritdoc/>
     public new async ValueTask DisposeAsync()
     {
       if (m_Stream != null)

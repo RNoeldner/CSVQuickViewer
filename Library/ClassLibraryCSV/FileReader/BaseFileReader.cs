@@ -32,7 +32,7 @@ namespace CsvTools
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
-  public abstract class BaseFileReader : DbDataReader
+  public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     /// <summary>
     ///   The maximum value
@@ -47,7 +47,7 @@ namespace CsvTools
     /// <summary>
     /// The time zone to convert the read data to, assuming the source time zone is part of the data
     /// </summary>
-    protected readonly string DestTimeZone;
+    protected readonly string ReturnedTimeZone;
 
     /// <summary>
     /// The routine used for time zone adjustment
@@ -120,7 +120,7 @@ namespace CsvTools
       bool removeCurrency)
     {
       TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
-      DestTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
+      ReturnedTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
       m_ColumnDefinition = columnDefinition is null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
@@ -1177,7 +1177,7 @@ namespace CsvTools
           m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
         timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
 
-      return TimeZoneAdjust(input, timeZone, DestTimeZone,
+      return TimeZoneAdjust(input, timeZone, ReturnedTimeZone,
         message => HandleWarning(column.ColumnOrdinal, message));
     }
 
