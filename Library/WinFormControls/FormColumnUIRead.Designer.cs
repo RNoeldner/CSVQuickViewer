@@ -15,7 +15,6 @@ namespace CsvTools
     {      
       if (disposing)
       {
-        m_DisposedValue = true;
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
       }
