@@ -43,9 +43,8 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly ColumnMut m_ColumnEdit;
-    private readonly IFileSetting m_FileSetting;    
+    private readonly IFileSetting m_FileSetting;
     private readonly FillGuessSettings m_FillGuessSettings;
-    private bool m_DisposedValue;
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
@@ -98,8 +97,8 @@ namespace CsvTools
       toolTip.SetToolTip(
         comboBoxTimeZone,
         showWriteNull
-          ? "Converting the time in the local time zone of you system to the time zone in this column or a constant value"
-          : "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system");
+          ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
+          : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
     }
 
     private void AddDateFormat(string format)
