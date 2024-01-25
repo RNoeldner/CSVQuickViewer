@@ -59,7 +59,7 @@ namespace CsvTools
       if (columnInfo.ValueFormat.DataType == DataTypeEnum.String && string.IsNullOrEmpty(input?.ToString()))
         return m_EmptyAsNull ? JsonConvert.Null : "\"\"";
 
-      var typedValue = ValueConversion(reader, input, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
+      var typedValue = ValueConversion(input, columnInfo, reader, TimeZoneAdjust, SourceTimeZone, HandleWarning);
 
       // special handling of null
       if (m_EmptyAsNull && (typedValue is null  || typedValue == DBNull.Value))

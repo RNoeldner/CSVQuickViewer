@@ -349,23 +349,23 @@ namespace CsvTools
     /// <summary>
     ///   Value conversion of a FileWriter
     /// </summary>
-    /// <param name="dataRecord">
-    ///   Data Reader / Data Records in case additional columns are needed e.G. for TimeZone
-    ///   adjustment based off ColumnOrdinalTimeZone or handling placeholders
-    /// </param>
     /// <param name="dataObject">The actual data of the column</param>
     /// <param name="columnInfo">Information on ValueConversion</param>
+    /// <param name="dataRecord">
+    ///   Data Record in case additional columns are needed e.G. for TimeZone
+    ///   adjustment based off ColumnOrdinalTimeZone or handling placeholders
+    /// </param>
     /// <param name="timeZoneAdjust">Class that does provide means to convert between timezones</param>
     /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
     /// <param name="handleWarning">Method to pass on warnings</param>
-    /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
-    public static object ValueConversion(in IDataRecord? dataRecord, in object? dataObject, WriterColumn columnInfo,
-      in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
+    /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
+    /// <remarks>It can only be DBNull, long, bool, double, decimal, DateTime, Guid  or string</remarks>
+    public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
+      in TimeZoneChangeDelegate timeZoneAdjust, in string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return DBNull.Value;
 
-      // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
       switch (columnInfo.ValueFormat.DataType)
       {
         case DataTypeEnum.Integer:
@@ -382,8 +382,8 @@ namespace CsvTools
 
         case DataTypeEnum.DateTime:
           var dtm = Convert.ToDateTime(dataObject);
-          if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-            return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.ConstantTimeZone,
+          if (columnInfo.OutputTimeZone.Length > 0)
+            return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.OutputTimeZone,
               msg => handleWarning?.Invoke(columnInfo.Name, msg));
 
           if (dataRecord is null || columnInfo.ColumnOrdinalTimeZone <= -1)
@@ -403,8 +403,7 @@ namespace CsvTools
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
 
         default:
-          return columnInfo.ColumnFormatter.Write(dataObject, dataRecord,
-              msg => handleWarning?.Invoke(columnInfo.Name, msg));
+          return columnInfo.ColumnFormatter.Write(dataObject, dataRecord, msg => handleWarning?.Invoke(columnInfo.Name, msg));
       }
     }
 
@@ -424,20 +423,18 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(dataRecord, dataObject, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
+        var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, SourceTimeZone, HandleWarning);
         if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else
           displayAs = convertedValue switch
           {
-            long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-              ',',
-              columnInfo.ValueFormat.GroupSeparator),
+            long aLong => StringConversion.LongToString(aLong, columnInfo.ValueFormat),
             bool aBol => aBol ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
             double aDbl => StringConversion.DoubleToString(aDbl, columnInfo.ValueFormat),
             decimal aDec => StringConversion.DecimalToString(aDec, columnInfo.ValueFormat),
             DateTime aDTm => aDTm.DateTimeToString(columnInfo.ValueFormat),
-            _ => convertedValue.ToString()
+            _ => convertedValue?.ToString() ?? string.Empty
           };
       }
       catch (Exception ex)

@@ -610,13 +610,7 @@ namespace CsvTools
 
     /// <summary>
     /// Replaces characters, if the replacement is \0 the character will be removed
-    /// </summary>
-    /// <param name="inputValue"></param>
-    /// <param name="old1"></param>
-    /// <param name="new1"></param>
-    /// <param name="old2"></param>
-    /// <param name="new2"></param>
-    /// <returns></returns>
+    /// </summary>    
     public static string ReplaceDefaults(this string inputValue, in char old1, in char new1, in char old2,
       in char new2)
     {
