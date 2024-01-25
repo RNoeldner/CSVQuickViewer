@@ -38,11 +38,14 @@ namespace CsvTools
     ///   but should not be regarded
     /// </summary>
     /// <param name="reader">A file reader or any data reader</param>
-    /// <returns></returns>
+    /// <returns>A List of all column, be aware that the format in ValueFormat of might be wrong, if is passed in as IDataReader</returns>
     public static IEnumerable<Column> GetColumnsOfReader(this IDataReader reader)
     {
-      if (reader is null) throw new ArgumentNullException(nameof(reader));
+      if (reader is null) 
+        throw new ArgumentNullException(nameof(reader));
+      
       var retList = new List<Column>();
+      // IFile Reader, supports Ignore
       if (reader is IFileReader fileReader)
       {
         for (var col = 0; col < reader.FieldCount; col++)
@@ -53,6 +56,7 @@ namespace CsvTools
         }
       }
       else
+      // IData Reader, any column
       {
         for (var col = 0; col < reader.FieldCount; col++)
         {
@@ -62,7 +66,6 @@ namespace CsvTools
       return retList;
     }
 
-#if !QUICK
     /// <summary>
     /// Gets a reader for a source that reads everything as text columns, 
     /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
@@ -72,18 +75,20 @@ namespace CsvTools
     /// <returns>The IFileReader to read the data as text</returns>   
     /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
     public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source, CancellationToken cancellationToken)
-    {
+    {      
       var fileSettingCopy = (IFileSetting) source.Clone();
+      // No column should be type converted 
       fileSettingCopy.ColumnCollection.Clear();
 
       // Make sure that if we do have a CSV file without header that we will skip the first row
       // that might contain headers, but it's simply set as without headers.
       if (fileSettingCopy is ICsvFile csv)
       {
+        // if we do noz have a header still inore teh first row, it could be a header that was just not marked
+        // asdownside is that this does not work with a file hat only has 1 row...
         if (!csv.HasFieldHeader)
           csv.SkipRows++;
-        // turn off all warnings as they will cause GetSampleValues to ignore the row
-        csv.TryToSolveMoreColumns = false;
+        // turn off all warnings as they will cause GetSampleValues to ignore the row        
         csv.WarnDelimiterInValue = false;
         csv.WarnLineFeed = false;
         csv.WarnQuotes = false;
@@ -91,6 +96,10 @@ namespace CsvTools
         csv.WarnNBSP = false;
         csv.WarnQuotesInQuotes = false;
         csv.WarnEmptyTailingColumns= false;
+
+        // Adjusting columns in row only works well if columns are typed
+        csv.AllowRowCombining = false;  
+        csv.TryToSolveMoreColumns = false;
       }
 
       var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
@@ -147,24 +156,12 @@ namespace CsvTools
     /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// 
-    /// <returns>A Data Table with all records from the reader</returns>
-    /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
-    public static async Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
+    /// <returns>A Data Table with all records from the reader</returns>    
+    public static  Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
       bool startLine, bool endLine, bool recNum, bool errorField, IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
-    {
-      if (reader is DataTableWrapper dtw)
-        return dtw.DataTable;
+    =>  new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress, cancellationToken);
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-      using var wrapper = new DataReaderWrapper(reader, startLine, endLine, recNum, errorField);
-
-      return await wrapper.GetDataTableAsync(maxDuration, progress, cancellationToken).ConfigureAwait(false);
-    }
-
-#endif
 
     /// <summary>
     /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors

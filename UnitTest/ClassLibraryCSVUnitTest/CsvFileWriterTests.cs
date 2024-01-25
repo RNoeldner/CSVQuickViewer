@@ -111,8 +111,8 @@ namespace CsvTools.Tests
         string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
 
 
-      using var sqlReader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100));
-      var res = await writer.WriteAsync(sqlReader, UnitTestStatic.Token);
+      using var reader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100));
+      var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       Assert.AreEqual(100, res);
     }

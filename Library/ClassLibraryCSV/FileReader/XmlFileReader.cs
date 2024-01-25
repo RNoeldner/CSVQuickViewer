@@ -101,6 +101,7 @@ namespace CsvTools
     public new void Dispose() => Dispose(true);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <inheritdoc />
     public new async ValueTask DisposeAsync()
     {
       if (m_Stream != null)
@@ -181,11 +182,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="DbDataReader" />
-    public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
-    {
-      return cancellationToken.IsCancellationRequested ? false : Read();
-    }
-
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
+      Task.FromResult(!cancellationToken.IsCancellationRequested && Read());
+    
     /// <inheritdoc />
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
