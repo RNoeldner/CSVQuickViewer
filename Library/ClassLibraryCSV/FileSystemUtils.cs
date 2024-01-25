@@ -250,6 +250,7 @@ namespace CsvTools
         basePath = ".";
       try
       {
+        fileName = Environment.ExpandEnvironmentVariables(fileName);
         if (Path.IsPathRooted(fileName))
           return fileName;
 
@@ -335,7 +336,7 @@ namespace CsvTools
         return test;
 
       if (m_IsWindows)
-      {
+      {        
         test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%");
         if (test.Length>0)
           return test;
@@ -350,7 +351,7 @@ namespace CsvTools
       }
 
       var otherDir = Path.GetFullPath(fileName);
-
+      //TODO: this looks odd, try to send in filename with "%UserProfile%"
       var folder = GetRelativeFolder(otherDir, basePath);
       return folder.Substring(0, folder.Length - 1);
     }
