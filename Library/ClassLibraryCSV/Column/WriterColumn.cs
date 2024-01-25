@@ -27,7 +27,7 @@ namespace CsvTools
       : base(name, valueFormat, colNum)
     {
       FieldLength = fieldLength;
-      ConstantTimeZone = constantTimeZone;
+      OutputTimeZone = constantTimeZone;
       ColumnOrdinalTimeZone = columnOrdinalTimeZone;
 
       // Writing data Formats should not have empty formats
@@ -69,7 +69,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The constant time zone.</value>
 
-    public string ConstantTimeZone { get; }
+    public string OutputTimeZone { get; }
 
     /// <summary>
     ///   Gets or sets the length of the field, this is needed for writing Fixed Length Text files

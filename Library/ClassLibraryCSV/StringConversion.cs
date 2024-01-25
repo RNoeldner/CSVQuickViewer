@@ -109,6 +109,20 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Converts a long to string.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="format">The <see cref="ValueFormat" />.</param>
+    /// <returns>Formatted value</returns>
+    public static string LongToString(in long value, in ValueFormat format)
+    {
+      var valueFormat = format.NumberFormat.Length == 0
+                          ? ValueFormat.cNumberFormatDefault
+                          : format.NumberFormat;
+      return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults('.', format.DecimalSeparator, ',', format.GroupSeparator);
+    }
+
+    /// <summary>
     ///   Converts a doubles to string.
     /// </summary>
     /// <param name="value">The value.</param>
