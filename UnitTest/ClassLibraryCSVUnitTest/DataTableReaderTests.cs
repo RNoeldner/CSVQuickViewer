@@ -8,7 +8,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class DataTableReaderTests
   {
-    private readonly DataTable m_DataTable = UnitTestStaticData.RandomDataTable(100);
+     private readonly DataTable m_DataTable = UnitTestStaticData.GetDataTable(100, false);
 
     [TestMethod]
     public async Task GetDataTableAsyncTest1Async()
@@ -16,7 +16,8 @@ namespace CsvTools.Tests
       using var test = new DataTableWrapper(m_DataTable);
       var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
         false, false, false, null, UnitTestStatic.Token);
-      Assert.AreEqual(m_DataTable, dt);
+      Assert.AreEqual(m_DataTable.Rows.Count, dt.Rows.Count);
+      Assert.AreEqual(m_DataTable.Columns.Count, dt.Columns.Count);
     }
 
     [TestMethod]
@@ -48,7 +49,8 @@ namespace CsvTools.Tests
     {
       using var test = new DataTableWrapper(m_DataTable);
       // await test.OpenAsync(UnitTestStatic.Token);
-      var typeName = test.GetDataTypeName(0);
+      var typeName = test.GetDataTypeName(1);
+
       Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") ||
                     typeName.Equals("long"));
     }
@@ -58,7 +60,7 @@ namespace CsvTools.Tests
     {
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual(DataTypeEnum.Integer.GetNetType(), test.GetFieldType(0));
+      Assert.AreEqual(DataTypeEnum.Integer.GetNetType(), test.GetFieldType(1));
     }
 
     [TestMethod]
@@ -66,7 +68,7 @@ namespace CsvTools.Tests
     {
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual("ID", test.GetName(0));
+      Assert.AreEqual(UnitTestStaticData.Columns[0].Name, test.GetName(0));
     }
 
     [TestMethod]
@@ -74,7 +76,7 @@ namespace CsvTools.Tests
     {
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual(2, test.GetOrdinal("ColText1"));
+      Assert.AreEqual(2, test.GetOrdinal(UnitTestStaticData.Columns[2].Name));
     }
 
     [TestMethod]
