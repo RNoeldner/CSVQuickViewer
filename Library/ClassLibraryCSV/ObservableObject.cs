@@ -29,9 +29,6 @@ namespace CsvTools
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <inheritdoc />
-    //public event PropertyChangingEventHandler? PropertyChanging;
-
     /// <summary>
     ///   Notifies the completed property changed through <see cref="PropertyChanged" />
     /// </summary>
@@ -54,29 +51,6 @@ namespace CsvTools
         // some UI elements raise this error if the value is not valid (e.G. not in range
       }
     }
-
-    /// <summary>
-    /// Notifies a watcher that a property changing (before its actually changed)
-    /// </summary>
-    /// <param name="propertyName">Name of the property.</param>
-    //protected void NotifyPropertyChanging([CallerMemberName] string propertyName = "")
-    //{
-    //  if (PropertyChanging is null)
-    //    return;
-    //  try
-    //  {
-    //    // ReSharper disable once PolymorphicFieldLikeEventInvocation
-    //    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
-    //  }
-    //  catch (TargetInvocationException)
-    //  {
-    //    // Ignore
-    //  }
-    //  catch (ArgumentOutOfRangeException)
-    //  {
-    //    // some UI elements raise this error if the value is not valid (e.G. not in range
-    //  }
-    //}
 
     /// <summary>
     ///   Sets the collection of a backing store and raises <see cref="PropertyChanged" /> after the

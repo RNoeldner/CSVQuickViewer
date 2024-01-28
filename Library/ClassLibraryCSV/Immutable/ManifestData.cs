@@ -23,6 +23,9 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Manifest data descibing Json data
+  /// </summary>
   public sealed class ManifestData
   {
     internal const string cCsvManifestExtension = ".manifest.json";
@@ -60,6 +63,12 @@ namespace CsvTools
 
     public string PubName { get; }
 
+    /// <summary>
+    /// Reads the manifest data from a file
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException"></exception>
     public static Task<InspectionResult> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
@@ -81,6 +90,11 @@ namespace CsvTools
       throw new FileNotFoundException(dataFile);
     }
 
+    /// <summary>
+    /// Reads the manifest data from a zip file, looking for the first file that matches teh extension
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
     public static async Task<InspectionResult?> ReadManifestZip(string fileName)
     {
       using var archive = new ZipFile(fileName.LongPathPrefix());

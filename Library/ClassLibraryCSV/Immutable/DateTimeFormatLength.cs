@@ -97,24 +97,54 @@ namespace CsvTools
         MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
     }
 
+    /// <summary>
+    /// Maximum length in the current culture or international culture  for dddd
+    /// </summary>
     public static int MaxDayLong { get; }
 
+    /// <summary>
+    /// Maximum length in the current culture or international culture  for ddd
+    /// </summary>
     public static int MaxDayMid { get; }
 
+    /// <summary>
+    /// Maximum length for AM PM designators
+    /// </summary>
     public static int MaxDesignator { get; }
 
+    /// <summary>
+    /// Maximum length in the current culture or international culture  for MMMM
+    /// </summary>
     public static int MaxMonthLong { get; }
 
+    /// <summary>
+    /// Maximum length in the current culture or international culture  for MMM
+    /// </summary>
     public static int MaxMonthMid { get; }
 
+    /// <summary>
+    /// Minimum length in the current culture or international culture  for dddd
+    /// </summary>
     public static int MinDayLong { get; }
 
+    /// <summary>
+    /// Minimum length in the current culture or international culture  for ddd
+    /// </summary>
     public static int MinDayMid { get; }
 
+    /// <summary>
+    /// Minimum length for AM PM designators
+    /// </summary>
     public static int MinDesignator { get; }
 
+    /// <summary>
+    /// Minimum length in the current culture or international culture  for MMMM
+    /// </summary>
     public static int MinMonthLong { get; }
 
+    /// <summary>
+    /// Minimum length in the current culture or international culture  for MMM
+    /// </summary>
     public static int MinMonthMid { get; }
   }
 }
