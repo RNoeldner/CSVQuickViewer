@@ -107,6 +107,9 @@ namespace CsvTools
     /// </summary>
     public void Close() => StreamReader.Close();
 
+    /// <summary>
+    /// The line number in the current file
+    /// </summary>
     public long LineNumber
     {
       get;
@@ -181,6 +184,7 @@ namespace CsvTools
       return await StreamReader.ReadLineAsync().ConfigureAwait(false) ?? string.Empty;
     }
 
+    /// <inheritdoc cref="TextReader" />
     [Obsolete("Better use ReadLineAsync ")]
     public string ReadLine()
     {

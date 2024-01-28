@@ -16,9 +16,19 @@ using System;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Information of the length of given formats in with teh current settings
+  /// </summary>
   public readonly struct DateTimeFormatInformation
   {
+    /// <summary>
+    /// The max length always assuming the longest names are used
+    /// </summary>
     public readonly int MaxLength;
+
+    /// <summary>
+    /// The minimum length always assuming the shortest names are used
+    /// </summary>
     public readonly int MinLength;
 
 

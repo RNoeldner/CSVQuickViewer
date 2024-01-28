@@ -158,10 +158,19 @@ namespace CsvTools
     /// <value>The TR template alternate.</value>
     public static string TrOpenAlt => "<tr class='alt'>\r\n";
 
+    /// <summary>
+    /// Gets or sets the HTML template for showing errors
+    /// </summary>
     public static string ValueError => "{0}<br><span class='err'>{1}</span>";
 
+    /// <summary>
+    /// Gets or sets the HTML template for showing error and warnings
+    /// </summary>
     public static string ValueErrorWarning => "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
 
+    /// <summary>
+    /// Gets or sets the HTML template for showing warning
+    /// </summary>
     public static string ValueWarning => "{0}<br><span class='war'>{1}</span>";
 
     /// <summary>
