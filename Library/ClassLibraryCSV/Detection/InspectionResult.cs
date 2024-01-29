@@ -90,21 +90,23 @@ namespace CsvTools
     {
     }
 
-#if !QUICK
     /// <summary>
     /// Initializes a new instance of the <see cref="InspectionResult"/> class.
     /// </summary>
     /// <param name="fileSetting">The setting.</param>
-    public InspectionResult(IFileSettingPhysicalFile fileSetting)
+    public InspectionResult(IFileSetting fileSetting)
     {
-      FileName = fileSetting.FullPath;
       SkipRows = fileSetting.SkipRows;
-      CodePageId = fileSetting.CodePageId;
-      ByteOrderMark = fileSetting.ByteOrderMark;
-      IdentifierInContainer = fileSetting.IdentifierInContainer;
-      HasFieldHeader = fileSetting.HasFieldHeader;
       Columns.AddRange(fileSetting.ColumnCollection);
 
+      if (fileSetting is IFileSettingPhysicalFile physical)
+      {
+        FileName = physical.FullPath;
+        CodePageId = physical.CodePageId;
+        ByteOrderMark = physical.ByteOrderMark;
+        IdentifierInContainer = physical.IdentifierInContainer;
+        HasFieldHeader = fileSetting.HasFieldHeader;
+      }
       if (fileSetting is ICsvFile csvFile)
       {
         CommentLine = csvFile.CommentLine;
@@ -142,6 +144,6 @@ namespace CsvTools
         csvFile.NewLine = NewLine;
       }
     }
-#endif
+
   }
 }

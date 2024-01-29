@@ -39,7 +39,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">The data that should be used as source </param>
     /// <param name="token">A cancellation token to stop a long running process</param>
-    /// <returns>Number of records written; -1 if there is no source</returns>
+    /// <returns>Number of records written; -1 if there is no source; -2 if canceled</returns>
     Task<long> WriteAsync(IFileReader? source, CancellationToken token);
 
     /// <summary>Writes data to the stream reading from the source</summary>

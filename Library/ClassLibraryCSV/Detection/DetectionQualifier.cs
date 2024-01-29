@@ -203,7 +203,7 @@ namespace CsvTools
           {
             // having a delimiter before is good, but it would be even better if it's followed by text
             counterOpenSimple++;
-            if (line[index + 1] == placeHolderText || (line[index + 1] == quoteChar && line[index + 2] != delimiterChar))
+            if (line[index + 1] == placeHolderText || line[index + 1] == quoteChar && line[index + 2] != delimiterChar)
               counterOpenStrict++;
           }
 
@@ -246,17 +246,17 @@ namespace CsvTools
       /// Duplicate Qualifier found
       /// </summary>
       public bool DuplicateQualifier;
-      
+
       /// <summary>
       /// Escaped Qualifiers found
       /// </summary>
       public bool EscapedQualifier;
-      
+
       /// <summary>
       /// Quoting char
       /// </summary>
       public readonly char QuoteChar;
-      
+
       /// <summary>
       /// Score for the Quote
       /// </summary>
