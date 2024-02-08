@@ -446,7 +446,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
+    ///   Replaces a placeholders with a text. The placeholder is identified surrounding { or a
     ///   leading #
     /// </summary>
     /// <param name="input">The input.</param>
