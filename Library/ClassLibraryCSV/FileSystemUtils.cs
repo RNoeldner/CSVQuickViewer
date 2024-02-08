@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -23,6 +24,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -41,6 +43,7 @@ namespace CsvTools
     ///   be escaped.
     /// </summary>
     private const string cLongPathPrefix = @"\\?\";
+
     private const string cUncLongPathPrefix = @"\\?\UNC\";
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -89,11 +92,12 @@ namespace CsvTools
             var psEnd = name.LastIndexOf('.');
             if (psStart != -1 && psEnd <= psStart + 5)
             {
-              if (int.TryParse(name.Substring(psStart+1, psEnd-psStart-1), out var num))
-                if (num> numBackup)
-                  numBackup= num;
+              if (int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num))
+                if (num > numBackup)
+                  numBackup = num;
             }
           }
+
           backupName = fileName + $"_V{numBackup + 1}.bak";
         }
         else
@@ -108,7 +112,7 @@ namespace CsvTools
         Logger.Information(ex, "DeleteWithBackup {fileName}", fileName);
       }
     }
-  
+
     /// <summary>
     /// Check if a directory exists.
     /// </summary>
@@ -158,7 +162,8 @@ namespace CsvTools
       // invoked at regular intervals to report the progress
       var intervalAction = IntervalAction.ForProgress(progress);
       // Read data from the source stream until there is no more data or the operation is canceled
-      while (!cancellationToken.IsCancellationRequested && (bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
+      while (!cancellationToken.IsCancellationRequested && (bytesRead = await fromStream
+               .ReadAsync(bytes, 0, bytes.Length, cancellationToken)
                .ConfigureAwait(false)) > 0)
       {
         totalReads += bytesRead;
@@ -197,6 +202,7 @@ namespace CsvTools
                               && fiSource.Length == fiDestInfo.Length)
           return;
       }
+
       // If the source file exists, delete the destination file if it exists
       if (FileExists(sourceFile))
         FileDelete(destFile);
@@ -254,7 +260,8 @@ namespace CsvTools
 
         // the Filename could contain wild cards, that is not supported when extending relative path
         // the path part though ca not contain wild cards, so combine base and path
-        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))), fileName.Substring(split))
+        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))),
+            fileName.Substring(split))
           .RemovePrefix();
       }
       catch (Exception ex)
@@ -326,21 +333,24 @@ namespace CsvTools
         basePath = Directory.GetCurrentDirectory();
 
       var test = SpecialFolders(fileName, GetFullPath(basePath), ".");
-      if (test.Length>0)
+      if (test.Length > 0)
         return test;
 
       if (m_IsWindows)
-      {        
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%UserProfile%");
-        if (test.Length>0)
+      {
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+          "%UserProfile%");
+        if (test.Length > 0)
           return test;
 
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "%AppData%");
-        if (test.Length>0)
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+          "%AppData%");
+        if (test.Length > 0)
           return test;
 
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "%LocalAppData%");
-        if (test.Length>0)
+        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+          "%LocalAppData%");
+        if (test.Length > 0)
           return test;
       }
 
@@ -627,7 +637,7 @@ namespace CsvTools
           .FirstOrDefault(x => x.EndsWith("." + resourceName, StringComparison.OrdinalIgnoreCase));
         // try the embedded resource
         if (foundName != null)
-          stream =executingAssembly.GetManifestResourceStream(foundName);
+          stream = executingAssembly.GetManifestResourceStream(foundName);
 
         var callingAssembly = Assembly.GetCallingAssembly();
         if (callingAssembly != executingAssembly)
@@ -635,8 +645,9 @@ namespace CsvTools
           foundName = callingAssembly.GetManifestResourceNames()
             .FirstOrDefault(x => x.EndsWith("." + resourceName, StringComparison.OrdinalIgnoreCase));
           if (foundName != null)
-            stream =callingAssembly.GetManifestResourceStream(foundName);
+            stream = callingAssembly.GetManifestResourceStream(foundName);
         }
+
         if (stream != null)
           return new StreamReader(stream, true);
       }
@@ -702,10 +713,11 @@ namespace CsvTools
         return string.Empty;
 
       // expand %AppData%, %LOCALAPPDATA% or %USERPROFILE% and alike
-      var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName.PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
-                         .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
-                         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-                         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)));
+      var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName
+        .PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
+        .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
+        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)));
 
       // only if we have wild cards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
@@ -751,7 +763,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static Task<string> ReadAllTextAsync(string path, CancellationToken cancellationToken)
       => File.ReadAllTextAsync(path.LongPathPrefix(), cancellationToken);
-#endif    
+#endif
 
     /// <summary>
     /// Splits the full path of a file into directory and filename
