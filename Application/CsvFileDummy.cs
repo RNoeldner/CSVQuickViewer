@@ -13,6 +13,8 @@
  */
 
 
+using System.ComponentModel;
+
 namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.ICsvFile" />
@@ -58,69 +60,89 @@ namespace CsvTools
     public bool DuplicateQualifierToEscape { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue('\0')]
     public char EscapePrefixChar { get; set; } = '\0';
 
     /// <inheritdoc />
+    [DefaultValue(',')]
     public char FieldDelimiterChar { get; set; } = ',';
 
     /// <inheritdoc />
+    [DefaultValue('"')]
     public char FieldQualifierChar { get; set; } = '"';
 
     /// <inheritdoc />
+    [DefaultValue(RecordDelimiterTypeEnum.Crlf)]
     public RecordDelimiterTypeEnum NewLine { get; set; } = RecordDelimiterTypeEnum.Crlf;
 
     /// <inheritdoc />
+    [DefaultValue("")]
     public string NewLinePlaceholder { get; set; } = string.Empty;
 
     /// <inheritdoc />
     public bool NoDelimitedFile { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(0)]
     public int NumWarnings { get; set; } = 0;
 
     /// <inheritdoc />
+    [DefaultValue("")]
     public string QualifierPlaceholder { get; set; } = string.Empty;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool QualifyAlways { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool QualifyOnlyIfNeeded { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool TreatLfAsSpace { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool TreatUnknownCharacterAsSpace { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(TrimmingOptionEnum.Unquoted)]
     public TrimmingOptionEnum TrimmingOption { get; set; } = TrimmingOptionEnum.Unquoted;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool TryToSolveMoreColumns { get; set; }
 
     /// <inheritdoc />
     public bool WarnDelimiterInValue { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool WarnEmptyTailingColumns { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool WarnLineFeed { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool WarnNBSP { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool WarnQuotes { get; set; }
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool WarnQuotesInQuotes { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool WarnUnknownCharacter { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(false)]
     public bool WriteFixedLength { get; set; }
 
     /// <inheritdoc cref="IWithCopyTo{T}" />
@@ -131,43 +153,48 @@ namespace CsvTools
     private string? m_FullPath;
 
     /// <inheritdoc />
+    [DefaultValue(true)]
     public bool ByteOrderMark { get; set; } = true;
 
     /// <inheritdoc />
+    [DefaultValue(65001)]
     public int CodePageId { get; set; } = 65001;
 
     /// <inheritdoc />
+    [DefaultValue("")]
     public string ColumnFile { get; set; } = string.Empty;
 
     /// <inheritdoc />
+    [DefaultValue("")]
     public string FileName { get; set; } = string.Empty;
 
     /// <inheritdoc />
+    [DefaultValue(0)]
     public long FileSize { get; set; }
 
     /// <inheritdoc />
     public string FullPath => m_FullPath ?? FileName;
 
     /// <inheritdoc />
-    public string IdentifierInContainer { get; set; } = string.Empty;
+    [DefaultValue("")] public string IdentifierInContainer { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public string KeyFile { get; set; } = string.Empty;
+    [DefaultValue("")] public string KeyFile { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public string Passphrase { get; set; } = string.Empty;
+    [DefaultValue("")] public string Passphrase { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public string RemoteFileName { get; set; } = string.Empty;
+    [DefaultValue("")] public string RemoteFileName { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public string RootFolder { get; set; } = string.Empty;
+    [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public bool SetLatestSourceTimeForWrite { get; set; }
+    [DefaultValue(false)]  public bool SetLatestSourceTimeForWrite { get; set; }
 
     /// <inheritdoc />
-    public bool ThrowErrorIfNotExists { get; set; }
+    [DefaultValue(false)] public bool ThrowErrorIfNotExists { get; set; }
 
     /// <inheritdoc />
     public ValueFormat ValueFormatWrite { get; set; } = ValueFormat.Empty;
@@ -183,49 +210,49 @@ namespace CsvTools
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
-    public int ConsecutiveEmptyRows { get; set; } = 5;
+    [DefaultValue(5)] public int ConsecutiveEmptyRows { get; set; } = 5;
 
     /// <inheritdoc />
-    public bool DisplayEndLineNo { get; set; }
+    [DefaultValue(false)] public bool DisplayEndLineNo { get; set; }
 
     /// <inheritdoc />
-    public bool DisplayRecordNo { get; set; }
+    [DefaultValue(false)] public bool DisplayRecordNo { get; set; }
 
     /// <inheritdoc />
-    public bool DisplayStartLineNo { get; set; } = true;
+    [DefaultValue(true)] public bool DisplayStartLineNo { get; set; } = true;
 
     /// <inheritdoc />
-    public string Footer { get; set; } = string.Empty;
+    [DefaultValue("")] public string Footer { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public bool HasFieldHeader { get; set; } = true;
+    [DefaultValue(true)] public bool HasFieldHeader { get; set; } = true;
 
     /// <inheritdoc />
-    public string Header { get; set; } = string.Empty;
+    [DefaultValue("")] public string Header { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public bool KeepUnencrypted { get; set; }
+    [DefaultValue(false)] public bool KeepUnencrypted { get; set; }
 
     /// <inheritdoc />
-    public long RecordLimit { get; set; }
+    [DefaultValue(0)] public long RecordLimit { get; set; }
 
     /// <inheritdoc />
-    public bool SkipDuplicateHeader { get; set; } = true;
+    [DefaultValue(true)] public bool SkipDuplicateHeader { get; set; } = true;
 
     /// <inheritdoc />
-    public bool SkipEmptyLines { get; set; } = true;
+    [DefaultValue(true)] public bool SkipEmptyLines { get; set; } = true;
 
     /// <inheritdoc />
-    public int SkipRows { get; set; }
+    [DefaultValue(0)] public int SkipRows { get; set; }
 
     /// <inheritdoc />
-    public bool TreatNBSPAsSpace { get; set; }
+    [DefaultValue(false)] public bool TreatNBSPAsSpace { get; set; }
 
     /// <inheritdoc />
-    public string TreatTextAsNull { get; set; } = "NULL";
+    [DefaultValue("NULL")] public string TreatTextAsNull { get; set; } = "NULL";
 
     /// <inheritdoc />
-    public bool Trim { get; set; } = false;
+    [DefaultValue(false)] public bool Trim { get; set; } = false;
 
     /// <inheritdoc />
     public object Clone()

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -121,7 +122,9 @@ namespace CsvTools
     {
       TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
       ReturnedTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
-      m_ColumnDefinition = columnDefinition is null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
+      m_ColumnDefinition = columnDefinition is null
+        ? Array.Empty<Column>()
+        : new List<Column>(columnDefinition).ToArray();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
@@ -229,6 +232,7 @@ namespace CsvTools
         m_ReportProgress = value;
       }
     }
+
     /// <summary>
     ///   Current Line Number in the text file where the record has started
     /// </summary>
@@ -429,7 +433,7 @@ namespace CsvTools
 
       var parsed =
         CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+          column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
@@ -507,7 +511,7 @@ namespace CsvTools
         schemaRow[1] = column.Name; // BaseColumnName
         schemaRow[4] = column.Name; // ColumnName
         schemaRow[5] = col; // ColumnOrdinal
-        schemaRow[19] = column.Ignore;  // IsHidden        
+        schemaRow[19] = column.Ignore; // IsHidden        
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
@@ -749,8 +753,10 @@ namespace CsvTools
       if (trim)
         inputString = inputString.Trim();
 
-      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
-        return inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
+      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
+        return inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(treatTextAsNull)
+          ? Array.Empty<char>()
+          : inputString;
       return inputString.ShouldBeTreatedAsNull(treatTextAsNull) ? Array.Empty<char>() : inputString;
     }
 
@@ -957,7 +963,7 @@ namespace CsvTools
     /// <summary>
     ///   Handles the Event if reading the file is completed
     /// </summary>
-    protected virtual void HandleReadFinished()
+    public virtual void HandleReadFinished()
     {
       if (m_IsFinished) return;
 
@@ -980,7 +986,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">Leading Text</param>
     protected virtual void HandleShowProgressPeriodic(in string text)
-        => m_IntervalAction.Invoke(t => HandleShowProgress(t, GetRelativePosition()), text);
+      => m_IntervalAction.Invoke(t => HandleShowProgress(t, GetRelativePosition()), text);
 
     /// <summary>
     ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
