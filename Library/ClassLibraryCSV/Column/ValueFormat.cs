@@ -11,12 +11,14 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Text;
+
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
@@ -28,30 +30,48 @@ namespace CsvTools
   {
     /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
     public const string cDateFormatDefault = "MM/dd/yyyy";
+
     private const char cDateSeparatorDefaultChar = '/';
+
     /// <summary> The default date separator </summary>
     public const string cDateSeparatorDefault = "/";
+
     private const char cDecimalSeparatorDefaultChar = '.';
+
     /// <summary>The default decimal separator "."; as Americans expect everything to be their way ;)</summary>
     public const string cDecimalSeparatorDefault = ".";
+
     private const char cGroupSeparatorDefaultChar = char.MinValue;
+
     /// <summary> The default separator for the thousand grouping </summary>
     public const string cGroupSeparatorDefault = "";
+
     /// <summary>The values to be assumed false</summary>
     public const string cFalseDefault = "";
+
     /// <summary>Default numeric format</summary>
     public const string cNumberFormatDefault = "0.#####";
+
     /// <summary>For part separation number of the part</summary>
     public const int cPartDefault = 2;
+
     private const char cPartSplitterDefaultChar = ':';
+
     /// <summary>The default splitter for part separation</summary>
     public const string cPartSplitterDefault = ":";
+
     /// <summary>The default for part separation</summary>
     public const bool cPartToEndDefault = true;
+
     /// <summary>The default time separation between hour and minutes</summary>
     public const string cTimeSeparatorDefault = ":";
+
+    private const char cTimeSeparatorDefaultChar = ':';
+
+
     /// <summary> The text regarded as true</summary>
     public const string cTrueDefault = "";
+
     /// <summary>Default setting when writing files is to overwrite</summary>
     public const bool cOverwriteDefault = true;
 
@@ -104,7 +124,7 @@ namespace CsvTools
       string? fileOutPutPlaceholder = "",
       bool? overwrite = cOverwriteDefault)
     {
-      DataType = dataType ??  DataTypeEnum.String;
+      DataType = dataType ?? DataTypeEnum.String;
       False = asFalse ?? cFalseDefault;
       True = asTrue ?? cTrueDefault;
       DisplayNullAs = displayNullAs ?? string.Empty;
@@ -120,12 +140,12 @@ namespace CsvTools
       GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
       DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText();
       Part = part ?? cPartDefault;
-      PartSplitter =  (partSplitter ?? cPartSplitterDefault).FromText();
+      PartSplitter = (partSplitter ?? cPartSplitterDefault).FromText();
       PartToEnd = partToEnd ?? cPartToEndDefault;
       Overwrite = overwrite ?? cOverwriteDefault;
     }
 
-     /// <summary>
+    /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
@@ -150,11 +170,11 @@ namespace CsvTools
     /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
     /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
     public ValueFormat(DataTypeEnum dataType, in string dateFormat, char dateSeparator, char timeSeparator,
-                       in string numberFormat, char groupSeparator, char decimalSeparator,
-                       in string asTrue, in string asFalse, in string displayNullAs,
-                       int part, char partSplitter, bool partToEnd,
-                       string regexSearchPattern, string regexReplacement,
-                       string readFolder, string writeFolder, string fileOutPutPlaceholder, bool overwrite)
+      in string numberFormat, char groupSeparator, char decimalSeparator,
+      in string asTrue, in string asFalse, in string displayNullAs,
+      int part, char partSplitter, bool partToEnd,
+      string regexSearchPattern, string regexReplacement,
+      string readFolder, string writeFolder, string fileOutPutPlaceholder, bool overwrite)
     {
       DataType = dataType;
       False = asFalse;
@@ -172,7 +192,7 @@ namespace CsvTools
       GroupSeparator = groupSeparator;
       DecimalSeparator = decimalSeparator;
       Part = part;
-      PartSplitter =  partSplitter;
+      PartSplitter = partSplitter;
       PartToEnd = partToEnd;
       Overwrite = overwrite;
     }
@@ -201,7 +221,7 @@ namespace CsvTools
     ///   Gets or sets the time separator.
     /// </summary>
     /// <value>The time separator.</value>
-    [DefaultValue(cTimeSeparatorDefault)]
+    [DefaultValue(cTimeSeparatorDefaultChar)]
     public char TimeSeparator { get; }
 
     /// <summary>
@@ -376,7 +396,8 @@ namespace CsvTools
 
       // if one is integer, but we expect numeric or vice versa, assume it's OK, one of the sides does
       // not have a decimal separator
-      if ((expectedFormat.DataType == DataTypeEnum.Numeric || expectedFormat.DataType == DataTypeEnum.Double || expectedFormat.DataType == DataTypeEnum.Integer)
+      if ((expectedFormat.DataType == DataTypeEnum.Numeric || expectedFormat.DataType == DataTypeEnum.Double ||
+           expectedFormat.DataType == DataTypeEnum.Integer)
           && DataType == DataTypeEnum.Integer)
         return true;
 
@@ -384,15 +405,15 @@ namespace CsvTools
       switch (expectedFormat.DataType)
       {
         case DataTypeEnum.Integer when DataType == DataTypeEnum.Numeric || DataType == DataTypeEnum.Double
-                                                                            || DataType == DataTypeEnum.Integer:
+                                                                        || DataType == DataTypeEnum.Integer:
           return true;
         // if we have dates, check the formats
         case DataTypeEnum.DateTime when DataType == DataTypeEnum.DateTime:
           return expectedFormat.DateFormat.Equals(DateFormat, StringComparison.Ordinal)
                  && (DateFormat.IndexOf('/') == -1 || expectedFormat.DateSeparator.Equals(
                    DateSeparator)) && (DateFormat.IndexOf(':') == -1
-                                                  || expectedFormat.TimeSeparator.Equals(
-                                                    TimeSeparator));
+                                       || expectedFormat.TimeSeparator.Equals(
+                                         TimeSeparator));
       }
 
       // if we have decimals, check the formats

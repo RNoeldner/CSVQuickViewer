@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -31,6 +32,7 @@ namespace CsvTools
 #endif
   {
     #region Events and Callbacks
+
     /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
     ///   needed file etc.
@@ -61,6 +63,10 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<WarningEventArgs>? Warning;
 
+    /// <summary>
+    /// Invokes the read finished
+    /// </summary>
+    void HandleReadFinished();
 
     #endregion
 
@@ -140,7 +146,7 @@ namespace CsvTools
     ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
     /// </returns>
     Task<bool> ReadAsync(CancellationToken token);
-   
+
     /// <summary>
     ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
