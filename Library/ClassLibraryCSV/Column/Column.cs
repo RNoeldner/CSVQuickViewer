@@ -114,7 +114,7 @@ namespace CsvTools
     /// <summary>
     ///   Indicating if the value or text should be converted
     /// </summary>
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool Convert { get; }
 
     /// <summary>
