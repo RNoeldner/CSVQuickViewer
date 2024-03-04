@@ -90,16 +90,17 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
       // Moved some classes across library, this need to be adjusted here
       foreach (var className in new[] { ".CsvFile", ".JsonFile", ".XMLFile" })
-        text= text.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\"");
-      
+        text = text.Replace(className + ", CsvTools.ClassLibraryCSV\"",
+          className + ", CsvTools.ClassLibraryValidator\"");
+
       if (text.StartsWith("<?xml"))
-          throw new JsonReaderException("XML files are no longer supported.");
+        throw new JsonReaderException("XML files are no longer supported.");
       return DeserializeText<T>(text);
     }
 
@@ -131,7 +132,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
@@ -179,11 +180,11 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
+          using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
+          using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
         await sr.WriteAsync(content).ConfigureAwait(false);
       }
       catch (Exception ex)
