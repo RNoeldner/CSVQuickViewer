@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -22,7 +23,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
-
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -59,7 +59,8 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName, string identifierInContainer,
+    public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
+      string identifierInContainer,
       bool guessJson, bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
@@ -79,7 +80,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
+        using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
       var disallowedDelimiter = new List<char>();
       do
       {
@@ -101,11 +102,12 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
-          using var reader = GetFileReader(inspectionResult, usedStream);
+            using var reader = GetFileReader(inspectionResult, usedStream);
           await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
           if (reader.FieldCount <= 1)
           {
-            Logger.Information($"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
+            Logger.Information(
+              $"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
             disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
             // in case Delimiter is re-checked some test are less important
             guessCodePage = false;
@@ -138,7 +140,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var reader2 = GetFileReader(inspectionResult, usedStream);
+          using var reader2 = GetFileReader(inspectionResult, usedStream);
         await reader2.OpenAsync(cancellationToken).ConfigureAwait(false);
         var (_, b) = await reader2.FillGuessColumnFormatReaderAsyncReader(
           fillGuessSettings, columnCollectionInput: null,
@@ -156,14 +158,15 @@ namespace CsvTools
     /// <param name="sourceAccess">The access information like filename or file type</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess, CancellationToken cancellationToken)
+    public static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess,
+      CancellationToken cancellationToken)
     {
       // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
       var stream = FunctionalDI.GetStream(sourceAccess);
       try
       {
         // if the file is very big, do not take part of it we might loose too much information
-        if (stream.Length >  268435456)
+        if (stream.Length > 268435456)
           return stream;
 
         // 2^26 Byte max Capacity : 64 MByte
@@ -191,9 +194,11 @@ namespace CsvTools
     /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
-    public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)
+    public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows,
+        CancellationToken cancellationToken)
       // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
-      => new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+      => new ImprovedTextReader(stream,
+        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
     /// <summary>
     ///   Guesses the code page from a stream.
@@ -205,8 +210,8 @@ namespace CsvTools
     {
       // Read 256 kBytes
       int maxlength = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
-      if (maxlength>262144)
-        maxlength =262144;
+      if (maxlength > 262144)
+        maxlength = 262144;
       var buff = new byte[maxlength];
 
 #pragma warning disable CA1835
@@ -288,49 +293,21 @@ namespace CsvTools
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
       var selectedFile = string.Empty;
 
-   // load from Setting file
+      // load from Setting file
       if (fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
           || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.cSettingExtension))
       {
-        var fileNameSetting = !fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
-          ? fileName2 + SerializedFilesLib.cSettingExtension
-          : fileName2;
-        var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - SerializedFilesLib.cSettingExtension.Length);
-
+        var fileNameSetting =
+          !fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
+            ? fileName2 + SerializedFilesLib.cSettingExtension
+            : fileName2;
         try
         {
           // we defiantly have an extension with the name
-          // TODO : Does this work with an Interface?
-          var fileSettingSer = await fileNameSetting.DeserializeFileAsync<ICsvFile>().ConfigureAwait(false);
-          Logger.Information("Configuration read from setting file {filename}", fileNameSetting.GetShortDisplayFileName(40));
-
-          var columnCollection = new ColumnCollection();
-
-          // un-ignore all ignored columns
-          foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-            columnCollection.Add(new Column(col.Name, col.ValueFormat, col.ColumnOrdinal,
-                false, col.Convert, col.DestinationName, col.TimePart, col.TimePartFormat, col.TimeZonePart));
-
-          return new InspectionResult
-          {
-            FileName = fileNameFile,
-            SkipRows = fileSettingSer.SkipRows,
-            CodePageId = fileSettingSer.CodePageId,
-            ByteOrderMark = fileSettingSer.ByteOrderMark,
-            IdentifierInContainer = fileSettingSer.IdentifierInContainer,
-            CommentLine = fileSettingSer.CommentLine,
-            EscapePrefix = fileSettingSer.EscapePrefixChar,
-            FieldDelimiter = fileSettingSer.FieldDelimiterChar,
-            FieldQualifier= fileSettingSer.FieldQualifierChar,
-            ContextSensitiveQualifier= fileSettingSer.ContextSensitiveQualifier,
-            DuplicateQualifierToEscape = fileSettingSer.DuplicateQualifierToEscape,
-            HasFieldHeader = fileSettingSer.HasFieldHeader,
-            IsJson= false,
-            NoDelimitedFile = fileSettingSer.NoDelimitedFile,
-            NewLine = fileSettingSer.NewLine,
-            Columns = columnCollection,
-            ColumnFile = fileSettingSer is IFileSettingPhysicalFile bas ? bas.ColumnFile : string.Empty
-          };
+          var inspectionResult = await fileNameSetting.DeserializeFileAsync<InspectionResult>().ConfigureAwait(false);
+          Logger.Information("Configuration read from setting file {filename}",
+            fileNameSetting.GetShortDisplayFileName(40));
+          return inspectionResult;
         }
         catch (Exception e)
         {
@@ -346,8 +323,10 @@ namespace CsvTools
           Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
           return setting;
         }
+
         using var zipFile = new ZipFile(fileName2);
-        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => $"{x.Name}").ToList();
+        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited())
+          .ThenByDescending(x => x.Size).Select(x => $"{x.Name}").ToList();
         selectedFile = selectFile?.Invoke(list) ?? list.First();
       }
 
@@ -364,7 +343,8 @@ namespace CsvTools
         }
 
       // Determine from file
-      return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage, guessEscapePrefix, guessDelimiter,
+      return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage,
+        guessEscapePrefix, guessDelimiter,
         guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
         defaultInspectionResult, fillGuessSettings, privateKey, cancellationToken).ConfigureAwait(false);
     }
@@ -384,7 +364,8 @@ namespace CsvTools
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
       try
       {
-        using var xmlReader = System.Xml.XmlReader.Create(streamReader, new System.Xml.XmlReaderSettings { Async = true });
+        using var xmlReader =
+          System.Xml.XmlReader.Create(streamReader, new System.Xml.XmlReaderSettings { Async = true });
         await xmlReader.MoveToContentAsync().ConfigureAwait(false);
         return true;
       }
@@ -411,7 +392,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var jsonTextReader = new JsonTextReader(streamReader);
+        using var jsonTextReader = new JsonTextReader(streamReader);
       jsonTextReader.CloseInput = false;
       try
       {
@@ -478,23 +459,23 @@ namespace CsvTools
       /*
        *  We have cyclic dependencies, so test are possibly repeated to get a better result:
 FieldDelimiter
-	CommentLine
-	FieldQualifier
-	EscapePrefix
+  CommentLine
+  FieldQualifier
+  EscapePrefix
 
 FieldQualifier
-	EscapePrefix
-	FieldDelimiter
-	NewLine
+  EscapePrefix
+  FieldDelimiter
+  NewLine
 
 EscapePrefix
-	SkipRows
-	FieldDelimiter
-	HasHeader
+  SkipRows
+  FieldDelimiter
+  HasHeader
 
 CommentLine
-	HasHeader
-	SkipRows
+  HasHeader
+  SkipRows
        */
       if (guessCodePage)
       {
@@ -511,18 +492,23 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking XML format");
-        inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
+        inspectionResult.IsXml = await stream
+          .InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
       }
+
       if (inspectionResult.IsXml)
       {
         Logger.Information("Detected XML file, no further checks done");
         return;
       }
+
       if (guessJson)
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Json format");
-        inspectionResult.IsJson = await stream.InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), cancellationToken).ConfigureAwait(false);
+        inspectionResult.IsJson = await stream
+          .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), cancellationToken)
+          .ConfigureAwait(false);
       }
 
       if (inspectionResult.IsJson)
@@ -540,39 +526,46 @@ CommentLine
       bool changedFieldQualifier = false;
       bool changedSkipRows = false;
 
-      if (guessCommentLine)  // Dependent on SkipRows
+      if (guessCommentLine) // Dependent on SkipRows
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
         var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
-        inspectionResult.CommentLine =  newCommentLine;
+        inspectionResult.CommentLine = newCommentLine;
       }
+
       var newPrefix = inspectionResult.EscapePrefix;
       if (guessEscapePrefix) // Dependent on SkipRows, FieldDelimiter and FieldQualifier
       {
         Logger.Information("Checking Escape Prefix");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
+        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter,
+          inspectionResult.FieldQualifier, cancellationToken);
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
 
         if (guessQualifier) // Dependent on SkipRows, FieldQualifier and EscapePrefix
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, new[] { '"', '\'', }, cancellationToken);
+          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix,
+            new[] { '"', '\'', }, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;
-          inspectionResult.ContextSensitiveQualifier = !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);
+          inspectionResult.ContextSensitiveQualifier =
+            !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);
           inspectionResult.DuplicateQualifierToEscape = qualifierTestResult.DuplicateQualifier;
 
           // In case we have DuplicateQualifier turn off EscapePrefix
           if (inspectionResult.DuplicateQualifierToEscape)
-            newPrefix =  char.MinValue;
+            newPrefix = char.MinValue;
         }
 
         if (guessDelimiter) // Dependent on SkipRows, FieldQualifier and EscapePrefix
@@ -583,27 +576,28 @@ CommentLine
             inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             inspectionResult.SkipRows++;
-          
+
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
           inspectionResult.FieldDelimiter = delimiterDet.Delimiter;
           // TODO: this looks odd
           inspectionResult.NoDelimitedFile = delimiterDet.IsDetected;
         }
 
-        if (guessNewLine)  // Dependent on SkipRows, FieldQualifier
+        if (guessNewLine) // Dependent on SkipRows, FieldQualifier
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Record Delimiter");
           stream.Seek(0, SeekOrigin.Begin);
-          inspectionResult.NewLine = textReader.InspectRecordDelimiter(inspectionResult.FieldQualifier, cancellationToken);
+          inspectionResult.NewLine =
+            textReader.InspectRecordDelimiter(inspectionResult.FieldQualifier, cancellationToken);
         }
       }
 
       var changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
       if (changedEscapePrefix)
-        inspectionResult.EscapePrefix =  newPrefix;
+        inspectionResult.EscapePrefix = newPrefix;
 
-      if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount<5)
+      if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount < 5)
       {
         Logger.Information("Re-Checking: Field Delimiter or Field Qualifier changed");
         goto retest;
@@ -615,13 +609,14 @@ CommentLine
         Logger.Information("Checking Start line");
         // find start row again , with possibly changed FieldDelimiter
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
-        var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
+        var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier,
+          inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;
       }
 
       if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
-          (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount<5)
+          (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount < 5)
       {
         Logger.Information("Re-Checking: Skip Rows, Escape Prefix or Field Qualifier changed");
         goto retest;
@@ -631,9 +626,12 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Header Row");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken).ConfigureAwait(false);
+        using var textReader = await stream
+          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+          .ConfigureAwait(false);
         var ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
-            inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken).ConfigureAwait(false);
+          inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine,
+          cancellationToken).ConfigureAwait(false);
         var newHasHeader = string.IsNullOrEmpty(ret);
         inspectionResult.HasFieldHeader = newHasHeader;
         Logger.Information(!inspectionResult.HasFieldHeader
@@ -645,10 +643,13 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Validating comment line");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
-        if (!await textReader.InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter, cancellationToken).ConfigureAwait(false))
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
+        if (!await textReader
+              .InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter,
+                cancellationToken).ConfigureAwait(false))
         {
-          inspectionResult.CommentLine  = string.Empty;
+          inspectionResult.CommentLine = string.Empty;
         }
       }
     }
@@ -661,8 +662,8 @@ CommentLine
     /// <returns></returns>
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
-
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(identifierInContainer: csvFile.IdentifierInContainer,
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(
+        identifierInContainer: csvFile.IdentifierInContainer,
         guessJson: false,
         guessCodePage: true,
         guessEscapePrefix: true,
@@ -679,13 +680,14 @@ CommentLine
           EscapePrefix = csvFile.EscapePrefixChar,
           FieldDelimiter = csvFile.FieldDelimiterChar,
           FieldQualifier = csvFile.FieldQualifierChar,
-          SkipRows =  csvFile.SkipRows,
+          SkipRows = csvFile.SkipRows,
           CommentLine = csvFile.CommentLine
         },
-        fillGuessSettings: new FillGuessSettings(false) , pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken);
+        fillGuessSettings: new FillGuessSettings(false),
+        pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
-      csvFile.EscapePrefixChar= det.EscapePrefix;
+      csvFile.EscapePrefixChar = det.EscapePrefix;
       csvFile.FieldDelimiterChar = det.FieldDelimiter;
       csvFile.FieldQualifierChar = det.FieldQualifier;
       csvFile.SkipRows = det.SkipRows;
@@ -693,7 +695,8 @@ CommentLine
       csvFile.CommentLine = det.CommentLine;
     }
 
-    internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId, CancellationToken cancellationToken)
+    internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId,
+      CancellationToken cancellationToken)
     {
       if (codePageId > 0)
         return codePageId;
@@ -739,9 +742,11 @@ CommentLine
           newLinePlaceholder: string.Empty, delimiterPlaceholder: string.Empty, quotePlaceholder: string.Empty,
           skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false,
           tryToSolveMoreColumns: false,
-          warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false, warnUnknownCharacter: false, warnEmptyTailingColumns: true,
+          warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
+          warnUnknownCharacter: false, warnEmptyTailingColumns: true,
           treatNbspAsSpace: false, treatTextAsNull: string.Empty,
-          skipEmptyLines: true, consecutiveEmptyRowsMax: 4, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id,
+          skipEmptyLines: true, consecutiveEmptyRowsMax: 4, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
+          returnedTimeZone: TimeZoneInfo.Local.Id,
           allowPercentage: true, removeCurrency: true);
       }
 
@@ -756,13 +761,20 @@ CommentLine
       return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
         skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
         inspectionResult.HasFieldHeader, inspectionResult.Columns, fieldDelimiterChar: inspectionResult.FieldDelimiter,
-        fieldQualifierChar: inspectionResult.FieldQualifier, escapeCharacterChar: inspectionResult.EscapePrefix, recordLimit: 0L, allowRowCombining: false,
-        contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier, commentLine: inspectionResult.CommentLine, numWarning: 0,
-        duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape, newLinePlaceholder: string.Empty, delimiterPlaceholder: string.Empty,
-        quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
-        warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false, warnUnknownCharacter: false, warnEmptyTailingColumns: true,
-        treatNbspAsSpace: false, treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4, identifierInContainer: inspectionResult.IdentifierInContainer,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
+        fieldQualifierChar: inspectionResult.FieldQualifier, escapeCharacterChar: inspectionResult.EscapePrefix,
+        recordLimit: 0L, allowRowCombining: false,
+        contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier,
+        commentLine: inspectionResult.CommentLine, numWarning: 0,
+        duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape, newLinePlaceholder: string.Empty,
+        delimiterPlaceholder: string.Empty,
+        quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLfAsSpace: false,
+        treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
+        warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
+        warnUnknownCharacter: false, warnEmptyTailingColumns: true,
+        treatNbspAsSpace: false, treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
+        identifierInContainer: inspectionResult.IdentifierInContainer,
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id,
+        allowPercentage: true, removeCurrency: true);
     }
   }
 }

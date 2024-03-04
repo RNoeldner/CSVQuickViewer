@@ -145,9 +145,9 @@ namespace CsvTools
           if (m_FileSetting.SkipRows > 0)
           {
 #if NET5_0_OR_GREATER
-        await
+            await
 #endif
-            using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
+              using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
             for (var i = 0; i < m_FileSetting.SkipRows; i++)
               skippedLines.AppendLine(await sr.ReadLineAsync());
@@ -228,7 +228,7 @@ namespace CsvTools
         if (titleAttribute.Title.Length != 0)
           return titleAttribute.Title + " " + assembly.GetName().Version
 #if !NETFRAMEWORK
-                   + "*"
+                 + "*"
 #endif
             ;
 
@@ -310,10 +310,15 @@ namespace CsvTools
           {
             if (list.Count == 1)
               return list.First();
-            using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
-            if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
-              throw new OperationCanceledException();
-            return frm.SelectedText;
+            var res = string.Empty;
+            this.SafeInvoke(() =>
+            {
+              using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
+              if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
+                throw new OperationCanceledException();
+              res = frm.SelectedText;
+            });
+            return res;
           }, m_ViewSettings.DefaultInspectionResult,
 #if SupportPGP
           PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),

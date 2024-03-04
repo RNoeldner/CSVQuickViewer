@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+
 // ReSharper disable CommentTypo
 
 namespace CsvTools
@@ -37,7 +38,8 @@ namespace CsvTools
   /// <returns>
   ///   Converted date / time
   /// </returns>
-  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone, in Action<string>? handleWarning);
+  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
+    in Action<string>? handleWarning);
 
   /// <summary>
   ///   Class with extensions used in the class Library
@@ -56,7 +58,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static void Move<T>(this IList<T> list, int oldIndex, int newIndex) where T : notnull
     {
-      if (oldIndex== newIndex)
+      if (oldIndex == newIndex)
         return;
       T removedItem = list[oldIndex];
       list.RemoveAt(oldIndex);
@@ -121,8 +123,8 @@ namespace CsvTools
     /// </returns>
     public static bool AssumeDelimited(this string fileName) =>
       fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)||
-      fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)||
+      fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
+      fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
@@ -220,7 +222,7 @@ namespace CsvTools
     public static string Display(this Enum value)
     {
       var shortDescription = value.ShortDescription();
-      return (shortDescription.Length>0) ? shortDescription : value.Description();
+      return (shortDescription.Length > 0) ? shortDescription : value.Description();
     }
 
 
@@ -262,27 +264,28 @@ namespace CsvTools
     /// <param name="type">The type.</param>
     /// <returns>The matching <see cref="DataTypeEnum" />.</returns>
     public static DataTypeEnum GetDataType(this Type type)
-    => Type.GetTypeCode(type) switch
-    {
-      TypeCode.Boolean => DataTypeEnum.Boolean,
-      TypeCode.DateTime => DataTypeEnum.DateTime,
-      TypeCode.Single => DataTypeEnum.Double,
-      TypeCode.Double => DataTypeEnum.Double,
-      TypeCode.Decimal => DataTypeEnum.Numeric,
-      TypeCode.SByte => DataTypeEnum.Integer,
-      TypeCode.Byte => DataTypeEnum.Integer,
-      TypeCode.Int16 => DataTypeEnum.Integer,
-      TypeCode.UInt16 => DataTypeEnum.Integer,
-      TypeCode.Int32 => DataTypeEnum.Integer,
-      TypeCode.UInt32 => DataTypeEnum.Integer,
-      TypeCode.Int64 => DataTypeEnum.Integer,
-      TypeCode.UInt64 => DataTypeEnum.Integer,
-      TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal) => DataTypeEnum.Binary,
-      TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal) => DataTypeEnum.DateTime,
-      TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal) => DataTypeEnum.Guid,
-      TypeCode.DBNull => DataTypeEnum.String,
-      _ => DataTypeEnum.String,
-    };
+      => Type.GetTypeCode(type) switch
+      {
+        TypeCode.Boolean => DataTypeEnum.Boolean,
+        TypeCode.DateTime => DataTypeEnum.DateTime,
+        TypeCode.Single => DataTypeEnum.Double,
+        TypeCode.Double => DataTypeEnum.Double,
+        TypeCode.Decimal => DataTypeEnum.Numeric,
+        TypeCode.SByte => DataTypeEnum.Integer,
+        TypeCode.Byte => DataTypeEnum.Integer,
+        TypeCode.Int16 => DataTypeEnum.Integer,
+        TypeCode.UInt16 => DataTypeEnum.Integer,
+        TypeCode.Int32 => DataTypeEnum.Integer,
+        TypeCode.UInt32 => DataTypeEnum.Integer,
+        TypeCode.Int64 => DataTypeEnum.Integer,
+        TypeCode.UInt64 => DataTypeEnum.Integer,
+        TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal) => DataTypeEnum.Binary,
+        TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal) => DataTypeEnum
+          .DateTime,
+        TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal) => DataTypeEnum.Guid,
+        TypeCode.DBNull => DataTypeEnum.String,
+        _ => DataTypeEnum.String,
+      };
 
     /// <summary>
     ///   Gets a suitable ID for a filename
@@ -359,7 +362,8 @@ namespace CsvTools
     /// Checks if a field  name seem to be a field created by the reader
     /// </summary>
     /// <param name="columnName">Name of the column.</param>    
-    public static bool NoArtificialField(this string columnName) => !ReaderConstants.ArtificialFields.Contains(columnName);
+    public static bool NoArtificialField(this string columnName) =>
+      !ReaderConstants.ArtificialFields.Contains(columnName);
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
@@ -442,6 +446,7 @@ namespace CsvTools
           }
         }
       }
+
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
@@ -456,7 +461,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, in string placeholder, string replacement)
     {
-      if (string.IsNullOrEmpty(replacement)) return input;
+      if (string.IsNullOrEmpty(placeholder)) return input;
 
       var type = "{{" + placeholder + "}}";
       if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
@@ -467,9 +472,12 @@ namespace CsvTools
           type = "#" + placeholder + "#";
           if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
           {
-            type = "#" + placeholder;
+            type = $"#{placeholder}";
             if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase)
-                && input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
+                && input.IndexOf(type + ' ', StringComparison.OrdinalIgnoreCase) == -1
+                && input.IndexOf(type + '\t', StringComparison.OrdinalIgnoreCase) == -1
+                && input.IndexOf(type + '\r', StringComparison.OrdinalIgnoreCase) == -1
+                && input.IndexOf(type + '\n', StringComparison.OrdinalIgnoreCase) == -1)
               return input;
           }
         }
@@ -521,7 +529,9 @@ namespace CsvTools
         @"(?:[\{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-      return regEx2.IsMatch(input) ? string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime) : PlaceholderReplace(input, placeholder, formatedDateTime);
+      return regEx2.IsMatch(input)
+        ? string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime)
+        : PlaceholderReplace(input, placeholder, formatedDateTime);
     }
 
     /// <summary>
@@ -614,7 +624,7 @@ namespace CsvTools
     public static string ReplaceDefaults(this string inputValue, in char old1, in char new1, in char old2,
       in char new2)
     {
-      if (inputValue.Length==0)
+      if (inputValue.Length == 0)
         return string.Empty;
       // Assume the text stays the same, it could only be shorter
       var result = new char[inputValue.Length];
@@ -625,16 +635,17 @@ namespace CsvTools
         if (inputValue[i] == old1)
         {
           if (new1 != char.MinValue)
-            result[pos++]=new1;
+            result[pos++] = new1;
         }
         else if (inputValue[i] == old2)
         {
           if (new2 != char.MinValue)
-            result[pos++]=new2;
+            result[pos++] = new2;
         }
         else
           result[pos++] = inputValue[i];
       }
+
       return new string(result, 0, pos);
     }
 
@@ -674,10 +685,10 @@ namespace CsvTools
     public static string ReplaceDefaults(this string inputValue, in string old1, in string new1, in string old2,
       in string new2)
     {
-      if (inputValue.Length==0)
+      if (inputValue.Length == 0)
         return string.Empty;
 
-      if (old1.Length==1 && new1.Length==1 && old2.Length==1 && new2.Length==1)
+      if (old1.Length == 1 && new1.Length == 1 && old2.Length == 1 && new2.Length == 1)
         return ReplaceDefaults(inputValue, old1[0], new1[0], old2[0], new2[0]);
 
       var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
@@ -697,7 +708,6 @@ namespace CsvTools
 
       return inputValue;
     }
-
 
 
     /// <summary>
@@ -872,6 +882,7 @@ namespace CsvTools
 
       return value.Equals(double.NaN) ? default : Convert.ToInt64(value);
     }
+
     /// <summary>
     /// Converts a decimal to int64 and cuts off in case the value is too small or too large
     /// </summary>
@@ -962,7 +973,8 @@ namespace CsvTools
           return true;
         if (!s || !o)
           return false;
-        if (selfEnum.Current is null || otherEnum.Current is null || !comparer.Equals(selfEnum.Current, otherEnum.Current))
+        if (selfEnum.Current is null || otherEnum.Current is null ||
+            !comparer.Equals(selfEnum.Current, otherEnum.Current))
           return false;
       }
     }
