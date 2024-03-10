@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -38,8 +39,9 @@ namespace CsvTools
     /// <param name="progress">The progress, in case its null, null is returned</param>
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
-#endif        
-    public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) => progress is null ? null : new IntervalAction();
+#endif
+    public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) =>
+      progress is null ? null : new IntervalAction();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
@@ -102,7 +104,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
+        Logger.Warning(ex, "IntervalAction.Invoke {Error}", ex.Message);
       }
     }
 
@@ -136,6 +138,7 @@ namespace CsvTools
     /// <param name="progress">The process display</param>
     /// <param name="text">The text to display.</param>
     /// <param name="value">The current progress value</param>
-    public void Invoke(IProgress<ProgressInfo> progress, string text, long value) => Invoke(() => progress.Report(new ProgressInfo(text, value)));
+    public void Invoke(IProgress<ProgressInfo> progress, string text, long value) =>
+      Invoke(() => progress.Report(new ProgressInfo(text, value)));
   }
 }
