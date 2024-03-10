@@ -90,16 +90,16 @@
     <None Remove="CSVQuickViewer.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FCTB" Version="2.16.*" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.*" />
+    <PackageReference Include="FCTB" Version="2.16.24" />
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.*" />
-    <PackageReference Include="Ben.Demystifier" Version="*" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.*" />
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="TimeZoneConverter" Version="6.1.*" />
-    <PackageReference Include="UTF.Unknown" Version="2.5.*" />
+    <PackageReference Include="UTF.Unknown" Version="2.5.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
     <Reference Include="System" />
