@@ -209,11 +209,11 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var fromStream = OpenRead(sourceFile);
+        using var fromStream = OpenRead(sourceFile);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var toStream = OpenWrite(destFile);
+        using var toStream = OpenWrite(destFile);
       await StreamCopy(fromStream, toStream, progress, cancellationToken).ConfigureAwait(false);
     }
 
@@ -585,7 +585,7 @@ namespace CsvTools
     private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      /// <summary>
+    /// <summary>
     /// Writes all text to the given file
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
