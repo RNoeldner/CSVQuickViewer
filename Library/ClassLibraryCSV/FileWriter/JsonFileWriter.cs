@@ -37,12 +37,12 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
     public JsonFileWriter(in string fullPath, in string? identifierInContainer, in string? footer, in string? header,
-                          bool emptyAsNull, int codePageId, bool byteOrderMark, IEnumerable<Column>? columnDefinition,
-                          in string fileSettingDisplay, in string row, TimeZoneChangeDelegate? timeZoneAdjust,
-                          in string sourceTimeZone, in string publicKey, bool unencrypted)
+      bool emptyAsNull, int codePageId, bool byteOrderMark, IEnumerable<Column>? columnDefinition,
+      in string fileSettingDisplay, in string row, TimeZoneChangeDelegate? timeZoneAdjust,
+      in string sourceTimeZone, in string publicKey, bool unencrypted)
       : base(fullPath, identifierInContainer, footer, header, codePageId, byteOrderMark, columnDefinition,
-             fileSettingDisplay, row, timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone, publicKey,
-             unencrypted)
+        fileSettingDisplay, row, timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone, publicKey,
+        unencrypted)
     {
       m_EmptyAsNull = emptyAsNull;
     }
@@ -68,7 +68,7 @@ namespace CsvTools
       // Special handling of DateTime
       if (typedValue is DateTime dtmVal)
       {
-        if (dtmVal.Minute==0 && dtmVal.Hour==0 && dtmVal.Second==0)
+        if (dtmVal.Minute == 0 && dtmVal.Hour == 0 && dtmVal.Second == 0)
           return JsonConvert.ToString(dtmVal.ToString(@"yyyy\-MM\-dd"));
         return JsonConvert.ToString(dtmVal, DateFormatHandling.IsoDateFormat, DateTimeZoneHandling.RoundtripKind);
       }
@@ -84,12 +84,12 @@ namespace CsvTools
       if (sep != -1)
       {
         var end = row.Substring(0, sep).LastIndexOf("\"", StringComparison.Ordinal);
-        if (end!= -1)
+        if (end != -1)
         {
           var start = row.Substring(0, end - 1).LastIndexOf("\"", StringComparison.Ordinal);
-          if (start!= -1)
+          if (start != -1)
           {
-            var colName = row.Substring(start+1, end-start-1);
+            var colName = row.Substring(start + 1, end - start - 1);
 
             foreach (var columnInfo in WriterColumns.Where(x =>
                        x.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)))
@@ -97,6 +97,7 @@ namespace CsvTools
           }
         }
       }
+
       return new WriterColumn(string.Empty, new ValueFormat(), -1);
     }
 
@@ -110,7 +111,8 @@ namespace CsvTools
       var sb = new StringBuilder("{");
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
-        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name), string.Format(cFieldPlaceholderByName, col.Name));
+        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name),
+          string.Format(cFieldPlaceholderByName, col.Name));
       if (sb.Length > 1)
         sb.Length -= 2;
       sb.AppendLine("}");
@@ -130,46 +132,47 @@ namespace CsvTools
       while (startArray != -1)
       {
         var endArray = row.IndexOf("\\]", startArray, StringComparison.Ordinal);
-        var array = row.Substring(startArray, endArray-startArray+2);
+        var array = row.Substring(startArray, endArray - startArray + 2);
         rep.Add(array, HandleArray(array, FindWriterColumn(row, startArray)));
         startArray = row.IndexOf("\\[", endArray, StringComparison.Ordinal);
       }
 
       foreach (var replace in rep)
-        row=row.Replace(replace.Key, replace.Value);
+        row = row.Replace(replace.Key, replace.Value);
 
       return row;
     }
 
     private static IReadOnlyList<string> TrimmedSplit(string input, char split = ',', char escape = '/')
     {
-
       // Remove quoting  
-      if (input.Length>= 2 && input[0] == input[input.Length-1] && (input[0] == '"' || input[0] == '\''))
-        input = input.Substring(1, input.Length-2);
+      if (input.Length >= 2 && input[0] == input[input.Length - 1] && (input[0] == '"' || input[0] == '\''))
+        input = input.Substring(1, input.Length - 2);
 
-      if (input.Length==0)
+      if (input.Length == 0)
         return Array.Empty<string>();
 
       var res = new List<string>();
       var sb = new StringBuilder();
-      for (var pos = 0; pos<input.Length; pos++)
+      for (var pos = 0; pos < input.Length; pos++)
       {
         if (input[pos] == split)
         {
           // FOR XML always adds a leading separator, so we ignore an empty part if its the very first one
-          if (res.Count == 0 && pos==0)
+          if (res.Count == 0 && pos == 0)
             continue;
           res.Add(sb.ToString().Trim());
           sb = new StringBuilder();
           continue;
         }
+
         // Handle escaped 
-        if (pos < input.Length-1 && input[pos]== escape && input[pos+1] == split)
+        if (pos < input.Length - 1 && input[pos] == escape && input[pos + 1] == split)
           // eat the escape and store the split as is but do not separate
           pos++;
         sb.Append(input[pos]);
       }
+
       // End of input store the remains
       res.Add(sb.ToString().Trim());
       return res;
@@ -184,7 +187,7 @@ namespace CsvTools
     {
       var start = arrayPart.IndexOf('[');
       var end = arrayPart.LastIndexOf(']');
-      var oneElement = arrayPart.Substring(start+1, end-start-2).Trim().Replace("\": \"", "\":\"");
+      var oneElement = arrayPart.Substring(start + 1, end - start - 2).Trim().Replace("\": \"", "\":\"");
 
       var slpitList = new Dictionary<WriterColumn, IReadOnlyList<string>>();
 
@@ -199,7 +202,8 @@ namespace CsvTools
           foreach (var prop in jtoken.Children().OfType<JProperty>())
           {
             var list = prop.Value.ToString() ?? string.Empty;
-            var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ?? new WriterColumn(prop.Name, new ValueFormat(), -1);
+            var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ??
+                      new WriterColumn(prop.Name, new ValueFormat(), -1);
             if (slpitList.ContainsKey(col))
               Logger.Error("Duplicate property {property}, property will be ignored", prop.Name);
             else
@@ -213,14 +217,15 @@ namespace CsvTools
       }
 
       // If there are no properties assume we have a list only
-      if (slpitList.Count  == 0)
+      if (slpitList.Count == 0)
       {
         foreach (var entry in TrimmedSplit(oneElement))
         {
           result.Append(Escape(entry, columnInfoRoot, null));
           result.Append(',');
         }
-        if (result.Length>1)
+
+        if (result.Length > 1)
           result.Length--;
       }
       else
@@ -228,11 +233,11 @@ namespace CsvTools
         var numMatches = int.MaxValue;
         foreach (var prop in slpitList)
         {
-          if (prop.Value.Count <numMatches && prop.Value.Count!=0)
+          if (prop.Value.Count < numMatches && prop.Value.Count != 0)
           {
             if (numMatches != int.MaxValue)
               Logger.Warning($"List does not contain the same number of entries, {prop.Key.Name} has less than before");
-            numMatches =prop.Value.Count;
+            numMatches = prop.Value.Count;
           }
         }
 
@@ -244,7 +249,6 @@ namespace CsvTools
           // list properties of object
           foreach (var prop in slpitList)
           {
-
             JsonConvert.ToString(prop.Key.Name);
             result.Append($"\"{prop.Key.Name}\":");
             try
@@ -255,8 +259,10 @@ namespace CsvTools
             {
               result.Append(Escape(null, prop.Key, null));
             }
+
             result.Append(',');
           }
+
           // remove last ,
           result.Length--;
           // close object
@@ -267,6 +273,7 @@ namespace CsvTools
         // remove last ,
         result.Length--;
       }
+
       result.Append(']');
       return result.ToString();
     }
