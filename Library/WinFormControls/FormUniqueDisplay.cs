@@ -12,6 +12,8 @@
  *
  */
 
+// ReSharper disable once RedundantNullableDirective
+
 #nullable enable
 
 namespace CsvTools

@@ -108,6 +108,27 @@ namespace CsvTools
       }
     }
 
+    public void Invoke(in Action<long, long, long> action, long number1, long number2, long number3)
+    {
+      // do nothing if the timespan between invokes is not reached
+      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+
+      m_LastNotification = DateTime.UtcNow;
+      try
+      {
+        action.Invoke(number1, number2, number3);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "IntervalAction.Invoke {Error}", ex.Message);
+      }
+    }
+
     /// <summary>
     ///   Invoke progress on given interval
     /// </summary>

@@ -62,7 +62,7 @@ namespace CsvTools
       var typedValue = ValueConversion(input, columnInfo, reader, TimeZoneAdjust, SourceTimeZone, HandleWarning);
 
       // special handling of null
-      if (m_EmptyAsNull && (typedValue is null  || typedValue == DBNull.Value))
+      if (m_EmptyAsNull && typedValue == DBNull.Value)
         return "null";
 
       // Special handling of DateTime
@@ -83,28 +83,28 @@ namespace CsvTools
       var sep = row.Substring(0, startArray).LastIndexOf(":");
       if (sep != -1)
       {
-        var end = row.Substring(0, sep).LastIndexOf("\"");
+        var end = row.Substring(0, sep).LastIndexOf("\"", StringComparison.Ordinal);
         if (end!= -1)
         {
-
-
-          var start = row.Substring(0, end-1).LastIndexOf("\"");
+          var start = row.Substring(0, end - 1).LastIndexOf("\"", StringComparison.Ordinal);
           if (start!= -1)
           {
             var colName = row.Substring(start+1, end-start-1);
 
-            foreach (var columnInfo in WriterColumns)
-              if (columnInfo.Name == colName)
-              {
-                return columnInfo;
-              }
+            foreach (var columnInfo in WriterColumns.Where(x =>
+                       x.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)))
+              return columnInfo;
           }
         }
       }
       return new WriterColumn(string.Empty, new ValueFormat(), -1);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Gets the json body for a row.
+    /// </summary>
+    /// <param name="cols">The cols.</param>
+    /// <returns></returns>
     public static string GetJsonRow(IEnumerable<Column> cols)
     {
       var sb = new StringBuilder("{");
@@ -126,14 +126,15 @@ namespace CsvTools
       var rep = new Dictionary<string, string>();
 
       // do not use the regular [] as they can occur in text
-      var startArray = row.IndexOf("\\[");
+      var startArray = row.IndexOf("\\[", StringComparison.Ordinal);
       while (startArray != -1)
       {
-        var endArray = row.IndexOf("\\]", startArray);
+        var endArray = row.IndexOf("\\]", startArray, StringComparison.Ordinal);
         var array = row.Substring(startArray, endArray-startArray+2);
         rep.Add(array, HandleArray(array, FindWriterColumn(row, startArray)));
-        startArray = row.IndexOf("\\[", endArray);
+        startArray = row.IndexOf("\\[", endArray, StringComparison.Ordinal);
       }
+
       foreach (var replace in rep)
         row=row.Replace(replace.Key, replace.Value);
 

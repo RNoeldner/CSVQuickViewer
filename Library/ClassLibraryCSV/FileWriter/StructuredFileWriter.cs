@@ -38,6 +38,10 @@ namespace CsvTools
     private readonly string m_Row;
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
+
+    /// <summary>
+    /// The columns of the writer
+    /// </summary>
     protected IReadOnlyCollection<WriterColumn> WriterColumns { get; set; }
 
     /// <summary>
@@ -95,7 +99,7 @@ namespace CsvTools
     /// <summary>
     /// Escape the name of the Element
     /// </summary>
-    /// <param name="input">The input names</param>    
+    /// <param name="input">The input names</param>
     protected abstract string ElementName(string input);
 
     /// <summary>

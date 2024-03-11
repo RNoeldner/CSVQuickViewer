@@ -14,15 +14,11 @@
 
 #nullable enable
 
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -77,11 +73,14 @@ namespace CsvTools
     /// <param name="maxNumber">Maximum number of clusters to return</param>
     /// <param name="combine">In case clusters are every small combine close clusters, the clusters still have even margins</param>
     /// <param name="even">Build clusters that have roughly the same number of elements, the resulting borders can vary a lot, e:g. 1950-1980, 1980-1985, 1986, 1987</param>
+    /// <param name="progress"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values, in string escapedName, bool isActive, int maxNumber = 50,
-      bool combine = true, bool even = false, IProgress<ProgressInfo>? progress = null, CancellationToken cancellationToken = default)
+    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values,
+      in string escapedName, bool isActive, int maxNumber = 50,
+      bool combine = true, bool even = false, IProgress<ProgressInfo>? progress = null,
+      CancellationToken cancellationToken = default)
     {
       if (values is null)
         throw new ArgumentNullException(nameof(values));
@@ -94,7 +93,7 @@ namespace CsvTools
       else
         Clear();
 
-      // For guid it does not make much sense to build clusters, any other type has a limit of 100k, its just too slow otherwise
+      // For guid it does not make much sense to build clusters, any other type has a limit of 100k, It's just too slow otherwise
       if ((values.Count > 50000 && type == DataTypeEnum.Guid) || values.Count > 200000)
         return BuildValueClustersResult.TooManyValues;
 
@@ -116,10 +115,9 @@ namespace CsvTools
           var countNull = Loop(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
 
           AddValueClusterNull(escapedName, countNull);
-          if (even)
-            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
-          else
-            progress?.Report(new ProgressInfo("Combining values to clusters"));
+          progress?.Report(even
+            ? new ProgressInfo("Combining values to clusters of even size")
+            : new ProgressInfo("Combining values to clusters"));
 
           return even ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, cancellationToken) :
                         BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, cancellationToken);
@@ -131,10 +129,9 @@ namespace CsvTools
           var typedValues = new List<long>();
           var countNull = Loop(values, typedValues, Convert.ToInt64, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
-          if (even)
-            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
-          else
-            progress?.Report(new ProgressInfo("Combining values to clusters"));
+          progress?.Report(even
+            ? new ProgressInfo("Combining values to clusters of even size")
+            : new ProgressInfo("Combining values to clusters"));
           return even ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, cancellationToken) : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
 
@@ -143,10 +140,9 @@ namespace CsvTools
           var typedValues = new List<double>();
           var countNull = Loop(values, typedValues, (obj) => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
-          if (even)
-            progress?.Report(new ProgressInfo("Combining values to clusters of even size"));
-          else
-            progress?.Report(new ProgressInfo("Combining values to clusters"));
+          progress?.Report(even
+            ? new ProgressInfo("Combining values to clusters of even size")
+            : new ProgressInfo("Combining values to clusters"));
           return even ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, cancellationToken) :
             BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, cancellationToken);
         }
@@ -613,32 +609,37 @@ namespace CsvTools
       if (clusterOne.Count >max)
       {
         var countC1 = values.Count(x => x.Length >0 && ((x[0] >='a' && x[0]<='e') || (x[0]>='A' && x[0]<='E')));
-        AddUnique(new ValueCluster("A-E", $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "e", false));
+        AddUnique(new ValueCluster("A-E",
+          $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "e"));
 
         var countC2 = values.Count(x => x.Length >0 && ((x[0] >='f' && x[0]<='k') || (x[0]>='F' && x[0]<='K')));
-        AddUnique(new ValueCluster("F-K", $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k", false));
+        AddUnique(new ValueCluster("F-K",
+          $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k"));
 
         var countC3 = values.Count(x => x.Length >0 && ((x[0] >='l' && x[0]<='r') || (x[0]>='L' && x[0]<='R')));
-        AddUnique(new ValueCluster("L-R", $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r", false));
+        AddUnique(new ValueCluster("L-R",
+          $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r"));
 
         var countC4 = values.Count(x => x.Length >0 && ((x[0] >='s' && x[0]<='z') || (x[0]>='S' && x[0]<='Z')));
-        AddUnique(new ValueCluster("S-Z", $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z", false));
+        AddUnique(new ValueCluster("S-Z",
+          $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z"));
 
         var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
-        AddUnique(new ValueCluster("0-9", $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9", false));
+        AddUnique(new ValueCluster("0-9",
+          $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9"));
 
         var countS = values.Count(x => x.Length >0 && (x[0] < 32));
-        AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null, false));
+        AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
         var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
         AddUnique(new ValueCluster("Punctuation",
-             $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
-             $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
-             $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
-             $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~'))", countP, null, null, false));
+          $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
+          $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
+          $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
+          $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~'))", countP, null));
 
         var countR = values.Count() - countS -countN- countC1- countC2- countC3- countC4 -countP;
-        AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null, null, false));
+        AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null));
 
         return BuildValueClustersResult.ListFilled;
       }
@@ -663,14 +664,12 @@ namespace CsvTools
           var test = values.First();
           var i = 4;
           var prevI = -1;
-          var maxnum = values.Count(x => x.StartsWith(test.Substring(0, 3)));
+          var maximum = values.Count(x => x.StartsWith(test.Substring(0, 3)));
           while (i < 200)
           {
-            if (values.Count(x => x.StartsWith(test.Substring(0, i))) < maxnum)
+            if (values.Count(x => x.StartsWith(test.Substring(0, i))) < maximum)
             {
               break;
-
-
             }
             prevI = i;
             i++;
@@ -680,8 +679,10 @@ namespace CsvTools
             if (i>=50)
               i+=3;
           }
+
           // TODO: this is not great, since we have only one entry but still better than only having a short text
-          AddUnique(new ValueCluster($"{test.Substring(0, prevI-1)}…", $"({escapedName} LIKE '{test.Substring(0, prevI-1).SqlQuote()}%')", maxnum, test.Substring(0, i-1)));
+          AddUnique(new ValueCluster($"{test.Substring(0, prevI - 1)}…",
+            $"({escapedName} LIKE '{test.Substring(0, prevI - 1).SqlQuote()}%')", maximum, test.Substring(0, i - 1)));
           return BuildValueClustersResult.ListFilled;
         }
 
@@ -704,8 +705,8 @@ namespace CsvTools
           if (!m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
           {
             var parts = values.Where(x => x.StartsWith(text, StringComparison.OrdinalIgnoreCase)).ToArray();
-            var countall = parts.Length;
-            if (countall > 100)
+            var countAll = parts.Length;
+            if (countAll > 100)
             {
               Dictionary<string, int> bigger = new Dictionary<string, int>();
               foreach (var test in parts)
@@ -713,28 +714,32 @@ namespace CsvTools
                 if (bigger.ContainsKey(test))
                   continue;
                 var counter = values.Count(y => y.Equals(test, StringComparison.OrdinalIgnoreCase));
-                if (counter > countall/25)
+                if (counter > countAll / 25)
                   bigger.Add(test, counter);
               }
-              if (bigger.Count>0)
+
+              if (bigger.Count > 0)
               {
-                var sbExluded = new StringBuilder();
-                sbExluded.Append($"{escapedName} LIKE '{text.SqlQuote()}%' AND NOT(");
+                var sbExcluded = new StringBuilder();
+                sbExcluded.Append($"{escapedName} LIKE '{text.SqlQuote()}%' AND NOT(");
                 foreach (var kvp in bigger)
                 {
-                  countall -= kvp.Value;
-                  sbExluded.Append($"{escapedName} = '{kvp.Key.SqlQuote()}' OR");
+                  countAll -= kvp.Value;
+                  sbExcluded.Append($"{escapedName} = '{kvp.Key.SqlQuote()}' OR");
                 }
-                sbExluded.Length -= 3;
-                if (countall >0)
-                  AddUnique(new ValueCluster($"{text}… (remaining)", $"({sbExluded}))", countall, text));
+
+                sbExcluded.Length -= 3;
+                if (countAll > 0)
+                  AddUnique(new ValueCluster($"{text}… (remaining)", $"({sbExcluded}))", countAll, text));
 
                 foreach (var kvp in bigger)
-                  AddUnique(new ValueCluster($"{kvp.Key}", $"({escapedName} = '{kvp.Key.SqlQuote()}')", kvp.Value, text));
+                  AddUnique(
+                    new ValueCluster($"{kvp.Key}", $"({escapedName} = '{kvp.Key.SqlQuote()}')", kvp.Value, text));
                 continue;
               }
             }
-            AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countall, text));
+
+            AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countAll, text));
           }
         }
       }
