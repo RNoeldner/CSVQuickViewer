@@ -25,7 +25,8 @@ namespace CsvTools
   {
     /// <summary>Initializes a new instance of the <see cref="ViewerFileReaderWriterFactory" /> class.</summary>
     /// <inheritdoc />
-    public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) : base(timeZoneAdjust, fillGuessSettings)
+    public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) :
+      base(timeZoneAdjust, fillGuessSettings)
     {
     }
 
@@ -35,12 +36,17 @@ namespace CsvTools
       if (fileSetting is CsvFileDummy csv)
       {
         if (csv.IsJson)
-          return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
+          return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
+            csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+            FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
         if (csv.IsXml)
-          return new XmlFileReader(fileName:csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
+          return new XmlFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
+            csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+            FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
 
         return new CsvFileReader(fileName: csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
-          csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+          csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar,
+          csv.EscapePrefixChar,
           csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
           csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
           csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,

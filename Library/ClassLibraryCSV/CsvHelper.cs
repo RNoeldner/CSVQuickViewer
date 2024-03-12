@@ -93,7 +93,7 @@ namespace CsvTools
           guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
           disallowedDelimiter, cancellationToken).ConfigureAwait(false);
 
-        // if its a delimited file but we do not have fields,
+        // if it's a delimited file, but we do not have fields,
         // the delimiter must have been wrong, pick another one, after 3 though give up
 
         if (!inspectionResult.IsJson && !inspectionResult.IsXml)
@@ -165,7 +165,7 @@ namespace CsvTools
       var stream = FunctionalDI.GetStream(sourceAccess);
       try
       {
-        // if the file is very big, do not take part of it we might loose too much information
+        // if the file is very big, do not take part of it we might lose too much information
         if (stream.Length > 268435456)
           return stream;
 
@@ -579,7 +579,6 @@ CommentLine
 
           changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
           inspectionResult.FieldDelimiter = delimiterDet.Delimiter;
-          // TODO: this looks odd
           inspectionResult.NoDelimitedFile = delimiterDet.IsDetected;
         }
 
@@ -740,7 +739,7 @@ CommentLine
           commentLine: inspectionResult.CommentLine, numWarning: 0,
           duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape,
           newLinePlaceholder: string.Empty, delimiterPlaceholder: string.Empty, quotePlaceholder: string.Empty,
-          skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false,
+          skipDuplicateHeader: true, treatLinefeedAsSpace: false, treatUnknownCharacterAsSpace: false,
           tryToSolveMoreColumns: false,
           warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
           warnUnknownCharacter: false, warnEmptyTailingColumns: true,
@@ -767,7 +766,7 @@ CommentLine
         commentLine: inspectionResult.CommentLine, numWarning: 0,
         duplicateQualifierToEscape: inspectionResult.DuplicateQualifierToEscape, newLinePlaceholder: string.Empty,
         delimiterPlaceholder: string.Empty,
-        quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLfAsSpace: false,
+        quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLinefeedAsSpace: false,
         treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
         warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
         warnUnknownCharacter: false, warnEmptyTailingColumns: true,

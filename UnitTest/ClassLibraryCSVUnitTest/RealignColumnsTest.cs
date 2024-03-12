@@ -12,14 +12,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001,0,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001, 0,
         true, null, TrimmingOptionEnum.Unquoted,
-         fieldDelimiterChar: '\t', fieldQualifierChar: '"', escapeCharacterChar: char.MinValue,
+        fieldDelimiterChar: '\t', fieldQualifierChar: '"', escapeCharacterChar: char.MinValue,
         recordLimit: 0, allowRowCombining: false, contextSensitiveQualifier: false, commentLine: "", numWarning: 0,
         duplicateQualifierToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
-        skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: true,
+        skipDuplicateHeader: true, treatLinefeedAsSpace: false, treatUnknownCharacterAsSpace: false,
+        tryToSolveMoreColumns: true,
         warnDelimiterInValue: true, warnLineFeed: false, warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true,
-        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL", skipEmptyLines: false, consecutiveEmptyRowsMax: 4, identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: System.TimeZoneInfo.Local.Id, 
+        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL", skipEmptyLines: false,
+        consecutiveEmptyRowsMax: 4, identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
+        returnedTimeZone: System.TimeZoneInfo.Local.Id,
         true, true);
       await test.OpenAsync(UnitTestStatic.Token);
 

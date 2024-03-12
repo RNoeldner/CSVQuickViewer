@@ -84,7 +84,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [DefaultValue(0)]
-    public int NumWarnings { get; set; } = 0;
+    public int NumWarnings { get; set; }
 
     /// <inheritdoc />
     [DefaultValue("")]

@@ -103,15 +103,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BadIssues.csv"), columnDefinition: new[]
-      {
-        new Column("effectiveDate", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")),
-        new Column("timestamp", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss", "-")),
-        new Column("version", new ValueFormat(DataTypeEnum.Integer)),
-        new Column("retrainingRequired", new ValueFormat(DataTypeEnum.Boolean)),
-        new Column("classroomTraining", new ValueFormat(DataTypeEnum.Boolean)),
-        new Column("webLink", new ValueFormat(DataTypeEnum.TextToHtml)),
-      }, treatLfAsSpace: true, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t', fieldQualifierChar: char.MinValue);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BadIssues.csv"),
+        columnDefinition: new[]
+        {
+          new Column("effectiveDate", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")),
+          new Column("timestamp", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss", "-")),
+          new Column("version", new ValueFormat(DataTypeEnum.Integer)),
+          new Column("retrainingRequired", new ValueFormat(DataTypeEnum.Boolean)),
+          new Column("classroomTraining", new ValueFormat(DataTypeEnum.Boolean)),
+          new Column("webLink", new ValueFormat(DataTypeEnum.TextToHtml)),
+        }, treatLinefeedAsSpace: true, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t',
+        fieldQualifierChar: char.MinValue);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       warningList.HandleIgnoredColumns(test);
