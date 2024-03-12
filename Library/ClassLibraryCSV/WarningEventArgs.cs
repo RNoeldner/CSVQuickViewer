@@ -113,20 +113,20 @@ namespace CsvTools
       if (addColumnInfoToWarning && !string.IsNullOrEmpty(ColumnName))
       {
         if (sb.Length > 0)
-          sb.Append(" ");
+          sb.Append(' ');
 
         sb.Append("Column [");
         if (ColumnName?.Length > 40)
         {
           sb.Append(ColumnName.Substring(0, 39));
-          sb.Append("…");
+          sb.Append('…');
         }
         else
         {
           sb.Append(ColumnName);
         }
 
-        sb.Append("]");
+        sb.Append(']');
       }
 
       if (sb.Length > 0)
