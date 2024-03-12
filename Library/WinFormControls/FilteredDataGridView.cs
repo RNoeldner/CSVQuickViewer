@@ -20,9 +20,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -492,7 +490,7 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private static int Measure(Graphics grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
+    private static int Measure(IDeviceContext grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
       Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
     {
       var max = Math.Min(
@@ -529,32 +527,38 @@ namespace CsvTools
     /// </summary>
     /// <param name="col"></param>
     /// <param name="rowCollection"></param>
+    /// <param name="cancellationToken">The cancellationToken to monitor for cancellation requests. The default value is <see cref="CancellationToken.None"/>.</param>
     /// <returns>A number for DataGridViewColumn.With</returns>
-    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection, CancellationToken token)
+    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection, CancellationToken cancellationToken)
     {
-      using var grap = CreateGraphics();
+      using var graph = CreateGraphics();
 
       if (col.DataType == typeof(Guid))
-        return Math.Max(TextRenderer.MeasureText(grap, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
-                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
+        return Math.Max(TextRenderer.MeasureText(graph, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
+          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width);
 
-      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) || col.DataType == typeof(decimal))
-        return Math.Max(TextRenderer.MeasureText(grap, "626727278.00", Font).Width,
-                        TextRenderer.MeasureText(grap, col.ColumnName, Font).Width);
+      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) ||
+          col.DataType == typeof(decimal))
+        return Math.Max(TextRenderer.MeasureText(graph, "626727278.00", Font).Width,
+          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width);
 
       if (col.DataType == typeof(DateTime))
-        return Measure(grap, Font, Width /2, col, rowCollection,
-          value => ((value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty, false), token);
+        return Measure(graph, Font, Width / 2, col, rowCollection,
+          value => (
+            (value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty,
+            false), cancellationToken);
 
       if (col.DataType == typeof(string))
-        return Measure(grap, Font, Width /2, col, rowCollection,
+        return Measure(graph, Font, Width / 2, col, rowCollection,
           value =>
           {
             var txt = value?.ToString() ?? string.Empty;
             return (txt, txt.Length > m_ShowButtonAtLength);
-          }, token);
+          }, cancellationToken);
 
-      return Math.Min(Width /2, Math.Max(TextRenderer.MeasureText(grap, "dummy", Font).Width, TextRenderer.MeasureText(grap, col.ColumnName, Font).Width));
+      return Math.Min(Width / 2,
+        Math.Max(TextRenderer.MeasureText(graph, "dummy", Font).Width,
+          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width));
     }
 
     public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
@@ -1136,13 +1140,6 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e) => Copy(true, false);
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemFilled control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemFilled_Click(object? sender, EventArgs e) => RefreshUI();
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilterRemoveAll control.

@@ -59,9 +59,15 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     ///     
     public Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
-                                 FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
-                                 EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
-    => m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable, t => RefreshDisplay(filterType, t), durationInitial, progress, addWarning, cancellationToken);
+      FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
+      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
+    {
+      // Need to set FileSetting so we can change Formats
+      FilteredDataGridView.FileSetting = fileSetting;
+
+      return m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
+        t => RefreshDisplay(filterType, t), durationInitial, progress, addWarning, cancellationToken);
+    }
 
     /// <inheritdoc />
     /// <summary>
