@@ -249,9 +249,8 @@ namespace CsvTools
           cancellationToken);
         ChangeColumnsNoEvent(false, detected);
 
-        m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
-                                          m_FileSetting.ColumnCollection.Any(x =>
-                                            x.ValueFormat.DataType != DataTypeEnum.String);
+        m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
+          x.ValueFormat.DataType != DataTypeEnum.String);
       }
       catch (Exception ex)
       {
@@ -389,9 +388,8 @@ namespace CsvTools
           ToolStripButtonAsText(false);
           Text = title.ToString();
           m_ToolStripButtonSettings.Visible = m_FileSetting != null;
-          m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
-                                            m_FileSetting.ColumnCollection.Any(x =>
-                                              x.ValueFormat.DataType != DataTypeEnum.String);
+          m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
+            x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
           await OpenDataReaderAsync(cancellationToken);
         });
       }
@@ -576,7 +574,7 @@ namespace CsvTools
     private void FormMain_Loaded(object? sender, EventArgs e)
     {
       // Handle Events      
-      m_ViewSettings.PropertyChanged += (o, args) =>
+      m_ViewSettings.PropertyChanged += (_, args) =>
       {
         if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
             args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))

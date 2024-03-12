@@ -2,7 +2,7 @@
   "profiles": {
     "CSVQuickViewer": {
       "commandName": "Project",
-      "commandLineArgs": "c:\\Users\\rnoldner\\EdCast\\Sky\\Workato\\Log_Content.json"
+      "commandLineArgs": "c:\\Users\\rnoldner\\Downloads\\User 1.csv"
     }
   }
 }

@@ -39,6 +39,8 @@ namespace CsvTools
       m_FileSetting = setting;
       FontConfig = viewSettings;
       InitializeComponent();
+      if (setting != null)
+        quotingControl.CsvFile = setting;
 
       toolTip.SetToolTip(checkBoxAllowRowCombining,
         @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 

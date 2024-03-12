@@ -41,6 +41,7 @@ namespace CsvTools
     private bool m_WarnNbsp = true;
     private bool m_WarnQuotes = true;
     private bool m_WarnUnknownCharacter = true;
+
     // ReSharper disable once StringLiteralTypo
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
@@ -54,12 +55,23 @@ namespace CsvTools
 
     public enum Duration
     {
-      [Description("unlimited")][ShortDescription("∞")] Unlimited,
-      [Description("1/2 second")][ShortDescription("½ s")] HalfSecond,
-      [Description("1 second")][ShortDescription("1 s")] Second,
-      [Description("2 seconds")][ShortDescription("2 s")] TwoSecond,
-      [Description("5 seconds")][ShortDescription("5 s")] FiveSecond,
-      [Description("10 seconds")][ShortDescription("10 s")] TenSecond,
+      [Description("unlimited")] [ShortDescription("∞")]
+      Unlimited,
+
+      [Description("1/2 second")] [ShortDescription("½ s")]
+      HalfSecond,
+
+      [Description("1 second")] [ShortDescription("1 s")]
+      Second,
+
+      [Description("2 seconds")] [ShortDescription("2 s")]
+      TwoSecond,
+
+      [Description("5 seconds")] [ShortDescription("5 s")]
+      FiveSecond,
+
+      [Description("10 seconds")] [ShortDescription("10 s")]
+      TenSecond,
     }
 #if SupportPGP
     private string m_KeyFileRead = string.Empty;
@@ -131,8 +143,7 @@ namespace CsvTools
       set => SetProperty(ref m_DetectFileChanges, value);
     }
 
-    [JsonIgnore]
-    public ICsvFile WriteSetting { get; } = new CsvFileDummy();
+    [JsonIgnore] public ICsvFile WriteSetting { get; } = new CsvFileDummy();
 
     [JsonIgnore]
     public TimeSpan DurationTimeSpan
@@ -306,6 +317,7 @@ namespace CsvTools
         WriteSetting.CodePageId = phyS.CodePageId;
         WriteSetting.ByteOrderMark = phyS.ByteOrderMark;
       }
+
       if (fileSetting is ICsvFile csvS)
       {
         WriteSetting.WarnDelimiterInValue = csvS.WarnDelimiterInValue;
@@ -315,6 +327,7 @@ namespace CsvTools
         WriteSetting.WarnQuotes = csvS.WarnQuotes;
         WriteSetting.WarnUnknownCharacter = csvS.WarnUnknownCharacter;
       }
+
       WriteSetting.DisplayStartLineNo = fileSetting.DisplayStartLineNo;
       WriteSetting.DisplayRecordNo = fileSetting.DisplayRecordNo;
 
@@ -326,7 +339,8 @@ namespace CsvTools
         WriteSetting.FieldQualifierChar = '"';
 
       // Fix No DuplicateQualifier
-      if (!WriteSetting.DuplicateQualifierToEscape && WriteSetting.FieldQualifierChar == '"' && WriteSetting.EscapePrefixChar== char.MinValue)
+      if (!WriteSetting.DuplicateQualifierToEscape && WriteSetting.FieldQualifierChar == '"' &&
+          WriteSetting.EscapePrefixChar == char.MinValue)
         WriteSetting.DuplicateQualifierToEscape = true;
 
       // Fix No Delimiter
@@ -353,6 +367,7 @@ namespace CsvTools
         csvFile.WarnQuotes = WarnQuotes;
         csvFile.WarnUnknownCharacter = WarnUnknownCharacter;
       }
+
       fileSetting.DisplayStartLineNo = DisplayStartLineNo;
       fileSetting.DisplayRecordNo = DisplayRecordNo;
     }
