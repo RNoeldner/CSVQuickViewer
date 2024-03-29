@@ -161,5 +161,14 @@ namespace CsvTools
     /// <param name="value">The current progress value</param>
     public void Invoke(IProgress<ProgressInfo> progress, string text, long value) =>
       Invoke(() => progress.Report(new ProgressInfo(text, value)));
+
+    /// <summary>
+    ///   Invoke progress on given interval
+    /// </summary>
+    /// <param name="progress">The process display</param>
+    /// <param name="text">The text to display.</param>
+    /// <param name="value">The current progress value</param>
+    public void Invoke(IProgress<ProgressInfo> progress, string text, float value) =>
+      Invoke(() => progress.Report(new ProgressInfo(text, value)));
   }
 }

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 namespace CsvTools
@@ -39,9 +40,11 @@ namespace CsvTools
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
     /// <param name="columnValues">The data in the column</param>
     /// <param name="maxCluster">Maximum number of clusters to show</param>
-    public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues, int maxCluster)
+    public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues,
+      int maxCluster)
     {
-      m_DataGridViewColumnFilter = dataGridViewColumnFilter??throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
+      m_DataGridViewColumnFilter =
+        dataGridViewColumnFilter ?? throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
       m_Values = columnValues;
       m_MaxCluster = maxCluster;
       InitializeComponent();
@@ -57,7 +60,9 @@ namespace CsvTools
 
       timerRebuild.Start();
 
-      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.String || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Guid || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Boolean)
+      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.String ||
+          m_DataGridViewColumnFilter.DataType == DataTypeEnum.Guid ||
+          m_DataGridViewColumnFilter.DataType == DataTypeEnum.Boolean)
       {
         radioButtonCombine.Visible = false;
         radioButtonEven.Visible = false;
@@ -67,24 +72,24 @@ namespace CsvTools
 
     private void FilterItems(string filter)
     {
-      var filtered = m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => x.Active || string.IsNullOrEmpty(filter) || x.Display.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToArray();
+      var filtered = m_DataGridViewColumnFilter.ValueClusterCollection.Where(x =>
+          x.Active || string.IsNullOrEmpty(filter) ||
+          x.Display.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1)
+        .ToArray();
       listViewCluster.BeginUpdate();
       listViewCluster.Items.Clear();
       foreach (var item in filtered)
       {
-        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] {
-            item.Display,
-            item.Count.ToString("N0"), }));
+        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0"), }));
         lvItem.Checked = item.Active;
       }
+
       foreach (var item in m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => !filtered.Contains(x)))
       {
-        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] {
-            item.Display,
-            item.Count.ToString("N0"), }));
+        var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0"), }));
         lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
-
       }
+
       listViewCluster.EndUpdate();
     }
 
@@ -119,8 +124,9 @@ namespace CsvTools
       foreach (ListViewItem sel in listViewCluster.Items)
       {
         var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => x.Display == sel.Text);
-        vc.Active= sel.Checked;
+        vc.Active = sel.Checked;
       }
+
       m_DataGridViewColumnFilter.ApplyFilter();
     }
 
@@ -131,12 +137,12 @@ namespace CsvTools
 
       if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
       {
-        if (m_DataGridViewColumnFilter.ValueDateTime >= dateTimePickerValue.MinDate && m_DataGridViewColumnFilter.ValueDateTime <= dateTimePickerValue.MaxDate)
+        if (m_DataGridViewColumnFilter.ValueDateTime >= dateTimePickerValue.MinDate &&
+            m_DataGridViewColumnFilter.ValueDateTime <= dateTimePickerValue.MaxDate)
           dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
         else
           dateTimePickerValue.Value = DateTime.Now.Date;
         dateTimePickerValue.Visible = true;
-
       }
       else
       {
@@ -157,15 +163,17 @@ namespace CsvTools
         if (m_DataGridViewColumnFilter.DataType != DataTypeEnum.DateTime)
         {
           errorProvider.SetError(textBoxValue, string.Empty);
-          if (textBoxValue.Text.Length==0)
+          if (textBoxValue.Text.Length == 0)
             return;
 
-          if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric || m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
+          if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Numeric ||
+              m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer)
           {
-            var stringToDecimal = textBoxValue.Text.AsSpan().StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
-                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                           false, false) ??
-                         textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
+            var stringToDecimal = textBoxValue.Text.AsSpan().StringToDecimal(
+                                    CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
+                                    CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
+                                    false, false) ??
+                                  textBoxValue.Text.AsSpan().StringToDecimal('.', char.MinValue, false, false);
             if (!stringToDecimal.HasValue)
             {
               textBoxValue.Width = dateTimePickerValue.Width - 20;
@@ -173,11 +181,13 @@ namespace CsvTools
             }
             else
             {
-              if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer && (stringToDecimal.Value< long.MinValue || stringToDecimal.Value> long.MaxValue))
+              if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.Integer &&
+                  (stringToDecimal.Value < long.MinValue || stringToDecimal.Value > long.MaxValue))
               {
                 textBoxValue.Width = dateTimePickerValue.Width - 20;
                 errorProvider.SetError(textBoxValue, "Out of integer rage");
               }
+
               textBoxValue.Text = stringToDecimal.Value.ToString(CultureInfo.CurrentCulture);
             }
           }
@@ -224,7 +234,6 @@ namespace CsvTools
         textBoxValue.SelectionStart = 0;
         textBoxValue.SelectionLength = textBoxValue.Text.Length;
       }
-
     }
 
     private void TimerFilter_Tick(object sender, EventArgs e)
@@ -246,14 +255,16 @@ namespace CsvTools
     {
       timerRebuild.Stop();
 
-      using var frm = new FormProgress("Building", false, FontConfig, cancellationTokenSource.Token);
-      frm.SetMaximum(0);
+      using var frm = new FormProgress("Filter", false, FontConfig, cancellationTokenSource.Token);
+      frm.SetMaximum(100);
       frm.Show();
-      frm.Report(new ProgressInfo("Building clusters", 0));
+      frm.Report(new ProgressInfo("Building clusters", 1));
       try
       {
-        var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm, frm.CancellationToken);
+        var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(
+          m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm,
+          frm.CancellationToken);
         if (result == BuildValueClustersResult.ListFilled)
         {
           FilterItems("");
@@ -265,18 +276,19 @@ namespace CsvTools
           switch (result)
           {
             case BuildValueClustersResult.WrongType:
-              explain="Data type did not match";
+              explain = "Data type did not match";
               break;
             case BuildValueClustersResult.TooManyValues:
-              explain="Too many values building would take too long";
+              explain = "Too many values building would take too long";
               break;
             case BuildValueClustersResult.NoValues:
-              explain="No value found";
+              explain = "No value found";
               break;
           }
+
           toolTip.SetToolTip(this.listViewCluster, explain);
           labelError.Text = explain;
-          labelError.Visible=true;
+          labelError.Visible = true;
           toolTip.SetToolTip(this.labelError, explain);
           listViewCluster.Enabled = false;
         }

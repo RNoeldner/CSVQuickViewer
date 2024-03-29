@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -51,14 +50,57 @@ namespace CsvTools.Tests
     public void BuildValueClusters_StringListFilled()
     {
       var fl = GetFilterLogic(0);
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "string").ColumnOrdinal), "d1", false, 200), "Column String");
-      
-      Assert.AreEqual(BuildValueClustersResult.NoValues, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "AllEmpty").ColumnOrdinal), "d2", true, 200), "Column AllEmpty");
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "string").ColumnOrdinal), "d1", false, 200), "Column String");
 
-      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String, GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "PartEmpty").ColumnOrdinal), "d2", true, 200), "Column PartEmpty");
+      Assert.AreEqual(BuildValueClustersResult.NoValues, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "AllEmpty").ColumnOrdinal), "d2", true, 200), "Column AllEmpty");
+
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "PartEmpty").ColumnOrdinal), "d2", true, 200), "Column PartEmpty");
       Assert.IsNotNull(fl.ValueClusterCollection);
     }
 
+    [TestMethod]
+    public void BuildValueClusters_LargeListMayUnique()
+    {
+      var value = new List<object>();
+      for (int index = 0; index < 500000; index++)
+        if (index % 10000 == 0)
+          value.Add(DBNull.Value);
+        else
+          value.Add(UnitTestStatic.GetRandomText(25));
+      
+
+      var fl = GetFilterLogic(0);
+
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
+        value, "d1", false, 50, true, false,
+        new Progress<ProgressInfo>(info => { Logger.Debug($"{DateTime.Now} : {info.Text} {info.Value}"); }),
+        UnitTestStatic.Token), "Column String");
+
+      Assert.IsNotNull(fl.ValueClusterCollection);
+    }
+
+    [TestMethod]
+    public void BuildValueClusters_LargeListManyDuplicates()
+    {
+      var possible = new List<string>();
+      for (int index = 0; index < 20; index++)
+        possible.Add(UnitTestStatic.
+          GetRandomText(10));
+
+      var value = new List<object>();
+      for (int index = 0; index < 500000; index++)
+        value.Add(possible[index % (possible.Count-1)]);
+
+      var fl = GetFilterLogic(0);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
+        value, "d1", false, 50, true, false,
+        new Progress<ProgressInfo>(info => { Logger.Debug($"{DateTime.Now} : {info.Text} {info.Value}"); }), UnitTestStatic.Token) , "Column String");
+
+      Assert.IsNotNull(fl.ValueClusterCollection);
+    }
 
     [TestMethod]
     [Timeout(1000)]

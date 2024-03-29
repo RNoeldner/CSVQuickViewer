@@ -239,12 +239,9 @@ namespace CsvTools.Tests
     }
 
 
-
-    public static string? GetRandomText(int length)
+    public static string GetRandomText(int length)
     {
-      if (length < 1)
-        return null;
-      // Space is in there a few times so we get more spaces
+      // Space is in there a few times, so we get more spaces
       var chars = " abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !§$%&/()=?+*#,.-;:_ "
         .ToCharArray();
       var data = new byte[length];
