@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
   /// <summary>
@@ -23,11 +25,39 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
     /// </summary>
     /// <param name="text">The informational text.</param>
+    public ProgressInfo(in string text)
+    {
+      Text = text;
+      Value = -1;
+    }
+
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
+    /// </summary>
+    /// <param name="text">The informational text.</param>
     /// <param name="value">The progress value.</param>
-    public ProgressInfo(in string text, long value = -1)
+    public ProgressInfo(in string text, long value)
     {
       Text = text;
       Value = value;
+    }
+
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
+    /// </summary>
+    /// <param name="text">The informational text.</param>
+    /// <param name="value">The progress value.</param>
+    public ProgressInfo(in string text, float value)
+    {
+      Text = text;
+      try
+      {
+        Value = Convert.ToInt64(value);
+      }
+      catch (OverflowException)
+      {
+        // ignore
+      }
     }
 
     /// <summary>
