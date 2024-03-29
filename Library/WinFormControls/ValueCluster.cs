@@ -23,20 +23,17 @@ namespace CsvTools
   /// </summary>
   public sealed class ValueCluster : IEquatable<ValueCluster>
   {
-    public object? Start { get; }
-    public object? End { get; }
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
     /// </summary>
     /// <param name="display">The text displayed for the value.</param>
     /// <param name="condition">the sql condition to be applied</param>
-    /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
+    /// <param name="start"></param>
     /// <param name="end"></param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    /// <param name="start"></param>
-    public ValueCluster(in string display, in string condition, int count, object? start, object? end = null, bool active = false)
+    public ValueCluster(in string display, in string condition, int count, object? start, object? end = null,
+      bool active = false)
     {
       Display = display;
       SQLCondition = condition;
@@ -76,6 +73,8 @@ namespace CsvTools
       get;
     }
 
+    public object? End { get; }
+
     /// <summary>
     ///   Gets or sets the SQL condition to get a list of the records
     /// </summary>
@@ -84,6 +83,8 @@ namespace CsvTools
     {
       get;
     }
+
+    public object? Start { get; }
 
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
@@ -98,7 +99,7 @@ namespace CsvTools
       if (other is null)
         return false;
 
-      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)             
+      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
              && Count == other.Count && Active == other.Active;
     }
@@ -123,8 +124,8 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = Display.GetHashCode();        
-        hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());        
+        var hashCode = Display.GetHashCode();
+        hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());
         return hashCode;
       }
     }
