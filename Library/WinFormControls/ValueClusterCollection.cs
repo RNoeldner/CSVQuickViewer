@@ -98,7 +98,7 @@ namespace CsvTools
           var countNull = Loop(values, typedValues, Convert.ToString, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(new ProgressInfo("Combining values to clusters"));
-          return BuildValueClustersString(typedValues, escapedName, maxNumber, cancellationToken);
+          return BuildValueClustersString(typedValues, escapedName, maxNumber, 5.0, cancellationToken);
         }
 
         if (type == DataTypeEnum.DateTime)
@@ -658,35 +658,13 @@ namespace CsvTools
 
       if (clusterOne.Count >max)
       {
-        NewFunction();
+        var countC1 = CountBeginningChar(escapedName, 'a', 'e', values);
+        var countC2 = CountBeginningChar(escapedName, 'f', 'k', values);
+        var countC3 = CountBeginningChar(escapedName, 'l', 'r', values);
+        var countC4 = CountBeginningChar(escapedName, 's', 'z', values);
+        var countN = CountBeginningChar(escapedName, '0', '9', values);
 
-        if (!linkedTokenSource.IsCancellationRequested)
-        {
-          var countC2 =
-            values.Count(x => x.Length > 0 && ((x[0] >= 'f' && x[0] <= 'k') || (x[0] >= 'F' && x[0] <= 'K')));
-          AddUnique(new ValueCluster("F-K",
-            $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k"));
-          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-            linkedTokenSource.Cancel();
-        }
-
-        if (!linkedTokenSource.IsCancellationRequested)
-        {
-          var countC3 =
-            values.Count(x => x.Length > 0 && ((x[0] >= 'l' && x[0] <= 'r') || (x[0] >= 'L' && x[0] <= 'R')));
-          AddUnique(new ValueCluster("L-R",
-            $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r"));
-        }
-
-        var countC4 = values.Count(x => x.Length >0 && ((x[0] >='s' && x[0]<='z') || (x[0]>='S' && x[0]<='Z')));
-        AddUnique(new ValueCluster("S-Z",
-          $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z"));
-
-        var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
-        AddUnique(new ValueCluster("0-9",
-          $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9"));
-
-        var countS = values.Count(x => x.Length >0 && (x[0] < 32));
+        var countS = values.Count(x => x.Length > 0 && (x[0] < 32));
         AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
         var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
@@ -812,18 +790,20 @@ namespace CsvTools
         ? BuildValueClustersResult.TooManyValues
         : BuildValueClustersResult.ListFilled;
 
-      void NewFunction(string escapedName, char min1, char max1)
+      int CountBeginningChar(string escapedName, char min1, char max1, IEnumerable<string> values)
       {
-        if (!linkedTokenSource.IsCancellationRequested)
-        {
-          var countC1 =
-            values.Count(x => x.Length > 0 && ((x[0] >= min1 && x[0] <= max1) || (x[0] >= min1. && x[0] <= max2)));
-          AddUnique(new ValueCluster("A-E",
-            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, min1.ToString(), min2.ToString()));
+        var count = values.TakeWhile(x => !linkedTokenSource.IsCancellationRequested).Count(x =>
+          x.Length > 0 && ((x[0] >= min1 && x[0] <= max1) ||
+                           (char.ToLowerInvariant(x[0]) >= min1 && char.ToLowerInvariant(x[0]) <= max1)));
 
-          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-            linkedTokenSource.Cancel();
-        }
+        AddUnique(new ValueCluster($"{min1}-{max1}",
+          $"(SUBSTRING({escapedName},1,1) >= '{min1}' AND SUBSTRING({escapedName},1,1) <= '{max1}')", count,
+          min1.ToString(),
+          max1.ToString()));
+
+        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
+          linkedTokenSource.Cancel();
+        return count;
       }
     }
 
