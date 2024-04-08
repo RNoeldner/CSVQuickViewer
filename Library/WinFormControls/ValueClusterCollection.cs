@@ -775,71 +775,53 @@ namespace CsvTools
       {
         var startTime = DateTime.Now;
         var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-        var countC1 =
-          values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
-            x.Length > 0 && ((x[0] >= 'a' && x[0] <= 'e') || (x[0] >= 'A' && x[0] <= 'E')));
-        AddUnique(new ValueCluster("A-E",
-          $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "b"));
+        var countC1 = CountPassing(values, startTime,
+          x => (x[0] >= 'a' && x[0] <= 'e') || (x[0] >= 'A' && x[0] <= 'E'), linkedTokenSource);
+        if (countC1 > 0)
+          AddUnique(new ValueCluster("A-E",
+            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, "a", "b"));
 
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
+        var countC2 = CountPassing(values, startTime,
+          x => (x[0] >= 'f' && x[0] <= 'k') || (x[0] >= 'F' && x[0] <= 'K'), linkedTokenSource);
+        if (countC2 > 0)
+          AddUnique(new ValueCluster("F-K",
+            $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k"));
 
-        var countC2 =
-          values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
-            x.Length > 0 && ((x[0] >= 'f' && x[0] <= 'k') || (x[0] >= 'F' && x[0] <= 'K')));
-        AddUnique(new ValueCluster("F-K",
-          $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k"));
+        var countC3 = CountPassing(values, startTime,
+          x => (x[0] >= 'l' && x[0] <= 'r') || (x[0] >= 'L' && x[0] <= 'R'), linkedTokenSource);
+        if (countC3 > 0)
+          AddUnique(new ValueCluster("L-R",
+            $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC3, "l", "r"));
 
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
+        var countC4 = CountPassing(values, startTime,
+          x => (x[0] >= 's' && x[0] <= 'z') || (x[0] >= 'S' && x[0] <= 'Z'), linkedTokenSource);
+        if (countC4 > 0)
+          AddUnique(new ValueCluster("S-Z",
+            $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC4, "s", "z"));
 
-        var countC3 =
-          values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
-            x.Length > 0 && ((x[0] >= 'l' && x[0] <= 'r') || (x[0] >= 'L' && x[0] <= 'R')));
-        AddUnique(new ValueCluster("L-R",
-          $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r"));
+        var countN = CountPassing(values, startTime,
+          x => x[0] > 48 && x[0] < 57, linkedTokenSource);
+        if (countN > 0)
+          AddUnique(new ValueCluster("0-9",
+            $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9"));
 
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
+        var countS = CountPassing(values, startTime,
+          x => x[0] < 32, linkedTokenSource);
+        if (countS > 0)
+          AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
-        var countC4 = values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
-          x.Length > 0 && ((x[0] >= 's' && x[0] <= 'z') || (x[0] >= 'S' && x[0] <= 'Z')));
-        AddUnique(new ValueCluster("S-Z",
-          $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z"));
-
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
-
-        var countN = values.TakeWhile(x => !cancellation.IsCancellationRequested)
-          .Count(x => x.Length > 0 && (x[0] > 48 && x[0] < 57));
-        AddUnique(new ValueCluster("0-9",
-          $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9"));
-
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
-
-        var countS = values.TakeWhile(x => !cancellation.IsCancellationRequested)
-          .Count(x => x.Length > 0 && (x[0] < 32));
-        AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
-
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
-
-        var countP = values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
-          x.Length > 0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65) || (x[0] >= 91 && x[0] <= 96) ||
-          (x[0] >= 173 && x[0] <= 176));
-
+        var countP = CountPassing(values, startTime,
+          x => (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65) || (x[0] >= 91 && x[0] <= 96) ||
+               (x[0] >= 173 && x[0] <= 176), linkedTokenSource);
         if (countP > 0)
           AddUnique(new ValueCluster("Punctuation",
             $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
             $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
             $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
             $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~'))", countP, null));
-        if (cancellation.IsCancellationRequested)
-          return BuildValueClustersResult.TooManyValues;
 
         ia?.Invoke(progress!, msg, 100);
-        var countR = values.Count() - countS - countN - countC1 - countC2 - countC3 - countC4 - countP;
+        var countR = values.Count - countS - countN - countC1 - countC2 - countC3 - countC4 - countP;
         if (countR > 0)
           AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null));
         progress?.Report(new ProgressInfo("Range clusters Other", 100));
@@ -962,6 +944,18 @@ namespace CsvTools
       return cancellation.IsCancellationRequested
         ? BuildValueClustersResult.TooManyValues
         : BuildValueClustersResult.ListFilled;
+
+      int CountPassing(IEnumerable<string> values, DateTime startTime,
+        Func<string, bool> passing, CancellationTokenSource linkedTokenSource)
+      {
+        var count = values.TakeWhile(x => !cancellation.IsCancellationRequested).Count(x =>
+          x.Length > 0 && passing(x));
+
+        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
+          linkedTokenSource.Cancel();
+
+        return count;
+      }
     }
 
     /// <summary>
