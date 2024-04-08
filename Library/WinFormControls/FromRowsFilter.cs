@@ -255,10 +255,10 @@ namespace CsvTools
     {
       timerRebuild.Stop();
 
-      using var frm = new FormProgress("Building", false, FontConfig, cancellationTokenSource.Token);
-      frm.SetMaximum(0);
+      using var frm = new FormProgress("Filter", false, FontConfig, cancellationTokenSource.Token);
+      frm.SetMaximum(100);
       frm.Show();
-      frm.Report(new ProgressInfo("Building clusters", 0));
+      frm.Report(new ProgressInfo("Building clusters", 1));
       try
       {
         var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(
