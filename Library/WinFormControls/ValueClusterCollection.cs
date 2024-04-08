@@ -26,12 +26,15 @@ namespace CsvTools
 {
   public sealed class ValueClusterCollection : ICollection<ValueCluster>
   {
+    private const float PercentTyped = 5f;
+    private const float PercentBuild = 75f;
+    private const float PercentBuildEven = 60f;
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
     private readonly IList<ValueCluster> m_ValueClusters = new List<ValueCluster>();
 
     private ValueCluster m_Last = new ValueCluster("Dummy", string.Empty, int.MaxValue, null);
 
-    private enum DateTimeRange { Hours, Days, Month, Years }
+    private enum DateTimeRange { Hours, Days, Month, Years, }
 
     public int Count => m_ValueClusters.Count;
 
@@ -95,7 +98,7 @@ namespace CsvTools
         if (type == DataTypeEnum.String || type == DataTypeEnum.Guid  || type == DataTypeEnum.Boolean)
         {
           var typedValues = new List<string>();
-          var countNull = Loop(values, typedValues, Convert.ToString, progress, cancellationToken);
+          var countNull = MakeTypedValues(values, typedValues, Convert.ToString, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(new ProgressInfo("Combining values to clusters"));
           return BuildValueClustersString(typedValues, escapedName, maxNumber, 5.0, cancellationToken);
@@ -104,39 +107,39 @@ namespace CsvTools
         if (type == DataTypeEnum.DateTime)
         {
           var typedValues = new List<DateTime>();
-          var countNull = Loop(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
+          var countNull = MakeTypedValues(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
 
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining values to clusters of even size")
-            : new ProgressInfo("Combining values to clusters"));
+            ? new ProgressInfo("Combining dates to clusters of even size")
+            : new ProgressInfo("Combining dates to clusters"));
 
-          return even ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, cancellationToken) :
-                        BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, cancellationToken);
+          return even ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, progress, cancellationToken) :
+                        BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, progress, cancellationToken);
         }
 
         if (type == DataTypeEnum.Integer)
         {
-
           var typedValues = new List<long>();
-          var countNull = Loop(values, typedValues, Convert.ToInt64, progress, cancellationToken);
+          var countNull = MakeTypedValues(values, typedValues, Convert.ToInt64, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining values to clusters of even size")
-            : new ProgressInfo("Combining values to clusters"));
-          return even ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, cancellationToken) : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, cancellationToken);
+            ? new ProgressInfo("Combining integer to clusters of even size")
+            : new ProgressInfo("Combining integer to clusters"));
+          return even ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, progress, cancellationToken) :
+            BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, progress, cancellationToken);
         }
 
         if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
         {
           var typedValues = new List<double>();
-          var countNull = Loop(values, typedValues, (obj) => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress, cancellationToken);
+          var countNull = MakeTypedValues(values, typedValues, (obj) => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining values to clusters of even size")
-            : new ProgressInfo("Combining values to clusters"));
-          return even ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, cancellationToken) :
-            BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, cancellationToken);
+            ? new ProgressInfo("Combining numbers to clusters of even size")
+            : new ProgressInfo("Combining numbers to clusters"));
+          return even ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, progress, cancellationToken) :
+            BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, progress, cancellationToken);
         }
 
         return BuildValueClustersResult.WrongType;
@@ -151,18 +154,32 @@ namespace CsvTools
 
     public bool Remove(ValueCluster item) => m_ValueClusters.Remove(item);
 
-    private static int Loop<T>(in ICollection<object> values, in List<T> typedValues, Func<object, T> convert,
-      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+    /// <summary>
+    /// Convert the object to typed values and count the number of NULL values
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="values">The objects to cast</param>
+    /// <param name="typedValues">The resulting List</param>
+    /// <param name="convert"></param>
+    /// <param name="progress"></param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
+    /// <returns></returns>
+    private static int MakeTypedValues<T>(in ICollection<object> values, in List<T> typedValues, Func<object, T> convert, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       var countNull = 0;
       var ia = IntervalAction.ForProgress(progress);
-      var msg = $"Collecting values from the {values.Count:N0} rows";
+      var msg = $"Collecting typed values from {values.Count:N0} rows";
       ia?.Invoke(progress!, msg, 0);
       int counter = 0;
       foreach (var obj in values)
       {
         counter++;
-        cancellationToken.ThrowIfCancellationRequested();
+
+        // Assume process is 5% of overall process
+        var percent = counter / (float) values.Count * PercentTyped;
+        if (cancellationToken.IsCancellationRequested)
+          break;
+
         if (obj is DBNull || obj == null)
         {
           countNull++;
@@ -177,10 +194,9 @@ namespace CsvTools
         {
           countNull++;
         }
-
-        ia?.Invoke(progress!, msg, Convert.ToInt64(counter / (double) values.Count * 100));
+        ia?.Invoke(progress!, msg, percent);
       }
-
+      progress?.Report(new ProgressInfo(msg, PercentTyped));
       return countNull;
     }
 
@@ -235,7 +251,7 @@ namespace CsvTools
     ///   Builds the keyValue clusters date.
     /// </summary>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersDate(in ICollection<DateTime> values, in string escapedName, int max, bool combine, CancellationToken cancellationToken)
+    private BuildValueClustersResult BuildValueClustersDate(in ICollection<DateTime> values, in string escapedName, int max, bool combine, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
       var clusterYear = new HashSet<int>();
@@ -243,9 +259,15 @@ namespace CsvTools
       var clusterDay = new HashSet<DateTime>();
       var clusterHour = new HashSet<long>();
 
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Preparing {values.Count:N0} values";
+      var percent = 5f;
+      int cValues = 0;
+
       foreach (var value in values)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         if (clusterHour.Count <= max)
           clusterHour.Add(value.TimeOfDay.Ticks / cTicksPerGroup);
         if (clusterDay.Count <= max)
@@ -255,13 +277,17 @@ namespace CsvTools
         clusterYear.Add(value.Year);
 
         // if we have more than the maximum entries stop, no keyValue filter will be used
-        if (clusterYear.Count <= max)
-          continue;
-        return BuildValueClustersResult.TooManyValues;
+        if (clusterYear.Count > max)
+          return BuildValueClustersResult.TooManyValues;
+
+        cValues++;
+        percent = cValues / (float) values.Count * PercentBuildEven + PercentTyped;
+        ia?.Invoke(progress!, msg, percent);
       }
 
       if (clusterYear.Count == 0)
         return BuildValueClustersResult.NoValues;
+
       var desiredSize = 1;
       if (combine)
       {
@@ -269,14 +295,20 @@ namespace CsvTools
         if (desiredSize < 5)
           desiredSize=5;
       }
+      msg = "Adding cluster";
+      percent = PercentBuildEven;
       if (clusterDay.Count == 1)
       {
         clusterHour.Add(clusterHour.Min() -1);
         clusterHour.Add(clusterHour.Max() +1);
+        var step = (100 - PercentBuildEven) / clusterHour.Count;
         foreach (var dic in clusterHour.OrderBy(x => x))
         {
-          cancellationToken.ThrowIfCancellationRequested();
+          if (cancellationToken.IsCancellationRequested)
+            break;
           AddValueClusterDateTime(escapedName, (dic * cTicksPerGroup).GetTimeFromTicks(), ((dic + 1) * cTicksPerGroup).GetTimeFromTicks(), values, DateTimeRange.Hours, desiredSize);
+          percent += step;
+          ia?.Invoke(progress!, msg, percent);
         }
 
       }
@@ -284,38 +316,49 @@ namespace CsvTools
       {
         clusterDay.Add(clusterDay.Min().AddDays(-1));
         clusterDay.Add(clusterDay.Max().AddDays(+1));
+        var step = (100 - PercentBuildEven) / clusterDay.Count;
         foreach (var dateTime in clusterDay.OrderBy(x => x))
         {
-          cancellationToken.ThrowIfCancellationRequested();
+          if (cancellationToken.IsCancellationRequested)
+            break;
           AddValueClusterDateTime(escapedName, dateTime, dateTime.AddDays(1), values, DateTimeRange.Days, desiredSize);
+          percent += step;
+          ia?.Invoke(progress!, msg, percent);
         }
       }
       else if (clusterMonth.Count < max)
       {
         clusterMonth.Add(clusterDay.Min().AddMonths(-1));
         clusterMonth.Add(clusterDay.Max().AddMonths(+1));
+        var step = (100 - PercentBuildEven) / clusterMonth.Count;
         foreach (var dateTime in clusterMonth.OrderBy(x => x))
         {
-          cancellationToken.ThrowIfCancellationRequested();
+          if (cancellationToken.IsCancellationRequested)
+            break;
           AddValueClusterDateTime(escapedName, dateTime, dateTime.AddMonths(1), values, DateTimeRange.Month, desiredSize);
+          percent += step;
+          ia?.Invoke(progress!, msg, percent);
         }
       }
       else
       {
         clusterYear.Add(clusterYear.Max() +1);
+        var step = (100 - PercentBuildEven) / clusterYear.Count;
         foreach (var year in clusterYear.OrderBy(x => x))
         {
-          cancellationToken.ThrowIfCancellationRequested();
+          if (cancellationToken.IsCancellationRequested)
+            break;
           AddValueClusterDateTime(escapedName, new DateTime(year, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), new DateTime(year + 1, 1, 1, 0, 0, 0, 0, DateTimeKind.Local), values, DateTimeRange.Years, desiredSize);
+          percent += step;
+          ia?.Invoke(progress!, msg, percent);
         }
       }
-
 
       return BuildValueClustersResult.ListFilled;
     }
 
     private BuildValueClustersResult BuildValueClustersDateEven(in ICollection<DateTime> values, string escapedName,
-      int max, CancellationToken cancellationToken)
+      int max, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       return BuildValueClustersEven(values, values.Count / max,
         (number) => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
@@ -324,22 +367,31 @@ namespace CsvTools
           "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, minValue, maxValue),
         (minValue) => $"{minValue:d} – ",
         (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName,
-          minValue), cancellationToken);
+          minValue), progress, cancellationToken);
     }
 
     private BuildValueClustersResult BuildValueClustersEven<T>(in ICollection<T> values, int bucketSize,
       Func<T, T> round, Func<T, T, string> getDisplay, Func<T, T, string> getStatement, Func<T, string> getDisplayLast,
-      Func<T, string> getStatementLast, CancellationToken cancellationToken) where T : IComparable<T>
+      Func<T, string> getStatementLast, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken) where T : IComparable<T>
     {
       var counter = new Dictionary<T, int>();
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Preparing {values.Count:N0} values";
+      var percent = 5f;
+      int cValues = 0;
+
       foreach (var number in values)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         var rounded = round(number);
         if (!counter.ContainsKey(rounded))
           counter[rounded] = 1;
         else
           counter[rounded]++;
+        cValues++;
+        percent = cValues / (float) values.Count * PercentBuildEven + PercentTyped;
+        ia?.Invoke(progress!, msg, percent);
       }
 
       var bucketCount = 0;
@@ -347,10 +399,13 @@ namespace CsvTools
       var minValue = ordered[0].Key;
 
       var hasPrevious = m_ValueClusters.Any(x => x.Start is T);
-
+      percent = PercentBuildEven;
+      var step = (100 - PercentBuildEven) / ordered.Length;
+      msg = $"Adding ordered {ordered.Length:N0} values";
       foreach (var keyValue in ordered)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         bucketCount += keyValue.Value;
         // progress keyValue.Key next bucket
         if (bucketCount <= bucketSize)
@@ -363,6 +418,8 @@ namespace CsvTools
 
         minValue = keyValue.Key;
         bucketCount = keyValue.Value;
+        percent += step;
+        ia?.Invoke(progress!, msg, percent);
       }
 
       // Make one last bucket for the rest
@@ -373,16 +430,24 @@ namespace CsvTools
     }
 
     private BuildValueClustersResult BuildValueClustersLong(in ICollection<long> values, in string escapedName, int max,
-      bool combine, CancellationToken cancellationToken)
+      bool combine, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts      
       var clusterOne = new HashSet<long>();
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Preparing {values.Count:N0} values";
+      var percent = 5f;
+      int cValues = 0;
 
       foreach (var value in values)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         if (clusterOne.Count <= max)
           clusterOne.Add(value);
+        cValues++;
+        percent = cValues / (float) values.Count * PercentBuildEven + PercentTyped;
+        ia?.Invoke(progress!, msg, percent);
       }
 
       if (clusterOne.Count == 0)
@@ -427,10 +492,13 @@ namespace CsvTools
         if (desiredSize < 5)
           desiredSize=5;
       }
-
+      percent = PercentBuildEven;
+      var step = (100 - PercentBuildEven) / fittingCluster.Count;
+      msg = "Adding cluster";
       foreach (var dic in fittingCluster.OrderBy(x => x))
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         var minValue = (long) (dic * factor);
         var maxValue = (long) (minValue + factor);
 
@@ -462,33 +530,40 @@ namespace CsvTools
               count, minValue, maxValue));
           }
         }
+        percent += step;
+        ia?.Invoke(progress!, msg, percent);
       }
       return BuildValueClustersResult.ListFilled;
     }
 
     private BuildValueClustersResult BuildValueClustersLongEven(in ICollection<long> values, string escapedName,
-      int max, CancellationToken cancellationToken)
+      int max, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       return BuildValueClustersEven(values, values.Count / max, (number) => number,
         (minValue, maxValue) => $"{minValue:F0} - {maxValue:F0}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName,
           minValue, maxValue),
         (minValue) => $"{minValue:F0} - ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1})", escapedName, minValue),
+        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1})", escapedName, minValue), progress,
         cancellationToken);
     }
 
     private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName,
-      int max, bool combine, CancellationToken cancellationToken)
+      int max, bool combine, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
       var clusterFractions = new HashSet<double>();
       var clusterOne = new HashSet<long>();
       var hasFactions = false;
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Preparing {values.Count:N0} values";
+      var percent = 5f;
+      int cValues = 0;
 
       foreach (var value in values)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
         if (clusterFractions.Count <= max)
         {
           hasFactions |= value % 1 != 0;
@@ -498,6 +573,9 @@ namespace CsvTools
         var key = Convert.ToInt64(value, CultureInfo.CurrentCulture);
         if (clusterOne.Count <= max)
           clusterOne.Add(key);
+        cValues++;
+        percent = cValues / (float) values.Count * PercentBuildEven + PercentTyped;
+        ia?.Invoke(progress!, msg, percent);
       }
 
       if (clusterOne.Count == 0)
@@ -562,13 +640,16 @@ namespace CsvTools
           desiredSize=5;
       }
 
+      percent = PercentBuildEven;
+      var step = (100 - PercentBuildEven) / fittingCluster.Count;
       foreach (var dic in fittingCluster.OrderBy(x => x))
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        if (cancellationToken.IsCancellationRequested)
+          break;
 
         var minValue = (long) (dic * factor);
         var maxValue = (long) (minValue + factor);
-
+        msg = $"Adding cluster {minValue:N0} - {maxValue:N0}";
         if (HasOverlappingCluster(minValue, maxValue))
           continue;
         if (factor > 1)
@@ -597,19 +678,21 @@ namespace CsvTools
               count, minValue, maxValue));
           }
         }
+        percent += step;
+        ia?.Invoke(progress!, msg, percent);
       }
       return BuildValueClustersResult.ListFilled;
     }
 
     private BuildValueClustersResult BuildValueClustersNumericEven(in ICollection<double> values, string escapedName,
-      int max, CancellationToken cancellationToken)
+      int max, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       return BuildValueClustersEven(values, values.Count / max, (number) => Math.Floor(number * 10d) / 10d,
         (minValue, maxValue) => $"{minValue:F1} - {maxValue:F1}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})",
           escapedName, minValue, maxValue),
         (minValue) => $"{minValue:F1} - ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue),
+        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue), progress,
         cancellationToken);
     }
 
@@ -617,8 +700,8 @@ namespace CsvTools
     ///   Builds the data grid view column filter values.
     /// </summary>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersString(in IEnumerable<string> values, in string escapedName,
-      int max, double maxSeconds, CancellationToken cancellation)
+    private BuildValueClustersResult BuildValueClustersString(in ICollection<string> values, in string escapedName,
+      int max, IProgress<ProgressInfo>? progress, CancellationToken cancellation)
     {
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -629,22 +712,21 @@ namespace CsvTools
       var clusterThree = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var allow4 = true;
       var clusterFour = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-      var startTime = DateTime.Now;
-      using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+      var ia = IntervalAction.ForProgress(progress);
+      var msg = $"Building clusters for {values.Count:N0} values";
+      var percent = 5f;
+      int cValues = 0;
       foreach (var text in values)
       {
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
-        if (linkedTokenSource.IsCancellationRequested)
+        if (cancellation.IsCancellationRequested || clusterOne.Count > max)
           break;
         if (cluster.Count <= max)
           cluster.Add(text);
         if (clusterOne.Count <= max)
           clusterOne.Add(text.Substring(0, 1));
-        allow2 &= (text.Length>=2);
-        allow3 &= (text.Length>=3);
-        allow4 &= (text.Length>=4);
+        allow2 &= (text.Length >= 2);
+        allow3 &= (text.Length >= 3);
+        allow4 &= (text.Length >= 4);
 
         if (allow2 && clusterTwo.Count <= max)
           clusterTwo.Add(text.Substring(0, 2));
@@ -652,45 +734,84 @@ namespace CsvTools
           clusterThree.Add(text.Substring(0, 3));
         if (allow4 && clusterFour.Count <= max)
           clusterFour.Add(text.Substring(0, 4));
+
+        cValues++;
+        percent = cValues / (float) values.Count * PercentBuild + PercentTyped;
+        ia?.Invoke(progress!, msg, percent);
       }
+
       if (cluster.Count == 0)
         return BuildValueClustersResult.NoValues;
 
-      if (clusterOne.Count >max)
+      if (clusterOne.Count > max)
       {
-        var countC1 = CountBeginningChar(escapedName, 'a', 'e', values);
-        var countC2 = CountBeginningChar(escapedName, 'f', 'k', values);
-        var countC3 = CountBeginningChar(escapedName, 'l', 'r', values);
-        var countC4 = CountBeginningChar(escapedName, 's', 'z', values);
-        var countN = CountBeginningChar(escapedName, '0', '9', values);
+        NewFunction();
 
-        var countS = values.Count(x => x.Length > 0 && (x[0] < 32));
+        if (!linkedTokenSource.IsCancellationRequested)
+        {
+          var countC2 =
+            values.Count(x => x.Length > 0 && ((x[0] >= 'f' && x[0] <= 'k') || (x[0] >= 'F' && x[0] <= 'K')));
+          AddUnique(new ValueCluster("F-K",
+            $"(SUBSTRING({escapedName},1,1) >= 'f' AND SUBSTRING({escapedName},1,1) <= 'k')", countC2, "f", "k"));
+          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
+            linkedTokenSource.Cancel();
+        }
+
+        if (!linkedTokenSource.IsCancellationRequested)
+        {
+          var countC3 =
+            values.Count(x => x.Length > 0 && ((x[0] >= 'l' && x[0] <= 'r') || (x[0] >= 'L' && x[0] <= 'R')));
+          AddUnique(new ValueCluster("L-R",
+            $"(SUBSTRING({escapedName},1,1) >= 'l' AND SUBSTRING({escapedName},1,1) <= 'r')", countC2, "l", "r"));
+        }
+
+        var countC4 = values.Count(x => x.Length >0 && ((x[0] >='s' && x[0]<='z') || (x[0]>='S' && x[0]<='Z')));
+        AddUnique(new ValueCluster("S-Z",
+          $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC2, "s", "z"));
+
+        var countN = values.Count(x => x.Length >0 && (x[0] > 48 && x[0]< 57));
+        AddUnique(new ValueCluster("0-9",
+          $"(SUBSTRING({escapedName},1,1) >= '0' AND SUBSTRING({escapedName},1,1) <= '9')", countN, "0", "9"));
+
+        var countS = values.Count(x => x.Length >0 && (x[0] < 32));
         AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
-        var countP = values.Count(x => x.Length >0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65)  || (x[0] >= 91 && x[0] <= 96) || (x[0] >= 173 && x[0] <= 176));
-        AddUnique(new ValueCluster("Punctuation",
+        var countP = values.Count(x =>
+          x.Length > 0 && (x[0] >= 32 && x[0] < 48) || (x[0] >= 58 && x[0] < 65) || (x[0] >= 91 && x[0] <= 96) ||
+          (x[0] >= 173 && x[0] <= 176));
+        percent += step;
+        progress?.Report(new ProgressInfo("Range clusters Punctuation", percent));
+        if (countP  > 0)
+          AddUnique(new ValueCluster("Punctuation",
           $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
           $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
           $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
           $"OR (SUBSTRING({escapedName},1,1) >= '{{' AND SUBSTRING({escapedName},1,1) <= '~'))", countP, null));
-
-        var countR = values.Count() - countS -countN- countC1- countC2- countC3- countC4 -countP;
-        AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null));
+        if (cancellation.IsCancellationRequested)
+          return BuildValueClustersResult.TooManyValues;
+        ia?.Invoke(progress!, msg, 100);
+        var countR = values.Count() - countS - countN - countC1 - countC2 - countC3 - countC4 - countP;
+        if (countR  > 0)
+          AddUnique(new ValueCluster("Other", $"(SUBSTRING({escapedName},1,1) > '~')", countR, null));
+        progress?.Report(new ProgressInfo("Range clusters Other", 100));
 
         return BuildValueClustersResult.ListFilled;
       }
 
+      percent = PercentBuild;
       if (cluster.Count <= max)
       {
+        var step = (100f - PercentBuild) /  cluster.Count;
         foreach (var text in cluster.OrderBy(x => x))
         {
-          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-            linkedTokenSource.Cancel();
-          if (linkedTokenSource.IsCancellationRequested)
+          if (cancellation.IsCancellationRequested)
             break;
           if (m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text))) continue;
           m_Last = new ValueCluster(text, $"({escapedName} = '{text.SqlQuote()}')",
             values.Count(dataRow => string.Equals(dataRow, text, StringComparison.OrdinalIgnoreCase)), text);
+
+          percent += step;
+          progress?.Report(new ProgressInfo($"Clusters {text.SqlQuote()}", percent));
           AddUnique(m_Last);
         }
       }
@@ -736,13 +857,14 @@ namespace CsvTools
         // Look at the data "some%", check if there are large blocks in there like somethingXXX is making up 50%
         // add "somethingXXX" and a "something% (without something XXX)"
 
+        var step = (100f - PercentBuild) /  clusterBegin.Count;
+        msg = $"Adding Clusters {clusterBegin.Count:N0}";
+        ia?.Invoke(progress!, msg, 95);
         foreach (var text in clusterBegin.OrderBy(x => x))
         {
           if (string.IsNullOrEmpty(text))
             continue;
-          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-            linkedTokenSource.Cancel();
-          if (linkedTokenSource.IsCancellationRequested)
+          if (cancellation.IsCancellationRequested)
             break;
           if (m_ValueClusters.Any(x => string.Equals(x.Start?.ToString() ?? string.Empty, text)))
             continue;
@@ -761,6 +883,8 @@ namespace CsvTools
               bigger.Add(test, counter);
           }
 
+          percent += step;
+          progress?.Report(new ProgressInfo($"New Clusters", percent));
           if (bigger.Count > 0)
           {
             var sbExcluded = new StringBuilder();
@@ -781,29 +905,26 @@ namespace CsvTools
             continue;
           }
 
-
           AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countAll, text));
         }
       }
 
-      return linkedTokenSource.IsCancellationRequested
+      return cancellation.IsCancellationRequested
         ? BuildValueClustersResult.TooManyValues
         : BuildValueClustersResult.ListFilled;
 
-      int CountBeginningChar(string escapedName, char min1, char max1, IEnumerable<string> values)
+      void NewFunction(string escapedName, char min1, char max1)
       {
-        var count = values.TakeWhile(x => !linkedTokenSource.IsCancellationRequested).Count(x =>
-          x.Length > 0 && ((x[0] >= min1 && x[0] <= max1) ||
-                           (char.ToLowerInvariant(x[0]) >= min1 && char.ToLowerInvariant(x[0]) <= max1)));
+        if (!linkedTokenSource.IsCancellationRequested)
+        {
+          var countC1 =
+            values.Count(x => x.Length > 0 && ((x[0] >= min1 && x[0] <= max1) || (x[0] >= min1. && x[0] <= max2)));
+          AddUnique(new ValueCluster("A-E",
+            $"(SUBSTRING({escapedName},1,1) >= 'a' AND SUBSTRING({escapedName},1,1) <= 'e')", countC1, min1.ToString(), min2.ToString()));
 
-        AddUnique(new ValueCluster($"{min1}-{max1}",
-          $"(SUBSTRING({escapedName},1,1) >= '{min1}' AND SUBSTRING({escapedName},1,1) <= '{max1}')", count,
-          min1.ToString(),
-          max1.ToString()));
-
-        if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
-          linkedTokenSource.Cancel();
-        return count;
+          if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
+            linkedTokenSource.Cancel();
+        }
       }
     }
 
