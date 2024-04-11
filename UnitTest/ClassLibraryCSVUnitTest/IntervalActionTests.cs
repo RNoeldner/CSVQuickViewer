@@ -65,6 +65,12 @@ namespace CsvTools.Tests
       intervalAction.Invoke(() => { setValue = 669; called++; });
       Assert.AreEqual(669L, setValue);
       Assert.AreEqual(2, called);
+
+
+      intervalAction.Invoke((num1,num2,num3) => { }, 669, 700, 701);
+      intervalAction.Invoke((num1) => { }, 701);
+      intervalAction.Invoke(new Progress<ProgressInfo>(), "Test1", 1.8f);
+      intervalAction.Invoke(new Progress<ProgressInfo>(), "Test2", 100);
     }
   }
 }

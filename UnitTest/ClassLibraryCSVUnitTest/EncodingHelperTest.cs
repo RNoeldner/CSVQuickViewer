@@ -78,13 +78,8 @@ namespace CsvTools.Tests
       }
 
       var expected = 12;
-#if NET5_0_OR_GREATER
       if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         expected = 15;
-#else
-      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        expected = 20;
-#endif
 
       Assert.AreEqual(expected, notRecognized.Count);
     }

@@ -37,13 +37,13 @@ namespace CsvTools
     /// </summary>
     public const string cSettingExtension = ".setting";
 
-    private static readonly Lazy<Regex> m_RemoveEmpty =
+    private static readonly Lazy<Regex> RemoveEmpty =
       new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
 
     private static readonly Lazy<Regex>
-      m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
+      RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
 
-    private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
+    private static readonly Lazy<Regex> RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 
     /// <summary>
     /// Serialization Settings
@@ -74,8 +74,8 @@ namespace CsvTools
     {
       var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
       // remove empty array or class
-      return m_RemoveComma.Value.Replace(
-        m_RemoveEmpty2.Value.Replace(m_RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
+      return RemoveComma.Value.Replace(
+        RemoveEmpty2.Value.Replace(RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
     }
 
     /// <summary>

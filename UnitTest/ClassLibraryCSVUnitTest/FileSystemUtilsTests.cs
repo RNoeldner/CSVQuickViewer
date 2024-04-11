@@ -223,8 +223,8 @@ namespace CsvTools.Tests
       }
     }
 
-#if NETFRAMEWORK
     [TestMethod]
+    [Ignore]
     public void ShortFileName()
     {
       Assert.AreEqual("", "".ShortFileName());
@@ -236,7 +236,6 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(result.Contains(@"CSVQUI~"), result);
     }
-#endif
 
     [TestMethod]
     public void SplitPath()
