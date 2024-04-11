@@ -1,8 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
@@ -17,10 +14,10 @@ namespace CsvTools.Tests
     public void GetRelativePathUserProfileTest()
     {
       var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
-      Assert.AreEqual(Path.Combine("%UserProfile%", "TestFile.txt"), FileSystemUtils.GetRelativePath(testFile1, "."));
+      Assert.AreEqual(Path.Combine("%UserProfile%", "TestFile.txt"), testFile1.GetRelativePath("."));
 
       var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      Assert.AreEqual("%UserProfile%", FileSystemUtils.GetRelativePath(testFile2, "."));
+      Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));
     }
 
 
@@ -28,10 +25,10 @@ namespace CsvTools.Tests
     public void GetRelativePathBaseTest()
     {
       var testFile1 = "Test".GetAbsolutePath(".");
-      Assert.AreEqual("Test", FileSystemUtils.GetRelativePath(testFile1, "."));
+      Assert.AreEqual("Test", testFile1.GetRelativePath("."));
 
       var testFile2 = "Test";
-      Assert.AreEqual("Test", FileSystemUtils.GetRelativePath(testFile2, "."));
+      Assert.AreEqual("Test", testFile2.GetRelativePath("."));
     }
     [TestMethod]
     public void Create()
@@ -178,7 +175,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupFromFileNameInMain()
     {
-      var dn = FileSystemUtils.SplitPath(FileSystemUtils.FullPath($"..{Path.DirectorySeparatorChar}TestFile.csv", UnitTestStatic.ApplicationDirectory)).DirectoryName;
+      var dn = FileSystemUtils.SplitPath($"..{Path.DirectorySeparatorChar}TestFile.csv".FullPath(UnitTestStatic.ApplicationDirectory)).DirectoryName;
 
       Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));
     }
@@ -231,7 +228,7 @@ namespace CsvTools.Tests
     public void ShortFileName()
     {
       Assert.AreEqual("", "".ShortFileName());
-      var fn = UnitTestStatic.GetTestPath("SomeExtraFolder\\AnotherFolder\\");
+      var fn = UnitTestStatic.GetTestPath("SomeExtraFolder\\AnotherFolder\\AnotherFolder\\SomeExtraFolder\\AnotherFolder\\AnotherFolder\\SomeExtraFolder\\AnotherFolder");
       FileSystemUtils.CreateDirectory(fn);
 
       // on .NET 8.0 it will not shorten the path

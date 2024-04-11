@@ -875,9 +875,10 @@ namespace CsvTools
     /// </remarks>
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {
-      if (headerRow.Count == 0 || headerRow.Sum(x => x.Length) < headerRow.Count)
+      var headerLength = headerRow.Sum(x => x.Length);
+      if (headerRow.Count == 0 || headerLength ==0 || headerLength < Enumerable.Count(headerRow.TakeWhile(x => !string.IsNullOrEmpty(x))))
         return 0;
-
+      
       var fields = headerRow.Count;
 
       // The last column is empty, but we expect a header column, assume if a trailing separator
