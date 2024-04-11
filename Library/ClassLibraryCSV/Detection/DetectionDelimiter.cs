@@ -127,11 +127,11 @@ namespace CsvTools
           }
 
           // if a lot of rows do not have a columns disregard the delimiter
-          if (intEmptyRows  > totalRows * 2 /3)
+          if (intEmptyRows  > totalRows * 4 / 5)
             continue;
 
           // Get the average of the rows
-          var avg = (int) Math.Ceiling(sumCount / totalRows);
+          var avg = (int) Math.Ceiling(sumCount / (totalRows -intEmptyRows));
 
           // Only proceed if there is usually more than one occurrence, and we have more then one row
           if (avg < 1 || delimiterCounter.SeparatorRows[index] == 1)
@@ -141,7 +141,7 @@ namespace CsvTools
           long variance = 0;
           for (var row = startRow; row < delimiterCounter.LastRow; row++)
           {
-            if (delimiterCounter.SeparatorsCount[index, row]==avg)
+            if (delimiterCounter.SeparatorsCount[index, row] == avg || delimiterCounter.SeparatorsCount[index, row] == 0)
               continue;
 
             if (delimiterCounter.SeparatorsCount[index, row] > avg)
@@ -149,8 +149,8 @@ namespace CsvTools
             else
               variance += avg - delimiterCounter.SeparatorsCount[index, row];
           }
-
-          sums.Add(index, variance);
+          // if avg is larger its better
+          sums.Add(index, variance * 4 / avg);
         }
 
         if (sums.Count > 1)
@@ -273,7 +273,7 @@ namespace CsvTools
     /// Class to store information allowing to goode the best delimiter
     /// </summary>
     public sealed class DelimiterCounter
-    {      
+    {
       /// <summary>
       /// Number of read Rows
       /// </summary>
@@ -288,7 +288,7 @@ namespace CsvTools
       /// All used Delimiter
       /// </summary>
       public readonly string Separators;
-      
+
       /// <summary>
       /// Score by delimiterY 
       /// </summary>
