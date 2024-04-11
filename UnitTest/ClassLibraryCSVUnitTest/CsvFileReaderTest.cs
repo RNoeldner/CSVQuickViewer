@@ -176,7 +176,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', CommentLine = "#", EscapePrefixChar = '\\'
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        CommentLine = "#",
+        EscapePrefixChar = '\\'
       };
 
 
@@ -413,7 +416,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, ContextSensitiveQualifier = true, TrimmingOption = TrimmingOptionEnum.All,
+        HasFieldHeader = false,
+        ContextSensitiveQualifier = true,
+        TrimmingOption = TrimmingOptionEnum.All,
       };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
 
@@ -640,27 +645,14 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task GetValue()
     {
-      var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',' };
-      new ColumnCollection().Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
-      new ColumnCollection().Add(new Column("ID", new ValueFormat(DataTypeEnum.Integer)));
-      new ColumnCollection().Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
-
-
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
-        0, setting.HasFieldHeader,
-        new ColumnCollection(),
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
+        0, true,
+        new[] { new Column("ExamDate",
+          new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")),
+          new Column("ID", new ValueFormat(DataTypeEnum.Integer)),
+          new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean))
+        },
+        TrimmingOptionEnum.Unquoted, ',');
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -696,7 +688,7 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
       var message = string.Empty;
-      test.Warning += delegate(object? _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object? _, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("exists more than once"));
     }
@@ -899,12 +891,7 @@ Line "Test"", "22",23,"  24"
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"), 65001,
         0, true, Array.Empty<Column>(), TrimmingOptionEnum.Unquoted
-        , ',', '"', '\\',
-        100, false, true, "##", 0, true,
-        string.Empty,string.Empty,string.Empty,
-        true, false, false,false, false, false, false,
-        false, false, false, true, "NULL", true,  3,
-        string.Empty, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+        , ',');
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
 
@@ -994,7 +981,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, WarnEmptyTailingColumns = true, FieldDelimiterChar = ','
+        HasFieldHeader = false,
+        WarnEmptyTailingColumns = true,
+        FieldDelimiterChar = ','
       };
 
 
@@ -1093,7 +1082,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', FieldQualifierChar = string.Empty.FromText()
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        FieldQualifierChar = string.Empty.FromText()
       };
 
 
@@ -1374,32 +1365,8 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAndTimeZoneAsync()
     {
-      var setting = new CsvFileDummy
-      {
-        FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
-        HasFieldHeader = true,
-        ByteOrderMark = true,
-        FieldDelimiterChar = '\t'
-      };
-      new ColumnCollection().Add(new Column("Start Date",
-        new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time",
-        timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone"));
-
-      // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
-
-      using var test = new CsvFileReader(setting.FullPath, 65001, 0, setting.HasFieldHeader,
-        new ColumnCollection(),
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001, 0, true,
+        new[]{new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time", timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone")}, TrimmingOptionEnum.Unquoted, '\t');
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1422,26 +1389,10 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAsync()
     {
-      var setting = new CsvFileDummy() { HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t' };
-      new ColumnCollection().Add(
-        new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
-          timePart: "Start Time", timePartFormat: "HH:mm:ss"));
-
-
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001,
-        0, setting.HasFieldHeader,
-        new ColumnCollection(),
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+        0, true,
+        new[] {new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
+          timePart: "Start Time", timePartFormat: "HH:mm:ss")}, TrimmingOptionEnum.Unquoted, '\t');
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1818,19 +1769,9 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
-        0, setting.HasFieldHeader,
+        2, false,
         new ColumnCollection(),
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+        setting.TrimmingOption, ',');
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       // Start at line 2
@@ -1858,7 +1799,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = true, ConsecutiveEmptyRows = 2, SkipEmptyLines = false, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 2,
+        SkipEmptyLines = false,
+        FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), 65001,
@@ -1892,7 +1836,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = true, ConsecutiveEmptyRows = 3, SkipEmptyLines = false, FieldDelimiterChar = ','
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 3,
+        SkipEmptyLines = false,
+        FieldDelimiterChar = ','
       };
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), 65001,
@@ -1957,7 +1904,7 @@ Line "Test"", "22",23,"  24"
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object? _, WarningEventArgs args)
+      test.Warning += delegate (object? _, WarningEventArgs args)
       {
         message = args.Message;
       };
@@ -2006,7 +1953,7 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object? _, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object? _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("Linefeed"));
@@ -2017,7 +1964,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', EscapePrefixChar = '\\', ContextSensitiveQualifier = false,
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\',
+        ContextSensitiveQualifier = false,
       };
 
 
@@ -2064,7 +2014,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, FieldDelimiterChar = ',', ContextSensitiveQualifier = false
+        HasFieldHeader = false,
+        FieldDelimiterChar = ',',
+        ContextSensitiveQualifier = false
       };
 
 
@@ -2206,7 +2158,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, WarnDelimiterInValue = true, FieldDelimiterChar = ',', EscapePrefixChar = '\\',
+        HasFieldHeader = false,
+        WarnDelimiterInValue = true,
+        FieldDelimiterChar = ',',
+        EscapePrefixChar = '\\',
       };
 
 
@@ -2303,7 +2258,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, CodePageId = 1201, ByteOrderMark = true, FieldDelimiterChar = ',',
+        HasFieldHeader = false,
+        CodePageId = 1201,
+        ByteOrderMark = true,
+        FieldDelimiterChar = ',',
       };
 
 
@@ -2362,7 +2320,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy()
       {
-        HasFieldHeader = false, CodePageId = 1200, ByteOrderMark = true, FieldDelimiterChar = ',',
+        HasFieldHeader = false,
+        CodePageId = 1200,
+        ByteOrderMark = true,
+        FieldDelimiterChar = ',',
       };
 
 
