@@ -73,12 +73,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AnalyzeFileAsyncOtherDelimiter()
     {
-      var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt")
+      var inspectionResult = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt")
         .InspectFileAsync(false, true, true,
         true, true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty, UnitTestStatic.Token);
 
-      Assert.IsNotNull(tuple);
-      Assert.AreEqual('|', tuple.FieldDelimiter);
+      Assert.IsNotNull(inspectionResult);
+      Assert.AreEqual('|', inspectionResult.FieldDelimiter);
     }
 
     [TestMethod]

@@ -7,7 +7,7 @@
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<TestProjectType>UnitTest</TestProjectType>
-		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
 		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>

@@ -43,8 +43,8 @@ namespace CsvTools.Tests
       };
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiersDoubleQuote.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -79,9 +79,9 @@ namespace CsvTools.Tests
         TrimmingOption = TrimmingOptionEnum.All,
       };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -128,9 +128,9 @@ namespace CsvTools.Tests
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -180,9 +180,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -231,9 +231,9 @@ Line "Test"", "22",23,"  24"
       setting.TrimmingOption = TrimmingOptionEnum.Unquoted;
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -302,9 +302,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("QuoteInText.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("QuoteInText.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -348,9 +348,9 @@ Line "Test"", "22",23,"  24"
         };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -417,9 +417,9 @@ Line "Test"", "22",23,"  24"
       };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -439,23 +439,8 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task CSVTestEmpty()
     {
-      var setting = new CsvFileDummy() { HasFieldHeader = false, ByteOrderMark = true };
-
-
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("CSVTestEmpty.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("CSVTestEmpty.txt"), 65001,
+        0, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
       Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
@@ -467,9 +452,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = "PIPE".FromText(), };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -507,8 +492,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfFile.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -551,8 +536,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -584,8 +569,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -623,8 +608,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("EscapeWithoutTextQualifier.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -656,15 +641,15 @@ Line "Test"", "22",23,"  24"
     public async Task GetValue()
     {
       var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',' };
-      setting.ColumnCollection.Add(new Column("ExamDate",
+      new ColumnCollection().Add(new Column("ExamDate",
         new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
-      setting.ColumnCollection.Add(new Column("ID", new ValueFormat(DataTypeEnum.Integer)));
-      setting.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
+      new ColumnCollection().Add(new Column("ID", new ValueFormat(DataTypeEnum.Integer)));
+      new ColumnCollection().Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -697,8 +682,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -912,25 +897,16 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task LastRowWithRowDelimiter()
     {
-      var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',' };
-
-
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"), 65001,
+        0, true, Array.Empty<Column>(), TrimmingOptionEnum.Unquoted
+        , ',', '"', '\\',
+        100, false, true, "##", 0, true,
+        string.Empty,string.Empty,string.Empty,
+        true, false, false,false, false, false, false,
+        false, false, false, true, "NULL", true,  3,
+        string.Empty, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual(6, test.FieldCount);
+      Assert.AreEqual(6, test.FieldCount, "FieldCount");
 
       Assert.AreEqual("a", test.GetName(0));
       Assert.AreEqual("f", test.GetName(5));
@@ -947,9 +923,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = ',' };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -977,9 +953,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',', CommentLine = "#" };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LongHeaders.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LongHeaders.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1022,9 +998,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1122,8 +1098,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1216,12 +1192,12 @@ Line "Test"", "22",23,"  24"
     {
       var setting =
         new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = "Tab".FromText() };
-      setting.ColumnCollection.Add(new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime)));
-      setting.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
+      new ColumnCollection().Add(new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime)));
+      new ColumnCollection().Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
 
-      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), setting.CodePageId,
-        setting.SkipRows,
-        setting.HasFieldHeader, setting.ColumnCollection,
+      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), 65001,
+        0,
+        setting.HasFieldHeader, new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1320,9 +1296,9 @@ Line "Test"", "22",23,"  24"
         NewLinePlaceholder = @"<\r>"
       };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Placeholder.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Placeholder.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1351,7 +1327,7 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = '\t', };
       // columns from the file
-      setting.ColumnCollection.AddRangeNoClone(
+      new ColumnCollection().AddRangeNoClone(
         new Column[]
         {
           new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"),
@@ -1368,9 +1344,9 @@ Line "Test"", "22",23,"  24"
       var stopped = false;
       progress.ProgressStopEvent += delegate { stopped = true; };
       Assert.IsTrue(string.IsNullOrEmpty(progress.Text));
-      using (var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), setting.CodePageId,
-               setting.SkipRows,
-               setting.HasFieldHeader, setting.ColumnCollection,
+      using (var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), 65001,
+               0,
+               setting.HasFieldHeader, new ColumnCollection(),
                setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
                setting.RecordLimit, setting.AllowRowCombining,
                setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
@@ -1405,14 +1381,14 @@ Line "Test"", "22",23,"  24"
         ByteOrderMark = true,
         FieldDelimiterChar = '\t'
       };
-      setting.ColumnCollection.Add(new Column("Start Date",
+      new ColumnCollection().Add(new Column("Start Date",
         new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time",
         timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone"));
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
 
-      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(setting.FullPath, 65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1447,14 +1423,14 @@ Line "Test"", "22",23,"  24"
     public async Task ReadDateWithTimeAsync()
     {
       var setting = new CsvFileDummy() { HasFieldHeader = true, ByteOrderMark = true, FieldDelimiterChar = '\t' };
-      setting.ColumnCollection.Add(
+      new ColumnCollection().Add(
         new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
           timePart: "Start Time", timePartFormat: "HH:mm:ss"));
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1485,8 +1461,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ReadingInHeaderAfterComments.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1514,8 +1490,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RowWithoutColumnDelimiter.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1617,8 +1593,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SimpleDelimiterWithControlCharacters.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1684,8 +1660,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SimpleDelimiterWithControlCharacters.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1731,23 +1707,8 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task SkipAllRows()
     {
-      var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = ',', SkipRows = 100 };
-
-
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-        setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-        setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-        setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-        setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
+        100, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
     }
@@ -1757,9 +1718,9 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = ',', CommentLine = "#" };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SkippingComments.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SkippingComments.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1816,8 +1777,8 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy();
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"),
-        setting.CodePageId, setting.SkipRows, false,
-        setting.ColumnCollection,
+        65001, 0, false,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1856,9 +1817,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = ',', SkipRows = 2 };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1900,9 +1861,9 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = true, ConsecutiveEmptyRows = 2, SkipEmptyLines = false, FieldDelimiterChar = ','
       };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1934,9 +1895,9 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = true, ConsecutiveEmptyRows = 3, SkipEmptyLines = false, FieldDelimiterChar = ','
       };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -1978,9 +1939,9 @@ Line "Test"", "22",23,"  24"
         TrimmingOption = TrimmingOptionEnum.Unquoted
       };
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2029,9 +1990,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2061,8 +2022,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifierBeginningAndEnd.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2108,8 +2069,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2149,8 +2110,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifierNotClosedAtEnd.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2207,9 +2168,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = false, FieldDelimiterChar = ',' };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifiers.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifiers.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2250,8 +2211,8 @@ Line "Test"", "22",23,"  24"
 
 
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TextQualifiersWithDelimiters.txt"),
-        setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+        65001, 0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2310,9 +2271,9 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',', CommentLine = "#" };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2346,9 +2307,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF16BE.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF16BE.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2405,9 +2366,9 @@ Line "Test"", "22",23,"  24"
       };
 
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF16LE.txt"), setting.CodePageId,
-        setting.SkipRows, setting.HasFieldHeader,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF16LE.txt"), 65001,
+        0, setting.HasFieldHeader,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
@@ -2456,8 +2417,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy();
 
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"), 65001, setting.SkipRows, false,
-        setting.ColumnCollection,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"), 65001, 0, false,
+        new ColumnCollection(),
         setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
         setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,

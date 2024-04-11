@@ -108,7 +108,6 @@ namespace CsvTools
         {
           var typedValues = new List<DateTime>();
           var countNull = MakeTypedValues(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
-
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
             ? new ProgressInfo("Combining dates to clusters of even size")
@@ -136,14 +135,14 @@ namespace CsvTools
         {
           var typedValues = new List<double>();
           var countNull = MakeTypedValues(values, typedValues,
-            (obj) => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress,
+            obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress,
             cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
             ? new ProgressInfo("Combining numbers to clusters of even size")
             : new ProgressInfo("Combining numbers to clusters"));
           return even
-            ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber,5.0, progress, cancellationToken)
+            ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, 5.0, progress, cancellationToken)
             : BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, 5.0, progress, cancellationToken);
         }
 
@@ -176,13 +175,11 @@ namespace CsvTools
       var ia = IntervalAction.ForProgress(progress);
       var msg = $"Collecting typed values from {values.Count:N0} rows";
       ia?.Invoke(progress!, msg, 0);
+      // Assume process is 5% of overall process
       int counter = 0;
       foreach (var obj in values)
       {
         counter++;
-
-        // Assume process is 5% of overall process
-        var percent = counter / (float) values.Count * cPercentTyped;
         if (cancellationToken.IsCancellationRequested)
           break;
 
@@ -201,7 +198,7 @@ namespace CsvTools
           countNull++;
         }
 
-        ia?.Invoke(progress!, msg, percent);
+        ia?.Invoke(progress!, msg, counter / (float) values.Count * cPercentTyped);
       }
 
       progress?.Report(new ProgressInfo(msg, cPercentTyped));
@@ -260,7 +257,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     private BuildValueClustersResult BuildValueClustersDate(in ICollection<DateTime> values, in string escapedName,
-      int max, bool combine,  double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      int max, bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
       var clusterYear = new HashSet<int>();
@@ -385,12 +382,12 @@ namespace CsvTools
       int max, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       return BuildValueClustersEven(values, values.Count / max,
-        (number) => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
+        number => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
         (minValue, maxValue) => $"{minValue:d} – {maxValue:d}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture,
           "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, minValue, maxValue),
-        (minValue) => $"{minValue:d} – ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName,
+        minValue => $"{minValue:d} – ",
+        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName,
           minValue), maxSeconds, progress, cancellationToken);
     }
 
@@ -408,15 +405,22 @@ namespace CsvTools
       int counterValues = 0;
 
       foreach (var number in values)
-      {   
+      {
         if ((DateTime.Now - startTime).TotalSeconds > maxSeconds)
           linkedTokenSource.Cancel();
 
         if (linkedTokenSource.IsCancellationRequested)
           break;
         var rounded = round(number);
+#if NETFRAMEWORK
+        if (counter.ContainsKey(rounded))
+          counter[rounded]++;
+        else
+          counter.Add(rounded, 1);
+#else
         if (!counter.TryAdd(rounded, 1))
           counter[rounded]++;
+#endif
         counterValues++;
         percent = counterValues / (float) values.Count * cPercentBuildEven + cPercentTyped;
         ia?.Invoke(progress!, msg, percent);
@@ -460,7 +464,7 @@ namespace CsvTools
     }
 
     private BuildValueClustersResult BuildValueClustersLong(in ICollection<long> values, in string escapedName, int max,
-      bool combine,  double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts      
       var clusterOne = new HashSet<long>();
@@ -581,19 +585,19 @@ namespace CsvTools
     }
 
     private BuildValueClustersResult BuildValueClustersLongEven(in ICollection<long> values, string escapedName,
-      int max,  double maxSeconds,  IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      int max, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
-      return BuildValueClustersEven(values, values.Count / max, (number) => number,
+      return BuildValueClustersEven(values, values.Count / max, number => number,
         (minValue, maxValue) => $"{minValue:F0} - {maxValue:F0}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName,
           minValue, maxValue),
-        (minValue) => $"{minValue:F0} - ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1})", escapedName, minValue),maxSeconds, progress,
+        minValue => $"{minValue:F0} - ",
+        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= {1})", escapedName, minValue), maxSeconds, progress,
         cancellationToken);
     }
 
     private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName,
-      int max, bool combine,  double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      int max, bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
       var clusterFractions = new HashSet<double>();
@@ -744,14 +748,14 @@ namespace CsvTools
     }
 
     private BuildValueClustersResult BuildValueClustersNumericEven(in ICollection<double> values, string escapedName,
-      int max,double maxSeconds,  IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      int max, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
-      return BuildValueClustersEven(values, values.Count / max, (number) => Math.Floor(number * 10d) / 10d,
+      return BuildValueClustersEven(values, values.Count / max, number => Math.Floor(number * 10d) / 10d,
         (minValue, maxValue) => $"{minValue:F1} - {maxValue:F1}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})",
           escapedName, minValue, maxValue),
-        (minValue) => $"{minValue:F1} - ",
-        (minValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue), maxSeconds, progress,
+        minValue => $"{minValue:F1} - ",
+        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue), maxSeconds, progress,
         cancellationToken);
     }
 
@@ -903,7 +907,7 @@ namespace CsvTools
           bestCluster = cluster5;
         else if (allow3 && cluster3.Count <= max)
           bestCluster = cluster3;
-        
+
         if (bestCluster.Count == 1)
           return BuildValueClustersResult.ListFilled;
 
