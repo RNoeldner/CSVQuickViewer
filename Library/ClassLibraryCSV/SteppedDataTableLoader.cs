@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="DisposableBase" />
   public sealed class SteppedDataTableLoader : DisposableBase
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
@@ -14,6 +15,10 @@ namespace CsvTools
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;    
     
+    /// <summary>
+    ///   Determine if the data Reader is at the end of the file
+    /// </summary>
+    /// <returns>True if you can read; otherwise, false.</returns>
     public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
 
     /// <summary>
@@ -114,6 +119,7 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
       if (m_DataReaderWrapper != null)

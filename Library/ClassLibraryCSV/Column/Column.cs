@@ -26,7 +26,11 @@ namespace CsvTools
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [DebuggerDisplay("Column {Name}")]
+#if NETFRAMEWORK
   public class Column : IEquatable<Column>, ICollectionIdentity
+#else
+  public record Column : ICollectionIdentity
+#endif
   {
     /// <summary>
     /// Default Format for Time is 24 hrs clock with seconds
@@ -144,7 +148,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue("")]
     public string TimeZonePart { get; }
-
+#if NETFRAMEWORK
     /// <inheritdoc />
     public bool Equals(Column? other)
     {
@@ -177,17 +181,16 @@ namespace CsvTools
         return hashCode;
       }
     }
-
-    /// <inheritdoc />
-    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
-
-    /// <summary>
+      /// <summary>
     ///  Create a copy of the current column with different value format
     /// </summary>
     /// <param name="newFormat"></param>
     /// <returns></returns>
     public Column ReplaceValueFormat(in ValueFormat newFormat) =>
       new Column(Name, newFormat, ColumnOrdinal, Ignore, Convert, DestinationName, TimePart, TimePartFormat, TimeZonePart);
+#endif
+    /// <inheritdoc />
+    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
 
     /// <summary>
     ///   Gets the description.
@@ -231,6 +234,5 @@ namespace CsvTools
 
       return stringBuilder.ToString();
     }
-
   }
 }

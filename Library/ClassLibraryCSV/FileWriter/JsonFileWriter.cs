@@ -80,7 +80,7 @@ namespace CsvTools
     private WriterColumn FindWriterColumn(in string row, int startArray)
     {
       // Determine columnInfo := Name of the column should be before : 
-      var sep = row.Substring(0, startArray).LastIndexOf(":");
+      var sep = row.Substring(0, startArray).LastIndexOf(":", StringComparison.Ordinal);
       if (sep != -1)
       {
         var end = row.Substring(0, sep).LastIndexOf("\"", StringComparison.Ordinal);
@@ -198,8 +198,8 @@ namespace CsvTools
       {
         try
         {
-          var jtoken = JToken.Parse(oneElement);
-          foreach (var prop in jtoken.Children().OfType<JProperty>())
+          var token = JToken.Parse(oneElement);
+          foreach (var prop in token.Children().OfType<JProperty>())
           {
             var list = prop.Value.ToString() ?? string.Empty;
             var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ??

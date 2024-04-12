@@ -157,7 +157,7 @@ namespace CsvTools
       {
         var colNo = col.ColumnOrdinal;
         var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-        var writeFolder = (string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column?.ValueFormat.WriteFolder).GetAbsolutePath(string.Empty);
+        var writeFolder = (string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat.WriteFolder).GetAbsolutePath(string.Empty);
 
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
@@ -434,12 +434,12 @@ namespace CsvTools
             double aDbl => StringConversion.DoubleToString(aDbl, columnInfo.ValueFormat),
             decimal aDec => StringConversion.DecimalToString(aDec, columnInfo.ValueFormat),
             DateTime aDTm => aDTm.DateTimeToString(columnInfo.ValueFormat),
-            _ => convertedValue?.ToString() ?? string.Empty
+            _ => convertedValue.ToString() ?? string.Empty
           };
       }
       catch (Exception ex)
       {
-        // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
+        // In case a cast did fail (e.g. trying to format as integer and providing a text, use the
         // original value
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         displayAs = Convert.ToString(dataObject) ?? string.Empty;

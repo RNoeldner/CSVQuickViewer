@@ -497,7 +497,7 @@ namespace CsvTools
       contents.IsEmpty || contents.IndexOf('\'') == -1 ? contents : contents.ToString().Replace("'", "''").AsSpan();
 
     /// <summary>
-    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
+    ///   Read the value and determine if this could be a constant value ( surrounded by " or ' ) or
     ///   if it's a number; if not its assume is a reference to another field
     /// </summary>
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
@@ -526,7 +526,7 @@ namespace CsvTools
     }
     
     /// <summary>
-    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
+    ///   Read the value and determine if this could be a constant value ( surrounded by " or ' ) or
     ///   if it's a number; if not its assume is a reference to another field
     /// </summary>
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)

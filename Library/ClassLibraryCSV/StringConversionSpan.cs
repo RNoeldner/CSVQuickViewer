@@ -24,6 +24,9 @@ using System.Linq;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Class with Span Conversion Methods
+  /// </summary>
   public static class StringConversionSpan
   {
     /// <summary>
@@ -60,7 +63,7 @@ namespace CsvTools
       }
 
 
-      // if we did not convert yet and we have a text use it
+      // if we did not convert yet, and we have a text use it
       // ReSharper disable once ReplaceWithStringIsNullOrEmpty
       if (dateValue == DateTimeConstants.FirstDateTime && dateColumnText.Length > 0)
       {

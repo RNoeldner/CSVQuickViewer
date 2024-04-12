@@ -29,13 +29,13 @@ namespace CsvTools
     /// </summary>
     public const string cIdLocal = "(local)";
 
-    private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
     private static TimeZoneInfo FindTimeZoneInfo(in string timeZone)
     {
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;
-      return m_IsWindows
+      return IsWindows
         ? TimeZoneInfo.FindSystemTimeZoneById(
           TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
         : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
