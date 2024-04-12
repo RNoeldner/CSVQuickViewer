@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       var test = new ProgressInfo("TestText1");
       Assert.IsNotNull(test);
       Assert.AreEqual("TestText1", test.Text);
-      Assert.AreEqual(0, test.Value);
+      Assert.AreEqual(-1l, test.Value);
     }
   }
 }

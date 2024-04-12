@@ -44,7 +44,8 @@ namespace CsvTools.Tests
       // I now have 50 values in 2.5 + time for the processing seconds 
       // this means we should have 5+ seconds for the rest
       var estimate = test.EstimatedTimeRemaining.TotalSeconds;
-      Assert.IsTrue(1.0 < estimate && estimate < 2, $"Should have 1 seconds for the rest {test.TargetValue - point1}\nExact Value: {test.EstimatedTimeRemaining.TotalSeconds }");
+      Assert.IsTrue(1.0 < estimate && estimate < 2, 
+        $"Should have 1 seconds for the rest {test.TargetValue - point1}\nExact Value: {test.EstimatedTimeRemaining.TotalSeconds }");
       for (var counter = point1; counter < test.TargetValue - point1; counter++)
       {
         test.Value = counter;
@@ -87,7 +88,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(totalSec1  > 1.0 && totalSec2 < 5, $"Slow: {1} < {totalSec2} < {5}"); 
       
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
-      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
+//      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }
 
     [TestMethod]

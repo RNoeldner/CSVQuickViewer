@@ -243,13 +243,13 @@ namespace CsvTools
           // provide typed data (Json, Excel...)
           checkResult.FoundValueFormat ??= readerColumn.ValueFormat;
           var colIndexCurrent = columnCollection.IndexOf(readerColumn);
-          // if we have a mapping to a template that expects a integer and we only have integers but
+          // if we have a mapping to a template that expects an integer, and we only have integers but
           // not enough
           if (colIndexCurrent != -1)
           {
             if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
             {
-              // if he date format does not match the last found date format reset the assumed
+              // if the date format does not match the last found date format reset the assumed
               // correct format
               if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
                 othersValueFormatDate = checkResult.FoundValueFormat;
@@ -272,6 +272,7 @@ namespace CsvTools
                 newValueFormat,
                 oldValueFormat);
               result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
+
               columnCollection.Replace(columnCollection[colIndexCurrent]
                 .ReplaceValueFormat(checkResult.FoundValueFormat));
             }

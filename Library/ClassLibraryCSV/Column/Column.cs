@@ -181,14 +181,15 @@ namespace CsvTools
         return hashCode;
       }
     }
-      /// <summary>
+#endif
+    /// <summary>
     ///  Create a copy of the current column with different value format
     /// </summary>
     /// <param name="newFormat"></param>
     /// <returns></returns>
     public Column ReplaceValueFormat(in ValueFormat newFormat) =>
       new Column(Name, newFormat, ColumnOrdinal, Ignore, Convert, DestinationName, TimePart, TimePartFormat, TimeZonePart);
-#endif
+
     /// <inheritdoc />
     public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
 
