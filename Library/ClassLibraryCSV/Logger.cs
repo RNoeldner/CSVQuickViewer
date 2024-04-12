@@ -58,14 +58,14 @@ namespace CsvTools
     }
 
 
-    /// <summary>Logs a error level message.</summary>
+    /// <summary>Logs a message on error level.</summary>
     /// <param name="exception">Exception that need to be documented</param>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
     public static void Error(in Exception exception, in string? message = null, params object[] args) =>
       LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
 
-    /// <summary>Logs a information level message.</summary>
+    /// <summary>Logs a message on information level.</summary>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
     public static void Information(in string? message, params object[] args)
@@ -75,7 +75,7 @@ namespace CsvTools
       LoggerInstance?.LogInformation(message, args);
     }
 
-    /// <summary>Logs a information level message.</summary>
+    /// <summary>Logs a message on information level.</summary>
     /// <param name="exception">Exception that need to be documented</param>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>

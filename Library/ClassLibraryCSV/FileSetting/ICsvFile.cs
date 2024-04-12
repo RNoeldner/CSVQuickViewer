@@ -12,8 +12,6 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
   /// <summary>
@@ -42,7 +40,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
-    ///   similar to escaping but could replace a delimiter with something completely different like an longer text, e.G. {Delimiter}
+    ///   similar to escaping but could replace a delimiter with something completely different like a longer text, e.G. {Delimiter}
     /// </summary>
     /// <value>The new line placeholder.</value>
     string DelimiterPlaceholder { get; set; }
@@ -90,7 +88,6 @@ namespace CsvTools
     /// </value>
     bool NoDelimitedFile { get; set; }
 
-    ///TODO: Needed here or push elsewhere?
     /// <summary>
     ///   Gets or sets the maximum number of warnings being raised
     /// </summary>
@@ -141,7 +138,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the reader should try to solve more columns.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
+    ///   <c>true</c> if it should be tried to solve misalignment more columns; otherwise, <c>false</c>.
     /// </value>
     bool TryToSolveMoreColumns { get; set; }
 

@@ -22,6 +22,9 @@ namespace CsvTools
   public class ShortDescriptionAttribute : Attribute
   {
     
+    /// <summary>
+    /// Short description
+    /// </summary>
     public string ShortDescription { get; protected set; }
     
     /// <inheritdoc />

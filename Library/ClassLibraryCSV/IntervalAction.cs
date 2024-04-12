@@ -107,7 +107,10 @@ namespace CsvTools
         Logger.Warning(ex, "IntervalAction.Invoke {Error}", ex.Message);
       }
     }
-
+    
+    /// <summary>
+    ///   Invoke progress on given interval
+    /// </summary>
     public void Invoke(in Action<long, long, long> action, long number1, long number2, long number3)
     {
       // do nothing if the timespan between invokes is not reached

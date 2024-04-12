@@ -13,7 +13,6 @@
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
 		<SignAssembly>True</SignAssembly>
-		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<CodePage>65001</CodePage>

@@ -45,7 +45,7 @@ namespace CsvTools
     private const string cLongPathPrefix = @"\\?\";
 
     private const string cUncLongPathPrefix = @"\\?\UNC\";
-    private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     /// <summary>
     /// Returns the full path of a file name, resolving any wild cards or environment variables
@@ -336,7 +336,7 @@ namespace CsvTools
       if (test.Length > 0)
         return test;
 
-      if (m_IsWindows)
+      if (IsWindows)
       {
         test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
           "%UserProfile%");
@@ -510,7 +510,7 @@ namespace CsvTools
     /// <returns>The abbreviated short name</returns>    
     public static string ShortFileName(this string longPath)
     {
-      if (!m_IsWindows || string.IsNullOrEmpty(longPath))
+      if (!IsWindows || string.IsNullOrEmpty(longPath))
         return longPath;
       var fi = new System.IO.FileInfo(longPath);
       const uint bufferSize = 512;
@@ -667,7 +667,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(shortPath))
         return shortPath;
-      if (!m_IsWindows)
+      if (!IsWindows)
         return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
 
       return shortPath.Contains('~') ? shortPath.LongFileNameKernel() : shortPath;
@@ -680,7 +680,7 @@ namespace CsvTools
     public static string LongPathPrefix(this string path)
     {
       // In case the directory is 248 we need long path as well
-      if (!m_IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
+      if (!IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
           path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
@@ -695,7 +695,7 @@ namespace CsvTools
     /// <param name="path">The possibly prefixed name of th file.</param>
     public static string RemovePrefix(this string path)
     {
-      if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
+      if (!IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(cLongPathPrefix.Length);
       return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
         ? path.Substring(cUncLongPathPrefix.Length)

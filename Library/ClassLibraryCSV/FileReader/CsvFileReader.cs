@@ -670,14 +670,14 @@ namespace CsvTools
         // Option a) Supported - We have a break in a middle column, the missing columns are pushed
         // in the next row(s) // Option b) Not Supported - We have a line break in the last column,
         // the text of this row belongs to the last Column of the last records, as the last record
-        // had been processed already we can not change it any more...
+        // had been processed already we can not change it anymore...
         if (CurrentRowColumnText.Length < FieldCount)
         {
-          // if we still have only one column and we should have a number of columns assume this was
+          // if we still have only one column, and we should have a number of columns assume this was
           // nonsense like a report footer
           if (CurrentRowColumnText.Length == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
           {
-            // As the record is ignored tis will most likely not be visible
+            // As the record is ignored this will most likely not be visible
             // -2 to indicate this error could be stored with the previous line....
             if (m_WarnEmptyTailingColumns)
               HandleWarning(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
@@ -1280,7 +1280,7 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <inheritdoc />
+    /// <inheritdoc cref="BaseFileReader" />
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
@@ -1288,6 +1288,7 @@ namespace CsvTools
       Dispose(false);
     }
 
+    /// <inheritdoc cref="BaseFileReader" />
     protected async ValueTask DisposeAsyncCore()
     {
       if (m_Stream != null &&  SelfOpenedStream)

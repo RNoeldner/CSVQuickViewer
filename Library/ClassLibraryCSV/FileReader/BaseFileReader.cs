@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
+  /// <inheritdoc cref="DbDataReader" />
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
@@ -640,7 +640,7 @@ namespace CsvTools
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[ordinal]]);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="DbDataReader" />
     public override bool NextResult() => false;
 
     /// <inheritdoc />
@@ -657,7 +657,7 @@ namespace CsvTools
     public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="DbDataReader" />
     public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>

@@ -39,7 +39,7 @@ namespace CsvTools
     /// Gets or sets a value indicating whether this <see cref="RetryEventArgs"/> is retry.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if retry; otherwise, <c>false</c>.
+    ///   <c>true</c> if it should try and retry; otherwise, <c>false</c>.
     /// </value>
     public bool Retry { get; set; }
   }

@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  /// Manifest data descibing Json data
+  /// Manifest data describing Json data
   /// </summary>
   public sealed class ManifestData
   {

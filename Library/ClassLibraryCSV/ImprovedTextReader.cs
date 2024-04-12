@@ -35,7 +35,7 @@ namespace CsvTools
     ///   Number of lines that should be skipped at the beginning of the file
     /// </param>
     /// <remarks>
-    ///   This routine uses a TextReader to allow character decoding, it will always read they the
+    ///   This routine uses a TextReader to allow character decoding, it will read the
     ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>

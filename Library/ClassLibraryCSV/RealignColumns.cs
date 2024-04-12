@@ -28,9 +28,9 @@ namespace CsvTools
   public sealed class ReAlignColumns
   {
     private const int cMaxGoodRows = 40;
-    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+    private static readonly Random Random = new Random(Guid.NewGuid().GetHashCode());
 
-    private static readonly string[] m_BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
+    private static readonly string[] BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
 
     private readonly int m_ExpectedColumns;
 
@@ -56,7 +56,7 @@ namespace CsvTools
         m_GoodRows.Add(newRow);
       else
         // Store the row in our list
-        m_GoodRows[m_Random.Next(0, cMaxGoodRows)] = newRow;
+        m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
     }
 
     /// <summary>
@@ -88,7 +88,8 @@ namespace CsvTools
       }
       else
       {
-        for (var colIndex = 0; colIndex < columns.Count; colIndex++) columns[colIndex] ??= string.Empty;
+        for (var colIndex = 0; colIndex < columns.Count; colIndex++) 
+          columns[colIndex] ??= string.Empty;
         //Get the Options for all good rows
         var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
         for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
@@ -164,7 +165,7 @@ namespace CsvTools
                 | ColumnOption.NoSpace;
 
       // compare the text as whole
-      if (m_BoolVal.Any(test => test.Equals(text, StringComparison.OrdinalIgnoreCase))) all |= ColumnOption.Boolean;
+      if (BoolVal.Any(test => test.Equals(text, StringComparison.OrdinalIgnoreCase))) all |= ColumnOption.Boolean;
 
       if (text.Length <= 30)
         all |= ColumnOption.ShortText;
