@@ -43,7 +43,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task InvokeAsync()
+    public void OtherInvokeMethods()
+    {
+      new IntervalAction().Invoke((num1,num2,num3) => { }, 669, 700, 701);
+      new IntervalAction().Invoke((num1) => { }, 701);
+      new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test1", 1.8f);
+      new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test2", 100);
+    }
+
+    [TestMethod]
+    public async Task InvokeTestRapid()
     {
       long setValue = -1;
       var called = 0;
@@ -65,12 +74,6 @@ namespace CsvTools.Tests
       intervalAction.Invoke(() => { setValue = 669; called++; });
       Assert.AreEqual(669L, setValue);
       Assert.AreEqual(2, called);
-
-
-      intervalAction.Invoke((num1,num2,num3) => { }, 669, 700, 701);
-      intervalAction.Invoke((num1) => { }, 701);
-      intervalAction.Invoke(new Progress<ProgressInfo>(), "Test1", 1.8f);
-      intervalAction.Invoke(new Progress<ProgressInfo>(), "Test2", 100);
     }
   }
 }
