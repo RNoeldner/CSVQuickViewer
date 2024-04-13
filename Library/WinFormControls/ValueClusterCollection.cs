@@ -68,13 +68,14 @@ namespace CsvTools
     /// <param name="maxNumber">Maximum number of clusters to return</param>
     /// <param name="combine">In case clusters are every small combine close clusters, the clusters still have even margins</param>
     /// <param name="even">Build clusters that have roughly the same number of elements, the resulting borders can vary a lot, e:g. 1950-1980, 1980-1985, 1986, 1987</param>
-    /// <param name="progress"></param>
+    /// <param name="maxSeconds">Maximum number of seconds to be spent trying to build clusters</param>
+    /// <param name="progress">Used to pass on progress information with number of records and percentage </param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object?> values,
       in string escapedName, bool isActive, int maxNumber = 50,
-      bool combine = true, bool even = false, IProgress<ProgressInfo>? progress = null,
+      bool combine = true, bool even = false, double maxSeconds = 5.0, IProgress<ProgressInfo>? progress = null,
       CancellationToken cancellationToken = default)
     {
       if (values is null)
@@ -101,7 +102,7 @@ namespace CsvTools
           var countNull = MakeTypedValues(values, typedValues, Convert.ToString, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(new ProgressInfo("Combining values to clusters"));
-          return BuildValueClustersString(typedValues, escapedName, maxNumber, 5.0, progress, cancellationToken);
+          return BuildValueClustersString(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken);
         }
 
         if (type == DataTypeEnum.DateTime)
@@ -114,8 +115,8 @@ namespace CsvTools
             : new ProgressInfo("Combining dates to clusters"));
 
           return even
-            ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, 5.0, progress, cancellationToken)
-            : BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, 5.0, progress, cancellationToken);
+            ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
+            : BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, maxSeconds, progress, cancellationToken);
         }
 
         if (type == DataTypeEnum.Integer)
@@ -127,8 +128,8 @@ namespace CsvTools
             ? new ProgressInfo("Combining integer to clusters of even size")
             : new ProgressInfo("Combining integer to clusters"));
           return even
-            ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, 5.0, progress, cancellationToken)
-            : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, 5.0, progress, cancellationToken);
+            ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
+            : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, maxSeconds, progress, cancellationToken);
         }
 
         if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
@@ -142,8 +143,8 @@ namespace CsvTools
             ? new ProgressInfo("Combining numbers to clusters of even size")
             : new ProgressInfo("Combining numbers to clusters"));
           return even
-            ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, 5.0, progress, cancellationToken)
-            : BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, 5.0, progress, cancellationToken);
+            ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
+            : BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, maxSeconds, progress, cancellationToken);
         }
 
         return BuildValueClustersResult.WrongType;
@@ -426,6 +427,9 @@ namespace CsvTools
         ia?.Invoke(progress!, msg, percent);
       }
 
+      if (counter.Count == 0)
+        return BuildValueClustersResult.NoValues;
+
       var bucketCount = 0;
       var ordered = counter.OrderBy(x => x.Key).ToArray();
       var minValue = ordered[0].Key;
@@ -444,13 +448,15 @@ namespace CsvTools
         // progress keyValue.Key next bucket
         if (bucketCount <= bucketSize)
           continue;
-
+        // excluding the last value
+        bucketCount -= keyValue.Value;
         // In case there is a cluster that is overlapping do not add a cluster
         if (!hasPrevious || !HasOverlappingCluster(minValue, keyValue.Key))
           AddUnique(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key),
             bucketCount, minValue, keyValue.Key));
 
         minValue = keyValue.Key;
+        // start with last value bucket size
         bucketCount = keyValue.Value;
         percent += step;
         ia?.Invoke(progress!, msg, percent);
