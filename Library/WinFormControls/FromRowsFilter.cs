@@ -263,7 +263,7 @@ namespace CsvTools
       {
         var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(
           m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, frm,
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm,
           frm.CancellationToken);
         if (result == BuildValueClustersResult.ListFilled)
         {
