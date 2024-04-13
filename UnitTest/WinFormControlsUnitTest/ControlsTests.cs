@@ -25,6 +25,16 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
+
+    
+    [TestMethod, Timeout(1000)]
+    public void FormSelectInDropdown()
+    {
+      UnitTestStaticForms.ShowForm((Func<Form>) (() => new FormSelectInDropdown(new [] {"item1","item2" }, "item1")), 0, (f) =>
+      {
+      });
+    }
+
     [TestMethod, Timeout(1000)]
     public void FormPasswordAndKey()
     {
