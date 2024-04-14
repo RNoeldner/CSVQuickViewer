@@ -856,7 +856,7 @@ namespace CsvTools
             $"(SUBSTRING({escapedName},1,1) >= 's' AND SUBSTRING({escapedName},1,1) <= 'z')", countC4, "s", "z"));
 
         var countN = CountPassing(values,
-          x => x[0] > 48 && x[0] < 57);
+          x => x[0] >= 48 && x[0] <= 57);
         percent += step;
         progress?.Report(new ProgressInfo("Range clusters 0-9", percent));
         if (countN > 0)
@@ -872,12 +872,15 @@ namespace CsvTools
           AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
         var countP = CountPassing(values,
-          x => x[0] >= 32 && x[0] < 48 || x[0] >= 58 && x[0] < 65 || x[0] >= 91 && x[0] <= 96 ||
-               x[0] >= 173 && x[0] <= 176);
+          x => 
+                  x[0] >= ' ' && x[0] <= '/' 
+               || x[0] >= ':' && x[0] <= '@'
+               || x[0] >= '[' && x[0] <= '`' 
+               || x[0] >= '{' && x[0] <= '~');
         percent += step;
-        progress?.Report(new ProgressInfo("Range clusters Punctuation", percent));
+        progress?.Report(new ProgressInfo("Range clusters Punctuation, Marks and Braces", percent));
         if (countP > 0)
-          AddUnique(new ValueCluster("Punctuation",
+          AddUnique(new ValueCluster("Punctuation & Marks & Braces",
             $"((SUBSTRING({escapedName},1,1) >= ' ' AND SUBSTRING({escapedName},1,1) <= '/') " +
             $"OR (SUBSTRING({escapedName},1,1) >= ':' AND SUBSTRING({escapedName},1,1) <= '@') " +
             $"OR (SUBSTRING({escapedName},1,1) >= '[' AND SUBSTRING({escapedName},1,1) <= '`') " +
@@ -951,11 +954,11 @@ namespace CsvTools
             if (bigger.Count > 0)
             {
               var sbExcluded = new StringBuilder();
-              sbExcluded.Append($"{escapedName} LIKE '{text.SqlQuote()}%' AND NOT(");
+              sbExcluded.Append($"{escapedName} LIKE '{text.StringEscapeLike()}%' AND NOT(");
               foreach (var kvp in bigger)
               {
                 countAll -= kvp.Value;
-                sbExcluded.Append($"{escapedName} = '{kvp.Key.SqlQuote()}' OR");
+                sbExcluded.Append($"{escapedName} = '{kvp.Key.StringEscapeLike()}' OR");
               }
 
               sbExcluded.Length -= 3;
@@ -972,7 +975,7 @@ namespace CsvTools
           percent += step;
           progress?.Report(new ProgressInfo("New Clusters", percent));
 
-          AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.SqlQuote()}%')", countAll, text));
+          AddUnique(new ValueCluster($"{text}…", $"({escapedName} LIKE '{text.StringEscapeLike()}%')", countAll, text));
         }
       }
 

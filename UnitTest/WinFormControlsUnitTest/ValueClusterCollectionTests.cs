@@ -53,18 +53,23 @@ namespace CsvTools.Tests
       var fl = GetFilterLogic(0);
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
           DataTypeEnum.String,
-          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", false, 10),
+          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", false, 10),
         "Column String");
 
       Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=10);
       Assert.AreEqual(m_Data.Rows.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
+      // The filter for Specials does not count correct, must be a difference between c# and ADO
+      foreach (var cluster in fl.ValueClusterCollection.Take(5))
+      {
+        m_DataView.RowFilter = cluster.SQLCondition;
+        Assert.AreEqual(m_DataView.Count, cluster.Count, cluster.SQLCondition);
+      }
     }
 
     [TestMethod]
     [Timeout(1000)]
     public void BuildValueClusters_StringUnique()
     {
-      
       var data = new List<object>(40000);
       for (int i = 0; i < 20000; i++)
         data.Add((i % 15).ToString());
@@ -84,27 +89,32 @@ namespace CsvTools.Tests
         "Column String");
       Assert.AreEqual(19,fl.ValueClusterCollection.Count);
       Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
+     
     }
 
     [TestMethod]
     [Timeout(1000)]
-    public void BuildValueClusters_StringUseOld()
+    public void BuildValueClusters_StringUseAlreadyExisting()
     {
       var fl = GetFilterLogic(0);
       const int max1 = 100;
       const int max2 = 200;
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
           DataTypeEnum.String,
-          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", false, max1),
+          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", false, max1),
         "Column String");
 
       Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=max1,
         $"Expected {4}-{max1} is: {fl.ValueClusterCollection.Count}");
       var before = fl.ValueClusterCollection.Count;
-
+      foreach (var cluster in fl.ValueClusterCollection)
+      {
+        m_DataView.RowFilter = cluster.SQLCondition;
+        Assert.AreEqual(m_DataView.Count, cluster.Count, cluster.SQLCondition);
+      }
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
           DataTypeEnum.String,
-          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", false, max2),
+          GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", false, max2),
         "Column String");
       Assert.IsTrue(fl.ValueClusterCollection.Count>=before && fl.ValueClusterCollection.Count<=max2 , 
         $"Expected {before}-{max2} is: {fl.ValueClusterCollection.Count}");

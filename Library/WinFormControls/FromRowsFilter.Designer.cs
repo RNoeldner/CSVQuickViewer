@@ -16,7 +16,7 @@ namespace CsvTools
       {
         components.Dispose();
       }
-      cancellationTokenSource.Dispose();
+      m_CancellationTokenSource.Dispose();
       base.Dispose(disposing);
     }
 
