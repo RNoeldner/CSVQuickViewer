@@ -92,7 +92,7 @@
   <ItemGroup>
     <PackageReference Include="FCTB" Version="2.16.24" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.*" />
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />

@@ -21,7 +21,7 @@
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.2.2" />		
+		<PackageReference Include="MSTest" Version="3.3.1" />		
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
 	</ItemGroup>
 	<ItemGroup>

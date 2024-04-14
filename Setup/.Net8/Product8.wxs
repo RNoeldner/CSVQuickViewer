@@ -32,11 +32,13 @@
       <Directory Id="LocalAppDataFolder" Name="[AppData]">
         <Directory Id="PRODUCTDIR" Name="$(var.AppFolder)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
+
             <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
             <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
-
-            <!--
+            <File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />
+            
+            <!--						
             <File Id="CSVQuickViewerdepsJson" Name="CSVQuickViewer.deps.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.deps.Json" />
             <File Id="CSVQuickViewerConfig" Name="CSVQuickViewer.dll.Config" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll.Config" />
             <File Id="CSVQuickViewerRuntimeConfigJson" Name="CSVQuickViewer.RuntimeConfig.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.RuntimeConfig.Json" />            
@@ -45,11 +47,12 @@
             <File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
             <!--
             <File Id="Markdown" Name="Markdown.dll" Source="$(var.CSVQuickViewer.TargetPath)\Markdown.dll" />
-            -->
+						-->
             <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
             <File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />
             <File Id="MicrosoftExtensionsDependencyInjectionAbstractions" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
             <File Id="MicrosoftExtensionsLogging" Name="Microsoft.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.dll" />
+            <File Id="DependencyInjection" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.dll" />            
             <File Id="MicrosoftExtensionsLoggingAbstractions" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
             <File Id="MicrosoftExtensionsOptions" Name="Microsoft.Extensions.Options.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Options.dll" />
             <File Id="MicrosoftExtensionsPrimitives" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Primitives.dll" />
