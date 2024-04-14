@@ -32,7 +32,7 @@ namespace CsvTools
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
     private readonly ICollection<object> m_Values;
     private readonly int m_MaxCluster;
-    private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FromRowsFilter" /> class.
@@ -255,7 +255,7 @@ namespace CsvTools
     {
       timerRebuild.Stop();
 
-      using var frm = new FormProgress("Filter", false, FontConfig, cancellationTokenSource.Token);
+      using var frm = new FormProgress("Filter", false, FontConfig, m_CancellationTokenSource.Token);
       frm.SetMaximum(100);
       frm.Show();
       frm.Report(new ProgressInfo("Building clusters", 1));
@@ -308,7 +308,7 @@ namespace CsvTools
 
     private void FromRowsFilter_FormClosing(object sender, FormClosingEventArgs e)
     {
-      cancellationTokenSource.Cancel();
+      m_CancellationTokenSource.Cancel();
     }
   }
 }

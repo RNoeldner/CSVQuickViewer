@@ -281,18 +281,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Builds the SQL command.
-    /// </summary>
-    /// <param name="valueText">The value text.</param>
-    /// <returns></returns>
-    //public string BuildSqlCommand(in string valueText)
-    //{
-    //  if (valueText == OperatorIsNull)
-    //    return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-    //  return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText.AsSpan(), m_DataType));
-    //}
-
-    /// <summary>
     ///   Set the Filter to a value
     /// </summary>
     /// <param name="value">The typed value</param>
@@ -367,45 +355,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Strings with the right substitution to be used as filter If a pattern in a LIKE clause
-    ///   contains any of these special characters * % [ ], those characters must be escaped in
-    ///   brackets [ ] like this [*], [%], [[] or []].
-    /// </summary>
-    /// <param name="inputValue">The input.</param>
-    /// <returns></returns>
-    private static string StringEscapeLike(in string inputValue)
-    {
-      if (string.IsNullOrEmpty(inputValue))
-        return string.Empty;
-      var returnVal = new StringBuilder(inputValue.Length);
-      foreach (var c in inputValue)
-      {
-        switch (c)
-        {
-          case '%':
-          case '*':
-          case '[':
-          case ']':
-            returnVal.Append('[' + c + ']');
-            break;
-
-          case '\'':
-            returnVal.Append("''");
-            break;
-
-          default:
-            returnVal.Append(c);
-            break;
-        }
-      }
-
-      return returnVal.ToString();
-    }
-
-    /// <summary>
     ///   Builds the filter expression for this column for Operator based filter
     /// </summary>
-        /// <returns>A SQL Condition to be used on DataTable</returns>
+    /// <returns>A SQL Condition to be used on DataTable</returns>
     private string BuildFilterExpressionOperator()
     {
       switch (m_Operator)
@@ -431,8 +383,8 @@ namespace CsvTools
           if (!string.IsNullOrEmpty(m_ValueText))
           {
             if (m_DataType == DataTypeEnum.String)
-              return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
-            return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
+              return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+            return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
           }
           break;
 
@@ -444,13 +396,13 @@ namespace CsvTools
 
         case cOperatorBegins:
           if (m_DataType == DataTypeEnum.String)
-            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
-          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'", m_DataPropertyNameEscape, StringEscapeLike(m_ValueText));
+            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
 
         case cOperatorEnds:
           if (m_DataType == DataTypeEnum.String)
-            return $"{m_DataPropertyNameEscape} LIKE '%{StringEscapeLike(m_ValueText)}'";
-          return $"Convert({m_DataPropertyNameEscape},'System.String') LIKE '%{StringEscapeLike(m_ValueText)}'";
+            return $"{m_DataPropertyNameEscape} LIKE '%{m_ValueText.StringEscapeLike()}'";
+          return $"Convert({m_DataPropertyNameEscape},'System.String') LIKE '%{m_ValueText.StringEscapeLike()}'";
 
         default:
           string filterValue;

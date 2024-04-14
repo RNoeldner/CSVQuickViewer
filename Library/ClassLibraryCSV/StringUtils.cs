@@ -491,6 +491,42 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
 
     /// <summary>
+    ///   Strings with the right substitution to be used as filter If a pattern in a LIKE clause
+    ///   contains any of these special characters * % [ ], those characters must be escaped in
+    ///   brackets [ ] like this [*], [%], [[] or []].
+    /// </summary>
+    /// <param name="inputValue">The input.</param>
+    /// <returns></returns>
+    public static string StringEscapeLike(this string? inputValue)
+    {
+      if (string.IsNullOrEmpty(inputValue))
+        return string.Empty;
+      var returnVal = new StringBuilder(inputValue!.Length);
+      foreach (var c in inputValue)
+      {
+        switch (c)
+        {
+          case '%':
+          case '*':
+          case '[':
+          case ']':
+            returnVal.Append('[' + c + ']');
+            break;
+
+          case '\'':
+            returnVal.Append("''");
+            break;
+
+          default:
+            returnVal.Append(c);
+            break;
+        }
+      }
+
+      return returnVal.ToString();
+    }
+
+    /// <summary>
     ///   Handles quotes in SQLs, does not include the outer quotes
     /// </summary>
     public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents) =>
@@ -524,7 +560,7 @@ namespace CsvTools
       result = entry;
       return true;
     }
-    
+
     /// <summary>
     ///   Read the value and determine if this could be a constant value ( surrounded by " or ' ) or
     ///   if it's a number; if not its assume is a reference to another field
