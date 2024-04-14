@@ -31,7 +31,7 @@
       <Directory Id="LocalAppDataFolder" Name="[AppData]">
         <Directory Id="PRODUCTDIR" Name="$(var.AppFolder)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
-            <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
+						<File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
             <File Id="CSVQuickViewerConfig" Name="CSVQuickViewer.exe.Config" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe.Config" />
             <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />            
