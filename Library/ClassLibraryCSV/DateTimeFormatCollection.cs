@@ -30,7 +30,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="DateTimeFormatCollection" /> class.
     /// </summary>
-    /// <param name="file">The file to load the default values from. It will be checked if its an built in resource</param>
+    /// <param name="file">The file to load the default values from. It will be checked if it's a built-in resource</param>
     public DateTimeFormatCollection(string file)
     {
       m_FileName = file;

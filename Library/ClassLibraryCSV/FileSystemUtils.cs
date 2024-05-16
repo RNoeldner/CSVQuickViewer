@@ -12,6 +12,9 @@
  *
  */
 
+
+// Ignore Spelling: Utc
+
 #nullable enable
 
 using System;
@@ -36,7 +39,9 @@ namespace CsvTools
   /// <summary>
   ///   Extensions for string in the file system
   /// </summary>
+#pragma warning disable VSSpell001
   public static class FileSystemUtils
+#pragma warning restore VSSpell001
   {
     /// <summary>
     ///   On windows, we need to take care of filename that might exceed 248 characters, they need to

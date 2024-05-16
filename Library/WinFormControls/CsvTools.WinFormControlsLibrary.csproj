@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>    
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <OutputType>Library</OutputType>
@@ -14,10 +14,10 @@
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
-    <AssemblyName>CsvTools.WinFormControls</AssemblyName>
-	<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
-	<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
-	<UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
+    <AssemblyName>CsvTools.WinFormControls</AssemblyName>    
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
     <DebugType>embedded</DebugType>

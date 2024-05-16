@@ -25,12 +25,13 @@ namespace CsvTools
   public static class FunctionalDI
   {
     /// <summary>
-    /// Function that will return encryption related information for a file
+    /// Function that will return encryption related information for a file, this is not used in the Csv Viewer
     /// </summary>
-    public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile = _ => (string.Empty, string.Empty, string.Empty);
+    public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile =
+      _ => (string.Empty, string.Empty, string.Empty);
 
     /// <summary>
-    /// Function that will return an open stream  for SourceAccess
+    /// Function that will return an open stream for SourceAccess
     /// </summary>
     public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
 
