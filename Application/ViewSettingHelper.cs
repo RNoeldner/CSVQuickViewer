@@ -6,9 +6,9 @@ namespace CsvTools
   public static class ViewSettingHelper
   {
     private static readonly string
-      m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+      SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 
-    private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.json";
+    private static readonly string SettingPath = SettingFolder + "\\Setting.json";
     
     /// <summary>
     /// Load the ViewSettings in the fileSystem
@@ -17,11 +17,11 @@ namespace CsvTools
     {
       try
       {
-        return await m_SettingPath.DeserializeFileAsync<ViewSettings>();
+        return await SettingPath.DeserializeFileAsync<ViewSettings>();
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Loading ViewSettings {path}", m_SettingPath);
+        Logger.Error(ex, "Loading ViewSettings {path}", SettingPath);
       }
 
       return new ViewSettings();
@@ -32,10 +32,10 @@ namespace CsvTools
     /// </summary>
     public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
     {
-      if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
-        FileSystemUtils.CreateDirectory(m_SettingFolder);
+      if (!FileSystemUtils.DirectoryExists(SettingFolder))
+        FileSystemUtils.CreateDirectory(SettingFolder);
 
-      await viewSettings.SerializeAsync(m_SettingPath, null, false);
+      await viewSettings.SerializeAsync(SettingPath, null, false);
     }
   }
 }

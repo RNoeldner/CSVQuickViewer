@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
+  <!-- 
     Microsoft ResX Schema 
-
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,45 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="label1.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="m_BtnCancel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vAAADrwBlbxySQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAmlJREFUOE91U99v
-        0lAY7d/FHpYs+mrExLmxjanRxBBRBwt7mDFGF5cZE30wiw/6ZBbnqyEmZjoCBItuqEjiYMI2WBgM6Ohv
-        WqC9nlvaOhL9khN6b885fN+5t8y/qstulpQXS3l5OVSQl+/kldWlnM5+zNmv/1/dTConBi/I/KRHo2hM
-        WNABFWtZDHp73a14zaYPl/Z+nRV8IxyIZnvSQ6oTHnJ4afBL19h30NfevS7askH1suwmxG1HvD81Skrj
-        IxYcseAfPW0i6duJjKZpKctAvH2x4IgPH4VJvVgglcisK5AiM8Rot4j6/L61Bs+sBc5XOgKfpIGlsclT
-        8cHMGKnv7pBWq2lCoEiR6WMpNNEyT5p9gjJEnghXzlidYbymFIuyjPpq5RsMRDorfVGZ91OiCn62z5+s
-        QfwGz1VTlU3x7nV3NPB5nE6GUVbCLFLmaGDOzPKCvwOTKIRPgKd4josLs4Yjtnmy8vDmTxjMxWFwRDtw
-        Z5739U2eS0O8BrxFJ/FKaEp1xDZPgUGO6bx8HIPBPg3GFluBoUqmIm1AvIFM2Hpxt12e87l/AogY4TuD
-        i5HE4hegi5fHiMEdUzGBuCcuXitXwtOV+t5vDiaGwTWsEG2DJm5nenCMQe9XugGYyAQmDYKZ3XnLt8ZJ
-        r1Ej6rNFR9wVAufyRNeSlgG6+IzNHUCnBOHqWVdMQYOle7aYjlrrpj+lTNP8YhnQ0qLradzGPZAViNzE
-        bZGDHtDEVc7asuHSt5Opo4D3B470AKdSA/k0qhg1j263bPqgkJf99Lek5IcEPueEfO+GBXX1QQKBJUhX
-        jw21zTDMH4vIYsW7wVNVAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="m_BtnNext.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vAAADrwBlbxySQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC41ZYUyZQAAAOJJREFUOE9jGAVU
-        BuXl5f8jIiJ/XLx48SRUCAz+//+/7/jxE2+CgoL+l5dX/IcKY4KoqKiPAQEBf0JCQj5++PABbsjhw0du
-        +/v7/wkMDPybnJz8CSqMCa5du34wIyPjQURExF+gbb9Onjz1Yt++/W/8/Pz+Al32Lzc39/mtW7cOQ5Vj
-        B7dv39mbk5PzDKQB6JL/QFv/A132v6io6NO9e/f3A72zE6oUNwDasj83N+9DXFz8/9jYuH8lJaU/Hjx4
-        eJIozSAAUnjnzp3jwAD7U1tb9+3x4yeXgGK7odKjgLqAgQEAvIJ7vUHTU0QAAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="m_BtnPrevious.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vAAADrwBlbxySQAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAAAyklEQVQ4T+2P
-        zQqCQBSFfUTxLxXU1QRqK3uD7OnMMLOFYLZ1lmIpuDp1JaJAq32d1WXu+b6ZEf6ZDp5yP/o+BGXZAYZh
-        wHEcHI/l9xKC03QPVVUhSRJEUYRlWagq/llCcBxvoSgKNG0G13XBGLvNGkzTRNu27yVRtIEsy9B1fYA5
-        58jz/CEhaV3X4xK6nQoEe56PoigeRXoVY/Nhb9v2tCAM1wiCJcry9FKiXZLs4PsLrFbh9Df6vkfXdaMF
-        kpzPFzRNQ+O05OciCFdwXqhapAwDKAAAAABJRU5ErkJggg==
-</value>
-  </data>
 </root>
