@@ -99,7 +99,9 @@ namespace CsvTools
         if (type == DataTypeEnum.String || type == DataTypeEnum.Guid || type == DataTypeEnum.Boolean)
         {
           var typedValues = new List<string>();
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
           var countNull = MakeTypedValues(values, typedValues, Convert.ToString, progress, cancellationToken);
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(new ProgressInfo("Combining values to clusters"));
           return BuildValueClustersString(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken);
@@ -789,6 +791,8 @@ namespace CsvTools
 
       foreach (var text in values)
       {
+        if (text == null)
+          continue;
         if (linkedTokenSource.IsCancellationRequested || cluster1.Count > max)
           break;
         if (clusterIndividual.Count <= max)
