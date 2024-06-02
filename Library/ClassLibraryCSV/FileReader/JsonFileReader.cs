@@ -16,7 +16,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -117,9 +116,6 @@ namespace CsvTools
       m_Stream?.Dispose();
       m_Stream = null;
     }
-
-    /// <inheritdoc cref="DbDataReader" />
-    public new void Dispose() => Dispose(true);
 
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

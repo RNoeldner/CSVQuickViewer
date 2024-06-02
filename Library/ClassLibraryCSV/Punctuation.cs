@@ -25,7 +25,7 @@ namespace CsvTools
         '.' => "Dot .",
         '|' => "Pipe |",
         '"' => "Quotation marks \"",
-        '\'' => "Apostrophe \'",
+        '\'' => "Apostrophe '",
         '&' => "Ampersand &",
         '*' => "Asterisk *",
         '`' => "Tick Mark `",

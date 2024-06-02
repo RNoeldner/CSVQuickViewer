@@ -55,7 +55,7 @@ namespace CsvTools
     private const char cLf = (char) 0x0a;
 
     /// <summary>
-    ///   A non-breaking space..
+    ///   A non-breaking space.
     /// </summary>
     private const char cNbsp = (char) 0xA0;
 
@@ -394,12 +394,6 @@ namespace CsvTools
       m_NumWarningsDelimiter = 0;
       m_NumWarningsUnknownChar = 0;
       m_NumWarningsNbspChar = 0;
-    }
-
-    /// <inheritdoc cref="IFileReader" />
-    public new void Dispose()
-    {
-      Dispose(true);
     }
 
     /// <inheritdoc cref="IFileReader" />
@@ -767,7 +761,7 @@ namespace CsvTools
               string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
 
-          // Handle replacements and warnings etc,
+          // Handle replacements and warnings etc.
           var adjustedValue = HandleTextSpecials(
             CurrentRowColumnText[columnNo]
               .ReplaceCaseInsensitive(m_NewLinePlaceholder, '\n')
@@ -1011,7 +1005,7 @@ namespace CsvTools
             if (!postData)
             {
               // This is not 100% correct in case we have a misalignment of column that is corrected
-              // afterwards warning for NBP need to be issues before trimming as trimming would
+              // afterward warning for NBP need to be issues before trimming as trimming would
               // remove the char
               if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore &&
                   (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
@@ -1080,7 +1074,7 @@ namespace CsvTools
           {
             // Store the white spaces if we do any kind of trimming
             if (m_TrimmingOption == TrimmingOptionEnum.None)
-              // Values will be trimmed later but we need to find out, if the filed is quoted first
+              // Values will be trimmed later, but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
           }
@@ -1124,7 +1118,7 @@ namespace CsvTools
             continue;
           }
 
-          // a single " should be regarded as closing when its followed by the delimiter
+          // a single " should be regarded as closing when it's followed by the delimiter
           if (m_ContextSensitiveQualifier &&
               (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf))
           {

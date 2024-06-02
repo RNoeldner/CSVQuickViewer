@@ -70,7 +70,7 @@ namespace CsvTools
     /// <summary>
     /// The type of Filter
     /// </summary>
-    public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.All;
+    private FilterTypeEnum FilterType { get; set; } = FilterTypeEnum.All;
 
     /// <summary>
     ///   Sets the name of the unique field.

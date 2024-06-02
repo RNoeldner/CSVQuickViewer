@@ -42,9 +42,6 @@ namespace CsvTools
     private readonly IFileReader? m_FileReader;
     private readonly ReaderMapping m_ReaderMapping;
     private readonly long m_RecordLimit;
-    private long m_NumberRowError;
-    private long m_NumberRowWarnings;
-    private string m_RowErrorInformation;
 
     /// <summary>
     ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
@@ -64,7 +61,7 @@ namespace CsvTools
       m_FileReader = reader as IFileReader;
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader can not be closed");
-      m_RowErrorInformation = string.Empty;
+      RowErrorInformation = string.Empty;
       m_ColumnErrorDictionary = new ColumnErrorDictionary(m_FileReader);
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       var sourceColumns = new List<Column>();
@@ -118,12 +115,12 @@ namespace CsvTools
     /// <summary>
     /// Get the number of rows with errors (at least one row is missing)
     /// </summary>
-    public long NumberRowError => m_NumberRowError;
+    public long NumberRowError { get; private set; }
 
     /// <summary>
     /// Get the number of rows with issues
     /// </summary>
-    public long NumberRowWarnings => m_NumberRowWarnings;
+    public long NumberRowWarnings { get; private set; }
 
     /// <inheritdoc />
     public Func<Task>? OnOpenAsync { get; set; }
@@ -153,7 +150,7 @@ namespace CsvTools
     /// <summary>
     /// Gets the error information for the row, this could be filled by an error column or by a reader raising warnings
     /// </summary>
-    public string RowErrorInformation => m_RowErrorInformation;
+    public string RowErrorInformation { get; private set; }
 
     /// <inheritdoc />
     public long StartLineNumber => m_FileReader?.StartLineNumber ?? RecordNumber;
@@ -291,7 +288,7 @@ namespace CsvTools
     // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
     public override string GetString(int ordinal)
       => (ordinal == m_ReaderMapping.ColNumErrorField)
-        ? m_RowErrorInformation
+        ? RowErrorInformation
         : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
 
     /// <inheritdoc />
@@ -304,7 +301,7 @@ namespace CsvTools
       if (ordinal == m_ReaderMapping.ColNumRecNum)
         return RecordNumber;
       return ordinal == m_ReaderMapping.ColNumErrorField
-        ? m_RowErrorInformation
+        ? RowErrorInformation
         : DataReader.GetValue(m_ReaderMapping.ResultToSource(ordinal));
     }
 
@@ -329,7 +326,7 @@ namespace CsvTools
           ordinal == m_ReaderMapping.ColNumRecNum)
         return false;
       if (ordinal == m_ReaderMapping.ColNumErrorField)
-        return m_RowErrorInformation.Length == 0;
+        return RowErrorInformation.Length == 0;
       return DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
     }
 
@@ -389,9 +386,9 @@ namespace CsvTools
     {
       m_FileReader?.ResetPositionToFirstDataRow();
       m_ColumnErrorDictionary.Clear();
-      m_RowErrorInformation = string.Empty;
+      RowErrorInformation = string.Empty;
       RecordNumber = 0;
-      m_NumberRowWarnings = 0;
+      NumberRowWarnings = 0;
     }
 
     /// <summary>
@@ -402,26 +399,26 @@ namespace CsvTools
       RecordNumber++;
 
       if (m_ReaderMapping.ColNumErrorFieldSource != -1)
-        m_RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
+        RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
           ? string.Empty
           : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
       else
       {
-        m_RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
+        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
           i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
         m_ColumnErrorDictionary.Clear();
       }
 
-      if (string.IsNullOrEmpty(m_RowErrorInformation))
+      if (string.IsNullOrEmpty(RowErrorInformation))
         return;
 
-      if (m_RowErrorInformation.IsWarningMessage())
-        m_NumberRowWarnings++;
+      if (RowErrorInformation.IsWarningMessage())
+        NumberRowWarnings++;
       else
-        m_NumberRowError++;
+        NumberRowError++;
 
       Warning?.Invoke(this,
-        new WarningEventArgs(RecordNumber, 0, m_RowErrorInformation, StartLineNumber, EndLineNumber, string.Empty));
+        new WarningEventArgs(RecordNumber, 0, RowErrorInformation, StartLineNumber, EndLineNumber, string.Empty));
     }
 
     /// <summary>
