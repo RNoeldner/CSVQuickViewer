@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -31,24 +32,30 @@ namespace CsvTools
   {
     /// <summary>Default HtmlStyle</summary>
     public static readonly HtmlStyle Default = new HtmlStyle(cDefaultStyle);
-    private string m_Style;
 
-    private const string cDefaultStyle = "<STYLE type=\"text/css\">\r\n"
-                                         + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
-                                         + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
-                                         + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
-                                         + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
-                                         + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
-                                         + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
-                                         + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
-                                         + "  td.value { text-align:right; color:DarkBlue; }\r\n"
-                                         + "  td.text { mso-number-format:\\@; color:black; }\r\n"
-                                         + "  tr.alt { background: #EEEEEE; }\r\n"
-                                         + "  br { mso-data-placement:same-cell; }\r\n"
-                                         + "  span { background: #F7F8E0; }\r\n"
-                                         + "  span.err { color:#B40404; }\r\n"
-                                         + "  span.war { color:#2E64FE; }\r\n"
+    private string m_Style;
+    private const string cSecColor = "DarkBlue";
+    private const string cBackCol = "#c8c8c8";
+
+    private const string cDefaultStyle = "<STYLE type=\"text/css\">"
+                                         + "html * {font-family:'Calibri','Trebuchet MS',Arial,Helvetica,sans-serif}\n"
+                                         + "h1 {color:" + cSecColor + ";font-size:14px;font-weight:bold}\n"
+                                         + "h2 {color:" + cSecColor + ";font-size:13px;font-weight:bold}\n"
+                                         + "table {border-collapse:collapse;font-size:11px}\n"
+                                         + "td {border:1px solid lightgrey;padding:2px}\n"
+                                         + "td.info {mso-number-format:\\@;background:" + cBackCol +
+                                         ";font-weight:bold}\n"
+                                         + "td.inforight {mso-number-format:\\@;text-align:right;background:" +
+                                         cBackCol + ";font-weight:bold}\n"
+                                         + "td.value {text-align:right;color:" + cSecColor + "}\n"
+                                         + "td.text {mso-number-format:\\@}\n"
+                                         + "tr.alt {background:#eeeeee}\n"
+                                         + "br {mso-data-placement:same-cell}\n"
+                                         + "span {background:#f7f8e0}\n"
+                                         + "span.err {color:#b40404}\n"
+                                         + "span.war {color:#2e64fe}\n"
                                          + "</STYLE>";
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="HtmlStyle" /> class.
     /// </summary>
@@ -105,7 +112,6 @@ namespace CsvTools
     /// <value>The table template.</value>
     public static string TableClose => "</table>";
 
-
     /// <summary>
     ///   Gets or sets the table template.
     /// </summary>
@@ -151,7 +157,6 @@ namespace CsvTools
     /// <value>The TR template.</value>
     public static string TrOpen => "<tr>\r\n";
 
-
     /// <summary>
     ///   Gets or sets the TR template alternate.
     /// </summary>
@@ -186,7 +191,7 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
     public static string AddTd(string? template,
-                               params object?[]? contents)
+      params object?[]? contents)
     {
       if (template is null || contents is null || template.Length == 0)
         return string.Empty;
@@ -296,7 +301,7 @@ namespace CsvTools
         }
 
       return sb.ToString();
-    }    
+    }
 
     /// <summary>
     ///   Get the JSON element / variable name
@@ -326,11 +331,12 @@ namespace CsvTools
 
       return allowed;
     }
-/// <summary>
-/// Get a valid HTML document string builder that stats with common HTML tags
-/// </summary>
-/// <param name="hexColor">Background color in hex</param>
-/// <returns></returns>
+
+    /// <summary>
+    /// Get a valid HTML document string builder that stats with common HTML tags
+    /// </summary>
+    /// <param name="hexColor">Background color in hex</param>
+    /// <returns></returns>
     public StringBuilder StartHtmlDoc(string hexColor = "")
     {
       var text = new StringBuilder(500);
@@ -356,7 +362,7 @@ namespace CsvTools
           && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
       return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ").Replace("  ", " ");
-    }    
+    }
 
     /// <summary>
     ///   Get the XML element name
@@ -411,13 +417,16 @@ namespace CsvTools
       {
         if (errorsAndWarnings.Message.Length == 0 && errorsAndWarnings.Column.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Column)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(Error, errorsAndWarnings.Column)));
           return;
         }
 
         if (errorsAndWarnings.Message.Length > 0 && errorsAndWarnings.Column.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Message)));
+          sbHtml.Append(
+            string.Format(CultureInfo.CurrentCulture, tdTemplate,
+              AddTd(Warning, errorsAndWarnings.Message)));
           return;
         }
 
@@ -466,14 +475,12 @@ namespace CsvTools
     /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
     public string ConvertToHtmlFragment(string fragment)
     {
-      // Minimal implementation of HTML clipboard format
-      const string source = "http://www.csvquickviewer.com/";
+      // return $"<HTML><HEAD>{Style}</HEAD><BODY>{fragment}</BODY></HTML>";
+      const string markerBlock =
+        "Version:1.0\r\nStartHTML:{0,8}\r\nEndHTML:{1,8}\r\nStartFragment:{2,8}\r\nEndFragment:{3,8}\r\nStartSelection:{2,8}\r\nEndSelection:{3,8}\r\n{4}";
 
-      const string markerBlock = "Version:1.0\r\n" + "StartHTML:{0,8}\r\n" + "EndHTML:{1,8}\r\n"
-                                 + "StartFragment:{2,8}\r\n" + "EndFragment:{3,8}\r\n" + "StartSelection:{2,8}\r\n"
-                                 + "EndSelection:{3,8}\r\n" + "SourceURL:{4}\r\n" + "{5}";
-
-      var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, source, "").Length;
+      var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, "")
+        .Length;
 
       var html = string.Format(
         CultureInfo.InvariantCulture,
@@ -490,7 +497,6 @@ namespace CsvTools
         prefixLength + html.Length,
         startFragment,
         endFragment,
-        source,
         html);
     }
   }

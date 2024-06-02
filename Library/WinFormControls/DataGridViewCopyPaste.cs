@@ -137,7 +137,7 @@ namespace CsvTools
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
-    private void AddCell(
+    private static void AddCell(
       DataGridViewCell cell,
       StringBuilder stringBuilder,
       StringBuilder sbHtml,
@@ -167,7 +167,8 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private void AppendRowError(StringBuilder stringBuilder, StringBuilder sbHtml, string? errorText, bool addErrorInfo)
+    private static void AppendRowError(StringBuilder stringBuilder, StringBuilder sbHtml, string? errorText,
+      bool addErrorInfo)
     {
       if (!addErrorInfo)
         return;
