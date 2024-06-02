@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,11 @@ namespace CsvTools
     ///   Char to separate two or more errors and warnings
     /// </summary>
     public const char cSeparator = '\n';
+
     private const char cOpenField = '[';
     private const char cClosingField = ']';
     private const char cAlternateColumnMessageSeparator = ':';
+
     /// <summary>
     ///   Char to separate two column names
     /// </summary>
@@ -66,7 +69,7 @@ namespace CsvTools
       if (errorList.Contains(newError))
         return errorList;
 
-      var sb = new StringBuilder(errorList.Length + newError.Length +1);
+      var sb = new StringBuilder(errorList.Length + newError.Length + 1);
 
       // If the new message is considered an error put it in front, this way it's easier to check if
       // there is an error
@@ -88,6 +91,7 @@ namespace CsvTools
 
       return sb.ToString();
     }
+
     /// <summary>
     ///   String method to append a message an error list text
     /// </summary>
@@ -111,7 +115,7 @@ namespace CsvTools
       if (errorList.Contains(newError))
         return errorList;
 
-      var sb = new StringBuilder(errorList.Length + newError.Length +1);
+      var sb = new StringBuilder(errorList.Length + newError.Length + 1);
 
       // If the new message is considered an error put it in front, this way it's easier to check if
       // there is an error
@@ -160,7 +164,7 @@ namespace CsvTools
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
       // pass back messages that already have column information
-      if (column.Length==0 && errorMessage[0] == cOpenField)
+      if (column.Length == 0 && errorMessage[0] == cOpenField)
         return errorMessage;
       return $"{cOpenField}{column}{cClosingField} {errorMessage}";
     }
@@ -175,7 +179,8 @@ namespace CsvTools
       var list = new List<ColumnAndMessage>();
       if (!string.IsNullOrEmpty(row.RowError))
         list.Add(new ColumnAndMessage(string.Empty, row.RowError));
-      list.AddRange(row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
+      list.AddRange(
+        row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
       return BuildList(list);
     }
 
@@ -228,6 +233,7 @@ namespace CsvTools
 
       return new ColumnAndMessage(sbErrors.ToString(), sbWaring.ToString());
     }
+
     /// <summary>
     ///   String method to check if the text should be regarded as an error in an error list text
     /// </summary>
@@ -363,6 +369,7 @@ namespace CsvTools
           errors.Append(cSeparator);
         errors.Append(CombineColumnAndError(entry.Column, entry.Message));
       }
+
       return errors.ToString();
     }
 
@@ -385,6 +392,7 @@ namespace CsvTools
         start = end + 1;
       }
     }
+
 
     /// <summary>
     /// Struct for Column and Message information
@@ -423,15 +431,20 @@ namespace CsvTools
       if (text[0] == cOpenField)
       {
         var close = text.IndexOf(cClosingField);
-        return close == -1 ?
-          new ColumnAndMessage(string.Empty, text) :
-          new ColumnAndMessage(text.Substring(1, close - 1), text.Substring(close + 2));
+        return close == -1
+          ? new ColumnAndMessage(string.Empty, text)
+          : new ColumnAndMessage(text.Substring(1, close - 1), text.Substring(close + 2));
       }
 
+      return new ColumnAndMessage(string.Empty, text);
+      /* not sure anymore why this was added, but it causes problems
+       when copy past to HTMl in QuickViewer
+
       var splitterAlt = text.IndexOf(cAlternateColumnMessageSeparator);
-      return splitterAlt == -1 ?
-        new ColumnAndMessage(string.Empty, text) :
-        new ColumnAndMessage(text.Substring(0, splitterAlt), text.Substring(splitterAlt + 1).TrimStart());
+      return splitterAlt == -1
+        ? new ColumnAndMessage(string.Empty, text)
+        : new ColumnAndMessage(text.Substring(0, splitterAlt), text.Substring(splitterAlt + 1).TrimStart());
+      */
     }
   }
 }
