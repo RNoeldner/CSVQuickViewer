@@ -33,7 +33,7 @@ namespace CsvTools
 
     private const char cOpenField = '[';
     private const char cClosingField = ']';
-    private const char cAlternateColumnMessageSeparator = ':';
+    // private const char cAlternateColumnMessageSeparator = ':';
 
     /// <summary>
     ///   Char to separate two column names
