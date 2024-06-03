@@ -40,26 +40,15 @@ namespace CsvTools
     private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic;
     private BindingSource? m_BindingSource;
 
-    private bool m_DisposedValue;
     private IFileSetting? m_FileSetting;
     private int m_ShowButtonAtLength = 1000;
     private int m_MenuItemColumnIndex;
-    private bool m_DataLoaded = true;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Bindable(false)]
     [Browsable(false)]
-    public bool DataLoaded
-    {
-      get => m_DataLoaded;
-      set
-      {
-        if (m_DataLoaded == value)
-          return;
-        m_DataLoaded = value;
-      }
-    }
+    public bool DataLoaded { get; set; } = true;
 
     private void PassOnFontChanges(object? sender, EventArgs e)
     {
@@ -478,10 +467,8 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
       if (disposing)
       {
-        m_DisposedValue = true;
         components?.Dispose();
         m_ImgFilterIndicator.Dispose();
         m_CancellationTokenSource.Dispose();
@@ -1049,8 +1036,10 @@ namespace CsvTools
       {
         // This does not work properly
         var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
-        using var filterPopup = new FromColumnsFilter(Columns, DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(), m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
-          m_DataLoaded);
+        using var filterPopup = new FromColumnsFilter(Columns,
+          DataView?.Table?.Select(filterExpression) ?? Array.Empty<DataRow>(),
+          m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
+          DataLoaded);
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           SetRowHeight();
@@ -1061,7 +1050,10 @@ namespace CsvTools
 
     private void OpenFilterDialog(object? sender, EventArgs e)
     {
-      if (!m_DataLoaded && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Incomplete data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel)
+      if (!DataLoaded &&
+          MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.",
+            "Incomplete data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1,
+            3) == DialogResult.Cancel)
         return;
 
       this.RunWithHourglass(() =>

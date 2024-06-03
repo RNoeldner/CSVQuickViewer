@@ -191,6 +191,7 @@ namespace CsvTools
       LineNumber++;
       return StreamReader.ReadLine() ?? string.Empty;
     }
+
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
     ///   scratch This is fast in case the text fitted into the buffer or the underlying stream
@@ -217,7 +218,7 @@ namespace CsvTools
     private void AdjustStartLine()
     {
       LineNumber = 1;
-      for (var i = 0; i<m_SkipLines && !StreamReader.EndOfStream; i++)
+      for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
       {
         StreamReader.ReadLine();
         LineNumber++;

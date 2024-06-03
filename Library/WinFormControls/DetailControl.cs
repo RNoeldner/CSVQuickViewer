@@ -36,7 +36,6 @@ namespace CsvTools
     private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
     private CancellationToken m_CancellationToken = CancellationToken.None;
     private DataTable m_DataTable = new DataTable();
-    private bool m_DisposedValue; // To detect redundant calls
     private FilterDataTable m_FilterDataTable = new FilterDataTable(new DataTable());
     private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
     private FormShowMaxLength? m_FormShowMaxLength;
@@ -380,11 +379,8 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
-
       if (disposing)
       {
-        m_DisposedValue = true;
         components.Dispose();
         m_FormShowMaxLength?.Dispose();
         m_FormDuplicatesDisplay?.Dispose();
@@ -393,7 +389,6 @@ namespace CsvTools
         m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
         m_SteppedDataTableLoader.Dispose();
-        // m_SourceDisplay?.Dispose();
       }
 
       base.Dispose(disposing);
@@ -476,7 +471,8 @@ namespace CsvTools
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible,
             HtmlStyle);
         m_FormShowMaxLength.ShowWithFont(this);
-        m_FormShowMaxLength.FormClosed += (o, e) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
+        m_FormShowMaxLength.FormClosed += (o, formClosedEventArgs) =>
+          this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       }, ParentForm);
       m_ToolStripButtonColumnLength.Enabled = false;
     }
@@ -504,7 +500,7 @@ namespace CsvTools
             { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
-            (o, e) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
+            (o, formClosedEventArgs) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -532,7 +528,8 @@ namespace CsvTools
               HtmlStyle)
             { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.ShowWithFont(this);
-          m_HierarchyDisplay.FormClosed += (o, e) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+          m_HierarchyDisplay.FormClosed += (o, formClosedEventArgs) =>
+            this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -720,7 +717,7 @@ namespace CsvTools
     //      }
 
     //      var skippedLines = new StringBuilder();
-    //      // in case we skipped lines read them as Header so we do not loose them
+    //      // in case we skipped lines read them as Header, so we do not loose them
     //      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
     //      {
     //#if NET5_0_OR_GREATER

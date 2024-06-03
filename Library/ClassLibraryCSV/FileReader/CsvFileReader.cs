@@ -556,16 +556,19 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (!disposing)
-        return;
-      if (SelfOpenedStream)
+      if (SelfOpenedStream && disposing)
       {
         m_Stream?.Dispose();
         m_Stream = null;
       }
 
-      m_TextReader?.Dispose();
-      m_TextReader = null;
+      if (disposing)
+      {
+        m_TextReader?.Dispose();
+        m_TextReader = null;
+      }
+
+      base.Dispose(disposing);
     }
 
     /// <inheritdoc />

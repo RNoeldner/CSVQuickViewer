@@ -191,8 +191,13 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing) m_Stream?.Dispose();
-      m_Stream = null;
+      if (disposing)
+      {
+        m_Stream?.Dispose();
+        m_Stream = null;
+      }
+
+      base.Dispose(disposing);
     }
 
     /// <inheritdoc />

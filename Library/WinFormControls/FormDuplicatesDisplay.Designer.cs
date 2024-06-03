@@ -7,16 +7,13 @@ namespace CsvTools
     /// </summary>
     private System.ComponentModel.IContainer components = null;
     
-    private bool m_DisposedValue; // To detect redundant calls
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
-
+      m_CancellationTokenSource?.Cancel();
       if (disposing)
       {
-        m_DisposedValue = true;
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
       }

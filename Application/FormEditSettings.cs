@@ -31,8 +31,6 @@ namespace CsvTools
     private readonly ViewSettings m_ViewSettings;
     private CsvFileDummy? m_FileSetting;
 
-    private bool m_IsDisposed;
-
     public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
@@ -58,12 +56,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_IsDisposed) return;
+      try { m_CancellationTokenSource.Cancel(); }
+      catch
+      {
+        /* ignore */
+      }
+
       if (disposing)
       {
-        m_IsDisposed = true;
         components?.Dispose();
-        m_CancellationTokenSource.Cancel();
         m_CancellationTokenSource.Dispose();
       }
 
@@ -366,7 +367,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     {
       ValidateChildren();
       StoreFromUI();
-      m_CancellationTokenSource.Cancel();
+      try { m_CancellationTokenSource.Cancel(); }
+      catch
+      {
+        /* ignore */
+      }
 
       SetDefaultInspectionResult();
       if (m_FileSetting != null)

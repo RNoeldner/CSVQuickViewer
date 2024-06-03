@@ -65,8 +65,6 @@ namespace CsvTools
 
     private BindingSource m_CsvSettingBindingSource;
 
-    private bool m_IsDisposed;
-
     private bool m_IsWriteSetting;
     private Label m_Label6;
     private TableLayoutPanel m_TableLayoutPanelText;
@@ -166,21 +164,6 @@ namespace CsvTools
         m_HasChanges = true;
       }
     }
-
-    /// <summary>
-    ///   Dispose
-    /// </summary>
-    /// <param name="disposing">
-    ///   true to release both managed and unmanaged resources; false to release only unmanaged resources.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-      if (m_IsDisposed) return;
-      if (!disposing) return;
-      m_IsDisposed = true;
-      base.Dispose(true);
-    }
-
 
     private void FormatPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

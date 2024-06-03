@@ -32,7 +32,7 @@ namespace CsvTools.Tests
         async f => await toDoControl.Invoke((T) f.CreatedControl), waitBeforeActionSeconds);
     }
 
-    public static void ShowForm<T>(Func<T> createFunc, double waitBeforeActionSeconds = 0, Action<T>? toDoForm = null)
+    public static void ShowForm<T>(Func<T> createFunc, double waitBeforeActionSeconds = 0, Action<T>? formAction = null, double waitAfterAction = 0)
       where T : Form
     {
       Extensions.RunStaThread(() =>
@@ -56,15 +56,20 @@ namespace CsvTools.Tests
           {
             // ignore the form might be shown already
           }
-          
-         
+
           if (waitBeforeActionSeconds > 0 && !isClosed)
             WaitSomeTime(waitBeforeActionSeconds, CancellationToken.None);
 
           Application.DoEvents();
 
-          if (!isClosed)
-            toDoForm?.Invoke(frm);
+          if (!isClosed && formAction!=null)
+          {
+            formAction.Invoke(frm);
+            Application.DoEvents();
+
+            if (waitAfterAction > 0)
+              WaitSomeTime(waitAfterAction, CancellationToken.None);
+          }
 
           if (!isClosed)
             frm.Close();
@@ -186,12 +191,14 @@ namespace CsvTools.Tests
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
+      try { m_CancellationTokenSource.Cancel(); } catch { /* ignore */ }
       if (disposing)
       {
         m_CancellationTokenSource.Dispose();
+        if (CreatedControl is IDisposable dispControl)
+          dispControl.Dispose();
       }
-      if (CreatedControl is IDisposable dispControl)
-        dispControl.Dispose();
+
       base.Dispose(disposing);
     }
 

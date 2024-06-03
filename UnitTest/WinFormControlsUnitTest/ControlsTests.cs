@@ -25,14 +25,13 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-
-    
     [TestMethod, Timeout(1000)]
     public void FormSelectInDropdown()
     {
-      UnitTestStaticForms.ShowForm((Func<Form>) (() => new FormSelectInDropdown(new [] {"item1","item2" }, "item1")), 0, (f) =>
-      {
-      });
+      UnitTestStaticForms.ShowForm((Func<Form>) (() => new FormSelectInDropdown(new[] { "item1", "item2" }, "item1")),
+        0, (f) =>
+        {
+        });
     }
 
     [TestMethod, Timeout(1000)]
@@ -52,9 +51,8 @@ namespace CsvTools.Tests
     public void CsvTextDisplayShowAsync()
     {
       UnitTestStaticForms.ShowFormAsync(
-        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), null), 
+        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), null),
         async frm => await frm.OpenFileAsync(false, '"', '\t', char.MinValue, 1200, 1, "##", UnitTestStatic.Token), .1);
-
     }
 
     [TestMethod, Timeout(8000)]
@@ -111,6 +109,43 @@ namespace CsvTools.Tests
       });
     }
 
+    [TestMethod]
+    public void TextDisplay_Error()
+    {
+      var frm = new TimedMessage();
+      Assert.AreEqual(DialogResult.OK, frm.ShowDialog(
+        "Message Error", "Title", MessageBoxButtons.OK, MessageBoxIcon.Error,
+        System.Windows.Forms.MessageBoxDefaultButton.Button1, .7d, "Oki Doki", null, null));
+    }
+
+    [TestMethod]
+    public void TextDisplay_Information()
+    {
+      var frm = new TimedMessage();
+      Assert.AreEqual(DialogResult.OK, frm.ShowDialog(
+        "Message Information", "Title", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
+        System.Windows.Forms.MessageBoxDefaultButton.Button1, .7d, "Oki", "Doki", null));
+    }
+
+
+    [TestMethod]
+    public void TextDisplay_Warning()
+    {
+      var frm = new TimedMessage();
+      Assert.AreEqual(DialogResult.Abort, frm.ShowDialog(
+        "Message Warning", "Title", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Warning,
+        System.Windows.Forms.MessageBoxDefaultButton.Button1, .7d, null, null, null));
+    }
+
+    [TestMethod]
+    public void TextDisplay_Question()
+    {
+      var frm = new TimedMessage();
+      Assert.AreEqual(DialogResult.No, frm.ShowDialog(
+        "Message Question", "Title", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+        System.Windows.Forms.MessageBoxDefaultButton.Button2, .7d, "Yo", "Nay", null));
+    }
+
     [TestMethod, Timeout(1000)]
     public void ResizeForm()
     {
@@ -126,13 +161,17 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(1000)]
     public void FormTextDisplayJson()
     {
-      UnitTestStaticForms.ShowForm(() => new FormTextDisplay("{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}"));
+      UnitTestStaticForms.ShowForm(() =>
+        new FormTextDisplay(
+          "{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}"));
     }
 
     [TestMethod, Timeout(1000)]
     public void FormTextDisplayXMl()
     {
-      UnitTestStaticForms.ShowForm(() => new FormTextDisplay("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>"));
+      UnitTestStaticForms.ShowForm(() =>
+        new FormTextDisplay(
+          "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>"));
     }
 
     [TestMethod, Timeout(1000)]
@@ -283,7 +322,8 @@ namespace CsvTools.Tests
       {
         using (var tm = new TimedMessage())
         {
-          tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1,
+          tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+            MessageBoxDefaultButton.Button1,
             .5, null, null, null);
         }
 
@@ -323,7 +363,8 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      UnitTestStaticForms.ShowForm(() => new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
+      UnitTestStaticForms.ShowForm(() => new FormUniqueDisplay(dataTable, dataTable.Select(),
+        dataTable.Columns[0].ColumnName,
         HtmlStyle.Default));
     }
 

@@ -36,7 +36,6 @@ namespace CsvTools
     private readonly TextStyle m_TimestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
     private readonly TextStyle m_WarningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
 #pragma warning restore CA1416
-    private bool m_Disposed;
 
     private bool m_Initial = true;
 
@@ -127,10 +126,8 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_Disposed) return;
       if (disposing)
       {
-        m_Disposed = true;
         WinAppLogging.RemoveLog(this);
       }
 
