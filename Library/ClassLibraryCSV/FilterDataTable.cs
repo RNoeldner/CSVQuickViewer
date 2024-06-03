@@ -239,9 +239,11 @@ namespace CsvTools
     protected override void Dispose(bool disposing)
     {
       Cancel();
-      if (!disposing) return;
-      m_CurrentFilterCancellationTokenSource?.Dispose();
-      FilterTable?.Dispose();
+      if (disposing)
+      {
+        m_CurrentFilterCancellationTokenSource?.Dispose();
+        FilterTable?.Dispose();
+      }
     }
   }
 }

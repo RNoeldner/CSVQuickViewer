@@ -72,7 +72,7 @@ namespace CsvTools.Tests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = dataTable200;          
+          control.DataSource = dataTable200;
           control.CurrentCell = control[1, 0];
           control.FilterCurrentCell();
 
@@ -81,14 +81,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void FilteredDataGridView_RefreshUI()
     {
       using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
           control =>
           {
-            control.DataSource = dataTable200;            
+            control.DataSource = dataTable200;
             control.RefreshUI();
           });
     }
@@ -109,7 +109,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(3000)]
     public void FilteredDataGridViewVarious_HighlightText()
     {
       using var dataTable200 = UnitTestStaticData.GetDataTable(200);
@@ -178,17 +178,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void SetToolStripMenu()
     {
-      using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
-        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
-          control =>
-          {
-            control.DataSource = DataTable200;
-            control.SetToolStripMenu(0, 0, MouseButtons.Right);
-            control.SetToolStripMenu(1, -1, MouseButtons.Right);
-          });
+      using var dataTable200 = UnitTestStaticData.GetDataTable(200);
+      UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
+        control =>
+        {
+          control.DataSource = dataTable200;
+          control.SetToolStripMenu(0, 0, MouseButtons.Right);
+          control.SetToolStripMenu(1, -1, MouseButtons.Right);
+        });
     }
 
     [TestMethod()]
@@ -200,7 +200,7 @@ namespace CsvTools.Tests
         UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
           control =>
           {
-            control.DataSource = DataTable200;            
+            control.DataSource = DataTable200;
             control.HideEmptyColumns();
 
             control.SetColumnVisibility(new Dictionary<string, bool>

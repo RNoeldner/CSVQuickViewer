@@ -58,7 +58,8 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig? fontConfig, in CancellationToken cancellationToken)
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig? fontConfig,
+      in CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
@@ -119,8 +120,7 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken =>
-      (!m_DisposedValue) ? CancellationTokenSource.Token : new CancellationToken(true);
+    public CancellationToken CancellationToken => CancellationTokenSource?.Token ?? new CancellationToken(true);
 
     public TimeToCompletion TimeToCompletion => m_Progress.TimeToCompletion;
 
@@ -149,7 +149,7 @@ namespace CsvTools
               m_ProgressBar.Maximum = 10;
               m_LabelEtl.Text = string.Empty;
               m_ProgressBar.Style = ProgressBarStyle.Marquee;
-              Task.Run(() => AnimateBackground(), CancellationToken);
+              Task.Run(AnimateBackground, CancellationToken);
             }
           });
       }
@@ -185,7 +185,7 @@ namespace CsvTools
       var text = args.Text;
       m_Progress.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
-      ProgressChanged?.Invoke(this, args);      
+      ProgressChanged?.Invoke(this, args);
       m_LabelText.SafeBeginInvoke(
         () =>
         {
@@ -195,12 +195,12 @@ namespace CsvTools
 
           if (value <= 0 || Maximum <= 1)
           {
-            m_LabelEtl.Text = string.Empty;            
+            m_LabelEtl.Text = string.Empty;
           }
           else
           {
             // m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
-            if (m_Progress.TimeToCompletion.Value >0 && m_Progress.TimeToCompletion.Value <= Maximum)
+            if (m_Progress.TimeToCompletion.Value > 0 && m_Progress.TimeToCompletion.Value <= Maximum)
               m_ProgressBar.Value = m_Progress.TimeToCompletion.Value.ToInt();
             var sb = new StringBuilder();
             sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
@@ -351,27 +351,19 @@ namespace CsvTools
 
     #region IDisposable Support
 
-    private bool m_DisposedValue; // To detect redundant calls
-
-    /// <inheritdoc cref="Form" />
-    public new void Dispose() => Dispose(true);
-
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
       try
       {
+        try { CancellationTokenSource.Cancel(); }
+        catch
+        {
+          /* ignore */
+        }
+
         if (disposing)
         {
-          m_DisposedValue = true;
-          if (!CancellationTokenSource.IsCancellationRequested)
-          {
-            CancellationTokenSource.Cancel();
-            // Give the possibly running threads some time to exit
-            Thread.Sleep(100);
-          }
-
           CancellationTokenSource.Dispose();
           m_LoggerDisplay?.Dispose();
         }

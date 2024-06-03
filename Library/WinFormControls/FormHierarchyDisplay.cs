@@ -50,8 +50,6 @@ namespace CsvTools
     private ComboBox m_ComboBoxID;
     private ComboBox m_ComboBoxParentID;
 
-    private bool m_DisposedValue; // To detect redundant calls
-
     private TableLayoutPanel m_TableLayoutPanel1;
     private TextBox m_TextBoxValue;
     private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
@@ -103,11 +101,14 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue)
-        return;
+      try { m_CancellationTokenSource.Cancel(); }
+      catch
+      {
+        /* ignore */
+      }
+
       if (disposing)
       {
-        m_DisposedValue = true;
         m_TimerDisplay.Dispose();
         m_TimerSearch.Dispose();
         m_CancellationTokenSource.Dispose();
@@ -170,8 +171,10 @@ namespace CsvTools
     private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
       IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
     {
-      DataColumn dataColumnParent = m_DataTable.Columns[parentCol]  ?? throw new ArgumentException($"Could not find column {parentCol}");
-      DataColumn dataColumnID = m_DataTable.Columns[idCol] ?? throw new ArgumentException($"Could not find column {idCol}");
+      DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ??
+                                    throw new ArgumentException($"Could not find column {parentCol}");
+      DataColumn dataColumnID =
+        m_DataTable.Columns[idCol] ?? throw new ArgumentException($"Could not find column {idCol}");
 
       DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
       DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
@@ -205,8 +208,9 @@ namespace CsvTools
             title.Append(" - ");
           title.Append(dataRow[dataColumnDisplay2.Ordinal]);
         }
+
         // Fallback 
-        if (title.Length==0)
+        if (title.Length == 0)
           title.Append(id);
 
         var treeData = new TreeData(id, title.ToString(), dataRow[dataColumnParent.Ordinal].ToString());
@@ -423,9 +427,8 @@ namespace CsvTools
       // contextMenuStrip
       // 
       contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-      contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            expandAllToolStripMenuItem,
-            closeAllToolStripMenuItem});
+      contextMenuStrip.Items.AddRange(
+        new System.Windows.Forms.ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
       contextMenuStrip.Name = "contextMenuStrip";
       contextMenuStrip.Size = new System.Drawing.Size(131, 48);
       // 
@@ -456,9 +459,12 @@ namespace CsvTools
       // m_TableLayoutPanel1
       // 
       this.m_TableLayoutPanel1.ColumnCount = 3;
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 74F));
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(
+        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 74F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(
+        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(
+        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.Controls.Add(labelID, 0, 0);
       this.m_TableLayoutPanel1.Controls.Add(labelDisplay, 0, 1);
       this.m_TableLayoutPanel1.Controls.Add(labelParent, 0, 2);
@@ -477,7 +483,8 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel1.RowStyles.Add(
+        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel1.Size = new System.Drawing.Size(502, 368);
       this.m_TableLayoutPanel1.TabIndex = 10;
       // 
@@ -565,7 +572,6 @@ namespace CsvTools
       this.m_TableLayoutPanel1.ResumeLayout(false);
       this.m_TableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
-
     }
 
     private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)

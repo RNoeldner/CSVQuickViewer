@@ -37,7 +37,7 @@ namespace CsvTools
     /// Buffer for Compression Streams
     /// </summary>
     private const int cBufferSize = 8192;
-    private bool m_DisposedValue;
+
     private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;
 
     /// <summary>
@@ -197,24 +197,24 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
-      if (!disposing) return;
-      try
-      {
-        AccessStream?.Dispose();
-      }
-      catch
-      {
-        // ignored
-      }
-      finally
-      {
-        AccessStream = null;
-      }
-      if (!SourceAccess.LeaveOpen)
+      if (disposing)
+        try
+        {
+          AccessStream?.Dispose();
+        }
+        catch
+        {
+          // ignored
+        }
+        finally
+        {
+          AccessStream = null;
+        }
+
+      if (!SourceAccess.LeaveOpen && disposing)
         BaseStream.Dispose();
 
-      m_DisposedValue = true;
+      base.Dispose(disposing);
     }
 
     /// <summary>

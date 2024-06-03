@@ -12,11 +12,13 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+      try { m_CancellationTokenSource.Cancel(); } catch { /* ignore */ }
       if (disposing && (components != null))
       {
         components.Dispose();
       }
-      m_CancellationTokenSource.Dispose();
+      if (disposing)
+        m_CancellationTokenSource.Dispose();
       base.Dispose(disposing);
     }
 

@@ -201,12 +201,17 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing) m_Stream?.Dispose();
+      if (disposing)
+      {
+        m_Stream?.Dispose();
+        m_StreamReader?.Dispose();
+        (m_JsonTextReader as IDisposable)?.Dispose();
+        m_JsonTextReader = null;
+        m_StreamReader = null;
+        m_Stream = null;
+      }
 
-      m_StreamReader?.Dispose();
-      (m_JsonTextReader as IDisposable)?.Dispose();
-      m_JsonTextReader = null;
-      m_Stream = null;
+      base.Dispose(disposing);
     }
 
     /// <inheritdoc />

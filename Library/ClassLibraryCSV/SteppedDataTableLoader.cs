@@ -133,11 +133,13 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (!disposing)
-        return;
-      m_DataReaderWrapper?.Dispose();
-      m_FileReader?.Dispose();
-      m_FileReader = null;
+      if (disposing)
+      {
+        m_DataReaderWrapper?.Dispose();
+        m_DataReaderWrapper = null;
+        m_FileReader?.Dispose();
+        m_FileReader = null;
+      }
     }
   }
 }

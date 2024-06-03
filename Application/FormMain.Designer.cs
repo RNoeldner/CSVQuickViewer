@@ -13,16 +13,13 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
-
+      m_CancellationTokenSource?.Cancel();
       if (disposing)
       {
 #if SupportPGP
         PgpHelper.ClearPgpInfo();
 #endif
-        m_DisposedValue = true;
         components?.Dispose();
-
         m_CancellationTokenSource?.Dispose();
         m_SettingsChangedTimerChange?.Dispose();
       }
@@ -284,7 +281,6 @@ namespace CsvTools
 
     #endregion
 
-    private System.Boolean m_DisposedValue;
     private System.Windows.Forms.ToolStrip toolStripLog;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonAsText;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonShowLog;
