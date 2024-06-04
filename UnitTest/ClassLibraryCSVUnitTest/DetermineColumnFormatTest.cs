@@ -32,6 +32,18 @@ namespace CsvTools.Tests
   public class DetermineColumnFormatTest
   {
     [TestMethod()]
+    public async Task FillGuessColumnFormatReaderAsyncTest()
+    {
+      var cvsSetting = new CsvFileDummy();
+      cvsSetting.FileName = UnitTestStatic.GetTestPath("AllFormats.txt");
+      cvsSetting.FieldDelimiterChar = '\t';
+
+      var res = 
+        await cvsSetting.FillGuessColumnFormatReaderAsync(true, true, new FillGuessSettings(), UnitTestStatic.Token);
+      Assert.AreEqual(10, res.Item2.Count);
+    }
+
+    [TestMethod()]
     public void CommonDateFormatTest()
     {
       var list = new List<Column>();

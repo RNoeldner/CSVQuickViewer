@@ -82,7 +82,7 @@ namespace CsvTools
     /// <summary>
     ///   Goes through the open reader and add found fields to the column collection
     /// </summary>
-    /// <param name="fileReader">An ready to read file reader</param>
+    /// <param name="fileReader">A ready to read file reader</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="columnCollectionInput">Already defined columns</param>
     /// <param name="addTextColumns">
@@ -161,7 +161,7 @@ namespace CsvTools
         }
 
         // no need to get types that are already found and could now be smaller (e.G. decimal could
-        // be a integer)
+        // be an integer)
         if (readerColumn.ValueFormat.DataType == DataTypeEnum.Guid
             || readerColumn.ValueFormat.DataType == DataTypeEnum.Integer
             || readerColumn.ValueFormat.DataType == DataTypeEnum.Boolean
@@ -347,8 +347,9 @@ namespace CsvTools
 
       if (fillGuessSettings.DateParts)
       {
-        // Try to find a time for a date if the date does not already have a time Case a) TimeFormat
-        // has already been recognized
+        // Case a)
+        // Try to find a time for a date if the date does not already have a time Case 
+        // a TimeFormat has already been recognized
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
           cancellationToken.ThrowIfCancellationRequested();
@@ -419,7 +420,8 @@ namespace CsvTools
           }
         }
 
-        // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in
+        // Case b)
+        // TimeFormat has not been recognized (e.G. all values are 08:00) only look in
         // adjacent fields
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
@@ -600,18 +602,6 @@ namespace CsvTools
       var hasWarning = false;
       var remainingShows = 10;
 
-      void WarningEvent(object? sender, WarningEventArgs args)
-      {
-        if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
-          return;
-        if (remainingShows-- > 0)
-          Logger.Debug("Row ignored in inspection: " + args.Message);
-        if (remainingShows == 0)
-          Logger.Debug("No further warning shown");
-
-        hasWarning = true;
-      }
-
       fileReader.Warning += WarningEvent;
       var action = new IntervalAction(2);
       action.Invoke(() =>
@@ -715,6 +705,18 @@ namespace CsvTools
       }
 
       return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
+
+      void WarningEvent(object? sender, WarningEventArgs args)
+      {
+        if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
+          return;
+        if (remainingShows-- > 0)
+          Logger.Debug("Row ignored in inspection: " + args.Message);
+        if (remainingShows == 0)
+          Logger.Debug("No further warning shown");
+
+        hasWarning = true;
+      }
     }
 
     /// <summary>

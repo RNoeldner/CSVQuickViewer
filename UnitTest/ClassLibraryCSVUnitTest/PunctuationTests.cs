@@ -20,8 +20,8 @@ namespace CsvTools.Tests
       Assert.AreEqual("Backslash \\", "\\".FromText().Description());
       Assert.AreEqual("Slash /", "/".FromText().Description());
 
-      Assert.IsTrue( "US".FromText().Description().StartsWith("Unit"));
-      Assert.IsTrue( "Unit Separator".FromText().Description().StartsWith("Unit"));
+      Assert.IsTrue("US".FromText().Description().StartsWith("Unit"));
+      Assert.IsTrue("Unit Separator".FromText().Description().StartsWith("Unit"));
       Assert.IsTrue("GS".FromText().Description().StartsWith("Group"));
       Assert.IsTrue("RS".FromText().Description().StartsWith("Record"));
       Assert.IsTrue("FS".FromText().Description().StartsWith("File"));
@@ -37,5 +37,35 @@ namespace CsvTools.Tests
       Assert.IsTrue("'".FromText().Description().Contains("\'"));
     }
 
+
+    [TestMethod()]
+    public void TextTest()
+    {
+      Assert.AreEqual("Tab", '\t'.Text());
+      Assert.AreEqual("NBSP", '\u00A0'.Text());
+    }
+
+    [TestMethod()]
+    public void SetTextTest()
+    {
+      var test = '\t';
+      Assert.AreEqual(false, test.SetText("Tab"));
+      Assert.AreEqual(true, test.SetText("NBSP"));
+      Assert.AreEqual('\u00A0', test);
+    }
+
+    [TestMethod()]
+    public void HandleLongTextTest()
+    {
+      Assert.AreEqual("\t", "Tab".HandleLongText());
+      Assert.AreEqual("\t", "\t".HandleLongText());
+    }
+
+    [TestMethod()]
+    public void FromTextTest()
+    {
+      Assert.AreEqual('\t', "Tab".FromText());
+      Assert.AreEqual('@', "Monkey".FromText());
+    }
   }
 }
