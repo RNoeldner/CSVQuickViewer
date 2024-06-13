@@ -266,7 +266,7 @@ namespace CsvTools
     /// <param name="handleWarning">Action to perform if text is cut off for fixed length</param>
     /// <returns></returns>
     /// <exception cref="FileWriterException"></exception>
-    public string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
+    private string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
     {
       if (m_IsFixedLength && fieldLength == 0)
         throw new FileWriterException("For fix length output the length of the columns needs to be specified.");

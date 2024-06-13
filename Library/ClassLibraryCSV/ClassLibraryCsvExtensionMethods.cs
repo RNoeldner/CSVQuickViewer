@@ -47,7 +47,7 @@ namespace CsvTools
   public static class ClassLibraryCsvExtensionMethods
   {
     // RegEx to get placeholders in brackets {} or {{ }}
-    private static readonly Regex m_BracesRegEx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
+    private static readonly Regex BracesRegEx = new Regex(@"\{{1,2}[^\}]+\}{1,2}");
 
     /// <summary>
     /// Move the field from on position in the list to another
@@ -66,14 +66,14 @@ namespace CsvTools
     }
 
     /// <summary>    
-    /// Generate a hash for a case insensitive text
+    /// Generate a hash for a case-insensitive text
     /// </summary>
     /// <param name="name">The identifier to base the hash on.</param>
     public static int IdentifierHash(this string name)
       => name.ToUpperInvariant().GetHashCode();
 
     /// <summary>    
-    /// Generate a hash for two texts both  case insensitive
+    /// Generate a hash for two texts both case-insensitive
     /// </summary>    
     public static int IdentifierHash(this string name, in string name2)
       => name.ToUpperInvariant().GetHashCode() + name2.ToUpperInvariant().GetHashCode();
@@ -116,7 +116,7 @@ namespace CsvTools
     /// <returns></returns>
     public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Assumes its a delimited file, based on extension</summary>
+    /// <summary>Assumes it's a delimited file, based on extension</summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns>
     ///   <br />
@@ -334,7 +334,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Gets the .NET type for a given CsvTools type Always using long for integer values no
-    ///   matter if 32 or 64 bit system
+    ///   matter if 32 or 64-bit system
     /// </summary>
     /// <param name="dt">The <see cref="DataTypeEnum" />.</param>
     /// <returns>The .NET Type</returns>
@@ -354,7 +354,7 @@ namespace CsvTools
     ///   Get a list of column names that are not artificial
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
-    /// <returns>A enumeration of ColumnNames</returns>
+    /// <returns>An enumeration of ColumnNames</returns>
     public static IEnumerable<DataColumn> GetRealColumns(this DataTable dataTable) =>
       dataTable.Columns.Cast<DataColumn>().Where(col => NoArtificialField(col.ColumnName));
 
@@ -423,7 +423,7 @@ namespace CsvTools
 
 #endif
     /// <summary>
-    ///   Replaces placeholders with a text. The placeholder are identified surrounding { or [
+    ///   Replaces placeholders with a text. The placeholder is identified surrounding { or [
     /// </summary>
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
@@ -649,30 +649,6 @@ namespace CsvTools
       return new string(result, 0, pos);
     }
 
-    //public static void ReplaceDefaults(this Span<char> inputValue, in char old1, in char new1, in char old2, in char new2)
-    //{
-    //  if (inputValue.IsEmpty)
-    //    return;
-
-    //  // Assume the text stays the same, it could only be shorter
-
-    //  int pos = 0;
-    //  // ReSharper disable once ForCanBeConvertedToForeach
-    //  for (int i = 0; i < inputValue.Length; i++)
-    //  {
-    //    if (inputValue[i] == old1)
-    //    {
-    //      if (new1 != char.MinValue)
-    //        inputValue[pos++]=new1;
-    //    }
-    //    else if (inputValue[i] == old2)
-    //    {
-    //      if (new2 != char.MinValue)
-    //        inputValue[pos++]=new2;
-    //    }
-    //  }
-    //}
-
     /// <summary>
     ///   Replaces the two string
     /// </summary>
@@ -725,7 +701,7 @@ namespace CsvTools
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
       // ReSharper disable once RedundantEnumerableCastCall
-      foreach (var value in m_BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
+      foreach (var value in BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (string.IsNullOrEmpty(value) || placeholder.ContainsKey(value) || value.Length < 2)
           continue;
@@ -764,7 +740,7 @@ namespace CsvTools
       var placeholder = new Dictionary<string, string>();
       var index = 0;
       // ReSharper disable once RedundantEnumerableCastCall
-      foreach (var value in m_BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
+      foreach (var value in BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (index >= values.Length)
           break;
@@ -797,7 +773,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the inner most exception message
+    ///   Get the innermost exception message
     /// </summary>
     /// <param name="exception">Any exception <see cref="Exception" /></param>
     [DebuggerStepThrough]

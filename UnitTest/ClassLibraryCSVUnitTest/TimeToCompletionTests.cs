@@ -15,7 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -25,11 +25,11 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(20000)]
-    public async Task TimeToCompletionTestTimeRemainingAsync()
+    public void TimeToCompletionTestTimeRemainingAsync()
     {
       var test = new TimeToCompletion
       {
-        TargetValue = 120
+        TargetValue = 120,
       };
 
       var point1 = 50;
@@ -38,8 +38,7 @@ namespace CsvTools.Tests
       for (var counter = 0; counter < point1; counter++)
       {
         test.Value = counter;
-        await Task.Delay(speed1, UnitTestStatic.Token);
-        
+        Thread.Sleep(speed1);
       }
       // I now have 50 values in 2.5 + time for the processing seconds 
       // this means we should have 5+ seconds for the rest
@@ -49,18 +48,18 @@ namespace CsvTools.Tests
       for (var counter = point1; counter < test.TargetValue - point1; counter++)
       {
         test.Value = counter;
-        await Task.Delay(speed2, UnitTestStatic.Token);        
+        Thread.Sleep(speed2);
       }
       estimate = test.EstimatedTimeRemaining.TotalSeconds;
       // now we have decreased the speed
       // I now have 100 values in 2.5+5 + time for the processing seconds,
       // this means we should have 2.5-5 seconds for the rest of 50 depending on how the speed is picked up 
-      Assert.IsTrue(estimate  > 0.8 && estimate  < 1.2, $"Should have 1 seconds for the rest {point1}\nExact Value: {estimate:N1}");           
+      Assert.IsTrue(estimate  > 0.8 && estimate  < 1.2, $"Should have 1 seconds for the rest {point1}\nExact Value: {estimate:N1}");
     }
 
     [TestMethod]
     [Timeout(4000)]
-    public async Task TimeToCompletionTestAsync()
+    public void TimeToCompletionTestAsync()
     {
       var test = new TimeToCompletion();
       Assert.IsNotNull(test);
@@ -73,7 +72,7 @@ namespace CsvTools.Tests
       for (var counter = 1; counter < 10; counter++)
       {
         test.Value = counter;
-        await Task.Delay(20, UnitTestStatic.Token);
+        Thread.Sleep(20);
       }
       var totalSec1 = test.EstimatedTimeRemaining.TotalSeconds;
       Assert.IsTrue(totalSec1  > 1.0 && totalSec1 < 4, $"Fast: {1} < {totalSec1} < {4}"); 
@@ -82,13 +81,13 @@ namespace CsvTools.Tests
       for (var counter = 10; counter < 60; counter++)
       {
         test.Value = counter;
-        await Task.Delay(50, UnitTestStatic.Token);
+        Thread.Sleep(50);
       }
       var totalSec2 = test.EstimatedTimeRemaining.TotalSeconds;
       Assert.IsTrue(totalSec1  > 1.0 && totalSec2 < 5, $"Slow: {1} < {totalSec2} < {5}"); 
       
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
-//      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
+      //      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }
 
     [TestMethod]

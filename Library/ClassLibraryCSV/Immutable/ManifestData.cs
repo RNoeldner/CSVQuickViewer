@@ -24,12 +24,22 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  /// Manifest data describing Json data
+  /// Information describing an entity in Json data
   /// </summary>
   public sealed class ManifestData
   {
     internal const string cCsvManifestExtension = ".manifest.json";
 
+    /// <summary>
+    /// Manifest for Json files
+    /// </summary>
+    /// <param name="pubName">Public Name</param>
+    /// <param name="heading">Long Name</param>
+    /// <param name="desc">Description</param>
+    /// <param name="delta">Does support delta</param>
+    /// <param name="hydration">Hydration</param>
+    /// <param name="hasUserDefinedFields"></param>
+    /// <param name="fields">Fields</param>
     [JsonConstructor]
     public ManifestData(
       string? pubName,
@@ -49,18 +59,39 @@ namespace CsvTools
       Delta = delta;
     }
 
+    /// <summary>
+    /// <c>true</c> if the entity does support delta
+    /// </summary>
     public bool Delta { get; }
 
+    /// <summary>
+    /// Description for entity
+    /// </summary>
     public string Desc { get; }
 
+    /// <summary>
+    /// Fields
+    /// </summary>
     public ManifestField[] Fields { get; }
 
+    /// <summary>
+    /// Has CustomFields
+    /// </summary>
     public bool HasUserDefinedFields { get; }
 
+    /// <summary>
+    /// Heading
+    /// </summary>
     public string Heading { get; }
 
+    /// <summary>
+    /// Hydration
+    /// </summary>
     public string Hydration { get; }
 
+    /// <summary>
+    /// Public Name
+    /// </summary>
     public string PubName { get; }
 
     /// <summary>
@@ -186,8 +217,19 @@ namespace CsvTools
       return detectionResult;
     }
 
+    /// <summary>
+    /// Field in a Manifest Json
+    /// </summary>
     public class ManifestField
     {
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="pubName">Public Name</param>
+      /// <param name="heading">Long Name</param>
+      /// <param name="desc">Description</param>
+      /// <param name="type">Data Type</param>
+      /// <param name="ordinal">Ordinal number</param>
       [JsonConstructor]
       public ManifestField(string? pubName, string? heading, string? desc, string? type, int ordinal)
       {
@@ -198,14 +240,29 @@ namespace CsvTools
         Type = type ?? string.Empty;
       }
 
+      /// <summary>
+      /// Description for field
+      /// </summary>
       public string Desc { get; }
 
+      /// <summary>
+      /// Long Name 
+      /// </summary>
       public string Heading { get; }
 
+      /// <summary>
+      /// Ordinal number of the field
+      /// </summary>
       public int Ordinal { get; }
 
+      /// <summary>
+      /// Public Name
+      /// </summary>
       public string PubName { get; }
 
+      /// <summary>
+      /// Data Type
+      /// </summary>
       public string Type { get; }
     }
   }

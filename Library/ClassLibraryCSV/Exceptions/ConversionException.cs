@@ -17,7 +17,7 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  /// Raised if the a conversion of types of or timezone conversion has issues
+  /// Raised if the conversion of types of or timezone conversion has issues
   /// </summary>
   /// <seealso cref="System.ApplicationException" />
   public sealed class ConversionException : ApplicationException
