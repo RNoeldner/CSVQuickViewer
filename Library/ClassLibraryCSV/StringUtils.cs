@@ -499,9 +499,9 @@ namespace CsvTools
     /// <returns></returns>
     public static string StringEscapeLike(this string? inputValue)
     {
-      if (string.IsNullOrEmpty(inputValue))
+      if (inputValue == null || inputValue.Length==0)
         return string.Empty;
-      var returnVal = new StringBuilder(inputValue!.Length);
+      var returnVal = new StringBuilder(inputValue.Length);
       foreach (var c in inputValue)
       {
         switch (c)

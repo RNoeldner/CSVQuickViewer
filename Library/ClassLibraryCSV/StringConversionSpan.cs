@@ -217,7 +217,7 @@ namespace CsvTools
     /// <param name="trueValue">An additional value that would evaluate to true</param>
     /// <param name="falseValue">An additional value that would evaluate to false</param>
     /// <returns>
-    ///   <c>Null</c> if the value is empty, other wise <c>true</c> if identified as boolean or
+    ///   <c>Null</c> if the value is empty, otherwise <c>true</c> if identified as boolean or
     ///   <c>false</c> otherwise
     /// </returns>
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
@@ -256,7 +256,7 @@ namespace CsvTools
     /// <param name="trueValue">An additional value that would evaluate to true</param>
     /// <param name="falseValue">An additional value that would evaluate to false</param>
     /// <returns>
-    ///   <c>Null</c> if the value can not be identified as boolean, other wise a tuple with
+    ///   <c>Null</c> if the value can not be identified as boolean, otherwise a tuple with
     ///   <c>true</c> or <c>false</c> and the value that had been used
     /// </returns>
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
@@ -300,7 +300,7 @@ namespace CsvTools
     /// <returns>
     ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
     /// </returns>
-    /// <remarks>If the date part is not filled its the 1/1/1</remarks>
+    /// <remarks>If the date part is not filled it's the 1/1/1</remarks>
     public static DateTime? StringToDateTime(
       this ReadOnlySpan<char> text,
       ReadOnlySpan<char> dateFormats,
@@ -320,7 +320,7 @@ namespace CsvTools
           && (stringDateValue.IndexOf(timeSeparatorChar) == -1))
         return SerialStringToDateTime(stringDateValue);
 
-      // in case its time only and we do not have any date separator try a timespan
+      // in case its time only, and we do not have any date separator try a timespan
       if (stringDateValue.IndexOf(dateSeparatorChar) != -1 || dateFormats.IndexOf('/') != -1) return null;
       var ts = StringToTimeSpan(stringDateValue, timeSeparatorChar, false);
       if (ts.HasValue)
@@ -410,7 +410,7 @@ namespace CsvTools
     /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
     /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
     /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
-    /// <returns>An decimal if the value could be interpreted, <c>null</c> otherwise</returns>
+    /// <returns>A decimal if the value could be interpreted, <c>null</c> otherwise</returns>
     public static decimal? StringToDecimal(
       this ReadOnlySpan<char> text,
       char decimalSeparatorChar,
@@ -435,7 +435,7 @@ namespace CsvTools
       var startDecimal = text.Length;
       var lastPos = -3;
       // Sanity Check: In case the decimalSeparator occurs multiple times is not a number in case
-      // the thousand separator are closer then 3 characters together
+      // the thousand separator are closer than 3 characters together
       for (var pos = 0; pos < text.Length; pos++)
       {
         if (text[pos] == decimalSeparatorChar)
@@ -765,7 +765,7 @@ namespace CsvTools
 
         // Use ParseExact since Parse does not work if a date separator is set but the date
         // separator is not part of the date format
-        // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." its still parsed
+        // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." It's still parsed
         if (DateTime.TryParseExact(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
               stringDateValue

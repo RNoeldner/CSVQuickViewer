@@ -175,7 +175,7 @@ namespace CsvTools
       // Static template for the row, built once
       var sb = new StringBuilder(2048);
 
-      await WriteReaderAsync(reader, async row =>
+      await WriteReaderAsync(reader, async _ =>
       {
         if (Records > 1)
           sb.Append(RecordDelimiter());

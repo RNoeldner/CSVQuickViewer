@@ -33,7 +33,7 @@
 	  </Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.3.1" />
+		<PackageReference Include="MSTest" Version="3.4.3" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />

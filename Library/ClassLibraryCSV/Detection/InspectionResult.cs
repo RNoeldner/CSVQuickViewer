@@ -23,11 +23,11 @@ namespace CsvTools
   public sealed class InspectionResult
   {
     /// <summary>Number of rows to skip</summary>
-    [DefaultValue(0)] public int SkipRows = 0;
+    [DefaultValue(0)] public int SkipRows;
     /// <summary>.NET CodePage ID</summary>
     [DefaultValue(65001)] public int CodePageId = 65001;
     /// <summary>Does encoding use BOM</summary>
-    [DefaultValue(false)] public bool ByteOrderMark = false;
+    [DefaultValue(false)] public bool ByteOrderMark;
     /// <summary>Identifier in container like zip</summary>
     [DefaultValue("")] public string IdentifierInContainer = string.Empty;
     /// <summary>Prefix for lines to be ignored</summary>
@@ -39,7 +39,7 @@ namespace CsvTools
     /// <summary>Qualifier of a columns to allow linefeed or delimiter</summary>
     [DefaultValue('"')] public char FieldQualifier = '"';
     /// <summary>Context-sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
-    [DefaultValue(false)] public bool ContextSensitiveQualifier = false;
+    [DefaultValue(false)] public bool ContextSensitiveQualifier;
     /// <summary>In case a quote is part of a quoted column, the quote should be repeated</summary>
     [DefaultValue(true)] public bool DuplicateQualifierToEscape = true;
     /// <summary>Does the file have a header row</summary>
