@@ -14,6 +14,9 @@
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Supported file types
+  /// </summary>
   public enum FileTypeEnum
   {
     /// <summary>
