@@ -54,8 +54,9 @@ namespace CsvTools
     public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
       bool? detectDateTime = true,
       bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = true,
-      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000,
-      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "", bool? removeCurrencySymbols = true)
+      bool? dateParts = false, int? minSamples = 3, int? sampleValues = 150, long? checkedRecords = 30000,
+      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "",
+      bool? removeCurrencySymbols = true)
     {
       m_Enabled = enabled ?? true;
       m_IgnoreIdColumns = ignoreIdColumns ?? true;
@@ -66,7 +67,7 @@ namespace CsvTools
       m_DetectGuid = detectGuid ?? false;
       m_SerialDateTime = serialDateTime?? true;
       m_DateParts=dateParts ?? false;
-      m_MinSamples = minSamples ?? 5;
+      m_MinSamples = minSamples ?? 3;
       m_SampleValues = sampleValues ?? 150;
       m_CheckedRecords = checkedRecords ?? 30000;
       m_TrueValue = trueValue ?? "True";
@@ -176,9 +177,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of sample values, default is <c>5</c>
+    ///   Number of sample values, default is <c>3</c>
     /// </summary>
-    [DefaultValue(5)]
+    [DefaultValue(3)]
     public int MinSamples
     {
       get => m_MinSamples;
