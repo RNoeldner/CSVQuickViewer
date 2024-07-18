@@ -45,7 +45,7 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
-    private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
+    private DataReaderWrapper? m_DataReaderWrapper;
 
     /// <summary>
     /// Loads the setting asynchronous and displays the result
@@ -57,15 +57,48 @@ namespace CsvTools
     /// <param name="addWarning">The add warning.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     ///     
-    public Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
+    public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
       FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       // Need to set FileSetting so we can change Formats
       FilteredDataGridView.FileSetting = fileSetting;
 
-      return m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
-        t => RefreshDisplay(filterType, t), durationInitial, progress, addWarning, cancellationToken);
+      var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
+      if (fileReader is null)
+        throw new FileReaderException($"Could not get reader for {fileSetting}");
+      if (progress != null)
+        fileReader.ReportProgress = progress;
+
+#if !CsvQuickViewer
+      RowErrorCollection? warningList = null;
+      if (addWarning != null)
+      {
+        warningList = new RowErrorCollection(fileReader);
+        fileReader.Warning += addWarning;
+        fileReader.Warning -= warningList.Add;
+      }
+#endif
+
+      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+#if !CsvQuickViewer
+      if (addWarning != null)
+      {
+        warningList!.HandleIgnoredColumns(fileReader);
+        warningList.PassWarning += addWarning;
+      }
+#endif
+      m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
+        fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
+
+      DataTable = await m_DataReaderWrapper.GetDataTableAsync(durationInitial, progress, cancellationToken);
+      if (m_DataReaderWrapper.EndOfFile)
+      {
+        m_DataReaderWrapper.Dispose();
+        m_DataReaderWrapper = null;
+      }
+
+      RefreshDisplay(filterType, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -79,9 +112,6 @@ namespace CsvTools
     public DetailControl()
     {
       InitializeComponent();
-
-      // This created a BatchLoader
-      m_SteppedDataTableLoader = new SteppedDataTableLoader();
 
       m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
       m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
@@ -109,7 +139,11 @@ namespace CsvTools
     [Bindable(false)]
     [Browsable(true)]
     [DefaultValue(500)]
-    public int ShowButtonAtLength { get => FilteredDataGridView.ShowButtonAtLength; set => FilteredDataGridView.ShowButtonAtLength = value; }
+    public int ShowButtonAtLength
+    {
+      get => FilteredDataGridView.ShowButtonAtLength;
+      set => FilteredDataGridView.ShowButtonAtLength = value;
+    }
 
     /// <summary>
     /// Sort the data by this column ascending 
@@ -388,7 +422,7 @@ namespace CsvTools
         m_DataTable.Dispose();
         m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_SteppedDataTableLoader.Dispose();
+        m_DataReaderWrapper?.Dispose();
       }
 
       base.Dispose(disposing);
@@ -413,7 +447,8 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
+            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
+                -1)
               continue;
 
             found.Add(cell);
@@ -450,7 +485,11 @@ namespace CsvTools
     }
 
     private bool CancelMissingData()
-        => FilteredDataGridView.Columns.Count <= 0 || (!m_SteppedDataTableLoader.EndOfFile && MessageBox.Show("Some data is not yet loaded from file.\nOnly already processed data will be used.", "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 3)== DialogResult.Cancel);
+      => FilteredDataGridView.Columns.Count <= 0 || (!EndOfFile &&
+                                                     MessageBox.Show(
+                                                       "Some data is not yet loaded from file.\nOnly already processed data will be used.",
+                                                       "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
+                                                       MessageBoxDefaultButton.Button1, 3) == DialogResult.Cancel);
 
     /// <summary>
     ///   Handles the Click event of the buttonTableSchema control.
@@ -496,8 +535,7 @@ namespace CsvTools
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              columnName, HtmlStyle)
-            { Icon = ParentForm?.Icon };
+              columnName, HtmlStyle) { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
             (o, formClosedEventArgs) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
@@ -525,8 +563,7 @@ namespace CsvTools
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              HtmlStyle)
-            { Icon = ParentForm?.Icon };
+              HtmlStyle) { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.ShowWithFont(this);
           m_HierarchyDisplay.FormClosed += (o, formClosedEventArgs) =>
             this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
@@ -555,7 +592,8 @@ namespace CsvTools
             ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
             : FilteredDataGridView.Columns[0].Name;
           m_FormUniqueDisplay?.Close();
-          m_FormUniqueDisplay = new FormUniqueDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
+          m_FormUniqueDisplay = new FormUniqueDisplay(m_DataTable.Clone(),
+            m_DataTable.Select(FilteredDataGridView.CurrentFilter),
             columnName, HtmlStyle);
           m_FormUniqueDisplay.ShowWithFont(this);
         }
@@ -595,8 +633,7 @@ namespace CsvTools
     /// </summary>
     private void FilterColumns(FilterTypeEnum filterType)
     {
-
-      if (filterType == FilterTypeEnum.All || filterType== FilterTypeEnum.None)
+      if (filterType == FilterTypeEnum.All || filterType == FilterTypeEnum.None)
       {
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
         {
@@ -773,21 +810,20 @@ namespace CsvTools
 
     private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {
-      if (WriteFileAsync==null || FilteredDataGridView.DataView == null)
+      if (WriteFileAsync == null || FilteredDataGridView.DataView == null)
         return;
 
       await m_ToolStripButtonStore.RunWithHourglassAsync(async () =>
       {
         var reader = new DataTableWrapper(
-              FilteredDataGridView.DataView.ToTable(false,
-                // Restrict to shown data
-                FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                  .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-                  .OrderBy(col => col.DisplayIndex)
-                  .Select(col => col.DataPropertyName).ToArray()));
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+              .OrderBy(col => col.DisplayIndex)
+              .Select(col => col.DataPropertyName).ToArray()));
 
         await WriteFileAsync.Invoke(m_CancellationToken, reader);
-
       }, ParentForm);
 
 
@@ -839,23 +875,41 @@ namespace CsvTools
       RefreshDisplay(GetCurrentFilter(), m_CancellationToken);
     }
 
+    private bool EndOfFile => (m_DataReaderWrapper == null || m_DataReaderWrapper.EndOfFile);
+
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
     {
-      if (m_SteppedDataTableLoader.EndOfFile)
+      if (EndOfFile)
         return;
-      await m_ToolStripButtonLoadRemaining.RunWithHourglassAsync(async () =>
+
+      // Cancel the current search
+      searchBackgroundWorker.CancelAsync();
+
+      await this.RunWithHourglassAsync(async () =>
       {
         // ReSharper disable once LocalizableElement
-        m_ToolStripLabelCount.Text = " loading...";
-
-        using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
+        using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size),
+          m_CancellationToken);
         formProgress.Show(this);
         formProgress.Maximum = 100;
 
-        await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), dataTable => DataTable.Merge(dataTable),
-          token => RefreshDisplay(GetCurrentFilter(), token),
+        m_ToolStripLabelCount.Text = " loading...";
+
+        var newDt = await m_DataReaderWrapper!.GetDataTableAsync(TimeSpan.FromSeconds(10), formProgress,
           formProgress.CancellationToken);
-      }, ParentForm);
+
+        if (newDt.Rows.Count > 0)
+        {
+          DataTable.Merge(newDt, false, MissingSchemaAction.Error);
+          RefreshDisplay(GetCurrentFilter(), formProgress.CancellationToken);
+        }
+
+        if (m_DataReaderWrapper!.EndOfFile)
+        {
+          m_DataReaderWrapper.Dispose();
+          m_DataReaderWrapper = null;
+        }
+      });
     }
 
     private void TimerVisibility_Tick(object? sender, EventArgs e)
@@ -890,7 +944,7 @@ namespace CsvTools
             target.Items.Remove(item);
         }
 
-        var hasData = m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
+        var hasData = EndOfFile && (m_DataTable.Rows.Count > 0);
         foreach (var item in m_ToolStripItems)
         {
           item.DisplayStyle = (m_MenuDown)
@@ -914,12 +968,14 @@ namespace CsvTools
 
         m_ToolStripButtonStore.Enabled = hasData;
         toolStripButtonMoveLastItem.Enabled = hasData;
-        FilteredDataGridView.DataLoaded  =hasData;
+        FilteredDataGridView.DataLoaded = hasData;
 
-        m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
+        m_ToolStripButtonLoadRemaining.Visible = !EndOfFile && (m_DataTable.Rows.Count > 0);
 
-        m_ToolStripLabelCount.ForeColor = m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
-        m_ToolStripLabelCount.ToolTipText = m_SteppedDataTableLoader.EndOfFile ? "Total number of records" : "Total number of records (loaded so far)";
+        m_ToolStripLabelCount.ForeColor = EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
+        m_ToolStripLabelCount.ToolTipText = EndOfFile
+          ? "Total number of records"
+          : "Total number of records (loaded so far)";
 
         m_ToolStripTop.Visible = m_ShowButtons;
 
@@ -962,7 +1018,7 @@ namespace CsvTools
 
     private async void DisplaySource_Click(object sender, EventArgs e)
     {
-      if (DisplaySourceAsync== null)
+      if (DisplaySourceAsync == null)
         return;
 
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>

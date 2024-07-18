@@ -101,7 +101,8 @@ namespace CsvTools
     public long EndLineNumber => m_FileReader?.EndLineNumber ?? RecordNumber;
 
     /// <inheritdoc />
-    public virtual bool EndOfFile => RecordNumber > m_RecordLimit || (m_FileReader?.EndOfFile ?? DataReader.IsClosed);
+    public virtual bool EndOfFile => RecordNumber > m_RecordLimit ||
+                                     (m_FileReader?.EndOfFile ?? DataReader.IsClosed);
 
     /// <inheritdoc />
     public override int FieldCount => m_ReaderMapping.ResultingColumns.Count;
@@ -377,7 +378,7 @@ namespace CsvTools
         return true;
       }
 
-      ReadFinished?.Invoke(this, EventArgs.Empty);
+      HandleReadFinished();
       return false;
     }
 

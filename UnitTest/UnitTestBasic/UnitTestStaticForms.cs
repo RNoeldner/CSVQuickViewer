@@ -128,8 +128,7 @@ namespace CsvTools.Tests
     {
       if (seconds <= 0)
         return;
-      var sw = new Stopwatch();
-      sw.Start();
+      var sw = Stopwatch.StartNew();
       while (sw.Elapsed.TotalSeconds < seconds && !token.IsCancellationRequested)
       {
         Application.DoEvents();

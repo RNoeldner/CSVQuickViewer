@@ -94,14 +94,14 @@ namespace CsvTools
     {
       var result = new HashSet<string>(
         filterType switch
-          {
-            FilterTypeEnum.None =>
-              m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToList(),
-            FilterTypeEnum.All =>
-              m_CacheColumns.Select(x => x.Key.ColumnName).ToList(),
-            _ =>
-              m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToList(),
-          });
+        {
+          FilterTypeEnum.None =>
+            m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToList(),
+          FilterTypeEnum.All =>
+            m_CacheColumns.Select(x => x.Key.ColumnName).ToList(),
+          _ =>
+            m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToList(),
+        });
 
       foreach (var fld in m_UniqueFieldName)
         result.Add(fld);
@@ -139,7 +139,7 @@ namespace CsvTools
       if (newFilterType == FilterTypeEnum.All)
         return m_SourceTable;
 
-      if (newFilterType == FilterType && FilterTable !=null && FilterTable.Rows.Count<=limit)
+      if (newFilterType == FilterType && FilterTable != null && FilterTable.Rows.Count <= limit)
         return FilterTable;
 
       foreach (DataColumn col in m_SourceTable.Columns)
@@ -176,10 +176,10 @@ namespace CsvTools
             else
               rowIssues |= FilterTypeEnum.ShowErrors;
           }
-          
-          if ((rowIssues == FilterTypeEnum.None  && newFilterType ==FilterTypeEnum.None) ||
+
+          if ((rowIssues == FilterTypeEnum.None && newFilterType == FilterTypeEnum.None) ||
               (rowIssues.HasFlag(FilterTypeEnum.ShowWarning) && newFilterType.HasFlag(FilterTypeEnum.ShowWarning)) ||
-              (rowIssues.HasFlag(FilterTypeEnum.ShowErrors) && newFilterType.HasFlag(FilterTypeEnum.ShowErrors))) 
+              (rowIssues.HasFlag(FilterTypeEnum.ShowErrors) && newFilterType.HasFlag(FilterTypeEnum.ShowErrors)))
           {
             // Import Row copies the data and the errors information
             FilterTable.ImportRow(row);
@@ -223,8 +223,7 @@ namespace CsvTools
     private void WaitCompeteFilter(double timeoutInSeconds)
     {
       if (!m_Filtering) return;
-      var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
-      stopwatch?.Start();
+      var stopwatch = timeoutInSeconds > 0.01 ? Stopwatch.StartNew() : null;
       while (m_Filtering)
       {
         Thread.Sleep(125);

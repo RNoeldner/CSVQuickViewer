@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -20,6 +21,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+
 
 namespace CsvTools
 {
@@ -36,9 +38,9 @@ namespace CsvTools
     /// <returns>A List of all column, be aware that the format in ValueFormat of might be wrong, if is passed in as IDataReader</returns>
     public static IEnumerable<Column> GetColumnsOfReader(this IDataReader reader)
     {
-      if (reader is null) 
+      if (reader is null)
         throw new ArgumentNullException(nameof(reader));
-      
+
       var retList = new List<Column>();
       // IFile Reader, supports Ignore
       if (reader is IFileReader fileReader)
@@ -51,13 +53,14 @@ namespace CsvTools
         }
       }
       else
-      // IData Reader, any column
+        // IData Reader, any column
       {
         for (var col = 0; col < reader.FieldCount; col++)
         {
           retList.Add(new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col));
         }
       }
+
       return retList;
     }
 
@@ -69,8 +72,9 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns>The IFileReader to read the data as text</returns>   
     /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
-    public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source, CancellationToken cancellationToken)
-    {      
+    public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,
+      CancellationToken cancellationToken)
+    {
       var fileSettingCopy = (IFileSetting) source.Clone();
       // No column should be type converted 
       fileSettingCopy.ColumnCollection.Clear();
@@ -90,10 +94,10 @@ namespace CsvTools
         csv.WarnUnknownCharacter = false;
         csv.WarnNBSP = false;
         csv.WarnQuotesInQuotes = false;
-        csv.WarnEmptyTailingColumns= false;
+        csv.WarnEmptyTailingColumns = false;
 
         // Adjusting columns in row only works well if columns are typed
-        csv.AllowRowCombining = false;  
+        csv.AllowRowCombining = false;
         csv.TryToSolveMoreColumns = false;
       }
 
@@ -107,13 +111,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="cancellationToken">The cancellation token.</param>    
-    public static async Task<IEnumerable<Column>> GetAllReaderColumnsAsync(this IFileSetting source, CancellationToken cancellationToken)
+    public static async Task<IEnumerable<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
+      CancellationToken cancellationToken)
     {
       var res = new List<Column>();
 #if NET5_0_OR_GREATER
       await
 #endif
-      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+        using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         res.Add(fileReader.GetColumn(colIndex));
@@ -152,10 +157,11 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// 
     /// <returns>A Data Table with all records from the reader</returns>    
-    public static  Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
+    public static Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
       bool startLine, bool endLine, bool recNum, bool errorField, IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
-    =>  new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress, cancellationToken);
+      => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress,
+        cancellationToken);
 
 
     /// <summary>
@@ -165,7 +171,8 @@ namespace CsvTools
     /// <param name="maxDuration">Initial Duration for first return</param>    
     /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>    
-    public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+    public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
+      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Shortcut if the wrapper is a DataTableWrapper
       if (wrapper is DataTableWrapper dtw)
@@ -189,8 +196,8 @@ namespace CsvTools
 
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
-                                                 && await wrapper.ReadAsync(cancellationToken)
-                                                   .ConfigureAwait(false))
+                                                          && await wrapper.ReadAsync(cancellationToken)
+                                                            .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
           dataTable.Rows.Add(dataRow);
@@ -205,14 +212,18 @@ namespace CsvTools
             }
 
           intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
-
           dataRow.SetErrorInformation(wrapper.RowErrorInformation);
         }
+      }
+      catch (Exception e)
+      {
+        Logger.Warning(e, "GetDataTableAsync error");
       }
       finally
       {
         progress?.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
       }
+
       return dataTable;
     }
   }
