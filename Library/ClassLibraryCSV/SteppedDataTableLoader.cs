@@ -13,8 +13,8 @@ namespace CsvTools
 #endif
   {
     private DataReaderWrapper? m_DataReaderWrapper;
-    private IFileReader? m_FileReader;    
-    
+    private IFileReader? m_FileReader;
+
     /// <summary>
     ///   Determine if the data Reader is at the end of the file
     /// </summary>
@@ -66,10 +66,12 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 #endif
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.DisplayStartLineNo,
+        fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 
       // the initial progress is set on the source reader, no need to pass it in, when calling GetNextBatch this needs to be set though
-      await GetNextBatch(null, durationInitial, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
+      await GetNextBatch(null, durationInitial, actionSetDataTable, setRefreshDisplayAsync, cancellationToken)
+        .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -80,14 +82,15 @@ namespace CsvTools
     /// <param name="progress">Process display to pass on progress information, ideally the underlying m_FileReader.ReportProgress is used though</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="duration">For maximum duration for the read process</param>    
-    public async Task GetNextBatch(IProgress<ProgressInfo>? progress, TimeSpan duration, Action<DataTable> actionSendNewDataTable,
+    public async Task GetNextBatch(IProgress<ProgressInfo>? progress, TimeSpan duration,
+      Action<DataTable> actionSendNewDataTable,
       Action<CancellationToken> setRefreshDisplayAsync, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return;
       Logger.Debug("Getting batch");
       var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress, cancellationToken).ConfigureAwait(false);
-     
+
       try
       {
         progress?.Report(new ProgressInfo("Setting DataTable"));
@@ -115,7 +118,7 @@ namespace CsvTools
         await DisposeAsync().ConfigureAwait(false);
 #else
         Dispose();
-#endif      
+#endif
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

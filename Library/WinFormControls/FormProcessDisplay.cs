@@ -120,7 +120,8 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken => CancellationTokenSource?.Token ?? new CancellationToken(true);
+    public CancellationToken CancellationToken =>
+      m_IsDisposed ? new CancellationToken(true) : CancellationTokenSource.Token;
 
     public TimeToCompletion TimeToCompletion => m_Progress.TimeToCompletion;
 
@@ -178,46 +179,51 @@ namespace CsvTools
     /// <param name="args">The <see cref="ProgressInfo"/> instance containing the event data.</param>
     private void SetProcess(in ProgressInfo args)
     {
-      // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-      var value = args.Value;
-      var text = args.Text;
-      m_Progress.Report(args);
-      WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
-      ProgressChanged?.Invoke(this, args);
-      m_LabelText.SafeBeginInvoke(
-        () =>
-        {
-          if (!Visible)
-            Show();
-          m_LabelText.Text = text;
 
-          if (value <= 0 || Maximum <= 1)
+      try
+      {
+        var value = args.Value;
+        var text = args.Text;
+        m_Progress.Report(args);
+        WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
+        ProgressChanged?.Invoke(this, args);
+        m_LabelText.SafeBeginInvoke(
+          () =>
           {
-            m_LabelEtl.Text = string.Empty;
-          }
-          else
-          {
-            // m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
-            if (m_Progress.TimeToCompletion.Value > 0 && m_Progress.TimeToCompletion.Value <= Maximum)
-              m_ProgressBar.Value = m_Progress.TimeToCompletion.Value.ToInt();
-            var sb = new StringBuilder();
-            sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
+            if (!Visible)
+              Show();
+            m_LabelText.Text = text;
 
-            var t1 = m_Progress.TimeToCompletion.EstimatedTimeRemainingDisplay;
-            if (t1.Length > 0)
+            if (value <= 0 || Maximum <= 1)
             {
-              sb.Append("   Estimated time remaining: ");
-              sb.Append(t1);
+              m_LabelEtl.Text = string.Empty;
             }
+            else
+            {
+              // m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
+              if (m_Progress.TimeToCompletion.Value > 0 && m_Progress.TimeToCompletion.Value <= Maximum)
+                m_ProgressBar.Value = m_Progress.TimeToCompletion.Value.ToInt();
+              var sb = new StringBuilder();
+              sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
 
-            m_LabelEtl.Text = sb.ToString();
-          }
-        });
+              var t1 = m_Progress.TimeToCompletion.EstimatedTimeRemainingDisplay;
+              if (t1.Length > 0)
+              {
+                sb.Append("   Estimated time remaining: ");
+                sb.Append(t1);
+              }
 
-      // Without this the text will not be updated...
-      Application.DoEvents();
+              m_LabelEtl.Text = sb.ToString();
+            }
+          });
+      }
+      finally
+      {
+        // Without this the text will not be updated...
+        Application.DoEvents();
+      }
     }
 
 
@@ -231,7 +237,7 @@ namespace CsvTools
       try
       {
         CancellationTokenSource.Cancel();
-        this.SafeInvoke(base.Close);
+        base.Close();
       }
       catch (ObjectDisposedException)
       {
@@ -330,7 +336,8 @@ namespace CsvTools
       try
       {
         // if the form is closed by the user (UI) signal a cancellation
-        if (e.CloseReason == CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
+        if (e.CloseReason == CloseReason.UserClosing && !m_IsDisposed &&
+            !CancellationTokenSource.IsCancellationRequested)
         {
           //if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
           //    DialogResult.Yes)
@@ -351,24 +358,24 @@ namespace CsvTools
 
     #region IDisposable Support
 
+    private bool m_IsDisposed = false;
+
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+      if (m_IsDisposed)
+        return;
+      m_IsDisposed = disposing;
       try
       {
-        try { CancellationTokenSource.Cancel(); }
-        catch
-        {
-          /* ignore */
-        }
+        CancellationTokenSource.Cancel();
 
         if (disposing)
         {
           CancellationTokenSource.Dispose();
           m_LoggerDisplay?.Dispose();
+          base.Dispose(disposing);
         }
-
-        this.SafeBeginInvoke(() => base.Dispose(disposing));
       }
       catch (Exception)
       {

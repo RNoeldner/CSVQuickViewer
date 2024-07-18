@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -61,7 +62,8 @@ namespace CsvTools
       string returnedTimeZone,
       bool allowPercentage,
       bool removeCurrency)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency) =>
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+        returnedTimeZone, allowPercentage, removeCurrency) =>
       m_Stream = stream;
 
     /// <summary>
@@ -89,7 +91,8 @@ namespace CsvTools
       string returnedTimeZone = "",
       bool allowPercentage = true,
       bool removeCurrency = true)
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+        returnedTimeZone, allowPercentage, removeCurrency)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));
@@ -142,8 +145,7 @@ namespace CsvTools
 
         // get column names for some time
         var colNames = new Dictionary<string, DataTypeEnum>();
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
+        var stopwatch = Stopwatch.StartNew();
         // read additional rows to see if we have some extra columns
         while (line.Count != 0)
         {
@@ -182,7 +184,7 @@ namespace CsvTools
     {
       if (!EndOfFile && !cancellationToken.IsCancellationRequested)
       {
-        var couldRead = (await GetNextRecordAsync(cancellationToken).ConfigureAwait(false)).Count>0;
+        var couldRead = (await GetNextRecordAsync(cancellationToken).ConfigureAwait(false)).Count > 0;
         if (couldRead) RecordNumber++;
         InfoDisplay(couldRead);
 
@@ -328,7 +330,8 @@ namespace CsvTools
           }
 
           token.ThrowIfCancellationRequested();
-        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
+        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) &&
+                 await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 
@@ -358,7 +361,8 @@ namespace CsvTools
               // ReSharper disable once MergeIntoPattern
               if (!string.IsNullOrEmpty(orgVal) && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
-                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber));
+                CurrentRowColumnText[columnNumber] =
+                  TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber));
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
@@ -397,7 +401,7 @@ namespace CsvTools
       {
         // Better would be DisposeAsync(), but method is synchronous
         m_Stream?.Dispose();
-        m_Stream =  FunctionalDI.GetStream(new SourceAccess(FullPath));
+        m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
       }
       else
       {
