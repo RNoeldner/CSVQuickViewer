@@ -40,25 +40,12 @@ namespace CsvTools
         throw new FileReaderException($"Could not get reader for {fileSetting}");
       if (progress != null)
         fileReader.ReportProgress = progress;
-#if !CsvQuickViewer
-      RowErrorCollection? warningList = null;
       if (addWarning != null)
-      {
-        warningList = new RowErrorCollection(fileReader);
         fileReader.Warning += addWarning;
-        fileReader.Warning -= warningList.Add;
-      }
-#endif
-      Logger.Debug("Opening reader");
 
+      Logger.Debug("Opening reader");
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-#if !CsvQuickViewer
-      if (addWarning != null)
-      {
-        warningList!.HandleIgnoredColumns(fileReader);
-        warningList.PassWarning += addWarning;
-      }
-#endif
+
       m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 

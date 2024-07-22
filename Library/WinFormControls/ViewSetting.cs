@@ -25,7 +25,8 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
-    public static void ReStoreViewSetting(in string text, DataGridViewColumnCollection columns, IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
+    public static void ReStoreViewSetting(in string text, DataGridViewColumnCollection columns,
+      IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
     {
       try
       {
@@ -33,7 +34,8 @@ namespace CsvTools
         var displayIndex = 0;
         foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
         {
-          var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x => x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
+          var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x =>
+            x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
           if (col == null)
             continue;
           try
@@ -55,8 +57,9 @@ namespace CsvTools
             var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
 
             foreach (var cluster in storedColumn.ValueFilters)
-              columnFilters[col.Index].ValueClusterCollection.Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
-            if (storedColumn.ValueFilters.Count==0)
+              columnFilters[col.Index].ValueClusterCollection
+                .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
+            if (storedColumn.ValueFilters.Count == 0)
             {
               columnFilters[col.Index].Operator = storedColumn.Operator;
               columnFilters[col.Index].ValueText = storedColumn.ValueText;
@@ -79,11 +82,13 @@ namespace CsvTools
       }
     }
 
-    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns, IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn, SortOrder sortOrder)
+    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns,
+      IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn, SortOrder sortOrder)
     {
       try
       {
-        var vst = columns.OfType<DataGridViewColumn>().Select(col => new ColumnSetting(col.DataPropertyName, col.Visible, col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+        var vst = columns.OfType<DataGridViewColumn>().Select(col => new ColumnSetting(col.DataPropertyName,
+          col.Visible, col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
         var colIndex = 0;
         foreach (var columnFilter in columnFilters)
         {
@@ -117,7 +122,6 @@ namespace CsvTools
         Logger.Error(ex, "GetViewSetting");
         return null;
       }
-
     }
 
     /// <summary>

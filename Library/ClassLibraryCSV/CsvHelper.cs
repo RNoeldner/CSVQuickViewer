@@ -530,8 +530,11 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+            cancellationToken);
         var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
         inspectionResult.CommentLine = newCommentLine;
       }
@@ -540,16 +543,22 @@ CommentLine
       if (guessEscapePrefix) // Dependent on SkipRows, FieldDelimiter and FieldQualifier
       {
         Logger.Information("Checking Escape Prefix");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+            cancellationToken);
         newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter,
           inspectionResult.FieldQualifier, cancellationToken);
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+            cancellationToken);
 
         if (guessQualifier) // Dependent on SkipRows, FieldQualifier and EscapePrefix
         {
@@ -607,7 +616,10 @@ CommentLine
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Start line");
         // find start row again , with possibly changed FieldDelimiter
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
         var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier,
           inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
@@ -625,9 +637,12 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Header Row");
-        using var textReader = await stream
-          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
-          .ConfigureAwait(false);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream
+            .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+            .ConfigureAwait(false);
         var ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
           inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine,
           cancellationToken).ConfigureAwait(false);
@@ -642,8 +657,11 @@ CommentLine
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Validating comment line");
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+            cancellationToken);
         if (!await textReader
               .InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter,
                 cancellationToken).ConfigureAwait(false))

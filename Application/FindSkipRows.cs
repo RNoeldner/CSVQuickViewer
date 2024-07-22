@@ -64,7 +64,7 @@ namespace CsvTools
 
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
-      m_HighLighter.Dispose();
+      m_HighLighter?.Dispose();
       m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Character, textBoxDelimiter.Character,
             textBoxEscape.Character, textBoxComment.Text);
       HighlightVisibleRange(m_CsvFile.SkipRows);

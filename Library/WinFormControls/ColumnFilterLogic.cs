@@ -93,11 +93,6 @@ namespace CsvTools
     private const string cOperatorSmallerEqual = "<=";
 
     /// <summary>
-    ///   The m_ column data type
-    /// </summary>
-    private readonly DataTypeEnum m_DataType;
-
-    /// <summary>
     ///   Flag indicating if the whole filter is active
     /// </summary>
     private bool m_Active;
@@ -132,9 +127,9 @@ namespace CsvTools
       m_DataPropertyNameEscape = string.Empty;
       m_DataPropertyName = string.Empty;
       DataPropertyName = dataPropertyName;
-      m_DataType = columnDataType.GetDataType();
-      if (m_DataType == DataTypeEnum.Double)
-        m_DataType = DataTypeEnum.Numeric;
+      DataType = columnDataType.GetDataType();
+      if (DataType == DataTypeEnum.Double)
+        DataType = DataTypeEnum.Numeric;
 
       ValueClusterCollection = new ValueClusterCollection();
     }
@@ -159,7 +154,7 @@ namespace CsvTools
     ///   Gets the type of the column data.
     /// </summary>
     /// <value>The type of the column data.</value>
-    public DataTypeEnum DataType => m_DataType;
+    public DataTypeEnum DataType { get; }
 
     public string DataPropertyName
     {
@@ -295,7 +290,7 @@ namespace CsvTools
       }
       else
       {
-        if (m_DataType == DataTypeEnum.DateTime)
+        if (DataType == DataTypeEnum.DateTime)
           ValueDateTime = (DateTime) value;
         else
           // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -363,9 +358,11 @@ namespace CsvTools
       switch (m_Operator)
       {
         case cOperatorIsNull:
-          return m_DataType == DataTypeEnum.String ? $"({m_DataPropertyNameEscape} IS NULL or {m_DataPropertyNameEscape} = '')" : $"{m_DataPropertyNameEscape} IS NULL";
+          return DataType == DataTypeEnum.String
+            ? $"({m_DataPropertyNameEscape} IS NULL or {m_DataPropertyNameEscape} = '')"
+            : $"{m_DataPropertyNameEscape} IS NULL";
 
-        case cOperatorIsNotNull when m_DataType == DataTypeEnum.String:
+        case cOperatorIsNotNull when DataType == DataTypeEnum.String:
           return $"NOT({m_DataPropertyNameEscape} IS NULL or {m_DataPropertyNameEscape} = '')";
 
         case cOperatorIsNotNull:
@@ -382,32 +379,39 @@ namespace CsvTools
         case cOperatorContains:
           if (!string.IsNullOrEmpty(m_ValueText))
           {
-            if (m_DataType == DataTypeEnum.String)
-              return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
-            return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+            if (DataType == DataTypeEnum.String)
+              return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape,
+                m_ValueText.StringEscapeLike());
+            return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'",
+              m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
           }
+
           break;
 
         case cOperatorLonger:
-          return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
+          return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape,
+            FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
         case cOperatorShorter:
-          return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
+          return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape,
+            FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
         case cOperatorBegins:
-          if (m_DataType == DataTypeEnum.String)
-            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
-          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+          if (DataType == DataTypeEnum.String)
+            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape,
+              m_ValueText.StringEscapeLike());
+          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'",
+            m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
 
         case cOperatorEnds:
-          if (m_DataType == DataTypeEnum.String)
+          if (DataType == DataTypeEnum.String)
             return $"{m_DataPropertyNameEscape} LIKE '%{m_ValueText.StringEscapeLike()}'";
           return $"Convert({m_DataPropertyNameEscape},'System.String') LIKE '%{m_ValueText.StringEscapeLike()}'";
 
         default:
           string filterValue;
 
-          if (m_DataType == DataTypeEnum.DateTime)
+          if (DataType == DataTypeEnum.DateTime)
           {
             // Filtering for Dates we need to ignore time
             filterValue = $@"#{m_ValueDateTime:MM\/dd\/yyyy}#";
@@ -426,7 +430,7 @@ namespace CsvTools
 
           if (string.IsNullOrEmpty(m_ValueText))
             return string.Empty;
-          filterValue = FormatValue(m_ValueText.AsSpan(), m_DataType);
+          filterValue = FormatValue(m_ValueText.AsSpan(), DataType);
 
           if (!string.IsNullOrEmpty(filterValue))
           {

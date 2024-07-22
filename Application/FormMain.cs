@@ -14,6 +14,7 @@
 
 #nullable enable
 
+using CsvTools.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -37,21 +38,14 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly ViewSettings m_ViewSettings;
-    private bool m_ShouldReloadData;
-    private bool m_FileChanged;
-    private bool m_RunDetection;
     private bool m_AskOpenFile = true;
+    private bool m_FileChanged;
     private CsvFileDummy? m_FileSetting;
+    private bool m_RunDetection;
+    private bool m_ShouldReloadData;
     private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
-
-    private void ApplyViewSettings()
-    {
-      detailControl.MenuDown = m_ViewSettings.MenuDown;
-      detailControl.ShowButtonAtLength = m_ViewSettings.ShowButtonAtLength;
-      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
-    }
 
     public FormMain() : this(new ViewSettings())
     {
@@ -123,7 +117,6 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
 
-
       detailControl.WriteFileAsync = async (ct, reader) =>
       {
         if (m_FileSetting == null)
@@ -148,6 +141,9 @@ namespace CsvTools
             await
 #endif
             using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
+#if NET5_0_OR_GREATER
+            await
+#endif
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
             for (var i = 0; i < m_FileSetting.SkipRows; i++)
               skippedLines.AppendLine(await sr.ReadLineAsync());
@@ -234,6 +230,13 @@ namespace CsvTools
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
       }
+    }
+
+    private void ApplyViewSettings()
+    {
+      detailControl.MenuDown = m_ViewSettings.MenuDown;
+      detailControl.ShowButtonAtLength = m_ViewSettings.ShowButtonAtLength;
+      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
     }
 
     private async Task RunDetection(CancellationToken cancellationToken)
@@ -343,7 +346,7 @@ namespace CsvTools
           IdentifierInContainer = detection.IdentifierInContainer,
           SkipRows = detection.SkipRows,
           IsJson = detection.IsJson,
-          IsXml = detection.IsXml,
+          IsXml = detection.IsXml
         };
 
         m_FileSetting.ColumnCollection.AddRangeNoClone(detection.Columns);
@@ -379,7 +382,8 @@ namespace CsvTools
           {
             title.Append(" - ");
             title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
-            m_WarningMax = csv.NumWarnings;
+            if (csv.NumWarnings > 0)
+              m_WarningMax = csv.NumWarnings;
           }
 
           title.Append(" - ");
@@ -397,9 +401,8 @@ namespace CsvTools
       {
         this.ShowError(ex, $"Load File {fileName}");
       }
-    }
+    } // ReSharper disable StringLiteralTypo
 
-    // ReSharper disable StringLiteralTypo
     private Task SelectFile()
     {
       var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
@@ -420,6 +423,8 @@ namespace CsvTools
       return Task.CompletedTask;
     }
 
+    private readonly List<string> m_LoadWarnings = new List<string>();
+
     private void AddWarning(object? sender, WarningEventArgs args)
     {
       if (string.IsNullOrEmpty(args.Message))
@@ -427,7 +432,11 @@ namespace CsvTools
       if (++m_WarningCount == m_WarningMax)
         Logger.Warning("No further warnings displayed");
       else if (m_WarningCount < m_WarningMax)
-        Logger.Warning(args.Display(true, true));
+      {
+        var display = args.Display(true, true);
+        Logger.Warning(display);
+        m_LoadWarnings.Add(display);
+      }
     }
 
     /// <summary>
@@ -436,9 +445,7 @@ namespace CsvTools
     private void AttachPropertyChanged()
     {
       if (m_FileSetting != null)
-      {
         m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
-      }
 
       try
       {
@@ -527,8 +534,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private async void FileDragDrop(object? sender, DragEventArgs e)
-    {
+    private async void FileDragDrop(object? sender, DragEventArgs e) =>
       await this.RunWithHourglassAsync(async () =>
       {
         // Set the filename
@@ -539,7 +545,6 @@ namespace CsvTools
 
         await LoadCsvOrZipFileAsync(files[0], m_CancellationTokenSource.Token);
       });
-    }
 
     /// <summary>
     ///   Handles the DragEnter event of the dataGridView control.
@@ -573,7 +578,7 @@ namespace CsvTools
 
     private void FormMain_Loaded(object? sender, EventArgs e)
     {
-      // Handle Events      
+      // Handle Events
       m_ViewSettings.PropertyChanged += (_, args) =>
       {
         if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
@@ -584,7 +589,8 @@ namespace CsvTools
 
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
-        async (o, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+        // ReSharper disable once UnusedParameter.Local
+        async (send, eventArgs) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
       ShowTextPanel(false);
     }
@@ -593,7 +599,12 @@ namespace CsvTools
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
       {
+#if NET5_0_OR_GREATER
+        await m_CancellationTokenSource.CancelAsync();
+#else
         m_CancellationTokenSource.Cancel();
+#endif
+
         // Give the possibly running threads some time to exit
         Thread.Sleep(100);
       }
@@ -642,6 +653,7 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
             formProgress.Show(this);
+            m_LoadWarnings.Clear();
             await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, FilterTypeEnum.All,
               formProgress,
               AddWarning, formProgress.CancellationToken);
@@ -666,7 +678,6 @@ namespace CsvTools
           m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
             .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
-
 
           // Load View Settings from file
           if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
@@ -744,14 +755,15 @@ namespace CsvTools
         fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
     }
 
-    private async void ShowSettings(object? sender, EventArgs e)
-    {
+    private async void ShowSettings(object? sender, EventArgs e) =>
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
       {
         var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
 
         var editSetting = m_FileSetting?.Clone() as CsvFileDummy;
-        using var frm = new FormEditSettings(m_ViewSettings, editSetting);
+
+        using var frm = new FormEditSettings(m_ViewSettings, editSetting, m_LoadWarnings,
+          detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : (int?) null);
         frm.ShowDialog(this);
         await m_ViewSettings.SaveViewSettingsAsync();
         editSetting = frm.FileSetting;
@@ -776,59 +788,38 @@ namespace CsvTools
           m_AskOpenFile = !(m_FileChanged || m_RunDetection);
           if (m_FileSetting is ICsvFile oldCsv && frm.FileSetting is ICsvFile newCsv)
           {
-            if (oldCsv.AllowRowCombining != newCsv.AllowRowCombining || !oldCsv.ColumnCollection
-                                                                       .CollectionEqualWithOrder(
-                                                                         newCsv.ColumnCollection)
-                                                                     || oldCsv.ByteOrderMark != newCsv.ByteOrderMark ||
-                                                                     oldCsv.CodePageId != newCsv.CodePageId
-                                                                     || oldCsv.ConsecutiveEmptyRows !=
-                                                                     newCsv.ConsecutiveEmptyRows ||
-                                                                     oldCsv.HasFieldHeader != newCsv.HasFieldHeader
-                                                                     || oldCsv.NumWarnings != newCsv.NumWarnings ||
-                                                                     oldCsv.SkipEmptyLines != newCsv.SkipEmptyLines
-                                                                     || oldCsv.SkipRows != newCsv.SkipRows ||
-                                                                     oldCsv.TreatLfAsSpace != newCsv.TreatLfAsSpace
-                                                                     || oldCsv.TreatNBSPAsSpace !=
-                                                                     newCsv.TreatNBSPAsSpace ||
-                                                                     oldCsv.TreatTextAsNull != newCsv.TreatTextAsNull
-                                                                     || oldCsv.TreatUnknownCharacterAsSpace !=
-                                                                     newCsv.TreatUnknownCharacterAsSpace
-                                                                     || oldCsv.TryToSolveMoreColumns !=
-                                                                     newCsv.TryToSolveMoreColumns ||
-                                                                     oldCsv.WarnDelimiterInValue !=
-                                                                     newCsv.WarnDelimiterInValue
-                                                                     || oldCsv.WarnEmptyTailingColumns !=
-                                                                     newCsv.WarnEmptyTailingColumns ||
-                                                                     oldCsv.WarnLineFeed != newCsv.WarnLineFeed
-                                                                     || oldCsv.WarnNBSP != newCsv.WarnNBSP ||
-                                                                     oldCsv.WarnQuotes != newCsv.WarnQuotes
-                                                                     || oldCsv.WarnQuotesInQuotes !=
-                                                                     newCsv.WarnQuotesInQuotes ||
-                                                                     oldCsv.WarnUnknownCharacter !=
-                                                                     newCsv.WarnUnknownCharacter
-                                                                     || oldCsv.DisplayStartLineNo !=
-                                                                     newCsv.DisplayStartLineNo ||
-                                                                     oldCsv.DisplayRecordNo != newCsv.DisplayRecordNo
-                                                                     || oldCsv.FieldDelimiterChar !=
-                                                                     newCsv.FieldDelimiterChar ||
-                                                                     oldCsv.FieldQualifierChar !=
-                                                                     newCsv.FieldQualifierChar
-                                                                     || oldCsv.EscapePrefixChar !=
-                                                                     newCsv.EscapePrefixChar ||
-                                                                     oldCsv.DelimiterPlaceholder !=
-                                                                     newCsv.DelimiterPlaceholder
-                                                                     || oldCsv.NewLinePlaceholder !=
-                                                                     newCsv.NewLinePlaceholder ||
-                                                                     oldCsv.NewLinePlaceholder !=
-                                                                     newCsv.NewLinePlaceholder
-                                                                     || oldCsv.QualifierPlaceholder !=
-                                                                     newCsv.QualifierPlaceholder ||
-                                                                     oldCsv.CommentLine != newCsv.CommentLine
-                                                                     || oldCsv.ContextSensitiveQualifier !=
-                                                                     newCsv.ContextSensitiveQualifier ||
-                                                                     oldCsv.DuplicateQualifierToEscape !=
-                                                                     newCsv.DuplicateQualifierToEscape)
-              m_ShouldReloadData = true;
+            m_ShouldReloadData = oldCsv.AllowRowCombining != newCsv.AllowRowCombining;
+            m_ShouldReloadData |= !oldCsv.ColumnCollection.CollectionEqualWithOrder(newCsv.ColumnCollection);
+            m_ShouldReloadData |= oldCsv.ByteOrderMark != newCsv.ByteOrderMark;
+            m_ShouldReloadData |= oldCsv.CodePageId != newCsv.CodePageId;
+            m_ShouldReloadData |= oldCsv.ConsecutiveEmptyRows != newCsv.ConsecutiveEmptyRows;
+            m_ShouldReloadData |= oldCsv.HasFieldHeader != newCsv.HasFieldHeader;
+            m_ShouldReloadData |= oldCsv.NumWarnings != newCsv.NumWarnings;
+            m_ShouldReloadData |= oldCsv.SkipEmptyLines != newCsv.SkipEmptyLines;
+            m_ShouldReloadData |= oldCsv.SkipRows != newCsv.SkipRows;
+            m_ShouldReloadData |= oldCsv.TreatLfAsSpace != newCsv.TreatLfAsSpace;
+            m_ShouldReloadData |= oldCsv.TreatNBSPAsSpace != newCsv.TreatNBSPAsSpace;
+            m_ShouldReloadData |= oldCsv.TreatTextAsNull != newCsv.TreatTextAsNull;
+            m_ShouldReloadData |= oldCsv.TreatUnknownCharacterAsSpace != newCsv.TreatUnknownCharacterAsSpace;
+            m_ShouldReloadData |= oldCsv.TryToSolveMoreColumns != newCsv.TryToSolveMoreColumns;
+            m_ShouldReloadData |= oldCsv.WarnDelimiterInValue != newCsv.WarnDelimiterInValue;
+            m_ShouldReloadData |= oldCsv.WarnEmptyTailingColumns != newCsv.WarnEmptyTailingColumns;
+            m_ShouldReloadData |= oldCsv.WarnLineFeed != newCsv.WarnLineFeed;
+            m_ShouldReloadData |= oldCsv.WarnNBSP != newCsv.WarnNBSP;
+            m_ShouldReloadData |= oldCsv.WarnQuotes != newCsv.WarnQuotes;
+            m_ShouldReloadData |= oldCsv.WarnQuotesInQuotes != newCsv.WarnQuotesInQuotes;
+            m_ShouldReloadData |= oldCsv.WarnUnknownCharacter != newCsv.WarnUnknownCharacter;
+            m_ShouldReloadData |= oldCsv.DisplayStartLineNo != newCsv.DisplayStartLineNo;
+            m_ShouldReloadData |= oldCsv.DisplayRecordNo != newCsv.DisplayRecordNo;
+            m_ShouldReloadData |= oldCsv.FieldDelimiterChar != newCsv.FieldDelimiterChar;
+            m_ShouldReloadData |= oldCsv.FieldQualifierChar != newCsv.FieldQualifierChar;
+            m_ShouldReloadData |= oldCsv.EscapePrefixChar != newCsv.EscapePrefixChar;
+            m_ShouldReloadData |= oldCsv.DelimiterPlaceholder != newCsv.DelimiterPlaceholder;
+            m_ShouldReloadData |= oldCsv.NewLinePlaceholder != newCsv.NewLinePlaceholder;
+            m_ShouldReloadData |= oldCsv.QualifierPlaceholder != newCsv.QualifierPlaceholder;
+            m_ShouldReloadData |= oldCsv.CommentLine != newCsv.CommentLine;
+            m_ShouldReloadData |= oldCsv.ContextSensitiveQualifier != newCsv.ContextSensitiveQualifier;
+            m_ShouldReloadData |= oldCsv.DuplicateQualifierToEscape != newCsv.DuplicateQualifierToEscape;
           }
 
           m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
@@ -847,7 +838,6 @@ namespace CsvTools
         ApplyViewSettings();
         await SaveIndividualFileSettingAsync();
       }, this);
-    }
 
     private void ShowTextPanel(bool visible)
     {
@@ -866,11 +856,10 @@ namespace CsvTools
       }
     }
 
-
     private void ToolStripButtonAsText(bool asText)
     {
       m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
-      m_ToolStripButtonAsText.Image = asText ? Properties.Resources.AsValue : Properties.Resources.AsText;
+      m_ToolStripButtonAsText.Image = asText ? Resources.AsValue : Resources.AsText;
     }
 
     private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
@@ -882,7 +871,7 @@ namespace CsvTools
       m_FileSetting.ColumnCollection.Clear();
       m_FileSetting.ColumnCollection.AddRange(asText
         ? columns.Select(col =>
-          new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal))
+          new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
         : columns);
       m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
     }

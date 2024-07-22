@@ -61,14 +61,19 @@ namespace CsvTools
       FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
-      // Need to set FileSetting so we can change Formats
-      FilteredDataGridView.FileSetting = fileSetting;
+      try
+      {
+        // Need to set FileSetting so we can change Formats
+        FilteredDataGridView.FileSetting = fileSetting;
 
-      m_ToolStripLabelCount.Text = " loading...";
-      DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning,
-        cancellationToken);
-
-      RefreshDisplay(filterType, cancellationToken);
+        m_ToolStripLabelCount.Text = " loading...";
+        DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning,
+          cancellationToken);
+      }
+      finally
+      {
+        RefreshDisplay(filterType, cancellationToken);
+      }
     }
 
     /// <inheritdoc />
@@ -845,7 +850,7 @@ namespace CsvTools
       RefreshDisplay(GetCurrentFilter(), m_CancellationToken);
     }
 
-    private bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
+    public bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
 
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
     {

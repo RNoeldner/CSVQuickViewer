@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace CsvTools.Tests
 {
@@ -9,8 +10,8 @@ namespace CsvTools.Tests
     [Timeout(4000)]
     public void FormEditSettings()
     {
-      UnitTestStaticForms.ShowForm(() => 
-        new FormEditSettings(new ViewSettings(), new CsvFileDummy()));
+      UnitTestStaticForms.ShowForm(() =>
+        new FormEditSettings(new ViewSettings(), new CsvFileDummy(), new List<string>(), (int?) null));
     }
   }
 }
