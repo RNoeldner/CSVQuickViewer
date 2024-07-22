@@ -147,7 +147,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
             await
 #endif
-              using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
+            using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
             for (var i = 0; i < m_FileSetting.SkipRows; i++)
               skippedLines.AppendLine(await sr.ReadLineAsync());

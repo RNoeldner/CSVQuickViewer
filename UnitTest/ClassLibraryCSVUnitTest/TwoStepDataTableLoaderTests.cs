@@ -11,7 +11,6 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task StartAsyncTestAsync()
     {
-      var myDataTable = new DataTable();
       bool warningCalled = false;
       bool refreshCalled = false;
 
@@ -20,13 +19,11 @@ namespace CsvTools.Tests
       using var tsde = new SteppedDataTableLoader();
       var csv = new CsvFileDummy
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FieldDelimiterChar = ',',
-        CommentLine = "#"
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiterChar = ',', CommentLine = "#"
       };
 
       var proc = new Progress<ProgressInfo>();
-      await tsde.StartAsync(csv, dt => myDataTable = dt, cancellationToken => { refreshCalled = true; }, TimeSpan.FromMilliseconds(20), proc,
+      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), proc,
         (o, a) => { warningCalled = true; }, UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);

@@ -422,6 +422,15 @@ namespace CsvTools
         new WarningEventArgs(RecordNumber, 0, RowErrorInformation, StartLineNumber, EndLineNumber, string.Empty));
     }
 
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+        m_FileReader?.Dispose();
+
+      base.Dispose(disposing);
+    }
+
     /// <summary>
     /// Handles the warnings raised in the source and adds them to the corresponding columns
     /// </summary>

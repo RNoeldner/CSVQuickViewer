@@ -13,12 +13,16 @@
  */
 
 using System;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
   /// <inheritdoc />
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
   public abstract class DisposableBase : IDisposable
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    , IAsyncDisposable
+#endif
 #pragma warning restore S3881 // "IDisposable" should be implemented correctly
   {
     /// <summary>
@@ -46,5 +50,14 @@ namespace CsvTools
 
     /// <inheritdoc />
     ~DisposableBase() => Dispose(false);
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <inheritdoc />
+    public virtual ValueTask DisposeAsync()
+    {
+      Dispose();
+      return default;
+    }
+#endif
   }
 }
