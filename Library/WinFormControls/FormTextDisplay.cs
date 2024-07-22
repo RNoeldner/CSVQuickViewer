@@ -128,6 +128,7 @@ namespace CsvTools
         FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");        
       }
     }
+
     private void HighlightVisibleRange()
     {
       try

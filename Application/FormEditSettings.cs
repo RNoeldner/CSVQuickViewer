@@ -15,6 +15,8 @@
 #nullable enable
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -29,16 +31,30 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
-    private CsvFileDummy? m_FileSetting;
+    private readonly IEnumerable<string> m_Warnings;
 
-    public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting)
+    private readonly int? m_NumRecords;
+
+    public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting,
+      IEnumerable<string> warnings, int? numRecords)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
-      m_FileSetting = setting;
+      FileSetting = setting;
       FontConfig = viewSettings;
       InitializeComponent();
       if (setting != null)
         quotingControl.CsvFile = setting;
+      buttonFileInfo.Enabled = setting != null;
+
+      m_Warnings = warnings;
+#if !SupportPGP
+      labelPGPKey.Visible = false;
+      textBoxKeyFileWrite.Visible = false;
+      buttonKeyFileWrite.Visible = false;
+      labelPGPRead.Visible = false;
+      textBoxKeyFileRead.Visible = false;
+      buttonKeyFileRead.Visible = false;
+#endif
 
       toolTip.SetToolTip(checkBoxAllowRowCombining,
         @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
@@ -49,9 +65,10 @@ This is a very risky option, in some cases rows might be lost.");
       toolTip.SetToolTip(checkBoxTryToSolveMoreColumns,
         @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
+      m_NumRecords = numRecords;
     }
 
-    public CsvFileDummy? FileSetting => m_FileSetting;
+    public CsvFileDummy? FileSetting { get; private set; }
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
@@ -112,13 +129,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           formProgress.CancellationToken);
         formProgress.Close();
 
-        if (m_FileSetting == null)
-          m_FileSetting = new CsvFileDummy();
-
-        ir.CopyToCsv(m_FileSetting);
-        m_FileSetting.IsJson = ir.IsJson;
-        m_FileSetting.IsXml = ir.IsXml;
-        m_ViewSettings.DeriveWriteSetting(m_FileSetting);
+        FileSetting ??= new CsvFileDummy();
+        buttonFileInfo.Enabled = true;
+        ir.CopyToCsv(FileSetting);
+        FileSetting.IsJson = ir.IsJson;
+        FileSetting.IsXml = ir.IsXml;
+        m_ViewSettings.DeriveWriteSetting(FileSetting);
         UpdateUI();
       }
       catch (Exception ex)
@@ -129,9 +145,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonEscapeSequence_Click(object sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonEscapeSequence.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -139,6 +155,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader =
             await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           csvFile.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar,
@@ -150,9 +169,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessCP_ClickAsync(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonGuessCP.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -170,9 +189,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessDelimiter_ClickAsync(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -180,6 +199,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
           var res = await textReader.InspectDelimiterAsync(csvFile.FieldQualifierChar, csvFile.EscapePrefixChar,
@@ -193,9 +215,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonGuessHeader.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -203,6 +225,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
           var res = await textReader.InspectHasHeaderAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar,
@@ -216,9 +241,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessLineComment_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonGuessLineComment.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -226,6 +251,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
           csvFile.CommentLine = await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
@@ -236,9 +264,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -246,6 +274,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
           var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar,
@@ -262,9 +293,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         using var frm = new FindSkipRows(csvFile);
         _ = frm.ShowDialog();
         UpdateUI();
@@ -279,9 +310,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonSkipLine.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -289,6 +320,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader =
             await improvedStream.GetTextReaderAsync(csvFile.CodePageId, 0, m_CancellationTokenSource.Token);
           csvFile.SkipRows = textReader.InspectStartRow(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar,
@@ -300,7 +334,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
         if (csvFile.TryToSolveMoreColumns || csvFile.AllowRowCombining)
           csvFile.WarnEmptyTailingColumns = true;
     }
@@ -333,7 +367,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboWriteCodePage.ResumeLayout(true);
 
       cboRecordDelimiter.SuspendLayout();
-      if (m_FileSetting == null)
+      if (FileSetting == null)
       {
 #if SupportPGP
         if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileRead))
@@ -366,7 +400,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
     {
       ValidateChildren();
-      StoreFromUI();
+      StoreFromUI(FileSetting);
       try { m_CancellationTokenSource.Cancel(); }
       catch
       {
@@ -374,15 +408,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
 
       SetDefaultInspectionResult();
-      if (m_FileSetting != null)
-        m_ViewSettings.PassOnConfiguration(m_FileSetting);
+      if (FileSetting != null)
+        m_ViewSettings.PassOnConfiguration(FileSetting);
     }
 
     private async void GuessNewline_Click(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
-        StoreFromUI();
+        StoreFromUI(FileSetting);
         await buttonNewLine.RunWithHourglassAsync(async () =>
         {
 #if NET5_0_OR_GREATER
@@ -390,6 +424,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
           cboRecordDelimiter.SelectedValue =
@@ -444,9 +481,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       if (!m_ViewSettings.GuessStartRow)
         m_ViewSettings.DefaultInspectionResult.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
       // if this is not for a specific file store the value in the defaults
-      if (m_FileSetting != null)
-        return;
+
 #if SupportPGP
+      if (FileSetting != null)
+        return;
       m_ViewSettings.KeyFileRead = textBoxKeyFileRead.Text;
       m_ViewSettings.KeyFileWrite = textBoxKeyFileWrite.Text;
 #endif
@@ -473,28 +511,28 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
     }
 
-    private void StoreFromUI()
+    private void StoreFromUI(ICsvFile? fileSetting)
     {
-      if (m_FileSetting == null)
+      if (fileSetting == null)
         return;
       if (cboCodePage.SelectedValue is int cboCodePageId)
-        m_FileSetting.CodePageId = cboCodePageId;
-      m_FileSetting.CommentLine = textBoxComment.Text.Trim();
-      m_FileSetting.FileName = textBoxFile.Text.Trim();
-      m_FileSetting.HasFieldHeader = checkBoxHeader.Checked;
-      m_FileSetting.ByteOrderMark = checkBoxBOM.Checked;
-      m_FileSetting.FieldDelimiterChar = textBoxDelimiter.Text.FromText();
-      m_FileSetting.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
-      m_FileSetting.TreatTextAsNull = textBoxTextAsNull.Text.Trim();
-      m_FileSetting.EscapePrefixChar = textBoxEscapeRead.Text.FromText();
-      m_FileSetting.KeyFile = textBoxKeyFileRead.Text;
-      m_FileSetting.TreatNBSPAsSpace = checkBoxTreatNBSPAsSpace.Checked;
-      m_FileSetting.SkipEmptyLines = checkBoxSkipEmptyLines.Checked;
-      m_FileSetting.TreatUnknownCharacterAsSpace = checkBoxTreatUnknowCharaterAsSpace.Checked;
-      m_FileSetting.TreatLfAsSpace = checkBoxTreatLfAsSpace.Checked;
-      m_FileSetting.TryToSolveMoreColumns = checkBoxTryToSolveMoreColumns.Checked;
-      m_FileSetting.AllowRowCombining = checkBoxAllowRowCombining.Checked;
-      m_FileSetting.NumWarnings = Convert.ToInt32(numericUpDownNumWarnings.Value);
+        fileSetting.CodePageId = cboCodePageId;
+      fileSetting.CommentLine = textBoxComment.Text.Trim();
+      fileSetting.FileName = textBoxFile.Text.Trim();
+      fileSetting.HasFieldHeader = checkBoxHeader.Checked;
+      fileSetting.ByteOrderMark = checkBoxBOM.Checked;
+      fileSetting.FieldDelimiterChar = textBoxDelimiter.Text.FromText();
+      fileSetting.SkipRows = Convert.ToInt32(numericUpDownSkipRows.Value);
+      fileSetting.TreatTextAsNull = textBoxTextAsNull.Text.Trim();
+      fileSetting.EscapePrefixChar = textBoxEscapeRead.Text.FromText();
+      fileSetting.KeyFile = textBoxKeyFileRead.Text;
+      fileSetting.TreatNBSPAsSpace = checkBoxTreatNBSPAsSpace.Checked;
+      fileSetting.SkipEmptyLines = checkBoxSkipEmptyLines.Checked;
+      fileSetting.TreatUnknownCharacterAsSpace = checkBoxTreatUnknowCharaterAsSpace.Checked;
+      fileSetting.TreatLfAsSpace = checkBoxTreatLfAsSpace.Checked;
+      fileSetting.TryToSolveMoreColumns = checkBoxTryToSolveMoreColumns.Checked;
+      fileSetting.AllowRowCombining = checkBoxAllowRowCombining.Checked;
+      fileSetting.NumWarnings = Convert.ToInt32(numericUpDownNumWarnings.Value);
     }
 
     private void TextBoxFile_TextChanged(object sender, EventArgs e)
@@ -519,7 +557,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void UpdateUI()
     {
-      if (m_FileSetting is ICsvFile csvFile)
+      if (FileSetting is ICsvFile csvFile)
       {
         //if (cboCodePage.DataSource is List<DisplayItem<int>> list)
         //  cboCodePage.SelectedItem = list.FirstOrDefault(x => x.ID == csvFile.CodePageId)  ?? list.First();
@@ -527,7 +565,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         textBoxComment.Text = csvFile.CommentLine;
         textBoxFile.Text = csvFile.FileName;
         checkBoxHeader.Checked = csvFile.HasFieldHeader;
-        checkBoxBOM.Text = csvFile.ByteOrderMark.ToString();
+        checkBoxBOM.Checked = csvFile.ByteOrderMark;
         textBoxDelimiter.Text = csvFile.FieldDelimiterChar.ToString();
         numericUpDownSkipRows.Value = csvFile.SkipRows;
         textBoxTextAsNull.Text = csvFile.TreatTextAsNull;
@@ -553,6 +591,27 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
       }
+    }
+
+
+    private async void buttonFileInfo_Click(object sender, EventArgs e)
+    {
+      if (FileSetting == null)
+        return;
+      var info = (ICsvFile) FileSetting.Clone();
+      StoreFromUI(info);
+      var html = new HtmlStyle(string.Empty);
+      var stringBuilder = html.StartHtmlDoc("eeeeee");
+      await buttonFileInfo.RunWithHourglassAsync(async () =>
+      {
+        stringBuilder.Append(
+          await info.GetFileInformationHtml(m_Warnings, m_NumRecords, m_CancellationTokenSource.Token));
+        stringBuilder.AppendLine("</BODY>");
+        stringBuilder.AppendLine("</HTML>");
+        MessageBox.ShowBigHtml(stringBuilder.ToString(), "Information", MessageBoxButtons.OK,
+          MessageBoxIcon.Information,
+          MessageBoxDefaultButton.Button1, 10D);
+      });
     }
   }
 }

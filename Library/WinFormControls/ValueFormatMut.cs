@@ -58,8 +58,10 @@ namespace CsvTools
     /// <summary>Initializes a new instance of the <see cref="ValueFormatMut" /> class from a immutable <see cref="ValueFormat"/>.</summary>
     /// <param name="source">The source <see cref="ValueFormat"/></param>
     public ValueFormatMut(ValueFormat source) : this(source.DataType, source.DateFormat, source.DateSeparator.Text(),
-      source.TimeSeparator.Text(), source.NumberFormat, source.GroupSeparator.Text(), source.DecimalSeparator.Text(), source.True,
-      source.False, source.DisplayNullAs, source.Part, source.PartSplitter.Text(), source.PartToEnd, source.RegexSearchPattern,
+      source.TimeSeparator.Text(), source.NumberFormat, source.GroupSeparator.Text(), source.DecimalSeparator.Text(),
+      source.True,
+      source.False, source.DisplayNullAs, source.Part, source.PartSplitter.Text(), source.PartToEnd,
+      source.RegexSearchPattern,
       source.RegexReplacement, source.ReadFolder, source.WriteFolder, source.FileOutPutPlaceholder, source.Overwrite)
     {
     }
@@ -244,7 +246,7 @@ namespace CsvTools
           NotifyPropertyChanged();
           if (m_GroupSeparator.Equals(m_DecimalSeparator))
           {
-            m_DecimalSeparator= oldGroup;
+            m_DecimalSeparator = oldGroup;
             NotifyPropertyChanged(nameof(DecimalSeparator));
           }
         }
@@ -428,25 +430,25 @@ namespace CsvTools
     public override int GetHashCode()
     {
       var hashCode = -373284191;
-      hashCode=hashCode*-1521134295+DataType.GetHashCode();
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DateFormat);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DateSeparator);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DecimalSeparator);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(DisplayNullAs);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(False);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(FileOutPutPlaceholder);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(GroupSeparator);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(NumberFormat);
-      hashCode=hashCode*-1521134295+Overwrite.GetHashCode();
-      hashCode=hashCode*-1521134295+Part.GetHashCode();
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(PartSplitter);
-      hashCode=hashCode*-1521134295+PartToEnd.GetHashCode();
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(ReadFolder);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(RegexReplacement);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(RegexSearchPattern);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(TimeSeparator);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(True);
-      hashCode=hashCode*-1521134295+EqualityComparer<string>.Default.GetHashCode(WriteFolder);
+      hashCode = hashCode * -1521134295 + DataType.GetHashCode();
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DateFormat);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DateSeparator);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DecimalSeparator);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DisplayNullAs);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(False);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FileOutPutPlaceholder);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GroupSeparator);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(NumberFormat);
+      hashCode = hashCode * -1521134295 + Overwrite.GetHashCode();
+      hashCode = hashCode * -1521134295 + Part.GetHashCode();
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PartSplitter);
+      hashCode = hashCode * -1521134295 + PartToEnd.GetHashCode();
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ReadFolder);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(RegexReplacement);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(RegexSearchPattern);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TimeSeparator);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(True);
+      hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(WriteFolder);
       return hashCode;
     }
 
@@ -462,6 +464,5 @@ namespace CsvTools
         Part, PartSplitter, PartToEnd,
         RegexSearchPattern, RegexReplacement,
         ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
-
   }
 }

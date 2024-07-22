@@ -17,1540 +17,1481 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
-      this.tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
-      this.labelDelimitedFile = new System.Windows.Forms.Label();
-      this.textBoxComment = new System.Windows.Forms.TextBox();
-      this.label2 = new System.Windows.Forms.Label();
-      this.textBoxFile = new System.Windows.Forms.TextBox();
-      this.buttonGuessDelimiter = new System.Windows.Forms.Button();
-      this.btnOpenFile = new System.Windows.Forms.Button();
-      this.labelDelimiter = new System.Windows.Forms.Label();
-      this.checkBoxHeader = new System.Windows.Forms.CheckBox();
-      this.labelCodePage = new System.Windows.Forms.Label();
-      this.cboCodePage = new System.Windows.Forms.ComboBox();
-      this.buttonGuessCP = new System.Windows.Forms.Button();
-      this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
-      this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
-      this.buttonSkipLine = new System.Windows.Forms.Button();
-      this.checkBoxGuessDelimiter = new System.Windows.Forms.CheckBox();
-      this.buttonGuessHeader = new System.Windows.Forms.Button();
-      this.checkBoxBOM = new System.Windows.Forms.CheckBox();
-      this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
-      this.buttonGuessLineComment = new System.Windows.Forms.Button();
-      this.checkBox3 = new System.Windows.Forms.CheckBox();
-      this.buttonGuessTextQualifier = new System.Windows.Forms.Button();
-      this.quotingControl = new CsvTools.QuotingControl();
-      this.buttonEscapeSequence = new System.Windows.Forms.Button();
-      this.textBoxDelimiter = new CsvTools.PunctuationTextBox();
-      this.label5 = new System.Windows.Forms.Label();
-      this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
-      this.buttonInteractiveSettings = new System.Windows.Forms.Button();
-      this.checkBox2 = new System.Windows.Forms.CheckBox();
-      this.label1 = new System.Windows.Forms.Label();
-      this.textBoxTextAsNull = new System.Windows.Forms.TextBox();
-      this.checkBoxCheckQuote = new System.Windows.Forms.CheckBox();
-      this.labelEscape = new System.Windows.Forms.Label();
-      this.textBoxEscapeRead = new CsvTools.PunctuationTextBox();
-      this.checkBoxDetermineEscape = new System.Windows.Forms.CheckBox();
-      this.label3 = new System.Windows.Forms.Label();
-      this.textBoxKeyFileRead = new System.Windows.Forms.TextBox();
-      this.buttonKeyFileRead = new System.Windows.Forms.Button();
-      this.checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
-      this.checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
-      this.checkBoxTreatUnknowCharaterAsSpace = new System.Windows.Forms.CheckBox();
-      this.checkBoxTreatLfAsSpace = new System.Windows.Forms.CheckBox();
-      this.checkBoxTryToSolveMoreColumns = new System.Windows.Forms.CheckBox();
-      this.checkBoxAllowRowCombining = new System.Windows.Forms.CheckBox();
-      this.checkBoxAllowJson = new System.Windows.Forms.CheckBox();
-      this.checkBoxDisplayRecordNo = new System.Windows.Forms.CheckBox();
-      this.checkBoxDetectFileChanges = new System.Windows.Forms.CheckBox();
-      this.checkBoxMenuDown = new System.Windows.Forms.CheckBox();
-      this.checkBoxStoreSettingsByFile = new System.Windows.Forms.CheckBox();
-      this.checkBoxDisplayStartLineNo = new System.Windows.Forms.CheckBox();
-      this.labelLimitOpen = new System.Windows.Forms.Label();
-      this.checkBoxWarnEmptyTailingColumns = new System.Windows.Forms.CheckBox();
-      this.checkBoxWarnNBSP = new System.Windows.Forms.CheckBox();
-      this.checkBoxWarnUnknowCharater = new System.Windows.Forms.CheckBox();
-      this.checkBoxWarnDelimiterInValue = new System.Windows.Forms.CheckBox();
-      this.checkBoxWarnQuotes = new System.Windows.Forms.CheckBox();
-      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-      this.checkBoxWriteBOM = new System.Windows.Forms.CheckBox();
-      this.bindingSourceWrite = new System.Windows.Forms.BindingSource(this.components);
-      this.textBox9 = new System.Windows.Forms.TextBox();
-      this.textBox7 = new System.Windows.Forms.TextBox();
-      this.cboRecordDelimiter = new System.Windows.Forms.ComboBox();
-      this.checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
-      this.numericUpDownNumWarnings = new System.Windows.Forms.NumericUpDown();
-      this.comboBoxLimitDuration = new System.Windows.Forms.ComboBox();
-      this.numericUpDownLength = new System.Windows.Forms.NumericUpDown();
-      this.checkBoxCopySkipped = new System.Windows.Forms.CheckBox();
-      this.textBoxKeyFileWrite = new System.Windows.Forms.TextBox();
-      this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      this.tabPageBehaviour = new System.Windows.Forms.TabPage();
-      this.tableLayoutPanelBehaviour = new System.Windows.Forms.TableLayoutPanel();
-      this.labelPersistentSettings = new System.Windows.Forms.Label();
-      this.labelByFile = new System.Windows.Forms.Label();
-      this.selectFont = new CsvTools.SelectFont();
-      this.label6 = new System.Windows.Forms.Label();
-      this.labelWarningLimit = new System.Windows.Forms.Label();
-      this.tabPageFormat = new System.Windows.Forms.TabPage();
-      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
-      this.tabPageFile = new System.Windows.Forms.TabPage();
-      this.tabControl = new System.Windows.Forms.TabControl();
-      this.tabPageWrite = new System.Windows.Forms.TabPage();
-      this.tableLayoutPanelWrite = new System.Windows.Forms.TableLayoutPanel();
-      this.quotingControlWrite = new CsvTools.QuotingControl();
-      this.label11 = new System.Windows.Forms.Label();
-      this.label17 = new System.Windows.Forms.Label();
-      this.label15 = new System.Windows.Forms.Label();
-      this.label13 = new System.Windows.Forms.Label();
-      this.label4 = new System.Windows.Forms.Label();
-      this.textBoxWriteDelim = new CsvTools.PunctuationTextBox();
-      this.cboWriteCodePage = new System.Windows.Forms.ComboBox();
-      this.labelEscapeWrite = new System.Windows.Forms.Label();
-      this.textBoxEscapeWrite = new CsvTools.PunctuationTextBox();
-      this.label7 = new System.Windows.Forms.Label();
-      this.buttonNewLine = new System.Windows.Forms.Button();
-      this.buttonKeyFileWrite = new System.Windows.Forms.Button();
-      this.tableLayoutPanelFile.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-      this.tabPageBehaviour.SuspendLayout();
-      this.tableLayoutPanelBehaviour.SuspendLayout();
-      this.tabPageFormat.SuspendLayout();
-      this.tabPageFile.SuspendLayout();
-      this.tabControl.SuspendLayout();
-      this.tabPageWrite.SuspendLayout();
-      this.tableLayoutPanelWrite.SuspendLayout();
-      this.SuspendLayout();
+      components = new System.ComponentModel.Container();
+      tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
+      labelDelimitedFile = new System.Windows.Forms.Label();
+      textBoxComment = new System.Windows.Forms.TextBox();
+      label2 = new System.Windows.Forms.Label();
+      textBoxFile = new System.Windows.Forms.TextBox();
+      buttonGuessDelimiter = new System.Windows.Forms.Button();
+      btnOpenFile = new System.Windows.Forms.Button();
+      labelDelimiter = new System.Windows.Forms.Label();
+      checkBoxHeader = new System.Windows.Forms.CheckBox();
+      labelCodePage = new System.Windows.Forms.Label();
+      cboCodePage = new System.Windows.Forms.ComboBox();
+      buttonGuessCP = new System.Windows.Forms.Button();
+      checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
+      bindingSourceViewSetting = new System.Windows.Forms.BindingSource(components);
+      buttonSkipLine = new System.Windows.Forms.Button();
+      checkBoxGuessDelimiter = new System.Windows.Forms.CheckBox();
+      buttonGuessHeader = new System.Windows.Forms.Button();
+      checkBoxBOM = new System.Windows.Forms.CheckBox();
+      checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
+      buttonGuessLineComment = new System.Windows.Forms.Button();
+      checkBox3 = new System.Windows.Forms.CheckBox();
+      buttonGuessTextQualifier = new System.Windows.Forms.Button();
+      quotingControl = new QuotingControl();
+      buttonEscapeSequence = new System.Windows.Forms.Button();
+      textBoxDelimiter = new PunctuationTextBox();
+      label5 = new System.Windows.Forms.Label();
+      numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
+      buttonInteractiveSettings = new System.Windows.Forms.Button();
+      checkBox2 = new System.Windows.Forms.CheckBox();
+      label1 = new System.Windows.Forms.Label();
+      textBoxTextAsNull = new System.Windows.Forms.TextBox();
+      checkBoxCheckQuote = new System.Windows.Forms.CheckBox();
+      labelEscape = new System.Windows.Forms.Label();
+      textBoxEscapeRead = new PunctuationTextBox();
+      checkBoxDetermineEscape = new System.Windows.Forms.CheckBox();
+      labelPGPRead = new System.Windows.Forms.Label();
+      textBoxKeyFileRead = new System.Windows.Forms.TextBox();
+      buttonKeyFileRead = new System.Windows.Forms.Button();
+      buttonFileInfo = new System.Windows.Forms.Button();
+      checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
+      checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
+      checkBoxTreatUnknowCharaterAsSpace = new System.Windows.Forms.CheckBox();
+      checkBoxTreatLfAsSpace = new System.Windows.Forms.CheckBox();
+      checkBoxTryToSolveMoreColumns = new System.Windows.Forms.CheckBox();
+      checkBoxAllowRowCombining = new System.Windows.Forms.CheckBox();
+      checkBoxAllowJson = new System.Windows.Forms.CheckBox();
+      checkBoxDisplayRecordNo = new System.Windows.Forms.CheckBox();
+      checkBoxDetectFileChanges = new System.Windows.Forms.CheckBox();
+      checkBoxMenuDown = new System.Windows.Forms.CheckBox();
+      checkBoxStoreSettingsByFile = new System.Windows.Forms.CheckBox();
+      checkBoxDisplayStartLineNo = new System.Windows.Forms.CheckBox();
+      labelLimitOpen = new System.Windows.Forms.Label();
+      checkBoxWarnEmptyTailingColumns = new System.Windows.Forms.CheckBox();
+      checkBoxWarnNBSP = new System.Windows.Forms.CheckBox();
+      checkBoxWarnUnknowCharater = new System.Windows.Forms.CheckBox();
+      checkBoxWarnDelimiterInValue = new System.Windows.Forms.CheckBox();
+      checkBoxWarnQuotes = new System.Windows.Forms.CheckBox();
+      toolTip = new System.Windows.Forms.ToolTip(components);
+      checkBoxWriteBOM = new System.Windows.Forms.CheckBox();
+      bindingSourceWrite = new System.Windows.Forms.BindingSource(components);
+      textBox9 = new System.Windows.Forms.TextBox();
+      textBox7 = new System.Windows.Forms.TextBox();
+      cboRecordDelimiter = new System.Windows.Forms.ComboBox();
+      checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
+      numericUpDownNumWarnings = new System.Windows.Forms.NumericUpDown();
+      comboBoxLimitDuration = new System.Windows.Forms.ComboBox();
+      numericUpDownLength = new System.Windows.Forms.NumericUpDown();
+      checkBoxCopySkipped = new System.Windows.Forms.CheckBox();
+      textBoxKeyFileWrite = new System.Windows.Forms.TextBox();
+      errorProvider = new System.Windows.Forms.ErrorProvider(components);
+      tabPageBehaviour = new System.Windows.Forms.TabPage();
+      tableLayoutPanelBehaviour = new System.Windows.Forms.TableLayoutPanel();
+      labelPersistentSettings = new System.Windows.Forms.Label();
+      labelByFile = new System.Windows.Forms.Label();
+      selectFont = new SelectFont();
+      label6 = new System.Windows.Forms.Label();
+      labelWarningLimit = new System.Windows.Forms.Label();
+      tabPageFormat = new System.Windows.Forms.TabPage();
+      fillGuessSettingEdit = new FillGuessSettingEdit();
+      tabPageFile = new System.Windows.Forms.TabPage();
+      tabControl = new System.Windows.Forms.TabControl();
+      tabPageWrite = new System.Windows.Forms.TabPage();
+      tableLayoutPanelWrite = new System.Windows.Forms.TableLayoutPanel();
+      quotingControlWrite = new QuotingControl();
+      label11 = new System.Windows.Forms.Label();
+      label17 = new System.Windows.Forms.Label();
+      label15 = new System.Windows.Forms.Label();
+      label13 = new System.Windows.Forms.Label();
+      label4 = new System.Windows.Forms.Label();
+      textBoxWriteDelim = new PunctuationTextBox();
+      cboWriteCodePage = new System.Windows.Forms.ComboBox();
+      labelEscapeWrite = new System.Windows.Forms.Label();
+      textBoxEscapeWrite = new PunctuationTextBox();
+      labelPGPKey = new System.Windows.Forms.Label();
+      buttonNewLine = new System.Windows.Forms.Button();
+      buttonKeyFileWrite = new System.Windows.Forms.Button();
+      tableLayoutPanelFile.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceViewSetting).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceWrite).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownNumWarnings).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownLength).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) errorProvider).BeginInit();
+      tabPageBehaviour.SuspendLayout();
+      tableLayoutPanelBehaviour.SuspendLayout();
+      tabPageFormat.SuspendLayout();
+      tabPageFile.SuspendLayout();
+      tabControl.SuspendLayout();
+      tabPageWrite.SuspendLayout();
+      tableLayoutPanelWrite.SuspendLayout();
+      SuspendLayout();
       // 
       // tableLayoutPanelFile
       // 
-      this.tableLayoutPanelFile.AutoSize = true;
-      this.tableLayoutPanelFile.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.tableLayoutPanelFile.ColumnCount = 6;
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanelFile.Controls.Add(this.labelDelimitedFile, 0, 0);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxComment, 1, 4);
-      this.tableLayoutPanelFile.Controls.Add(this.label2, 0, 4);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxFile, 1, 0);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonGuessDelimiter, 5, 3);
-      this.tableLayoutPanelFile.Controls.Add(this.btnOpenFile, 5, 0);
-      this.tableLayoutPanelFile.Controls.Add(this.labelDelimiter, 0, 3);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxHeader, 1, 1);
-      this.tableLayoutPanelFile.Controls.Add(this.labelCodePage, 0, 2);
-      this.tableLayoutPanelFile.Controls.Add(this.cboCodePage, 1, 2);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonGuessCP, 5, 2);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxGuessHasHeader, 4, 1);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonSkipLine, 5, 5);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxGuessDelimiter, 4, 3);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonGuessHeader, 5, 1);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxBOM, 3, 2);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxGuessCodePage, 4, 2);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonGuessLineComment, 5, 4);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBox3, 4, 4);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonGuessTextQualifier, 5, 6);
-      this.tableLayoutPanelFile.Controls.Add(this.quotingControl, 0, 9);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonEscapeSequence, 5, 7);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxDelimiter, 1, 3);
-      this.tableLayoutPanelFile.Controls.Add(this.label5, 0, 5);
-      this.tableLayoutPanelFile.Controls.Add(this.numericUpDownSkipRows, 1, 5);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonInteractiveSettings, 3, 5);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBox2, 4, 5);
-      this.tableLayoutPanelFile.Controls.Add(this.label1, 0, 6);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxTextAsNull, 1, 6);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxCheckQuote, 4, 6);
-      this.tableLayoutPanelFile.Controls.Add(this.labelEscape, 0, 7);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxEscapeRead, 1, 7);
-      this.tableLayoutPanelFile.Controls.Add(this.checkBoxDetermineEscape, 4, 7);
-      this.tableLayoutPanelFile.Controls.Add(this.label3, 0, 8);
-      this.tableLayoutPanelFile.Controls.Add(this.textBoxKeyFileRead, 1, 8);
-      this.tableLayoutPanelFile.Controls.Add(this.buttonKeyFileRead, 5, 8);
-      this.tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
-      this.tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
-      this.tableLayoutPanelFile.Margin = new System.Windows.Forms.Padding(2);
-      this.tableLayoutPanelFile.Name = "tableLayoutPanelFile";
-      this.tableLayoutPanelFile.RowCount = 10;
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelFile.Size = new System.Drawing.Size(737, 483);
-      this.tableLayoutPanelFile.TabIndex = 0;
+      tableLayoutPanelFile.AutoSize = true;
+      tableLayoutPanelFile.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      tableLayoutPanelFile.ColumnCount = 7;
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 65F));
+      tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
+      tableLayoutPanelFile.Controls.Add(labelDelimitedFile, 0, 0);
+      tableLayoutPanelFile.Controls.Add(textBoxComment, 1, 4);
+      tableLayoutPanelFile.Controls.Add(label2, 0, 4);
+      tableLayoutPanelFile.Controls.Add(textBoxFile, 1, 0);
+      tableLayoutPanelFile.Controls.Add(buttonGuessDelimiter, 5, 3);
+      tableLayoutPanelFile.Controls.Add(btnOpenFile, 5, 0);
+      tableLayoutPanelFile.Controls.Add(labelDelimiter, 0, 3);
+      tableLayoutPanelFile.Controls.Add(checkBoxHeader, 1, 1);
+      tableLayoutPanelFile.Controls.Add(labelCodePage, 0, 2);
+      tableLayoutPanelFile.Controls.Add(cboCodePage, 1, 2);
+      tableLayoutPanelFile.Controls.Add(buttonGuessCP, 5, 2);
+      tableLayoutPanelFile.Controls.Add(checkBoxGuessHasHeader, 4, 1);
+      tableLayoutPanelFile.Controls.Add(buttonSkipLine, 5, 5);
+      tableLayoutPanelFile.Controls.Add(checkBoxGuessDelimiter, 4, 3);
+      tableLayoutPanelFile.Controls.Add(buttonGuessHeader, 5, 1);
+      tableLayoutPanelFile.Controls.Add(checkBoxBOM, 3, 2);
+      tableLayoutPanelFile.Controls.Add(checkBoxGuessCodePage, 4, 2);
+      tableLayoutPanelFile.Controls.Add(buttonGuessLineComment, 5, 4);
+      tableLayoutPanelFile.Controls.Add(checkBox3, 4, 4);
+      tableLayoutPanelFile.Controls.Add(buttonGuessTextQualifier, 5, 6);
+      tableLayoutPanelFile.Controls.Add(quotingControl, 0, 9);
+      tableLayoutPanelFile.Controls.Add(buttonEscapeSequence, 5, 7);
+      tableLayoutPanelFile.Controls.Add(textBoxDelimiter, 1, 3);
+      tableLayoutPanelFile.Controls.Add(label5, 0, 5);
+      tableLayoutPanelFile.Controls.Add(numericUpDownSkipRows, 1, 5);
+      tableLayoutPanelFile.Controls.Add(checkBox2, 4, 5);
+      tableLayoutPanelFile.Controls.Add(label1, 0, 6);
+      tableLayoutPanelFile.Controls.Add(textBoxTextAsNull, 1, 6);
+      tableLayoutPanelFile.Controls.Add(checkBoxCheckQuote, 4, 6);
+      tableLayoutPanelFile.Controls.Add(labelEscape, 0, 7);
+      tableLayoutPanelFile.Controls.Add(textBoxEscapeRead, 1, 7);
+      tableLayoutPanelFile.Controls.Add(checkBoxDetermineEscape, 4, 7);
+      tableLayoutPanelFile.Controls.Add(labelPGPRead, 0, 8);
+      tableLayoutPanelFile.Controls.Add(textBoxKeyFileRead, 1, 8);
+      tableLayoutPanelFile.Controls.Add(buttonKeyFileRead, 5, 8);
+      tableLayoutPanelFile.Controls.Add(buttonFileInfo, 6, 0);
+      tableLayoutPanelFile.Controls.Add(buttonInteractiveSettings, 6, 5);
+      tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
+      tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
+      tableLayoutPanelFile.Margin = new System.Windows.Forms.Padding(2);
+      tableLayoutPanelFile.Name = "tableLayoutPanelFile";
+      tableLayoutPanelFile.RowCount = 10;
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelFile.Size = new System.Drawing.Size(750, 483);
+      tableLayoutPanelFile.TabIndex = 0;
       // 
       // labelDelimitedFile
       // 
-      this.labelDelimitedFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelDelimitedFile.AutoSize = true;
-      this.labelDelimitedFile.Location = new System.Drawing.Point(80, 9);
-      this.labelDelimitedFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.labelDelimitedFile.Name = "labelDelimitedFile";
-      this.labelDelimitedFile.Size = new System.Drawing.Size(26, 13);
-      this.labelDelimitedFile.TabIndex = 1;
-      this.labelDelimitedFile.Text = "File:";
+      labelDelimitedFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDelimitedFile.AutoSize = true;
+      labelDelimitedFile.Location = new System.Drawing.Point(80, 9);
+      labelDelimitedFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelDelimitedFile.Name = "labelDelimitedFile";
+      labelDelimitedFile.Size = new System.Drawing.Size(26, 13);
+      labelDelimitedFile.TabIndex = 1;
+      labelDelimitedFile.Text = "File:";
       // 
       // textBoxComment
       // 
-      this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxComment.Location = new System.Drawing.Point(110, 129);
-      this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxComment.Name = "textBoxComment";
-      this.textBoxComment.Size = new System.Drawing.Size(62, 20);
-      this.textBoxComment.TabIndex = 15;
+      textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxComment.Location = new System.Drawing.Point(110, 129);
+      textBoxComment.Margin = new System.Windows.Forms.Padding(2);
+      textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxComment.Name = "textBoxComment";
+      textBoxComment.Size = new System.Drawing.Size(62, 20);
+      textBoxComment.TabIndex = 15;
       // 
       // label2
       // 
-      this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(29, 133);
-      this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(77, 13);
-      this.label2.TabIndex = 14;
-      this.label2.Text = "Line Comment:";
+      label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label2.AutoSize = true;
+      label2.Location = new System.Drawing.Point(29, 133);
+      label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label2.Name = "label2";
+      label2.Size = new System.Drawing.Size(77, 13);
+      label2.TabIndex = 14;
+      label2.Text = "Line Comment:";
       // 
       // textBoxFile
       // 
-      this.textBoxFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.tableLayoutPanelFile.SetColumnSpan(this.textBoxFile, 4);
-      this.textBoxFile.Location = new System.Drawing.Point(110, 2);
-      this.textBoxFile.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxFile.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxFile.Name = "textBoxFile";
-      this.textBoxFile.Size = new System.Drawing.Size(466, 20);
-      this.textBoxFile.TabIndex = 0;
-      this.textBoxFile.TextChanged += new System.EventHandler(this.TextBoxFile_TextChanged);
-      this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
+      textBoxFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+      tableLayoutPanelFile.SetColumnSpan(textBoxFile, 4);
+      textBoxFile.Location = new System.Drawing.Point(110, 2);
+      textBoxFile.Margin = new System.Windows.Forms.Padding(2);
+      textBoxFile.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxFile.Name = "textBoxFile";
+      textBoxFile.Size = new System.Drawing.Size(466, 20);
+      textBoxFile.TabIndex = 0;
+      textBoxFile.TextChanged += TextBoxFile_TextChanged;
+      textBoxFile.Validating += TextBoxFile_Validating;
       // 
       // buttonGuessDelimiter
       // 
-      this.buttonGuessDelimiter.AutoSize = true;
-      this.buttonGuessDelimiter.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessDelimiter.Location = new System.Drawing.Point(581, 96);
-      this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-      this.buttonGuessDelimiter.Size = new System.Drawing.Size(153, 25);
-      this.buttonGuessDelimiter.TabIndex = 13;
-      this.buttonGuessDelimiter.Text = "Detect Delimiter";
-      this.buttonGuessDelimiter.UseVisualStyleBackColor = true;
-      this.buttonGuessDelimiter.Click += new System.EventHandler(this.ButtonGuessDelimiter_ClickAsync);
+      buttonGuessDelimiter.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonGuessDelimiter, 2);
+      buttonGuessDelimiter.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuessDelimiter.Location = new System.Drawing.Point(581, 96);
+      buttonGuessDelimiter.Name = "buttonGuessDelimiter";
+      buttonGuessDelimiter.Size = new System.Drawing.Size(166, 25);
+      buttonGuessDelimiter.TabIndex = 13;
+      buttonGuessDelimiter.Text = "Detect Delimiter";
+      buttonGuessDelimiter.UseVisualStyleBackColor = true;
+      buttonGuessDelimiter.Click += ButtonGuessDelimiter_ClickAsync;
       // 
       // btnOpenFile
       // 
-      this.btnOpenFile.AutoSize = true;
-      this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
-      this.btnOpenFile.Location = new System.Drawing.Point(581, 3);
-      this.btnOpenFile.Name = "btnOpenFile";
-      this.btnOpenFile.Size = new System.Drawing.Size(153, 25);
-      this.btnOpenFile.TabIndex = 1;
-      this.btnOpenFile.Text = "Select File";
-      this.btnOpenFile.UseVisualStyleBackColor = true;
-      this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
+      btnOpenFile.AutoSize = true;
+      btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
+      btnOpenFile.Location = new System.Drawing.Point(581, 3);
+      btnOpenFile.Name = "btnOpenFile";
+      btnOpenFile.Size = new System.Drawing.Size(105, 25);
+      btnOpenFile.TabIndex = 1;
+      btnOpenFile.Text = "Select File";
+      btnOpenFile.UseVisualStyleBackColor = true;
+      btnOpenFile.Click += BtnOpenFile_Click;
       // 
       // labelDelimiter
       // 
-      this.labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelDelimiter.AutoSize = true;
-      this.labelDelimiter.Location = new System.Drawing.Point(56, 102);
-      this.labelDelimiter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.labelDelimiter.Name = "labelDelimiter";
-      this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
-      this.labelDelimiter.TabIndex = 10;
-      this.labelDelimiter.Text = "Delimiter:";
+      labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDelimiter.AutoSize = true;
+      labelDelimiter.Location = new System.Drawing.Point(56, 102);
+      labelDelimiter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelDelimiter.Name = "labelDelimiter";
+      labelDelimiter.Size = new System.Drawing.Size(50, 13);
+      labelDelimiter.TabIndex = 10;
+      labelDelimiter.Text = "Delimiter:";
       // 
       // checkBoxHeader
       // 
-      this.checkBoxHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxHeader.AutoSize = true;
-      this.tableLayoutPanelFile.SetColumnSpan(this.checkBoxHeader, 2);
-      this.checkBoxHeader.Location = new System.Drawing.Point(110, 38);
-      this.checkBoxHeader.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxHeader.Name = "checkBoxHeader";
-      this.checkBoxHeader.Size = new System.Drawing.Size(126, 17);
-      this.checkBoxHeader.TabIndex = 2;
-      this.checkBoxHeader.Text = "Has Column Headers";
-      this.toolTip.SetToolTip(this.checkBoxHeader, "If checked its assume the first not skipped line does have names for the columns");
-      this.checkBoxHeader.UseVisualStyleBackColor = true;
+      checkBoxHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxHeader.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(checkBoxHeader, 2);
+      checkBoxHeader.Location = new System.Drawing.Point(110, 38);
+      checkBoxHeader.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxHeader.Name = "checkBoxHeader";
+      checkBoxHeader.Size = new System.Drawing.Size(126, 17);
+      checkBoxHeader.TabIndex = 2;
+      checkBoxHeader.Text = "Has Column Headers";
+      toolTip.SetToolTip(checkBoxHeader, "If checked its assume the first not skipped line does have names for the columns");
+      checkBoxHeader.UseVisualStyleBackColor = true;
       // 
       // labelCodePage
       // 
-      this.labelCodePage.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelCodePage.AutoSize = true;
-      this.labelCodePage.Location = new System.Drawing.Point(43, 71);
-      this.labelCodePage.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.labelCodePage.Name = "labelCodePage";
-      this.labelCodePage.Size = new System.Drawing.Size(63, 13);
-      this.labelCodePage.TabIndex = 5;
-      this.labelCodePage.Text = "Code Page:";
+      labelCodePage.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelCodePage.AutoSize = true;
+      labelCodePage.Location = new System.Drawing.Point(43, 71);
+      labelCodePage.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelCodePage.Name = "labelCodePage";
+      labelCodePage.Size = new System.Drawing.Size(63, 13);
+      labelCodePage.TabIndex = 5;
+      labelCodePage.Text = "Code Page:";
       // 
       // cboCodePage
       // 
-      this.cboCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.tableLayoutPanelFile.SetColumnSpan(this.cboCodePage, 2);
-      this.cboCodePage.DisplayMember = "Display";
-      this.cboCodePage.FormattingEnabled = true;
-      this.cboCodePage.Location = new System.Drawing.Point(110, 67);
-      this.cboCodePage.Margin = new System.Windows.Forms.Padding(2);
-      this.cboCodePage.MinimumSize = new System.Drawing.Size(46, 0);
-      this.cboCodePage.Name = "cboCodePage";
-      this.cboCodePage.Size = new System.Drawing.Size(221, 21);
-      this.cboCodePage.TabIndex = 6;
-      this.cboCodePage.ValueMember = "ID";
+      cboCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      tableLayoutPanelFile.SetColumnSpan(cboCodePage, 2);
+      cboCodePage.DisplayMember = "Display";
+      cboCodePage.FormattingEnabled = true;
+      cboCodePage.Location = new System.Drawing.Point(110, 67);
+      cboCodePage.Margin = new System.Windows.Forms.Padding(2);
+      cboCodePage.MinimumSize = new System.Drawing.Size(46, 0);
+      cboCodePage.Name = "cboCodePage";
+      cboCodePage.Size = new System.Drawing.Size(221, 21);
+      cboCodePage.TabIndex = 6;
+      cboCodePage.ValueMember = "ID";
       // 
       // buttonGuessCP
       // 
-      this.buttonGuessCP.AutoSize = true;
-      this.buttonGuessCP.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessCP.Location = new System.Drawing.Point(581, 65);
-      this.buttonGuessCP.Name = "buttonGuessCP";
-      this.buttonGuessCP.Size = new System.Drawing.Size(153, 25);
-      this.buttonGuessCP.TabIndex = 9;
-      this.buttonGuessCP.Text = "Detect Code Page";
-      this.buttonGuessCP.UseVisualStyleBackColor = true;
-      this.buttonGuessCP.Click += new System.EventHandler(this.ButtonGuessCP_ClickAsync);
+      buttonGuessCP.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonGuessCP, 2);
+      buttonGuessCP.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuessCP.Location = new System.Drawing.Point(581, 65);
+      buttonGuessCP.Name = "buttonGuessCP";
+      buttonGuessCP.Size = new System.Drawing.Size(166, 25);
+      buttonGuessCP.TabIndex = 9;
+      buttonGuessCP.Text = "Detect Code Page";
+      buttonGuessCP.UseVisualStyleBackColor = true;
+      buttonGuessCP.Click += ButtonGuessCP_ClickAsync;
       // 
       // checkBoxGuessHasHeader
       // 
-      this.checkBoxGuessHasHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxGuessHasHeader.AutoSize = true;
-      this.checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessHasHeader", true));
-      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(411, 38);
-      this.checkBoxGuessHasHeader.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
-      this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(99, 17);
-      this.checkBoxGuessHasHeader.TabIndex = 3;
-      this.checkBoxGuessHasHeader.Text = "Inspect Header";
-      this.toolTip.SetToolTip(this.checkBoxGuessHasHeader, "If checked inspect file to determine if the first line is a header row");
-      this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
+      checkBoxGuessHasHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxGuessHasHeader.AutoSize = true;
+      checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessHasHeader", true));
+      checkBoxGuessHasHeader.Location = new System.Drawing.Point(411, 38);
+      checkBoxGuessHasHeader.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
+      checkBoxGuessHasHeader.Size = new System.Drawing.Size(99, 17);
+      checkBoxGuessHasHeader.TabIndex = 3;
+      checkBoxGuessHasHeader.Text = "Inspect Header";
+      toolTip.SetToolTip(checkBoxGuessHasHeader, "If checked inspect file to determine if the first line is a header row");
+      checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
       // 
       // bindingSourceViewSetting
       // 
-      this.bindingSourceViewSetting.AllowNew = false;
-      this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
+      bindingSourceViewSetting.AllowNew = false;
+      bindingSourceViewSetting.DataSource = typeof(ViewSettings);
       // 
       // buttonSkipLine
       // 
-      this.buttonSkipLine.AutoSize = true;
-      this.buttonSkipLine.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonSkipLine.Location = new System.Drawing.Point(581, 158);
-      this.buttonSkipLine.Name = "buttonSkipLine";
-      this.buttonSkipLine.Size = new System.Drawing.Size(153, 25);
-      this.buttonSkipLine.TabIndex = 22;
-      this.buttonSkipLine.Text = "Detect Start Row";
-      this.buttonSkipLine.UseVisualStyleBackColor = true;
-      this.buttonSkipLine.Click += new System.EventHandler(this.ButtonSkipLine_ClickAsync);
+      buttonSkipLine.AutoSize = true;
+      buttonSkipLine.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonSkipLine.Location = new System.Drawing.Point(581, 158);
+      buttonSkipLine.Name = "buttonSkipLine";
+      buttonSkipLine.Size = new System.Drawing.Size(105, 25);
+      buttonSkipLine.TabIndex = 22;
+      buttonSkipLine.Text = "Detect Start Row";
+      buttonSkipLine.UseVisualStyleBackColor = true;
+      buttonSkipLine.Click += ButtonSkipLine_ClickAsync;
       // 
       // checkBoxGuessDelimiter
       // 
-      this.checkBoxGuessDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxGuessDelimiter.AutoSize = true;
-      this.checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessDelimiter", true));
-      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(411, 100);
-      this.checkBoxGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
-      this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(104, 17);
-      this.checkBoxGuessDelimiter.TabIndex = 12;
-      this.checkBoxGuessDelimiter.Text = "Inspect Delimiter";
-      this.toolTip.SetToolTip(this.checkBoxGuessDelimiter, "If checked inspect file to determine the column delimiter");
-      this.checkBoxGuessDelimiter.UseVisualStyleBackColor = true;
+      checkBoxGuessDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxGuessDelimiter.AutoSize = true;
+      checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessDelimiter", true));
+      checkBoxGuessDelimiter.Location = new System.Drawing.Point(411, 100);
+      checkBoxGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
+      checkBoxGuessDelimiter.Size = new System.Drawing.Size(104, 17);
+      checkBoxGuessDelimiter.TabIndex = 12;
+      checkBoxGuessDelimiter.Text = "Inspect Delimiter";
+      toolTip.SetToolTip(checkBoxGuessDelimiter, "If checked inspect file to determine the column delimiter");
+      checkBoxGuessDelimiter.UseVisualStyleBackColor = true;
       // 
       // buttonGuessHeader
       // 
-      this.buttonGuessHeader.AutoSize = true;
-      this.buttonGuessHeader.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonGuessHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessHeader.Location = new System.Drawing.Point(581, 34);
-      this.buttonGuessHeader.Name = "buttonGuessHeader";
-      this.buttonGuessHeader.Size = new System.Drawing.Size(153, 25);
-      this.buttonGuessHeader.TabIndex = 4;
-      this.buttonGuessHeader.Text = "Detect Header";
-      this.buttonGuessHeader.UseVisualStyleBackColor = true;
-      this.buttonGuessHeader.Click += new System.EventHandler(this.ButtonGuessHeader_Click);
+      buttonGuessHeader.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonGuessHeader, 2);
+      buttonGuessHeader.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonGuessHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuessHeader.Location = new System.Drawing.Point(581, 34);
+      buttonGuessHeader.Name = "buttonGuessHeader";
+      buttonGuessHeader.Size = new System.Drawing.Size(166, 25);
+      buttonGuessHeader.TabIndex = 4;
+      buttonGuessHeader.Text = "Detect Header";
+      buttonGuessHeader.UseVisualStyleBackColor = true;
+      buttonGuessHeader.Click += ButtonGuessHeader_Click;
       // 
       // checkBoxBOM
       // 
-      this.checkBoxBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxBOM.AutoSize = true;
-      this.checkBoxBOM.Location = new System.Drawing.Point(335, 69);
-      this.checkBoxBOM.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxBOM.Name = "checkBoxBOM";
-      this.checkBoxBOM.Size = new System.Drawing.Size(72, 17);
-      this.checkBoxBOM.TabIndex = 7;
-      this.checkBoxBOM.Text = "Has BOM";
-      this.toolTip.SetToolTip(this.checkBoxBOM, "Byte Order Mark");
-      this.checkBoxBOM.UseVisualStyleBackColor = true;
+      checkBoxBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxBOM.AutoSize = true;
+      checkBoxBOM.Location = new System.Drawing.Point(335, 69);
+      checkBoxBOM.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxBOM.Name = "checkBoxBOM";
+      checkBoxBOM.Size = new System.Drawing.Size(72, 17);
+      checkBoxBOM.TabIndex = 7;
+      checkBoxBOM.Text = "Has BOM";
+      toolTip.SetToolTip(checkBoxBOM, "Byte Order Mark");
+      checkBoxBOM.UseVisualStyleBackColor = true;
       // 
       // checkBoxGuessCodePage
       // 
-      this.checkBoxGuessCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxGuessCodePage.AutoSize = true;
-      this.checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessCodePage", true));
-      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(411, 69);
-      this.checkBoxGuessCodePage.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
-      this.checkBoxGuessCodePage.Size = new System.Drawing.Size(117, 17);
-      this.checkBoxGuessCodePage.TabIndex = 8;
-      this.checkBoxGuessCodePage.Text = "Inspect Code Page";
-      this.toolTip.SetToolTip(this.checkBoxGuessCodePage, "If checked inspect file to determine character encoding");
-      this.checkBoxGuessCodePage.UseVisualStyleBackColor = true;
+      checkBoxGuessCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxGuessCodePage.AutoSize = true;
+      checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessCodePage", true));
+      checkBoxGuessCodePage.Location = new System.Drawing.Point(411, 69);
+      checkBoxGuessCodePage.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
+      checkBoxGuessCodePage.Size = new System.Drawing.Size(117, 17);
+      checkBoxGuessCodePage.TabIndex = 8;
+      checkBoxGuessCodePage.Text = "Inspect Code Page";
+      toolTip.SetToolTip(checkBoxGuessCodePage, "If checked inspect file to determine character encoding");
+      checkBoxGuessCodePage.UseVisualStyleBackColor = true;
       // 
       // buttonGuessLineComment
       // 
-      this.buttonGuessLineComment.AutoSize = true;
-      this.buttonGuessLineComment.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonGuessLineComment.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessLineComment.Location = new System.Drawing.Point(581, 127);
-      this.buttonGuessLineComment.Name = "buttonGuessLineComment";
-      this.buttonGuessLineComment.Size = new System.Drawing.Size(153, 25);
-      this.buttonGuessLineComment.TabIndex = 17;
-      this.buttonGuessLineComment.Text = "Detect Comment";
-      this.buttonGuessLineComment.UseVisualStyleBackColor = true;
-      this.buttonGuessLineComment.Click += new System.EventHandler(this.ButtonGuessLineComment_Click);
+      buttonGuessLineComment.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonGuessLineComment, 2);
+      buttonGuessLineComment.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonGuessLineComment.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuessLineComment.Location = new System.Drawing.Point(581, 127);
+      buttonGuessLineComment.Name = "buttonGuessLineComment";
+      buttonGuessLineComment.Size = new System.Drawing.Size(166, 25);
+      buttonGuessLineComment.TabIndex = 17;
+      buttonGuessLineComment.Text = "Detect Comment";
+      buttonGuessLineComment.UseVisualStyleBackColor = true;
+      buttonGuessLineComment.Click += ButtonGuessLineComment_Click;
       // 
       // checkBox3
       // 
-      this.checkBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBox3.AutoSize = true;
-      this.checkBox3.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessComment", true));
-      this.checkBox3.Location = new System.Drawing.Point(411, 131);
-      this.checkBox3.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBox3.Name = "checkBox3";
-      this.checkBox3.Size = new System.Drawing.Size(131, 17);
-      this.checkBox3.TabIndex = 16;
-      this.checkBox3.Text = "Inspect Line Comment";
-      this.toolTip.SetToolTip(this.checkBox3, "If checked inspect file to determine what is used to comment out a line, e.g. ##");
-      this.checkBox3.UseVisualStyleBackColor = true;
+      checkBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBox3.AutoSize = true;
+      checkBox3.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessComment", true));
+      checkBox3.Location = new System.Drawing.Point(411, 131);
+      checkBox3.Margin = new System.Windows.Forms.Padding(2);
+      checkBox3.Name = "checkBox3";
+      checkBox3.Size = new System.Drawing.Size(131, 17);
+      checkBox3.TabIndex = 16;
+      checkBox3.Text = "Inspect Line Comment";
+      toolTip.SetToolTip(checkBox3, "If checked inspect file to determine what is used to comment out a line, e.g. ##");
+      checkBox3.UseVisualStyleBackColor = true;
       // 
       // buttonGuessTextQualifier
       // 
-      this.buttonGuessTextQualifier.AutoSize = true;
-      this.buttonGuessTextQualifier.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonGuessTextQualifier.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessTextQualifier.Location = new System.Drawing.Point(581, 189);
-      this.buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-      this.buttonGuessTextQualifier.Size = new System.Drawing.Size(153, 25);
-      this.buttonGuessTextQualifier.TabIndex = 26;
-      this.buttonGuessTextQualifier.Text = "Detect Text Qualifier";
-      this.buttonGuessTextQualifier.UseVisualStyleBackColor = true;
-      this.buttonGuessTextQualifier.Click += new System.EventHandler(this.ButtonGuessTextQualifier_Click);
+      buttonGuessTextQualifier.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonGuessTextQualifier, 2);
+      buttonGuessTextQualifier.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonGuessTextQualifier.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuessTextQualifier.Location = new System.Drawing.Point(581, 189);
+      buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
+      buttonGuessTextQualifier.Size = new System.Drawing.Size(166, 25);
+      buttonGuessTextQualifier.TabIndex = 26;
+      buttonGuessTextQualifier.Text = "Detect Text Qualifier";
+      buttonGuessTextQualifier.UseVisualStyleBackColor = true;
+      buttonGuessTextQualifier.Click += ButtonGuessTextQualifier_Click;
       // 
       // quotingControl
       // 
-      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
-      this.tableLayoutPanelFile.SetColumnSpan(this.quotingControl, 6);
-      this.quotingControl.Location = new System.Drawing.Point(4, 284);
-      this.quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
-      this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(729, 194);
-      this.quotingControl.TabIndex = 34;
+      quotingControl.BackColor = System.Drawing.SystemColors.Control;
+      tableLayoutPanelFile.SetColumnSpan(quotingControl, 7);
+      quotingControl.Location = new System.Drawing.Point(4, 284);
+      quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
+      quotingControl.Name = "quotingControl";
+      quotingControl.Size = new System.Drawing.Size(729, 194);
+      quotingControl.TabIndex = 34;
       // 
       // buttonEscapeSequence
       // 
-      this.buttonEscapeSequence.AutoSize = true;
-      this.buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonEscapeSequence.Location = new System.Drawing.Point(581, 220);
-      this.buttonEscapeSequence.Name = "buttonEscapeSequence";
-      this.buttonEscapeSequence.Size = new System.Drawing.Size(153, 25);
-      this.buttonEscapeSequence.TabIndex = 30;
-      this.buttonEscapeSequence.Text = "Detect Escape";
-      this.buttonEscapeSequence.UseVisualStyleBackColor = true;
-      this.buttonEscapeSequence.Click += new System.EventHandler(this.ButtonEscapeSequence_Click);
+      buttonEscapeSequence.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonEscapeSequence, 2);
+      buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonEscapeSequence.Location = new System.Drawing.Point(581, 220);
+      buttonEscapeSequence.Name = "buttonEscapeSequence";
+      buttonEscapeSequence.Size = new System.Drawing.Size(166, 25);
+      buttonEscapeSequence.TabIndex = 30;
+      buttonEscapeSequence.Text = "Detect Escape";
+      buttonEscapeSequence.UseVisualStyleBackColor = true;
+      buttonEscapeSequence.Click += ButtonEscapeSequence_Click;
       // 
       // textBoxDelimiter
       // 
-      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab",
-            ",",
-            ";",
-            "،",
-            "؛",
-            "|",
-            "¦",
-            "￤",
-            "*",
-            "`",
-            "US",
-            "RS",
-            "GS",
-            "FS"});
-      this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxDelimiter.Location = new System.Drawing.Point(111, 96);
-      this.textBoxDelimiter.Name = "textBoxDelimiter";
-      this.textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
-      this.textBoxDelimiter.TabIndex = 11;
-      this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
+      textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
+      textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxDelimiter.Location = new System.Drawing.Point(111, 96);
+      textBoxDelimiter.Name = "textBoxDelimiter";
+      textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
+      textBoxDelimiter.TabIndex = 11;
+      textBoxDelimiter.Type = PunctuationTextBox.PunctuationType.Delimiter;
       // 
       // label5
       // 
-      this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label5.AutoSize = true;
-      this.label5.Location = new System.Drawing.Point(25, 164);
-      this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(81, 13);
-      this.label5.TabIndex = 18;
-      this.label5.Text = "Skip First Lines:";
+      label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label5.AutoSize = true;
+      label5.Location = new System.Drawing.Point(25, 164);
+      label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label5.Name = "label5";
+      label5.Size = new System.Drawing.Size(81, 13);
+      label5.TabIndex = 18;
+      label5.Text = "Skip First Lines:";
       // 
       // numericUpDownSkipRows
       // 
-      this.numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.numericUpDownSkipRows.Location = new System.Drawing.Point(111, 160);
-      this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
-      this.numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
-      this.numericUpDownSkipRows.TabIndex = 19;
-      this.toolTip.SetToolTip(this.numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
-      this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.NumericUpDownSkipRows_ValueChanged);
+      numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      numericUpDownSkipRows.Location = new System.Drawing.Point(111, 160);
+      numericUpDownSkipRows.Name = "numericUpDownSkipRows";
+      numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
+      numericUpDownSkipRows.TabIndex = 19;
+      toolTip.SetToolTip(numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
+      numericUpDownSkipRows.ValueChanged += NumericUpDownSkipRows_ValueChanged;
       // 
       // buttonInteractiveSettings
       // 
-      this.buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonInteractiveSettings.Location = new System.Drawing.Point(336, 158);
-      this.buttonInteractiveSettings.Name = "buttonInteractiveSettings";
-      this.buttonInteractiveSettings.Size = new System.Drawing.Size(62, 25);
-      this.buttonInteractiveSettings.TabIndex = 20;
-      this.buttonInteractiveSettings.Text = "...";
-      this.toolTip.SetToolTip(this.buttonInteractiveSettings, "Interactive Skip First Lines");
-      this.buttonInteractiveSettings.UseVisualStyleBackColor = true;
-      this.buttonInteractiveSettings.Click += new System.EventHandler(this.ButtonInteractiveSettings_Click);
+      buttonInteractiveSettings.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonInteractiveSettings.Location = new System.Drawing.Point(692, 158);
+      buttonInteractiveSettings.Name = "buttonInteractiveSettings";
+      buttonInteractiveSettings.Size = new System.Drawing.Size(55, 25);
+      buttonInteractiveSettings.TabIndex = 20;
+      buttonInteractiveSettings.Text = "...";
+      toolTip.SetToolTip(buttonInteractiveSettings, "Interactive Skip First Lines");
+      buttonInteractiveSettings.UseVisualStyleBackColor = true;
+      buttonInteractiveSettings.Click += ButtonInteractiveSettings_Click;
       // 
       // checkBox2
       // 
-      this.checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBox2.AutoSize = true;
-      this.checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessStartRow", true));
-      this.checkBox2.Location = new System.Drawing.Point(411, 162);
-      this.checkBox2.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBox2.Name = "checkBox2";
-      this.checkBox2.Size = new System.Drawing.Size(111, 17);
-      this.checkBox2.TabIndex = 21;
-      this.checkBox2.Text = "Inspect Start Row";
-      this.toolTip.SetToolTip(this.checkBox2, "If checked inspect file to determine the start row");
-      this.checkBox2.UseVisualStyleBackColor = true;
+      checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBox2.AutoSize = true;
+      checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessStartRow", true));
+      checkBox2.Location = new System.Drawing.Point(411, 162);
+      checkBox2.Margin = new System.Windows.Forms.Padding(2);
+      checkBox2.Name = "checkBox2";
+      checkBox2.Size = new System.Drawing.Size(111, 17);
+      checkBox2.TabIndex = 21;
+      checkBox2.Text = "Inspect Start Row";
+      toolTip.SetToolTip(checkBox2, "If checked inspect file to determine the start row");
+      checkBox2.UseVisualStyleBackColor = true;
       // 
       // label1
       // 
-      this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(2, 195);
-      this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(104, 13);
-      this.label1.TabIndex = 23;
-      this.label1.Text = "Treat Text as NULL:";
+      label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label1.AutoSize = true;
+      label1.Location = new System.Drawing.Point(2, 195);
+      label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label1.Name = "label1";
+      label1.Size = new System.Drawing.Size(104, 13);
+      label1.TabIndex = 23;
+      label1.Text = "Treat Text as NULL:";
       // 
       // textBoxTextAsNull
       // 
-      this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {
-            "NULL",
-            "(null)",
-            "n.a.",
-            "n/a"});
-      this.textBoxTextAsNull.Location = new System.Drawing.Point(110, 188);
-      this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxTextAsNull.Name = "textBoxTextAsNull";
-      this.textBoxTextAsNull.Size = new System.Drawing.Size(62, 20);
-      this.textBoxTextAsNull.TabIndex = 24;
+      textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] { "NULL", "(null)", "n.a.", "n/a" });
+      textBoxTextAsNull.Location = new System.Drawing.Point(110, 188);
+      textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
+      textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxTextAsNull.Name = "textBoxTextAsNull";
+      textBoxTextAsNull.Size = new System.Drawing.Size(62, 20);
+      textBoxTextAsNull.TabIndex = 24;
       // 
       // checkBoxCheckQuote
       // 
-      this.checkBoxCheckQuote.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxCheckQuote.AutoSize = true;
-      this.checkBoxCheckQuote.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessQualifier", true));
-      this.checkBoxCheckQuote.Location = new System.Drawing.Point(411, 193);
-      this.checkBoxCheckQuote.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxCheckQuote.Name = "checkBoxCheckQuote";
-      this.checkBoxCheckQuote.Size = new System.Drawing.Size(126, 17);
-      this.checkBoxCheckQuote.TabIndex = 25;
-      this.checkBoxCheckQuote.Text = "Inspect Text Qualifier";
-      this.checkBoxCheckQuote.UseVisualStyleBackColor = true;
+      checkBoxCheckQuote.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxCheckQuote.AutoSize = true;
+      checkBoxCheckQuote.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessQualifier", true));
+      checkBoxCheckQuote.Location = new System.Drawing.Point(411, 193);
+      checkBoxCheckQuote.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxCheckQuote.Name = "checkBoxCheckQuote";
+      checkBoxCheckQuote.Size = new System.Drawing.Size(126, 17);
+      checkBoxCheckQuote.TabIndex = 25;
+      checkBoxCheckQuote.Text = "Inspect Text Qualifier";
+      checkBoxCheckQuote.UseVisualStyleBackColor = true;
       // 
       // labelEscape
       // 
-      this.labelEscape.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelEscape.AutoSize = true;
-      this.labelEscape.Location = new System.Drawing.Point(11, 226);
-      this.labelEscape.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.labelEscape.Name = "labelEscape";
-      this.labelEscape.Size = new System.Drawing.Size(95, 13);
-      this.labelEscape.TabIndex = 27;
-      this.labelEscape.Text = "Escape Character:";
+      labelEscape.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelEscape.AutoSize = true;
+      labelEscape.Location = new System.Drawing.Point(11, 226);
+      labelEscape.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelEscape.Name = "labelEscape";
+      labelEscape.Size = new System.Drawing.Size(95, 13);
+      labelEscape.TabIndex = 27;
+      labelEscape.Text = "Escape Character:";
       // 
       // textBoxEscapeRead
       // 
-      this.textBoxEscapeRead.AutoCompleteCustomSource.AddRange(new string[] {
-            "\\",
-            "/",
-            "?"});
-      this.textBoxEscapeRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxEscapeRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxEscapeRead.Location = new System.Drawing.Point(110, 219);
-      this.textBoxEscapeRead.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxEscapeRead.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxEscapeRead.Name = "textBoxEscapeRead";
-      this.textBoxEscapeRead.Size = new System.Drawing.Size(62, 20);
-      this.textBoxEscapeRead.TabIndex = 28;
-      this.toolTip.SetToolTip(this.textBoxEscapeRead, "An escape character is used for escaping quotes and delimiters in the regular tex" +
-        "t. ");
-      this.textBoxEscapeRead.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
+      textBoxEscapeRead.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      textBoxEscapeRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxEscapeRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxEscapeRead.Location = new System.Drawing.Point(110, 219);
+      textBoxEscapeRead.Margin = new System.Windows.Forms.Padding(2);
+      textBoxEscapeRead.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxEscapeRead.Name = "textBoxEscapeRead";
+      textBoxEscapeRead.Size = new System.Drawing.Size(62, 20);
+      textBoxEscapeRead.TabIndex = 28;
+      toolTip.SetToolTip(textBoxEscapeRead, "An escape character is used for escaping quotes and delimiters in the regular text. ");
+      textBoxEscapeRead.Type = PunctuationTextBox.PunctuationType.Escape;
       // 
       // checkBoxDetermineEscape
       // 
-      this.checkBoxDetermineEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxDetermineEscape.AutoSize = true;
-      this.checkBoxDetermineEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "GuessEscapePrefix", true));
-      this.checkBoxDetermineEscape.Location = new System.Drawing.Point(411, 224);
-      this.checkBoxDetermineEscape.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxDetermineEscape.Name = "checkBoxDetermineEscape";
-      this.checkBoxDetermineEscape.Size = new System.Drawing.Size(152, 17);
-      this.checkBoxDetermineEscape.TabIndex = 29;
-      this.checkBoxDetermineEscape.Text = "Inspect Escape Sequence";
-      this.checkBoxDetermineEscape.UseVisualStyleBackColor = true;
+      checkBoxDetermineEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxDetermineEscape.AutoSize = true;
+      checkBoxDetermineEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessEscapePrefix", true));
+      checkBoxDetermineEscape.Location = new System.Drawing.Point(411, 224);
+      checkBoxDetermineEscape.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDetermineEscape.Name = "checkBoxDetermineEscape";
+      checkBoxDetermineEscape.Size = new System.Drawing.Size(152, 17);
+      checkBoxDetermineEscape.TabIndex = 29;
+      checkBoxDetermineEscape.Text = "Inspect Escape Sequence";
+      checkBoxDetermineEscape.UseVisualStyleBackColor = true;
       // 
-      // label3
+      // labelPGPRead
       // 
-      this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label3.AutoSize = true;
-      this.label3.Location = new System.Drawing.Point(53, 257);
-      this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label3.Name = "label3";
-      this.label3.Size = new System.Drawing.Size(53, 13);
-      this.label3.TabIndex = 31;
-      this.label3.Text = "PGP Key:";
+      labelPGPRead.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelPGPRead.AutoSize = true;
+      labelPGPRead.Location = new System.Drawing.Point(53, 257);
+      labelPGPRead.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPGPRead.Name = "labelPGPRead";
+      labelPGPRead.Size = new System.Drawing.Size(53, 13);
+      labelPGPRead.TabIndex = 31;
+      labelPGPRead.Text = "PGP Key:";
       // 
       // textBoxKeyFileRead
       // 
-      this.textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.tableLayoutPanelFile.SetColumnSpan(this.textBoxKeyFileRead, 4);
-      this.textBoxKeyFileRead.Location = new System.Drawing.Point(110, 250);
-      this.textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxKeyFileRead.Name = "textBoxKeyFileRead";
-      this.textBoxKeyFileRead.Size = new System.Drawing.Size(466, 20);
-      this.textBoxKeyFileRead.TabIndex = 32;
-      this.toolTip.SetToolTip(this.textBoxKeyFileRead, "For reading a PGP encrypted file you will need the location private key and the p" +
-        "assphrase, the passphrase will be check interactively");
+      textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+      tableLayoutPanelFile.SetColumnSpan(textBoxKeyFileRead, 4);
+      textBoxKeyFileRead.Location = new System.Drawing.Point(110, 250);
+      textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
+      textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxKeyFileRead.Name = "textBoxKeyFileRead";
+      textBoxKeyFileRead.Size = new System.Drawing.Size(466, 20);
+      textBoxKeyFileRead.TabIndex = 32;
+      toolTip.SetToolTip(textBoxKeyFileRead, "For reading a PGP encrypted file you will need the location private key and the passphrase, the passphrase will be check interactively");
       // 
       // buttonKeyFileRead
       // 
-      this.buttonKeyFileRead.AutoSize = true;
-      this.buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
-      this.buttonKeyFileRead.Location = new System.Drawing.Point(581, 251);
-      this.buttonKeyFileRead.Name = "buttonKeyFileRead";
-      this.buttonKeyFileRead.Size = new System.Drawing.Size(153, 25);
-      this.buttonKeyFileRead.TabIndex = 33;
-      this.buttonKeyFileRead.Text = "Select File";
-      this.buttonKeyFileRead.UseVisualStyleBackColor = true;
-      this.buttonKeyFileRead.Click += new System.EventHandler(this.ButtonKeyFileRead_Click);
+      buttonKeyFileRead.AutoSize = true;
+      tableLayoutPanelFile.SetColumnSpan(buttonKeyFileRead, 2);
+      buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonKeyFileRead.Location = new System.Drawing.Point(581, 251);
+      buttonKeyFileRead.Name = "buttonKeyFileRead";
+      buttonKeyFileRead.Size = new System.Drawing.Size(166, 25);
+      buttonKeyFileRead.TabIndex = 33;
+      buttonKeyFileRead.Text = "Select File";
+      buttonKeyFileRead.UseVisualStyleBackColor = true;
+      buttonKeyFileRead.Click += ButtonKeyFileRead_Click;
+      // 
+      // buttonFileInfo
+      // 
+      buttonFileInfo.Dock = System.Windows.Forms.DockStyle.Top;
+      buttonFileInfo.Location = new System.Drawing.Point(692, 3);
+      buttonFileInfo.Name = "buttonFileInfo";
+      buttonFileInfo.Size = new System.Drawing.Size(55, 25);
+      buttonFileInfo.TabIndex = 35;
+      buttonFileInfo.Text = "Info";
+      buttonFileInfo.UseVisualStyleBackColor = true;
+      buttonFileInfo.Click += buttonFileInfo_Click;
       // 
       // checkBoxTreatNBSPAsSpace
       // 
-      this.checkBoxTreatNBSPAsSpace.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 2);
-      this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(323, 126);
-      this.checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
-      this.checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
-      this.checkBoxTreatNBSPAsSpace.TabIndex = 13;
-      this.checkBoxTreatNBSPAsSpace.Text = "Treat non-breaking Space as Space";
-      this.toolTip.SetToolTip(this.checkBoxTreatNBSPAsSpace, "Threat any non-breaking space like a regular space");
-      this.checkBoxTreatNBSPAsSpace.UseVisualStyleBackColor = true;
+      checkBoxTreatNBSPAsSpace.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatNBSPAsSpace, 2);
+      checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(328, 126);
+      checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
+      checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
+      checkBoxTreatNBSPAsSpace.TabIndex = 13;
+      checkBoxTreatNBSPAsSpace.Text = "Treat non-breaking Space as Space";
+      toolTip.SetToolTip(checkBoxTreatNBSPAsSpace, "Threat any non-breaking space like a regular space");
+      checkBoxTreatNBSPAsSpace.UseVisualStyleBackColor = true;
       // 
       // checkBoxSkipEmptyLines
       // 
-      this.checkBoxSkipEmptyLines.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxSkipEmptyLines, 2);
-      this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(323, 21);
-      this.checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
-      this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
-      this.checkBoxSkipEmptyLines.TabIndex = 3;
-      this.checkBoxSkipEmptyLines.Text = "Skip Empty Lines";
-      this.toolTip.SetToolTip(this.checkBoxSkipEmptyLines, "An empty line will be ignored and not create a record");
-      this.checkBoxSkipEmptyLines.UseVisualStyleBackColor = true;
+      checkBoxSkipEmptyLines.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxSkipEmptyLines, 2);
+      checkBoxSkipEmptyLines.Location = new System.Drawing.Point(328, 21);
+      checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
+      checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
+      checkBoxSkipEmptyLines.TabIndex = 3;
+      checkBoxSkipEmptyLines.Text = "Skip Empty Lines";
+      toolTip.SetToolTip(checkBoxSkipEmptyLines, "An empty line will be ignored and not create a record");
+      checkBoxSkipEmptyLines.UseVisualStyleBackColor = true;
       // 
       // checkBoxTreatUnknowCharaterAsSpace
       // 
-      this.checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
-      this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 2);
-      this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(323, 105);
-      this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
-      this.checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
-      this.checkBoxTreatUnknowCharaterAsSpace.TabIndex = 11;
-      this.checkBoxTreatUnknowCharaterAsSpace.Text = "Treat Unknown Character � as Space";
-      this.toolTip.SetToolTip(this.checkBoxTreatUnknowCharaterAsSpace, "Threat any unknown character like a space");
-      this.checkBoxTreatUnknowCharaterAsSpace.UseVisualStyleBackColor = true;
+      checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
+      checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatUnknowCharaterAsSpace, 2);
+      checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(328, 105);
+      checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
+      checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
+      checkBoxTreatUnknowCharaterAsSpace.TabIndex = 11;
+      checkBoxTreatUnknowCharaterAsSpace.Text = "Treat Unknown Character � as Space";
+      toolTip.SetToolTip(checkBoxTreatUnknowCharaterAsSpace, "Threat any unknown character like a space");
+      checkBoxTreatUnknowCharaterAsSpace.UseVisualStyleBackColor = true;
       // 
       // checkBoxTreatLfAsSpace
       // 
-      this.checkBoxTreatLfAsSpace.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatLfAsSpace, 2);
-      this.checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(323, 84);
-      this.checkBoxTreatLfAsSpace.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxTreatLfAsSpace.Name = "checkBoxTreatLfAsSpace";
-      this.checkBoxTreatLfAsSpace.Size = new System.Drawing.Size(143, 17);
-      this.checkBoxTreatLfAsSpace.TabIndex = 9;
-      this.checkBoxTreatLfAsSpace.Text = "Treat Linefeed as Space";
-      this.toolTip.SetToolTip(this.checkBoxTreatLfAsSpace, "Threat a single occurrence of a LF as a space");
-      this.checkBoxTreatLfAsSpace.UseVisualStyleBackColor = true;
+      checkBoxTreatLfAsSpace.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatLfAsSpace, 2);
+      checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(328, 84);
+      checkBoxTreatLfAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatLfAsSpace.Name = "checkBoxTreatLfAsSpace";
+      checkBoxTreatLfAsSpace.Size = new System.Drawing.Size(143, 17);
+      checkBoxTreatLfAsSpace.TabIndex = 9;
+      checkBoxTreatLfAsSpace.Text = "Treat Linefeed as Space";
+      toolTip.SetToolTip(checkBoxTreatLfAsSpace, "Threat a single occurrence of a LF as a space");
+      checkBoxTreatLfAsSpace.UseVisualStyleBackColor = true;
       // 
       // checkBoxTryToSolveMoreColumns
       // 
-      this.checkBoxTryToSolveMoreColumns.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 2);
-      this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(323, 63);
-      this.checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
-      this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(412, 17);
-      this.checkBoxTryToSolveMoreColumns.TabIndex = 7;
-      this.checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns" +
-    "";
-      this.toolTip.SetToolTip(this.checkBoxTryToSolveMoreColumns, "If it’s recognized that a record has more columns than expected the application w" +
-        "ill check if an unquoted delimiter was possibly shifting the columns and try to " +
-        "rectify this");
-      this.checkBoxTryToSolveMoreColumns.UseVisualStyleBackColor = true;
-      this.checkBoxTryToSolveMoreColumns.CheckedChanged += new System.EventHandler(this.CheckBoxColumnsProcess_CheckedChanged);
+      checkBoxTryToSolveMoreColumns.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTryToSolveMoreColumns, 2);
+      checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(328, 63);
+      checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
+      checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(420, 17);
+      checkBoxTryToSolveMoreColumns.TabIndex = 7;
+      checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns";
+      toolTip.SetToolTip(checkBoxTryToSolveMoreColumns, "If it’s recognized that a record has more columns than expected the application will check if an unquoted delimiter was possibly shifting the columns and try to rectify this");
+      checkBoxTryToSolveMoreColumns.UseVisualStyleBackColor = true;
+      checkBoxTryToSolveMoreColumns.CheckedChanged += CheckBoxColumnsProcess_CheckedChanged;
       // 
       // checkBoxAllowRowCombining
       // 
-      this.checkBoxAllowRowCombining.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxAllowRowCombining, 2);
-      this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(323, 42);
-      this.checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
-      this.checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
-      this.checkBoxAllowRowCombining.TabIndex = 5;
-      this.checkBoxAllowRowCombining.Text = "Try to Combine Row / Handle records that have less than the expected columns";
-      this.toolTip.SetToolTip(this.checkBoxAllowRowCombining, "If it’s recognized that a record has less columns than expected, the application " +
-        "will check if an unquoted linefeed was possibly causing the issue any try to rec" +
-        "tify this.");
-      this.checkBoxAllowRowCombining.UseVisualStyleBackColor = true;
-      this.checkBoxAllowRowCombining.CheckedChanged += new System.EventHandler(this.CheckBoxColumnsProcess_CheckedChanged);
+      checkBoxAllowRowCombining.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAllowRowCombining, 2);
+      checkBoxAllowRowCombining.Location = new System.Drawing.Point(328, 42);
+      checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
+      checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
+      checkBoxAllowRowCombining.TabIndex = 5;
+      checkBoxAllowRowCombining.Text = "Try to Combine Row / Handle records that have less than the expected columns";
+      toolTip.SetToolTip(checkBoxAllowRowCombining, "If it’s recognized that a record has less columns than expected, the application will check if an unquoted linefeed was possibly causing the issue any try to rectify this.");
+      checkBoxAllowRowCombining.UseVisualStyleBackColor = true;
+      checkBoxAllowRowCombining.CheckedChanged += CheckBoxColumnsProcess_CheckedChanged;
       // 
       // checkBoxAllowJson
       // 
-      this.checkBoxAllowJson.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxAllowJson, 2);
-      this.checkBoxAllowJson.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "AllowJson", true));
-      this.checkBoxAllowJson.Location = new System.Drawing.Point(2, 126);
-      this.checkBoxAllowJson.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxAllowJson.Name = "checkBoxAllowJson";
-      this.checkBoxAllowJson.Size = new System.Drawing.Size(111, 17);
-      this.checkBoxAllowJson.TabIndex = 12;
-      this.checkBoxAllowJson.Text = "Process JSON file";
-      this.toolTip.SetToolTip(this.checkBoxAllowJson, "Allow processing of JSON files. Flattening JSON structures might lead to a large " +
-        "number of columns");
-      this.checkBoxAllowJson.UseVisualStyleBackColor = true;
+      checkBoxAllowJson.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAllowJson, 2);
+      checkBoxAllowJson.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "AllowJson", true));
+      checkBoxAllowJson.Location = new System.Drawing.Point(2, 126);
+      checkBoxAllowJson.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAllowJson.Name = "checkBoxAllowJson";
+      checkBoxAllowJson.Size = new System.Drawing.Size(111, 17);
+      checkBoxAllowJson.TabIndex = 12;
+      checkBoxAllowJson.Text = "Process JSON file";
+      toolTip.SetToolTip(checkBoxAllowJson, "Allow processing of JSON files. Flattening JSON structures might lead to a large number of columns");
+      checkBoxAllowJson.UseVisualStyleBackColor = true;
       // 
       // checkBoxDisplayRecordNo
       // 
-      this.checkBoxDisplayRecordNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxDisplayRecordNo.AutoSize = true;
-      this.checkBoxDisplayRecordNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxDisplayRecordNo, 2);
-      this.checkBoxDisplayRecordNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "DisplayRecordNo", true));
-      this.checkBoxDisplayRecordNo.Location = new System.Drawing.Point(2, 105);
-      this.checkBoxDisplayRecordNo.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxDisplayRecordNo.Name = "checkBoxDisplayRecordNo";
-      this.checkBoxDisplayRecordNo.Size = new System.Drawing.Size(176, 17);
-      this.checkBoxDisplayRecordNo.TabIndex = 10;
-      this.checkBoxDisplayRecordNo.Text = "Add Column for Record Number";
-      this.toolTip.SetToolTip(this.checkBoxDisplayRecordNo, "Add a column for the record number. Note: Line and Record number might differ if " +
-        "a record contains linefeeds");
-      this.checkBoxDisplayRecordNo.UseVisualStyleBackColor = true;
+      checkBoxDisplayRecordNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxDisplayRecordNo.AutoSize = true;
+      checkBoxDisplayRecordNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDisplayRecordNo, 2);
+      checkBoxDisplayRecordNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DisplayRecordNo", true));
+      checkBoxDisplayRecordNo.Location = new System.Drawing.Point(2, 105);
+      checkBoxDisplayRecordNo.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDisplayRecordNo.Name = "checkBoxDisplayRecordNo";
+      checkBoxDisplayRecordNo.Size = new System.Drawing.Size(176, 17);
+      checkBoxDisplayRecordNo.TabIndex = 10;
+      checkBoxDisplayRecordNo.Text = "Add Column for Record Number";
+      toolTip.SetToolTip(checkBoxDisplayRecordNo, "Add a column for the record number. Note: Line and Record number might differ if a record contains linefeeds");
+      checkBoxDisplayRecordNo.UseVisualStyleBackColor = true;
       // 
       // checkBoxDetectFileChanges
       // 
-      this.checkBoxDetectFileChanges.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxDetectFileChanges, 2);
-      this.checkBoxDetectFileChanges.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "DetectFileChanges", true));
-      this.checkBoxDetectFileChanges.Location = new System.Drawing.Point(2, 21);
-      this.checkBoxDetectFileChanges.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
-      this.checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
-      this.checkBoxDetectFileChanges.TabIndex = 2;
-      this.checkBoxDetectFileChanges.Text = "Detect File Changes";
-      this.toolTip.SetToolTip(this.checkBoxDetectFileChanges, "Monitor the source file. in case it’s changed outside of the application ask for " +
-        "a reload.");
-      this.checkBoxDetectFileChanges.UseVisualStyleBackColor = true;
+      checkBoxDetectFileChanges.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDetectFileChanges, 2);
+      checkBoxDetectFileChanges.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DetectFileChanges", true));
+      checkBoxDetectFileChanges.Location = new System.Drawing.Point(2, 21);
+      checkBoxDetectFileChanges.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
+      checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
+      checkBoxDetectFileChanges.TabIndex = 2;
+      checkBoxDetectFileChanges.Text = "Detect File Changes";
+      toolTip.SetToolTip(checkBoxDetectFileChanges, "Monitor the source file. in case it’s changed outside of the application ask for a reload.");
+      checkBoxDetectFileChanges.UseVisualStyleBackColor = true;
       // 
       // checkBoxMenuDown
       // 
-      this.checkBoxMenuDown.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxMenuDown, 2);
-      this.checkBoxMenuDown.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "MenuDown", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxMenuDown.Location = new System.Drawing.Point(2, 42);
-      this.checkBoxMenuDown.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxMenuDown.Name = "checkBoxMenuDown";
-      this.checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
-      this.checkBoxMenuDown.TabIndex = 4;
-      this.checkBoxMenuDown.Text = "Display Actions in Navigation Bar";
-      this.checkBoxMenuDown.UseVisualStyleBackColor = true;
+      checkBoxMenuDown.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxMenuDown, 2);
+      checkBoxMenuDown.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "MenuDown", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      checkBoxMenuDown.Location = new System.Drawing.Point(2, 42);
+      checkBoxMenuDown.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxMenuDown.Name = "checkBoxMenuDown";
+      checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
+      checkBoxMenuDown.TabIndex = 4;
+      checkBoxMenuDown.Text = "Display Actions in Navigation Bar";
+      checkBoxMenuDown.UseVisualStyleBackColor = true;
       // 
       // checkBoxStoreSettingsByFile
       // 
-      this.checkBoxStoreSettingsByFile.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxStoreSettingsByFile, 2);
-      this.checkBoxStoreSettingsByFile.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "StoreSettingsByFile", true));
-      this.checkBoxStoreSettingsByFile.Location = new System.Drawing.Point(2, 63);
-      this.checkBoxStoreSettingsByFile.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxStoreSettingsByFile.Name = "checkBoxStoreSettingsByFile";
-      this.checkBoxStoreSettingsByFile.Size = new System.Drawing.Size(132, 17);
-      this.checkBoxStoreSettingsByFile.TabIndex = 6;
-      this.checkBoxStoreSettingsByFile.Text = "Persist Settings for File";
-      this.toolTip.SetToolTip(this.checkBoxStoreSettingsByFile, "Store the settings for each individual file, do not use this is structure or form" +
-        "atting of columns does change over time");
-      this.checkBoxStoreSettingsByFile.UseVisualStyleBackColor = true;
+      checkBoxStoreSettingsByFile.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxStoreSettingsByFile, 2);
+      checkBoxStoreSettingsByFile.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "StoreSettingsByFile", true));
+      checkBoxStoreSettingsByFile.Location = new System.Drawing.Point(2, 63);
+      checkBoxStoreSettingsByFile.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxStoreSettingsByFile.Name = "checkBoxStoreSettingsByFile";
+      checkBoxStoreSettingsByFile.Size = new System.Drawing.Size(132, 17);
+      checkBoxStoreSettingsByFile.TabIndex = 6;
+      checkBoxStoreSettingsByFile.Text = "Persist Settings for File";
+      toolTip.SetToolTip(checkBoxStoreSettingsByFile, "Store the settings for each individual file, do not use this is structure or formatting of columns does change over time");
+      checkBoxStoreSettingsByFile.UseVisualStyleBackColor = true;
       // 
       // checkBoxDisplayStartLineNo
       // 
-      this.checkBoxDisplayStartLineNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxDisplayStartLineNo.AutoSize = true;
-      this.checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxDisplayStartLineNo, 2);
-      this.checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "DisplayStartLineNo", true));
-      this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 84);
-      this.checkBoxDisplayStartLineNo.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxDisplayStartLineNo.Name = "checkBoxDisplayStartLineNo";
-      this.checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(161, 17);
-      this.checkBoxDisplayStartLineNo.TabIndex = 8;
-      this.checkBoxDisplayStartLineNo.Text = "Add Column for Line Number";
-      this.toolTip.SetToolTip(this.checkBoxDisplayStartLineNo, "Add a column for the start line inside the file. Note: Line and Record number mig" +
-        "ht differ if a record contains linefeeds");
-      this.checkBoxDisplayStartLineNo.UseVisualStyleBackColor = true;
+      checkBoxDisplayStartLineNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxDisplayStartLineNo.AutoSize = true;
+      checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDisplayStartLineNo, 2);
+      checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DisplayStartLineNo", true));
+      checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 84);
+      checkBoxDisplayStartLineNo.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDisplayStartLineNo.Name = "checkBoxDisplayStartLineNo";
+      checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(161, 17);
+      checkBoxDisplayStartLineNo.TabIndex = 8;
+      checkBoxDisplayStartLineNo.Text = "Add Column for Line Number";
+      toolTip.SetToolTip(checkBoxDisplayStartLineNo, "Add a column for the start line inside the file. Note: Line and Record number might differ if a record contains linefeeds");
+      checkBoxDisplayStartLineNo.UseVisualStyleBackColor = true;
       // 
       // labelLimitOpen
       // 
-      this.labelLimitOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.labelLimitOpen.AutoSize = true;
-      this.labelLimitOpen.Location = new System.Drawing.Point(3, 150);
-      this.labelLimitOpen.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
-      this.labelLimitOpen.Name = "labelLimitOpen";
-      this.labelLimitOpen.Size = new System.Drawing.Size(153, 13);
-      this.labelLimitOpen.TabIndex = 14;
-      this.labelLimitOpen.Text = "Limit for processing initail open:";
+      labelLimitOpen.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      labelLimitOpen.AutoSize = true;
+      labelLimitOpen.Location = new System.Drawing.Point(3, 150);
+      labelLimitOpen.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
+      labelLimitOpen.Name = "labelLimitOpen";
+      labelLimitOpen.Size = new System.Drawing.Size(153, 13);
+      labelLimitOpen.TabIndex = 14;
+      labelLimitOpen.Text = "Limit for processing initail open:";
       // 
       // checkBoxWarnEmptyTailingColumns
       // 
-      this.checkBoxWarnEmptyTailingColumns.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnEmptyTailingColumns, 2);
-      this.checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
-      this.checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(2, 236);
-      this.checkBoxWarnEmptyTailingColumns.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
-      this.checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
-      this.checkBoxWarnEmptyTailingColumns.TabIndex = 17;
-      this.checkBoxWarnEmptyTailingColumns.Text = "Warn Column Count";
-      this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "If the number of columns does not match the number of expected columns, raise a w" +
-        "arning");
-      this.checkBoxWarnEmptyTailingColumns.UseVisualStyleBackColor = false;
+      checkBoxWarnEmptyTailingColumns.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnEmptyTailingColumns, 2);
+      checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
+      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(2, 236);
+      checkBoxWarnEmptyTailingColumns.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
+      checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
+      checkBoxWarnEmptyTailingColumns.TabIndex = 17;
+      checkBoxWarnEmptyTailingColumns.Text = "Warn Column Count";
+      toolTip.SetToolTip(checkBoxWarnEmptyTailingColumns, "If the number of columns does not match the number of expected columns, raise a warning");
+      checkBoxWarnEmptyTailingColumns.UseVisualStyleBackColor = false;
       // 
       // checkBoxWarnNBSP
       // 
-      this.checkBoxWarnNBSP.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxWarnNBSP.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnNBSP, 2);
-      this.checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnNBSP", true));
-      this.checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 325);
-      this.checkBoxWarnNBSP.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
-      this.checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
-      this.checkBoxWarnNBSP.TabIndex = 23;
-      this.checkBoxWarnNBSP.Text = "Warn non-breaking Space";
-      this.toolTip.SetToolTip(this.checkBoxWarnNBSP, "In case the non-breaking space is found in the column, issue a warning. A non-bre" +
-        "aking space looks like a regular space and is not easily identified, but may cau" +
-        "se problems later.");
-      this.checkBoxWarnNBSP.UseVisualStyleBackColor = true;
+      checkBoxWarnNBSP.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxWarnNBSP.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnNBSP, 2);
+      checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnNBSP", true));
+      checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 325);
+      checkBoxWarnNBSP.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
+      checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
+      checkBoxWarnNBSP.TabIndex = 23;
+      checkBoxWarnNBSP.Text = "Warn non-breaking Space";
+      toolTip.SetToolTip(checkBoxWarnNBSP, "In case the non-breaking space is found in the column, issue a warning. A non-breaking space looks like a regular space and is not easily identified, but may cause problems later.");
+      checkBoxWarnNBSP.UseVisualStyleBackColor = true;
       // 
       // checkBoxWarnUnknowCharater
       // 
-      this.checkBoxWarnUnknowCharater.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnUnknowCharater, 2);
-      this.checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnUnknownCharacter", true));
-      this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 304);
-      this.checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
-      this.checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
-      this.checkBoxWarnUnknowCharater.TabIndex = 22;
-      this.checkBoxWarnUnknowCharater.Text = "Warn Unknown Characters �";
-      this.toolTip.SetToolTip(this.checkBoxWarnUnknowCharater, "In case the unknown char is found in the column, issue a warning. Text with unkno" +
-        "wn char could be caused by issues with encoding.");
-      this.checkBoxWarnUnknowCharater.UseVisualStyleBackColor = true;
+      checkBoxWarnUnknowCharater.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnUnknowCharater, 2);
+      checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnUnknownCharacter", true));
+      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 304);
+      checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
+      checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
+      checkBoxWarnUnknowCharater.TabIndex = 22;
+      checkBoxWarnUnknowCharater.Text = "Warn Unknown Characters �";
+      toolTip.SetToolTip(checkBoxWarnUnknowCharater, "In case the unknown char is found in the column, issue a warning. Text with unknown char could be caused by issues with encoding.");
+      checkBoxWarnUnknowCharater.UseVisualStyleBackColor = true;
       // 
       // checkBoxWarnDelimiterInValue
       // 
-      this.checkBoxWarnDelimiterInValue.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnDelimiterInValue, 2);
-      this.checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnDelimiterInValue", true));
-      this.checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 262);
-      this.checkBoxWarnDelimiterInValue.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
-      this.checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
-      this.checkBoxWarnDelimiterInValue.TabIndex = 20;
-      this.checkBoxWarnDelimiterInValue.Text = "Warn Delimiter";
-      this.toolTip.SetToolTip(this.checkBoxWarnDelimiterInValue, "In case a delimiter is found in the column, issue a warning. This way possible pr" +
-        "oblems with other CSV readers are easily identified.");
-      this.checkBoxWarnDelimiterInValue.UseVisualStyleBackColor = true;
+      checkBoxWarnDelimiterInValue.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnDelimiterInValue, 2);
+      checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnDelimiterInValue", true));
+      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 262);
+      checkBoxWarnDelimiterInValue.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
+      checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
+      checkBoxWarnDelimiterInValue.TabIndex = 20;
+      checkBoxWarnDelimiterInValue.Text = "Warn Delimiter";
+      toolTip.SetToolTip(checkBoxWarnDelimiterInValue, "In case a delimiter is found in the column, issue a warning. This way possible problems with other CSV readers are easily identified.");
+      checkBoxWarnDelimiterInValue.UseVisualStyleBackColor = true;
       // 
       // checkBoxWarnQuotes
       // 
-      this.checkBoxWarnQuotes.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnQuotes, 2);
-      this.checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnQuotes", true));
-      this.checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 283);
-      this.checkBoxWarnQuotes.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
-      this.checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
-      this.checkBoxWarnQuotes.TabIndex = 21;
-      this.checkBoxWarnQuotes.Text = "Warn Text Qualifier in Column";
-      this.toolTip.SetToolTip(this.checkBoxWarnQuotes, "In case a quote is found in the column, issue a warning. This way possible proble" +
-        "ms with other CSV readers are easily identified.");
-      this.checkBoxWarnQuotes.UseVisualStyleBackColor = true;
+      checkBoxWarnQuotes.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnQuotes, 2);
+      checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnQuotes", true));
+      checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 283);
+      checkBoxWarnQuotes.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
+      checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
+      checkBoxWarnQuotes.TabIndex = 21;
+      checkBoxWarnQuotes.Text = "Warn Text Qualifier in Column";
+      toolTip.SetToolTip(checkBoxWarnQuotes, "In case a quote is found in the column, issue a warning. This way possible problems with other CSV readers are easily identified.");
+      checkBoxWarnQuotes.UseVisualStyleBackColor = true;
       // 
       // checkBoxWriteBOM
       // 
-      this.checkBoxWriteBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxWriteBOM.AutoSize = true;
-      this.checkBoxWriteBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceWrite, "ByteOrderMark", true));
-      this.checkBoxWriteBOM.Location = new System.Drawing.Point(572, 4);
-      this.checkBoxWriteBOM.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWriteBOM.Name = "checkBoxWriteBOM";
-      this.checkBoxWriteBOM.Size = new System.Drawing.Size(50, 17);
-      this.checkBoxWriteBOM.TabIndex = 2;
-      this.checkBoxWriteBOM.Text = "BOM";
-      this.toolTip.SetToolTip(this.checkBoxWriteBOM, "Byte Order Mark");
-      this.checkBoxWriteBOM.UseVisualStyleBackColor = true;
+      checkBoxWriteBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxWriteBOM.AutoSize = true;
+      checkBoxWriteBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceWrite, "ByteOrderMark", true));
+      checkBoxWriteBOM.Location = new System.Drawing.Point(572, 4);
+      checkBoxWriteBOM.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWriteBOM.Name = "checkBoxWriteBOM";
+      checkBoxWriteBOM.Size = new System.Drawing.Size(50, 17);
+      checkBoxWriteBOM.TabIndex = 2;
+      checkBoxWriteBOM.Text = "BOM";
+      toolTip.SetToolTip(checkBoxWriteBOM, "Byte Order Mark");
+      checkBoxWriteBOM.UseVisualStyleBackColor = true;
       // 
       // bindingSourceWrite
       // 
-      this.bindingSourceWrite.AllowNew = false;
-      this.bindingSourceWrite.DataSource = typeof(CsvTools.ICsvFile);
+      bindingSourceWrite.AllowNew = false;
+      bindingSourceWrite.DataSource = typeof(ICsvFile);
       // 
       // textBox9
       // 
-      this.textBox9.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBox9.AutoCompleteCustomSource.AddRange(new string[] {
-            "<br>",
-            "{n}"});
-      this.textBox9.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBox9.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceWrite, "NewLinePlaceholder", true));
-      this.textBox9.Location = new System.Drawing.Point(295, 106);
-      this.textBox9.Margin = new System.Windows.Forms.Padding(2);
-      this.textBox9.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBox9.Name = "textBox9";
-      this.textBox9.Size = new System.Drawing.Size(62, 20);
-      this.textBox9.TabIndex = 14;
-      this.toolTip.SetToolTip(this.textBox9, "The Linefeed Placeholder, when writing data any linefeed in the column will be re" +
-        "placed by this value");
+      textBox9.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBox9.AutoCompleteCustomSource.AddRange(new string[] { "<br>", "{n}" });
+      textBox9.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBox9.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "NewLinePlaceholder", true));
+      textBox9.Location = new System.Drawing.Point(295, 106);
+      textBox9.Margin = new System.Windows.Forms.Padding(2);
+      textBox9.MinimumSize = new System.Drawing.Size(46, 4);
+      textBox9.Name = "textBox9";
+      textBox9.Size = new System.Drawing.Size(62, 20);
+      textBox9.TabIndex = 14;
+      toolTip.SetToolTip(textBox9, "The Linefeed Placeholder, when writing data any linefeed in the column will be replaced by this value");
       // 
       // textBox7
       // 
-      this.textBox7.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBox7.AutoCompleteCustomSource.AddRange(new string[] {
-            "{d}"});
-      this.textBox7.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBox7.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceWrite, "DelimiterPlaceholder", true));
-      this.textBox7.Location = new System.Drawing.Point(115, 106);
-      this.textBox7.Margin = new System.Windows.Forms.Padding(2);
-      this.textBox7.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBox7.Name = "textBox7";
-      this.textBox7.Size = new System.Drawing.Size(62, 20);
-      this.textBox7.TabIndex = 12;
-      this.toolTip.SetToolTip(this.textBox7, "The Delimiter Placeholder, when writing data any delimiter in the column will be " +
-        "replaced by this value");
+      textBox7.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBox7.AutoCompleteCustomSource.AddRange(new string[] { "{d}" });
+      textBox7.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBox7.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "DelimiterPlaceholder", true));
+      textBox7.Location = new System.Drawing.Point(115, 106);
+      textBox7.Margin = new System.Windows.Forms.Padding(2);
+      textBox7.MinimumSize = new System.Drawing.Size(46, 4);
+      textBox7.Name = "textBox7";
+      textBox7.Size = new System.Drawing.Size(62, 20);
+      textBox7.TabIndex = 12;
+      toolTip.SetToolTip(textBox7, "The Delimiter Placeholder, when writing data any delimiter in the column will be replaced by this value");
       // 
       // cboRecordDelimiter
       // 
-      this.cboRecordDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.tableLayoutPanelWrite.SetColumnSpan(this.cboRecordDelimiter, 3);
-      this.cboRecordDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceWrite, "NewLine", true));
-      this.cboRecordDelimiter.DisplayMember = "Display";
-      this.cboRecordDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.cboRecordDelimiter.FormattingEnabled = true;
-      this.cboRecordDelimiter.Location = new System.Drawing.Point(115, 54);
-      this.cboRecordDelimiter.Margin = new System.Windows.Forms.Padding(2);
-      this.cboRecordDelimiter.MinimumSize = new System.Drawing.Size(46, 0);
-      this.cboRecordDelimiter.Name = "cboRecordDelimiter";
-      this.cboRecordDelimiter.Size = new System.Drawing.Size(226, 21);
-      this.cboRecordDelimiter.TabIndex = 7;
-      this.toolTip.SetToolTip(this.cboRecordDelimiter, "The recognized Record Separation, any combination of line feed and carriage retur" +
-        "n is accepted by the quick viewer. When saving data the value set here is used.");
-      this.cboRecordDelimiter.ValueMember = "ID";
+      cboRecordDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      tableLayoutPanelWrite.SetColumnSpan(cboRecordDelimiter, 3);
+      cboRecordDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceWrite, "NewLine", true));
+      cboRecordDelimiter.DisplayMember = "Display";
+      cboRecordDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      cboRecordDelimiter.FormattingEnabled = true;
+      cboRecordDelimiter.Location = new System.Drawing.Point(115, 54);
+      cboRecordDelimiter.Margin = new System.Windows.Forms.Padding(2);
+      cboRecordDelimiter.MinimumSize = new System.Drawing.Size(46, 0);
+      cboRecordDelimiter.Name = "cboRecordDelimiter";
+      cboRecordDelimiter.Size = new System.Drawing.Size(226, 21);
+      cboRecordDelimiter.TabIndex = 7;
+      toolTip.SetToolTip(cboRecordDelimiter, "The recognized Record Separation, any combination of line feed and carriage return is accepted by the quick viewer. When saving data the value set here is used.");
+      cboRecordDelimiter.ValueMember = "ID";
       // 
       // checkBoxWarnLineFeed
       // 
-      this.checkBoxWarnLineFeed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxWarnLineFeed.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnLineFeed, 2);
-      this.checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnLineFeed", true));
-      this.checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 346);
-      this.checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
-      this.checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
-      this.checkBoxWarnLineFeed.TabIndex = 24;
-      this.checkBoxWarnLineFeed.Text = "Warn Linefeed";
-      this.toolTip.SetToolTip(this.checkBoxWarnLineFeed, "In case a linefeed is found in the column, issue a warning. This way possible pro" +
-        "blems with other CSV readers are easily identified.");
-      this.checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
+      checkBoxWarnLineFeed.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxWarnLineFeed.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnLineFeed, 2);
+      checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnLineFeed", true));
+      checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 346);
+      checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
+      checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
+      checkBoxWarnLineFeed.TabIndex = 24;
+      checkBoxWarnLineFeed.Text = "Warn Linefeed";
+      toolTip.SetToolTip(checkBoxWarnLineFeed, "In case a linefeed is found in the column, issue a warning. This way possible problems with other CSV readers are easily identified.");
+      checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
       // 
       // numericUpDownNumWarnings
       // 
-      this.numericUpDownNumWarnings.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-      this.numericUpDownNumWarnings.Location = new System.Drawing.Point(414, 237);
-      this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
-            200,
-            0,
-            0,
-            0});
-      this.numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
-      this.numericUpDownNumWarnings.Size = new System.Drawing.Size(110, 20);
-      this.numericUpDownNumWarnings.TabIndex = 19;
-      this.numericUpDownNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-      this.toolTip.SetToolTip(this.numericUpDownNumWarnings, "After the set limit is reached further warning are omitted, if set to 0 there is " +
-        "no limit.");
+      numericUpDownNumWarnings.Increment = new decimal(new int[] { 10, 0, 0, 0 });
+      numericUpDownNumWarnings.Location = new System.Drawing.Point(419, 237);
+      numericUpDownNumWarnings.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
+      numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
+      numericUpDownNumWarnings.Size = new System.Drawing.Size(110, 20);
+      numericUpDownNumWarnings.TabIndex = 19;
+      numericUpDownNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+      toolTip.SetToolTip(numericUpDownNumWarnings, "After the set limit is reached further warning are omitted, if set to 0 there is no limit.");
       // 
       // comboBoxLimitDuration
       // 
-      this.comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceViewSetting, "LimitDuration", true));
-      this.comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.comboBoxLimitDuration.FormattingEnabled = true;
-      this.comboBoxLimitDuration.Location = new System.Drawing.Point(162, 148);
-      this.comboBoxLimitDuration.Name = "comboBoxLimitDuration";
-      this.comboBoxLimitDuration.Size = new System.Drawing.Size(110, 21);
-      this.comboBoxLimitDuration.TabIndex = 15;
-      this.toolTip.SetToolTip(this.comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing th" +
-        "e data that has been read so far");
+      comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceViewSetting, "LimitDuration", true));
+      comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      comboBoxLimitDuration.FormattingEnabled = true;
+      comboBoxLimitDuration.Location = new System.Drawing.Point(162, 148);
+      comboBoxLimitDuration.Name = "comboBoxLimitDuration";
+      comboBoxLimitDuration.Size = new System.Drawing.Size(110, 21);
+      comboBoxLimitDuration.TabIndex = 15;
+      toolTip.SetToolTip(comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing the data that has been read so far");
       // 
       // numericUpDownLength
       // 
-      this.numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceViewSetting, "ShowButtonAtLength", true));
-      this.numericUpDownLength.Increment = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-      this.numericUpDownLength.Location = new System.Drawing.Point(162, 368);
-      this.numericUpDownLength.Maximum = new decimal(new int[] {
-            4000,
-            0,
-            0,
-            0});
-      this.numericUpDownLength.Name = "numericUpDownLength";
-      this.numericUpDownLength.Size = new System.Drawing.Size(110, 20);
-      this.numericUpDownLength.TabIndex = 26;
-      this.numericUpDownLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-      this.toolTip.SetToolTip(this.numericUpDownLength, "Do not show columns with long text, but display a button to open the text");
+      numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceViewSetting, "ShowButtonAtLength", true));
+      numericUpDownLength.Increment = new decimal(new int[] { 100, 0, 0, 0 });
+      numericUpDownLength.Location = new System.Drawing.Point(162, 368);
+      numericUpDownLength.Maximum = new decimal(new int[] { 4000, 0, 0, 0 });
+      numericUpDownLength.Name = "numericUpDownLength";
+      numericUpDownLength.Size = new System.Drawing.Size(110, 20);
+      numericUpDownLength.TabIndex = 26;
+      numericUpDownLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+      toolTip.SetToolTip(numericUpDownLength, "Do not show columns with long text, but display a button to open the text");
       // 
       // checkBoxCopySkipped
       // 
-      this.checkBoxCopySkipped.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxCopySkipped.AutoSize = true;
-      this.checkBoxCopySkipped.Location = new System.Drawing.Point(572, 28);
-      this.checkBoxCopySkipped.Margin = new System.Windows.Forms.Padding(2);
-      this.checkBoxCopySkipped.Name = "checkBoxCopySkipped";
-      this.checkBoxCopySkipped.Size = new System.Drawing.Size(120, 17);
-      this.checkBoxCopySkipped.TabIndex = 5;
-      this.checkBoxCopySkipped.Text = "Copy Skipped Lines";
-      this.toolTip.SetToolTip(this.checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
-      this.checkBoxCopySkipped.UseVisualStyleBackColor = true;
-      this.checkBoxCopySkipped.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CheckBoxCopySkipped_MouseClick);
+      checkBoxCopySkipped.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      checkBoxCopySkipped.AutoSize = true;
+      checkBoxCopySkipped.Location = new System.Drawing.Point(572, 28);
+      checkBoxCopySkipped.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxCopySkipped.Name = "checkBoxCopySkipped";
+      checkBoxCopySkipped.Size = new System.Drawing.Size(120, 17);
+      checkBoxCopySkipped.TabIndex = 5;
+      checkBoxCopySkipped.Text = "Copy Skipped Lines";
+      toolTip.SetToolTip(checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
+      checkBoxCopySkipped.UseVisualStyleBackColor = true;
+      checkBoxCopySkipped.MouseClick += CheckBoxCopySkipped_MouseClick;
       // 
       // textBoxKeyFileWrite
       // 
-      this.textBoxKeyFileWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxKeyFileWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.tableLayoutPanelWrite.SetColumnSpan(this.textBoxKeyFileWrite, 3);
-      this.textBoxKeyFileWrite.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceWrite, "KeyFile", true));
-      this.textBoxKeyFileWrite.Location = new System.Drawing.Point(115, 130);
-      this.textBoxKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxKeyFileWrite.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
-      this.textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
-      this.textBoxKeyFileWrite.TabIndex = 33;
-      this.toolTip.SetToolTip(this.textBoxKeyFileWrite, "Location of Public PGP key in case a PGP encrypted file should be written.");
+      textBoxKeyFileWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      textBoxKeyFileWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+      tableLayoutPanelWrite.SetColumnSpan(textBoxKeyFileWrite, 3);
+      textBoxKeyFileWrite.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "KeyFile", true));
+      textBoxKeyFileWrite.Location = new System.Drawing.Point(115, 130);
+      textBoxKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
+      textBoxKeyFileWrite.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
+      textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
+      textBoxKeyFileWrite.TabIndex = 33;
+      toolTip.SetToolTip(textBoxKeyFileWrite, "Location of Public PGP key in case a PGP encrypted file should be written.");
       // 
       // errorProvider
       // 
-      this.errorProvider.ContainerControl = this;
+      errorProvider.ContainerControl = this;
       // 
       // tabPageBehaviour
       // 
-      this.tabPageBehaviour.BackColor = System.Drawing.SystemColors.Control;
-      this.tabPageBehaviour.Controls.Add(this.tableLayoutPanelBehaviour);
-      this.tabPageBehaviour.Location = new System.Drawing.Point(4, 22);
-      this.tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
-      this.tabPageBehaviour.Name = "tabPageBehaviour";
-      this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageBehaviour.Size = new System.Drawing.Size(741, 454);
-      this.tabPageBehaviour.TabIndex = 9;
-      this.tabPageBehaviour.Text = "Behavior and Warnings";
+      tabPageBehaviour.BackColor = System.Drawing.SystemColors.Control;
+      tabPageBehaviour.Controls.Add(tableLayoutPanelBehaviour);
+      tabPageBehaviour.Location = new System.Drawing.Point(4, 22);
+      tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
+      tabPageBehaviour.Name = "tabPageBehaviour";
+      tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
+      tabPageBehaviour.Size = new System.Drawing.Size(754, 467);
+      tabPageBehaviour.TabIndex = 9;
+      tabPageBehaviour.Text = "Behavior and Warnings";
       // 
       // tableLayoutPanelBehaviour
       // 
-      this.tableLayoutPanelBehaviour.AutoSize = true;
-      this.tableLayoutPanelBehaviour.ColumnCount = 4;
-      this.tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-      this.tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.66666F));
-      this.tableLayoutPanelBehaviour.Controls.Add(this.comboBoxLimitDuration, 1, 7);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatNBSPAsSpace, 2, 6);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatUnknowCharaterAsSpace, 2, 5);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.labelPersistentSettings, 0, 0);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTreatLfAsSpace, 2, 4);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxTryToSolveMoreColumns, 2, 3);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxAllowRowCombining, 2, 2);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxSkipEmptyLines, 2, 1);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxDisplayRecordNo, 0, 5);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxDisplayStartLineNo, 0, 4);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxStoreSettingsByFile, 0, 3);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxMenuDown, 0, 2);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxDetectFileChanges, 0, 1);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.labelByFile, 2, 0);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxAllowJson, 0, 6);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.labelLimitOpen, 0, 7);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.selectFont, 0, 9);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnLineFeed, 0, 17);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnNBSP, 0, 16);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnUnknowCharater, 0, 15);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnQuotes, 0, 14);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnDelimiterInValue, 0, 13);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnEmptyTailingColumns, 0, 12);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.label6, 0, 19);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.numericUpDownLength, 1, 19);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.labelWarningLimit, 2, 12);
-      this.tableLayoutPanelBehaviour.Controls.Add(this.numericUpDownNumWarnings, 3, 12);
-      this.tableLayoutPanelBehaviour.Dock = System.Windows.Forms.DockStyle.Top;
-      this.tableLayoutPanelBehaviour.Location = new System.Drawing.Point(2, 2);
-      this.tableLayoutPanelBehaviour.Margin = new System.Windows.Forms.Padding(2);
-      this.tableLayoutPanelBehaviour.Name = "tableLayoutPanelBehaviour";
-      this.tableLayoutPanelBehaviour.RowCount = 20;
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(737, 391);
-      this.tableLayoutPanelBehaviour.TabIndex = 3;
+      tableLayoutPanelBehaviour.AutoSize = true;
+      tableLayoutPanelBehaviour.ColumnCount = 4;
+      tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+      tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelBehaviour.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.66666F));
+      tableLayoutPanelBehaviour.Controls.Add(comboBoxLimitDuration, 1, 7);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxTreatNBSPAsSpace, 2, 6);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxTreatUnknowCharaterAsSpace, 2, 5);
+      tableLayoutPanelBehaviour.Controls.Add(labelPersistentSettings, 0, 0);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxTreatLfAsSpace, 2, 4);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxTryToSolveMoreColumns, 2, 3);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxAllowRowCombining, 2, 2);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxSkipEmptyLines, 2, 1);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxDisplayRecordNo, 0, 5);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxDisplayStartLineNo, 0, 4);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxStoreSettingsByFile, 0, 3);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxMenuDown, 0, 2);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxDetectFileChanges, 0, 1);
+      tableLayoutPanelBehaviour.Controls.Add(labelByFile, 2, 0);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxAllowJson, 0, 6);
+      tableLayoutPanelBehaviour.Controls.Add(labelLimitOpen, 0, 7);
+      tableLayoutPanelBehaviour.Controls.Add(selectFont, 0, 9);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnLineFeed, 0, 17);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnNBSP, 0, 16);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnUnknowCharater, 0, 15);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnQuotes, 0, 14);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnDelimiterInValue, 0, 13);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxWarnEmptyTailingColumns, 0, 12);
+      tableLayoutPanelBehaviour.Controls.Add(label6, 0, 19);
+      tableLayoutPanelBehaviour.Controls.Add(numericUpDownLength, 1, 19);
+      tableLayoutPanelBehaviour.Controls.Add(labelWarningLimit, 2, 12);
+      tableLayoutPanelBehaviour.Controls.Add(numericUpDownNumWarnings, 3, 12);
+      tableLayoutPanelBehaviour.Dock = System.Windows.Forms.DockStyle.Top;
+      tableLayoutPanelBehaviour.Location = new System.Drawing.Point(2, 2);
+      tableLayoutPanelBehaviour.Margin = new System.Windows.Forms.Padding(2);
+      tableLayoutPanelBehaviour.Name = "tableLayoutPanelBehaviour";
+      tableLayoutPanelBehaviour.RowCount = 20;
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(750, 391);
+      tableLayoutPanelBehaviour.TabIndex = 3;
       // 
       // labelPersistentSettings
       // 
-      this.labelPersistentSettings.AutoSize = true;
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.labelPersistentSettings, 2);
-      this.labelPersistentSettings.Location = new System.Drawing.Point(3, 0);
-      this.labelPersistentSettings.Name = "labelPersistentSettings";
-      this.labelPersistentSettings.Padding = new System.Windows.Forms.Padding(3);
-      this.labelPersistentSettings.Size = new System.Drawing.Size(100, 19);
-      this.labelPersistentSettings.TabIndex = 0;
-      this.labelPersistentSettings.Text = "Persistent Settings";
+      labelPersistentSettings.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(labelPersistentSettings, 2);
+      labelPersistentSettings.Location = new System.Drawing.Point(3, 0);
+      labelPersistentSettings.Name = "labelPersistentSettings";
+      labelPersistentSettings.Padding = new System.Windows.Forms.Padding(3);
+      labelPersistentSettings.Size = new System.Drawing.Size(100, 19);
+      labelPersistentSettings.TabIndex = 0;
+      labelPersistentSettings.Text = "Persistent Settings";
       // 
       // labelByFile
       // 
-      this.labelByFile.AutoSize = true;
-      this.labelByFile.Location = new System.Drawing.Point(324, 0);
-      this.labelByFile.Name = "labelByFile";
-      this.labelByFile.Padding = new System.Windows.Forms.Padding(3);
-      this.labelByFile.Size = new System.Drawing.Size(84, 19);
-      this.labelByFile.TabIndex = 1;
-      this.labelByFile.Text = "Read Behavior";
+      labelByFile.AutoSize = true;
+      labelByFile.Location = new System.Drawing.Point(329, 0);
+      labelByFile.Name = "labelByFile";
+      labelByFile.Padding = new System.Windows.Forms.Padding(3);
+      labelByFile.Size = new System.Drawing.Size(84, 19);
+      labelByFile.TabIndex = 1;
+      labelByFile.Text = "Read Behavior";
       // 
       // selectFont
       // 
-      this.tableLayoutPanelBehaviour.SetColumnSpan(this.selectFont, 2);
-      this.selectFont.Dock = System.Windows.Forms.DockStyle.Top;
-      this.selectFont.FontName = "Microsoft Sans Serif";
-      this.selectFont.FontSize = 9.75F;
-      this.selectFont.Location = new System.Drawing.Point(3, 175);
-      this.selectFont.Name = "selectFont";
-      this.selectFont.Size = new System.Drawing.Size(315, 56);
-      this.selectFont.TabIndex = 16;
-      this.selectFont.ValueChanged += new System.EventHandler(this.SelectFont_ValueChanged);
+      tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 2);
+      selectFont.Dock = System.Windows.Forms.DockStyle.Top;
+      selectFont.FontName = "Microsoft Sans Serif";
+      selectFont.FontSize = 9.75F;
+      selectFont.Location = new System.Drawing.Point(3, 175);
+      selectFont.Name = "selectFont";
+      selectFont.Size = new System.Drawing.Size(320, 56);
+      selectFont.TabIndex = 16;
+      selectFont.ValueChanged += SelectFont_ValueChanged;
       // 
       // label6
       // 
-      this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.label6.AutoSize = true;
-      this.label6.Location = new System.Drawing.Point(25, 370);
-      this.label6.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
-      this.label6.Name = "label6";
-      this.label6.Size = new System.Drawing.Size(132, 13);
-      this.label6.TabIndex = 25;
-      this.label6.Text = "Button for text longer than:";
+      label6.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      label6.AutoSize = true;
+      label6.Location = new System.Drawing.Point(25, 370);
+      label6.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+      label6.Name = "label6";
+      label6.Size = new System.Drawing.Size(132, 13);
+      label6.TabIndex = 25;
+      label6.Text = "Button for text longer than:";
       // 
       // labelWarningLimit
       // 
-      this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.labelWarningLimit.AutoSize = true;
-      this.labelWarningLimit.Location = new System.Drawing.Point(335, 239);
-      this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
-      this.labelWarningLimit.Name = "labelWarningLimit";
-      this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
-      this.labelWarningLimit.TabIndex = 18;
-      this.labelWarningLimit.Text = "Warning Limit:";
+      labelWarningLimit.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      labelWarningLimit.AutoSize = true;
+      labelWarningLimit.Location = new System.Drawing.Point(340, 239);
+      labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+      labelWarningLimit.Name = "labelWarningLimit";
+      labelWarningLimit.Size = new System.Drawing.Size(74, 13);
+      labelWarningLimit.TabIndex = 18;
+      labelWarningLimit.Text = "Warning Limit:";
       // 
       // tabPageFormat
       // 
-      this.tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
-      this.tabPageFormat.Controls.Add(this.fillGuessSettingEdit);
-      this.tabPageFormat.Location = new System.Drawing.Point(4, 22);
-      this.tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
-      this.tabPageFormat.Name = "tabPageFormat";
-      this.tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageFormat.Size = new System.Drawing.Size(741, 454);
-      this.tabPageFormat.TabIndex = 0;
-      this.tabPageFormat.Text = "Detection";
+      tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
+      tabPageFormat.Controls.Add(fillGuessSettingEdit);
+      tabPageFormat.Location = new System.Drawing.Point(4, 22);
+      tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
+      tabPageFormat.Name = "tabPageFormat";
+      tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
+      tabPageFormat.Size = new System.Drawing.Size(754, 467);
+      tabPageFormat.TabIndex = 0;
+      tabPageFormat.Text = "Detection";
       // 
       // fillGuessSettingEdit
       // 
-      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
-      this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
-      this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
-      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(737, 450);
-      this.fillGuessSettingEdit.TabIndex = 101;
+      fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
+      fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
+      fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
+      fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
+      fillGuessSettingEdit.Name = "fillGuessSettingEdit";
+      fillGuessSettingEdit.Size = new System.Drawing.Size(750, 463);
+      fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageFile
       // 
-      this.tabPageFile.BackColor = System.Drawing.SystemColors.Control;
-      this.tabPageFile.Controls.Add(this.tableLayoutPanelFile);
-      this.tabPageFile.Location = new System.Drawing.Point(4, 22);
-      this.tabPageFile.Margin = new System.Windows.Forms.Padding(2);
-      this.tabPageFile.Name = "tabPageFile";
-      this.tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageFile.Size = new System.Drawing.Size(741, 454);
-      this.tabPageFile.TabIndex = 6;
-      this.tabPageFile.Text = "Read Settings";
+      tabPageFile.BackColor = System.Drawing.SystemColors.Control;
+      tabPageFile.Controls.Add(tableLayoutPanelFile);
+      tabPageFile.Location = new System.Drawing.Point(4, 22);
+      tabPageFile.Margin = new System.Windows.Forms.Padding(2);
+      tabPageFile.Name = "tabPageFile";
+      tabPageFile.Padding = new System.Windows.Forms.Padding(2);
+      tabPageFile.Size = new System.Drawing.Size(754, 467);
+      tabPageFile.TabIndex = 6;
+      tabPageFile.Text = "Read Settings";
       // 
       // tabControl
       // 
-      this.tabControl.Controls.Add(this.tabPageFile);
-      this.tabControl.Controls.Add(this.tabPageBehaviour);
-      this.tabControl.Controls.Add(this.tabPageFormat);
-      this.tabControl.Controls.Add(this.tabPageWrite);
-      this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tabControl.Location = new System.Drawing.Point(0, 0);
-      this.tabControl.Margin = new System.Windows.Forms.Padding(2);
-      this.tabControl.Name = "tabControl";
-      this.tabControl.SelectedIndex = 0;
-      this.tabControl.Size = new System.Drawing.Size(762, 493);
-      this.tabControl.TabIndex = 0;
+      tabControl.Controls.Add(tabPageFile);
+      tabControl.Controls.Add(tabPageBehaviour);
+      tabControl.Controls.Add(tabPageFormat);
+      tabControl.Controls.Add(tabPageWrite);
+      tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      tabControl.Location = new System.Drawing.Point(0, 0);
+      tabControl.Margin = new System.Windows.Forms.Padding(2);
+      tabControl.Name = "tabControl";
+      tabControl.SelectedIndex = 0;
+      tabControl.Size = new System.Drawing.Size(762, 493);
+      tabControl.TabIndex = 0;
       // 
       // tabPageWrite
       // 
-      this.tabPageWrite.BackColor = System.Drawing.SystemColors.Control;
-      this.tabPageWrite.Controls.Add(this.tableLayoutPanelWrite);
-      this.tabPageWrite.Location = new System.Drawing.Point(4, 22);
-      this.tabPageWrite.Name = "tabPageWrite";
-      this.tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageWrite.Size = new System.Drawing.Size(754, 467);
-      this.tabPageWrite.TabIndex = 10;
-      this.tabPageWrite.Text = "Write Settings";
+      tabPageWrite.BackColor = System.Drawing.SystemColors.Control;
+      tabPageWrite.Controls.Add(tableLayoutPanelWrite);
+      tabPageWrite.Location = new System.Drawing.Point(4, 22);
+      tabPageWrite.Name = "tabPageWrite";
+      tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
+      tabPageWrite.Size = new System.Drawing.Size(754, 467);
+      tabPageWrite.TabIndex = 10;
+      tabPageWrite.Text = "Write Settings";
       // 
       // tableLayoutPanelWrite
       // 
-      this.tableLayoutPanelWrite.AutoSize = true;
-      this.tableLayoutPanelWrite.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.tableLayoutPanelWrite.ColumnCount = 5;
-      this.tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanelWrite.Controls.Add(this.quotingControlWrite, 0, 6);
-      this.tableLayoutPanelWrite.Controls.Add(this.label11, 0, 0);
-      this.tableLayoutPanelWrite.Controls.Add(this.label17, 2, 4);
-      this.tableLayoutPanelWrite.Controls.Add(this.textBox9, 3, 4);
-      this.tableLayoutPanelWrite.Controls.Add(this.textBox7, 1, 4);
-      this.tableLayoutPanelWrite.Controls.Add(this.label15, 0, 4);
-      this.tableLayoutPanelWrite.Controls.Add(this.label13, 0, 2);
-      this.tableLayoutPanelWrite.Controls.Add(this.label4, 0, 1);
-      this.tableLayoutPanelWrite.Controls.Add(this.textBoxWriteDelim, 1, 1);
-      this.tableLayoutPanelWrite.Controls.Add(this.cboRecordDelimiter, 1, 2);
-      this.tableLayoutPanelWrite.Controls.Add(this.cboWriteCodePage, 1, 0);
-      this.tableLayoutPanelWrite.Controls.Add(this.labelEscapeWrite, 0, 3);
-      this.tableLayoutPanelWrite.Controls.Add(this.textBoxEscapeWrite, 1, 3);
-      this.tableLayoutPanelWrite.Controls.Add(this.label7, 0, 5);
-      this.tableLayoutPanelWrite.Controls.Add(this.checkBoxWriteBOM, 4, 0);
-      this.tableLayoutPanelWrite.Controls.Add(this.checkBoxCopySkipped, 4, 1);
-      this.tableLayoutPanelWrite.Controls.Add(this.buttonNewLine, 4, 2);
-      this.tableLayoutPanelWrite.Controls.Add(this.buttonKeyFileWrite, 4, 5);
-      this.tableLayoutPanelWrite.Controls.Add(this.textBoxKeyFileWrite, 1, 5);
-      this.tableLayoutPanelWrite.Dock = System.Windows.Forms.DockStyle.Top;
-      this.tableLayoutPanelWrite.Location = new System.Drawing.Point(3, 3);
-      this.tableLayoutPanelWrite.Margin = new System.Windows.Forms.Padding(2);
-      this.tableLayoutPanelWrite.Name = "tableLayoutPanelWrite";
-      this.tableLayoutPanelWrite.RowCount = 8;
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanelWrite.Size = new System.Drawing.Size(748, 365);
-      this.tableLayoutPanelWrite.TabIndex = 0;
+      tableLayoutPanelWrite.AutoSize = true;
+      tableLayoutPanelWrite.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      tableLayoutPanelWrite.ColumnCount = 5;
+      tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelWrite.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      tableLayoutPanelWrite.Controls.Add(quotingControlWrite, 0, 6);
+      tableLayoutPanelWrite.Controls.Add(label11, 0, 0);
+      tableLayoutPanelWrite.Controls.Add(label17, 2, 4);
+      tableLayoutPanelWrite.Controls.Add(textBox9, 3, 4);
+      tableLayoutPanelWrite.Controls.Add(textBox7, 1, 4);
+      tableLayoutPanelWrite.Controls.Add(label15, 0, 4);
+      tableLayoutPanelWrite.Controls.Add(label13, 0, 2);
+      tableLayoutPanelWrite.Controls.Add(label4, 0, 1);
+      tableLayoutPanelWrite.Controls.Add(textBoxWriteDelim, 1, 1);
+      tableLayoutPanelWrite.Controls.Add(cboRecordDelimiter, 1, 2);
+      tableLayoutPanelWrite.Controls.Add(cboWriteCodePage, 1, 0);
+      tableLayoutPanelWrite.Controls.Add(labelEscapeWrite, 0, 3);
+      tableLayoutPanelWrite.Controls.Add(textBoxEscapeWrite, 1, 3);
+      tableLayoutPanelWrite.Controls.Add(labelPGPKey, 0, 5);
+      tableLayoutPanelWrite.Controls.Add(checkBoxWriteBOM, 4, 0);
+      tableLayoutPanelWrite.Controls.Add(checkBoxCopySkipped, 4, 1);
+      tableLayoutPanelWrite.Controls.Add(buttonNewLine, 4, 2);
+      tableLayoutPanelWrite.Controls.Add(buttonKeyFileWrite, 4, 5);
+      tableLayoutPanelWrite.Controls.Add(textBoxKeyFileWrite, 1, 5);
+      tableLayoutPanelWrite.Dock = System.Windows.Forms.DockStyle.Top;
+      tableLayoutPanelWrite.Location = new System.Drawing.Point(3, 3);
+      tableLayoutPanelWrite.Margin = new System.Windows.Forms.Padding(2);
+      tableLayoutPanelWrite.Name = "tableLayoutPanelWrite";
+      tableLayoutPanelWrite.RowCount = 8;
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      tableLayoutPanelWrite.Size = new System.Drawing.Size(748, 365);
+      tableLayoutPanelWrite.TabIndex = 0;
       // 
       // quotingControlWrite
       // 
-      this.quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
-      this.tableLayoutPanelWrite.SetColumnSpan(this.quotingControlWrite, 5);
-      this.quotingControlWrite.IsWriteSetting = true;
-      this.quotingControlWrite.Location = new System.Drawing.Point(9, 164);
-      this.quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
-      this.quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
-      this.quotingControlWrite.Name = "quotingControlWrite";
-      this.quotingControlWrite.Size = new System.Drawing.Size(712, 176);
-      this.quotingControlWrite.TabIndex = 18;
+      quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
+      tableLayoutPanelWrite.SetColumnSpan(quotingControlWrite, 5);
+      quotingControlWrite.IsWriteSetting = true;
+      quotingControlWrite.Location = new System.Drawing.Point(9, 164);
+      quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
+      quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
+      quotingControlWrite.Name = "quotingControlWrite";
+      quotingControlWrite.Size = new System.Drawing.Size(712, 176);
+      quotingControlWrite.TabIndex = 18;
       // 
       // label11
       // 
-      this.label11.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label11.AutoSize = true;
-      this.label11.Location = new System.Drawing.Point(48, 6);
-      this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label11.Name = "label11";
-      this.label11.Size = new System.Drawing.Size(63, 13);
-      this.label11.TabIndex = 0;
-      this.label11.Text = "Code Page:";
+      label11.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label11.AutoSize = true;
+      label11.Location = new System.Drawing.Point(48, 6);
+      label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label11.Name = "label11";
+      label11.Size = new System.Drawing.Size(63, 13);
+      label11.TabIndex = 0;
+      label11.Text = "Code Page:";
       // 
       // label17
       // 
-      this.label17.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label17.AutoSize = true;
-      this.label17.Location = new System.Drawing.Point(181, 109);
-      this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label17.Name = "label17";
-      this.label17.Size = new System.Drawing.Size(110, 13);
-      this.label17.TabIndex = 13;
-      this.label17.Text = "Linefeed Placeholder:\r\n";
+      label17.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label17.AutoSize = true;
+      label17.Location = new System.Drawing.Point(181, 109);
+      label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label17.Name = "label17";
+      label17.Size = new System.Drawing.Size(110, 13);
+      label17.TabIndex = 13;
+      label17.Text = "Linefeed Placeholder:\r\n";
       // 
       // label15
       // 
-      this.label15.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label15.AutoSize = true;
-      this.label15.Location = new System.Drawing.Point(2, 109);
-      this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label15.Name = "label15";
-      this.label15.Size = new System.Drawing.Size(109, 13);
-      this.label15.TabIndex = 11;
-      this.label15.Text = "Delimiter Placeholder:";
+      label15.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label15.AutoSize = true;
+      label15.Location = new System.Drawing.Point(2, 109);
+      label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label15.Name = "label15";
+      label15.Size = new System.Drawing.Size(109, 13);
+      label15.TabIndex = 11;
+      label15.Text = "Delimiter Placeholder:";
       // 
       // label13
       // 
-      this.label13.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label13.AutoSize = true;
-      this.label13.Location = new System.Drawing.Point(12, 58);
-      this.label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label13.Name = "label13";
-      this.label13.Size = new System.Drawing.Size(99, 13);
-      this.label13.TabIndex = 6;
-      this.label13.Text = "Record Seperation:";
+      label13.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label13.AutoSize = true;
+      label13.Location = new System.Drawing.Point(12, 58);
+      label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label13.Name = "label13";
+      label13.Size = new System.Drawing.Size(99, 13);
+      label13.TabIndex = 6;
+      label13.Text = "Record Seperation:";
       // 
       // label4
       // 
-      this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label4.AutoSize = true;
-      this.label4.Location = new System.Drawing.Point(61, 30);
-      this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label4.Name = "label4";
-      this.label4.Size = new System.Drawing.Size(50, 13);
-      this.label4.TabIndex = 3;
-      this.label4.Text = "Delimiter:";
+      label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label4.AutoSize = true;
+      label4.Location = new System.Drawing.Point(61, 30);
+      label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label4.Name = "label4";
+      label4.Size = new System.Drawing.Size(50, 13);
+      label4.TabIndex = 3;
+      label4.Text = "Delimiter:";
       // 
       // textBoxWriteDelim
       // 
-      this.textBoxWriteDelim.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxWriteDelim.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab",
-            ",",
-            ";",
-            "،",
-            "؛",
-            "|",
-            "¦",
-            "￤",
-            "*",
-            "`",
-            "US",
-            "RS",
-            "GS",
-            "FS"});
-      this.textBoxWriteDelim.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxWriteDelim.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxWriteDelim.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceWrite, "FieldDelimiterChar", true));
-      this.textBoxWriteDelim.Location = new System.Drawing.Point(115, 27);
-      this.textBoxWriteDelim.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxWriteDelim.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxWriteDelim.Name = "textBoxWriteDelim";
-      this.textBoxWriteDelim.Size = new System.Drawing.Size(62, 20);
-      this.textBoxWriteDelim.TabIndex = 4;
-      this.textBoxWriteDelim.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
+      textBoxWriteDelim.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxWriteDelim.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
+      textBoxWriteDelim.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxWriteDelim.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxWriteDelim.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceWrite, "FieldDelimiterChar", true));
+      textBoxWriteDelim.Location = new System.Drawing.Point(115, 27);
+      textBoxWriteDelim.Margin = new System.Windows.Forms.Padding(2);
+      textBoxWriteDelim.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxWriteDelim.Name = "textBoxWriteDelim";
+      textBoxWriteDelim.Size = new System.Drawing.Size(62, 20);
+      textBoxWriteDelim.TabIndex = 4;
+      textBoxWriteDelim.Type = PunctuationTextBox.PunctuationType.Delimiter;
       // 
       // cboWriteCodePage
       // 
-      this.cboWriteCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.tableLayoutPanelWrite.SetColumnSpan(this.cboWriteCodePage, 3);
-      this.cboWriteCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceWrite, "CodePageId", true));
-      this.cboWriteCodePage.DisplayMember = "Display";
-      this.cboWriteCodePage.FormattingEnabled = true;
-      this.cboWriteCodePage.Location = new System.Drawing.Point(115, 2);
-      this.cboWriteCodePage.Margin = new System.Windows.Forms.Padding(2);
-      this.cboWriteCodePage.MinimumSize = new System.Drawing.Size(46, 0);
-      this.cboWriteCodePage.Name = "cboWriteCodePage";
-      this.cboWriteCodePage.Size = new System.Drawing.Size(226, 21);
-      this.cboWriteCodePage.TabIndex = 1;
-      this.cboWriteCodePage.ValueMember = "ID";
+      cboWriteCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      tableLayoutPanelWrite.SetColumnSpan(cboWriteCodePage, 3);
+      cboWriteCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceWrite, "CodePageId", true));
+      cboWriteCodePage.DisplayMember = "Display";
+      cboWriteCodePage.FormattingEnabled = true;
+      cboWriteCodePage.Location = new System.Drawing.Point(115, 2);
+      cboWriteCodePage.Margin = new System.Windows.Forms.Padding(2);
+      cboWriteCodePage.MinimumSize = new System.Drawing.Size(46, 0);
+      cboWriteCodePage.Name = "cboWriteCodePage";
+      cboWriteCodePage.Size = new System.Drawing.Size(226, 21);
+      cboWriteCodePage.TabIndex = 1;
+      cboWriteCodePage.ValueMember = "ID";
       // 
       // labelEscapeWrite
       // 
-      this.labelEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelEscapeWrite.AutoSize = true;
-      this.labelEscapeWrite.Location = new System.Drawing.Point(16, 85);
-      this.labelEscapeWrite.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.labelEscapeWrite.Name = "labelEscapeWrite";
-      this.labelEscapeWrite.Size = new System.Drawing.Size(95, 13);
-      this.labelEscapeWrite.TabIndex = 9;
-      this.labelEscapeWrite.Text = "Escape Character:";
+      labelEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelEscapeWrite.AutoSize = true;
+      labelEscapeWrite.Location = new System.Drawing.Point(16, 85);
+      labelEscapeWrite.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelEscapeWrite.Name = "labelEscapeWrite";
+      labelEscapeWrite.Size = new System.Drawing.Size(95, 13);
+      labelEscapeWrite.TabIndex = 9;
+      labelEscapeWrite.Text = "Escape Character:";
       // 
       // textBoxEscapeWrite
       // 
-      this.textBoxEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxEscapeWrite.AutoCompleteCustomSource.AddRange(new string[] {
-            "\\",
-            "/",
-            "?"});
-      this.textBoxEscapeWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxEscapeWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxEscapeWrite.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceWrite, "EscapePrefixChar", true));
-      this.textBoxEscapeWrite.Location = new System.Drawing.Point(115, 82);
-      this.textBoxEscapeWrite.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxEscapeWrite.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxEscapeWrite.Name = "textBoxEscapeWrite";
-      this.textBoxEscapeWrite.Size = new System.Drawing.Size(62, 20);
-      this.textBoxEscapeWrite.TabIndex = 10;
-      this.textBoxEscapeWrite.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
+      textBoxEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxEscapeWrite.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      textBoxEscapeWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxEscapeWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxEscapeWrite.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceWrite, "EscapePrefixChar", true));
+      textBoxEscapeWrite.Location = new System.Drawing.Point(115, 82);
+      textBoxEscapeWrite.Margin = new System.Windows.Forms.Padding(2);
+      textBoxEscapeWrite.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxEscapeWrite.Name = "textBoxEscapeWrite";
+      textBoxEscapeWrite.Size = new System.Drawing.Size(62, 20);
+      textBoxEscapeWrite.TabIndex = 10;
+      textBoxEscapeWrite.Type = PunctuationTextBox.PunctuationType.Escape;
       // 
-      // label7
+      // labelPGPKey
       // 
-      this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label7.AutoSize = true;
-      this.label7.Location = new System.Drawing.Point(58, 137);
-      this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      this.label7.Name = "label7";
-      this.label7.Size = new System.Drawing.Size(53, 13);
-      this.label7.TabIndex = 15;
-      this.label7.Text = "PGP Key:";
+      labelPGPKey.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelPGPKey.AutoSize = true;
+      labelPGPKey.Location = new System.Drawing.Point(58, 137);
+      labelPGPKey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPGPKey.Name = "labelPGPKey";
+      labelPGPKey.Size = new System.Drawing.Size(53, 13);
+      labelPGPKey.TabIndex = 15;
+      labelPGPKey.Text = "PGP Key:";
       // 
       // buttonNewLine
       // 
-      this.buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonNewLine.Location = new System.Drawing.Point(573, 52);
-      this.buttonNewLine.Name = "buttonNewLine";
-      this.buttonNewLine.Size = new System.Drawing.Size(148, 25);
-      this.buttonNewLine.TabIndex = 8;
-      this.buttonNewLine.Text = "Source Record Seperation";
-      this.buttonNewLine.UseVisualStyleBackColor = true;
-      this.buttonNewLine.Click += new System.EventHandler(this.GuessNewline_Click);
+      buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonNewLine.Location = new System.Drawing.Point(573, 52);
+      buttonNewLine.Name = "buttonNewLine";
+      buttonNewLine.Size = new System.Drawing.Size(148, 25);
+      buttonNewLine.TabIndex = 8;
+      buttonNewLine.Text = "Source Record Seperation";
+      buttonNewLine.UseVisualStyleBackColor = true;
+      buttonNewLine.Click += GuessNewline_Click;
       // 
       // buttonKeyFileWrite
       // 
-      this.buttonKeyFileWrite.AutoSize = true;
-      this.buttonKeyFileWrite.Location = new System.Drawing.Point(573, 131);
-      this.buttonKeyFileWrite.Name = "buttonKeyFileWrite";
-      this.buttonKeyFileWrite.Size = new System.Drawing.Size(66, 25);
-      this.buttonKeyFileWrite.TabIndex = 17;
-      this.buttonKeyFileWrite.Text = "Select File";
-      this.buttonKeyFileWrite.UseVisualStyleBackColor = true;
-      this.buttonKeyFileWrite.Click += new System.EventHandler(this.ButtonKeyFileWrite_Click);
+      buttonKeyFileWrite.AutoSize = true;
+      buttonKeyFileWrite.Location = new System.Drawing.Point(573, 131);
+      buttonKeyFileWrite.Name = "buttonKeyFileWrite";
+      buttonKeyFileWrite.Size = new System.Drawing.Size(66, 25);
+      buttonKeyFileWrite.TabIndex = 17;
+      buttonKeyFileWrite.Text = "Select File";
+      buttonKeyFileWrite.UseVisualStyleBackColor = true;
+      buttonKeyFileWrite.Click += ButtonKeyFileWrite_Click;
       // 
       // FormEditSettings
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(762, 493);
-      this.Controls.Add(this.tabControl);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2);
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(716, 334);
-      this.Name = "FormEditSettings";
-      this.ShowIcon = false;
-      this.ShowInTaskbar = false;
-      this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-      this.Text = "Settings";
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEditSettings_FormClosing);
-      this.Load += new System.EventHandler(this.EditSettings_Load);
-      this.tableLayoutPanelFile.ResumeLayout(false);
-      this.tableLayoutPanelFile.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-      this.tabPageBehaviour.ResumeLayout(false);
-      this.tabPageBehaviour.PerformLayout();
-      this.tableLayoutPanelBehaviour.ResumeLayout(false);
-      this.tableLayoutPanelBehaviour.PerformLayout();
-      this.tabPageFormat.ResumeLayout(false);
-      this.tabPageFile.ResumeLayout(false);
-      this.tabPageFile.PerformLayout();
-      this.tabControl.ResumeLayout(false);
-      this.tabPageWrite.ResumeLayout(false);
-      this.tabPageWrite.PerformLayout();
-      this.tableLayoutPanelWrite.ResumeLayout(false);
-      this.tableLayoutPanelWrite.PerformLayout();
-      this.ResumeLayout(false);
-
+      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      ClientSize = new System.Drawing.Size(762, 493);
+      Controls.Add(tabControl);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      Margin = new System.Windows.Forms.Padding(2);
+      MaximizeBox = false;
+      MinimizeBox = false;
+      MinimumSize = new System.Drawing.Size(716, 334);
+      Name = "FormEditSettings";
+      ShowIcon = false;
+      ShowInTaskbar = false;
+      StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+      Text = "Settings";
+      FormClosing += FormEditSettings_FormClosing;
+      Load += EditSettings_Load;
+      tableLayoutPanelFile.ResumeLayout(false);
+      tableLayoutPanelFile.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceViewSetting).EndInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).EndInit();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceWrite).EndInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownNumWarnings).EndInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownLength).EndInit();
+      ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
+      tabPageBehaviour.ResumeLayout(false);
+      tabPageBehaviour.PerformLayout();
+      tableLayoutPanelBehaviour.ResumeLayout(false);
+      tableLayoutPanelBehaviour.PerformLayout();
+      tabPageFormat.ResumeLayout(false);
+      tabPageFile.ResumeLayout(false);
+      tabPageFile.PerformLayout();
+      tabControl.ResumeLayout(false);
+      tabPageWrite.ResumeLayout(false);
+      tabPageWrite.PerformLayout();
+      tableLayoutPanelWrite.ResumeLayout(false);
+      tableLayoutPanelWrite.PerformLayout();
+      ResumeLayout(false);
     }
+
     private System.Windows.Forms.ErrorProvider errorProvider;
     private System.Windows.Forms.BindingSource bindingSourceViewSetting;
     private System.Windows.Forms.ToolTip toolTip;
@@ -1641,12 +1582,13 @@ namespace CsvTools
     private System.Windows.Forms.Label labelEscapeWrite;
     private PunctuationTextBox textBoxEscapeWrite;
     private PunctuationTextBox textBoxDelimiter;
-    private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.Label labelPGPRead;
     private System.Windows.Forms.TextBox textBoxKeyFileRead;
     private System.Windows.Forms.Button buttonKeyFileRead;
-    private System.Windows.Forms.Label label7;
+    private System.Windows.Forms.Label labelPGPKey;
     private System.Windows.Forms.Button buttonKeyFileWrite;
     private QuotingControl quotingControlWrite;
     private System.Windows.Forms.TextBox textBoxKeyFileWrite;
+    private System.Windows.Forms.Button buttonFileInfo;
   }
 }

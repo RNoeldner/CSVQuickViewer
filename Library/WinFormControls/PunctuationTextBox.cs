@@ -4,7 +4,6 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-
   [DefaultBindingProperty(nameof(Character))]
   public sealed class PunctuationTextBox : TextBox
   {
@@ -35,24 +34,25 @@ namespace CsvTools
         {
           m_Type = value;
           if (m_Type == PunctuationType.Delimiter)
-            m_Common=StaticCollections.DelimiterChars;
+            m_Common = StaticCollections.DelimiterChars;
           else if (m_Type == PunctuationType.Qualifier)
-            m_Common=StaticCollections.PossibleQualifiers;
+            m_Common = StaticCollections.PossibleQualifiers;
           else if (m_Type == PunctuationType.Escape)
-            m_Common=StaticCollections.EscapePrefixChars;
+            m_Common = StaticCollections.EscapePrefixChars;
           else if (m_Type == PunctuationType.List)
-            m_Common= StaticCollections.ListDelimiterChars;
+            m_Common = StaticCollections.ListDelimiterChars;
           else if (m_Type == PunctuationType.Date)
-            m_Common=StaticCollections.DateSeparatorChars;
+            m_Common = StaticCollections.DateSeparatorChars;
           else if (m_Type == PunctuationType.Time)
-            m_Common=StaticCollections.TimeSeparators;
+            m_Common = StaticCollections.TimeSeparators;
           else if (m_Type == PunctuationType.Decimal)
-            m_Common=StaticCollections.DecimalSeparatorChars;
+            m_Common = StaticCollections.DecimalSeparatorChars;
           else if (m_Type == PunctuationType.Grouping)
-            m_Common=StaticCollections.DecimalGroupingChars;
+            m_Common = StaticCollections.DecimalGroupingChars;
         }
       }
     }
+
     private char[] m_Common = new char[] { };
     private char m_Character;
 
@@ -74,13 +74,13 @@ namespace CsvTools
 
     public PunctuationTextBox()
     {
-      BindingContextChanged +=PunctuationTextBox_BindingContextChanged;
+      BindingContextChanged += PunctuationTextBox_BindingContextChanged;
       Validating += PunctuationTextBox_Validating;
     }
 
     private void PunctuationTextBox_BindingContextChanged(object? sender, System.EventArgs e)
     {
-      BindingContextChanged -=PunctuationTextBox_BindingContextChanged;
+      BindingContextChanged -= PunctuationTextBox_BindingContextChanged;
       SuspendLayout();
       AutoCompleteMode = AutoCompleteMode.SuggestAppend;
       AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -88,22 +88,23 @@ namespace CsvTools
       foreach (var chr in m_Common)
         AutoCompleteCustomSource.Add(chr.Text());
       ResumeLayout();
-      BindingContextChanged +=PunctuationTextBox_BindingContextChanged;
+      BindingContextChanged += PunctuationTextBox_BindingContextChanged;
     }
 
     private void PunctuationTextBox_Validating(object? sender, CancelEventArgs e)
     {
       Character = Text.FromText();
-      if (m_Common.Length>0 && !m_Common.Contains(Character) && Character != char.MinValue)
+      if (m_Common.Length > 0 && !m_Common.Contains(Character) && Character != char.MinValue)
       {
         e.Cancel = true;
-        MessageBox.Show($"{Text} is not supported for {m_Type}\n\nChoose one of:\n{m_Common.Select(x => x.Text()).Join(", ")}", $"Invalid {m_Type}", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, 1);
+        MessageBox.Show(
+          $"{Text} is not supported for {m_Type}\n\nChoose one of:\n{m_Common.Select(x => x.Text()).Join(", ")}",
+          $"Invalid {m_Type}", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, 1);
       }
       else
       {
         Text = Character.Text();
       }
-
     }
   }
 }

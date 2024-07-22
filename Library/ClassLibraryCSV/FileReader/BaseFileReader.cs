@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -614,16 +615,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column ordinal number.</param>
     /// <param name="message">The message to raise.</param>
-    public void HandleError(int ordinal, in string message) =>
-      Warning?.Invoke(this, GetWarningEventArgs(ordinal, message));
+    public void HandleError(int ordinal, in string message)
+    {
+      if (Warning != null && !Column[ordinal].Ignore)
+        Warning(this, GetWarningEventArgs(ordinal, message));
+    }
 
     /// <summary>
     ///   Calls the event handler for warnings <see cref="Warning"/>
     /// </summary>
     /// <param name="ordinal">The column ordinal number</param>
     /// <param name="message">The message to raise.</param>
-    public void HandleWarning(int ordinal, string message) =>
-      Warning?.Invoke(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
+    public void HandleWarning(int ordinal, string message)
+    {
+      if (Warning != null && !Column[ordinal].Ignore)
+        Warning(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
+    }
 
     /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
