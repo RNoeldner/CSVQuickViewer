@@ -28,19 +28,17 @@ namespace CsvTools
     private readonly Regex? m_QuoteRegex;
 #pragma warning disable CA1416
     private readonly Style m_Space = new SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
-    //private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
     private readonly Style m_Tab2 = new SyntaxHighlightStyleTab(Pens.LightGray, Brushes.AntiqueWhite);
 #pragma warning restore CA1416
     private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
-    //private readonly Regex m_TabRegex1 = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled);
 
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, char qualifier, char delimiter, char escape,
       string comment) : base(textBox)
-    {            
+    {
       if (delimiter == char.MinValue)
         delimiter = '\t';
-      
+
       m_DelimiterRegex = new Regex(escape == char.MinValue ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
         RegexOptions.Singleline | RegexOptions.Compiled);
 

@@ -115,19 +115,26 @@ namespace CsvTools
 
     private void ButtonFilter_Click(object sender, EventArgs e)
     {
-      if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
-        m_DataGridViewColumnFilter.ValueDateTime = dateTimePickerValue.Value;
-      else
-        m_DataGridViewColumnFilter.ValueText = textBoxValue.Text;
-      m_DataGridViewColumnFilter.Operator = comboBoxOperator.Text;
-
-      foreach (ListViewItem sel in listViewCluster.Items)
+      try
       {
-        var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => x.Display == sel.Text);
-        vc.Active = sel.Checked;
-      }
+        if (m_DataGridViewColumnFilter.DataType == DataTypeEnum.DateTime)
+          m_DataGridViewColumnFilter.ValueDateTime = dateTimePickerValue.Value;
+        else
+          m_DataGridViewColumnFilter.ValueText = textBoxValue.Text;
+        m_DataGridViewColumnFilter.Operator = comboBoxOperator.Text;
 
-      m_DataGridViewColumnFilter.ApplyFilter();
+        foreach (ListViewItem sel in listViewCluster.Items)
+        {
+          var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => x.Display == sel.Text);
+          vc.Active = sel.Checked;
+        }
+
+        m_DataGridViewColumnFilter.ApplyFilter();
+      }
+      catch (Exception exception)
+      {
+        ParentForm.ShowError(exception);
+      }
     }
 
     private void FromDataGridViewFilter_Load(object sender, EventArgs e)
@@ -263,7 +270,8 @@ namespace CsvTools
       {
         var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(
           m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm,
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0,
+          frm,
           frm.CancellationToken);
         if (result == BuildValueClustersResult.ListFilled)
         {

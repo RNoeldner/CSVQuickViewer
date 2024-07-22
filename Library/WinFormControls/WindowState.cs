@@ -13,7 +13,8 @@ namespace CsvTools
       new WindowState(10, 10, 600, 600, FormWindowState.Normal, int.MinValue, string.Empty);
 
     [JsonConstructor]
-    public WindowState(int? left, int? top, int? width, int? height, FormWindowState? state = null, int? customInt = null, string? customText = null)
+    public WindowState(int? left, int? top, int? width, int? height, FormWindowState? state = null,
+      int? customInt = null, string? customText = null)
     {
       Left = left ?? 10;
       Top = top ?? 10;
@@ -29,19 +30,16 @@ namespace CsvTools
     public readonly int Width;
     public readonly int Height;
 
-    [DefaultValue(FormWindowState.Normal)]
-    public readonly FormWindowState State;
+    [DefaultValue(FormWindowState.Normal)] public readonly FormWindowState State;
 
     /// <summary>
     ///   Store form specific values like selected Tab or Splitter distance, can store any value but -1
     /// </summary>
-    [DefaultValue(-2147483648)]
-    public readonly int CustomInt;
+    [DefaultValue(-2147483648)] public readonly int CustomInt;
 
     /// <summary>
     ///   Store form specific values like a filterText
     /// </summary>
-    [DefaultValue("")]
-    public readonly string CustomText;
+    [DefaultValue("")] public readonly string CustomText;
   }
 }

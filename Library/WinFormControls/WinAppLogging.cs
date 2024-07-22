@@ -53,7 +53,9 @@ namespace CsvTools
 
           // File Exception logging
           .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null)
-            .WriteTo.File(folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
+              .WriteTo.File(folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month,
+                retainedFileCountLimit: 3, encoding: Encoding.UTF8,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
             LogEventLevel.Error)
 
           // File Regular logging
@@ -84,7 +86,8 @@ namespace CsvTools
     [DebuggerStepThrough]
     public class UserInterfaceSink : ILogEventSink
     {
-      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new List<Microsoft.Extensions.Logging.ILogger>();
+      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers =
+        new List<Microsoft.Extensions.Logging.ILogger>();
 
       // By design: Only one Action to be called you can not have two or more destinations
       private readonly IFormatProvider m_FormatProvider;

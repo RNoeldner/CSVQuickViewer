@@ -53,26 +53,32 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(htmlStyle));
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
-
-      var listRem = new List<DataColumn>();
-      foreach (DataColumn col in m_DataTable.Columns)
+      try
       {
-        if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
-          col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
-          col.ColumnName == ReaderConstants.cErrorField ||
-          col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
-          listRem.Add(col);
+        var listRem = new List<DataColumn>();
+        foreach (DataColumn col in m_DataTable.Columns)
+        {
+          if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
+              col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
+              col.ColumnName == ReaderConstants.cErrorField ||
+              col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
+            listRem.Add(col);
+        }
+
+        foreach (var col in listRem)
+          m_DataTable.Columns.Remove(col);
+
+        m_InitialColumn = initialColumn;
+        InitializeComponent();
+        detailControl.ReadOnly = true;
+        detailControl.ShowFilter = false;
+        detailControl.ShowInfoButtons = false;
+        detailControl.HtmlStyle = htmlStyle;
       }
-
-      foreach (var col in listRem)
-        m_DataTable.Columns.Remove(col);
-
-      m_InitialColumn = initialColumn;
-      InitializeComponent();
-      detailControl.ReadOnly = true;
-      detailControl.ShowFilter = false;
-      detailControl.ShowInfoButtons = false;
-      detailControl.HtmlStyle = htmlStyle;
+      catch (Exception e)
+      {
+        Logger.Warning(e, "FormUniqueDisplay ctor");
+      }
     }
 
     /// <summary>
@@ -127,14 +133,16 @@ namespace CsvTools
           detailControl.SuspendLayout();
         });
       Extensions.ProcessUIElements();
+
       try
       {
-        DataColumn dataColumnID = m_DataTable.Columns[dataColumnName] ?? throw new Exception($"Column {dataColumnName} not found");
+        DataColumn dataColumnId = m_DataTable.Columns[dataColumnName] ??
+                                  throw new Exception($"Column {dataColumnName} not found");
 
         this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 
-        var dictIDToRow = new Dictionary<string, int>(StringComparer.Ordinal);
-        var dictIDToCount = new Dictionary<string, int>(StringComparer.Ordinal);
+        var dictIdToRow = new Dictionary<string, int>(StringComparer.Ordinal);
+        var dictIdToCount = new Dictionary<string, int>(StringComparer.Ordinal);
 
         using var formProgress =
           new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token)
@@ -150,20 +158,20 @@ namespace CsvTools
             return;
           intervalAction.Invoke(formProgress, "Getting Unique values", rowIndex);
           var dataRow = m_DataRow[rowIndex];
-          if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal))
+          if (ignoreNull && dataRow.IsNull(dataColumnId.Ordinal))
             continue;
-          var id = dataRow[dataColumnID.Ordinal].ToString()?.Trim().ToLowerInvariant() ?? string.Empty;
-          if (dictIDToRow.ContainsKey(id))
-            dictIDToCount[id]++;
+          var id = dataRow[dataColumnId.Ordinal].ToString()?.Trim().ToLowerInvariant() ?? string.Empty;
+          if (dictIdToRow.ContainsKey(id))
+            dictIdToCount[id]++;
           else
           {
-            dictIDToRow.Add(id, rowIndex);
-            dictIDToCount.Add(id, 1);
+            dictIdToRow.Add(id, rowIndex);
+            dictIdToCount.Add(id, 1);
           }
         }
 
         this.SafeInvoke(
-          () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
+          () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIdToRow.Count}/{m_DataRow.Length}");
 
         var countCol = m_DataTable.Columns["Count#"];
         if (countCol is null)
@@ -175,19 +183,19 @@ namespace CsvTools
         m_DataTable.BeginLoadData();
         m_DataTable.Clear();
 
-        formProgress.Maximum = dictIDToRow.Count;
+        formProgress.Maximum = dictIdToRow.Count;
 
         var counter = 0;
-        foreach (var rowIndex in dictIDToRow)
+        foreach (var rowIndex in dictIdToRow)
         {
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           counter++;
           intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex.Value]);
-          if (m_DataTable.Rows.Count>0)
+          if (m_DataTable.Rows.Count > 0)
             // add the counter for the values
-            m_DataTable.Rows[m_DataTable.Rows.Count-1][countCol!.Ordinal] = dictIDToCount[rowIndex.Key];
+            m_DataTable.Rows[m_DataTable.Rows.Count - 1][countCol!.Ordinal] = dictIdToCount[rowIndex.Key];
         }
 
         m_DataTable.EndLoadData();
