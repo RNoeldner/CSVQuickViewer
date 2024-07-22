@@ -66,7 +66,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-    private void CellFormatDate(object? sender, DataGridViewCellFormattingEventArgs e)
+    private static void CellFormatDate(object? sender, DataGridViewCellFormattingEventArgs e)
     {
       if (!(e.Value is DateTime cellValue))
         return;
@@ -77,40 +77,47 @@ namespace CsvTools
     public FilteredDataGridView()
     {
       m_CancellationTokenSource = new CancellationTokenSource();
-
       InitializeComponent();
-      CellFormatting += CellFormatDate;
-      FontChanged += PassOnFontChanges;
-      m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
-
-      Scroll += (o, e) => SetRowHeight();
-      var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
-                             throw new InvalidOperationException("Resource not found");
-
-      DataError += FilteredDataGridView_DataError;
-
-      if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
-        tableLayoutSettings.ColumnCount = 3;
-
-      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-
-      CellMouseClick += FilteredDataGridView_CellMouseClick;
-      CellPainting += HighlightCellPainting;
-      ColumnWidthChanged += FilteredDataGridView_ColumnWidthChanged;
-      KeyDown += FilteredDataGridView_KeyDown;
-      ColumnAdded += FilteredDataGridView_ColumnAdded;
-
-      DefaultCellStyle.ForeColor = Color.Black;
-      DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-
-      SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-
-      FontChanged += (o, e) =>
+      try
       {
-        AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-        SetRowHeight();
-      };
+        CellFormatting += CellFormatDate;
+        FontChanged += PassOnFontChanges;
+        m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
+
+        Scroll += (o, e) => SetRowHeight();
+
+        var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
+        m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
+                               throw new InvalidOperationException("Resource not found");
+
+        DataError += FilteredDataGridView_DataError;
+
+        if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
+          tableLayoutSettings.ColumnCount = 3;
+
+        ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+
+        CellMouseClick += FilteredDataGridView_CellMouseClick;
+        CellPainting += HighlightCellPainting;
+        ColumnWidthChanged += FilteredDataGridView_ColumnWidthChanged;
+        KeyDown += FilteredDataGridView_KeyDown;
+        ColumnAdded += FilteredDataGridView_ColumnAdded;
+
+        DefaultCellStyle.ForeColor = Color.Black;
+        DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
+        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+        FontChanged += (o, e) =>
+        {
+          AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+          SetRowHeight();
+        };
+      }
+      catch (Exception e)
+      {
+        Logger.Warning(e, "FilteredDataGridView ctor");
+      }
     }
 
     /// <summary>

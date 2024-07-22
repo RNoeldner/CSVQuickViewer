@@ -82,23 +82,30 @@ namespace CsvTools
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
 
       InitializeComponent();
-      // needed for TimeZone, Name or TimePart
-      columnBindingSource.DataSource = m_ColumnEdit;
-      // needed for Formats
-      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
-      comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
+      try
+      {
+        // needed for TimeZone, Name or TimePart
+        columnBindingSource.DataSource = m_ColumnEdit;
+        // needed for Formats
+        bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
+        comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
 
-      comboBoxColumnName.Enabled = enableChangeColumn;
-      checkBoxIgnore.Visible = showIgnore;
+        comboBoxColumnName.Enabled = enableChangeColumn;
+        checkBoxIgnore.Visible = showIgnore;
 
-      labelDisplayNullAs.Visible = showWriteNull;
-      textBoxDisplayNullAs.Visible = showWriteNull;
+        labelDisplayNullAs.Visible = showWriteNull;
+        textBoxDisplayNullAs.Visible = showWriteNull;
 
-      toolTip.SetToolTip(
-        comboBoxTimeZone,
-        showWriteNull
-          ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
-          : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
+        toolTip.SetToolTip(
+          comboBoxTimeZone,
+          showWriteNull
+            ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
+            : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
+      }
+      catch (Exception e)
+      {
+        Logger.Warning(e, "FormColumnUiRead ctor");
+      }
     }
 
     private void AddDateFormat(string format)

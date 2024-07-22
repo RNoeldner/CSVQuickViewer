@@ -47,13 +47,13 @@ namespace CsvTools
 
     private ComboBox m_ComboBoxDisplay1;
     private ComboBox m_ComboBoxDisplay2;
-    private ComboBox m_ComboBoxID;
-    private ComboBox m_ComboBoxParentID;
+    private ComboBox m_ComboBoxId;
+    private ComboBox m_ComboBoxParentId;
 
     private TableLayoutPanel m_TableLayoutPanel1;
     private TextBox m_TextBoxValue;
     private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
-    private ToolTip toolTip;
+    private ToolTip m_ToolTip;
     private MultiSelectTreeView m_TreeView = new MultiSelectTreeView();
 
     /// <summary>
@@ -66,19 +66,25 @@ namespace CsvTools
     public FormHierarchyDisplay(in DataTable dataTable, in DataRow[] dataRows, in HtmlStyle hTmlStyle)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
-      m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
-      m_DataRow = dataRows;
-      InitializeComponent();
+      try
+      {
+        m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
+        m_DataRow = dataRows;
+        InitializeComponent();
+        m_TimerSearch.Elapsed += FilterValueChangedElapsed;
+        m_TimerSearch.Interval = 200;
+        m_TimerSearch.AutoReset = false;
 
-      m_TimerSearch.Elapsed += FilterValueChangedElapsed;
-      m_TimerSearch.Interval = 200;
-      m_TimerSearch.AutoReset = false;
+        m_TimerDisplay.Elapsed += TimerDisplayElapsed;
+        m_TimerDisplay.Interval = 1000;
+        m_TimerDisplay.AutoReset = false;
 
-      m_TimerDisplay.Elapsed += TimerDisplayElapsed;
-      m_TimerDisplay.Interval = 1000;
-      m_TimerDisplay.AutoReset = false;
-
-      m_TreeView.HtmlStyle = hTmlStyle;
+        m_TreeView.HtmlStyle = hTmlStyle;
+      }
+      catch (Exception e)
+      {
+        Logger.Warning(e, "FormColumnUiRead ctor");
+      }
     }
 
     /// <summary>
@@ -344,10 +350,10 @@ namespace CsvTools
       {
         foreach (DataColumn col in m_DataTable.Columns)
         {
-          m_ComboBoxID!.Items.Add(col.ColumnName);
+          m_ComboBoxId!.Items.Add(col.ColumnName);
           m_ComboBoxDisplay1!.Items.Add(col.ColumnName);
           m_ComboBoxDisplay2!.Items.Add(col.ColumnName);
-          m_ComboBoxParentID!.Items.Add(col.ColumnName);
+          m_ComboBoxParentId!.Items.Add(col.ColumnName);
         }
       }
       catch (Exception ex)
@@ -376,13 +382,13 @@ namespace CsvTools
       System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
       System.Windows.Forms.Label labelFind;
       this.m_TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      this.m_ComboBoxID = new System.Windows.Forms.ComboBox();
-      this.m_ComboBoxParentID = new System.Windows.Forms.ComboBox();
+      this.m_ComboBoxId = new System.Windows.Forms.ComboBox();
+      this.m_ComboBoxParentId = new System.Windows.Forms.ComboBox();
       this.m_TreeView = new CsvTools.MultiSelectTreeView();
       this.m_TextBoxValue = new System.Windows.Forms.TextBox();
       this.m_ComboBoxDisplay2 = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxDisplay1 = new System.Windows.Forms.ComboBox();
-      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+      this.m_ToolTip = new System.Windows.Forms.ToolTip(this.components);
       labelID = new System.Windows.Forms.Label();
       labelDisplay = new System.Windows.Forms.Label();
       labelParent = new System.Windows.Forms.Label();
@@ -468,8 +474,8 @@ namespace CsvTools
       this.m_TableLayoutPanel1.Controls.Add(labelID, 0, 0);
       this.m_TableLayoutPanel1.Controls.Add(labelDisplay, 0, 1);
       this.m_TableLayoutPanel1.Controls.Add(labelParent, 0, 2);
-      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxID, 1, 0);
-      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxParentID, 1, 2);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxId, 1, 0);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxParentId, 1, 2);
       this.m_TableLayoutPanel1.Controls.Add(this.m_TreeView, 0, 4);
       this.m_TableLayoutPanel1.Controls.Add(this.m_TextBoxValue, 1, 3);
       this.m_TableLayoutPanel1.Controls.Add(labelFind, 0, 3);
@@ -490,29 +496,29 @@ namespace CsvTools
       // 
       // m_ComboBoxID
       // 
-      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxID, 2);
-      this.m_ComboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_ComboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.m_ComboBoxID.FormattingEnabled = true;
-      this.m_ComboBoxID.Location = new System.Drawing.Point(77, 3);
-      this.m_ComboBoxID.Name = "m_ComboBoxID";
-      this.m_ComboBoxID.Size = new System.Drawing.Size(422, 21);
-      this.m_ComboBoxID.TabIndex = 0;
-      this.toolTip.SetToolTip(this.m_ComboBoxID, "Unique identifier for counting and determining child entries");
-      this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxId, 2);
+      this.m_ComboBoxId.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxId.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.m_ComboBoxId.FormattingEnabled = true;
+      this.m_ComboBoxId.Location = new System.Drawing.Point(77, 3);
+      this.m_ComboBoxId.Name = "m_ComboBoxId";
+      this.m_ComboBoxId.Size = new System.Drawing.Size(422, 21);
+      this.m_ComboBoxId.TabIndex = 0;
+      this.m_ToolTip.SetToolTip(this.m_ComboBoxId, "Unique identifier for counting and determining child entries");
+      this.m_ComboBoxId.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // m_ComboBoxParentID
       // 
-      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxParentID, 2);
-      this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_ComboBoxParentID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.m_ComboBoxParentID.FormattingEnabled = true;
-      this.m_ComboBoxParentID.Location = new System.Drawing.Point(77, 57);
-      this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
-      this.m_ComboBoxParentID.Size = new System.Drawing.Size(422, 21);
-      this.m_ComboBoxParentID.TabIndex = 1;
-      this.toolTip.SetToolTip(this.m_ComboBoxParentID, "Column with the Parent, can be used for grouping as well");
-      this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxParentId, 2);
+      this.m_ComboBoxParentId.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxParentId.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.m_ComboBoxParentId.FormattingEnabled = true;
+      this.m_ComboBoxParentId.Location = new System.Drawing.Point(77, 57);
+      this.m_ComboBoxParentId.Name = "m_ComboBoxParentId";
+      this.m_ComboBoxParentId.Size = new System.Drawing.Size(422, 21);
+      this.m_ComboBoxParentId.TabIndex = 1;
+      this.m_ToolTip.SetToolTip(this.m_ComboBoxParentId, "Column with the Parent, can be used for grouping as well");
+      this.m_ComboBoxParentId.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // m_TreeView
       // 
@@ -553,7 +559,7 @@ namespace CsvTools
       this.m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
       this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(208, 21);
       this.m_ComboBoxDisplay1.TabIndex = 16;
-      this.toolTip.SetToolTip(this.m_ComboBoxDisplay1, "If the display feidls is are not set ID is used");
+      this.m_ToolTip.SetToolTip(this.m_ComboBoxDisplay1, "If the display feidls is are not set ID is used");
       this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // FormHierarchyDisplay
@@ -698,9 +704,9 @@ namespace CsvTools
         this.SafeBeginInvoke(
           () =>
           {
-            if (m_ComboBoxID!.SelectedItem != null && m_ComboBoxParentID!.SelectedItem != null)
-              BuildTree(m_ComboBoxParentID.Text,
-                m_ComboBoxID.Text,
+            if (m_ComboBoxId!.SelectedItem != null && m_ComboBoxParentId!.SelectedItem != null)
+              BuildTree(m_ComboBoxParentId.Text,
+                m_ComboBoxId.Text,
                 m_ComboBoxDisplay1.Text,
                 m_ComboBoxDisplay2.Text);
           });

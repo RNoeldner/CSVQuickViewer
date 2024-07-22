@@ -5,7 +5,6 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-
   public class ResizeForm : Form
   {
     private IFontConfig m_FontConfig;
@@ -39,25 +38,26 @@ namespace CsvTools
 
     private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
     {
-      if (sender is IFontConfig conf && (e.PropertyName ==  nameof(IFontConfig.Font) || e.PropertyName ==  nameof(IFontConfig.FontSize)))
+      if (sender is IFontConfig conf &&
+          (e.PropertyName == nameof(IFontConfig.Font) || e.PropertyName == nameof(IFontConfig.FontSize)))
       {
         this.SafeInvoke(() =>
+        {
+          try
           {
-            try
-            {
-              SuspendLayout();
-              SetFonts(this, new Font(conf.Font, conf.FontSize));
-            }
-            catch
-            {
-              // ignore
-            }
-            finally
-            {
-              ResumeLayout();
-              Refresh();
-            }
-          });
+            SuspendLayout();
+            SetFonts(this, new Font(conf.Font, conf.FontSize));
+          }
+          catch
+          {
+            // ignore
+          }
+          finally
+          {
+            ResumeLayout();
+            Refresh();
+          }
+        });
       }
     }
 

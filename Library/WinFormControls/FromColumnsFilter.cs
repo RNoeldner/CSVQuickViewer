@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 namespace CsvTools
@@ -41,47 +42,69 @@ namespace CsvTools
     public FromColumnsFilter(in DataGridViewColumnCollection columns, in IEnumerable<DataRow> dataRows,
       in IEnumerable<int> withFilter, bool allDataPresent = true)
     {
-      m_Columns.AddRange(columns.OfType<DataGridViewColumn>());
-      m_Rows.AddRange(dataRows);
-
-      foreach (var col in m_Columns)
+      try
       {
-        if (col.Visible)
-          m_Checked.Add(col.DataPropertyName);
-        if (col.Frozen || withFilter.Contains(col.Index))
-          m_Protected.Add(col.DataPropertyName);
+        InitializeComponent();
+        buttonEmpty.Enabled = allDataPresent;
+
+        m_Columns.AddRange(columns.OfType<DataGridViewColumn>());
+        m_Rows.AddRange(dataRows);
+
+        foreach (var col in m_Columns)
+        {
+          if (col.Visible)
+            m_Checked.Add(col.DataPropertyName);
+          if (col.Frozen || withFilter.Contains(col.Index))
+            m_Protected.Add(col.DataPropertyName);
+        }
+
+        Filter(string.Empty);
       }
-
-      InitializeComponent();
-      buttonEmpty.Enabled = allDataPresent;
-      Filter(string.Empty);
+      catch (Exception e)
+      {
+        Logger.Warning(e, "FromColumnsFilter ctor");
+      }
     }
-
 
 
     private void AddItem(DataGridViewColumn item, bool filtered)
     {
-      var lvItem = listViewCluster.Items.Add(new ListViewItem(item.Name));
-      if (m_Protected.Contains(item.DataPropertyName))
-        lvItem.ForeColor = System.Drawing.SystemColors.Highlight;
-      else if (!filtered)
-        lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
+      try
+      {
+        var lvItem = listViewCluster.Items.Add(new ListViewItem(item.Name));
+        if (m_Protected.Contains(item.DataPropertyName))
+          lvItem.ForeColor = System.Drawing.SystemColors.Highlight;
+        else if (!filtered)
+          lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
 
-      lvItem.Checked = m_Checked.Contains(item.DataPropertyName);
+        lvItem.Checked = m_Checked.Contains(item.DataPropertyName);
+      }
+      catch
+      {
+        // ignore
+      }
     }
 
     private void Filter(string filter)
     {
-      listViewCluster.BeginUpdate();
-      listViewCluster.Items.Clear();
+      try
+      {
+        listViewCluster.BeginUpdate();
+        listViewCluster.Items.Clear();
 
-      var filtered = m_Columns.Where(x => string.IsNullOrEmpty(filter) || x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToArray();
-      foreach (var item in filtered.OrderBy(x => x.DisplayIndex))
-        AddItem(item, true);
-      foreach (var item in m_Columns.Where(x => !filtered.Contains(x)).OrderBy(x => x.DisplayIndex))
-        AddItem(item, false);
+        var filtered = m_Columns.Where(x =>
+          string.IsNullOrEmpty(filter) || x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1).ToArray();
+        foreach (var item in filtered.OrderBy(x => x.DisplayIndex))
+          AddItem(item, true);
+        foreach (var item in m_Columns.Where(x => !filtered.Contains(x)).OrderBy(x => x.DisplayIndex))
+          AddItem(item, false);
 
-      listViewCluster.EndUpdate();
+        listViewCluster.EndUpdate();
+      }
+      catch (Exception e)
+      {
+        ParentForm.ShowError(e);
+      }
     }
 
     private void TextBoxValue_TextChanged(object sender, EventArgs e)
@@ -138,10 +161,12 @@ namespace CsvTools
         // Apply the things
         foreach (var col in m_Columns)
         {
-          col.Visible = m_Protected.Contains(col.DataPropertyName) || listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
+          col.Visible = m_Protected.Contains(col.DataPropertyName) ||
+                        listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
         }
-        // if nothing is visible any more unhide first column
-        if (m_Columns.Count>0 && !m_Columns.Any(x => x.Visible))
+
+        // if nothing is visible anymore unhide first column
+        if (m_Columns.Count > 0 && !m_Columns.Any(x => x.Visible))
           m_Columns.First().Visible = true;
       });
     }
@@ -149,11 +174,11 @@ namespace CsvTools
     private void ButtonUncheck_Click(object sender, EventArgs e)
     {
       buttonUncheck.RunWithHourglass(() =>
-     {
-       foreach (ListViewItem col in listViewCluster.Items)
-         if (col.ForeColor != System.Drawing.SystemColors.GrayText)
-           col.Checked = m_Protected.Contains(col.Text);
-     });
+      {
+        foreach (ListViewItem col in listViewCluster.Items)
+          if (col.ForeColor != System.Drawing.SystemColors.GrayText)
+            col.Checked = m_Protected.Contains(col.Text);
+      });
     }
   }
 }
