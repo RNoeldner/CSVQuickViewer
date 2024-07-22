@@ -45,7 +45,7 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
-    private DataReaderWrapper? m_DataReaderWrapper;
+    private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
     /// <summary>
     /// Loads the setting asynchronous and displays the result
@@ -64,39 +64,9 @@ namespace CsvTools
       // Need to set FileSetting so we can change Formats
       FilteredDataGridView.FileSetting = fileSetting;
 
-      var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
-      if (fileReader is null)
-        throw new FileReaderException($"Could not get reader for {fileSetting}");
-      if (progress != null)
-        fileReader.ReportProgress = progress;
-
-#if !CsvQuickViewer
-      RowErrorCollection? warningList = null;
-      if (addWarning != null)
-      {
-        warningList = new RowErrorCollection(fileReader);
-        fileReader.Warning += addWarning;
-        fileReader.Warning -= warningList.Add;
-      }
-#endif
-
-      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-#if !CsvQuickViewer
-      if (addWarning != null)
-      {
-        warningList!.HandleIgnoredColumns(fileReader);
-        warningList.PassWarning += addWarning;
-      }
-#endif
-      m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
-
-      DataTable = await m_DataReaderWrapper.GetDataTableAsync(durationInitial, progress, cancellationToken);
-      if (m_DataReaderWrapper.EndOfFile)
-      {
-        m_DataReaderWrapper.Dispose();
-        m_DataReaderWrapper = null;
-      }
+      m_ToolStripLabelCount.Text = " loading...";
+      DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning,
+        cancellationToken);
 
       RefreshDisplay(filterType, cancellationToken);
     }
@@ -112,7 +82,7 @@ namespace CsvTools
     public DetailControl()
     {
       InitializeComponent();
-
+      m_SteppedDataTableLoader = new SteppedDataTableLoader();
       m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
       m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
       m_ToolStripItems.Add(m_ToolStripButtonDuplicates);
@@ -378,7 +348,7 @@ namespace CsvTools
     {
       set
       {
-        // in case we do not have unique names and the table is not loaded do nothing
+        // in case we do not have unique names and the table is not loaded, do nothing
         if (value is null || !value.Any())
           return;
         m_FilterDataTable.UniqueFieldName = value;
@@ -422,7 +392,7 @@ namespace CsvTools
         m_DataTable.Dispose();
         m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_DataReaderWrapper?.Dispose();
+        m_SteppedDataTableLoader.Dispose();
       }
 
       base.Dispose(disposing);
@@ -875,7 +845,7 @@ namespace CsvTools
       RefreshDisplay(GetCurrentFilter(), m_CancellationToken);
     }
 
-    private bool EndOfFile => (m_DataReaderWrapper == null || m_DataReaderWrapper.EndOfFile);
+    private bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
 
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
     {
@@ -891,25 +861,23 @@ namespace CsvTools
         using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size),
           m_CancellationToken);
         formProgress.Show(this);
-        formProgress.Maximum = 100;
+        formProgress.Maximum = 3;
 
         m_ToolStripLabelCount.Text = " loading...";
-
-        var newDt = await m_DataReaderWrapper!.GetDataTableAsync(TimeSpan.FromSeconds(10), formProgress,
+        var newDt = await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(10),
           formProgress.CancellationToken);
 
         if (newDt.Rows.Count > 0)
         {
+          formProgress.Report(new ProgressInfo($"Adding {newDt.Rows.Count:N0} new rows", 2));
           DataTable.Merge(newDt, false, MissingSchemaAction.Error);
-          RefreshDisplay(GetCurrentFilter(), formProgress.CancellationToken);
         }
 
-        if (m_DataReaderWrapper!.EndOfFile)
-        {
-          m_DataReaderWrapper.Dispose();
-          m_DataReaderWrapper = null;
-        }
+        formProgress.Report(new ProgressInfo("Refresh Display", 3));
+        RefreshDisplay(GetCurrentFilter(), formProgress.CancellationToken);
       });
+
+      Extensions.ProcessUIElements();
     }
 
     private void TimerVisibility_Tick(object? sender, EventArgs e)
