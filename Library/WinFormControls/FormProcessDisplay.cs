@@ -39,6 +39,7 @@ namespace CsvTools
     private Label m_LabelText = new Label();
     private ProgressBar m_ProgressBar = new ProgressBar();
     private TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
+    private readonly bool m_WithLoggerDisplay = false;
 
     /// <summary>Raised for each reported progress value.</summary>
     /// <remarks>
@@ -65,7 +66,7 @@ namespace CsvTools
       InitializeComponent();
 
       Text = windowTitle ?? string.Empty;
-
+      m_WithLoggerDisplay = withLoggerDisplay;
       SuspendLayout();
       m_TableLayoutPanel.SuspendLayout();
       if (withLoggerDisplay)
@@ -388,7 +389,7 @@ namespace CsvTools
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
       Func<TState, Exception?, string> formatter)
     {
-      if (!IsEnabled(logLevel))
+      if (!m_WithLoggerDisplay || !IsEnabled(logLevel))
         return;
       var text = formatter(state, exception);
       if (string.IsNullOrEmpty(text))

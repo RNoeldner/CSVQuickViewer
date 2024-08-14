@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CsvTools
 {
@@ -34,12 +35,12 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation Token to stop a possibly long running process</param>
     /// <returns>HTML Table</returns>
     public static async Task<string> GetFileInformationHtml(this IFileSettingPhysicalFile fileSetting,
-      IEnumerable<string> additionalInfo, int? numRecords,
+      IEnumerable<string> additionalInfo, int? numRecords, bool isDelimited,
       CancellationToken cancellationToken)
     {
       var buffer = new StringBuilder();
       var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
-      var fi = new System.IO.FileInfo(fileSetting.FileName);
+      var fi = new FileInfo(fileSetting.FileName);
 
       void AddInfo(in string label, in string text)
       {
@@ -70,8 +71,18 @@ namespace CsvTools
 
       AddInfo("File Encoding", EncodingHelper.GetEncodingName(fileSetting.CodePageId,
         fileSetting.ByteOrderMark));
-      if (fileSetting is ICsvFile csvFile)
+
+      if (fileSetting.SkipRows > 0)
+        AddInfo("Skip Rows", fileSetting.SkipRows.ToString());
+
+      var rawHeader = string.Empty;
+      var join = ", ";
+
+      if (fileSetting is ICsvFile csvFile && isDelimited)
       {
+        if (csvFile.CommentLine.Length > 0)
+          AddInfo("Commented Row", csvFile.CommentLine);
+
         AddInfo("Field Delimiter", csvFile.FieldDelimiterChar.Description());
         if (csvFile.EscapePrefixChar != '\0')
         {
@@ -110,15 +121,53 @@ namespace CsvTools
 
           if (qualifierUsed)
           {
-            AddInfo("Quoting / Qualifier", csvFile.FieldQualifierChar.Description());
+            var info = csvFile.FieldQualifierChar.Description();
             if (csvFile.DuplicateQualifierToEscape)
-              AddInfo("Quoting / Qualifier", "Duplicate qualifier inside qualification");
+              info += " (Duplicate qualifier inside qualification)";
+            AddInfo("Quoting / Qualifier", info);
           }
         }
+
+        try
+        {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+            await
+#endif
+          using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
+          {
+            rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
+              csvFile.FieldDelimiterChar,
+              csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
+          }
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+            await
+#endif
+          using (var stream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
+          {
+            using var streamReader =
+              new StreamReader(stream, Encoding.GetEncoding(csvFile.CodePageId),
+                false, 4096, false);
+            var numLines = 0;
+            while (!streamReader.EndOfStream)
+            {
+              numLines++;
+              await streamReader.ReadLineAsync().ConfigureAwait(false);
+            }
+
+            AddInfo("Number of Lines", numLines.ToString());
+          }
+        }
+        catch
+        {
+          // Ignore
+        }
+
+        join = csvFile.FieldDelimiterChar.ToString();
       }
 
       if (numRecords.HasValue)
-        AddInfo("Number of records", numRecords.Value.ToString());
+        AddInfo("Number of Records", numRecords.Value.ToString());
 
 #if NET5_0_OR_GREATER
       await
@@ -126,27 +175,27 @@ namespace CsvTools
       using var fileReader =
         FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+      var columnNames = string.Join(join,
+        fileReader.GetColumnsOfReader().Select(x => x.Name));
+      fileReader.Close();
+
       AddInfo("Number of Columns", fileReader.FieldCount.ToString());
-      if (fileSetting is ICsvFile csvFile2)
-      {
-        AddInfo("Column Names", string.Join(csvFile2.FieldDelimiterChar.ToString(),
-          fileReader.GetColumnsOfReader().Select(x => x.Name)));
-        if (csvFile2.CommentLine.Length > 0)
-          AddInfo("Commented Row", csvFile2.CommentLine);
-      }
-      else
-      {
-        AddInfo("Column Names", string.Join(", ",
-          fileReader.GetColumnsOfReader().Select(x => x.Name)));
-      }
-
-      if (fileSetting.SkipRows > 0)
-        AddInfo("Skip Rows", fileSetting.SkipRows.ToString());
-
+      if (!string.IsNullOrEmpty(rawHeader) && !rawHeader.Equals(columnNames))
+        AddInfo("Header", rawHeader);
+      AddInfo("Column Names", columnNames);
+      var first = true;
       foreach (var line in additionalInfo)
       {
+        if (first)
+        {
+          AddInfo(string.Empty, string.Empty);
+          first = false;
+        }
+
         AddInfo(line, string.Empty);
       }
+
 
       sbHtml.AppendLine(HtmlStyle.TableClose);
       return sbHtml.ToString();

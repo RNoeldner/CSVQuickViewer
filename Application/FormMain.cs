@@ -764,7 +764,9 @@ namespace CsvTools
 
         using var frm = new FormEditSettings(m_ViewSettings, editSetting, m_LoadWarnings,
           detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : (int?) null);
+        this.AllowDrop = false;
         frm.ShowDialog(this);
+        this.AllowDrop = true;
         await m_ViewSettings.SaveViewSettingsAsync();
         editSetting = frm.FileSetting;
 

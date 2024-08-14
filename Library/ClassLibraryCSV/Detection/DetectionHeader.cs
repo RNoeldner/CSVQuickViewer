@@ -11,8 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -54,7 +56,8 @@ namespace CsvTools
       do
       {
         restartLineCommented = false;
-        columnText = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
+        var res = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
+        columnText = res.column;
 
         // An empty line does not have a first column
         if (columnText.Length == 0 && endOfLine)
@@ -81,6 +84,7 @@ namespace CsvTools
                 if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
                   reader.MoveNext();
               }
+
               break;
             }
           }
@@ -90,8 +94,8 @@ namespace CsvTools
       var columns = new List<string> { columnText };
       while (!endOfLine)
       {
-        columnText = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
-        columns.Add(columnText);
+        var res = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
+        columns.Add(res.column);
       }
       return columns.ToArray();
     }
@@ -251,11 +255,30 @@ namespace CsvTools
       return headerLine;
     }
 
-    private static string ReadColumn(in ImprovedTextReader reader, char fieldDelimiter,
-                      char fieldQualifier, char escapePrefix, out bool eol)
+    public static string GetRawHeaderLine(this Stream stream, int codePageId, int skipLines,
+      char fieldDelimiterChar,
+      char fieldQualifierChar, char escapePrefix, string commentLine)
+    {
+      var sb = new StringBuilder();
+      using var imp = new ImprovedTextReader(stream, codePageId, skipLines);
+      var eol = false;
+      do
+      {
+        var (_, raw) = ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol);
+        sb.Append(raw);
+      } while (!eol);
+
+      if (sb.Length > 0)
+        sb.Length--;
+      return sb.ToString();
+    }
+
+    private static (string column, string raw) ReadColumn(in ImprovedTextReader reader, char fieldDelimiter,
+      char fieldQualifier, char escapePrefix, out bool eol)
     {
       eol = false;
       var stringBuilder = new StringBuilder(5);
+      var rawData = new StringBuilder(5);
       var quoted = false;
       var preData = true;
       var escaped = false;
@@ -263,7 +286,7 @@ namespace CsvTools
       {
         // Read a character
         var character = reader.Read();
-
+        rawData.Append((char) character);
         if (character == cCr || character == cLf)
         {
           var nextChar = 0;
@@ -354,7 +377,7 @@ namespace CsvTools
       } // While
 
       eol = eol || reader.EndOfStream;
-      return stringBuilder.ToString();
+      return (stringBuilder.ToString(), rawData.ToString());
     }
   }
 }

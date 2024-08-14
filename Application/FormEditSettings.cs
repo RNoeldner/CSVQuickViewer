@@ -15,7 +15,6 @@
 #nullable enable
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -153,13 +152,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var stream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var stream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader =
-            await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+            using var textReader =
+              await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
           csvFile.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiterChar,
             csvFile.FieldQualifierChar, m_CancellationTokenSource.Token));
         });
@@ -177,8 +176,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
           var (codepage, bom) = await improvedStream.InspectCodePageAsync(m_CancellationTokenSource.Token);
           csvFile.CodePageId = codepage;
           csvFile.ByteOrderMark = bom;
@@ -197,13 +196,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+            using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
+              m_CancellationTokenSource.Token);
           var res = await textReader.InspectDelimiterAsync(csvFile.FieldQualifierChar, csvFile.EscapePrefixChar,
             Array.Empty<char>(), m_CancellationTokenSource.Token);
           if (res.IsDetected)
@@ -223,13 +222,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+            using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
+              m_CancellationTokenSource.Token);
           var res = await textReader.InspectHasHeaderAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar,
             csvFile.EscapePrefixChar, csvFile.CommentLine, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
@@ -249,13 +248,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+            using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
+              m_CancellationTokenSource.Token);
           csvFile.CommentLine = await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
         });
         UpdateUI();
@@ -272,13 +271,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+            using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
+              m_CancellationTokenSource.Token);
           var res = textReader.InspectQualifier(csvFile.FieldDelimiterChar, csvFile.EscapePrefixChar,
             StaticCollections.PossibleQualifiers, m_CancellationTokenSource.Token);
           csvFile.FieldQualifierChar = res.QuoteChar;
@@ -318,13 +317,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader =
-            await improvedStream.GetTextReaderAsync(csvFile.CodePageId, 0, m_CancellationTokenSource.Token);
+            using var textReader =
+              await improvedStream.GetTextReaderAsync(csvFile.CodePageId, 0, m_CancellationTokenSource.Token);
           csvFile.SkipRows = textReader.InspectStartRow(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar,
             csvFile.EscapePrefixChar, csvFile.CommentLine, m_CancellationTokenSource.Token);
         });
@@ -422,13 +421,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+            // ReSharper disable once UseAwaitUsing
+            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+            using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
+              m_CancellationTokenSource.Token);
           cboRecordDelimiter.SelectedValue =
             textReader.InspectRecordDelimiter(csvFile.FieldQualifierChar, m_CancellationTokenSource.Token);
         });
@@ -605,12 +604,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await buttonFileInfo.RunWithHourglassAsync(async () =>
       {
         stringBuilder.Append(
-          await info.GetFileInformationHtml(m_Warnings, m_NumRecords, m_CancellationTokenSource.Token));
+          await info.GetFileInformationHtml(m_Warnings, m_NumRecords, FileSetting.IsCsv,
+            m_CancellationTokenSource.Token));
         stringBuilder.AppendLine("</BODY>");
         stringBuilder.AppendLine("</HTML>");
         MessageBox.ShowBigHtml(stringBuilder.ToString(), "Information", MessageBoxButtons.OK,
           MessageBoxIcon.Information,
-          MessageBoxDefaultButton.Button1, 10D);
+          MessageBoxDefaultButton.Button1, 120D);
       });
     }
   }

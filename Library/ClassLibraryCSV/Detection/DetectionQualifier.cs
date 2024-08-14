@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -55,7 +56,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score<85)
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score < 85)
           currentQuote.Score += 15;
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
@@ -87,7 +88,8 @@ namespace CsvTools
       if (fieldQualifierChar == char.MinValue || cancellationToken.IsCancellationRequested)
         return false;
 
-      using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
+      using var streamReader =
+        await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)
       {
@@ -106,11 +108,8 @@ namespace CsvTools
         // If we are at the start of a column and this is a ", we can stop, this is a real qualifier
         if (c == fieldQualifierChar)
           return true;
-        // Any non whitespace will reset isStartOfColumn
-        if (c <= '\x00ff')
-          isStartOfColumn = c == ' ' || c == '\t';
-        else
-          isStartOfColumn = CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
+        // Any non whitespace will start a column
+        isStartOfColumn = c != '\t' && CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.SpaceSeparator;
       }
 
       return false;
@@ -151,7 +150,7 @@ namespace CsvTools
       {
         var c = (char) textReader.Read();
         // disregard spaces
-        if (c == ' ' || c== char.MinValue)
+        if (c == ' ' || c == char.MinValue)
           continue;
 
         if (c == escapeChar)
@@ -185,7 +184,7 @@ namespace CsvTools
       }
 
 
-      if (filter.Length<1)
+      if (filter.Length < 1)
         res.Score = 0;
       else
       {
@@ -213,8 +212,8 @@ namespace CsvTools
             if (line[index - 1] != delimiterChar)
               counterCloseStrict++;
           }
-
         }
+
         var totalScore = counterTotal;
         if (counterOpenStrict != 0 && counterCloseStrict * 1.5 > counterOpenStrict &&
             counterCloseStrict < counterOpenStrict * 1.5)
@@ -223,7 +222,7 @@ namespace CsvTools
         }
         else if (!res.DuplicateQualifier && counterOpenSimple != 0)
         {
-          totalScore = counterOpenSimple +  counterCloseSimple;
+          totalScore = counterOpenSimple + counterCloseSimple;
         }
 
         // If we hardly saw quotes assume DuplicateQualifier
@@ -233,6 +232,7 @@ namespace CsvTools
         // try to normalize the score, depending on the length of the filter build a percent score that  should indicate how sure
         res.Score = totalScore > filter.Length ? 99 : Convert.ToInt32(totalScore / (double) filter.Length * 100);
       }
+
       // if we could not find opening and closing because we have a lot of ,", take the absolute numbers
       return res;
     }
@@ -269,7 +269,8 @@ namespace CsvTools
       /// <param name="score"></param>
       /// <param name="duplicateQualifier"></param>
       /// <param name="escapedQualifier"></param>
-      public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier = false, bool escapedQualifier = false)
+      public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier = false,
+        bool escapedQualifier = false)
       {
         QuoteChar = quoteChar;
         Score = score;
