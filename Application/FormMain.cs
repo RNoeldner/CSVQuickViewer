@@ -458,12 +458,17 @@ namespace CsvTools
       }
     }
 
+    private bool m_CheckRunning = false;
+
     private async Task CheckPossibleChange()
     {
+      if (m_CheckRunning)
+        return;
       if (!m_ShouldReloadData && !m_FileChanged)
         return;
       try
       {
+        m_CheckRunning = true;
         if (m_ShouldReloadData)
         {
           m_ShouldReloadData = false;
@@ -475,7 +480,10 @@ namespace CsvTools
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           {
             if (m_RunDetection)
+            {
               await RunDetection(m_CancellationTokenSource.Token);
+              m_RunDetection = false;
+            }
 
             await OpenDataReaderAsync(m_CancellationTokenSource.Token);
             // as we have reloaded assume any file change is handled as well
@@ -483,8 +491,7 @@ namespace CsvTools
           }
         }
 
-        if (!m_FileChanged) return;
-        if (m_FileSetting is null || m_FileSetting.FileName.Length == 0)
+        if (m_FileSetting is null || m_FileSetting.FileName.Length == 0 || !m_FileChanged)
           return;
 
         m_FileChanged = false;
@@ -506,6 +513,10 @@ namespace CsvTools
       catch (Exception exception)
       {
         Logger.Error(exception, "Checking reload or file change");
+      }
+      finally
+      {
+        m_CheckRunning = false;
       }
     }
 
@@ -764,11 +775,14 @@ namespace CsvTools
 
         using var frm = new FormEditSettings(m_ViewSettings, editSetting, m_LoadWarnings,
           detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : (int?) null);
+        this.AllowDrop = false;
         frm.ShowDialog(this);
+        this.AllowDrop = true;
         await m_ViewSettings.SaveViewSettingsAsync();
-        editSetting = frm.FileSetting;
 
-        if (frm.FileSetting == null)
+        // FormEditSettings could have created a new CsvFileDummy
+        editSetting = frm.FileSetting;
+        if (editSetting == null)
           return;
 
         // Update Setting
@@ -779,51 +793,50 @@ namespace CsvTools
           SetFileSystemWatcher(m_FileSetting.FileName);
 
           // If field headers or FillGuess has changed we need to run  Detection again
-          m_RunDetection = m_FileSetting.HasFieldHeader != frm.FileSetting.HasFieldHeader ||
+          m_RunDetection = m_FileSetting.HasFieldHeader != editSetting.HasFieldHeader ||
                            !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
 
           // if the file has changed need to load all
-          m_FileChanged = !frm.FileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
+          m_FileChanged = !editSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
 
           m_AskOpenFile = !(m_FileChanged || m_RunDetection);
-          if (m_FileSetting is ICsvFile oldCsv && frm.FileSetting is ICsvFile newCsv)
-          {
-            m_ShouldReloadData = oldCsv.AllowRowCombining != newCsv.AllowRowCombining;
-            m_ShouldReloadData |= !oldCsv.ColumnCollection.CollectionEqualWithOrder(newCsv.ColumnCollection);
-            m_ShouldReloadData |= oldCsv.ByteOrderMark != newCsv.ByteOrderMark;
-            m_ShouldReloadData |= oldCsv.CodePageId != newCsv.CodePageId;
-            m_ShouldReloadData |= oldCsv.ConsecutiveEmptyRows != newCsv.ConsecutiveEmptyRows;
-            m_ShouldReloadData |= oldCsv.HasFieldHeader != newCsv.HasFieldHeader;
-            m_ShouldReloadData |= oldCsv.NumWarnings != newCsv.NumWarnings;
-            m_ShouldReloadData |= oldCsv.SkipEmptyLines != newCsv.SkipEmptyLines;
-            m_ShouldReloadData |= oldCsv.SkipRows != newCsv.SkipRows;
-            m_ShouldReloadData |= oldCsv.TreatLfAsSpace != newCsv.TreatLfAsSpace;
-            m_ShouldReloadData |= oldCsv.TreatNBSPAsSpace != newCsv.TreatNBSPAsSpace;
-            m_ShouldReloadData |= oldCsv.TreatTextAsNull != newCsv.TreatTextAsNull;
-            m_ShouldReloadData |= oldCsv.TreatUnknownCharacterAsSpace != newCsv.TreatUnknownCharacterAsSpace;
-            m_ShouldReloadData |= oldCsv.TryToSolveMoreColumns != newCsv.TryToSolveMoreColumns;
-            m_ShouldReloadData |= oldCsv.WarnDelimiterInValue != newCsv.WarnDelimiterInValue;
-            m_ShouldReloadData |= oldCsv.WarnEmptyTailingColumns != newCsv.WarnEmptyTailingColumns;
-            m_ShouldReloadData |= oldCsv.WarnLineFeed != newCsv.WarnLineFeed;
-            m_ShouldReloadData |= oldCsv.WarnNBSP != newCsv.WarnNBSP;
-            m_ShouldReloadData |= oldCsv.WarnQuotes != newCsv.WarnQuotes;
-            m_ShouldReloadData |= oldCsv.WarnQuotesInQuotes != newCsv.WarnQuotesInQuotes;
-            m_ShouldReloadData |= oldCsv.WarnUnknownCharacter != newCsv.WarnUnknownCharacter;
-            m_ShouldReloadData |= oldCsv.DisplayStartLineNo != newCsv.DisplayStartLineNo;
-            m_ShouldReloadData |= oldCsv.DisplayRecordNo != newCsv.DisplayRecordNo;
-            m_ShouldReloadData |= oldCsv.FieldDelimiterChar != newCsv.FieldDelimiterChar;
-            m_ShouldReloadData |= oldCsv.FieldQualifierChar != newCsv.FieldQualifierChar;
-            m_ShouldReloadData |= oldCsv.EscapePrefixChar != newCsv.EscapePrefixChar;
-            m_ShouldReloadData |= oldCsv.DelimiterPlaceholder != newCsv.DelimiterPlaceholder;
-            m_ShouldReloadData |= oldCsv.NewLinePlaceholder != newCsv.NewLinePlaceholder;
-            m_ShouldReloadData |= oldCsv.QualifierPlaceholder != newCsv.QualifierPlaceholder;
-            m_ShouldReloadData |= oldCsv.CommentLine != newCsv.CommentLine;
-            m_ShouldReloadData |= oldCsv.ContextSensitiveQualifier != newCsv.ContextSensitiveQualifier;
-            m_ShouldReloadData |= oldCsv.DuplicateQualifierToEscape != newCsv.DuplicateQualifierToEscape;
-          }
+
+          m_ShouldReloadData = m_FileSetting.AllowRowCombining != editSetting.AllowRowCombining;
+          m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqualWithOrder(editSetting.ColumnCollection);
+          m_ShouldReloadData |= m_FileSetting.ByteOrderMark != editSetting.ByteOrderMark;
+          m_ShouldReloadData |= m_FileSetting.CodePageId != editSetting.CodePageId;
+          m_ShouldReloadData |= m_FileSetting.ConsecutiveEmptyRows != editSetting.ConsecutiveEmptyRows;
+          m_ShouldReloadData |= m_FileSetting.HasFieldHeader != editSetting.HasFieldHeader;
+          m_ShouldReloadData |= m_FileSetting.NumWarnings != editSetting.NumWarnings;
+          m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != editSetting.SkipEmptyLines;
+          m_ShouldReloadData |= m_FileSetting.SkipRows != editSetting.SkipRows;
+          m_ShouldReloadData |= m_FileSetting.TreatLfAsSpace != editSetting.TreatLfAsSpace;
+          m_ShouldReloadData |= m_FileSetting.TreatNBSPAsSpace != editSetting.TreatNBSPAsSpace;
+          m_ShouldReloadData |= m_FileSetting.TreatTextAsNull != editSetting.TreatTextAsNull;
+          m_ShouldReloadData |= m_FileSetting.TreatUnknownCharacterAsSpace != editSetting.TreatUnknownCharacterAsSpace;
+          m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != editSetting.TryToSolveMoreColumns;
+          m_ShouldReloadData |= m_FileSetting.WarnDelimiterInValue != editSetting.WarnDelimiterInValue;
+          m_ShouldReloadData |= m_FileSetting.WarnEmptyTailingColumns != editSetting.WarnEmptyTailingColumns;
+          m_ShouldReloadData |= m_FileSetting.WarnLineFeed != editSetting.WarnLineFeed;
+          m_ShouldReloadData |= m_FileSetting.WarnNBSP != editSetting.WarnNBSP;
+          m_ShouldReloadData |= m_FileSetting.WarnQuotes != editSetting.WarnQuotes;
+          m_ShouldReloadData |= m_FileSetting.WarnQuotesInQuotes != editSetting.WarnQuotesInQuotes;
+          m_ShouldReloadData |= m_FileSetting.WarnUnknownCharacter != editSetting.WarnUnknownCharacter;
+          m_ShouldReloadData |= m_FileSetting.DisplayStartLineNo != editSetting.DisplayStartLineNo;
+          m_ShouldReloadData |= m_FileSetting.DisplayRecordNo != editSetting.DisplayRecordNo;
+          m_ShouldReloadData |= m_FileSetting.FieldDelimiterChar != editSetting.FieldDelimiterChar;
+          m_ShouldReloadData |= m_FileSetting.FieldQualifierChar != editSetting.FieldQualifierChar;
+          m_ShouldReloadData |= m_FileSetting.EscapePrefixChar != editSetting.EscapePrefixChar;
+          m_ShouldReloadData |= m_FileSetting.DelimiterPlaceholder != editSetting.DelimiterPlaceholder;
+          m_ShouldReloadData |= m_FileSetting.NewLinePlaceholder != editSetting.NewLinePlaceholder;
+          m_ShouldReloadData |= m_FileSetting.QualifierPlaceholder != editSetting.QualifierPlaceholder;
+          m_ShouldReloadData |= m_FileSetting.CommentLine != editSetting.CommentLine;
+          m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != editSetting.ContextSensitiveQualifier;
+          m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != editSetting.DuplicateQualifierToEscape;
+
 
           m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-          frm.FileSetting.CopyTo(m_FileSetting);
+          editSetting.CopyTo(m_FileSetting);
           m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
         }
         // Set Setting

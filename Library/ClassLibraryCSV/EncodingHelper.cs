@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System.Text;
@@ -34,16 +35,16 @@ namespace CsvTools
     /// <value>An array of common code pages.</value>
     public static int[] CommonCodePages => new[]
     {
-      Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001,
-      1252, 437, 1250,  1253, 1255,  850, 852,  28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+      Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001, 1252, 437,
+      1250, 1253, 1255, 850, 852, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     };
-    
-    #if NET5_0_OR_GREATER
+
+#if NET5_0_OR_GREATER
     static EncodingHelper()
     {
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
-    #endif
+#endif
 
     // ReSharper disable once InconsistentNaming
     /// <summary>
@@ -220,18 +221,22 @@ namespace CsvTools
       if (results.Detected is null)
         return Encoding.UTF8;
 
-      if (results.Detected.Confidence > 0.56)
+      if (results.Detected.Confidence > 0.80)
         return results.Detected.Encoding;
 
-      Logger.Warning($"Confidence for detected character set {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
+      Logger.Warning(
+        $"Confidence for detected character set {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
       foreach (var res in results.Details)
       {
-        if (res.Confidence>0.5 && res.Encoding.Equals(Encoding.UTF32))
+        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.UTF8))
+          return Encoding.UTF8;
+        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.UTF32))
           return Encoding.UTF32;
-        if (res.Confidence>0.5 && res.Encoding.Equals(Encoding.Unicode))
+        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.Unicode))
           return Encoding.Unicode;
       }
-      return Encoding.UTF8;
+
+      return results.Detected.Encoding;
     }
   }
 }
