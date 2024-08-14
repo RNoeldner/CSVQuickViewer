@@ -617,7 +617,7 @@ namespace CsvTools
     /// <param name="message">The message to raise.</param>
     public void HandleError(int ordinal, in string message)
     {
-      if (Warning != null && !Column[ordinal].Ignore)
+      if (Warning != null && (ordinal < 0 || ordinal > Column.Length || !Column[ordinal].Ignore))
         Warning(this, GetWarningEventArgs(ordinal, message));
     }
 
@@ -626,11 +626,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column ordinal number</param>
     /// <param name="message">The message to raise.</param>
-    public void HandleWarning(int ordinal, string message)
-    {
-      if (Warning != null && !Column[ordinal].Ignore)
-        Warning(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
-    }
+    public void HandleWarning(int ordinal, string message) => HandleError(ordinal, message.AddWarningId());
 
     /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
