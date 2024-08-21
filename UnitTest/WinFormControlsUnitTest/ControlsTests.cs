@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -51,8 +52,9 @@ namespace CsvTools.Tests
     public void CsvTextDisplayShowAsync()
     {
       UnitTestStaticForms.ShowFormAsync(
-        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), null),
-        async frm => await frm.OpenFileAsync(false, '"', '\t', char.MinValue, 1200, 1, "##", UnitTestStatic.Token), .1);
+        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"),
+          (frm, token) => Task.FromResult(File.ReadAllText(UnitTestStatic.GetTestPath("BasicCSV.txt")))),
+        async frm => await frm.OpenFileAsync(false, '"', '\t', char.MinValue, 1, "##", UnitTestStatic.Token), .1);
     }
 
     [TestMethod, Timeout(8000)]

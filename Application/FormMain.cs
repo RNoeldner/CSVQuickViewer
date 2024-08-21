@@ -16,6 +16,7 @@
 
 using CsvTools.Properties;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -188,14 +189,43 @@ namespace CsvTools
 
       detailControl.DisplaySourceAsync = async ct =>
       {
-        using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath, null);
+        using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath,
+          async (formProgress, cancellationToken) =>
+          {
+            var sa = new SourceAccess(m_FileSetting!.FullPath);
+            sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
+#if NET5_0_OR_GREATER
+      await
+#endif
+            // ReSharper disable once UseAwaitUsing
+            using var stream = FunctionalDI.GetStream(sa);
+            using var textReader =
+              new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
+
+            var sb = new StringBuilder();
+            char[] buffer = ArrayPool<char>.Shared.Rent(64000);
+            int len;
+            const int max = 1000;
+            formProgress.SetMaximum(max);
+            while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
+            {
+              cancellationToken.ThrowIfCancellationRequested();
+              sb.Append(buffer, 0, len);
+              var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * max) : 0L;
+              formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
+            }
+
+            formProgress.SetMaximum(0);
+            formProgress.Report(new ProgressInfo("Finished reading file"));
+
+            return sb.ToString();
+          });
         sourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
         if (m_FileSetting.IsCsv)
           await sourceDisplay.OpenFileAsync(false, m_FileSetting.FieldQualifierChar, m_FileSetting.FieldDelimiterChar,
-            m_FileSetting.EscapePrefixChar,
-            m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.CommentLine, ct);
+            m_FileSetting.EscapePrefixChar, m_FileSetting.SkipRows, m_FileSetting.CommentLine, ct);
         else
-          await sourceDisplay.OpenFileAsync(m_FileSetting.IsJson, '\0', '\0', '\0', 65001, m_FileSetting.SkipRows, "",
+          await sourceDisplay.OpenFileAsync(m_FileSetting.IsJson, '\0', '\0', '\0', m_FileSetting.SkipRows, "",
             ct);
         sourceDisplay.ShowDialog();
       };
