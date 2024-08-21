@@ -997,16 +997,6 @@ namespace CsvTools
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       {
         await DisplaySourceAsync.Invoke(m_CancellationToken);
-        //m_SourceDisplay = new FormCsvTextDisplay(phys.FileName, null);
-        //m_SourceDisplay.ShowWithFont(this);
-        //m_SourceDisplay.FormClosed += SourceDisplayClosed;
-
-        //if (FileSetting is ICsvFile csv)
-        //  await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifierChar, csv.FieldDelimiterChar, csv.EscapePrefixChar,
-        //    csv.CodePageId, FileSetting.SkipRows, csv.CommentLine, m_CancellationToken);
-        //else
-        //  await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, '\0', '\0', '\0', 65001, FileSetting.SkipRows, "",
-        //    m_CancellationToken);
       }, ParentForm);
     }
   }

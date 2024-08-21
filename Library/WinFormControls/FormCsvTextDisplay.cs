@@ -14,12 +14,9 @@
 
 #nullable enable
 using System;
-using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Buffers;
 
 namespace CsvTools
 {
@@ -28,21 +25,21 @@ namespace CsvTools
   /// </summary>
   public partial class FormCsvTextDisplay : ResizeForm
   {
-    private int m_CodePage;
     private readonly string? m_FullPath;
     private SyntaxHighlighterBase? m_HighLighter;
     private int m_SkipLines;
-    private readonly Func<IProgress<ProgressInfo>, CancellationToken, Task<string>>? m_GetContent;
+    private readonly Func<IProgress<ProgressInfo>, CancellationToken, Task<string>> m_GetContent;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay(in string? fullPath, in Func<IProgress<ProgressInfo>, CancellationToken, Task<string>>? getText)
+    public FormCsvTextDisplay(in string? fullPath,
+      in Func<IProgress<ProgressInfo>, CancellationToken, Task<string>> getContent)
     {
       m_FullPath = fullPath;
-      m_GetContent = getText;
+      m_GetContent = getContent;
       InitializeComponent();
-      base.Text = (m_FullPath?? "Source").GetShortDisplayFileName();
+      base.Text = (m_FullPath ?? "Source").GetShortDisplayFileName();
     }
 
     private void HighlightVisibleRange()
@@ -63,41 +60,6 @@ namespace CsvTools
       }
     }
 
-    private async Task<string> SourceText(IProgress<ProgressInfo> formProgress,
-      CancellationToken cancellationToken)
-    {
-      formProgress.Report(new ProgressInfo("Accessing source file"));
-
-      if (m_GetContent!=null)
-        return await m_GetContent(formProgress, cancellationToken).ConfigureAwait(false);
-
-      var sa = new SourceAccess(m_FullPath!);
-#if NET5_0_OR_GREATER
-      await
-#endif
-      // ReSharper disable once UseAwaitUsing
-      using var stream = FunctionalDI.GetStream(sa);
-      using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
-
-      var sb = new StringBuilder();
-      char[] buffer = ArrayPool<char>.Shared.Rent(64000);
-      int len;
-      const int cMax = 1000;
-      formProgress.SetMaximum(cMax);
-      while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        sb.Append(buffer, 0, len);
-        var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * cMax) : 0L;
-        formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
-      }
-
-      formProgress.SetMaximum(0);
-      formProgress.Report(new ProgressInfo("Finished reading file"));
-
-      return sb.ToString();
-    }
-
     private async Task OriginalStream(CancellationToken cancellationToken)
     {
       await textBox.RunWithHourglassAsync(async () =>
@@ -108,7 +70,7 @@ namespace CsvTools
         formProgress.Report(new ProgressInfo("Display of read file"));
 
         // Actually now read the text to display
-        textBox.Text = (await SourceText(formProgress, formProgress.CancellationToken)).Replace("\t", "⇥");
+        textBox.Text = (await m_GetContent(formProgress, cancellationToken)).Replace("\t", "⇥");
 
         textBox.IsChanged = false;
         formProgress.Maximum = 0;
@@ -142,7 +104,7 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public async Task OpenFileAsync(bool json, char qualifier, char delimiter, char escape, int codePage,
+    public async Task OpenFileAsync(bool json, char qualifier, char delimiter, char escape,
       int skipLines, string comment, CancellationToken cancellationToken)
     {
       if (m_HighLighter is IDisposable disposable)
@@ -156,7 +118,7 @@ namespace CsvTools
       else
         m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
 
-      if (!string.IsNullOrEmpty(m_FullPath) &&  !FileSystemUtils.FileExists(m_FullPath))
+      if (!string.IsNullOrEmpty(m_FullPath) && !FileSystemUtils.FileExists(m_FullPath))
       {
         textBox.Text = $@"
 The file '{m_FullPath}' does not exist.";
@@ -166,7 +128,6 @@ The file '{m_FullPath}' does not exist.";
         try
         {
           m_SkipLines = !json ? skipLines : 0;
-          m_CodePage = codePage;
 
           await OriginalStream(cancellationToken);
         }
@@ -176,7 +137,6 @@ The file '{m_FullPath}' does not exist.";
           textBox.Text = $@"Issue opening the file {m_FullPath} for display:
 {ex.Message}";
         }
-
       }
     }
 
