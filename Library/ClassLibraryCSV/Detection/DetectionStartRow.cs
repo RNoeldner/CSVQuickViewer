@@ -26,8 +26,8 @@ namespace CsvTools
     ///   Guess the start row of a CSV file done with a rather simple csv parsing, excluding any header rows or commented rows.
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
-    /// <param name="fieldDelimiterChar">The delimiter.</param>
-    /// <param name="fieldQualifierChar">The quoting char</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
     /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>

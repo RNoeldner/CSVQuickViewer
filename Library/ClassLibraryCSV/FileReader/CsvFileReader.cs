@@ -186,7 +186,7 @@ namespace CsvTools
     /// <param name="columnDefinition">The column definition for value conversion.</param>
     /// <param name="trimmingOption">How should leading/trailing spaces be trimmed?. Option based on information whether the text is quoted or not</param>
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
-    /// <param name="fieldQualifierChar">The field qualifier character.</param>
+    /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting.</param>
     /// <param name="escapeCharacterChar">The escape character an escaped chars is read as is, 2nd method to have quotes or delimiter in column.</param>
     /// <param name="recordLimit">After the giving number of records stop reading</param>
     /// <param name="allowRowCombining">if set to <c>true</c> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>

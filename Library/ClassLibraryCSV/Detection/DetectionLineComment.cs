@@ -26,7 +26,7 @@ namespace CsvTools
     /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="fieldDelimiterChar">The delimiter.</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>true if the comment line seems to be ok</returns>
     public static async Task<bool> InspectLineCommentIsValidAsync(

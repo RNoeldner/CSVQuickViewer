@@ -61,7 +61,7 @@ namespace CsvTools
     /// <param name="header">Header to be written before data and/or Header is written</param>
     /// <param name="fileSettingDisplay">Info text for logging and process report</param>
     /// <param name="newLine"><see cref="RecordDelimiterTypeEnum"/> written after each record</param>
-    /// <param name="fieldDelimiterChar">Column / Field delimiter, if empty the text will be written as fixed length</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns, if empty the text will be written as fixed length</param>
     /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
     /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
     /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
@@ -98,7 +98,7 @@ namespace CsvTools
       in string sourceTimeZone = "",
       in string publicKey = "",
       bool unencrypted = false
-      )
+    )
       : base(
         fullPath,
         valueFormat, identifierInContainer,
