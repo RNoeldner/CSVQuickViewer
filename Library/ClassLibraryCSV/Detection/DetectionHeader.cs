@@ -41,11 +41,11 @@ namespace CsvTools
     /// <summary>
     /// Helper method to read columns from the file, taking care of commented Lines
     /// </summary>
-    /// <param name="reader"></param>
-    /// <param name="fieldDelimiter"></param>
-    /// <param name="fieldQualifier"></param>
-    /// <param name="escapePrefix"></param>
-    /// <param name="commentLine"></param>
+    /// <param name="reader">The reader.</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">>Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="commentLine">The lineComment.</param>
     /// <returns>All columns of the next row</returns>
     public static ICollection<string> DelimitedRecord(in ImprovedTextReader reader, char fieldDelimiter,
       char fieldQualifier, char escapePrefix, string commentLine)
@@ -255,6 +255,17 @@ namespace CsvTools
       return headerLine;
     }
 
+    /// <summary>
+    /// Get the raw header rows(s) from a text file, without any corrections
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
+    /// <param name="skipLines">Number of lines that should be skipped at the beginning of the file</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="commentLine">The lineComment.</param>
+    /// <returns></returns>
     public static string GetRawHeaderLine(this Stream stream, int codePageId, int skipLines,
       char fieldDelimiterChar,
       char fieldQualifierChar, char escapePrefix, string commentLine)
