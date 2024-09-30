@@ -166,10 +166,13 @@ dddd, d. MMMM yyyy H:mm
 dddd, dd MMMM yyyy H:mm
 dddd,MMMM dd,yyyy HH:mm
 yyyy,MMMM dd, dddd H:mm
+yyyy/MM/ddTHH:mm:ss zzz
+yyyy/MM/dd HH:mm:ss zzz
 MM/dd/yyyy hh:mm:ss tt
 dd/MM/yyyy hh:mm:ss tt
 yyyy/MM/dd hh:mm:ss tt
 yyyy/MM/ddTHH:mm:sszzz
+yyyy/MM/dd HH:mm:sszzz
 MMMM/dd/yy hh:mm:ss tt
 d MMM yyyy hh:mm:ss tt
 dd MMMM yyyy dddd H:mm
