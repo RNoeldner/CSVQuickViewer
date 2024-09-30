@@ -78,7 +78,7 @@ namespace CsvTools
       bool enableChangeColumn)
     {
       m_ColumnEdit = new ColumnMut(column);
-      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));      
+      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
 
       InitializeComponent();
@@ -364,15 +364,33 @@ namespace CsvTools
           toolTip.SetToolTip(textBoxDateSeparator, dateSeparator.Description());
           toolTip.SetToolTip(textBoxTimeSeparator, timeSeparator.Description());
 
+          // using HashSet to get rid of duplicates
           var text = new HashSet<string>();
 
           var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+
+          // if we have different formats, input could be different 
           foreach (var dateFormat in dateFormats)
           {
-            text.Add(StringConversion.DateTimeToString(sourceDate, 
-              (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's', }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
-            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart &&
-              dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's', }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
+            var completeFormat = (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's', }) == -1)
+              ? dateFormat + " " + timePartFormat
+              : dateFormat;
+            // we always read the current culture as well as invariant
+            text.Add(StringConversion.DateTimeToString(sourceDate, completeFormat, dateSeparator,
+              timeSeparator, CultureInfo.InvariantCulture));
+            text.Add(StringConversion.DateTimeToString(sourceDate, completeFormat, dateSeparator,
+              timeSeparator, CultureInfo.CurrentCulture));
+
+            // Reading data with Offset, means that we can have different inputs for the same outcome
+            if (completeFormat.IndexOf("zzz", StringComparison.Ordinal) != -1 &&
+                TimeZone.CurrentTimeZone.GetUtcOffset(sourceDate).TotalMinutes > 1)
+            {
+              completeFormat = completeFormat.Replace("zzz", "+00:00");
+              text.Add(StringConversion.DateTimeToString(sourceDate.ToUniversalTime(),
+                completeFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
+              text.Add(StringConversion.DateTimeToString(sourceDate.ToUniversalTime(),
+                completeFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
+            }
           }
           labelSampleDisplay.Text = text.Join(", ");
 
