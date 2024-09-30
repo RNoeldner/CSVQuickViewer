@@ -451,54 +451,70 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces a placeholders with a text. The placeholder is identified surrounding { or a
-    ///   leading #
+    /// Check if a text contains any of the supported placeholder {xxx} (xxx) #xxx# or &lt;:xxx&gt;
     /// </summary>
-    /// <param name="input">The input.</param>
-    /// <param name="placeholder">The placeholder.</param>
+    /// <param name="input">the text wih possble placeholders</param>
+    /// <returns>true if there seems to be a placeholder</returns>
+    public static bool AssumePlaceholderPresent(this string input)
+    {
+      var start = input.IndexOf('{');
+      if (start > -1 && input.IndexOf('}', start) != -1)
+        return true;
+      start = input.IndexOf('(');
+      if (start > -1 && input.IndexOf(')', start) != -1)
+        return true;
+      start = input.IndexOf('#');
+      if (start > -1 && input.IndexOf('#', start) != -1)
+        return true;
+
+      start = input.IndexOf("<:", StringComparison.Ordinal);
+      return start > -1 && input.IndexOf('>', start) != -1;
+    }
+
+    /// <summary>
+    ///   Replaces a placeholders with a text. The placeholder is identified {xxx} (xxx) #xxx# or &lt;:xxx&gt;
+    /// </summary>
+    /// <param name="input">The input text with possible placeholder text.</param>
+    /// <param name="placeholder">The placeholder name.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    [DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, in string placeholder, string replacement)
     {
-      if (string.IsNullOrEmpty(placeholder)) return input;
+      // if there is no placeholder we can exit
+      if (string.IsNullOrEmpty(placeholder) || input.IndexOf(placeholder, StringComparison.OrdinalIgnoreCase) == -1)
+        return input;
 
-      var type = "{{" + placeholder + "}}";
-      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+      // The excat found text with lead in and lead out
+      var found = string.Empty;
+      foreach (var type in new[]
+               {
+                 "{{" + placeholder + "}}", "{" + placeholder + "}", "#" + placeholder + "#", "(" + placeholder + ")",
+                 "<:" + placeholder + ">"
+               })
       {
-        type = "{" + placeholder + "}";
-        if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+        var indexOf = input.IndexOf(type, StringComparison.OrdinalIgnoreCase);
+        if (indexOf == -1)
+          continue;
+        found = input.Substring(indexOf, type.Length);
+        break;
+      }
+
+      // if no closing placeholder was found try open placeholder
+      if (found.Length == 0)
+      {
+        foreach (var c in new[] { ' ', '\t', '\n', '\r' })
         {
-          type = "#" + placeholder + "#";
-          if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
-          {
-            type = $"#{placeholder}";
-            if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase)
-                && input.IndexOf(type + ' ', StringComparison.OrdinalIgnoreCase) == -1
-                && input.IndexOf(type + '\t', StringComparison.OrdinalIgnoreCase) == -1
-                && input.IndexOf(type + '\r', StringComparison.OrdinalIgnoreCase) == -1
-                && input.IndexOf(type + '\n', StringComparison.OrdinalIgnoreCase) == -1)
-              return input;
-          }
+          var type = '#' + placeholder + c;
+          var indexOf = input.IndexOf(type, StringComparison.OrdinalIgnoreCase);
+          if (indexOf == -1)
+            continue;
+          found = input.Substring(indexOf, type.Length);
+          replacement += c;
+          break;
         }
       }
 
-      // Not sure why this is in the code, where was it needed?
-      if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
-      {
-        type = " - " + type;
-      }
-      else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
-      {
-        type = " " + type;
-        replacement = " " + replacement;
-      }
-      else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
-      {
-        replacement += " ";
-      }
-
-      return input.ReplaceCaseInsensitive(type, replacement);
+      return found.Length > 0 ? input.Replace(found, replacement) : input;
     }
 
     /// <summary>
