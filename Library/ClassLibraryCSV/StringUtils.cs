@@ -369,6 +369,34 @@ namespace CsvTools
       return (allRequiredFound && requiredParts.Count > 0) || !hasTests;
     }
 
+    private const string cAllowedLatinWithout6789 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public const string cAllowedBase64 = cAllowedLatinWithout6789 + "/+=";
+    public const string cAllowedURL = cAllowedLatinWithout6789 + "6789/:-._~&?%";
+
+    /// <summary>
+    ///   Processes each charter of the string, if the characters is not part of allowedChars,
+    ///   the charter is omitted
+    /// </summary>
+    /// <param name="original">The original.</param>
+    /// <param name="allowedChars">a text containing all allowed characters</param>
+    /// <returns>A test with only allowed characters</returns>
+    public static string OnlyAllowed(this string original, in string allowedChars)
+    {
+      if (string.IsNullOrEmpty(original))
+        return string.Empty;
+
+      var chars = new char[original.Length];
+      var count = 0;
+      foreach (var c in original)
+      {
+        if (allowedChars.IndexOf(c) != -1)
+          chars[count++] = c;
+      }
+
+      return new string(chars, 0, count);
+    }
+
+
     /// <summary>
     ///   Processes each charter of the string by category, if the test function return false,
     ///   the charter is omitted

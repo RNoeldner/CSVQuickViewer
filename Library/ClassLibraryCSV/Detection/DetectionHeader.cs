@@ -145,8 +145,7 @@ namespace CsvTools
         var tooLong = headers.Where(header => header.Length > 128).ToList();
         var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
         var notUnique = headers.GroupBy(x => x)
-          .Where(x => x.Count()>1)
-          .ToDictionary(x => x.Key, x => x.Count());
+          .Where(x => x.Count() > 1).ToList();
         var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
         var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();
         var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
@@ -158,9 +157,11 @@ namespace CsvTools
         var specials = headers.Where(header =>
           Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
 
-        if (tooLong.Count>0
-          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Sum(x => x.Value) + guidHeaders.Count  >= halfTheColumns
-          ||  numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Sum(x => x.Value) + guidHeaders.Count > 3)
+        if (tooLong.Count > 0
+            || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Count * 2 +
+            guidHeaders.Count >= halfTheColumns
+            || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Count * 2 +
+            guidHeaders.Count > 3)
         {
           var msg = new StringBuilder();
 
@@ -231,7 +232,7 @@ namespace CsvTools
             if (msg.Length > 0)
               msg.Append('\n');
             msg.Append("Header(s) ");
-            msg.Append(tooLong.Select(x => x.Substring(0, 128) +"…").Join(", "));
+            msg.Append(tooLong.Select(x => x.Substring(0, 128) + "…").Join(", "));
             msg.Append(" too long");
           }
 

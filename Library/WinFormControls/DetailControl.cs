@@ -408,29 +408,36 @@ namespace CsvTools
       // Start the search
       if (!(sender is BackgroundWorker bw)) return;
       if (!(e.Argument is string searchText)) return;
+      if (searchText.Length <= 0)
+        return;
 
-      List<DataGridViewCell> found = new List<DataGridViewCell>();
-      if (searchText.Length > 0)
-        foreach (var viewColumn in FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                   .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)))
+      var found = new List<DataGridViewCell>();
+
+      foreach (var viewColumn in FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                 .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)))
+      {
+        if (found.Count > 999)
+          break;
+        foreach (DataGridViewRow row in FilteredDataGridView.Rows)
         {
-          if (found.Count > 999)
-            break;
-          foreach (DataGridViewRow row in FilteredDataGridView.Rows)
+          if (bw.CancellationPending)
+            return;
+          try
           {
-            if (bw.CancellationPending)
-              return;
-
             var cell = row.Cells[viewColumn.Index];
             if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
                 -1)
               continue;
-
             found.Add(cell);
             if (found.Count > 999)
               break;
           }
+          catch
+          {
+            //ignore
+          }
         }
+      }
 
       e.Result = new Tuple<IEnumerable<DataGridViewCell>, string>(found, searchText);
     }
