@@ -453,7 +453,7 @@ namespace CsvTools
     /// <summary>
     /// Check if a text contains any of the supported placeholder {xxx} (xxx) #xxx# or &lt;:xxx&gt;
     /// </summary>
-    /// <param name="input">the text wih possble placeholders</param>
+    /// <param name="input">the text with possible placeholders</param>
     /// <returns>true if there seems to be a placeholder</returns>
     public static bool AssumePlaceholderPresent(this string input)
     {
@@ -484,7 +484,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(placeholder) || input.IndexOf(placeholder, StringComparison.OrdinalIgnoreCase) == -1)
         return input;
 
-      // The excat found text with lead in and lead out
+      // The extract found text with lead in and lead out
       var found = string.Empty;
       foreach (var type in new[]
                {
