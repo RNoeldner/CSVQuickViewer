@@ -56,13 +56,18 @@ namespace CsvTools
       var firstChar = true;
       var currentRow = 0;
       var retValue = 0;
+#if DEBUG
+      string line = string.Empty;
+#endif
 
       while (currentRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
+#if DEBUG
+        line += (char) readChar;
+#endif
         if (readChar==' ' || readChar == char.MinValue)
           continue;
-
         // Handle Commented lines
         if (firstChar && commentLine.Length > 0 && readChar == commentLine[0])
         {
@@ -83,28 +88,31 @@ namespace CsvTools
         // read till end of line, no matter what
         if (isComment[currentRow])
         {
-          bool eol=false;
+          bool eol = false;
           // read till end of line
           while (!textReader.EndOfStream && !cancellationToken.IsCancellationRequested && !eol)
           {
             readChar = textReader.Read();
             if (readChar=='\r' || readChar=='\n')
             {
-              currentRow++;              
+              currentRow++;
               var nextChar = textReader.Peek();
-              if (readChar=='\r' && nextChar=='\n' || readChar=='\n' && nextChar=='\r' )
+              if (readChar=='\r' && nextChar=='\n' || readChar=='\n' && nextChar=='\r')
                 textReader.Read();
               eol =true;
-            }            
+            }
           }
           continue;
         }
 
-        if (readChar == escapePrefixChar )
+        if (readChar == escapePrefixChar)
+        {
+          textReader.MoveNext();
           continue;
+        }
 
         // Handle Quoting
-        if (readChar == fieldQualifierChar )
+        if (readChar == fieldQualifierChar)
         {
           if (quoted)
           {
@@ -125,6 +133,9 @@ namespace CsvTools
             if (!quoted)
             {
               currentRow++;
+#if DEBUG
+              line = string.Empty;
+#endif
               firstChar = true;
               if (textReader.Peek() == '\r')
                 textReader.MoveNext();
@@ -135,9 +146,14 @@ namespace CsvTools
             if (!quoted)
             {
               currentRow++;
+#if DEBUG
+              line = string.Empty;
+#endif
+
               firstChar = true;
               if (textReader.Peek() == '\n')
                 textReader.MoveNext();
+
             }
             break;
 

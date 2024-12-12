@@ -19,10 +19,10 @@ namespace CsvTools.Tests
       ICollection<Column> determinedColumns;
       // Not closing the stream
 
-      using var impStream = new ImprovedStream(new SourceAccess( stream, FileTypeEnum.Stream));
+      using var impStream = new ImprovedStream(new SourceAccess(stream, FileTypeEnum.Stream));
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false, true,
-        Array.Empty<char>(), UnitTestStatic.Token);
+       '\0', Array.Empty<char>(), UnitTestStatic.Token);
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
@@ -58,10 +58,10 @@ namespace CsvTools.Tests
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
       ICollection<Column> determinedColumns;
       // Not closing the stream
-      using var impStream = new ImprovedStream(new SourceAccess( stream, FileTypeEnum.GZip));
+      using var impStream = new ImprovedStream(new SourceAccess(stream, FileTypeEnum.GZip));
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false,
-       false,         Array.Empty<char>(), UnitTestStatic.Token);
+       false, '\0', Array.Empty<char>(), UnitTestStatic.Token);
 
       impStream.Seek(0, SeekOrigin.Begin);
 
