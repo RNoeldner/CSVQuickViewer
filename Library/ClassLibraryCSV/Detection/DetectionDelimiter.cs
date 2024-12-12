@@ -24,6 +24,19 @@ namespace CsvTools
   /// </summary>
   public static class DetectionDelimiter
   {
+    public static char GetDelimiterByExtension(this IFileSettingPhysicalFile phys) => GetDelimiterByExtension(string.IsNullOrEmpty(phys.IdentifierInContainer) ? phys.FileName : phys.IdentifierInContainer);
+    public static char GetDelimiterByExtension(in string name)
+    {
+      if (!string.IsNullOrEmpty(name))
+      {
+        if (name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+          return ',';
+        else if (name.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".tab", StringComparison.OrdinalIgnoreCase))
+          return '\t';
+      }
+      return '\0';
+    }
+
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if they are the same it will look at 
@@ -33,6 +46,7 @@ namespace CsvTools
     /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
+    /// <param name="probableDelimiter">Give this delimiter a higher score, commonly derived from file extension</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
@@ -42,6 +56,7 @@ namespace CsvTools
       char fieldQualifierChar,
       char escapePrefixChar,
       IEnumerable<char> disallowedDelimiter,
+      char probableDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null)
@@ -149,8 +164,16 @@ namespace CsvTools
             else
               variance += avg - delimiterCounter.SeparatorsCount[index, row];
           }
+
+
           // if avg is larger its better
           sums.Add(index, variance * 4 / avg);
+
+          // handling on probability of delimiter
+          if (delimiterCounter.Separators[index]== probableDelimiter)
+            sums[index] += 10;
+          else if (delimiterCounter.Separators[index]== '\'' || delimiterCounter.Separators[index]==  '*' || delimiterCounter.Separators[index]==   '`')
+            sums[index] -= 2;
         }
 
         if (sums.Count > 1)
@@ -158,6 +181,7 @@ namespace CsvTools
           foreach (var kv in sums)
             Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].Text()}");
         }
+
         if (sums.Count!= 0)
           // get the best result by variance first then if equal by number of records
           match  =  delimiterCounter.Separators[sums
@@ -270,7 +294,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Class to store information allowing to goode the best delimiter
+    /// Class to store information allowing to choose the best delimiter
     /// </summary>
     public sealed class DelimiterCounter
     {

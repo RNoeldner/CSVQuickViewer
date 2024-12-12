@@ -12,6 +12,12 @@ namespace CsvTools
     private DataReaderWrapper? m_DataReaderWrapper;
 
     /// <summary>
+    /// The number of columns supported, if more columns are found its assumed there is something wrong
+    /// Without this check the DataGrid will run into issues
+    /// </summary>
+    public const int cMaxColumns = 4096;
+
+    /// <summary>
     ///   Determine if the data Reader is at the end of the file
     /// </summary>
     /// <returns>True if you can read; otherwise, false.</returns>
@@ -45,7 +51,8 @@ namespace CsvTools
 
       Logger.Debug("Opening reader");
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-
+      if (fileReader.FieldCount > cMaxColumns)
+        throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
       m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 
