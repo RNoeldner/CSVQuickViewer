@@ -32,6 +32,7 @@ namespace CsvTools
     /// <param name="fileSetting">The FileSetting</param>
     /// <param name="additionalInfo">Information that should be outputted as well</param>
     /// <param name="numRecords">Number of records that have been read, null if it's not know or should not be displayed</param>
+    /// <param name="isDelimited">True if its a delimited text file</param>
     /// <param name="cancellationToken">Cancellation Token to stop a possibly long running process</param>
     /// <returns>HTML Table</returns>
     public static async Task<string> GetFileInformationHtml(this IFileSettingPhysicalFile fileSetting,

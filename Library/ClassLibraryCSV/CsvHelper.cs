@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
+using System.Diagnostics;
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -80,8 +81,11 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
+      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
       var disallowedDelimiter = new List<char>();
+
+      var delimiterByExtension = DetectionDelimiter.GetDelimiterByExtension(!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName);
+
       do
       {
         // IImprovedStream And MemoryStream do handle this properly
@@ -90,7 +94,7 @@ namespace CsvTools
         // Determine from file
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
-          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
+          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine, delimiterByExtension,
           disallowedDelimiter, cancellationToken).ConfigureAwait(false);
 
         // if it's a delimited file, but we do not have fields,
@@ -102,7 +106,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
-            using var reader = GetFileReader(inspectionResult, usedStream);
+          using var reader = GetFileReader(inspectionResult, usedStream);
           await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
           if (reader.FieldCount <= 1)
           {
@@ -130,7 +134,7 @@ namespace CsvTools
         // and rerun detection
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
-          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
+          guessStartRow, guessHasHeader, guessNewLine, guessCommentLine, delimiterByExtension,
           Array.Empty<char>(), cancellationToken).ConfigureAwait(false);
       }
 
@@ -140,7 +144,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-          using var reader2 = GetFileReader(inspectionResult, usedStream);
+        using var reader2 = GetFileReader(inspectionResult, usedStream);
         await reader2.OpenAsync(cancellationToken).ConfigureAwait(false);
         var (_, b) = await reader2.FillGuessColumnFormatReaderAsyncReader(
           fillGuessSettings, columnCollectionInput: null,
@@ -392,7 +396,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var jsonTextReader = new JsonTextReader(streamReader);
+      using var jsonTextReader = new JsonTextReader(streamReader);
       jsonTextReader.CloseInput = false;
       try
       {
@@ -434,6 +438,7 @@ namespace CsvTools
     /// </param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
+    /// <param name="probableDelimiter">Give this delimiter a higher score, commonly derived from file extension</param>
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task UpdateInspectionResultAsync(this Stream stream,
@@ -447,6 +452,7 @@ namespace CsvTools
       bool guessHasHeader,
       bool guessNewLine,
       bool guessCommentLine,
+      char probableDelimiter,
       IReadOnlyCollection<char> disallowedDelimiter,
       CancellationToken cancellationToken)
     {
@@ -533,8 +539,8 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-            cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
         var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
         inspectionResult.CommentLine = newCommentLine;
       }
@@ -546,8 +552,8 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-            cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
         newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter,
           inspectionResult.FieldQualifier, cancellationToken);
       }
@@ -557,8 +563,8 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-            cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
 
         if (guessQualifier) // Dependent on SkipRows, FieldQualifier and EscapePrefix
         {
@@ -582,7 +588,7 @@ CommentLine
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
           var delimiterDet = await textReader.InspectDelimiterAsync(
-            inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+            inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             inspectionResult.SkipRows++;
 
@@ -619,7 +625,7 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
         var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier,
           inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
@@ -640,9 +646,9 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream
-            .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
-            .ConfigureAwait(false);
+        using var textReader = await stream
+          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+          .ConfigureAwait(false);
         var ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
           inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine,
           cancellationToken).ConfigureAwait(false);
@@ -660,8 +666,8 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-            cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
+          cancellationToken);
         if (!await textReader
               .InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter,
                 cancellationToken).ConfigureAwait(false))
