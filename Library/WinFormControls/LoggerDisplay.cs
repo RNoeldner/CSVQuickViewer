@@ -36,7 +36,7 @@ namespace CsvTools
     private readonly TextStyle m_TimestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
     private readonly TextStyle m_WarningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
 #pragma warning restore CA1416
-
+    // private DateTime m_LastDisplay = DateTime.UtcNow;
     private bool m_Initial = true;
 
     private string m_LastMessage = string.Empty;
@@ -85,7 +85,7 @@ namespace CsvTools
         return;
       var text = formatter(state, exception);
 
-      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) 
+      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal))
         return;
       try
       {
@@ -143,7 +143,7 @@ namespace CsvTools
 
     public void AppendText(string text, bool timestamp, LogLevel level)
     {
-      this.SafeBeginInvoke(() =>
+      this.SafeInvoke(() =>
       {
         try
         {
@@ -191,6 +191,13 @@ namespace CsvTools
           // ignore
         }
       });
+
+      //if ((DateTime.UtcNow -m_LastDisplay).TotalMilliseconds>500)
+      //{
+      //  Extensions.ProcessUIElements();
+      //  m_LastDisplay = DateTime.UtcNow;
+      //}
     }
+
   }
 }

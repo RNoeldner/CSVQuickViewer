@@ -30,10 +30,21 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
+    /// <summary>
+    /// Warnings are passed on to HTML Info
+    /// </summary>
     private readonly IEnumerable<string> m_Warnings;
 
     private readonly int? m_NumRecords;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
+    /// </summary>
+    /// <param name="viewSettings">The default view settings.</param>
+    /// <param name="setting">The current setting.</param>
+    /// <param name="warnings">The warnings to be listed in HTML Info</param>
+    /// <param name="numRecords">The number records that have been read</param>
+    /// <exception cref="System.ArgumentNullException">viewSettings</exception>
     public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting,
       IEnumerable<string> warnings, int? numRecords)
     {
