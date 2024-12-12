@@ -53,11 +53,11 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
-        // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score < 85)
-          currentQuote.Score += 25;
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
+        // Give " a large edge
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 15)
+          break;
       }
 
       Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.Text()}");

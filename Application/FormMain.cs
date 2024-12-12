@@ -629,9 +629,8 @@ namespace CsvTools
       ApplyViewSettings();
 
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed +=
-        // ReSharper disable once UnusedParameter.Local
-        async (send, eventArgs) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+      m_SettingsChangedTimerChange.Elapsed += async (send, eventArgs) =>
+            await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
       ShowTextPanel(false);
     }
@@ -742,10 +741,13 @@ namespace CsvTools
         ShowTextPanel(false);
         detailControl.ShowInfoButtons = true;
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         if (!cancellationToken.IsCancellationRequested)
-          throw;
+        {
+          this.ShowError(ex, "Reading data");
+          ShowTextPanel(true);
+        }
       }
       finally
       {

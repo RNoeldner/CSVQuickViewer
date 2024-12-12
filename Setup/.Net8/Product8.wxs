@@ -33,26 +33,17 @@
         <Directory Id="PRODUCTDIR" Name="$(var.AppFolder)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
 
-            <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
-            <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
             <File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />
-            
-            <!--						
-            <File Id="CSVQuickViewerdepsJson" Name="CSVQuickViewer.deps.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.deps.Json" />
-            <File Id="CSVQuickViewerConfig" Name="CSVQuickViewer.dll.Config" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll.Config" />
-            <File Id="CSVQuickViewerRuntimeConfigJson" Name="CSVQuickViewer.RuntimeConfig.Json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.RuntimeConfig.Json" />            
-            -->
+            <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
+            <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
             <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
             <File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
-            <!--
-            <File Id="Markdown" Name="Markdown.dll" Source="$(var.CSVQuickViewer.TargetPath)\Markdown.dll" />
-						-->
             <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
             <File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />
+            <File Id="MicrosoftExtensionsDependencyInjection" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.dll" />
             <File Id="MicrosoftExtensionsDependencyInjectionAbstractions" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
             <File Id="MicrosoftExtensionsLogging" Name="Microsoft.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.dll" />
-            <File Id="DependencyInjection" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.dll" />            
             <File Id="MicrosoftExtensionsLoggingAbstractions" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
             <File Id="MicrosoftExtensionsOptions" Name="Microsoft.Extensions.Options.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Options.dll" />
             <File Id="MicrosoftExtensionsPrimitives" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Primitives.dll" />
@@ -62,12 +53,15 @@
             <File Id="Serilog" Name="Serilog.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.dll" />
             <File Id="SerilogExtensionsLogging" Name="Serilog.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Extensions.Logging.dll" />
             <File Id="SerilogSinksFile" Name="Serilog.Sinks.File.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Sinks.File.dll" />
+            <File Id="SystemDiagnosticsDiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
+            <File Id="SystemTextEncodingCodePages" Name="System.Text.Encoding.CodePages.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Text.Encoding.CodePages.dll" />
             <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
             <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
-            <!-- <File Id="BouncyCastle.Cryptography" Name="BouncyCastle.Cryptography.dll" Source="$(var.CSVQuickViewer.TargetPath)\BouncyCastle.Cryptography.dll" />   -->
 
             <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
+            <!-- Need \runtimes\win\lib\net8.0\ -->
+
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
             <util:RemoveFolderEx Property="PRODUCTDIR" On="uninstall"/>
             <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />

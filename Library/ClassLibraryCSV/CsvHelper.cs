@@ -23,7 +23,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
-using System.Diagnostics;
 
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -37,6 +36,8 @@ namespace CsvTools
   // ReSharper disable once HollowTypeName
   public static class CsvHelper
   {
+    private static readonly IReadOnlyCollection<char> m_QualifiersToTest = new[] { '"', '\'' };
+
     /// <summary>
     ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
     ///   Row and Header
@@ -571,7 +572,7 @@ CommentLine
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
           var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix,
-            new[] { '"', '\'', }, cancellationToken);
+            m_QualifiersToTest, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;
           inspectionResult.ContextSensitiveQualifier =
