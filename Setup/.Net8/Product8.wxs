@@ -2,156 +2,172 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <?define ProductVersion="!(bind.FileVersion.ExecutableID)" ?>
-  <?define Manufacturer="Raphael Nöldner" ?>
-  <?define NetVersion=".Net8" ?>
+	<?define ProductVersion="!(bind.FileVersion.ExecutableID)" ?>
+	<?define Manufacturer="Raphael Nöldner" ?>
+	<?define NetVersion=".Net8" ?>
 
-  <?define Application="CSV Quick Viewer" ?>
-  <?define AppFolder="CSVQuickViewer" ?>
+	<?define Application="CSV Quick Viewer" ?>
+	<?define AppFolder="CSVQuickViewer" ?>
 
-  <?define CSVQuickViewer.ProjectDir= "..\..\Application"?>
-  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net8.0-windows"?>
+	<?define CSVQuickViewer.ProjectDir= "..\..\Application"?>
+	<?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net8.0-windows"?>
 
-  <Product Id="*" Name="$(var.Application) $(var.ProductVersion)$(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
+	<Product Id="*" Name="$(var.Application) $(var.ProductVersion)$(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
            UpgradeCode="F42F893E-A1DB-43C6-481F-D2FED20CDEED" Codepage="utf-8">
-    <Package Id="*" InstallerVersion="310" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" />
-    <WixVariable Id="WixUILicenseRtf" Value="..\lgpl.rtf" />
-    <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
-    <MajorUpgrade AllowDowngrades="yes" />
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="AppDataFolder">
-        <Directory Id="AppRootDirectory" Name="$(var.AppFolder)">
-          <Component Id="DefaultSetting" DiskId="1" Guid="AE676798-A9E3-45F5-A9C1-E44B240F54C9">
-            <CreateFolder />
-            <RemoveFolder Id="RemoveAppRootDirectory" On="uninstall" />
-            <!-- registry entry to be used as key path -->
-            <RegistryValue Root="HKCU" Key="Software\$(var.AppFolder)\DefaultSetting" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-          </Component>
-        </Directory>
-      </Directory>
-      <Directory Id="LocalAppDataFolder" Name="[AppData]">
-        <Directory Id="PRODUCTDIR" Name="$(var.AppFolder)">
-          <Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
+		<Package Id="*" InstallerVersion="310" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" />
+		<WixVariable Id="WixUILicenseRtf" Value="..\lgpl.rtf" />
+		<Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
+		<MajorUpgrade AllowDowngrades="yes" />
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="AppDataFolder">
+				<Directory Id="AppRootDirectory" Name="$(var.AppFolder)">
+					<Component Id="DefaultSetting" DiskId="1" Guid="AE676798-A9E3-45F5-A9C1-E44B240F54C9">
+						<CreateFolder />
+						<RemoveFolder Id="RemoveAppRootDirectory" On="uninstall" />
+						<!-- registry entry to be used as key path -->
+						<RegistryValue Root="HKCU" Key="Software\$(var.AppFolder)\DefaultSetting" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+					</Component>
+				</Directory>
+			</Directory>
+			<Directory Id="LocalAppDataFolder" Name="[AppData]">
+				<Directory Id="PRODUCTDIR" Name="$(var.AppFolder)">
+					<Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
+						<File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
+						<File Id="ExecutableDeps" Name="CSVQuickViewer.deps.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.deps.json" />
 
-            <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
-            <!--<File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />-->
-            <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
-            <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
-            <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
-            <File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
-            <File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
-            <File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />
-            <File Id="MicrosoftExtensionsDependencyInjection" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.dll" />
-            <File Id="MicrosoftExtensionsDependencyInjectionAbstractions" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
-            <File Id="MicrosoftExtensionsLogging" Name="Microsoft.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.dll" />
-            <File Id="MicrosoftExtensionsLoggingAbstractions" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
-            <File Id="MicrosoftExtensionsOptions" Name="Microsoft.Extensions.Options.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Options.dll" />
-            <File Id="MicrosoftExtensionsPrimitives" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Primitives.dll" />
-            <File Id="MicrosoftWindowsAPICodePack" Name="Microsoft.WindowsAPICodePack.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.WindowsAPICodePack.dll" />
-            <File Id="MicrosoftWindowsAPICodePackShell" Name="Microsoft.WindowsAPICodePack.Shell.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.WindowsAPICodePack.Shell.dll" />
-            <File Id="NewtonsoftJson" Name="Newtonsoft.Json.dll" Source="$(var.CSVQuickViewer.TargetPath)\Newtonsoft.Json.dll" />
-            <File Id="Serilog" Name="Serilog.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.dll" />
-            <File Id="SerilogExtensionsLogging" Name="Serilog.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Extensions.Logging.dll" />
-            <File Id="SerilogSinksFile" Name="Serilog.Sinks.File.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Sinks.File.dll" />
-            <File Id="SystemDiagnosticsDiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
-            <File Id="SystemTextEncodingCodePages" Name="System.Text.Encoding.CodePages.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Text.Encoding.CodePages.dll" />
-            <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
-            <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
+						<File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />
+						<File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
+						<File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
+						<File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
+						<File Id="CsvToolsWinFormControls" Name="CsvTools.WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.WinFormControls.dll" />
+						<File Id="FastColoredTextBox" Name="FastColoredTextBox.dll" Source="$(var.CSVQuickViewer.TargetPath)\FastColoredTextBox.dll" />
+						<File Id="ICSharpCodeSharpZipLib" Name="ICSharpCode.SharpZipLib.dll" Source="$(var.CSVQuickViewer.TargetPath)\ICSharpCode.SharpZipLib.dll" />
+						<File Id="MicrosoftExtensionsDependencyInjection" Name="Microsoft.Extensions.DependencyInjection.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.dll" />
+						<File Id="MicrosoftExtensionsDependencyInjectionAbstractions" Name="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+						<File Id="MicrosoftExtensionsLogging" Name="Microsoft.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.dll" />
+						<File Id="MicrosoftExtensionsLoggingAbstractions" Name="Microsoft.Extensions.Logging.Abstractions.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Logging.Abstractions.dll" />
+						<File Id="MicrosoftExtensionsOptions" Name="Microsoft.Extensions.Options.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Options.dll" />
+						<File Id="MicrosoftExtensionsPrimitives" Name="Microsoft.Extensions.Primitives.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.Extensions.Primitives.dll" />
+						<File Id="MicrosoftWindowsAPICodePack" Name="Microsoft.WindowsAPICodePack.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.WindowsAPICodePack.dll" />
+						<File Id="MicrosoftWindowsAPICodePackShell" Name="Microsoft.WindowsAPICodePack.Shell.dll" Source="$(var.CSVQuickViewer.TargetPath)\Microsoft.WindowsAPICodePack.Shell.dll" />
+						<File Id="NewtonsoftJson" Name="Newtonsoft.Json.dll" Source="$(var.CSVQuickViewer.TargetPath)\Newtonsoft.Json.dll" />
+						<File Id="Serilog" Name="Serilog.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.dll" />
+						<File Id="SerilogExtensionsLogging" Name="Serilog.Extensions.Logging.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Extensions.Logging.dll" />
+						<File Id="SerilogSinksFile" Name="Serilog.Sinks.File.dll" Source="$(var.CSVQuickViewer.TargetPath)\Serilog.Sinks.File.dll" />
+						<File Id="SystemDiagnosticsDiagnosticSource" Name="System.Diagnostics.DiagnosticSource.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Diagnostics.DiagnosticSource.dll" />
+						<File Id="SystemTextEncodingCodePages" Name="System.Text.Encoding.CodePages.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Text.Encoding.CodePages.dll" />
+						<File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
+						<File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />
 
-            <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
-            <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
-            <!-- Need \runtimes\win\lib\net8.0\ -->
+						<File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
+						<File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
+						<RemoveFolder Id="PRODUCTDIR" On="uninstall" />
+						<util:RemoveFolderEx Property="PRODUCTDIR" On="uninstall"/>
+						<RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+					</Component>
+					<Directory Id="rt" Name="runtimes">
+						<Directory Id="win" Name="win">
+							<Directory Id="lib" Name="lib">
+								<Directory Id="netcoreapp" Name="net8.0">
+									<Component Id="Lib1" DiskId="1"  Guid="DE676798-99E3-45F5-A9C1-E44B240F54C1" >
+										<RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\Lib1" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+										<File Id="SystemTextEncodingCodePages2" Name="System.Text.Encoding.CodePages.dll" Source="$(var.CSVQuickViewer.TargetPath)\runtimes\win\lib\net8.0\System.Text.Encoding.CodePages.dll" />
+										<RemoveFolder Id="RemoveLib1"  Directory="netcoreapp" On="uninstall" />
+										<RemoveFolder Id="RemoveLib1b"  Directory="lib" On="uninstall" />
+										<RemoveFolder Id="RemoveLib1c"  Directory="win" On="uninstall" />
+										<RemoveFolder Id="RemoveLib1d"  Directory="rt" On="uninstall" />
+									</Component>
+								</Directory>
+							</Directory>
+						</Directory>
+					</Directory>
+				</Directory>
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ProgramMenuDir" Name="$(var.Application) ">
+					<Component Id="StartMenuShortCuts" Guid="*">
+						<RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+						<Shortcut Id="ApplicationStartMenintcut" Name="$(var.Application) " Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />
+						<Shortcut Id="UninstallProduct" Name="Uninstall $(var.Application) " Description="Uninstalls the application" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+						<RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\StartMenu" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+					</Component>
+				</Directory>
+			</Directory>
+			<Directory Id="DesktopFolder">
+				<Component Id="DesktopShortcut"  Guid="AB97E0FA-9BD7-43FC-BD5E-364B3713C1AF">
+					<Shortcut Id="DeskShortcutID" Directory="DesktopFolder" Name="$(var.Application) " Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />
+					<!-- registry entry to be used as key path -->
+					<RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\DesktopShortcut" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+				</Component>
+			</Directory>
+			<Component Id="OpenWith" Guid="*">
+				<!-- registry entry to be used as key path -->
+				<RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\OpenWith" Name="installed" Type="integer" Value="1" KeyPath="yes" />
 
-            <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
-            <util:RemoveFolderEx Property="PRODUCTDIR" On="uninstall"/>
-            <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-          </Component>
-        </Directory>
-      </Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="ProgramMenuDir" Name="$(var.Application) ">
-          <Component Id="StartMenuShortCuts" Guid="*">
-            <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-            <Shortcut Id="ApplicationStartMenintcut" Name="$(var.Application) " Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />
-            <Shortcut Id="UninstallProduct" Name="Uninstall $(var.Application) " Description="Uninstalls the application" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
-            <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\StartMenu" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-          </Component>
-        </Directory>
-      </Directory>
-      <Directory Id="DesktopFolder">
-        <Component Id="DesktopShortcut"  Guid="AB97E0FA-9BD7-43FC-BD5E-364B3713C1AF">
-          <Shortcut Id="DeskShortcutID" Directory="DesktopFolder" Name="$(var.Application) " Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />
-          <!-- registry entry to be used as key path -->
-          <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\DesktopShortcut" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-        </Component>
-      </Directory>
-      <Component Id="OpenWith" Guid="*">
-        <!-- registry entry to be used as key path -->
-        <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\OpenWith" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+				<!-- Registering File Types  -->
+				<RegistryKey Root="HKCR" Key="SOFTWARE\Classes\.txt">
+					<RegistryValue Key="Content Type"  Value="text/plain" Type="string" />
+					<RegistryValue Key="PerceivedType"  Value="text" Type="string" />
+				</RegistryKey>
+				<RegistryKey Root="HKCR" Key="SOFTWARE\Classes\.text">
+					<RegistryValue Key="Content Type"  Value="text/plain" Type="string" />
+					<RegistryValue Key="PerceivedType"  Value="text" Type="string" />
+				</RegistryKey>
 
-        <!-- Registering File Types  -->
-        <RegistryKey Root="HKCR" Key="SOFTWARE\Classes\.txt">
-          <RegistryValue Key="Content Type"  Value="text/plain" Type="string" />
-          <RegistryValue Key="PerceivedType"  Value="text" Type="string" />
-        </RegistryKey>
-        <RegistryKey Root="HKCR" Key="SOFTWARE\Classes\.text">
-          <RegistryValue Key="Content Type"  Value="text/plain" Type="string" />
-          <RegistryValue Key="PerceivedType"  Value="text" Type="string" />
-        </RegistryKey>
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab"  Value="CsvQuickViewer.Document" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab\PerceivedType"  Value="text" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab\Content Type"  Value="text/tab-separated-values" Type="string" />
 
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab"  Value="CsvQuickViewer.Document" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab\PerceivedType"  Value="text" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tab\Content Type"  Value="text/tab-separated-values" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv"  Value="CsvQuickViewer.Document" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv\Content Type"  Value="text/tab-separated-values" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv\PerceivedType"  Value="text" Type="string" />
 
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv"  Value="CsvQuickViewer.Document" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv\Content Type"  Value="text/tab-separated-values" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.tsv\PerceivedType"  Value="text" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv"  Value="CsvQuickViewer.Document" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv\Content Type"  Value="text/csv" Type="string" />
+				<RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv\PerceivedType"  Value="text" Type="string" />
 
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv"  Value="CsvQuickViewer.Document" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv\Content Type"  Value="text/csv" Type="string" />
-        <RegistryValue Root="HKCU" Key="SOFTWARE\Classes\.csv\PerceivedType"  Value="text" Type="string" />
+				<RegistryKey Root="HKCR" Key="CsvQuickViewer.Document" ForceDeleteOnUninstall="yes">
+					<RegistryValue Value="Delimited Value Text File" Type="string" />
+					<!-- <RegistryValue Key="Icon" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot;,1" Type="string" />-->
+					<RegistryValue Key="shell\Open\command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
+				</RegistryKey>
 
-        <RegistryKey Root="HKCR" Key="CsvQuickViewer.Document" ForceDeleteOnUninstall="yes">
-          <RegistryValue Value="Delimited Value Text File" Type="string" />
-          <!-- <RegistryValue Key="Icon" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot;,1" Type="string" />-->
-          <RegistryValue Key="shell\Open\command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
-        </RegistryKey>
+				<!-- support Start,Run -> "CsvQuickViewer.exe" -->
+				<RegistryKey Root="HKCU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CsvQuickViewer.exe" ForceDeleteOnUninstall="yes">
+					<RegistryValue Value="[PRODUCTDIR]CsvQuickViewer.exe" Type="string" />
+				</RegistryKey>
 
-        <!-- support Start,Run -> "CsvQuickViewer.exe" -->
-        <RegistryKey Root="HKCU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CsvQuickViewer.exe" ForceDeleteOnUninstall="yes">
-          <RegistryValue Value="[PRODUCTDIR]CsvQuickViewer.exe" Type="string" />
-        </RegistryKey>
+				<RegistryKey Root="HKCR" Key="Applications\CsvQuickViewer.exe" ForceDeleteOnUninstall="yes">
+					<RegistryValue Key="FriendlyAppName" Value="$(var.Application)" Type="string" />
+					<RegistryValue Key="SupportedTypes" Value=".csv" Type="string" />
+					<RegistryValue Key="shell\Open\command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
+				</RegistryKey>
 
-        <RegistryKey Root="HKCR" Key="Applications\CsvQuickViewer.exe" ForceDeleteOnUninstall="yes">
-          <RegistryValue Key="FriendlyAppName" Value="$(var.Application)" Type="string" />
-          <RegistryValue Key="SupportedTypes" Value=".csv" Type="string" />
-          <RegistryValue Key="shell\Open\command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
-        </RegistryKey>
-
-        <!-- Add an 'View with ...'  -->
-        <RegistryKey Root="HKCU" Key="SOFTWARE\Classes\SystemFileAssociations\text\shell\View with $(var.Application)" ForceDeleteOnUninstall="yes">
-          <RegistryValue Value="View with $(var.Application)" Type="string" />
-          <RegistryValue Key="command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
-        </RegistryKey>
-      </Component>
-    </Directory>
-    <Feature Id="Complete" Title="$(var.Application) $(var.NetVersion)" Level="1" Description="The application $(var.Application) and all libraries">
-      <ComponentRef Id="EXECUTABLE" />
-      <ComponentRef Id="DefaultSetting" />
-      <Feature Id="FeatureMenu" Title="Start menu Shortcuts" Level="1" Description="Adding the $(var.Application)  to the Start Menu">
-        <ComponentRef Id="StartMenuShortCuts" />
-      </Feature>
-      <Feature Id="FeatureOpen" Title="File Context Menu" Level="1" Description="Associate the $(var.Application) to .csv,.*.tab,*.txt and add a 'View with ...' to the Windows File Context Menu">
-        <ComponentRef Id="OpenWith" />
-      </Feature>
-      <Feature Id="FeatureDesktop" Title="Desktop Icon" Level="1" Description="Create a windows desktop item for the $(var.Application).">
-        <ComponentRef Id="DesktopShortcut" />
-      </Feature>
-    </Feature>
-    <Icon Id="IconID" SourceFile="$(var.CSVQuickViewer.TargetPath)\CsvQuickViewer.exe" />
-    <Property Id="ARPPRODUCTICON" Value="IconID" />
-    <UIRef Id="WixUI_FeatureTree" />
-    <Property Id="WIXUI_INSTALLDIR" Value="PRODUCTDIR" />
-    <UI />
-  </Product>
+				<!-- Add an 'View with ...'  -->
+				<RegistryKey Root="HKCU" Key="SOFTWARE\Classes\SystemFileAssociations\text\shell\View with $(var.Application)" ForceDeleteOnUninstall="yes">
+					<RegistryValue Value="View with $(var.Application)" Type="string" />
+					<RegistryValue Key="command" Value="&quot;[PRODUCTDIR]CsvQuickViewer.exe&quot; &quot;%1&quot;" Type="string" />
+				</RegistryKey>
+			</Component>
+		</Directory>
+		<Feature Id="Complete" Title="$(var.Application) $(var.NetVersion)" Level="1" Description="The application $(var.Application) and all libraries">
+			<ComponentRef Id="EXECUTABLE" />
+			<ComponentRef Id="Lib1" />
+			<ComponentRef Id="DefaultSetting" />
+			<Feature Id="FeatureMenu" Title="Start menu Shortcuts" Level="1" Description="Adding the $(var.Application)  to the Start Menu">
+				<ComponentRef Id="StartMenuShortCuts" />
+			</Feature>
+			<Feature Id="FeatureOpen" Title="File Context Menu" Level="1" Description="Associate the $(var.Application) to .csv,.*.tab,*.txt and add a 'View with ...' to the Windows File Context Menu">
+				<ComponentRef Id="OpenWith" />
+			</Feature>
+			<Feature Id="FeatureDesktop" Title="Desktop Icon" Level="1" Description="Create a windows desktop item for the $(var.Application).">
+				<ComponentRef Id="DesktopShortcut" />
+			</Feature>
+		</Feature>
+		<Icon Id="IconID" SourceFile="$(var.CSVQuickViewer.TargetPath)\CsvQuickViewer.exe" />
+		<Property Id="ARPPRODUCTICON" Value="IconID" />
+		<UIRef Id="WixUI_FeatureTree" />
+		<Property Id="WIXUI_INSTALLDIR" Value="PRODUCTDIR" />
+		<UI />
+	</Product>
 </Wix>
