@@ -51,6 +51,9 @@ namespace CsvTools
         fileName = args.Join(' ');
 
       var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
+      
+      if (viewSettings==null)
+        viewSettings= new ViewSettings();
 
 #if NET5_0_OR_GREATER
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);

@@ -9,10 +9,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CtorLong()
     {
-      var test = new ProgressInfo("TestText", 10l);
+      var test = new ProgressInfo("TestText", 10L);
       Assert.IsNotNull(test);
       Assert.AreEqual("TestText", test.Text);
-      Assert.AreEqual(10l, test.Value);
+      Assert.AreEqual(10L, test.Value);
     }
 
     [TestMethod]
@@ -21,7 +21,7 @@ namespace CsvTools.Tests
       var test = new ProgressInfo("TestText", 2.8f);
       Assert.IsNotNull(test);
       Assert.AreEqual("TestText", test.Text);
-      Assert.AreEqual(3l, test.Value);
+      Assert.AreEqual(3L, test.Value);
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       var test = new ProgressInfo("TestText1");
       Assert.IsNotNull(test);
       Assert.AreEqual("TestText1", test.Text);
-      Assert.AreEqual(-1l, test.Value);
+      Assert.AreEqual(-1L, test.Value);
     }
   }
 }

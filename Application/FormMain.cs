@@ -54,6 +54,9 @@ namespace CsvTools
 
     public FormMain(in ViewSettings viewSettings)
     {
+      if (viewSettings==null)
+        throw new ArgumentNullException(nameof(viewSettings));
+
       m_ViewSettings = viewSettings;
       FontConfig = viewSettings;
       InitializeComponent();

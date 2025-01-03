@@ -64,7 +64,7 @@ namespace CsvTools
     public char EscapePrefixChar { get; set; } = '\0';
 
     /// <inheritdoc />
-    [DefaultValue(',')]
+    [DefaultValue(',')]    
     public char FieldDelimiterChar { get; set; } = ',';
 
     /// <inheritdoc />

@@ -514,6 +514,11 @@ namespace CsvTools
         }
       }
 
+      if (found.Length == 0 && input.EndsWith('#' + placeholder, StringComparison.OrdinalIgnoreCase))
+      {
+        found='#' + placeholder;
+      }
+
       return found.Length > 0 ? input.Replace(found, replacement) : input;
     }
 

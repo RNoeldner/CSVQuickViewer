@@ -571,7 +571,7 @@ CommentLine
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix,
+          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
             m_QualifiersToTest, cancellationToken);
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;

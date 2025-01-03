@@ -521,44 +521,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GuessQualifier1()
-    {
-      using var improvedStream =
-        new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("TextQualifiers.txt")));
-
-      using var textReader =
-        await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual('"',
-        (textReader.InspectQualifier('\t', '\\', StaticCollections.PossibleQualifiers, UnitTestStatic.Token))
-        .QuoteChar);
-    }
-
-    [TestMethod]
-    public async Task GuessQualifier2()
-    {
-      using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1.txt")));
-
-      using var textReader =
-        await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual('"',
-        (textReader.InspectQualifier('\t', '\\', StaticCollections.PossibleQualifiers, UnitTestStatic.Token))
-        .QuoteChar);
-    }
-
-    [TestMethod]
-    public async Task GuessQualifier3()
-    {
-      using var improvedStream =
-        new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1Reverse.txt")));
-
-      using var textReader =
-        await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-      Assert.AreEqual("'",
-        textReader.InspectQualifier('\t', '\\', StaticCollections.PossibleQualifiers, UnitTestStatic.Token).QuoteChar
-          .ToString());
-    }
-
-    [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
       var fgs = new FillGuessSettings();

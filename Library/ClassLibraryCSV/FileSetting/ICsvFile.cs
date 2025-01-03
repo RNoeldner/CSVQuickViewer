@@ -58,13 +58,13 @@ namespace CsvTools
     char EscapePrefixChar { get; set; }
 
     /// <summary>
-    ///   Gets the field delimiter as character
+    ///   Gets the field delimiter as character, usually ,
     /// </summary>
     /// <value>The field delimiter char.</value>
     char FieldDelimiterChar { get; set; }
 
     /// <summary>
-    ///  Gets the qualifier character as character
+    ///  Gets the qualifier character as character, usually "
     /// </summary>
     /// <value>The field delimiter char.</value>
     char FieldQualifierChar { get; set; }
@@ -103,13 +103,13 @@ namespace CsvTools
     string QualifierPlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets a value indicating whether to qualify every text even if number or empty.
+    ///   Gets a value indicating whether to qualify every text even if number or empty. Usually false
     /// </summary>
     /// <value><c>true</c> if qualify even when not needed; otherwise, <c>false</c>.</value>
     bool QualifyAlways { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to qualify only if needed.
+    ///   Gets or sets a value indicating whether to qualify only if needed. Usually true
     /// </summary>
     /// <value><c>true</c> if qualify only when required; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; set; }
@@ -157,31 +157,31 @@ namespace CsvTools
     bool WarnEmptyTailingColumns { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn line feeds in columns.
+    ///   Gets or sets a value indicating whether to warn line feeds in columns. Usually false
     /// </summary>
     /// <value><c>true</c> if line feed should raise a warning; otherwise, <c>false</c>.</value>
     bool WarnLineFeed { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn occurrence of NBSP.
+    ///   Gets or sets a value indicating whether to warn occurrence of NBSP. Usually true
     /// </summary>
     /// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
     bool WarnNBSP { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files. Usually false
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     bool WarnQuotes { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files. Usually true
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     bool WarnQuotesInQuotes { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn unknown character.
+    ///   Gets or sets a value indicating whether to warn unknown character. Usually true
     /// </summary>
     /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
     bool WarnUnknownCharacter { get; set; }
