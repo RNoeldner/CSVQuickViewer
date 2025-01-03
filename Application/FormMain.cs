@@ -255,11 +255,7 @@ namespace CsvTools
 
         var titleAttribute = (AssemblyTitleAttribute) attributes[0];
         if (titleAttribute.Title.Length != 0)
-          return titleAttribute.Title + " " + assembly.GetName().Version
-#if !NETFRAMEWORK
-                 + "*"
-#endif
-            ;
+          return titleAttribute.Title + " " + assembly.GetName().Version;
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
       }
