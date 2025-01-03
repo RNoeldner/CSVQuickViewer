@@ -32,6 +32,7 @@ namespace CsvTools
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="fieldDelimiterChar">The char to be used as field delimiter</param>
     /// <param name="escapePrefixChar">Used to escape a delimiter or quoting char</param>
+    /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="possibleQuotes">Possibles quotes to test, usually its ' and "</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The most likely quoting char</returns>
@@ -43,6 +44,7 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       char fieldDelimiterChar,
       char escapePrefixChar,
+      in string commentLine,
       IEnumerable<char> possibleQuotes,
       in CancellationToken cancellationToken)
     {
@@ -52,11 +54,11 @@ namespace CsvTools
       foreach (var t in possibleQuotes)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, cancellationToken);
+        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, commentLine, cancellationToken);
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 15)
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 30)
           break;
       }
 
@@ -120,14 +122,16 @@ namespace CsvTools
     /// <param name="delimiterChar">The char to be used as field delimiter</param>
     /// <param name="escapeChar">Used to escape a delimiter or quoting char</param>
     /// <param name="quoteChar">Possibles quotes to test, usually its ' and "</param>
+    /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-    /// <returns>The score is between 0 and 99, 99 meaning almost certain</returns>
+    /// <returns>The score is between 0 and 99, 99 meaning almost certain, a only text with hardly any quotes will still have a low score</returns>
     /// <exception cref="ArgumentNullException"></exception>
     private static QuoteTestResult GetScoreForQuote(
       in ImprovedTextReader textReader,
       char delimiterChar,
       char escapeChar,
       char quoteChar,
+      in string commentLine,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
@@ -138,15 +142,48 @@ namespace CsvTools
       var buffer = new char[cBufferMax+3];
       buffer[0]=delimiterChar;
       var bufferPos = 0;
+      var lineStart = true;
       var last = char.MinValue;
       var res = new QuoteTestResult(quoteChar);
+      var commentLine0 = '\0';
+      var commentLine1 = '\0';
 
+      if (!string.IsNullOrEmpty(commentLine))
+      {
+        commentLine0 = commentLine[0];
+        if (commentLine.Length>1)
+          commentLine1 = commentLine[1];
+        if (commentLine.Length>2)
+          Logger.Warning("Quote detection can only use two characters for line comment");
+      }
       // Read simplified text from file
       while (!textReaderPosition.AllRead() && bufferPos < cBufferMax && !cancellationToken.IsCancellationRequested)
       {
         var c = (char) textReader.Read();
+        if (lineStart && commentLine0 != '\0' && c == commentLine0)
+        {
+          if (commentLine1 == '\0' || commentLine1 == textReader.Peek())
+          {
+            // Eat everything till we reach next line
+            while (c != '\r' && c != '\n' && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
+              c = (char) textReader.Read();
+            // handle /r /n or /n /r
+            c = (char) textReader.Peek();
+            while (c == '\r' || c == '\n' && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
+            {
+              textReader.Read();
+              c =  (char) textReader.Peek();
+            }
+            continue;
+          }
+        }
         switch (c)
         {
+          case '\r':
+          case '\n':
+            lineStart = true;
+            continue;
+
           // disregard spaces
           case ' ':
           case char.MinValue:
@@ -160,17 +197,23 @@ namespace CsvTools
             break;
 
           case var _ when c == quoteChar:
+            // If we have a duplicate quote, and is not followed by delimiter and started by delimiter
+            // .e.G. ,"", is not a duplicate quote, its an empty text
             if (last == quoteChar)
             {
-              res.DuplicateQualifier = true;
+              if (textReader.EndOfStream || delimiterChar != textReader.Peek())
+              {
+                res.DuplicateQualifier = true;
+                // Regard a duplicate Quote as regular text
+                c = placeHolderText;
+              }
+
               // Its safe to modify the StringBuilder length as last is '\0' in case nothing was added
               bufferPos--;
-              c = placeHolderText;
             }
             break;
 
-          case '\r':
-          case '\n':
+
           case var _ when c == delimiterChar:
             c = delimiterChar; // Normalize new line or delimiter characters
             break;
@@ -183,18 +226,16 @@ namespace CsvTools
         // Add to filter only if current character differs from the last
         if (last != c)
           buffer[++bufferPos]=c;
-
+        lineStart = false;
         last = c; // Update last character
       }
       const double CloseOpenRatioThreshold = 1.5;
-      const int MinQuotesForDuplicateCheck = 50;
-      const int MinLengthForDuplicateCheck = 100;
 
       var counterTotal = 0;
-      var counterOpenStrict = 0;
+      var counterOpenAndText = 0;
       var counterOpenSimple = 0;
       var counterCloseSimple = 0;
-      var counterCloseStrict = 0;
+      var counterCloseAndText = 0;
 
       // if there is no suitable text, exit
       if (bufferPos < 3)
@@ -218,7 +259,7 @@ namespace CsvTools
             // having a delimiter before is good, but it would be even better if it's followed by text
             counterOpenSimple++;
             if (buffer[index + 1] == placeHolderText || buffer[index + 1] == quoteChar && buffer[index + 2] != delimiterChar)
-              counterOpenStrict++;
+              counterOpenAndText++;
           }
 
           // safe we made sure line has the needed length
@@ -226,30 +267,34 @@ namespace CsvTools
           {
             counterCloseSimple++;
             if (buffer[index - 1] != delimiterChar)
-              counterCloseStrict++;
+              counterCloseAndText++;
           }
         }
 
         var totalScore = counterTotal;
-        if (counterOpenStrict != 0 && counterCloseStrict * CloseOpenRatioThreshold > counterOpenStrict &&
-            counterCloseStrict < counterOpenStrict * CloseOpenRatioThreshold)
+        if (counterOpenAndText != 0 && counterCloseAndText * CloseOpenRatioThreshold > counterOpenAndText &&
+            counterCloseAndText < counterOpenAndText * CloseOpenRatioThreshold)
         {
-          totalScore = 2 * counterOpenStrict + 2 * counterCloseStrict;
+          totalScore += 2 * counterOpenAndText + 2 * counterCloseAndText;
         }
-        else if (!res.DuplicateQualifier && counterOpenSimple != 0)
+        // having equal number opening and closing is adding to score
+        if (counterOpenSimple == counterCloseSimple)
         {
-          totalScore = counterOpenSimple + counterCloseSimple;
+          totalScore += counterOpenSimple + counterCloseSimple;
         }
 
         // If we hardly saw quotes assume DuplicateQualifier
-        if (counterTotal < MinQuotesForDuplicateCheck && bufferPos > MinLengthForDuplicateCheck)
+        if (!res.DuplicateQualifier && counterTotal < 50 && bufferPos > 100)
           res.DuplicateQualifier = true;
+
+        // If we have escaped quote add some bonus
+        if (res.DuplicateQualifier || res.EscapedQualifier)
+          totalScore += 10;
 
         // try to normalize the score, depending on the length of the filter build a percent score that  should indicate how sure
         res.Score = totalScore > bufferPos ? 99 : Convert.ToInt32(totalScore / (double) bufferPos * 100);
       }
 
-      // if we could not find opening and closing because we have a lot of ,", take the absolute numbers
       return res;
     }
 

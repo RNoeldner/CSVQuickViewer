@@ -34,7 +34,7 @@
           <Component Id="EXECUTABLE" DiskId="1" Guid="AE676698-99E3-45E5-A9C1-E44B240F54D9">
 
             <File Id="ExecutableID" Name="CSVQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.exe" />
-            <File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />
+            <!--<File Id="runtimeconfig" Name="CSVQuickViewer.runtimeconfig.json" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.runtimeconfig.json" />-->
             <File Id="BenDemystifier" Name="Ben.Demystifier.dll" Source="$(var.CSVQuickViewer.TargetPath)\Ben.Demystifier.dll" />
             <File Id="CSVQuickViewer" Name="CSVQuickViewer.dll" Source="$(var.CSVQuickViewer.TargetPath)\CSVQuickViewer.dll" />
             <File Id="CsvToolsClassLibraryCSV" Name="CsvTools.ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetPath)\CsvTools.ClassLibraryCSV.dll" />
