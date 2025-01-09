@@ -247,7 +247,7 @@ namespace CsvTools.Tests
       };
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
       using var textReader =
-        await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token);
+        await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(',',
         (await textReader.InspectDelimiterAsync(test.FieldQualifierChar, test.EscapePrefixChar, Array.Empty<char>(), '\0',
           UnitTestStatic.Token)).Delimiter);
@@ -265,7 +265,7 @@ namespace CsvTools.Tests
       using var improvedStream = new ImprovedStream(new SourceAccess(test));
       DetectionDelimiter.DelimiterDetection ret;
       using (var textReader =
-             await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token))
+             await improvedStream.GetTextReaderAsync(test.CodePageId, test.SkipRows, UnitTestStatic.Token).ConfigureAwait(false))
       {
         ret = await textReader
           .InspectDelimiterAsync('"', test.EscapePrefixChar, Array.Empty<char>(), '\0', UnitTestStatic.Token)

@@ -177,7 +177,7 @@ namespace CsvTools
         // 2^26 Byte max Capacity : 64 MByte
         int capacity = Math.Min(stream.Length.ToInt(), 67108864);
         var memoryStream = new MemoryStream(capacity: stream.Length.ToInt());
-        await stream.CopyToAsync(memoryStream, capacity, cancellationToken);
+        await stream.CopyToAsync(memoryStream, capacity, cancellationToken).ConfigureAwait(false);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await stream.DisposeAsync();
 #else
@@ -541,7 +541,7 @@ CommentLine
         await
 #endif
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+          cancellationToken).ConfigureAwait(false);
         var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
         inspectionResult.CommentLine = newCommentLine;
       }
@@ -554,9 +554,9 @@ CommentLine
         await
 #endif
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+          cancellationToken).ConfigureAwait(false);
         newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter,
-          inspectionResult.FieldQualifier, cancellationToken);
+          inspectionResult.FieldQualifier, cancellationToken).ConfigureAwait(false);
       }
 
       if (guessQualifier || guessDelimiter || guessNewLine)
@@ -565,7 +565,7 @@ CommentLine
         await
 #endif
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+          cancellationToken).ConfigureAwait(false);
 
         if (guessQualifier) // Dependent on SkipRows, FieldQualifier and EscapePrefix
         {
@@ -626,7 +626,7 @@ CommentLine
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken).ConfigureAwait(false);
         var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier,
           inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
@@ -668,7 +668,7 @@ CommentLine
         await
 #endif
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken);
+          cancellationToken).ConfigureAwait(false);
         if (!await textReader
               .InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter,
                 cancellationToken).ConfigureAwait(false))
@@ -708,7 +708,7 @@ CommentLine
           CommentLine = csvFile.CommentLine
         },
         fillGuessSettings: new FillGuessSettings(false),
-        pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken);
+        pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar = det.EscapePrefix;
