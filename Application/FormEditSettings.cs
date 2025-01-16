@@ -242,7 +242,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_CancellationTokenSource.Token);
           var res = await textReader.InspectHasHeaderAsync(csvFile.FieldDelimiterChar, csvFile.FieldQualifierChar,
             csvFile.EscapePrefixChar, csvFile.CommentLine, m_CancellationTokenSource.Token);
-          csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
+          if (!string.IsNullOrEmpty(res.message))
+            MessageBox.Show(res.message, "Check Header");
+          csvFile.HasFieldHeader = res.hasHeader;
           bindingSourceViewSetting.ResetBindings(false);
         });
         UpdateUI();

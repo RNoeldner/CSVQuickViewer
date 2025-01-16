@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -9,7 +10,7 @@ namespace CsvTools
       SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 
     private static readonly string SettingPath = SettingFolder + "\\Setting.json";
-    
+
     /// <summary>
     /// Load the ViewSettings in the fileSystem
     /// </summary>

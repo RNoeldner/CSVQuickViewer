@@ -108,7 +108,7 @@ namespace CsvTools
     /// <param name="lineComment">The lineComment.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>Explanation why there is no header, if empty the header was found</returns>
-    public static async Task<string> InspectHasHeaderAsync(this ImprovedTextReader reader,
+    public static async Task<(string message, bool hasHeader)> InspectHasHeaderAsync(this ImprovedTextReader reader,
       char fieldDelimiterChar,
       char fieldQualifierChar,
       char escapePrefixChar,
@@ -126,22 +126,20 @@ namespace CsvTools
       {
         var headerLine = await InspectHeaderLineAsync(reader, lineComment).ConfigureAwait(false);
         if (string.IsNullOrEmpty(headerLine))
-          return "Empty Line";
+          return new("Empty Line", false);
 
         if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
-          return $"Control Characters in Column {headerLine}";
+          return new($"Control Characters in Column {headerLine}", false);
 
         if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$")))
-          return $"Only one column: {headerLine}";
+          return new($"Only one column: {headerLine}", false);
       }
       else
       {
         var counter = 1;
         while (counter++ < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
           fieldCount += DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment).Count;
-
-        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0 / counter);
-
+        
         var tooLong = headers.Where(header => header.Length > 128).ToList();
         var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
         var notUnique = headers.GroupBy(x => x)
@@ -157,90 +155,85 @@ namespace CsvTools
         var specials = headers.Where(header =>
           Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
 
-        if (tooLong.Count > 0
-            || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Count * 2 +
-            guidHeaders.Count >= halfTheColumns
-            || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + notUnique.Count * 2 +
-            guidHeaders.Count > 3)
+        var msg = new StringBuilder();
+
+        if (boolHead.Count > 0)
         {
-          var msg = new StringBuilder();
-
-          if (boolHead.Count > 0)
-          {
-            msg.Append("Header(s) ");
-            msg.Append(boolHead.Join(", "));
-            msg.Append(" boolean");
-          }
-
-          if (guidHeaders.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(guidHeaders.Join(", "));
-
-
-            msg.Append(" Guid");
-          }
-
-          if (numeric.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(numeric.Join(", "));
-
-            msg.Append(" numeric");
-          }
-
-          if (dates.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(dates.Join(", "));
-            msg.Append(" dates");
-          }
-
-          if (specials.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(specials.Join(", "));
-            msg.Append(" with uncommon characters");
-          }
-
-          if (numEmpty > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append($"{numEmpty:N0} Header(s) empty");
-          }
-
-          if (notUnique.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(notUnique.Select(x => x.Key).Join(", "));
-            msg.Append(" duplicate");
-          }
-
-          if (tooLong.Count > 0)
-          {
-            if (msg.Length > 0)
-              msg.Append('\n');
-            msg.Append("Header(s) ");
-            msg.Append(tooLong.Select(x => x.Substring(0, 128) + "…").Join(", "));
-            msg.Append(" too long");
-          }
-
-          return msg.ToString();
+          msg.Append("Header(s) ");
+          msg.Append(boolHead.Join(", "));
+          msg.Append(" boolean");
         }
-      }
 
-      return string.Empty;
+        if (guidHeaders.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(guidHeaders.Join(", "));
+
+
+          msg.Append(" Guid");
+        }
+
+        if (numeric.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(numeric.Join(", "));
+
+          msg.Append(" numeric");
+        }
+
+        if (dates.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(dates.Join(", "));
+          msg.Append(" dates");
+        }
+
+        if (specials.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(specials.Join(", "));
+          msg.Append(" with uncommon characters");
+        }
+
+        if (numEmpty > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append($"{numEmpty:N0} Header(s) empty");
+        }
+
+        if (notUnique.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(notUnique.Select(x => x.Key).Join(", "));
+          msg.Append(" duplicate");
+        }
+
+        if (tooLong.Count > 0)
+        {
+          if (msg.Length > 0)
+            msg.Append('\n');
+          msg.Append("Header(s) ");
+          msg.Append(tooLong.Select(x => x.Substring(0, 128) + "…").Join(", "));
+          msg.Append(" too long");
+        }
+
+        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0 / counter);
+
+        return (msg.ToString(), (tooLong.Count > 0  || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + guidHeaders.Count >= halfTheColumns
+          || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + guidHeaders.Count > 3));
+      }
+      return (string.Empty, true);
     }
 
     private static async Task<string> InspectHeaderLineAsync(ImprovedTextReader reader, string commentLine)

@@ -90,7 +90,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -132,7 +132,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
@@ -176,16 +176,11 @@ namespace CsvTools
         if (delete)
           FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-        Logger.Information($"Writing file {fileName.GetShortDisplayFileName()}");
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
-          using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
-        await sr.WriteAsync(content).ConfigureAwait(false);
+        using (var improvedStream = new ImprovedStream(new SourceAccess(fileName, false)))
+        using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
+          await sr.WriteAsync(content);
+        
+        Logger.Information($"Written file {fileName.GetShortDisplayFileName()}");
       }
       catch (Exception ex)
       {
