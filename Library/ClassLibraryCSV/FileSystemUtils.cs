@@ -27,6 +27,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using static System.Environment;
+using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -214,11 +216,11 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var fromStream = OpenRead(sourceFile);
+      using var fromStream = OpenRead(sourceFile);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var toStream = OpenWrite(destFile);
+      using var toStream = OpenWrite(destFile);
       await StreamCopy(fromStream, toStream, progress, cancellationToken).ConfigureAwait(false);
     }
 
@@ -307,7 +309,7 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
-    private static string SpecialFolders(in string fileName, in string dir, in string placeHolder)
+    private static string ReplaceHolder(in string fileName, in string dir, in string placeHolder)
     {
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
@@ -320,6 +322,28 @@ namespace CsvTools
       }
 
       return string.Empty;
+    }
+
+    private static string UseSpecialFolders(in string fileName)
+    {
+      if (IsWindows)
+      {
+        var test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.UserProfile),
+        "%UserProfile%");
+        if (test.Length > 0)
+          return test;
+
+        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "%AppData%");
+        if (test.Length > 0)
+          return test;
+
+        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+          "%LocalAppData%");
+        if (test.Length > 0)
+          return test;
+      }
+      return fileName;
     }
 
     /// <summary>
@@ -337,27 +361,9 @@ namespace CsvTools
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
 
-      var test = SpecialFolders(fileName, GetFullPath(basePath), ".");
+      var test = ReplaceHolder(fileName, GetFullPath(basePath), ".");
       if (test.Length > 0)
         return test;
-
-      if (IsWindows)
-      {
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-          "%UserProfile%");
-        if (test.Length > 0)
-          return test;
-
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-          "%AppData%");
-        if (test.Length > 0)
-          return test;
-
-        test = SpecialFolders(fileName, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-          "%LocalAppData%");
-        if (test.Length > 0)
-          return test;
-      }
 
       var otherDir = Path.GetFullPath(fileName);
       //TODO: this looks odd, try to send in filename with "%UserProfile%"
@@ -551,9 +557,20 @@ namespace CsvTools
     /// <returns></returns>
     public static string GetShortestPath(this string? fileName, in string? basePath)
     {
+      if (fileName == null)
+        return string.Empty;
+
       var absolute = fileName.GetAbsolutePath(basePath);
       var relative = fileName.GetRelativePath(basePath);
-      return relative.Length < absolute.Length ? relative : absolute;
+
+      if (relative.Length < absolute.Length)
+        return relative;
+
+      var fileNameSpecial = UseSpecialFolders(absolute);
+      if (fileNameSpecial.Length < absolute.Length)
+        return fileNameSpecial;
+
+      return absolute;
     }
 
     /// <summary>Opens the file for writing</summary>

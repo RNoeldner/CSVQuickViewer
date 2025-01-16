@@ -91,6 +91,7 @@ namespace CsvTools
       set => SetProperty(ref m_KeyFileWrite, value);
     }
 #endif
+    [JsonIgnore]
     [DefaultValue(".")]
     public string InitialFolder
     {
@@ -113,6 +114,7 @@ namespace CsvTools
       set => SetProperty(ref m_FontSize, value);
     }
 
+    [JsonIgnore]
     public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
 
     [DefaultValue(false)]

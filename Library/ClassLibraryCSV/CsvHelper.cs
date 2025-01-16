@@ -653,11 +653,11 @@ CommentLine
         var ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
           inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine,
           cancellationToken).ConfigureAwait(false);
-        var newHasHeader = string.IsNullOrEmpty(ret);
-        inspectionResult.HasFieldHeader = newHasHeader;
-        Logger.Information(!inspectionResult.HasFieldHeader
-          ? $"Without Header, Issues : {ret.HandleCrlfCombinations(", ")}"
-          : "Has Header");
+        if (!string.IsNullOrEmpty(ret.message))
+          Logger.Warning(ret.message.HandleCrlfCombinations(", "));
+        Logger.Information(!ret.hasHeader ? $"Without Header" : "Has Header");
+
+        inspectionResult.HasFieldHeader = ret.hasHeader;
       }
 
       if (!string.IsNullOrEmpty(inspectionResult.CommentLine) && !inspectionResult.NoDelimitedFile)

@@ -210,7 +210,7 @@ namespace CsvTools
             int len;
             const int max = 1000;
             formProgress.SetMaximum(max);
-            while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
+            while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length)) != 0)
             {
               cancellationToken.ThrowIfCancellationRequested();
               sb.Append(buffer, 0, len);
@@ -650,8 +650,6 @@ namespace CsvTools
 
       if (e.CloseReason != CloseReason.UserClosing) return;
       Logger.Debug("Closing Form");
-
-      await m_ViewSettings.SaveViewSettingsAsync();
       await SaveIndividualFileSettingAsync();
     }
 
@@ -773,7 +771,7 @@ namespace CsvTools
           var fileName = m_FileSetting.FileName + SerializedFilesLib.cSettingExtension;
           await new InspectionResult(m_FileSetting).SerializeAsync(fileName, () => MessageBox.Show(
             $"Setting {fileName.GetShortDisplayFileName(50)} has been changed.\nReplace with new setting? ",
-            "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes).ConfigureAwait(false);
+            "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
 
         m_ShouldReloadData = false;

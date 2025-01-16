@@ -302,7 +302,7 @@ namespace CsvTools.Tests
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")));
       using var textReader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
       var result = await textReader.InspectHasHeaderAsync(',', '"', char.MinValue, "#", UnitTestStatic.Token);
-      Assert.IsFalse(string.IsNullOrEmpty(result));
+      Assert.IsFalse(string.IsNullOrEmpty(result.message));
     }
 
     [TestMethod]
