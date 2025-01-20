@@ -140,6 +140,7 @@ namespace CsvTools
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
       var buffer = new char[cBufferMax+3];
+      // Start with delimiter
       buffer[0]=delimiterChar;
       var bufferPos = 0;
       var lineStart = true;
@@ -229,13 +230,12 @@ namespace CsvTools
         lineStart = false;
         last = c; // Update last character
       }
-      const double CloseOpenRatioThreshold = 1.5;
 
       var counterTotal = 0;
       var counterOpenAndText = 0;
       var counterOpenSimple = 0;
       var counterCloseSimple = 0;
-      var counterCloseAndText = 0;
+      var counterCloseAndDelimiter = 0;
 
       // if there is no suitable text, exit
       if (bufferPos < 3)
@@ -244,6 +244,7 @@ namespace CsvTools
       {
         // normalize this, line should start and end with delimiter for out of range safety:
         //  t","t","t",t,t,t"t,t"t,t -> ,t","t","t",t,t,t"t,t"t,t,
+        // End with delimiter
         buffer[++bufferPos]=delimiterChar;
         buffer[++bufferPos]=delimiterChar;
 
@@ -266,20 +267,23 @@ namespace CsvTools
           if (buffer[index + 1] == delimiterChar)
           {
             counterCloseSimple++;
-            if (buffer[index - 1] != delimiterChar)
-              counterCloseAndText++;
+            if (buffer[index - 1] == placeHolderText)
+              counterCloseAndDelimiter++;
           }
         }
 
-        // Lower the score for just having the quote char
-        var totalScore = counterTotal / 2;
-        if (counterOpenAndText != 0 && counterCloseAndText * CloseOpenRatioThreshold > counterOpenAndText &&
-            counterCloseAndText < counterOpenAndText * CloseOpenRatioThreshold)
+        // Low influence on simple existence
+        var totalScore = counterTotal / 3;
+
+        // Very high rating for starting  of A column with text
+        // this is counted again in counterOpenSimple
+        if (counterOpenAndText > 0 && counterCloseAndDelimiter >0)
         {
-          totalScore += 2 * counterOpenAndText + 2 * counterCloseAndText;
+          totalScore += 3 * (counterOpenAndText + counterCloseAndDelimiter);
         }
-        // having equal number opening and closing is adding to score
-        if (counterOpenSimple == counterCloseSimple)
+
+        // having roughly equal number opening and closing quotes before and after delimiter is adding to score        
+        if (counterOpenSimple > 0 && counterCloseSimple >0 && counterOpenSimple >= counterCloseSimple - 2 && counterOpenSimple <= counterCloseSimple + 2)
         {
           totalScore += counterOpenSimple + counterCloseSimple;
         }
