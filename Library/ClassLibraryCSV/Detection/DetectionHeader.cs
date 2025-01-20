@@ -139,7 +139,7 @@ namespace CsvTools
         var counter = 1;
         while (counter++ < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
           fieldCount += DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment).Count;
-        
+
         var tooLong = headers.Where(header => header.Length > 128).ToList();
         var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
         var notUnique = headers.GroupBy(x => x)
@@ -228,10 +228,13 @@ namespace CsvTools
           msg.Append(" too long");
         }
 
-        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0 / counter);
+        var border = (int) Math.Ceiling(fieldCount / 2.0 / counter) - specials.Count;
+        if (border < 3)
+          border=3;
 
-        return (msg.ToString(), (tooLong.Count > 0  || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + guidHeaders.Count >= halfTheColumns
-          || numeric.Count + dates.Count + boolHead.Count + specials.Count + numEmpty + guidHeaders.Count > 3));
+        return (msg.ToString(),
+          tooLong.Count <= 0  &&
+          numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count < border);
       }
       return (string.Empty, true);
     }

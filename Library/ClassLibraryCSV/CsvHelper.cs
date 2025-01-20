@@ -103,7 +103,7 @@ namespace CsvTools
 
         if (!inspectionResult.IsJson && !inspectionResult.IsXml)
         {
-          Logger.Information("Reading to check field delimiter");
+          Logger.Information("Checking field delimiter");
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
@@ -608,9 +608,7 @@ CommentLine
         }
       }
 
-      var changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix);
-      if (changedEscapePrefix)
-        inspectionResult.EscapePrefix = newPrefix;
+      inspectionResult.EscapePrefix = newPrefix;
 
       if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount < 5)
       {
@@ -632,6 +630,9 @@ CommentLine
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;
       }
+      
+      // If the new prefix is removed it is not regarded as changed
+      var changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix) && newPrefix != '\0';
 
       if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
           (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount < 5)
