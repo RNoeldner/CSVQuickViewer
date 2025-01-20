@@ -271,7 +271,8 @@ namespace CsvTools
           }
         }
 
-        var totalScore = counterTotal;
+        // Lower the score for just having the quote char
+        var totalScore = counterTotal / 2;
         if (counterOpenAndText != 0 && counterCloseAndText * CloseOpenRatioThreshold > counterOpenAndText &&
             counterCloseAndText < counterOpenAndText * CloseOpenRatioThreshold)
         {
