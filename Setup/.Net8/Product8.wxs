@@ -1,5 +1,5 @@
-﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" 
-     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util" 
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
      xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
   <?define ProductVersion="!(bind.FileVersion.ExecutableID)" ?>
@@ -13,10 +13,12 @@
   <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net8.0-windows"?>
 
   <Package Name="$(var.Application) $(var.ProductVersion)$(var.NetVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)" UpgradeCode="F42F893E-A1DB-43C6-481F-D2FED20CDEED" Codepage="utf-8" InstallerVersion="310" Scope="perUser">
-   <!---<netfx:DotNetCompatibilityCheck RuntimeType="desktop" RollForward="latestMajor" Version="8.0.0" 
-      Property="NETCORESTATUS" />-->
-     <Launch Condition="Installed OR NETCORESTATUS=&quot;0&quot;" 
-        Message="This application requires Microsoft .NET Core - 8.0.0 or greater." />
+    <netfx:DotNetCompatibilityCheck RuntimeType="desktop" Platform="x86" RollForward="major" Version="8.0.0"
+       Property="NETCORESTATUS" />
+    <netfx:DotNetCompatibilityCheck RuntimeType="desktop" Platform="x64" RollForward="major" Version="8.0.0"
+       Property="NETCORESTATUS2" />
+    <Launch Condition="NETCORESTATUS=0 AND NETCORESTATUS2=0"
+       Message="This application requires Microsoft .NET Core - 8.0.0 or greater." />
     <WixVariable Id="WixUILicenseRtf" Value="..\lgpl.rtf" />
     <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="high" />
     <MajorUpgrade AllowDowngrades="yes" />
