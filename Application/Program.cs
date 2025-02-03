@@ -40,7 +40,8 @@ namespace CsvTools
       Application.SetCompatibleTextRenderingDefault(false);
       WinAppLogging.Init();
       // ReSharper disable once CoVariantArrayConversion
-      Logger.Debug("Application started {@args}", args);
+      
+      try { Logger.Debug("Application started {@args}", args);} catch { }
 
       // read the command line parameter
       if (args.Length == 1)
@@ -84,7 +85,7 @@ namespace CsvTools
           return;
       }
 
-      Logger.Error(ex, "Not handled Exception");
+      try { Logger.Error(ex, "Not handled Exception"); } catch { }
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);

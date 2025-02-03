@@ -58,7 +58,7 @@ namespace CsvTools
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 30)
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 26)
           break;
       }
 

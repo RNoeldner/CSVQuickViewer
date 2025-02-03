@@ -104,7 +104,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Warning(e, "FormColumnUiRead ctor");
+        try { Logger.Warning(e, "FormColumnUiRead ctor"); } catch { };
       }
     }
 
@@ -129,7 +129,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Information(ex, "AddDateFormat {format}", format);
+        try { Logger.Information(ex, "AddDateFormat {format}", format); } catch { };
       }
     }
 
@@ -409,7 +409,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Information(ex, "UpdateDateLabel");
+        try { Logger.Information(ex, "UpdateDateLabel"); } catch { };
       }
     }
 
@@ -436,8 +436,12 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}",
+        try
+        {
+          Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}",
           decimalSeparator, numberFormat, groupSeparator);
+        }
+        catch { };
       }
     }
 

@@ -58,18 +58,26 @@ namespace CsvTools
 
     private void FormTextDisplay_Shown(object sender, EventArgs e)
     {
-      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length, 50)).TrimStart('"', '\'')
+      try
+      {
+        var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length, 50)).TrimStart('"', '\'')
         .Replace(" ", "")
         .Replace("\r", "")
         .Replace("\n", "");
 
-      if (check.StartsWith("<xml", StringComparison.OrdinalIgnoreCase) ||
-          check.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.Xml);
-      else if (check.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.HTML);
-      else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.Json);
+        if (check.StartsWith("<xml", StringComparison.OrdinalIgnoreCase) ||
+            check.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
+          HandleText(Language.Xml);
+        else if (check.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+          HandleText(Language.HTML);
+        else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
+          HandleText(Language.Json);
+      }
+      catch (Exception ex)
+      {
+        // ignore
+        FindForm().ShowError(ex);
+      }
     }
 
     private void HandleText(in Language newLang)
@@ -119,13 +127,13 @@ namespace CsvTools
         }
       }
       catch (Exception exception)
-      {                
-        fastColoredTextBoxRO.Visible=false;        
+      {
+        fastColoredTextBoxRO.Visible=false;
         webBrowser.Visible=false;
         textBox.Visible=true;
         radioButtonText.Checked = true;
         // fastColoredTextBoxRO.Text =textBox.Text;
-        FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");        
+        FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");
       }
     }
 

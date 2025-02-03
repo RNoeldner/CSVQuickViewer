@@ -284,14 +284,14 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());
+        try {Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());} catch {}
         throw new FileWriterException(
           $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
       {
-        Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);
+        try {Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);} catch {}
         HandleWriteEnd();
       }
 

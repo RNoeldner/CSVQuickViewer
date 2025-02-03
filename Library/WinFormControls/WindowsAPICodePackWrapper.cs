@@ -168,7 +168,7 @@ namespace CsvTools
         }
         catch (Exception exception)
         {
-          Logger.Warning(exception, "Using CommonSaveFileDialog");
+          try { Logger.Warning(exception, "Using CommonSaveFileDialog"); } catch { }
           m_CommonFileDialogSupported = false;
           goto Retry;
         }

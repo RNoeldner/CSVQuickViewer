@@ -245,7 +245,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Error(e);
+        try { Logger.Error(e); } catch { }
       }
     }
 
@@ -489,10 +489,14 @@ namespace CsvTools
     /// <param name="timeout">Timeout in Seconds</param>
     public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
     {
-      if (from != null)
-        Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
-      else
-        Logger.Warning(ex, ex.SourceExceptionMessage());
+      try
+      {
+        if (from != null)
+          Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
+        else
+          Logger.Warning(ex, ex.SourceExceptionMessage());
+      }
+      catch { }
       Cursor.Current = Cursors.Default;
 
       MessageBox.Show(

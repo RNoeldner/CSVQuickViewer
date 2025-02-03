@@ -310,18 +310,18 @@ namespace CsvTools
       var fi = new FileSystemUtils.FileInfo(fileName);
       if (!fi.Exists)
       {
-        Logger.Warning("Filename {filename} not found or not accessible.", fileName);
+        try { Logger.Warning("Filename {filename} not found or not accessible.", fileName); } catch { }
         return;
       }
 
       if (fi.Length == 0)
       {
-        Logger.Warning("File {filename} is empty.", fileName);
+        try { Logger.Warning("File {filename} is empty.", fileName); } catch { }
         return;
       }
 
       ShowTextPanel(true);
-      Logger.Information("Loading {filename}", fileName);
+      try { Logger.Information("Loading {filename}", fileName); } catch { }
       try
       {
         DetachPropertyChanged();
@@ -459,11 +459,11 @@ namespace CsvTools
       if (string.IsNullOrEmpty(args.Message))
         return;
       if (++m_WarningCount == m_WarningMax)
-        Logger.Warning("No further warnings displayed");
+        try { Logger.Warning("No further warnings displayed"); } catch { }
       else if (m_WarningCount < m_WarningMax)
       {
         var display = args.Display(true, true);
-        Logger.Warning(display);
+        try { Logger.Warning(display); } catch { }
         m_LoadWarnings.Add(display);
       }
     }
@@ -483,7 +483,7 @@ namespace CsvTools
       }
       catch
       {
-        Logger.Information("Adding file system watcher failed");
+        try { Logger.Information("Adding file system watcher failed"); } catch { }
       }
     }
 
@@ -541,7 +541,7 @@ namespace CsvTools
       }
       catch (Exception exception)
       {
-        Logger.Error(exception, "Checking reload or file change");
+        try { Logger.Error(exception, "Checking reload or file change"); } catch { }
       }
       finally
       {
@@ -565,7 +565,7 @@ namespace CsvTools
       }
       catch
       {
-        Logger.Warning("Disabling file system watcher failed");
+        try { Logger.Warning("Disabling file system watcher failed"); } catch { }
       }
     }
 
@@ -649,7 +649,7 @@ namespace CsvTools
       }
 
       if (e.CloseReason != CloseReason.UserClosing) return;
-      Logger.Debug("Closing Form");
+      try { Logger.Debug("Closing Form"); } catch { }
       await SaveIndividualFileSettingAsync();
     }
 
@@ -686,7 +686,7 @@ namespace CsvTools
             detailControl.ShowInfoButtons = false;
           });
 
-          Logger.Debug("Loading Batch");
+          try { Logger.Debug("Loading Batch"); } catch { }
           using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
           {
             formProgress.Show(this);
@@ -708,7 +708,7 @@ namespace CsvTools
 
           detailControl.UniqueFieldName = keepVisible;
 
-          Logger.Debug("Batch Loaded");
+          try { Logger.Debug("Batch Loaded"); } catch { }
           cancellationToken.ThrowIfCancellationRequested();
 
           // TODO: Is this needed ? Is the column collection not already set ?
@@ -719,7 +719,7 @@ namespace CsvTools
           // Load View Settings from file
           if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
           {
-            Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
+            try { Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile); } catch { }
             detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
           }
           else
@@ -729,7 +729,7 @@ namespace CsvTools
             var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
             if (FileSystemUtils.FileExists(fnView))
             {
-              Logger.Information("Restoring view and filter setting {filename}...", fn);
+              try { Logger.Information("Restoring view and filter setting {filename}...", fn); } catch { }
               detailControl.ReStoreViewSetting(fnView);
             }
           }

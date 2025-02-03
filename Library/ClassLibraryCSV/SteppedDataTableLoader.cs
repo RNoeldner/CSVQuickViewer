@@ -39,7 +39,7 @@ namespace CsvTools
       EventHandler<WarningEventArgs>? addWarning,
       CancellationToken cancellationToken)
     {
-      Logger.Debug("Starting to load data");
+      try { Logger.Debug("Starting to load data");} catch { }
       //m_Id = fileSetting.ID;
       var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       if (fileReader is null)
@@ -49,7 +49,7 @@ namespace CsvTools
       if (addWarning != null)
         fileReader.Warning += addWarning;
 
-      Logger.Debug("Opening reader");
+      try { Logger.Debug("Opening reader");} catch { }
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       if (fileReader.FieldCount > cMaxColumns)
         throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
@@ -71,7 +71,7 @@ namespace CsvTools
       if (m_DataReaderWrapper is null)
         return new DataTable();
 
-      Logger.Debug("Getting batch");
+      try { Logger.Debug("Getting batch"); } catch { }
       var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress, cancellationToken).ConfigureAwait(false);
 
       if (m_DataReaderWrapper.EndOfFile)

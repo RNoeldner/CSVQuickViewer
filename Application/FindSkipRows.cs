@@ -43,8 +43,8 @@ namespace CsvTools
         }
       }
       catch (Exception ex)
-      {
-        Logger.Warning(ex, "HighlightVisibleRange");
+      {        
+        try { Logger.Warning(ex, "HighlightVisibleRange");} catch { }
       }
     }
 

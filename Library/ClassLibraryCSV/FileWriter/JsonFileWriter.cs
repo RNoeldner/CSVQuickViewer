@@ -205,7 +205,7 @@ namespace CsvTools
             var col = WriterColumns.FirstOrDefault(x => x.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)) ??
                       new WriterColumn(prop.Name, new ValueFormat(), -1);
             if (slpitList.ContainsKey(col))
-              Logger.Error("Duplicate property {property}, property will be ignored", prop.Name);
+              try { Logger.Error("Duplicate property {property}, property will be ignored", prop.Name); } catch { }
             else
               slpitList.Add(col, TrimmedSplit(list));
           }

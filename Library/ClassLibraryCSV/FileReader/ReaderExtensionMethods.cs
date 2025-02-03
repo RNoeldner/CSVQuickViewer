@@ -189,11 +189,12 @@ namespace CsvTools
 
       try
       {
+        try {
         if (maxDuration < TimeSpan.MaxValue)
           Logger.Debug("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
         else
           Logger.Debug("Reading all data");
-
+        } catch { }
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
                                                           && await wrapper.ReadAsync(cancellationToken)
