@@ -77,7 +77,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="SharpZipLib" Version="1.4.2" />
-
 		<PackageReference Include="TimeZoneConverter" Version="7.0.0" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.1" />
 	</ItemGroup>

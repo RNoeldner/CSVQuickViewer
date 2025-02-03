@@ -675,7 +675,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex);
+        try {  Logger.Error(ex); } catch { }
       }
 
       throw new ArgumentException($"Could not locate stream for {resourceName}");

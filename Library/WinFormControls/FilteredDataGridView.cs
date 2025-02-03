@@ -116,7 +116,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Warning(e, "FilteredDataGridView ctor");
+        try { Logger.Warning(e, "FilteredDataGridView ctor"); } catch { }
       }
     }
 
@@ -467,7 +467,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Click in DataGrid");
+        try { Logger.Warning(ex, "Click in DataGrid"); } catch { }
       }
     }
 
@@ -598,19 +598,26 @@ namespace CsvTools
 
     private void OpenEditor(DataGridViewCell cell)
     {
-      using var frm = new FormTextDisplay(cell.Value?.ToString() ?? string.Empty);
-
-      // ReSharper disable once LocalizableElement
-      frm.Text = $"{Columns[cell.ColumnIndex].DataPropertyName} - Row {cell.OwningRow.Index + 1:D}";
-      frm.SaveAction = s =>
+      try
       {
-        if (s.Equals(cell.Value))
-          return;
-        cell.Value = s;
-        cell.ErrorText = CurrentCell.ErrorText.AddMessage(
-          "Value was modified".AddWarningId());
-      };
-      frm.ShowWithFont(this, true);
+        using var frm = new FormTextDisplay(cell.Value?.ToString() ?? string.Empty);
+
+        // ReSharper disable once LocalizableElement
+        frm.Text = $"{Columns[cell.ColumnIndex].DataPropertyName} - Row {cell.OwningRow.Index + 1:D}";
+        frm.SaveAction = s =>
+        {
+          if (s.Equals(cell.Value))
+            return;
+          cell.Value = s;
+          cell.ErrorText = CurrentCell.ErrorText.AddMessage(
+            "Value was modified".AddWarningId());
+        };
+        frm.ShowWithFont(this, true);
+      }
+      catch (Exception ex)
+      {
+        FindForm().ShowError(ex);
+      }
     }
 
     /// <summary>
@@ -631,7 +638,10 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "FilteredDataGridView: Mouse Click {columnIndex} {rowIndex} {button}", e.ColumnIndex, e.RowIndex, e.Button);
+        try { Logger.Error(ex, "FilteredDataGridView: Mouse Click {columnIndex} {rowIndex} {button}", e.ColumnIndex, e.RowIndex, e.Button); }
+        catch
+        { // ignore          
+        }
       }
     }
 
@@ -946,7 +956,8 @@ namespace CsvTools
       catch (Exception ex)
       {
         e.Handled = false;
-        Logger.Warning(ex, "HighlightCellPainting");
+        try { Logger.Warning(ex, "HighlightCellPainting"); } catch { }
+
       }
     }
 
@@ -964,7 +975,10 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ResetDataSource");
+        try { Logger.Warning(ex, "ResetDataSource"); }
+        catch
+        {          // ignore;
+        }
       }
     }
 
@@ -1015,7 +1029,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "SetBoundDataView");
+        try { Logger.Warning(ex, "SetBoundDataView"); } catch { }
       }
     }
 
@@ -1109,7 +1123,12 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ToolStripMenuItemCF_Click");
+        try { Logger.Warning(ex, "ToolStripMenuItemCF_Click"); }
+        catch
+        {
+          //ignore
+        }
+
       }
     }
 
@@ -1122,7 +1141,12 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Issue during Copy");
+        try { Logger.Warning(ex, "Issue during Copy"); }
+        catch
+        {
+          // ignore;
+        }
+
       }
     }
 
@@ -1165,7 +1189,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ToolStripMenuItemFilterRemoveOne_Click");
+        try { Logger.Warning(ex, "ToolStripMenuItemFilterRemoveOne_Click"); } catch { }
+
       }
     }
 
@@ -1177,7 +1202,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ToolStripMenuItemOpenEditor_Click");
+        try { Logger.Warning(ex, "ToolStripMenuItemOpenEditor_Click"); } catch { }
       }
     }
 
@@ -1200,7 +1225,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ToolStripMenuItemHideThisColumn_Click");
+        try { Logger.Warning(ex, "ToolStripMenuItemHideThisColumn_Click"); } catch { }
       }
     }
 

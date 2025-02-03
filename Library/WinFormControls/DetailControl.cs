@@ -140,7 +140,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Processing Sorting {exception}", ex.InnerExceptionMessages());
+        try { Logger.Warning(ex, "Processing Sorting {exception}", ex.InnerExceptionMessages()); } catch { }
       }
     }
 
@@ -188,7 +188,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Processing Filter {exception}", ex.InnerExceptionMessages());
+        try { Logger.Warning(ex, "Processing Filter {exception}", ex.InnerExceptionMessages()); } catch { }
       }
     }
 
@@ -517,7 +517,8 @@ namespace CsvTools
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              columnName, HtmlStyle) { Icon = ParentForm?.Icon };
+              columnName, HtmlStyle)
+            { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
             (o, formClosedEventArgs) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
@@ -545,7 +546,8 @@ namespace CsvTools
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              HtmlStyle) { Icon = ParentForm?.Icon };
+              HtmlStyle)
+            { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.ShowWithFont(this);
           m_HierarchyDisplay.FormClosed += (o, formClosedEventArgs) =>
             this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
@@ -965,7 +967,7 @@ namespace CsvTools
       }
       catch (InvalidOperationException exception)
       {
-        Logger.Warning(exception, "Issue updating the UI");
+        try { Logger.Warning(exception, "Issue updating the UI"); } catch { }
         // ignore error in regard to cross thread issues, SafeBeginInvoke should have handled
         // this though
       }

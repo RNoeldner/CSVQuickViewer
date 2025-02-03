@@ -22,7 +22,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Loading ViewSettings {path}", SettingPath);
+        try { Logger.Error(ex, "Loading ViewSettings {path}", SettingPath); } catch { }
+
       }
 
       return new ViewSettings();

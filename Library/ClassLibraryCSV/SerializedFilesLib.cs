@@ -86,7 +86,7 @@ namespace CsvTools
     /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
-      Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
+      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());} catch { }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
@@ -137,7 +137,7 @@ namespace CsvTools
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
         return newContent;
-      Logger.Debug("No change to file {filename}", fileName);
+      try { Logger.Debug("No change to file {filename}", fileName);} catch { }
       return null;
     }
 
@@ -184,7 +184,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Error writing json file {filename}", fileName);
+        try { Logger.Error(ex, "Error writing json file {filename}", fileName); } catch { }
       }
 
       return true;

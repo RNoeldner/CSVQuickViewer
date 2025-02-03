@@ -134,8 +134,9 @@ namespace CsvTools
       var manifestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
       if (manifestEntry is null)
         return null;
-      Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name);
-          
+      try { Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name); } catch { }
+
+
       return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,
         manifestEntry.Name.Substring(0, manifestEntry.Name.Length - cCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
     }

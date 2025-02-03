@@ -24,7 +24,18 @@ namespace CsvTools
   /// </summary>
   public static class DetectionDelimiter
   {
+    /// <summary>Gets the delimiter assuming the extension is "correct"</summary>
+    /// <param name="phys">The physical File</param>
+    /// <returns>
+    /// Comma for .csv, Tab for .tsv or .tab, /0 otherwise
+    /// </returns>
     public static char GetDelimiterByExtension(this IFileSettingPhysicalFile phys) => GetDelimiterByExtension(string.IsNullOrEmpty(phys.IdentifierInContainer) ? phys.FileName : phys.IdentifierInContainer);
+
+    /// <summary>Gets the delimiter assuming the extension is "correct"</summary>
+    /// <param name="name">The fileName</param>
+    /// <returns>
+    /// Comma for .csv, Tab for .tsv or .tab, /0 otherwise
+    /// </returns>
     public static char GetDelimiterByExtension(in string name)
     {
       if (!string.IsNullOrEmpty(name))
@@ -62,11 +73,11 @@ namespace CsvTools
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
       var match = char.MinValue;
-
+      var firstLine = string.Empty;
       if (textReader.CanSeek)
       {
         // Read the first line and check if it does contain the magic word sep=
-        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
+        firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
         if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
         {
           var resultFl = firstLine.Substring(4);
@@ -165,28 +176,39 @@ namespace CsvTools
               variance += avg - delimiterCounter.SeparatorsCount[index, row];
           }
 
-
           // if avg is larger its better
           sums.Add(index, variance * 4 / avg);
 
           // handling on probability of delimiter
           if (delimiterCounter.Separators[index]== probableDelimiter)
-            sums[index] += 10;
+            sums[index]++;
           else if (delimiterCounter.Separators[index]== '\'' || delimiterCounter.Separators[index]==  '*' || delimiterCounter.Separators[index]==   '`')
-            sums[index] -= 2;
+            sums[index]--;
+
+
+          if (firstLine.Length> 0 && !firstLine.StartsWith("#"))
+          {
+            // in case the checked delimiter is in the header its a good indication that its correct
+            if (firstLine.Contains(delimiterCounter.Separators[index]))
+              sums[index]++;
+            else
+              // otherwise its pretty save to say its not good.
+              sums[index]--;
+          }
         }
 
         if (sums.Count > 1)
         {
           foreach (var kv in sums)
-            Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].Text()}");
+            Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].Description()} -  Variance {kv.Value:N0} Score {delimiterCounter.SeparatorScore[kv.Key]:N0}");
         }
 
         if (sums.Count!= 0)
           // get the best result by variance first then if equal by number of records
           match  =  delimiterCounter.Separators[sums
-                          .OrderBy(x => x.Value)
-                          .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]).First().Key];
+                          .OrderByDescending(x => x.Value)  // larger its better
+                          .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]) // larger its better
+                          .First().Key];
       }
 
       if (match == char.MinValue)

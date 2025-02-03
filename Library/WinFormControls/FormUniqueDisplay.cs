@@ -77,7 +77,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Warning(e, "FormUniqueDisplay ctor");
+        try { Logger.Warning(e, "FormUniqueDisplay ctor"); } catch { };
       }
     }
 
@@ -150,7 +150,7 @@ namespace CsvTools
             Maximum = m_DataRow.Length
           };
         formProgress.Show(this);
-        Logger.Information("Getting Unique values");
+        try { Logger.Information("Getting Unique values"); } catch { };
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {

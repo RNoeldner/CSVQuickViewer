@@ -147,7 +147,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, ex.Message);
+        try { Logger.Error(ex, ex.Message); } catch { }
         // Ignore
       }
     }
@@ -270,13 +270,13 @@ namespace CsvTools
     {
       if (SourceAccess.Reading)
       {
-        Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
+        try { Logger.Debug("Deflating {filename}", SourceAccess.Identifier); } catch { }
         AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
+        try { Logger.Debug("Compressing {filename}", SourceAccess.Identifier); } catch {}
         AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
@@ -286,13 +286,13 @@ namespace CsvTools
     {
       if (SourceAccess.Reading)
       {
-        Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
+        try {Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);} catch {}
         AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
+        try { Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);} catch {}
         AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
@@ -390,7 +390,7 @@ namespace CsvTools
 
         if (copyOtherFiles)
         {
-          Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);
+          try { Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);} catch { }
           var tmpName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
           try
           {
@@ -420,11 +420,14 @@ namespace CsvTools
             File.Delete(tmpName);
           }
         }
-
-        Logger.Debug(
+        try
+        {
+          Logger.Debug(
           "Zipping {container} into {filename}",
           SourceAccess.IdentifierInContainer,
           SourceAccess.Identifier);
+        } catch { }
+
 
         zipOutputStream.PutNextEntry(new ZipEntry(cleanName));
         AccessStream = zipOutputStream;

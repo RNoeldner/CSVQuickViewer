@@ -153,7 +153,9 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex);
+        try { Logger.Error(ex); }
+        catch { };
+
         progress?.Report(new ProgressInfo(ex.Message));
         return BuildValueClustersResult.Error;
       }
@@ -876,10 +878,10 @@ namespace CsvTools
           AddUnique(new ValueCluster("Special", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
         var countP = CountPassing(values,
-          x => 
-                  x[0] >= ' ' && x[0] <= '/' 
+          x =>
+                  x[0] >= ' ' && x[0] <= '/'
                || x[0] >= ':' && x[0] <= '@'
-               || x[0] >= '[' && x[0] <= '`' 
+               || x[0] >= '[' && x[0] <= '`'
                || x[0] >= '{' && x[0] <= '~');
         percent += step;
         progress?.Report(new ProgressInfo("Range clusters Punctuation, Marks and Braces", percent));

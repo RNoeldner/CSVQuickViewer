@@ -72,13 +72,14 @@ namespace CsvTools
           }
           catch (Exception ex)
           {
-            Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
+            try { Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col); } catch { }
+
           }
         }
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Restoring View Setting");
+        try { Logger.Warning(ex, "Restoring View Setting"); } catch { }
       }
     }
 
@@ -119,7 +120,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "GetViewSetting");
+        try { Logger.Error(ex, "GetViewSetting");} catch { }
         return null;
       }
     }
