@@ -19,6 +19,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using System.Web;
 
 namespace CsvTools
 {
@@ -364,6 +365,15 @@ namespace CsvTools
       return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ").Replace("  ", " ");
     }
 
+     public static string HtmlDecode(in string text)
+    {
+      if (text is null) throw new ArgumentNullException(nameof(text));
+
+      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
+          && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
+        return text.Substring(9, text.Length - 12);
+      return HttpUtility.HtmlDecode(text);
+    }
     /// <summary>
     ///   Get the XML element name
     /// </summary>

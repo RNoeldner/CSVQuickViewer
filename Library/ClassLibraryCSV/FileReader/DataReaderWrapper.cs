@@ -238,13 +238,16 @@ namespace CsvTools
     /// <inheritdoc />
     public override long GetInt64(int ordinal)
     {
+      // if mapped use the underlying reader
+      if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
+        return DataReader.GetInt64(mapped);
       if (ordinal == m_ReaderMapping.ColNumStartLine)
         return StartLineNumber;
       if (ordinal == m_ReaderMapping.ColNumEndLine)
         return EndLineNumber;
-      return ordinal == m_ReaderMapping.ColNumRecNum
-        ? RecordNumber
-        : DataReader.GetInt64(m_ReaderMapping.ResultToSource(ordinal));
+      if (ordinal == m_ReaderMapping.ColNumRecNum)
+        return RecordNumber;
+      throw new IndexOutOfRangeException($"Column {ordinal} not found");
     }
 
     /// <inheritdoc />
@@ -295,15 +298,21 @@ namespace CsvTools
     /// <inheritdoc />
     public override object GetValue(int ordinal)
     {
+      if (ordinal == m_ReaderMapping.ColNumErrorField)
+        return RowErrorInformation;
+
+      // if mapped use the underlying reader
+      if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
+        return DataReader.GetValue(mapped);
+
       if (ordinal == m_ReaderMapping.ColNumStartLine)
         return StartLineNumber;
       if (ordinal == m_ReaderMapping.ColNumEndLine)
         return EndLineNumber;
       if (ordinal == m_ReaderMapping.ColNumRecNum)
         return RecordNumber;
-      return ordinal == m_ReaderMapping.ColNumErrorField
-        ? RowErrorInformation
-        : DataReader.GetValue(m_ReaderMapping.ResultToSource(ordinal));
+
+      throw new IndexOutOfRangeException($"Column {ordinal} not found");
     }
 
     /// <inheritdoc />

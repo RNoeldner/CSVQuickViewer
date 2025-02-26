@@ -42,10 +42,11 @@ namespace CsvTools
     valueFormat.DataType switch
       {
         DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
-        DataTypeEnum.TextToHtml => TextToHtmlFormatter.Instance,
+        DataTypeEnum.TextToHtml => HtmlToTextFormatter.Instance,
         DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
         DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
         DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
+        DataTypeEnum.HtmlToText => HtmlToTextFormatter.Instance,
         _ => EmptyFormatter.Instance
       };
 
