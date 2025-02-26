@@ -43,7 +43,7 @@ namespace CsvTools
     /// <summary>
     ///   Identifier for a warning message
     /// </summary>
-    private const string cWarningId = "Warning: ";
+    public const string cWarningId = "Warning: ";
 
     /// <summary>
     ///   String method to append a message an error list text

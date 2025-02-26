@@ -169,7 +169,7 @@ namespace CsvTools
           else
             m_ProgressBar.Value = m_ProgressBar.Minimum;
         });
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
       }
     }
 
@@ -223,7 +223,7 @@ namespace CsvTools
       finally
       {
         // Without this the text will not be updated...
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
       }
     }
 

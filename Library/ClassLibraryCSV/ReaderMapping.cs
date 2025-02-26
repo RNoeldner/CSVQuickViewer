@@ -83,7 +83,7 @@ namespace CsvTools
         }
         if (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         {
-          orgStartLine = index;
+          orgStartLine = index;          
           startLine = true;
           continue;
         }

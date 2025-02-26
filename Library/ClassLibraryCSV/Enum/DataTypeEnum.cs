@@ -114,6 +114,13 @@ namespace CsvTools
     ///   Perform Regex.Replace 
     /// </summary>
     [Description("Text Replace")]
-    TextReplace = 17
+    TextReplace = 17,
+
+    /// <summary>
+    ///   A String or VarChar, but do some basic HTML encoding, "Encode HTML (Linefeed only)"
+    /// </summary>
+    [Description("Decode HTML")]
+    [ShortDescription("HTML Read")]
+    HtmlToText = 18,
   }
 }

@@ -105,7 +105,7 @@ namespace CsvTools
     [JsonIgnore]
     public IColumnFormatter ColumnFormatter
     {
-      get;      
+      get;
     }
 
     /// <summary>
