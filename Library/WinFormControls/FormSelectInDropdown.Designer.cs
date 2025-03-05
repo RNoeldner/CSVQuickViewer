@@ -100,7 +100,6 @@ namespace CsvTools
       this.Name = "FormSelectInDropdown";
       this.ShowIcon = false;
       this.Text = "Select";
-      this.TopMost = true;
       this.tableLayoutPanel1.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();

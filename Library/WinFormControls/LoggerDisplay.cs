@@ -49,7 +49,10 @@ namespace CsvTools
       AllowDrop = false;
       WinAppLogging.AddLog(this);
     }
-
+    
+    public void StopLogging()
+    => WinAppLogging.RemoveLog(this);
+    
     /// <inheritdoc />
     public sealed override bool AllowDrop
     {
@@ -127,9 +130,7 @@ namespace CsvTools
     protected override void Dispose(bool disposing)
     {
       if (disposing)
-      {
-        WinAppLogging.RemoveLog(this);
-      }
+        StopLogging();
 
       try
       {

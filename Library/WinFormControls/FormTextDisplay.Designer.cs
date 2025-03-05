@@ -253,7 +253,6 @@ namespace CsvTools
       this.Controls.Add(this.statusStrip1);
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FormTextDisplay";
-      this.TopMost = true;
       this.Shown += new System.EventHandler(this.FormTextDisplay_Shown);
       flowLayoutPanelDisplay.ResumeLayout(false);
       flowLayoutPanelDisplay.PerformLayout();
