@@ -44,7 +44,6 @@ namespace CsvTools.Tests
           frm.FormClosed += (s, o) =>
             isClosed = true;
 
-          frm.TopMost = true;
           frm.ShowInTaskbar = false;
 
           try
@@ -94,7 +93,6 @@ namespace CsvTools.Tests
           frm.FormClosed += (s, o) =>
             isClosed = true;
 
-          frm.TopMost = true;
           frm.ShowInTaskbar = false;
 
           try

@@ -92,6 +92,15 @@ namespace CsvTools
       Maximum = 0;
     }
 
+    public void StopLogging()
+    {
+      if (m_LoggerDisplay != null)
+        m_LoggerDisplay.StopLogging();
+      else
+        WinAppLogging.RemoveLog(this);
+    }
+
+
     public FormProgress()
       : this(string.Empty, true, new FontConfig(), CancellationToken.None)
     {
@@ -324,7 +333,6 @@ namespace CsvTools
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
       this.Text = "Process";
-      this.TopMost = true;
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Progress_FormClosing);
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
@@ -374,7 +382,12 @@ namespace CsvTools
         if (disposing)
         {
           CancellationTokenSource.Dispose();
-          m_LoggerDisplay?.Dispose();
+
+          if (m_LoggerDisplay == null)
+            WinAppLogging.RemoveLog(this);
+          else
+            m_LoggerDisplay.Dispose();
+
           base.Dispose(disposing);
         }
       }
