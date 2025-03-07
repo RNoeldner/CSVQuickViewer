@@ -98,7 +98,7 @@ namespace CsvTools
     private bool m_IsFinished;
 
     // ReSharper disable once FieldCanBeMadeReadOnly.Global    
-    private IProgress<ProgressInfo>? m_ReportProgress;
+    private IProgress<ProgressInfo> m_ReportProgress = new DummyProgress();
 
     /// <inheritdoc />
     /// <summary>
@@ -225,7 +225,7 @@ namespace CsvTools
     {
       protected get
       {
-        return m_ReportProgress!;
+        return m_ReportProgress;
       }
       set
       {
@@ -981,7 +981,7 @@ namespace CsvTools
     /// <param name="text">Leading Text</param>
     /// <param name="percent">Value between 0 and 1 representing the relative position</param>
     protected virtual void HandleShowProgress(in string text, double percent) =>
-      m_ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
+      m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
 
 
     /// <summary>
