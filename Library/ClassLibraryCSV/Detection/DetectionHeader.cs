@@ -47,7 +47,7 @@ namespace CsvTools
     /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="commentLine">The lineComment.</param>
     /// <returns>All columns of the next row</returns>
-    public static ICollection<string> DelimitedRecord(in ImprovedTextReader reader, char fieldDelimiter,
+    public static List<string> DelimitedRecord(in ImprovedTextReader reader, char fieldDelimiter,
       char fieldQualifier, char escapePrefix, string commentLine)
     {
       bool restartLineCommented;
@@ -56,14 +56,13 @@ namespace CsvTools
       do
       {
         restartLineCommented = false;
-        var res = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
-        columnText = res.column;
+        columnText = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine).column;
 
         // An empty line does not have a first column
         if (columnText.Length == 0 && endOfLine)
         {
           // Return it as array of empty columns
-          return Array.Empty<string>();
+          return new List<string>();
         }
 
         // Skip commented lines
@@ -93,11 +92,8 @@ namespace CsvTools
 
       var columns = new List<string> { columnText };
       while (!endOfLine)
-      {
-        var res = ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine);
-        columns.Add(res.column);
-      }
-      return columns.ToArray();
+        columns.Add(ReadColumn(reader, fieldDelimiter, fieldQualifier, escapePrefix, out endOfLine).column);
+      return columns;
     }
 
     /// <summary>Guesses the has header from reader.</summary>
@@ -116,6 +112,10 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       var headers = DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment);
+
+      // Get rid of all trailing empty headers
+      while (string.IsNullOrEmpty(headers[headers.Count - 1]))
+        headers.RemoveAt(headers.Count - 1);
 
       // get the average field count looking at the header and 12 additional valid lines
       var fieldCount = headers.Count;
@@ -272,8 +272,7 @@ namespace CsvTools
       var eol = false;
       do
       {
-        var (_, raw) = ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol);
-        sb.Append(raw);
+        sb.Append(ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol).raw);
       } while (!eol);
 
       if (sb.Length > 0)

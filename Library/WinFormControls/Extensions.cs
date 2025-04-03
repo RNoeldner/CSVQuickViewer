@@ -291,8 +291,9 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        var frm = control.FindForm();
-        frm?.ShowError(ex);
+        if (!(control is Form frm))
+          frm = control.FindForm();
+        frm.ShowError(ex);
       }
       finally
       {
