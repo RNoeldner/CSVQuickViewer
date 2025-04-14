@@ -1,87 +1,88 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<Authors>Raphael Nöldner</Authors>
-		<Description>Functionality to read and write delimited text files</Description>
-		<PackageTags>delimited Text;csv;json</PackageTags>
-		<PackageProjectUrl>https://github.com/RNoeldner/CSVQuickViewer</PackageProjectUrl>
-		<RootNamespace>CsvTools</RootNamespace>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Copyright>Copyright © 2017</Copyright>
-		<ProductName>CsvTools</ProductName>
-		<OutputType>Library</OutputType>
-		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-		<NeutralLanguage>en-US</NeutralLanguage>
-		<TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
-		<LangVersion>10.0</LangVersion>
-		<SignAssembly>True</SignAssembly>
-		<Nullable>enable</Nullable>
-		<WarningsAsErrors>nullable</WarningsAsErrors>
-		<CodePage>65001</CodePage>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
-		<ReleaseVersion>1.4.6.499</ReleaseVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-		<DebugType>embedded</DebugType>
-		<Optimize>False</Optimize>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-		<DebugType>none</DebugType>
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-		<DebugType>embedded</DebugType>
-		<Optimize>False</Optimize>
-		<DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-		<DebugType>none</DebugType>
-		<Optimize>False</Optimize>
-		<DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-		<DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-		<DebugType>none</DebugType>
-	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="UserInterfaceSettings\**" />
-		<EmbeddedResource Remove="UserInterfaceSettings\**" />
-		<None Remove="UserInterfaceSettings\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Remove="FileSetting\BaseSettingPhysicalFile.cs" />
-		<Compile Remove="FileSetting\BaseSettings.cs" />
-		<Compile Remove="FileSetting\BaseSettingsValidator.cs" />
-		<Compile Remove="FileSetting\CsvFile.cs" />
-		<Compile Remove="FileSetting\FileSettingDummy.cs" />
-		<Compile Remove="FileSetting\FileSettingPhysicalFileDummy.cs" />
-		<Compile Remove="FileSetting\JsonFile.cs" />
-		<Compile Remove="FileSetting\StructuredFile.cs" />
-		<Compile Remove="FileSetting\XMLFile.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="DateTimeFormats.txt" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="SharpZipLib" Version="1.4.2" />
-		<PackageReference Include="TimeZoneConverter" Version="7.0.0" />
-		<PackageReference Include="UTF.Unknown" Version="2.5.1" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.3" />
-	</ItemGroup>
+  <PropertyGroup>
+    <Authors>Raphael Nöldner</Authors>
+    <Description>Functionality to read and write delimited text files</Description>
+    <PackageTags>delimited Text;csv;json</PackageTags>
+    <PackageProjectUrl>https://github.com/RNoeldner/CSVQuickViewer</PackageProjectUrl>
+    <RootNamespace>CsvTools</RootNamespace>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright © 2017</Copyright>
+    <ProductName>CsvTools</ProductName>
+    <OutputType>Library</OutputType>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
+    <SignAssembly>True</SignAssembly>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <CodePage>65001</CodePage>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
+    <ReleaseVersion>1.4.6.499</ReleaseVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>    
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="UserInterfaceSettings\**" />
+    <EmbeddedResource Remove="UserInterfaceSettings\**" />
+    <None Remove="UserInterfaceSettings\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="FileSetting\BaseSettingPhysicalFile.cs" />
+    <Compile Remove="FileSetting\BaseSettings.cs" />
+    <Compile Remove="FileSetting\BaseSettingsValidator.cs" />
+    <Compile Remove="FileSetting\CsvFile.cs" />
+    <Compile Remove="FileSetting\FileSettingDummy.cs" />
+    <Compile Remove="FileSetting\FileSettingPhysicalFileDummy.cs" />
+    <Compile Remove="FileSetting\JsonFile.cs" />
+    <Compile Remove="FileSetting\StructuredFile.cs" />
+    <Compile Remove="FileSetting\XMLFile.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DateTimeFormats.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="TimeZoneConverter" Version="7.0.0" />
+    <PackageReference Include="UTF.Unknown" Version="2.5.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.4" />
+  </ItemGroup>
 
 </Project>
