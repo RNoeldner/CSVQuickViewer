@@ -176,7 +176,7 @@ namespace CsvTools
               variance += avg - delimiterCounter.SeparatorsCount[index, row];
           }
 
-          // if avg is larger its better
+          // now waith the variance as well, if avg is high the variance is less important            
           sums.Add(index, variance * 4 / avg);
 
           // handling on probability of delimiter
@@ -206,7 +206,7 @@ namespace CsvTools
         if (sums.Count!= 0)
           // get the best result by variance first then if equal by number of records
           match  =  delimiterCounter.Separators[sums
-                          .OrderByDescending(x => x.Value)  // larger its better
+                          .OrderBy(x => x.Value)  // variance : low value means and even distribution
                           .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]) // larger its better
                           .First().Key];
       }
