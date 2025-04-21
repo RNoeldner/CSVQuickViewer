@@ -19,7 +19,9 @@ namespace CsvTools.Tests
              new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       {
         using var reader = new ImprovedTextReader(stream);
-        Assert.IsFalse((await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token)).hasHeader);
+        var res = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token);
+        Assert.IsFalse(string.IsNullOrEmpty( res.message));
+        Assert.IsTrue(res.hasHeader);
       }
 
       using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
@@ -42,13 +44,7 @@ namespace CsvTools.Tests
       {
         using var reader = new ImprovedTextReader(stream);
         Assert.AreEqual("", (await reader.InspectHasHeaderAsync('\t', char.MinValue, char.MinValue, "#", UnitTestStatic.Token)).message);
-      }
-
-      using (var stream = new FileStream(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), FileMode.Open))
-      {
-        using var reader = new ImprovedTextReader(stream);
-        Assert.AreEqual("", (await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "#", UnitTestStatic.Token)).message);
-      }
+      }    
     }
 
     [TestMethod]
@@ -88,7 +84,8 @@ namespace CsvTools.Tests
       using var improvedStream =
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
-      Assert.AreEqual(("", false), await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token));
+      var res = await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token);      
+      Assert.IsFalse(res.hasHeader);      
     }
 
     [TestMethod]

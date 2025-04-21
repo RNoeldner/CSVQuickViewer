@@ -408,6 +408,9 @@ namespace CsvTools.Tests
           continue;
         if (ignore != null && ignore.Contains(propertyInfo.Name))
           continue;
+        // Ignore all values thta have JosnIgnore Property
+        if (propertyInfo.GetCustomAttributes(false).OfType<JsonIgnoreAttribute>().Any())
+          continue;
         try
         {
           if (!propertyInfo.ChangePropertyValue(obj))

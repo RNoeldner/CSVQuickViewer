@@ -142,7 +142,7 @@ namespace CsvTools.Tests
       var textToHtml = new HtmlToTextFormatter();
       Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("Hello World", textToHtml.FormatInputText("Hello\tWorld", _ => called = true));
+      Assert.AreEqual("Hello\nWorld", textToHtml.FormatInputText("<![CDATA[Hello\nWorld]]>", _ => called = true));
       Assert.IsTrue(called);
     }
 
@@ -151,7 +151,7 @@ namespace CsvTools.Tests
     {
       var textToHtml = new HtmlToTextFormatter();
       Assert.AreEqual("Hello", textToHtml.Write("Hello", null, null));
-      Assert.AreEqual("<br>", textToHtml.Write("\r", null, null));
+      Assert.AreEqual(">", textToHtml.Write("&gt;", null, null));
     }
 
     [TestMethod]
