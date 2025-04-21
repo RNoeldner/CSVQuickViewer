@@ -96,6 +96,34 @@ namespace CsvTools
       return columns;
     }
 
+    /// <summary>
+    /// Get the raw header rows(s) from a text file, without any corrections
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
+    /// <param name="skipLines">Number of lines that should be skipped at the beginning of the file</param>
+    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="commentLine">The lineComment.</param>
+    /// <returns></returns>
+    public static string GetRawHeaderLine(this Stream stream, int codePageId, int skipLines,
+      char fieldDelimiterChar,
+      char fieldQualifierChar, char escapePrefix, string commentLine)
+    {
+      var sb = new StringBuilder();
+      using var imp = new ImprovedTextReader(stream, codePageId, skipLines);
+      var eol = false;
+      do
+      {
+        sb.Append(ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol).raw);
+      } while (!eol);
+
+      if (sb.Length > 0)
+        sb.Length--;
+      return sb.ToString();
+    }
+
     /// <summary>Guesses the has header from reader.</summary>
     /// <param name="reader">The reader.</param>
     /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
@@ -114,7 +142,7 @@ namespace CsvTools
       var headers = DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment);
 
       // Get rid of all trailing empty headers
-      while (string.IsNullOrEmpty(headers[headers.Count - 1]))
+      while (headers.Count >0 && string.IsNullOrEmpty(headers[headers.Count - 1]))
         headers.RemoveAt(headers.Count - 1);
 
       // get the average field count looking at the header and 12 additional valid lines
@@ -251,35 +279,6 @@ namespace CsvTools
       }
       return headerLine;
     }
-
-    /// <summary>
-    /// Get the raw header rows(s) from a text file, without any corrections
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
-    /// <param name="skipLines">Number of lines that should be skipped at the beginning of the file</param>
-    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
-    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
-    /// <param name="commentLine">The lineComment.</param>
-    /// <returns></returns>
-    public static string GetRawHeaderLine(this Stream stream, int codePageId, int skipLines,
-      char fieldDelimiterChar,
-      char fieldQualifierChar, char escapePrefix, string commentLine)
-    {
-      var sb = new StringBuilder();
-      using var imp = new ImprovedTextReader(stream, codePageId, skipLines);
-      var eol = false;
-      do
-      {
-        sb.Append(ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol).raw);
-      } while (!eol);
-
-      if (sb.Length > 0)
-        sb.Length--;
-      return sb.ToString();
-    }
-
     private static (string column, string raw) ReadColumn(in ImprovedTextReader reader, char fieldDelimiter,
       char fieldQualifier, char escapePrefix, out bool eol)
     {
