@@ -180,7 +180,7 @@ namespace CsvTools
 
         // 2^26 Byte max Capacity : 64 MByte
         int capacity = Math.Min(stream.Length.ToInt(), 67108864);
-        var memoryStream = new MemoryStream(capacity: stream.Length.ToInt());
+        var memoryStream = new MemoryStream(capacity);
         await stream.CopyToAsync(memoryStream, capacity, cancellationToken).ConfigureAwait(false);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await stream.DisposeAsync();

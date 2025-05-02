@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -58,11 +59,11 @@ namespace CsvTools
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score > 26)
+        if (currentQuote.QuoteChar == '"' && currentQuote.Score >= 25)
           break;
       }
 
-      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.Text()}");
+      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.Text()} Score:{bestQuoteTestResults.Score:N0}");
       return bestQuoteTestResults;
     }
 
@@ -135,7 +136,8 @@ namespace CsvTools
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      const int cBufferMax = 8192; // Defined constant for max length
+
+      const int cBufferMax = 262144; // Defined constant for max length
       const char placeHolderText = 't';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
@@ -238,9 +240,7 @@ namespace CsvTools
       var counterCloseAndDelimiter = 0;
 
       // if there is no suitable text, exit
-      if (bufferPos < 3)
-        res.Score = 0;
-      else
+      if (bufferPos > 3)
       {
         // normalize this, line should start and end with delimiter for out of range safety:
         //  t","t","t",t,t,t"t,t"t,t -> ,t","t","t",t,t,t"t,t"t,t,
@@ -271,22 +271,19 @@ namespace CsvTools
               counterCloseAndDelimiter++;
           }
         }
+        if (counterTotal==0)
+          return res;
 
-        // Low influence on simple existence
-        var totalScore = counterTotal / 3;
+        var totalScore = counterTotal;
 
         // Very high rating for starting  of A column with text
         // this is counted again in counterOpenSimple
         if (counterOpenAndText > 0 && counterCloseAndDelimiter >0)
-        {
-          totalScore += 3 * (counterOpenAndText + counterCloseAndDelimiter);
-        }
+          totalScore += 5 * (counterOpenAndText + counterCloseAndDelimiter);
 
         // having roughly equal number opening and closing quotes before and after delimiter is adding to score        
         if (counterOpenSimple > 0 && counterCloseSimple >0 && counterOpenSimple >= counterCloseSimple - 2 && counterOpenSimple <= counterCloseSimple + 2)
-        {
-          totalScore += counterOpenSimple + counterCloseSimple;
-        }
+          totalScore += 3 * counterOpenSimple + counterCloseSimple;
 
         // If we hardly saw quotes assume DuplicateQualifier
         if (!res.DuplicateQualifier && counterTotal < 50 && bufferPos > 100)
@@ -297,7 +294,11 @@ namespace CsvTools
           totalScore += 10;
 
         // try to normalize the score, depending on the length of the filter build a percent score that  should indicate how sure
-        res.Score = totalScore > bufferPos ? 99 : Convert.ToInt32(totalScore / (double) bufferPos * 100);
+        res.Score = totalScore > bufferPos ? 99 : Convert.ToInt32(totalScore / (double) bufferPos * 100) + 1;
+
+        // If we have a decent score but simply read a large volume adjust the resulting score
+        if (totalScore> 250 && res.Score<2)
+          res.Score = 10;
       }
 
       return res;
