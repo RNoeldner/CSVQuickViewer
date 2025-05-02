@@ -186,7 +186,7 @@ namespace CsvTools
             sums[index]--;
 
 
-          if (firstLine.Length> 0 && !firstLine.StartsWith("#"))
+          if (firstLine.Length> 0 && !firstLine.StartsWith("#", StringComparison.Ordinal))
           {
             // in case the checked delimiter is in the header its a good indication that its correct
             if (firstLine.Contains(delimiterCounter.Separators[index]))
