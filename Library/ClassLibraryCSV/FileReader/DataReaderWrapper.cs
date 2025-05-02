@@ -322,9 +322,11 @@ namespace CsvTools
 
       var maxFld = values.Length;
       if (maxFld > FieldCount) maxFld = FieldCount;
-
+      
+      // get ordinsl from mapped
+      
       for (var col = 0; col < maxFld; col++)
-        values[col] = GetValue(col);
+        values[col] = GetValue(m_ReaderMapping.ResultToSource(col));
 
       return maxFld;
     }

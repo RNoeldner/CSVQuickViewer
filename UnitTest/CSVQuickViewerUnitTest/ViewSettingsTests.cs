@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace CsvTools.Tests
 {
@@ -41,7 +42,14 @@ namespace CsvTools.Tests
     public void SerializeCheckViewSettingsTest()
     {
       var test1 = new ViewSettings { AllowJson = false, HtmlStyle = new HtmlStyle("Dummy") };
-      UnitTestStatic.RunSerializeAllProps(test1);
+      // JsonIgnore
+      var ignore = new List<string>() { 
+        nameof(ViewSettings.InitialFolder), 
+        nameof(ViewSettings.DefaultInspectionResult), 
+        nameof(ViewSettings.WriteSetting), 
+        nameof(ViewSettings.DurationTimeSpan) };
+
+      UnitTestStatic.RunSerializeAllProps(test1, ignore);
     }
 
   }
