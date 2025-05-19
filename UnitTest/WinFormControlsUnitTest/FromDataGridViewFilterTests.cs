@@ -34,7 +34,8 @@ namespace CsvTools.Tests
       for (var i = 0; i < 45; i++)
         data.Add(UnitTestStatic.GetRandomText(50));
 
-      using var dt = UnitTestStaticData.RandomDataTable(20);
+      //using var dt = UnitTestStaticData.RandomDataTable(20);
+      using var dt = UnitTestStaticData.GetDataTable(100, false, false,true, false, out var _, out var _);
       UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(string), "Text"), data, 20), .5, null);
     }
 

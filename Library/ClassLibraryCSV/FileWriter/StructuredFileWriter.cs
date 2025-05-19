@@ -87,9 +87,6 @@ namespace CsvTools
         unencrypted
         )
     {
-      if (string.IsNullOrEmpty(row))
-        throw new ArgumentException($"{nameof(row)} can not be empty");
-
       m_CodePageId = codePageId;
       m_ByteOrderMark = byteOrderMark;
       m_Row = row;
@@ -211,6 +208,8 @@ namespace CsvTools
     /// <param name="reader">The reader.</param>    
     public virtual string BuildRow(in string placeHolderText, in IDataReader reader)
     {
+      if (string.IsNullOrEmpty(placeHolderText))
+        return string.Empty;
       var row = placeHolderText;
       foreach (var columnInfo in WriterColumns)
         row = row.ReplaceCaseInsensitive(string.Format(cFieldPlaceholderByName, columnInfo.Name), Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader));

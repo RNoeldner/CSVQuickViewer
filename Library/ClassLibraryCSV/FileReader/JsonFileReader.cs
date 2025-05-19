@@ -121,8 +121,7 @@ namespace CsvTools
     }
 
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <inheritdoc cref="DbDataReader" />
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER    
     public new async ValueTask DisposeAsync()
     {
       if (m_Stream != null)

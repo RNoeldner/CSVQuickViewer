@@ -189,10 +189,10 @@ namespace CsvTools
           var resources = new ComponentResourceManager(typeof(TimedMessage));
           m_PictureBox.Image = icon switch
           {
-            MessageBoxIcon.Information => (Image) resources.GetObject("info"),
-            MessageBoxIcon.Warning => (Image) resources.GetObject("warning"),
-            MessageBoxIcon.Question => (Image) resources.GetObject("question"),
-            MessageBoxIcon.Error => (Image) resources.GetObject("error"),
+            MessageBoxIcon.Information => resources.GetObject("info") as Image,
+            MessageBoxIcon.Warning => resources.GetObject("warning") as Image,
+            MessageBoxIcon.Question => resources.GetObject("question") as Image,
+            MessageBoxIcon.Error => resources.GetObject("error") as Image,
             _ => m_PictureBox.Image
           };
         }

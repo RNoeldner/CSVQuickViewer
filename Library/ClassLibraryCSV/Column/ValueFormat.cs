@@ -68,7 +68,6 @@ namespace CsvTools
 
     private const char cTimeSeparatorDefaultChar = ':';
 
-
     /// <summary> The text regarded as true</summary>
     public const string cTrueDefault = "";
 

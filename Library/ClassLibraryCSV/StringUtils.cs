@@ -370,7 +370,14 @@ namespace CsvTools
     }
 
     private const string cAllowedLatinWithout6789 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    /// <summary>
+    /// Any char allowed for Base64 encoded Text
+    /// </summary>
     public const string cAllowedBase64 = cAllowedLatinWithout6789 + "/+=";
+
+    /// <summary>
+    /// Any char allowed for UL Text
+    /// </summary>
     public const string cAllowedURL = cAllowedLatinWithout6789 + "6789/:-._~&?%";
 
     /// <summary>
