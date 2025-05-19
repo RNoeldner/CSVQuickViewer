@@ -18,7 +18,7 @@
     <LangVersion>latest</LangVersion>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <IsPublishable>False</IsPublishable>
+    <IsPublishable>True</IsPublishable>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
@@ -28,7 +28,8 @@
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>    
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    
+    <AnalysisLevel>6.0-recommended</AnalysisLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,7 +50,7 @@
     <LangVersion>8.0</LangVersion>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <IsPublishable>False</IsPublishable>
+    <IsPublishable>True</IsPublishable>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
@@ -68,20 +69,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
     <DebugType>none</DebugType>
     <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
     <DebugType>none</DebugType>
     <WarningLevel>5</WarningLevel>
     <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
     <DebugType>embedded</DebugType>
     <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
     <DebugType>embedded</DebugType>
     <WarningLevel>5</WarningLevel>
     <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FileSettingPhysicalFile.cs" />
@@ -121,6 +126,10 @@
   <ItemGroup>
     <None Update="LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Picture.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
     <None Update="README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

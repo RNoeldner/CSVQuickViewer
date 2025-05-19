@@ -230,7 +230,9 @@ namespace CsvTools.Tests
       var empty = new List<object>();
 
       for (long i = 1; i < 20; i++)
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         empty.Add(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
       Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(DataTypeEnum.Double, empty, "dummy", true, 200));
       Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(DataTypeEnum.String, empty, "dummy", true, 200));

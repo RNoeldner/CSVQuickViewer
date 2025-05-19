@@ -123,23 +123,24 @@ namespace CsvTools
     public override string BuildRow(in string placeHolderText, in IDataReader reader)
     {
       var row = base.BuildRow(placeHolderText, reader);
-
-      // Replace Array
-      var rep = new Dictionary<string, string>();
-
-      // do not use the regular [] as they can occur in text
-      var startArray = row.IndexOf("\\[", StringComparison.Ordinal);
-      while (startArray != -1)
+      if (!string.IsNullOrEmpty(row))
       {
-        var endArray = row.IndexOf("\\]", startArray, StringComparison.Ordinal);
-        var array = row.Substring(startArray, endArray - startArray + 2);
-        rep.Add(array, HandleArray(array, FindWriterColumn(row, startArray)));
-        startArray = row.IndexOf("\\[", endArray, StringComparison.Ordinal);
+        // Replace Array
+        var rep = new Dictionary<string, string>();
+
+        // do not use the regular [] as they can occur in text
+        var startArray = row.IndexOf("\\[", StringComparison.Ordinal);
+        while (startArray != -1)
+        {
+          var endArray = row.IndexOf("\\]", startArray, StringComparison.Ordinal);
+          var array = row.Substring(startArray, endArray - startArray + 2);
+          rep.Add(array, HandleArray(array, FindWriterColumn(row, startArray)));
+          startArray = row.IndexOf("\\[", endArray, StringComparison.Ordinal);
+        }
+
+        foreach (var replace in rep)
+          row = row.Replace(replace.Key, replace.Value);
       }
-
-      foreach (var replace in rep)
-        row = row.Replace(replace.Key, replace.Value);
-
       return row;
     }
 

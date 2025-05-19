@@ -365,7 +365,13 @@ namespace CsvTools
       return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ").Replace("  ", " ");
     }
 
-     public static string HtmlDecode(in string text)
+    /// <summary>
+    /// Resolve CDATA and d HTML encoded text to a normal string.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns>The text without HTML Encoding</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static string HtmlDecode(in string text)
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
 
@@ -374,6 +380,7 @@ namespace CsvTools
         return text.Substring(9, text.Length - 12);
       return HttpUtility.HtmlDecode(text);
     }
+
     /// <summary>
     ///   Get the XML element name
     /// </summary>

@@ -106,7 +106,7 @@
       </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
-      <Directory Id="ProgramMenuDir" Name="$(var.Application) ">
+      <Directory Id="ProgramMenuDir" Name="$(var.Application)">
         <Component Id="StartMenuShortCuts">
           <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
           <Shortcut Id="ApplicationStartMenintcut" Name="$(var.Application) " Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />

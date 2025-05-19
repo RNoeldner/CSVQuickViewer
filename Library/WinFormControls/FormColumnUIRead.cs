@@ -383,7 +383,7 @@ namespace CsvTools
 
             // Reading data with Offset, means that we can have different inputs for the same outcome
             if (completeFormat.IndexOf("zzz", StringComparison.Ordinal) != -1 &&
-                TimeZone.CurrentTimeZone.GetUtcOffset(sourceDate).TotalMinutes > 1)
+                 TimeZoneInfo.Local.GetUtcOffset(sourceDate).TotalMinutes > 1)
             {
               completeFormat = completeFormat.Replace("zzz", "+00:00");
               text.Add(StringConversion.DateTimeToString(sourceDate.ToUniversalTime(),

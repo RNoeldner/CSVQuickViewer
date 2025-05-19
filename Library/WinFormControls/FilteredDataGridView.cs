@@ -36,8 +36,8 @@ namespace CsvTools
   {
     private static int m_DefRowHeight = -1;
     private readonly Image m_ImgFilterIndicator;
-    private readonly CancellationTokenSource m_CancellationTokenSource;
-    private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic;
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+    private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
     private BindingSource? m_BindingSource;
 
     private IFileSetting? m_FileSetting;
@@ -76,13 +76,11 @@ namespace CsvTools
 
     public FilteredDataGridView()
     {
-      m_CancellationTokenSource = new CancellationTokenSource();
       InitializeComponent();
       try
       {
         CellFormatting += CellFormatDate;
-        FontChanged += PassOnFontChanges;
-        m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
+        FontChanged += PassOnFontChanges;        
 
         Scroll += (o, e) => SetRowHeight();
 

@@ -73,7 +73,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object?> values,
+    public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values,
       in string escapedName, bool isActive, int maxNumber = 50,
       bool combine = true, bool even = false, double maxSeconds = 5.0, IProgress<ProgressInfo>? progress = null,
       CancellationToken cancellationToken = default)
@@ -173,7 +173,7 @@ namespace CsvTools
     /// <param name="progress"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns></returns>
-    private static int MakeTypedValues<T>(in ICollection<object?> values, in List<T> typedValues,
+    private static int MakeTypedValues<T>(in ICollection<object> values, in List<T> typedValues,
       Func<object, T> convert, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       var countNull = 0;

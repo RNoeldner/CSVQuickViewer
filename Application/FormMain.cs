@@ -487,7 +487,7 @@ namespace CsvTools
       }
     }
 
-    private bool m_CheckRunning = false;
+    private bool m_CheckRunning;
 
     private async Task CheckPossibleChange()
     {
