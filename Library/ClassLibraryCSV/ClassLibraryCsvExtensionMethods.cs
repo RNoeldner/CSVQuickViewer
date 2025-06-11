@@ -531,28 +531,28 @@ namespace CsvTools
     /// <returns></returns>
     public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime)
     {
-      // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
-      // string.Format to process {0:...
-
-      // General regex without matching the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
-
-      // Needs to start with {{ Ends }} May contain a Format description
-      var regEx1 = new Regex(
-        @"(?:\{\{)(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:\}\})",
+      // Regex to match placeholders with a formatting part, e.g. {date:yyyy-MM-dd}
+      // Non-capturing group (?:[\{#]{1,2}\s*placeholder\s*:\s*)  := Starting with { or # and then "placelodeor" and :
+      // 1st Group Any text long as ist not } or #
+      // Non-capturing group(?:[}#\s]{1,2})
+      var matches = Regex.Matches(
+        input, @"(?:[\{#]{1,2}\s*" + Regex.Escape(placeholder) + @"\s*:\s*)([^}]*)?(?:[}#\s]{1,2})",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      foreach (Match match in matches)
+      {
+        // was passed in date as text need to revert back to date
+        var parsedDate = DateTime.Parse(formatedDateTime, CultureInfo.CurrentCulture);
 
-      if (regEx1.IsMatch(input))
-        return string.Format(regEx1.Replace(input, "{0$2}"), formatedDateTime);
+        // the format is the second group of the match
+        var format = match.Groups[2].Value;
+        // it shoulde be a date time format, if not skip
+        if (string.IsNullOrWhiteSpace(format) ||
+            !format.Any(c => "yMdHhmsftzK".Contains(c)))
+          continue;
+        input = input.Replace(match.Value, parsedDate.ToString(format, CultureInfo.InvariantCulture));
+      }
 
-      // Needs to start with # or { Ends with #, space or } May contain a Format description
-      // starting with : ending with }
-      var regEx2 = new Regex(
-        @"(?:[\{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
-        RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-      return regEx2.IsMatch(input)
-        ? string.Format(regEx2.Replace(input, "{0$2}"), formatedDateTime)
-        : PlaceholderReplace(input, placeholder, formatedDateTime);
+      return matches.Count == 0 ? PlaceholderReplace(input, placeholder, formatedDateTime) : input;
     }
 
     /// <summary>

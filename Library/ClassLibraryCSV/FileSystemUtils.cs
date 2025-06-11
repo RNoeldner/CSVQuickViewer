@@ -675,7 +675,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try {  Logger.Error(ex); } catch { }
+        try { Logger.Error(ex); } catch { }
       }
 
       throw new ArgumentException($"Could not locate stream for {resourceName}");
@@ -738,8 +738,9 @@ namespace CsvTools
       var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName
         .PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
         .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
-        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)));
+        //.PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+        //.PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now))        
+        );
 
       // only if we have wild cards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
