@@ -121,158 +121,155 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
     private void InitializeComponent()
     {
-      this.m_BtnOk = new System.Windows.Forms.Button();
-      this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      this.m_BtnCancel = new System.Windows.Forms.Button();
-      this.m_TextBoxKeyFile = new System.Windows.Forms.TextBox();
-      this.m_ButtonKeyFile = new System.Windows.Forms.Button();
-      this.m_TextBoxPassphrase = new System.Windows.Forms.TextBox();
-      this.m_LabelPassphrase = new System.Windows.Forms.Label();
-      this.m_LabelKeyFile = new System.Windows.Forms.Label();
-      this.m_CheckBoxShowHide = new System.Windows.Forms.CheckBox();
-      this.m_TableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
+      m_BtnOk = new Button();
+      m_TableLayoutPanel = new TableLayoutPanel();
+      m_BtnCancel = new Button();
+      m_TextBoxKeyFile = new TextBox();
+      m_ButtonKeyFile = new Button();
+      m_TextBoxPassphrase = new TextBox();
+      m_LabelPassphrase = new Label();
+      m_LabelKeyFile = new Label();
+      m_CheckBoxShowHide = new CheckBox();
+      m_TableLayoutPanel.SuspendLayout();
+      SuspendLayout();
       // 
       // m_BtnOk
       // 
-      this.m_BtnOk.AutoSize = true;
-      this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(487, 55);
-      this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2);
-      this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(57, 25);
-      this.m_BtnOk.TabIndex = 5;
-      this.m_BtnOk.Text = "&OK";
-      this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
+      m_BtnOk.AutoSize = true;
+      m_BtnOk.DialogResult = DialogResult.OK;
+      m_BtnOk.Location = new System.Drawing.Point(713, 74);
+      m_BtnOk.Name = "m_BtnOk";
+      m_BtnOk.Size = new System.Drawing.Size(86, 36);
+      m_BtnOk.TabIndex = 5;
+      m_BtnOk.Text = "&OK";
+      m_BtnOk.Click += BtnOK_Click;
       // 
       // m_TableLayoutPanel
       // 
-      this.m_TableLayoutPanel.ColumnCount = 4;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 3, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 2, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxKeyFile, 1, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_ButtonKeyFile, 2, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxPassphrase, 1, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelPassphrase, 0, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelKeyFile, 0, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxShowHide, 1, 2);
-      this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      this.m_TableLayoutPanel.RowCount = 3;
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(607, 81);
-      this.m_TableLayoutPanel.TabIndex = 0;
+      m_TableLayoutPanel.ColumnCount = 4;
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.Controls.Add(m_BtnCancel, 3, 2);
+      m_TableLayoutPanel.Controls.Add(m_BtnOk, 2, 2);
+      m_TableLayoutPanel.Controls.Add(m_TextBoxKeyFile, 1, 1);
+      m_TableLayoutPanel.Controls.Add(m_ButtonKeyFile, 2, 1);
+      m_TableLayoutPanel.Controls.Add(m_TextBoxPassphrase, 1, 0);
+      m_TableLayoutPanel.Controls.Add(m_LabelPassphrase, 0, 0);
+      m_TableLayoutPanel.Controls.Add(m_LabelKeyFile, 0, 1);
+      m_TableLayoutPanel.Controls.Add(m_CheckBoxShowHide, 1, 2);
+      m_TableLayoutPanel.Dock = DockStyle.Fill;
+      m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      m_TableLayoutPanel.Margin = new Padding(4, 3, 4, 3);
+      m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+      m_TableLayoutPanel.RowCount = 3;
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.Size = new System.Drawing.Size(910, 125);
+      m_TableLayoutPanel.TabIndex = 0;
       // 
       // m_BtnCancel
       // 
-      this.m_BtnCancel.AutoSize = true;
-      this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(548, 55);
-      this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2);
-      this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(57, 25);
-      this.m_BtnCancel.TabIndex = 6;
-      this.m_BtnCancel.Text = "&Cancel";
-      this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
+      m_BtnCancel.AutoSize = true;
+      m_BtnCancel.DialogResult = DialogResult.Cancel;
+      m_BtnCancel.Location = new System.Drawing.Point(805, 74);
+      m_BtnCancel.Name = "m_BtnCancel";
+      m_BtnCancel.Size = new System.Drawing.Size(102, 36);
+      m_BtnCancel.TabIndex = 6;
+      m_BtnCancel.Text = "&Cancel";
+      m_BtnCancel.Click += BtnCancel_Click;
       // 
       // m_TextBoxKeyFile
       // 
-      this.m_TextBoxKeyFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.m_TextBoxKeyFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.m_TextBoxKeyFile.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxKeyFile.Location = new System.Drawing.Point(73, 26);
-      this.m_TextBoxKeyFile.Margin = new System.Windows.Forms.Padding(2);
-      this.m_TextBoxKeyFile.MinimumSize = new System.Drawing.Size(46, 4);
-      this.m_TextBoxKeyFile.Name = "m_TextBoxKeyFile";
-      this.m_TextBoxKeyFile.Size = new System.Drawing.Size(410, 20);
-      this.m_TextBoxKeyFile.TabIndex = 2;
+      m_TextBoxKeyFile.AutoCompleteMode = AutoCompleteMode.Suggest;
+      m_TextBoxKeyFile.AutoCompleteSource = AutoCompleteSource.FileSystem;
+      m_TextBoxKeyFile.Dock = DockStyle.Top;
+      m_TextBoxKeyFile.Location = new System.Drawing.Point(108, 35);
+      m_TextBoxKeyFile.MinimumSize = new System.Drawing.Size(67, 4);
+      m_TextBoxKeyFile.Name = "m_TextBoxKeyFile";
+      m_TextBoxKeyFile.Size = new System.Drawing.Size(599, 26);
+      m_TextBoxKeyFile.TabIndex = 2;
       // 
       // m_ButtonKeyFile
       // 
-      this.m_ButtonKeyFile.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_ButtonKeyFile, 2);
-      this.m_ButtonKeyFile.Location = new System.Drawing.Point(487, 26);
-      this.m_ButtonKeyFile.Margin = new System.Windows.Forms.Padding(2);
-      this.m_ButtonKeyFile.Name = "m_ButtonKeyFile";
-      this.m_ButtonKeyFile.Size = new System.Drawing.Size(118, 25);
-      this.m_ButtonKeyFile.TabIndex = 3;
-      this.m_ButtonKeyFile.Text = "Select File";
-      this.m_ButtonKeyFile.UseVisualStyleBackColor = true;
-      this.m_ButtonKeyFile.Click += new System.EventHandler(this.ButtonKeyFile_Click);
+      m_ButtonKeyFile.AutoSize = true;
+      m_TableLayoutPanel.SetColumnSpan(m_ButtonKeyFile, 2);
+      m_ButtonKeyFile.Location = new System.Drawing.Point(713, 35);
+      m_ButtonKeyFile.Name = "m_ButtonKeyFile";
+      m_ButtonKeyFile.Size = new System.Drawing.Size(193, 33);
+      m_ButtonKeyFile.TabIndex = 3;
+      m_ButtonKeyFile.Text = "Select File";
+      m_ButtonKeyFile.UseVisualStyleBackColor = true;
+      m_ButtonKeyFile.Click += ButtonKeyFile_Click;
       // 
       // m_TextBoxPassphrase
       // 
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_TextBoxPassphrase, 3);
-      this.m_TextBoxPassphrase.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxPassphrase.Location = new System.Drawing.Point(74, 2);
-      this.m_TextBoxPassphrase.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.m_TextBoxPassphrase.Name = "m_TextBoxPassphrase";
-      this.m_TextBoxPassphrase.PasswordChar = '*';
-      this.m_TextBoxPassphrase.Size = new System.Drawing.Size(530, 20);
-      this.m_TextBoxPassphrase.TabIndex = 0;
+      m_TableLayoutPanel.SetColumnSpan(m_TextBoxPassphrase, 3);
+      m_TextBoxPassphrase.Dock = DockStyle.Top;
+      m_TextBoxPassphrase.Location = new System.Drawing.Point(109, 3);
+      m_TextBoxPassphrase.Margin = new Padding(4, 3, 4, 3);
+      m_TextBoxPassphrase.Name = "m_TextBoxPassphrase";
+      m_TextBoxPassphrase.PasswordChar = '*';
+      m_TextBoxPassphrase.Size = new System.Drawing.Size(797, 26);
+      m_TextBoxPassphrase.TabIndex = 0;
       // 
       // m_LabelPassphrase
       // 
-      this.m_LabelPassphrase.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_LabelPassphrase.AutoSize = true;
-      this.m_LabelPassphrase.Location = new System.Drawing.Point(3, 5);
-      this.m_LabelPassphrase.Name = "m_LabelPassphrase";
-      this.m_LabelPassphrase.Size = new System.Drawing.Size(65, 13);
-      this.m_LabelPassphrase.TabIndex = 36;
-      this.m_LabelPassphrase.Text = "Passphrase:";
+      m_LabelPassphrase.Anchor = AnchorStyles.Right;
+      m_LabelPassphrase.AutoSize = true;
+      m_LabelPassphrase.Location = new System.Drawing.Point(4, 6);
+      m_LabelPassphrase.Margin = new Padding(4, 0, 4, 0);
+      m_LabelPassphrase.Name = "m_LabelPassphrase";
+      m_LabelPassphrase.Size = new System.Drawing.Size(97, 20);
+      m_LabelPassphrase.TabIndex = 36;
+      m_LabelPassphrase.Text = "Passphrase:";
       // 
       // m_LabelKeyFile
       // 
-      this.m_LabelKeyFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_LabelKeyFile.AutoSize = true;
-      this.m_LabelKeyFile.Location = new System.Drawing.Point(21, 32);
-      this.m_LabelKeyFile.Name = "m_LabelKeyFile";
-      this.m_LabelKeyFile.Size = new System.Drawing.Size(47, 13);
-      this.m_LabelKeyFile.TabIndex = 1;
-      this.m_LabelKeyFile.Text = "Key File:";
+      m_LabelKeyFile.Anchor = AnchorStyles.Right;
+      m_LabelKeyFile.AutoSize = true;
+      m_LabelKeyFile.Location = new System.Drawing.Point(33, 41);
+      m_LabelKeyFile.Margin = new Padding(4, 0, 4, 0);
+      m_LabelKeyFile.Name = "m_LabelKeyFile";
+      m_LabelKeyFile.Size = new System.Drawing.Size(68, 20);
+      m_LabelKeyFile.TabIndex = 1;
+      m_LabelKeyFile.Text = "Key File:";
       // 
       // m_CheckBoxShowHide
       // 
-      this.m_CheckBoxShowHide.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_CheckBoxShowHide.AutoSize = true;
-      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(403, 59);
-      this.m_CheckBoxShowHide.Margin = new System.Windows.Forms.Padding(2);
-      this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-      this.m_CheckBoxShowHide.Size = new System.Drawing.Size(80, 17);
-      this.m_CheckBoxShowHide.TabIndex = 4;
-      this.m_CheckBoxShowHide.Text = "Show Entry";
-      this.m_CheckBoxShowHide.UseVisualStyleBackColor = true;
-      this.m_CheckBoxShowHide.CheckedChanged += new System.EventHandler(this.CheckBoxShowHide_CheckedChanged);
+      m_CheckBoxShowHide.Anchor = AnchorStyles.Right;
+      m_CheckBoxShowHide.AutoSize = true;
+      m_CheckBoxShowHide.Location = new System.Drawing.Point(591, 86);
+      m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
+      m_CheckBoxShowHide.Size = new System.Drawing.Size(116, 24);
+      m_CheckBoxShowHide.TabIndex = 4;
+      m_CheckBoxShowHide.Text = "Show Entry";
+      m_CheckBoxShowHide.UseVisualStyleBackColor = true;
+      m_CheckBoxShowHide.CheckedChanged += CheckBoxShowHide_CheckedChanged;
       // 
       // FormPasswordAndKey
       // 
-      this.AllowDrop = true;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.AutoSize = true;
-      this.ClientSize = new System.Drawing.Size(607, 81);
-      this.Controls.Add(this.m_TableLayoutPanel);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.MinimumSize = new System.Drawing.Size(338, 71);
-      this.Name = "FormPasswordAndKey";
-      this.ShowIcon = false;
-      this.Text = "Security";
-      this.TopMost = true;
-      this.Shown += new System.EventHandler(this.FormPasswordAndKey_Shown);
-      this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FormPasswordAndKey_DragDrop);
-      this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FormPasswordAndKey_DragEnter);
-      this.m_TableLayoutPanel.ResumeLayout(false);
-      this.m_TableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
+      AllowDrop = true;
+      AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      AutoScaleMode = AutoScaleMode.Font;
+      AutoSize = true;
+      ClientSize = new System.Drawing.Size(910, 125);
+      Controls.Add(m_TableLayoutPanel);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      Margin = new Padding(4, 3, 4, 3);
+      MinimumSize = new System.Drawing.Size(496, 79);
+      Name = "FormPasswordAndKey";
+      ShowIcon = false;
+      Text = "Security";
+      TopMost = true;
+      Shown += FormPasswordAndKey_Shown;
+      DragDrop += FormPasswordAndKey_DragDrop;
+      DragEnter += FormPasswordAndKey_DragEnter;
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
 
     }
 
