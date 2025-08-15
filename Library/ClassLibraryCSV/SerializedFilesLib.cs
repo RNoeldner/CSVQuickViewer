@@ -40,8 +40,8 @@ namespace CsvTools
     private static readonly Lazy<Regex> RemoveEmpty =
       new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
 
-    private static readonly Lazy<Regex>
-      RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
+    private static readonly Lazy<Regex> RemoveEmpty2 = 
+      new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
 
     private static readonly Lazy<Regex> RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 

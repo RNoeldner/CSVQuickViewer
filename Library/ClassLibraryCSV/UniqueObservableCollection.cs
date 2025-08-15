@@ -43,10 +43,7 @@ namespace CsvTools
     /// <remarks>
     ///   In case the item is clone able <see cref="ICloneable" /> a value copy will be made. In
     ///   this case any change to the passed in item would not be reflected in the collection
-    /// </remarks>
-    /// <returns>
-    ///   <see langword="true" /> if it was added, otherwise the item was not added to the collection
-    /// </returns>
+    /// </remarks>    
     public new virtual void Add(T item)
     {
       if (IndexOf(item)!=-1)

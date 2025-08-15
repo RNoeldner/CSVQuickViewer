@@ -711,7 +711,7 @@ namespace CsvTools
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
               new[] { colIndex },
-              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
+              m_FileSetting.TreatTextAsNull, 500, cancellationToken)
             .ConfigureAwait(false)).First().Value;
         }
       }
