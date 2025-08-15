@@ -31,9 +31,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public override IFileReader GetFileReader(IFileSetting fileSetting, CancellationToken cancellationToken)
+    public override IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
     {
-      if (fileSetting is CsvFileDummy csv)
+      if (setting is CsvFileDummy csv)
       {
         if (csv.IsJson)
           return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
@@ -56,7 +56,7 @@ namespace CsvTools
           TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
       }
       else
-        return base.GetFileReader(fileSetting, cancellationToken);
+        return base.GetFileReader(setting, cancellationToken);
     }
   }
 }

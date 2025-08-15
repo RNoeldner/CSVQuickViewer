@@ -212,7 +212,7 @@ namespace CsvTools
     /// <param name="skipEmptyLines">if set to <c>true</c> if empty lines should simply be skipped.</param>
     /// <param name="consecutiveEmptyRowsMax">Number of consecutive empty rows where we should assume the file is at its end.</param>
     /// <param name="identifierInContainer">The identifier in container, in case the file a container file like zip.</param>
-    /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "24/01/2024 07:56" and "UTC" -->  "24/01/2024 13:26" (if IST is timezone specified by <see cref="returnedTimeZone"/>) </param>
+    /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "24/01/2024 07:56" and "UTC" -->  "24/01/2024 13:26" (if IST is timezone specified) </param>
     /// <param name="returnedTimeZone">The time zone input file should be converted to, only viable if you have a date / time column and timezone column in the source.</param>
     /// <param name="allowPercentage">if set to <c>true</c> convert percentages to numeric values e.G. 17% -> 0.17.</param>
     /// <param name="removeCurrency">if set to <c>true</c> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>

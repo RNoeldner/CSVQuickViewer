@@ -30,53 +30,59 @@ namespace CsvTools
   public static class DetermineColumnFormat
   {
     /// <summary>
-    /// Get a common date format along the given columns
+    /// Determines the most common date format used in the provided columns,
+    /// or falls back to a guessed/default value or system culture format.
     /// </summary>
-    /// <param name="columns">The columns.</param>
-    /// <param name="guessDefault">The default value</param>
-    /// <returns></returns>
+    /// <param name="columns">A sequence of columns to analyze.</param>
+    /// <param name="guessDefault">A fallback date string used to guess format and separator, if needed.</param>
+    /// <returns>A <see cref="ValueFormat"/> representing the most likely date format.</returns>
     public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, in string guessDefault)
     {
-      ValueFormat? best = null;
-      var counterByFormat = new Dictionary<ValueFormat, int>();
-      var maxValue = int.MinValue;
-      foreach (var valueFormat in columns.Where(x => !x.Ignore).Select(x => x.ValueFormat)
-                 .Where(x => x.DataType == DataTypeEnum.DateTime))
+      // Find the most-used date format among relevant columns.
+      var mostUsed = columns
+          .Where(x => !x.Ignore && x.ValueFormat.DataType == DataTypeEnum.DateTime)
+          .GroupBy(x => x.ValueFormat)
+          .OrderByDescending(g => g.Count())
+          .Select(g => g.Key)
+          .FirstOrDefault();
+
+      if (mostUsed != null)
       {
-        var found = counterByFormat.Keys.FirstOrDefault(x => x.Equals(valueFormat));
-        if (found is null)
-        {
-          found = valueFormat;
-          counterByFormat.Add(found, 0);
-        }
-
-        counterByFormat[found]++;
-        if (counterByFormat[found] <= maxValue)
-          continue;
-
-        maxValue = counterByFormat[found];
-        best = found;
+        // If found, use the most common date format.
+        return mostUsed;
       }
 
-      if (best is null)
+      // If no strong candidate, try to infer from the provided guessDefault string.
+      if (!string.IsNullOrEmpty(guessDefault))
       {
-        if (!string.IsNullOrEmpty(guessDefault))
-        {
-          // determine possible date separator from text
-          var posSep = guessDefault.IndexOfAny(new[] { '/', '\\', '.', '-' });
-          if (posSep != 1)
-          {
-            var separator = guessDefault[posSep].ToString();
-            return new ValueFormat(DataTypeEnum.DateTime, guessDefault.Replace(separator, "/").Trim(), separator);
-          }
-        }
+        // Check for any common date separator in the guessDefault.
+        var separators = new[] { '/', '\\', '.', '-' };
+        var posSep = guessDefault.IndexOfAny(separators);
 
-        return new ValueFormat(DataTypeEnum.DateTime, CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+        // Only proceed if a separator was found.
+        if (posSep != -1)
+        {
+          var separator = guessDefault[posSep].ToString();
+
+          // Normalize the pattern by replacing found separator with "/".
+          var normalizedPattern = guessDefault.Replace(separator, "/").Trim();
+
+          // Return constructed ValueFormat based on guessDefault.
+          return new ValueFormat(
+              DataTypeEnum.DateTime,
+              normalizedPattern,
+              separator
+          );
+        }
+      }
+
+      // Fallback: Use the system's default short date pattern and separators.      
+      return new ValueFormat(
+          DataTypeEnum.DateTime,
+          CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
           CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator);
-      }
-
-      return best;
+          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator
+      );
     }
 
     /// <summary>
@@ -139,45 +145,35 @@ namespace CsvTools
           break;
         }
 
-      var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
-
-      // build a list of columns to check
+      // Build a list of columns to check
       var getSamples = new List<int>();
-      var columnNamesInFile = new List<string>();
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
-        var readerColumn = fileReader.GetColumn(colIndex);
-
-        columnNamesInFile.Add(readerColumn.Name);
-
-        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(readerColumn.Name) > 0)
+        var column = fileReader.GetColumn(colIndex);
+        // Check if column should be ignored        
+        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(column.Name) > 0)
         {
-          try { Logger.Information("{column} – ID columns ignored", readerColumn.Name); } catch { }
-          result.Add($"{readerColumn.Name} – ID columns ignored");
+          Logger.Information("{column} – ID columns ignored", column.Name);
+          result.Add($"{column.Name} – ID columns ignored");
 
-          if (!addTextColumns || columnCollection.IndexOf(readerColumn) != -1) continue;
-          columnCollection.Add(readerColumn);
+          if (!addTextColumns || columnCollection.Contains(column)) continue;
+          columnCollection.Add(column);
           continue;
         }
 
-        // no need to get types that are already found and could now be smaller (e.G. decimal could
-        // be an integer)
-        if (readerColumn.ValueFormat.DataType == DataTypeEnum.Guid
-            || readerColumn.ValueFormat.DataType == DataTypeEnum.Integer
-            || readerColumn.ValueFormat.DataType == DataTypeEnum.Boolean
-            || readerColumn.ValueFormat.DataType == DataTypeEnum.DateTime
-            || (readerColumn.ValueFormat.DataType == DataTypeEnum.Numeric && !checkDoubleToBeInteger)
-            || (readerColumn.ValueFormat.DataType == DataTypeEnum.Double && !checkDoubleToBeInteger))
+        // Check for already-known data types
+        var dt = column.ValueFormat.DataType;
+        bool isKnownType = dt == DataTypeEnum.Guid
+                            || dt == DataTypeEnum.Integer
+                            || dt == DataTypeEnum.Boolean
+                            || dt == DataTypeEnum.DateTime
+                            || (dt == DataTypeEnum.Numeric && !checkDoubleToBeInteger)
+                            || (dt == DataTypeEnum.Double && !checkDoubleToBeInteger);
+
+        if (isKnownType)
         {
-          try
-          {
-            Logger.Information(
-             "{column} - Existing Type : {format}",
-             readerColumn.Name,
-             readerColumn.ValueFormat.GetTypeAndFormatDescription());
-          }
-          catch { }
-          result.Add($"{readerColumn.Name} - Existing Type : {readerColumn.ValueFormat.GetTypeAndFormatDescription()}");
+          Logger.Information("{column} - Existing Type : {format}", column.Name, column.ValueFormat.GetTypeAndFormatDescription());
+          result.Add($"{column.Name} - Existing Type : {column.ValueFormat.GetTypeAndFormatDescription()}");
           continue;
         }
 
@@ -188,9 +184,19 @@ namespace CsvTools
         fileReader,
         fillGuessSettings.CheckedRecords,
         getSamples,
-        fillGuessSettings.SampleValues,
-        treatTextAsNull, 100,
-        cancellationToken).ConfigureAwait(false);
+        treatTextAsNull,
+        100, cancellationToken).ConfigureAwait(false);
+
+      // In case there are not enough distinct records do not validate
+      if (sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
+      {
+        Logger.Information("Not enough records to determine types");
+        var allcolumns = new List<Column>();
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+          allcolumns.Add(fileReader.GetColumn(colIndex));
+
+        return (Array.Empty<string>(), allcolumns);
+      }
 
       // Add all columns that will not be guessed
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -201,6 +207,7 @@ namespace CsvTools
       }
 
       // Start Guessing
+      var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
       foreach (var colIndex in sampleList.Keys)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -483,9 +490,8 @@ namespace CsvTools
                   fileReader,
                   1,
                   new[] { colIndex + 1 },
-                  1,
-                  treatTextAsNull, 80,
-                  cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+                  treatTextAsNull,
+                  80, cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (!firstValueNewColumn.IsEmpty && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
                 columnCollection.Add(columnTime.ReplaceValueFormat(
@@ -531,8 +537,7 @@ namespace CsvTools
 
           var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
             ? sampleList[colIndex - 1]
-            : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, 80,
-                cancellationToken)
+            : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, cancellationToken)
               .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
           if (!firstValueNewColumn2.IsEmpty && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
@@ -564,201 +569,196 @@ namespace CsvTools
         }
       }
 
-      var existing = new Collection<Column>();
-      foreach (var colName in columnNamesInFile)
-        foreach (var col in columnCollection)
-        {
-          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-            continue;
-          existing.Add(col);
-          break;
-        }
+      // Goal: Reorders 'columnCollection' so that columns matching 'fileReader' field names (case-insensitive)
+      // come first (in field order), followed by the remaining columns.
 
-      // 2nd columns defined but not in list
+      // Step 1: Build a dictionary for fast (O(1)) lookup of columns by name, case-insensitive.
+      var columnLookup = columnCollection.ToDictionary(
+          col => col.Name,
+          StringComparer.OrdinalIgnoreCase);
+
+      // Step 2: Collect columns present in 'fileReader', in order of appearance.
+      var orderedColumns = new List<Column>();
+
+      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      {
+        var colName = fileReader.GetName(colIndex);
+        // Match column by name, ignore case
+        if (columnLookup.TryGetValue(colName, out var matchedColumn))
+          orderedColumns.Add(matchedColumn);
+      }
+
+      // Step 3: Add any remaining columns not present in the 'fileReader' field list.
+      // THese could have been added by a column split
       foreach (var col in columnCollection)
-        if (!existing.Contains(col))
-          existing.Add(col);
+      {
+        if (!orderedColumns.Contains(col))
+          orderedColumns.Add(col);
+      }
 
-      columnCollection.Clear();
-      // ReSharper disable once InvertIf
-      foreach (var column in existing)
-        columnCollection.Add(column);
-
-      return (result, columnCollection);
+      return (result, orderedColumns);
     }
 
     /// <summary>
-    ///   Get sample values for several columns at once, ignoring rows with issues or warning in the
-    ///   columns, looping though all records in the reader
+    /// Retrieves sample string values for specified columns by looping through the file,
+    /// skipping rows with warnings or invalid data, and collecting unique samples per column.
     /// </summary>
-    /// <param name="fileReader">A <see cref="IFileReader" /> data reader</param>
-    /// <param name="maxRecords">The maximum records.</param>
-    /// <param name="columns">
-    ///   A Dictionary listing the columns and the number of samples needed for each
-    /// </param>
-    /// <param name="enoughSamples">The enough samples.</param>
-    /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
-    /// <param name="maxChars">Examples are cut off if longer than this number of characters</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException">dataReader</exception>
-    /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
+    /// <param name="fileReader">An <see cref="IFileReader"/> to read data rows from</param>
+    /// <param name="maxRecords">Maximum rows to scan (0 means unlimited)</param>
+    /// <param name="columns">Enumerable of column indices to sample values from</param>
+    /// <param name="treatAsNull">Semicolon-separated words to treat as null (e.g. "NULL;n/a")</param>
+    /// <param name="maxChars">Trim samples to at most this many characters (0=no trim)</param>
+    /// <param name="cancellationToken">Allows canceling the operation</param>
+    /// 
+    /// <returns>Dictionary: column index -> result object containing list of samples and records read</returns>
     public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(
-      IFileReader fileReader,
-      long maxRecords,
-      IEnumerable<int> columns,
-      int enoughSamples,
-      string treatAsNull,
-      int maxChars,
-      CancellationToken cancellationToken)
+        IFileReader fileReader,
+        long maxRecords,
+        IEnumerable<int> columns,
+        string treatAsNull,
+        int maxChars,
+        CancellationToken cancellationToken)
     {
+      // Argument checks
       if (fileReader is null)
         throw new ArgumentNullException(nameof(fileReader));
-
-      if (string.IsNullOrEmpty(treatAsNull))
-        treatAsNull = "NULL;n/a";
+      if (columns is null)
+        throw new ArgumentNullException(nameof(columns));
 
       if (maxRecords < 1)
         maxRecords = long.MaxValue;
+      if (string.IsNullOrWhiteSpace(treatAsNull))
+        treatAsNull = "NULL;n/a";
 
-      var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
-        .ToDictionary<int, int, IList<string>>(col => col, _ => new List<string>());
+      // Prepare dictionary to collect unique sample values per column
+      var sampleDict = columns
+          .Where(col => col >= 0 && col < fileReader.FieldCount)
+          .Distinct()
+          .ToDictionary(col => col, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-      if (samples.Keys.Count == 0)
+      // Return empty if no valid columns
+      if (sampleDict.Count == 0)
         return new Dictionary<int, SampleResult>();
 
-      var hasWarning = false;
-      var remainingShows = 10;
+      // Tracking state for warning events and limiting repeated warning logs
+      var hasWarningOnRow = false;
+      var warningLogsRemaining = 10;
 
-      fileReader.Warning += WarningEvent;
-      var action = new IntervalAction(2);
-      try
+      // Attach warning event handler
+      void OnWarning(object? sender, WarningEventArgs e)
       {
-        action.Invoke(() =>
-        Logger.Information("Getting sample values"));
+        // Only process warnings from requested columns
+        if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber))
+          return;
+        try
+        {
+          if (warningLogsRemaining > 0)
+          {
+            Logger.Debug("Row ignored during sample: " + e.Message);
+            warningLogsRemaining--;
+            if (warningLogsRemaining == 0)
+              Logger.Debug("No further warnings will be shown for sample extraction.");
+          }
+        }
+        catch { /* Logging shouldn't crash sampling */ }
+        hasWarningOnRow = true;
       }
-      catch { }
+      fileReader.Warning += OnWarning;
 
-      var recordRead = 0;
+      var recordsScanned = 0;
+
+      // If supported and already at EOF, restart
+      if (fileReader is { EndOfFile: true, SupportsReset: true })
+        fileReader.ResetPositionToFirstDataRow();
+
+      var startingRow = fileReader.RecordNumber;
+      var startPercent = fileReader.Percent;
+
+      // The repeated status-interval logger
+      var action = new IntervalAction(1);
       try
       {
-        // could already be at EOF need to reset
-        if (fileReader is { EndOfFile: true, SupportsReset: true })
-          fileReader.ResetPositionToFirstDataRow();
+        action.Invoke(() => Logger.Information("Starting sample extraction..."));
 
-        // Ready to start store the record number we are currently at, we could be in the middle of
-        // the file already
-        var startRecordNumber = fileReader.RecordNumber;
-
-        var maxSamples = 2000;
-        if (maxSamples < enoughSamples)
-          maxSamples = enoughSamples;
-        var startPercent = fileReader.Percent;
-
-        var enough = new List<int>();
-        // Get distinct sample values until we have
-        // * parsed the maximum number
-        // * have enough samples to be satisfied
-        // * we are at the beginning record again
-        while (recordRead < maxRecords && !cancellationToken.IsCancellationRequested
-                                       && samples.Keys.Count > enough.Count)
+        while (recordsScanned < maxRecords && !cancellationToken.IsCancellationRequested)
         {
           try
           {
             action.Invoke(() =>
-              Logger.Information(
-                $"Getting sample values {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"));
+                Logger.Information(
+                    $"Sampling progress: {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"
+                ));
           }
-          catch { }
-          // if at the end start from the beginning
+          catch { /* Ignore logging exceptions */ }
+
+          // Handle EOF and looping
           if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
             if (!fileReader.SupportsReset)
               break;
             fileReader.ResetPositionToFirstDataRow();
-            // if we started at the beginning, and we are now back, exist if we started, and we can
-            // not read a line exist as well.
-            if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
-              break;
+            if (startingRow == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+              break; // End of file: no more data
           }
 
-          recordRead++;
-          // In case there was a warning reading the line, ignore the line
-          if (!hasWarning)
-            try
+          recordsScanned++;
+
+          // Ignore row if a warning occurred during reading
+          if (hasWarningOnRow)
+          {
+            hasWarningOnRow = false;
+            continue;
+          }
+
+          try
+          {
+            // Only process columns that still need more samples
+            foreach (var colIdx in sampleDict.Keys)
             {
-              foreach (var columnIndex in samples.Keys.Except(enough))
-              {
-                if (fileReader.IsDBNull(columnIndex))
-                  continue;
-                // value must be string as spans are not supported in lambda
-                var value = fileReader.GetValue(columnIndex).ToString();
-                if (value == null)
-                  continue;
-                value = value.Trim();
-                // Any non-existing value is not of interest
-                if (value.Length == 0)
-                  continue;
+              if (fileReader.IsDBNull(colIdx))
+                continue;
 
-                // Always do treat Text "Null" as Null, 
-                if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-                  continue;
+              var value = fileReader.GetValue(colIdx)?.ToString();
+              if (string.IsNullOrWhiteSpace(value))
+                continue;
 
-                // cut of
-                if (maxChars > 0 && value.Length > maxChars)
-                  value = value.Substring(0, maxChars);
+              value = value!.Trim();
+              if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
+                continue;
 
-                // collect the value if there are not enough samples and the text is not present yet
-                if (samples[columnIndex].Count < maxSamples &&
-                    !samples[columnIndex].Contains(value, StringComparer.OrdinalIgnoreCase))
-                {
-                  samples[columnIndex].Add(value);
+              // Truncate to maxChars if necessary
+              if (maxChars > 0 && value.Length > maxChars)
+                value = value.Substring(0, maxChars);
 
-                  if (samples[columnIndex].Count >= enoughSamples)
-                    enough.Add(columnIndex);
-                }
-              }
+              // Add new (case-insensitive) sample if not yet collected
+              if (sampleDict[colIdx].Count < 10000)
+                sampleDict[colIdx].Add(value);
             }
-            catch
-            {
-              Logger.Warning("Issue reading line {line}, possible empty training column", fileReader.StartLineNumber);
-            }
-          else
-            hasWarning = false;
+          }
+          catch (Exception ex)
+          {
+            Logger.Warning(ex, "Problem parsing a row during sample extraction at line {line}", fileReader.StartLineNumber);
+          }
 
-          // Once we arrive the starting row we have read all records
-          if (fileReader.RecordNumber == startRecordNumber)
+          // Detect looped through data (e.g. after reset for non-eof sources)
+          if (fileReader.RecordNumber == startingRow)
             break;
         }
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Reading Samples values");
+        Logger.Warning(ex, "Exception thrown while extracting sample values");
       }
       finally
       {
-        fileReader.Warning -= WarningEvent;
+        fileReader.Warning -= OnWarning;
       }
 
-      return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
-
-      void WarningEvent(object? sender, WarningEventArgs args)
-      {
-
-        if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
-          return;
-        try
-        {
-          if (remainingShows-- > 0)
-            Logger.Debug("Row ignored in inspection: " + args.Message);
-          if (remainingShows == 0)
-            Logger.Debug("No further warning shown");
-        }
-        catch { }
-
-
-        hasWarning = true;
-      }
+      // Construct results: column index => SampleResult
+      return sampleDict.ToDictionary(
+          kvp => kvp.Key,
+          kvp => new SampleResult(kvp.Value, recordsScanned)
+      );
     }
 
     /// <summary>

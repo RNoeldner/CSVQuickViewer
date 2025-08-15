@@ -132,7 +132,7 @@ namespace CsvTools.Tests
 
       using var reader = new DataTableWrapper(dataTable);
       var res = await DetermineColumnFormat
-        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, string.Empty, 80, UnitTestStatic.Token)
+        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, string.Empty, 80, UnitTestStatic.Token)
         .ConfigureAwait(false);
       Assert.AreEqual(20, res[0].Values.Count);
     }
@@ -214,8 +214,8 @@ namespace CsvTools.Tests
       for (var i = 0; i < dt.Rows.Count / 2; i++)
         await reader.ReadAsync(UnitTestStatic.Token);
       var treatAsNull = string.Empty;
-      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, 100,
-        treatAsNull, 40, UnitTestStatic.Token).ConfigureAwait(false);
+      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, treatAsNull,
+        40, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(dt.Rows.Count, res[0].RecordsRead, "RecordsRead");
       Assert.AreEqual(dt.Rows.Count - (dt.Rows.Count / 5), res[0].Values.Count());
     }
@@ -238,8 +238,8 @@ namespace CsvTools.Tests
 
       using var reader = new DataTableWrapper(dt);
       var treatAsNull = string.Empty;
-      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0, 1 }, 20,
-        treatAsNull, 40, UnitTestStatic.Token);
+      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0, 1 }, treatAsNull,
+        40, UnitTestStatic.Token);
 
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.IsTrue(res[1].RecordsRead >= 20);
@@ -263,8 +263,8 @@ namespace CsvTools.Tests
 
       using var reader = new DataTableWrapper(dt);
       var treatAsNull = string.Empty;
-      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, 20,
-        treatAsNull, 40, UnitTestStatic.Token);
+      var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, treatAsNull,
+        40, UnitTestStatic.Token);
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.AreEqual(20, res[0].Values.Count());
     }
@@ -276,8 +276,7 @@ namespace CsvTools.Tests
 
       using var reader = new DataTableWrapper(dt);
       var temp = await DetermineColumnFormat
-        .GetSampleValuesAsync(reader, 0, new[] { 0 }, 20, string.Empty, 40,
-          UnitTestStatic.Token).ConfigureAwait(false);
+        .GetSampleValuesAsync(reader, 0, new[] { 0 }, string.Empty, 40, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(0, temp.Count);
     }
 
@@ -293,8 +292,7 @@ namespace CsvTools.Tests
       foreach (DataColumn col in dt.Columns)
       {
         var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 10,
-          new[] { col.Ordinal }, 10, "null", 40,
-          UnitTestStatic.Token);
+          new[] { col.Ordinal }, "null", 40, UnitTestStatic.Token);
 
         if (col.ColumnName != "AllEmpty")
           Assert.AreNotEqual(0, res[col.Ordinal].Values.Count, $"Column {col.ColumnName} has {res[col.Ordinal].Values.Count} entries");
