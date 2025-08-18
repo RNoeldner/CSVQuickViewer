@@ -1,55 +1,48 @@
 # CSVQuickViewer
 
-This is a Windows application to view delimited text or Json files. Json files are flattened to fit in tabular format.
-It’s designed to be robust and easy to use.
+CSVQuickViewer is a Windows application to view delimited text or JSON files. JSON files are flattened to fit in tabular format. It’s designed to be robust and easy to use.
 
-The application has a MSI installer that does not need administrative right. 
+The application has an installer that does not require administrative rights.
 
-The application can:
-* Determine the appropriate Code Page (teh .NET 7 version deos not support as mayn code tables, by now some are rarely used)
-* Determines the Field Delimiter & Record Separator
-* Determine the Quoting Character
-* Determine Escape Characters
-* Determine Comment Text
-* Determine the Start Row skipping comment lines
-* Configurable handling of quotes, support exotic quoting like context senitive quoting
-* Issues warning for column content that that does contain certain characters like Nonbreaking Space, Unknown Text placeholders, quotes or delimiters, as these chars can cause issues in other text parsers.
+## Features
 
-* Use typed values in contrast to text values (Switching between typed and text values in UI), it does currently check 386 date formats. 
-* Support for basic HTML and Markdown handling
-* Display of text file
-* Support for Zip, gZip and PGP files (does not properly support display of raw file)
-* Issues warning for column content cannot be parsed with the current setting e.g. a date in different format.
-* Ability to combine Date and Time columns to a combined Date/Time column with support of time zone conversion, either by third column or fixed value.
-* Automated re-alignment of columns in case a delimiter causes issues with column alignment (configurable, default off)
-* Automated re-alignment of column in case a linefeed pushes columns into the next line (configurable, default off)
+### File Parsing
+* Detects appropriate Code Page (he .NET 7 version does not support as many code pages; currently some are rarely used, but supprted through 3rd party libarraies).  
+* Determines field delimiter & record separator.  
+* Detects quoting characters, escape characters, and comment text.  
+* Skips header/comment rows automatically.  
+* Configurable quote handling, including context-sensitive quoting.  
+* Issues warnings for problematic characters (non-breaking spaces, unknown text placeholders, quotes, delimiters).
 
-* Filtering of Columns
-* Sorting of Columns
-* Hiding/Reordering Columns
-* Above column configuration can be saved and loaded
-* Incremental Searching and highlighting for Text (This feature is rather slow, better use filtering)
+### Data Handling
+* Supports typed values (switch between typed and text values in UI).  
+* Handles 386 date formats.  
+* Displays text files, including compressed formats (Zip, GZip).  
+* Issues warnings for unparseable column content.  
+* Combines date and time columns with timezone conversion.  
+* Auto realignment of columns in case of delimiter or linefeed issues (configurable).
 
-* Display of Column Length
-* Display of Hierarchy inside the file
-* Display Duplicates Values
-* Display Unique Values
-* Filter for rows / columns with warnings
+### User Interface
+* Filter, sort, hide, and reorder columns.  
+* Save and load column configuration.  
+* Incremental search and highlighting (slower than filtering).  
+* Displays column length, hierarchy, duplicate/unique values, and warnings.  
+* HTML copy/paste to Excel/Word, retaining value types.  
+* Export filtered data to delimited text files.
 
-* HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
+## Download
+[Download Latest Version from SourceForge](https://sourceforge.net/projects/csvquickviewer/files/latest/download)
 
-* Ability to store the filtered data into delimited text file
+## Dependencies
+This application uses several NuGet libraries:  
+* [Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier) – Improved stack trace display  
+* [Serilog](https://serilog.net/) – Logging platform  
+* [FastColoredTextBox](https://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting-2) – Syntax highlighting for source files  
+* [UTF.Unknown](https://github.com/CharsetDetector/UTF-unknown) – Detect character sets  
+* [Newtonsoft.Json](https://www.newtonsoft.com/json) – JSON parsing and configuration serialization  
+* [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1) – Windows file dialog enhancements  
+* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib) – On-the-fly compressed file support  
+* [TimeZoneConverter](https://github.com/mattjohnsonpint/TimeZoneConverter) – Unix/Windows timezone support  
+* [System.Text.Encoding.CodePages](https://dot.net/) – Support for old code pages in .NET 5+  
+* [Microsoft.Extensions.Logging.Abstractions](https://dot.net/) – Logging abstraction interface
 
-Donwload at: [Sourceforge](https://sourceforge.net/projects/csvquickviewer/files/latest/download)
-
-This application does use various NuGet libraries:
-* [Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier): Improved display of stack trace
-* [Serilog](https://serilog.net/): Logging Platform
-* [FastColoredTextBox](https://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting-2): Display of source file with highlighting
-* [UTF.Unknown](https://github.com/CharsetDetector/UTF-unknown): Detect character set for files
-* [Newtonsoft.Json](https://www.newtonsoft.com/json): Support for Json files, and serialisation of configuration
-* [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1): Ability to use new Windows Vista functionality for file dialogs
-* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib): Compression Library, ability open compressed files on the fly
-* [TimeZoneConverter](https://github.com/mattjohnsonpint/TimeZoneConverter): Support for Unix and Windows Timezone names
-* [System.Text.Encoding.CodePages](https://dot.net/): Support for old code pages in .NET5+ like Windows-1252
-* [Microsoft.Extensions.Logging.Abstractions](https://dot.net/): Interface for abstraction of logging
