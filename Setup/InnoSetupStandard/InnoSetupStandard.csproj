@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="DEL &quot;$(SolutionDir)\Application\bin\Release\net8.0-windows\*.pdb&quot;&#xD;&#xA;&quot;C:\Program Files (x86)\Inno Setup 6\ISCC.exe&quot; &quot;$(ProjectDir)InnoSetup.Net8.iss&quot;&#xD;&#xA;DEL &quot;$(ProjectDir)..\CSVQuickViewerPortable.net8.0.zip&quot;&#xD;&#xA;powershell Compress-Archive -path &quot;$(SolutionDir)\Application\bin\Release\net8.0-windows\*&quot; &quot;$(ProjectDir)..\CSVQuickViewerPortable.Net8.zip&quot;&#xD;&#xA;DEL &quot;$(ProjectDir)..\CSVQuickViewerInstaller.Net8.exe&quot;&#xD;&#xA;COPY &quot;bin\CsvQuickViewerInstaller.exe&quot; &quot;$(ProjectDir)..\CSVQuickViewerInstaller.Net8.exe&quot;" />
+    <Exec Command="DEL &quot;$(SolutionDir)\Application\bin\Release\net8.0-windows\*.pdb&quot;&#xD;&#xA;&quot;C:\Program Files (x86)\Inno Setup 6\ISCC.exe&quot; &quot;$(ProjectDir)InnoSetup.Net8.iss&quot;&#xD;&#xA;DEL &quot;$(ProjectDir)..\CSVQuickViewerPortable.net8.0.zip&quot;&#xD;&#xA;powershell Compress-Archive -path &quot;$(SolutionDir)\Application\bin\Release\net8.0-windows\*&quot; &quot;$(ProjectDir)..\CSVQuickViewerPortable.Net8.zip&quot;&#xD;&#xA;COPY &quot;bin\CsvQuickViewerInstaller.exe&quot; &quot;$(ProjectDir)..\CSVQuickViewerInstaller.Net8.exe&quot;" />
   </Target>
 
   <ItemGroup>
