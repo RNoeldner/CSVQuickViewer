@@ -49,9 +49,7 @@ This application does use various NuGet libraries:
 * [UTF.Unknown](https://github.com/CharsetDetector/UTF-unknown): Detect character set for files
 * [Newtonsoft.Json](https://www.newtonsoft.com/json): Support for Json files, and serialisation of configuration
 * [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1): Ability to use new Windows Vista functionality for file dialogs
-* [Markdown](https://github.com/hey-red/Markdown): Ability to convert Markdown to HTML Text
 * [SharpZipLib](https://github.com/icsharpcode/SharpZipLib): Compression Library, ability open compressed files on the fly
 * [TimeZoneConverter](https://github.com/mattjohnsonpint/TimeZoneConverter): Support for Unix and Windows Timezone names
 * [System.Text.Encoding.CodePages](https://dot.net/): Support for old code pages in .NET5+ like Windows-1252
-* [BouncyCatle.OpenPgP](https://dot.net/): Support for PGP encraypted files reading (needs priivate kley and passphrase) and writing (needs public key of recipient)
 * [Microsoft.Extensions.Logging.Abstractions](https://dot.net/): Interface for abstraction of logging
