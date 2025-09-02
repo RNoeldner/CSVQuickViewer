@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Static class that stores the length of named date parts for the current culture  and English
   /// </summary>
-  public static class DateTimeFormatLength
+  public record struct DateTimeFormatLength
   {
     static DateTimeFormatLength()
     {

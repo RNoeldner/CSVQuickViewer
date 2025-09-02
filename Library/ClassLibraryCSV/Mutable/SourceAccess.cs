@@ -96,7 +96,7 @@ namespace CsvTools
       PgpKey = string.Empty;
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
-      FileType = FromExtension(fileName);
+      FileType = GetFileType(fileName);
       IdentifierInContainer = string.Empty;
       switch (FileType)
       {
@@ -169,7 +169,7 @@ namespace CsvTools
       {
         Identifier = fs.Name.GetShortDisplayFileName();
         if (type == FileTypeEnum.Stream)
-          FileType = FromExtension(fs.Name);
+          FileType = GetFileType(fs.Name);
       }
       else
       {
@@ -196,15 +196,13 @@ namespace CsvTools
           : $"{stream.GetType().Name}_{FileType}";
       return stream;
     }
-
-    private static FileTypeEnum FromExtension(in string fileName)
+    
+    private static FileTypeEnum GetFileType(in string fileName)
     {
       if (fileName.AssumeGZip())
         return FileTypeEnum.GZip;
       if (fileName.AssumeDeflate())
-        return FileTypeEnum.Deflate;
-      if (fileName.AssumeDeflate())
-        return FileTypeEnum.Deflate;
+        return FileTypeEnum.Deflate;      
       if (fileName.AssumePgp())
         return FileTypeEnum.Pgp;
       return fileName.AssumeZip() ? FileTypeEnum.Zip : FileTypeEnum.Plain;

@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   /// Information describing an entity in Json data
   /// </summary>
-  public sealed class ManifestData
+  public sealed record ManifestData
   {
     internal const string cCsvManifestExtension = ".manifest.json";
 
@@ -221,7 +221,7 @@ namespace CsvTools
     /// <summary>
     /// Field in a Manifest Json
     /// </summary>
-    public class ManifestField
+    public record ManifestField
     {
       /// <summary>
       /// 

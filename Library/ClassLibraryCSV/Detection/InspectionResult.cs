@@ -23,65 +23,77 @@ namespace CsvTools
   public sealed class InspectionResult
   {
     /// <summary>Number of rows to skip</summary>
-    [DefaultValue(0)] public int SkipRows;
+    [DefaultValue(0)] public int SkipRows { get; set; }
+
     /// <summary>.NET CodePage ID</summary>
-    [DefaultValue(65001)] public int CodePageId = 65001;
+    [DefaultValue(65001)] public int CodePageId { get; set; } = 65001;
+    
     /// <summary>Does encoding use BOM</summary>
-    [DefaultValue(false)] public bool ByteOrderMark;
+    [DefaultValue(false)] public bool ByteOrderMark { get; set; }
+    
     /// <summary>Identifier in container like zip</summary>
-    [DefaultValue("")] public string IdentifierInContainer = string.Empty;
+    [DefaultValue("")] public string IdentifierInContainer { get; set; } = string.Empty;
+    
     /// <summary>Prefix for lines to be ignored</summary>
-    [DefaultValue("#")] public string CommentLine = "#";
+    [DefaultValue("#")] public string CommentLine { get; set; } = "#";
+    
     /// <summary>Prefix for Escaping linefeed or qualifier</summary>
-    [DefaultValue('\\')] public char EscapePrefix = '\\';
+    [DefaultValue('\\')] public char EscapePrefix { get; set; } = '\\';
+    
     /// <summary>Delimiter between two columns</summary>
-    [DefaultValue(',')] public char FieldDelimiter = ',';
+    [DefaultValue(',')] public char FieldDelimiter { get; set; } = ',';
+    
     /// <summary>Qualifier of a columns to allow linefeed or delimiter</summary>
-    [DefaultValue('"')] public char FieldQualifier = '"';
+    [DefaultValue('"')] public char FieldQualifier { get; set; } = '"';
+    
     /// <summary>Context-sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
-    [DefaultValue(false)] public bool ContextSensitiveQualifier;
+    [DefaultValue(false)] public bool ContextSensitiveQualifier { get; set; }
+    
     /// <summary>In case a quote is part of a quoted column, the quote should be repeated</summary>
-    [DefaultValue(true)] public bool DuplicateQualifierToEscape = true;
+    [DefaultValue(true)] public bool DuplicateQualifierToEscape { get; set; } = true;
+    
     /// <summary>Does the file have a header row</summary>
-    [DefaultValue(true)] public bool HasFieldHeader = true;
+    [DefaultValue(true)] public bool HasFieldHeader { get; set; } = true;
+    
     /// <summary>Record Separator</summary>
-    [DefaultValue(RecordDelimiterTypeEnum.None)] public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
+    [DefaultValue(RecordDelimiterTypeEnum.None)] 
+    public RecordDelimiterTypeEnum NewLine { get; set; } = RecordDelimiterTypeEnum.None;
 
     /// <summary>
     /// The file name
     /// </summary>
     [JsonIgnore]
     [DefaultValue("")]
-    public string FileName = string.Empty;
+    public string FileName { get; set;  } = string.Empty;
 
     /// <summary>
     /// Flag to indicate that it's a Json file
     /// </summary>    
     [DefaultValue(false)]
-    public bool IsJson = false;
+    public bool IsJson { get; set; } = false;
 
     /// <summary>
     /// Flag to indicate that it's an XML file
     /// </summary>    
     [DefaultValue(false)]
-    public bool IsXml = false;
+    public bool IsXml { get; set; } = false;
 
     /// <summary>
     /// Flag to indicate that it's not a delimiter, Json or XMl file
     /// </summary>    
     [DefaultValue(false)]
-    public bool NoDelimitedFile = false;
+    public bool NoDelimitedFile { get; set; } = false;
 
     /// <summary>
     /// File containing Column definitions
     /// </summary>    
     [DefaultValue("")]
-    public string ColumnFile = string.Empty;
+    public string ColumnFile { get; } = string.Empty;
 
     /// <summary>
     /// The identified columns
     /// </summary>    
-    public ColumnCollection Columns = new ColumnCollection();
+    public ColumnCollection Columns { get; } = new ColumnCollection();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InspectionResult"/> class.
