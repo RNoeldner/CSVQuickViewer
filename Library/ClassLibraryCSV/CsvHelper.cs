@@ -704,10 +704,10 @@ CommentLine
         guessHasHeader: true,
         guessNewLine: false,
         guessCommentLine: true,
-        inspectionResult: new InspectionResult
+        inspectionResult: new InspectionResult()
         {
-          IdentifierInContainer = csvFile.IdentifierInContainer,
           FileName = csvFile.FileName,
+          IdentifierInContainer = csvFile.IdentifierInContainer,          
           EscapePrefix = csvFile.EscapePrefixChar,
           FieldDelimiter = csvFile.FieldDelimiterChar,
           FieldQualifier = csvFile.FieldQualifierChar,

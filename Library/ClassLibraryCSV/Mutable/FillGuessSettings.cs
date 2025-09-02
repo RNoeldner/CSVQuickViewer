@@ -47,15 +47,15 @@ namespace CsvTools
     /// <summary>
     /// Default instance for FillGuessSettings
     /// </summary>
-    public static FillGuessSettings Default = new FillGuessSettings();
+    public static readonly FillGuessSettings Default = new FillGuessSettings();
 
     /// <inheritdoc />
     [JsonConstructor]
     public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
       bool? detectDateTime = true,
       bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = true,
-      bool? dateParts = false, int? minSamples = 3, int? sampleValues = 150, long? checkedRecords = 30000,
-      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "",
+      bool? dateParts = false, string? dateFormat = "", string? trueValue = "True", string? falseValue = "False",
+      int? minSamples = 3, int? sampleValues = 150, long? checkedRecords = 30000,
       bool? removeCurrencySymbols = true)
     {
       m_Enabled = enabled ?? true;
@@ -63,21 +63,29 @@ namespace CsvTools
       m_DetectBoolean = detectBoolean ?? true;
       m_DetectDateTime = detectDateTime ?? true;
       m_DetectNumbers = detectNumbers ?? true;
-      m_DetectPercentage = detectPercentage?? true;
+      m_DetectPercentage = detectPercentage ?? true;
       m_DetectGuid = detectGuid ?? false;
-      m_SerialDateTime = serialDateTime?? true;
-      m_DateParts=dateParts ?? false;
+
+      // Date/Time settings
+      m_SerialDateTime = serialDateTime ?? true;
+      m_DateParts = dateParts ?? false;
+      m_DateFormat = dateFormat ?? string.Empty;
+
+      // Boolean value settings
+      m_TrueValue = trueValue ?? "True";
+      m_FalseValue = falseValue ?? "False";
+
+      // Sampling settings
       m_MinSamples = minSamples ?? 3;
       m_SampleValues = sampleValues ?? 150;
       m_CheckedRecords = checkedRecords ?? 30000;
-      m_TrueValue = trueValue ?? "True";
-      m_FalseValue = falseValue ?? "False";
-      m_DateFormat = dateFormat ?? string.Empty;
+
+      // Number formatting
       m_RemoveCurrencySymbols = removeCurrencySymbols ?? true;
     }
 
     /// <summary>
-    /// If  guessing the values types is enabled in general
+    /// Gets or sets a value indicating whether guessing is enabled.
     /// </summary>
     [DefaultValue(true)]
     public bool Enabled
@@ -87,7 +95,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Allowing currency symbols to be part of the input, storing only the values
+    /// Gets or sets a value indicating whether currency symbols should be removed when guessing numbers.
     /// </summary>
     [DefaultValue(true)]
     public bool RemoveCurrencySymbols
@@ -97,17 +105,21 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of records to parse to get the sample values, default is <c>30000</c>
+    /// Gets or sets the number of records to check for guessing types.
     /// </summary>
     [DefaultValue(30000)]
     public long CheckedRecords
     {
       get => m_CheckedRecords;
-      set => SetProperty(ref m_CheckedRecords, value);
+      set
+      {
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(CheckedRecords), "Value must be non-negative.");
+        SetProperty(ref m_CheckedRecords, value);
+      }
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they have a date part like a time or time, default is <c>false</c>
+    /// Gets or sets a value indicating whether to split date values into parts.
     /// </summary>
     [DefaultValue(false)]
     public bool DateParts
@@ -117,7 +129,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>
+    /// Gets or sets a value indicating whether to detect numbers.
     /// </summary>
     [DefaultValue(true)]
     public bool DetectNumbers
@@ -127,7 +139,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Percentages, default is <c>True</c>
+    /// Gets or sets a value indicating whether to detect percentage values.
     /// </summary>
     [DefaultValue(true)]
     public bool DetectPercentage
@@ -137,7 +149,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Boolean, default is <c>True</c>
+    /// Gets or sets a value indicating whether to detect boolean values.
     /// </summary>
     [DefaultValue(true)]
     public bool DetectBoolean
@@ -147,7 +159,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Date or Times, default is <c>True</c>
+    /// Gets or sets a value indicating whether to detect date and time values.
     /// </summary>
     [DefaultValue(true)]
     public bool DetectDateTime
@@ -157,7 +169,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be GUIDs, default is <c>False</c>
+    /// Gets or sets a value indicating whether to detect GUID values.
     /// </summary>
     [DefaultValue(false)]
     public bool DetectGuid
@@ -167,7 +179,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Flag to ignore columns that seem to be Identifiers, default is <c>True</c>
+    /// Gets or sets a value indicating whether to ignore ID columns when guessing types.
     /// </summary>
     [DefaultValue(true)]
     public bool IgnoreIdColumns
@@ -177,27 +189,35 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of sample values, default is <c>3</c>
+    /// Gets or sets the minimum number of samples required for guessing.
     /// </summary>
     [DefaultValue(3)]
     public int MinSamples
     {
       get => m_MinSamples;
-      set => SetProperty(ref m_MinSamples, value);
+      set
+      {
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(MinSamples), "Value must be non-negative.");
+        SetProperty(ref m_MinSamples, value);
+      }
     }
 
     /// <summary>
-    ///   Number of sample values, default is <c>150</c>
+    /// Gets or sets the number of sample values to use for guessing.
     /// </summary>
     [DefaultValue(150)]
     public int SampleValues
     {
       get => m_SampleValues;
-      set => SetProperty(ref m_SampleValues, value);
+      set
+      {
+        if (value < 0) throw new ArgumentOutOfRangeException(nameof(SampleValues), "Value must be non-negative.");
+        SetProperty(ref m_SampleValues, value);
+      }
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be serial Date or Times
+    /// Gets or sets a value indicating whether to treat serial date/time values as dates.
     /// </summary>
     [DefaultValue(true)]
     public bool SerialDateTime
@@ -207,55 +227,59 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   List of text to be regarded as <c>true</c>
+    /// Gets or sets the string value representing 'true' for boolean detection.
     /// </summary>
     [DefaultValue("True")]
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
+      [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string TrueValue
     {
       get => m_TrueValue;
-      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_TrueValue, value ?? "True");
     }
 
     /// <summary>
-    ///   List of text to be regarded as <c>false</c>, default text is <c>"False"</c>
+    /// Gets or sets the string value representing 'false' for boolean detection.
     /// </summary>
     [DefaultValue("False")]
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
+      [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string FalseValue
     {
       get => m_FalseValue;
-      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_FalseValue, value ?? "False");
     }
 
     /// <summary>
-    /// General format for Dates, e.G. YYYY/MM/DD
+    /// Gets or sets the date format string used for date detection.
     /// </summary>
     [DefaultValue("")]
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
+      [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string DateFormat
     {
       get => m_DateFormat;
-      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_DateFormat, value ?? string.Empty);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Creates a deep copy of the current FillGuessSettings instance.
+    /// </summary>
+    /// <returns>A new FillGuessSettings object with the same property values.</returns>
     public object Clone()
     {
       return new FillGuessSettings(enabled: m_Enabled, ignoreIdColumns: m_IgnoreIdColumns, detectBoolean: m_DetectBoolean, detectDateTime: m_DetectDateTime, detectNumbers: m_DetectNumbers, detectPercentage: m_DetectPercentage,
-        detectGuid: m_DetectGuid, serialDateTime: m_SerialDateTime, dateParts: m_DateParts, minSamples: m_MinSamples, sampleValues: m_SampleValues, checkedRecords: m_CheckedRecords, trueValue: m_TrueValue, falseValue: m_FalseValue);
+        detectGuid: m_DetectGuid, serialDateTime: m_SerialDateTime, dateParts: m_DateParts, dateFormat: m_DateFormat, trueValue: m_TrueValue, falseValue: m_FalseValue, minSamples: m_MinSamples, sampleValues: m_SampleValues, checkedRecords: m_CheckedRecords, removeCurrencySymbols: m_RemoveCurrencySymbols);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Determines whether the specified FillGuessSettings is equal to the current instance.
+    /// </summary>
+    /// <param name="other">The FillGuessSettings instance to compare with.</param>
+    /// <returns>True if the specified instance is equal; otherwise, false.</returns>
     public bool Equals(FillGuessSettings? other)
     {
       if (other is null)
@@ -273,16 +297,16 @@ namespace CsvTools
              m_MinSamples == other.MinSamples &&
              m_SampleValues == other.SampleValues &&
              m_SerialDateTime == other.SerialDateTime &&
+             m_RemoveCurrencySymbols == other.RemoveCurrencySymbols &&
              string.Equals(m_FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_DateFormat, other.DateFormat, StringComparison.Ordinal);
     }
 
-
     /// <summary>
-    ///   Copy all properties to another instance of FillGuessSettings
+    /// Copies all property values to another instance of FillGuessSettings.
     /// </summary>
-    /// <param name="other"></param>
+    /// <param name="other">The target FillGuessSettings instance to copy values to.</param>
     public void CopyTo(FillGuessSettings other)
     {
       other.Enabled = m_Enabled;
@@ -300,6 +324,7 @@ namespace CsvTools
       other.SampleValues = m_SampleValues;
       other.SerialDateTime = m_SerialDateTime;
       other.DateFormat = m_DateFormat;
+      other.RemoveCurrencySymbols = m_RemoveCurrencySymbols;
     }
   }
 }

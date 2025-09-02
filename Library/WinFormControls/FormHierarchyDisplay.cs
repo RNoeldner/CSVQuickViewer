@@ -117,7 +117,11 @@ namespace CsvTools
       {
         m_TimerDisplay.Dispose();
         m_TimerSearch.Dispose();
+        m_TreeView.Dispose();
+        m_ToolTip?.Dispose();
         m_CancellationTokenSource.Dispose();
+        components?.Dispose();
+        
       }
 
       base.Dispose(disposing);

@@ -21,30 +21,13 @@ namespace CsvTools.Tests
   public class DelimiterCounterTests
   {
     [TestMethod]
-    public void DelimiterCounterTest()
+    public void DelimiterCounterCheckCharTest()
     {
-      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
-      Assert.AreEqual(100, i.NumRows);
-      Assert.AreEqual(0, i.FilledRows);
+      var i = new DetectionDelimiter.DelimiterCounter(50, Array.Empty<char>(), '"');
+      Assert.IsFalse(i.CheckChar('a', char.MinValue));
+      Assert.IsTrue(i.CheckChar(';', char.MinValue));
     }
 
-    [TestMethod]
-    public void DelimiterCounterScore()
-    {
-      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
-      Assert.AreEqual(100, i.NumRows);
-      
-      i.CheckChar(';', ';');
-      i.CheckChar('\t', 'x');
-      i.CheckChar(',', '"');
-
-      // there is no score if we repeat
-      Assert.AreEqual(0, i.SeparatorScore[i.Separators.IndexOf(';')]);
-      // there is a score if we follow a Text
-      Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf('\t')]);
-      Assert.AreEqual(2, i.SeparatorScore[i.Separators.IndexOf(',')]);
-
-    }
     [TestMethod]
     public void DelimiterCounterDisallowTest()
     {
@@ -59,11 +42,70 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void DelimiterCounterCheckCharTest()
+    public void DelimiterCounterLastRowTest()
     {
-      var i = new DetectionDelimiter.DelimiterCounter(50, Array.Empty<char>(), '"');
-      Assert.IsFalse(i.CheckChar('a', char.MinValue));
-      Assert.IsTrue(i.CheckChar(';', char.MinValue));
+      var i = new DetectionDelimiter.DelimiterCounter(2, Array.Empty<char>(), '"');
+      Assert.AreEqual(0, i.LastRow);
+      i.CheckChar(';', char.MinValue);
+      Assert.IsTrue(i.LastRow >= 0);
+    }
+
+    [TestMethod]
+    public void DelimiterCounterScore()
+    {
+      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
+      Assert.AreEqual(100, i.NumRows);
+
+      i.CheckChar(';', ';');
+      i.CheckChar('\t', 'x');
+      i.CheckChar(',', '"');
+
+      // there is no score if we repeat
+      Assert.AreEqual(0, i.SeparatorScore[i.Separators.IndexOf(';')]);
+      // there is a score if we follow a Text
+      Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf('\t')]);
+      Assert.AreEqual(2, i.SeparatorScore[i.Separators.IndexOf(',')]);
+
+    }
+
+    [TestMethod]
+    public void DelimiterCounterSeparatorRowsTest()
+    {
+      var i = new DetectionDelimiter.DelimiterCounter(5, Array.Empty<char>(), '"');
+      Assert.AreEqual(14, i.SeparatorRows.Length);
+      // Initially all rows should be zero
+      foreach (var count in i.SeparatorRows)
+        Assert.AreEqual(0, count);
+    }
+
+    [TestMethod]
+    public void DelimiterCounterSeparatorsCountTest()
+    {
+      var i = new DetectionDelimiter.DelimiterCounter(3, Array.Empty<char>(), '"');      
+      Assert.AreEqual(i.Separators.Length, i.SeparatorsCount.GetLength(1));
+      // Initially all counts should be zero
+      for (int row = 0; row < 3; row++)
+        for (int col = 0; col < i.Separators.Length; col++)
+          Assert.AreEqual(0, i.SeparatorsCount[row, col]);
+    }
+
+    [TestMethod]
+    public void DelimiterCounterSeparatorsPropertyTest()
+    {
+      var i = new DetectionDelimiter.DelimiterCounter(10, new[] { ',' }, '"');
+      // Should not contain disallowed delimiter
+      Assert.IsFalse(i.Separators.Contains(","));
+      // Should contain default delimiters
+      Assert.IsTrue(i.Separators.Contains(";"));
+      Assert.IsTrue(i.Separators.Contains("\t"));
+    }
+
+    [TestMethod]
+    public void DelimiterCounterTest()
+    {
+      var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
+      Assert.AreEqual(100, i.NumRows);
+      Assert.AreEqual(0, i.FilledRows);
     }
   }
 }

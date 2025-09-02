@@ -17,93 +17,95 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  /// Information of the length of given formats in with teh current settings
+  /// Information about the minimum and maximum length of a date/time format string with the current settings.
   /// </summary>
-  public readonly struct DateTimeFormatInformation
+  public record struct DateTimeFormatInformation
   {
     /// <summary>
-    /// The max length always assuming the longest names are used
+    /// The maximum length, assuming the longest names are used.
     /// </summary>
-    public readonly int MaxLength;
+    public int MaxLength { get; }
 
     /// <summary>
-    /// The minimum length always assuming the shortest names are used
+    /// The minimum length, assuming the shortest names are used.
     /// </summary>
-    public readonly int MinLength;
-
+    public int MinLength { get; }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="DateTimeFormatInformation" /> class.
+    /// Initializes a new instance of the <see cref="DateTimeFormatInformation" /> struct.
     /// </summary>
-    /// <param name="formatSpecifier">The format specifier</param>
-    /// <remarks>Please do not use literal string delimiter these are not handled properly</remarks>
+    /// <param name="formatSpecifier">The format specifier.</param>
+    /// <remarks>Please do not use literal string delimiters; these are not handled properly.</remarks>
     public DateTimeFormatInformation(string formatSpecifier)
     {
       // Handle other chars like mm':'ss' minutes' or mm\:ss\ \m\i\n\u\t\e\s
       // Handle text escaped with \ they should not exist later
       formatSpecifier = formatSpecifier.Trim()
-      .Replace("\\y", ".")
-      .Replace("\\M", ".")
-      .Replace("\\d", ".")
-      .Replace("\\H", ".")
-      .Replace("\\h", ".")
-      .Replace("\\m", ".")
-      .Replace("\\s", ".")
-      .Replace("\\F", ".")
-      .Replace("\\t", ".")
-      .Replace(@"\\", ".")
-      .Replace("\\", "")
-      // HandleLiteral string delimiter '
-      // This is actually not precise enough as ' minutes' will not be handled properly
-      .Replace("'", "");
+        .Replace("\\y", ".")
+        .Replace("\\M", ".")
+        .Replace("\\d", ".")
+        .Replace("\\H", ".")
+        .Replace("\\h", ".")
+        .Replace("\\m", ".")
+        .Replace("\\s", ".")
+        .Replace("\\F", ".")
+        .Replace("\\t", ".")
+        .Replace(@"\\", ".")
+        .Replace("\\", "")
+        // Handle literal string delimiter '
+        // This is actually not precise enough as ' minutes' will not be handled properly
+        .Replace("'", "");
 
-      MinLength = formatSpecifier.Length;
-      MaxLength = formatSpecifier.Length;
+      int minLength = formatSpecifier.Length;
+      int maxLength = formatSpecifier.Length;
 
-      SetMinMaxAndRemove("dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("dd", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("d", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("dd", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("d", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("yyyy", 4, 4, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("yy", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("y", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("yyyy", 4, 4, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("yy", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("y", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("HH", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("H", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("hh", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("h", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("HH", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("H", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("hh", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("h", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("mm", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("m", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("mm", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("m", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("MM", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("M", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("MM", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("M", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("F", 0, 1, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("F", 0, 1, ref formatSpecifier, ref minLength, ref maxLength);
 
-      SetMinMaxAndRemove("ss", 2, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("s", 1, 2, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("ss", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("s", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
       // interpreted as a standard date and time format specifier
-      SetMinMaxAndRemove("K", 0, 6, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("K", 0, 6, ref formatSpecifier, ref minLength, ref maxLength);
 
       // signed offset of the local operating system's time zone from UTC,
-      SetMinMaxAndRemove("zzz", 6, 6, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("zz", 3, 3, ref formatSpecifier, ref MinLength, ref MaxLength);
-      SetMinMaxAndRemove("z", 2, 3, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("zzz", 6, 6, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("zz", 3, 3, ref formatSpecifier, ref minLength, ref maxLength);
+      SetMinMaxAndRemove("z", 2, 3, ref formatSpecifier, ref minLength, ref maxLength);
 
       // AM / PM
-      SetMinMaxAndRemove("tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator, ref formatSpecifier, ref MinLength, ref MaxLength);
+      SetMinMaxAndRemove("tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator, ref formatSpecifier, ref minLength, ref maxLength);
+
+      MinLength = minLength;
+      MaxLength = maxLength;
     }
 
     private static void SetMinMaxAndRemove(in string search, int minLenSearch, int maxLenSearch, ref string format,
       ref int minLength,
       ref int maxLength)
     {
-      do
+      while (true)
       {
         var pos = format.IndexOf(search, StringComparison.Ordinal);
         if (pos == -1)
@@ -111,7 +113,7 @@ namespace CsvTools
         format = format.Remove(pos, search.Length);
         minLength += minLenSearch - search.Length;
         maxLength += maxLenSearch - search.Length;
-      } while (true);
+      }
     }
   }
 }
