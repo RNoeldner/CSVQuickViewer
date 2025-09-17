@@ -198,7 +198,7 @@ namespace CsvTools
         var text = args.Text;
         m_Progress.Report(args);
         WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
-        ProgressChanged?.Invoke(this, args);
+        ProgressChanged?.SafeInvoke(this, args);
         m_LabelText.SafeBeginInvoke(
           () =>
           {

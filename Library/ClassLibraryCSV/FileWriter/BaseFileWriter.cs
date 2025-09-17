@@ -284,14 +284,14 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        try {Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());} catch {}
+        try { Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName()); } catch { }
         throw new FileWriterException(
           $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
       {
-        try {Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);} catch {}
+        try { Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records); } catch { }
         HandleWriteEnd();
       }
 
@@ -308,8 +308,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected void HandleError(string columnName, string message) =>
-      Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
+    protected void HandleError(string columnName, string message) => Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
+
 
     /// <summary>Is called whenever there is progress to report</summary>
     /// <param name="text">The text.</param>
@@ -319,7 +319,8 @@ namespace CsvTools
     protected virtual void HandleWriteStart() => Records = 0;
 
     /// <summary>Should be called whenever the writer finished</summary>
-    protected virtual void HandleWriteEnd() => WriteFinished?.Invoke(this, EventArgs.Empty);
+    protected virtual void HandleWriteEnd() => WriteFinished?.SafeInvoke(this);
+
 
     /// <summary>Called when the next record is written, handles counters and progress</summary>
     protected void NextRecord()

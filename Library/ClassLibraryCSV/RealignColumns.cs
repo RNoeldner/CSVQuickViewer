@@ -28,13 +28,23 @@ namespace CsvTools
   public sealed class ReAlignColumns
   {
     private const int cMaxGoodRows = 40;
-    private static readonly Random Random = new Random(Guid.NewGuid().GetHashCode());
+#if NET6_0_OR_GREATER
+    private static readonly Random Random = Random.Shared;
+#else
+    private static readonly Random Random = new Random(Environment.TickCount);
+#endif
 
-    private static readonly string[] BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
+    private static readonly HashSet<string> BoolVals = new HashSet<string>(
+    new[] { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" },
+    StringComparer.OrdinalIgnoreCase);
+
+    private static readonly HashSet<char> DigitsSet = new("0123456789");
+    private static readonly HashSet<char> DecimalCharsSet = new(".,-+ 0123456789");
+    private static readonly HashSet<char> DateTimeCharsSet = new(":/\\.-T 0123456789");
 
     private readonly int m_ExpectedColumns;
 
-    private readonly List<string[]> m_GoodRows = new List<string[]>();
+    private readonly List<string[]> m_GoodRows = new List<string[]>(cMaxGoodRows);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReAlignColumns"/> class.
@@ -46,16 +56,19 @@ namespace CsvTools
     ///   Adds a new row assuming the data is well aligned
     /// </summary>
     /// <param name="newRow">Array with the columns of that row</param>
-    public void AddRow(in string[] newRow)
+    public void AddRow(string[] newRow)
     {
       if (newRow is null) throw new ArgumentNullException(nameof(newRow));
       if (newRow.Length != m_ExpectedColumns)
         return;
 
+      for (int i = 0; i < newRow.Length; i++)
+        newRow[i] = newRow[i]?.Trim() ?? string.Empty;
+
       if (m_GoodRows.Count < cMaxGoodRows)
         m_GoodRows.Add(newRow);
       else
-        // Store the row in our list
+        // Store the row in our list at some random location
         m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
     }
 
@@ -71,14 +84,16 @@ namespace CsvTools
       if (row is null) throw new ArgumentNullException(nameof(row));
       if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
 
-      if (m_GoodRows.Count < 2)
+      if (m_GoodRows.Count < 3)
       {
         handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
         return row;
       }
 
       // List is easier to handle than an array
-      var columns = new List<string>(row);
+      var columns = new List<string>(row.Length);
+      for (int i = 0; i < row.Length; i++)
+        columns.Add(row[i]?.Trim() ?? string.Empty);
 
       if (row.Length >= m_ExpectedColumns * 2 - 1)
       {
@@ -88,7 +103,7 @@ namespace CsvTools
       }
       else
       {
-        for (var colIndex = 0; colIndex < columns.Count; colIndex++) 
+        for (var colIndex = 0; colIndex < columns.Count; colIndex++)
           columns[colIndex] ??= string.Empty;
         //Get the Options for all good rows
         var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
@@ -98,8 +113,11 @@ namespace CsvTools
         // Step 1: try combining
         while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
         {
-          if (string.IsNullOrEmpty(columns[col]) && !otherColumns[col].HasFlag(ColumnOption.Empty)
-                                                 && GetColumnOption(columns[col + 1].Trim()) == otherColumns[col])
+
+          if (col + 1 < columns.Count &&
+            string.IsNullOrEmpty(columns[col]) &&
+            !otherColumns[col].HasFlag(ColumnOption.Empty) &&
+            GetColumnOption(columns[col + 1]) == otherColumns[col])
           {
             handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
             columns.RemoveAt(col);
@@ -108,7 +126,7 @@ namespace CsvTools
 
           if (otherColumns[col] != ColumnOption.None && col > 0)
           {
-            var thisCol = GetColumnOption(columns[col].Trim());
+            var thisCol = GetColumnOption(columns[col]);
             // assume we have to remove this columns
             if (!thisCol.HasFlag(otherColumns[col])
                 || thisCol == ColumnOption.None && thisCol == otherColumns[col - 1])
@@ -147,8 +165,8 @@ namespace CsvTools
           col++;
         }
       }
-
-      return columns.ToArray();
+      return (columns.Count == row.Length && row.Length == m_ExpectedColumns)
+          ? row : columns.ToArray();
     }
 
     /// <summary>
@@ -165,7 +183,8 @@ namespace CsvTools
                 | ColumnOption.NoSpace;
 
       // compare the text as whole
-      if (BoolVal.Any(test => test.Equals(text, StringComparison.OrdinalIgnoreCase))) all |= ColumnOption.Boolean;
+      if (BoolVals.Contains(text))
+        all |= ColumnOption.Boolean;
 
       if (text.Length <= 30)
         all |= ColumnOption.ShortText;
@@ -175,15 +194,16 @@ namespace CsvTools
       // check individual character
       foreach (var c in text)
       {
-        if (all.HasFlag(ColumnOption.NumbersOnly) && "0123456789".IndexOf(c) == -1)
+        if (all.HasFlag(ColumnOption.NumbersOnly) &&  !DigitsSet.Contains(c))
           all &= ~ColumnOption.NumbersOnly;
-        if (all.HasFlag(ColumnOption.DecimalChars) && ".,-+ 0123456789".IndexOf(c) == -1)
+        if (all.HasFlag(ColumnOption.DecimalChars) && !DecimalCharsSet.Contains(c))
           all &= ~ColumnOption.DecimalChars;
-        if (all.HasFlag(ColumnOption.DateTimeChars) && ":/\\.-T 0123456789".IndexOf(c) == -1)
+        if (all.HasFlag(ColumnOption.DateTimeChars) && !DateTimeCharsSet.Contains(c))
           all &= ~ColumnOption.DateTimeChars;
-        if (all.HasFlag(ColumnOption.NoSpace) && (c < 32 || c > 125))
+        if (all.HasFlag(ColumnOption.NoSpace) && char.IsWhiteSpace(c))
           all &= ~ColumnOption.NoSpace;
 
+        // early shortcut
         if (all == ColumnOption.None)
           return ColumnOption.None;
       }
@@ -202,7 +222,7 @@ namespace CsvTools
       foreach (var row in rows)
       {
         if (row.Length <= colNum) continue;
-        var oneColOption = GetColumnOption(row[colNum].Trim());
+        var oneColOption = GetColumnOption(row[colNum]);
         if (oneColOption == ColumnOption.Empty)
           continue;
 
@@ -210,6 +230,9 @@ namespace CsvTools
           overall = oneColOption;
         else
           overall &= oneColOption;
+
+        if (overall == ColumnOption.None)
+          break;
       }
 
       return overall;
@@ -226,19 +249,19 @@ namespace CsvTools
 
       Empty = 1,
 
-      NumbersOnly = 2, // Only 0-9
+      NumbersOnly = 1 << 1, // Only 0-9
 
-      DecimalChars = 4, // Only . ,  + -
+      DecimalChars = 1 << 2, // Only . ,  + - and numbers
 
-      DateTimeChars = 8, // Only / \ - . : T (space)
+      DateTimeChars = 1 << 3, // Only / \ - . : T (space)
 
-      NoSpace = 16, // 0-9 A-Z _ - (noSpace)
+      NoSpace = 1 << 4, // Does not contain spaces
 
-      ShortText = 32, // Length < 40
+      ShortText = 1 << 5, // Length < 40
 
-      VeryShortText = 64, // Length < 10
+      VeryShortText = 1 << 6, // Length < 10
 
-      Boolean = 128
+      Boolean = 1 << 7
     }
   }
 }

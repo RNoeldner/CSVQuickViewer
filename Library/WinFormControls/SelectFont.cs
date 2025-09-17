@@ -9,7 +9,8 @@ namespace CsvTools
 {
   public partial class SelectFont : UserControl
   {
-    [Category("Action")] public event EventHandler? ValueChanged;
+    [Category("Action")] 
+    public event EventHandler? ValueChanged;
 
     private bool m_UiChange = true;
 
@@ -102,13 +103,13 @@ namespace CsvTools
     private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (m_UiChange)
-        ValueChanged?.Invoke(this, e);
+        ValueChanged?.SafeInvoke(this);
     }
 
     private void ComboBoxSize_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (m_UiChange)
-        ValueChanged?.Invoke(this, e);
+        ValueChanged?.SafeInvoke(this);
     }
 
     private void ButtonDefault_Click(object sender, EventArgs e)
@@ -117,7 +118,7 @@ namespace CsvTools
       FontName = SystemFonts.DefaultFont.FontFamily.Name;
       FontSize = SystemFonts.DefaultFont.Size;
 #pragma warning restore CA1416
-      ValueChanged?.Invoke(this, e);
+      ValueChanged?.SafeInvoke(this);
     }
   }
 }

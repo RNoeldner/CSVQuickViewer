@@ -43,9 +43,13 @@ namespace CsvTools.Tests
       (new FileInfo(Assembly.GetExecutingAssembly().Location)).DirectoryName ?? throw new InvalidOperationException(),
       "TestFiles");
 
-#pragma warning disable IDE0090
     // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
-    public static readonly Random Random = new Random(Guid.NewGuid().GetHashCode());
+#if NET6_0_OR_GREATER
+    public static readonly Random Random = Random.Shared;
+#else
+    public static readonly Random Random = new Random(Environment.TickCount);
+#endif
+    
 #pragma warning restore IDE0090
 #pragma warning disable CS8618
     private static UnitTestLogger m_TestLogger;

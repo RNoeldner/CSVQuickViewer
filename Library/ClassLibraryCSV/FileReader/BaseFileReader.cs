@@ -15,6 +15,7 @@
 #nullable enable
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -23,7 +24,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,10 +62,9 @@ namespace CsvTools
     protected int[] AssociatedTimeCol = Array.Empty<int>();
 
     /// <summary>
-    ///   An array of current row column text
+    ///   An array of current row column text, this is resued to avoid multiple allocations
     /// </summary>
     protected string[] CurrentRowColumnText = Array.Empty<string>();
-
     /// <summary>
     /// The record limit
     /// </summary>
@@ -80,7 +79,7 @@ namespace CsvTools
     private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
     private readonly bool m_RemoveCurrency;
-
+    private ArrayPool<string> m_ArrayPool = ArrayPool<string>.Shared;
     /// <summary>
     ///   An array of associated col
     /// </summary>
@@ -279,6 +278,14 @@ namespace CsvTools
     {
       if (!EndOfFile)
         EndOfFile = true;
+
+      if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
+      {
+        Array.Clear(CurrentRowColumnText, 0, CurrentRowColumnText.Length);
+        m_ArrayPool.Return(CurrentRowColumnText, clearArray: true);
+        CurrentRowColumnText = Array.Empty<string>();
+      }
+
       base.Close();
     }
 
@@ -617,8 +624,20 @@ namespace CsvTools
     /// <param name="message">The message to raise.</param>
     public void HandleError(int ordinal, in string message)
     {
-      if (Warning != null && (ordinal < 0 || ordinal > Column.Length || !Column[ordinal].Ignore))
-        Warning(this, GetWarningEventArgs(ordinal, message));
+      if (ordinal < 0 || ordinal > Column.Length || !Column[ordinal].Ignore)      
+        Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
+    }
+
+    /// <summary>
+    ///   Handles the Event if reading the file is completed
+    /// </summary>
+    public virtual void HandleReadFinished()
+    {
+      if (m_IsFinished) return;
+
+      m_IsFinished = true;
+      HandleShowProgress("Finished reading", 1);
+      ReadFinished?.SafeInvoke(this);      
     }
 
     /// <summary>
@@ -680,13 +699,11 @@ namespace CsvTools
     /// <param name="columns">The columns as read / provided</param>
     /// <param name="fieldCount">
     ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
-    /// </param>
-    /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
-    /// <returns></returns>
-    internal static IEnumerable<string> AdjustColumnName(
+    /// </param>    
+    internal IEnumerable<string> AdjustColumnName(
       in IEnumerable<string> columns,
-      int fieldCount,
-      in ColumnErrorDictionary? warnings)
+      int fieldCount
+      )
     {
       var newNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       using var enumerator = columns.GetEnumerator();
@@ -697,30 +714,29 @@ namespace CsvTools
         if (string.IsNullOrEmpty(columnName))
         {
           resultingName = GetDefaultName(counter);
-          warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
+          HandleWarning(counter, $"Column title was empty, set to {resultingName}.");
         }
         else
         {
           resultingName = columnName.Trim();
 
           if (columnName.Length != resultingName.Length)
-            warnings?.Add(
+            HandleWarning(
               counter,
-              $"Column title '{columnName}' had leading or tailing spaces, these have been removed.".AddWarningId());
+              $"Column title '{columnName}' had leading or tailing spaces, these have been removed.");
 
           if (resultingName.Length > 128)
           {
             resultingName = resultingName.Substring(0, 128);
-            warnings?.Add(
+            HandleWarning(
               counter,
-              $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters."
-                .AddWarningId());
+              $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters.");
           }
 
           var newName = newNames.MakeUniqueInCollection(resultingName);
           if (newName != resultingName)
           {
-            warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
+            HandleError(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
             resultingName = newName;
           }
         }
@@ -730,12 +746,7 @@ namespace CsvTools
 
       return newNames;
     }
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <summary>
-    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
-    /// </summary>
-    public new virtual Task CloseAsync() => Task.Run(() => base.Close());
-#endif
+
     /// <summary>
     /// Treats the non-breaking space and null 
     /// </summary>
@@ -780,7 +791,7 @@ namespace CsvTools
     {
       m_IsFinished = false;
       EndOfFile = false;
-      OpenFinished?.Invoke(this, Column);
+      OpenFinished?.SafeInvoke(this, Column);
     }
 
     /// <summary>
@@ -964,25 +975,12 @@ namespace CsvTools
         ordinal >= 0 && ordinal < m_FieldCount ? Column[ordinal].Name : null);
 
     /// <summary>
-    ///   Handles the Event if reading the file is completed
-    /// </summary>
-    public virtual void HandleReadFinished()
-    {
-      if (m_IsFinished) return;
-
-      m_IsFinished = true;
-      HandleShowProgress("Finished reading", 1);
-      ReadFinished?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">Leading Text</param>
     /// <param name="percent">Value between 0 and 1 representing the relative position</param>
     protected virtual void HandleShowProgress(in string text, double percent) =>
       m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
-
 
     /// <summary>
     ///   Shows the process twice a second
@@ -1019,15 +1017,25 @@ namespace CsvTools
         HandleShowProgressPeriodic($"Record {RecordNumber:N0}");
     }
 
-
     /// <summary>
     /// Initializes the column and arrays once it's known how many columns there are
     /// </summary>
     /// <param name="fieldCount">The field count.</param>
     protected virtual void InitColumn(int fieldCount)
     {
+      if (fieldCount > 1000)
+        throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000");
       m_FieldCount = fieldCount;
-      CurrentRowColumnText = new string[fieldCount];
+
+      // Return previous array to pool if needed
+      if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
+      {
+        Array.Clear(CurrentRowColumnText, 0, CurrentRowColumnText.Length);
+        m_ArrayPool.Return(CurrentRowColumnText, clearArray: true);
+      }
+
+      // Rent a new array from the pool
+      CurrentRowColumnText = m_ArrayPool.Rent(fieldCount);
 
       Column = new Column[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
@@ -1052,10 +1060,9 @@ namespace CsvTools
       in IEnumerable<DataTypeEnum>? dataType = null,
       bool hasFieldHeader = true)
     {
-      var issues = new ColumnErrorDictionary();
       var adjustedNames = new List<string>();
       if (hasFieldHeader)
-        adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length, issues));
+        adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length));
       else
         for (var colIndex = 0; colIndex < Column.Length; colIndex++)
         {
@@ -1066,7 +1073,7 @@ namespace CsvTools
             var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
             if (newDef != null && !string.IsNullOrEmpty(newDef.Name))
             {
-              issues.Add(colIndex, "Using column name from definition");
+              HandleError(colIndex, "Using column name from definition");
               adjustedNames.Add(newDef.Name);
               continue;
             }
@@ -1107,7 +1114,7 @@ namespace CsvTools
       }
 
       if (Column.Length == 0)
-        issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
+        HandleWarning(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
       else
         // Initialize the references for TimePart and TimeZone
         for (var index = 0; index < Column.Length; index++)
@@ -1138,11 +1145,6 @@ namespace CsvTools
             break;
           }
         }
-
-      // Now can handle possible warning that have been raised adjusting the names
-      foreach (var warning in issues.Where(
-                 warning => warning.Key < 0 || warning.Key >= Column.Length || !Column[warning.Key].Ignore))
-        HandleWarning(warning.Key, warning.Value);
     }
 
     /// <summary>
@@ -1156,10 +1158,37 @@ namespace CsvTools
       if (token.IsCancellationRequested) return false;
 
       var eventArgs = new RetryEventArgs(ex) { Retry = false };
-      OnAskRetry?.Invoke(this, eventArgs);
+      var handler = Volatile.Read(ref OnAskRetry);
+      if (handler != null)
+      {
+        handler.Invoke(this, eventArgs);
+      }
       return eventArgs.Retry;
     }
 
+    protected string[] ToArray(ICollection<string> columns)
+    {
+      // Rent an array large enough
+      var tempArray = m_ArrayPool.Rent(Math.Max(columns.Count, FieldCount));
+
+      // Copy values
+      int i = 0;
+      foreach (var column in columns)
+        tempArray[i++] = column;
+
+      // Empty rest of array
+      for (var j = i; j < tempArray.Length; j++)
+        tempArray[j] = string.Empty;
+
+      return tempArray;
+    }
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    /// <summary>
+    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
+    /// </summary>
+    public new virtual Task CloseAsync() => Task.Run(() => base.Close());
+#endif
     /// <summary>
     ///   Adds a Format exception.
     /// </summary>

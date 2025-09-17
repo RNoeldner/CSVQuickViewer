@@ -270,7 +270,7 @@ namespace CsvTools
             if (bindingSourceFilter.Equals(m_BindingSource.Filter, StringComparison.Ordinal))
               return;
             m_BindingSource.Filter = bindingSourceFilter;
-            DataViewChanged?.Invoke(this, EventArgs.Empty);
+            DataViewChanged?.SafeInvoke(this);
           }
           else
           {
@@ -278,7 +278,7 @@ namespace CsvTools
                 bindingSourceFilter.Equals(DataView.RowFilter, StringComparison.Ordinal))
               return;
             DataView.RowFilter = bindingSourceFilter;
-            DataViewChanged?.Invoke(this, EventArgs.Empty);
+            DataViewChanged?.SafeInvoke(this);
           }
         }
       );
@@ -330,7 +330,7 @@ namespace CsvTools
         if (!HideEmptyColumns())
           return;
         SetRowHeight();
-        DataViewChanged?.Invoke(this, EventArgs.Empty);
+        DataViewChanged?.SafeInvoke(this);
       }
       catch
       {
@@ -393,7 +393,7 @@ namespace CsvTools
         return;
 
       SetRowHeight();
-      DataViewChanged?.Invoke(this, EventArgs.Empty);
+      DataViewChanged?.SafeInvoke(this);
     }
 
     /// <summary>
@@ -1064,7 +1064,7 @@ namespace CsvTools
         if (filterPopup.ShowDialog() == DialogResult.OK)
         {
           SetRowHeight();
-          DataViewChanged?.Invoke(this, EventArgs.Empty);
+          DataViewChanged?.SafeInvoke(this);
         }
       });
     }

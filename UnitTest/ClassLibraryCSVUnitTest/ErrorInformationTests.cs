@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadErrorInformationTestSetErrorInformation()
     {
-      var columnErrors = new ColumnErrorDictionary();
+      var columnErrors = new Dictionary<int, string>();
 
       var colNames = new List<string>();
       foreach (DataColumn col in m_DataTable.Columns)

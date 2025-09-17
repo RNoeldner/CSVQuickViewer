@@ -112,7 +112,7 @@ namespace CsvTools
         if (!m_CurrentResult.Equals(value))
         {
           m_CurrentResult = value;
-          OnResultChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text, m_CurrentResult));
+          OnResultChanged?.SafeInvoke(this, new SearchEventArgs(m_SearchTextBoxText.Text, m_CurrentResult));
         }
 
         UpdateDisplay();
@@ -134,7 +134,7 @@ namespace CsvTools
     private void Cancel_Click(object? sender, EventArgs e)
     {
       // m_TimerChange.Stop();
-      OnSearchClear?.Invoke(this, EventArgs.Empty);
+      OnSearchClear?.SafeInvoke(this);
       Hide();
     }
 
@@ -292,7 +292,7 @@ namespace CsvTools
         CurrentResult--;
     }
 
-    private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
+    private void SearchChanged() => OnSearchChanged?.SafeInvoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
 
     private void SearchText_TextChanged(object? sender, EventArgs e) =>
       FilterValueChangedElapsed();
