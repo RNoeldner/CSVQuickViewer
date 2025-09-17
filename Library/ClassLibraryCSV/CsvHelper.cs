@@ -228,7 +228,7 @@ namespace CsvTools
 #pragma warning restore CA1835
       if (length >= 2)
       {
-        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
+        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, Math.Min(4, length));
         if (byBom != null)
         {
           try { Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(byBom, true)}"); } catch { }
@@ -333,9 +333,11 @@ namespace CsvTools
         }
 
         using var zipFile = new ZipFile(fileName2);
-        var list = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited())
-          .ThenByDescending(x => x.Size).Select(x => $"{x.Name}").ToList();
-        selectedFile = selectFile?.Invoke(list) ?? list.First();
+
+        var filesInZip = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => x.Name);
+        selectedFile = selectFile?.Invoke(filesInZip.ToList()) ?? filesInZip.FirstOrDefault();
+        if (selectedFile is null)
+          throw new FileNotFoundException("No suitable file found in the ZIP archive.");
       }
 
       if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
@@ -503,186 +505,150 @@ CommentLine
         try { Logger.Information("Checking XML format"); } catch { }
         inspectionResult.IsXml = await stream
           .InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
-      }
 
-      if (inspectionResult.IsXml)
-      {
-        try { Logger.Information("Detected XML file, no further checks done"); } catch { }
-        return;
-      }
 
-      if (guessJson)
-      {
+        if (inspectionResult.IsXml)
+        {
+          try { Logger.Information("Detected XML file, no further checks done"); } catch { }
+          return;
+        }
+
         cancellationToken.ThrowIfCancellationRequested();
         try { Logger.Information("Checking Json format"); } catch { }
         inspectionResult.IsJson = await stream
           .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), cancellationToken)
           .ConfigureAwait(false);
+
+        if (inspectionResult.IsJson)
+        {
+          try { Logger.Information("Detected Json file, no further checks done"); } catch { }
+          return;
+        }
       }
 
-      if (inspectionResult.IsJson)
+      // --- Initialize loop for dependent properties ---
+      const int maxAttempts = 5;
+      int attempt = 0;
+      bool retry;
+      do
       {
-        try { Logger.Information("Detected Json file, no further checks done"); } catch { }
-        return;
-      }
+        attempt++;
+        retry = false;
 
-      if (guessStartRow)
-        inspectionResult.SkipRows = 0;
-      int tryCount = 0;
-      retest:
-      tryCount++;
-      bool changedDelimiter = false;
-      bool changedFieldQualifier = false;
-      bool changedSkipRows = false;
+        if (guessStartRow)
+          inspectionResult.SkipRows = 0;
 
-      if (guessCommentLine) // Dependent on SkipRows
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Checking comment line"); } catch { }
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken).ConfigureAwait(false);
-        var newCommentLine = await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
-        inspectionResult.CommentLine = newCommentLine;
-      }
-
-      var newPrefix = inspectionResult.EscapePrefix;
-      if (guessEscapePrefix) // Dependent on SkipRows, FieldDelimiter and FieldQualifier
-      {
-        try { Logger.Information("Checking Escape Prefix"); } catch { }
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken).ConfigureAwait(false);
-        newPrefix = await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter,
-          inspectionResult.FieldQualifier, cancellationToken).ConfigureAwait(false);
-      }
-
-      if (guessQualifier || guessDelimiter || guessNewLine)
-      {
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken).ConfigureAwait(false);
-
-        if (guessQualifier) // Dependent on SkipRows, FieldQualifier and EscapePrefix
+        // --- Comment Line ---
+        if (guessCommentLine)
         {
           cancellationToken.ThrowIfCancellationRequested();
-          try { Logger.Information("Checking Qualifier"); } catch { }
-          var qualifierTestResult = textReader.InspectQualifier(inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
-            m_QualifiersToTest, cancellationToken);
-          changedFieldQualifier = inspectionResult.FieldQualifier != qualifierTestResult.QuoteChar;
-          inspectionResult.FieldQualifier = qualifierTestResult.QuoteChar;
-          inspectionResult.ContextSensitiveQualifier =
-            !(qualifierTestResult.DuplicateQualifier || qualifierTestResult.EscapedQualifier);
-          inspectionResult.DuplicateQualifierToEscape = qualifierTestResult.DuplicateQualifier;
-
-          // In case we have DuplicateQualifier turn off EscapePrefix
-          if (inspectionResult.DuplicateQualifierToEscape)
-            newPrefix = char.MinValue;
+          try { Logger.Information("Checking comment line"); } catch { }
+          using var textReader = await stream
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .ConfigureAwait(false);
+          inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(cancellationToken)
+              .ConfigureAwait(false);
         }
 
-        if (guessDelimiter) // Dependent on SkipRows, FieldQualifier and EscapePrefix
+        // --- Escape Prefix ---
+        var newPrefix = inspectionResult.EscapePrefix;
+        if (guessEscapePrefix)
+        {
+          try { Logger.Information("Checking Escape Prefix"); } catch { }
+          using var textReader = await stream
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .ConfigureAwait(false);
+          newPrefix = await textReader.InspectEscapePrefixAsync(
+              inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken)
+              .ConfigureAwait(false);
+        }
+
+        // --- Delimiter / Qualifier / NewLine ---
+        bool changedDelimiter = false;
+        bool changedFieldQualifier = false;
+        bool changedSkipRows = false;
+
+        if (guessQualifier || guessDelimiter || guessNewLine)
+        {
+          using var textReader = await stream
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .ConfigureAwait(false);
+
+          // Qualifier
+          if (guessQualifier)
+          {
+            cancellationToken.ThrowIfCancellationRequested();
+            try { Logger.Information("Checking Qualifier"); } catch { }
+            var qualifierResult = textReader.InspectQualifier(
+                inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
+                m_QualifiersToTest, cancellationToken);
+            changedFieldQualifier = inspectionResult.FieldQualifier != qualifierResult.QuoteChar;
+            inspectionResult.FieldQualifier = qualifierResult.QuoteChar;
+            inspectionResult.ContextSensitiveQualifier =
+                !(qualifierResult.DuplicateQualifier || qualifierResult.EscapedQualifier);
+            inspectionResult.DuplicateQualifierToEscape = qualifierResult.DuplicateQualifier;
+
+            if (inspectionResult.DuplicateQualifierToEscape)
+              newPrefix = char.MinValue;
+          }
+
+          // Delimiter
+          if (guessDelimiter)
+          {
+            cancellationToken.ThrowIfCancellationRequested();
+            try { Logger.Information("Checking Column Delimiter"); } catch { }
+            var delimiterResult = await textReader.InspectDelimiterAsync(
+                inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter,
+                cancellationToken).ConfigureAwait(false);
+            if (delimiterResult.MagicKeyword)
+              inspectionResult.SkipRows++;
+
+            changedDelimiter = inspectionResult.FieldDelimiter != delimiterResult.Delimiter;
+            inspectionResult.FieldDelimiter = delimiterResult.Delimiter;
+            inspectionResult.NoDelimitedFile = delimiterResult.IsDetected;
+          }
+
+          // NewLine
+          if (guessNewLine)
+          {
+            cancellationToken.ThrowIfCancellationRequested();
+            try { Logger.Information("Checking Record Delimiter"); } catch { }
+
+            stream.Seek(0, SeekOrigin.Begin);
+            inspectionResult.NewLine = textReader.InspectRecordDelimiter(
+                inspectionResult.FieldQualifier, cancellationToken);
+          }
+        }
+
+        inspectionResult.EscapePrefix = newPrefix;
+
+        // --- Retry conditions ---
+        if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && attempt < maxAttempts)
+          retry = true;
+
+        // --- StartRow Recheck ---
+        if (guessStartRow)
         {
           cancellationToken.ThrowIfCancellationRequested();
-          try { Logger.Information("Checking Column Delimiter"); } catch { }
-          var delimiterDet = await textReader.InspectDelimiterAsync(
-            inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter, cancellationToken).ConfigureAwait(false);
-          if (delimiterDet.MagicKeyword)
-            inspectionResult.SkipRows++;
+          try { Logger.Information("Checking Start line"); } catch { }
 
-          changedDelimiter = inspectionResult.FieldDelimiter != delimiterDet.Delimiter;
-          inspectionResult.FieldDelimiter = delimiterDet.Delimiter;
-          inspectionResult.NoDelimitedFile = delimiterDet.IsDetected;
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken)
+              .ConfigureAwait(false);
+          var newSkipRows = textReader.InspectStartRow(
+              inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
+              inspectionResult.CommentLine, cancellationToken);
+          changedSkipRows = inspectionResult.SkipRows != newSkipRows;
+          inspectionResult.SkipRows = newSkipRows;
         }
 
-        if (guessNewLine) // Dependent on SkipRows, FieldQualifier
+        if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
+            (changedSkipRows || (inspectionResult.EscapePrefix != newPrefix && newPrefix != '\0') ||
+             changedFieldQualifier) && attempt < maxAttempts)
         {
-          cancellationToken.ThrowIfCancellationRequested();
-          try { Logger.Information("Checking Record Delimiter"); } catch { }
-          stream.Seek(0, SeekOrigin.Begin);
-          inspectionResult.NewLine =
-            textReader.InspectRecordDelimiter(inspectionResult.FieldQualifier, cancellationToken);
+          retry = true;
         }
-      }
 
-      inspectionResult.EscapePrefix = newPrefix;
-
-      if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && tryCount < 5)
-      {
-        try { Logger.Information("Re-Checking: Field Delimiter or Field Qualifier changed"); } catch { }
-        goto retest;
-      }
-
-      if (guessStartRow)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Checking Start line"); } catch { }
-        // find start row again , with possibly changed FieldDelimiter
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken).ConfigureAwait(false);
-        var newSkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier,
-          inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
-        changedSkipRows = inspectionResult.SkipRows != newSkipRows;
-        inspectionResult.SkipRows = newSkipRows;
-      }
-
-      // If the new prefix is removed it is not regarded as changed
-      var changedEscapePrefix = (inspectionResult.EscapePrefix != newPrefix) && newPrefix != '\0';
-
-      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
-          (changedSkipRows || changedEscapePrefix || changedFieldQualifier) && tryCount < 5)
-      {
-        try { Logger.Information("Re-Checking: Skip Rows, Escape Prefix or Field Qualifier changed"); } catch { }
-        goto retest;
-      }
-
-      if (guessHasHeader)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Checking Header Row"); } catch { }
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream
-          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
-          .ConfigureAwait(false);
-        var ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter,
-          inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine,
-          cancellationToken).ConfigureAwait(false);
-        try
-        {
-          if (!string.IsNullOrEmpty(ret.message))
-            Logger.Warning(ret.message.HandleCrlfCombinations(", "));
-          Logger.Information(!ret.hasHeader ? $"Without Header" : "Has Header");
-        }
-        catch { }
-
-        inspectionResult.HasFieldHeader = ret.hasHeader;
-      }
-
-      if (!string.IsNullOrEmpty(inspectionResult.CommentLine) && !inspectionResult.NoDelimitedFile)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Validating comment line"); } catch { }
-#if NET5_0_OR_GREATER
-        await
-#endif
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows,
-          cancellationToken).ConfigureAwait(false);
-        if (!await textReader
-              .InspectLineCommentIsValidAsync(inspectionResult.CommentLine, inspectionResult.FieldDelimiter,
-                cancellationToken).ConfigureAwait(false))
-        {
-          inspectionResult.CommentLine = string.Empty;
-        }
-      }
+      } while (retry);
     }
 
     /// <summary>
@@ -707,7 +673,7 @@ CommentLine
         inspectionResult: new InspectionResult()
         {
           FileName = csvFile.FileName,
-          IdentifierInContainer = csvFile.IdentifierInContainer,          
+          IdentifierInContainer = csvFile.IdentifierInContainer,
           EscapePrefix = csvFile.EscapePrefixChar,
           FieldDelimiter = csvFile.FieldDelimiterChar,
           FieldQualifier = csvFile.FieldQualifierChar,
