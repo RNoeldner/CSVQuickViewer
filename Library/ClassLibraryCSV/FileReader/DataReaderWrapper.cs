@@ -37,8 +37,7 @@ namespace CsvTools
     /// Data Reader, that might be reset by overriding class <see cref="DataTableWrapper"/>
     /// </summary>
     protected IDataReader DataReader;
-
-    private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
+    private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
     private readonly IFileReader? m_FileReader;
     private readonly ReaderMapping m_ReaderMapping;
     private readonly long m_RecordLimit;
@@ -62,7 +61,6 @@ namespace CsvTools
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader can not be closed");
       RowErrorInformation = string.Empty;
-      m_ColumnErrorDictionary = new ColumnErrorDictionary(m_FileReader);
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       var sourceColumns = new List<Column>();
       for (var col = 0; col < reader.FieldCount; col++)
@@ -95,8 +93,8 @@ namespace CsvTools
     public override int Depth => FieldCount;
 
     /// <inheritdoc />
-    public void HandleReadFinished() => ReadFinished?.Invoke(this, EventArgs.Empty);
-
+    public void HandleReadFinished() =>  ReadFinished?.SafeInvoke(this);
+    
     /// <inheritdoc />
     public long EndLineNumber => m_FileReader?.EndLineNumber ?? RecordNumber;
 
@@ -322,9 +320,9 @@ namespace CsvTools
 
       var maxFld = values.Length;
       if (maxFld > FieldCount) maxFld = FieldCount;
-      
+
       // get ordinsl from mapped
-      
+
       for (var col = 0; col < maxFld; col++)
         values[col] = GetValue(m_ReaderMapping.ResultToSource(col));
 
@@ -352,9 +350,9 @@ namespace CsvTools
       if (m_FileReader == null)
       {
         OnOpenAsync?.Invoke();
-        ResetPositionToFirstDataRow();
-        OpenFinished?.Invoke(this, m_ReaderMapping.ResultingColumns);
-
+        ResetPositionToFirstDataRow();        
+        OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
+        
         return Task.CompletedTask;
       }
 
@@ -362,18 +360,8 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="IFileReader" />
-    public override bool Read()
-    {
-      if (EndOfFile)
-        return false;
-      if (DataReader.Read())
-      {
-        FinishRead();
-        return true;
-      }
+    public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-      return false;
-    }
 
     /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
@@ -385,7 +373,25 @@ namespace CsvTools
             ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
             : DataReader.Read())
       {
-        FinishRead();
+        RecordNumber++;
+
+        if (m_ReaderMapping.ColNumErrorFieldSource != -1)
+          RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
+            ? string.Empty
+            : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
+        else
+        {
+          RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
+            i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
+          m_ColumnErrorDictionary.Clear();
+        }
+        if (RowErrorInformation.Length>0)
+        {
+          if (RowErrorInformation.IsWarningMessage())
+            NumberRowWarnings++;
+          else
+            NumberRowError++;
+        }
         return true;
       }
 
@@ -403,56 +409,35 @@ namespace CsvTools
       NumberRowWarnings = 0;
     }
 
-    /// <summary>
-    /// Takes care of internal counters being updated
-    /// </summary>
-    private void FinishRead()
-    {
-      RecordNumber++;
-
-      if (m_ReaderMapping.ColNumErrorFieldSource != -1)
-        RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
-          ? string.Empty
-          : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
-      else
-      {
-        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
-          i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
-        m_ColumnErrorDictionary.Clear();
-      }
-
-      if (string.IsNullOrEmpty(RowErrorInformation))
-        return;
-
-      if (RowErrorInformation.IsWarningMessage())
-        NumberRowWarnings++;
-      else
-        NumberRowError++;
-
-      Warning?.Invoke(this,
-        new WarningEventArgs(RecordNumber, 0, RowErrorInformation, StartLineNumber, EndLineNumber, string.Empty));
-    }
-
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing)
-        m_FileReader?.Dispose();
+      if (disposing && m_FileReader!=null)
+      {
+        m_FileReader.Warning -= HandleSourceWarning;
+        m_FileReader.Dispose();
+      }
 
       base.Dispose(disposing);
     }
 
     /// <summary>
-    /// Handles the warnings raised in the source and adds them to the corresponding columns
+    /// Handles the warnings raised in the source and adds them to the corresponding columns if so to will be added to RowErrorInformation for the record
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="WarningEventArgs"/> instance containing the event data.</param>
     private void HandleSourceWarning(object? sender, WarningEventArgs e)
     {
       if (e.ColumnNumber < 0)
+      {
         m_ColumnErrorDictionary.Add(-1, e.Message);
-      if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
+        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));        
+      }
+      else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
+      {
         m_ColumnErrorDictionary.Add(ownColumnIndex, e.Message);
+        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));        
+      }
     }
   }
 }

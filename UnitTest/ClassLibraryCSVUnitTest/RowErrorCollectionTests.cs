@@ -25,60 +25,13 @@ namespace CsvTools.Tests
   public class RowErrorCollectionTests
   {
     [TestMethod]
-    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
-
-    [TestMethod]
-    public async Task HandleIgnoredColumns()
-    {
-      var coll = new RowErrorCollection(5);
-
-      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
-        true,
-        new[]
-        {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, ignore: true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 1)
-        }, TrimmingOptionEnum.Unquoted,
-        '\t',
-        '"',
-        char.MinValue,
-        0,
-        false,
-        false,
-        "",
-        0,
-        true,
-        "",
-        "",
-        "",
-        true,
-        false,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        false,
-        "NULL",
-        skipEmptyLines: true,
-        consecutiveEmptyRowsMax: 4,
-        identifierInContainer: string.Empty,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: System.TimeZoneInfo.Local.Id, true, true);
-      await reader.OpenAsync(CancellationToken.None);
-      coll.HandleIgnoredColumns(reader);
-
-      // An error i an ignored column is not stored
-      coll.Add(this, new WarningEventArgs(1, 0, "Message1", 100, 100, "ColName"));
-      Assert.AreEqual(0, coll.CountRows);
-    }
+    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection());
+   
 
     [TestMethod]
     public void Add()
     {
-      var coll = new RowErrorCollection(5);
+      var coll = new RowErrorCollection();
       coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
       Assert.AreEqual(1, coll.CountRows);
       coll.Add(this, new WarningEventArgs(2, 1, "Message1", 101, 101, "ColName"));
@@ -88,17 +41,13 @@ namespace CsvTools.Tests
       coll.Add(this, new WarningEventArgs(4, 1, "Message1", 103, 103, "ColName"));
       Assert.AreEqual(4, coll.CountRows);
       coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
-      Assert.AreEqual(5, coll.CountRows);
-
-      // This should be cut off
-      coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
-      Assert.AreEqual(5, coll.CountRows);
+      Assert.AreEqual(5, coll.CountRows);     
     }
 
     [TestMethod]
     public void Clear()
     {
-      var coll = new RowErrorCollection(5);
+      var coll = new RowErrorCollection();
       coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
       Assert.AreEqual(1, coll.CountRows);
       coll.Clear();
@@ -108,7 +57,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TryGetValue()
     {
-      var coll = new RowErrorCollection(5);
+      var coll = new RowErrorCollection();
       coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
       Assert.IsTrue(coll.TryGetValue(1, out _));
     }
@@ -116,7 +65,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DisplayByRecordNumber()
     {
-      var coll = new RowErrorCollection(5);
+      var coll = new RowErrorCollection();
       coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
       Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
     }

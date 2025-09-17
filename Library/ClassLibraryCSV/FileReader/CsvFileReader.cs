@@ -92,7 +92,8 @@ namespace CsvTools
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    private readonly StringBuilder m_RecordSource = new StringBuilder();
+    // this is cleared on every new row and only used when m_RealignColumns is set
+    private readonly StringBuilder m_RecordSource = new StringBuilder(100);
 
     private readonly bool m_SkipDuplicateHeader;
 
@@ -146,6 +147,10 @@ namespace CsvTools
 
     private ushort m_NumWarningsUnknownChar;
 
+    /// <summary>
+    /// The class that might realign columns, this is only used if the option to realign columns is set
+    /// it will keep track of a limited number of known to be good rows and try to realign rows 
+    /// </summary>
     private ReAlignColumns? m_RealignColumns;
 
     /// <summary>
@@ -828,7 +833,7 @@ namespace CsvTools
 
         EndOfFile = true;
         return false;
-      }
+      }      
     }
 
     /// <summary>
@@ -1167,7 +1172,6 @@ namespace CsvTools
         ? columnText.Trim()
         : columnText;
     }
-    private int m_RecordsSinceLastCheck;
 
     /// <summary>
     ///   Reads the record of the CSV file, this can span over multiple lines
@@ -1188,7 +1192,7 @@ namespace CsvTools
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
         if (m_RealignColumns != null)
-          m_RecordSource.Length = 0;
+          m_RecordSource.Clear();
 
         // If already at end of file, return null
         if (EndOfFile || m_TextReader is null)
@@ -1247,7 +1251,7 @@ namespace CsvTools
         item = ReadNextColumn(col);
       }
 
-      return columns.ToArray();
+      return ToArray(columns);
     }
 
     /// <summary>

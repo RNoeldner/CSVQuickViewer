@@ -33,9 +33,9 @@
 	  </Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.10.3" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.10.3" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.10.3" />
+		<PackageReference Include="MSTest" Version="3.10.4" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />

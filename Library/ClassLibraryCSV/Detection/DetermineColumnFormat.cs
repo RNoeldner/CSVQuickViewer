@@ -1087,7 +1087,11 @@ namespace CsvTools
       public SampleResult(IEnumerable<string> items, int records)
       {
         RecordsRead = records;
-        var random = new Random(Guid.NewGuid().GetHashCode());
+#if NET6_0_OR_GREATER
+    var random =  Random.Shared;
+#else
+        var random = new Random(Environment.TickCount);
+#endif
         var valueList = new List<ReadOnlyMemory<char>>();
         foreach (var item in items)
           valueList.Insert(random.Next(0, valueList.Count + 1), item.AsMemory());

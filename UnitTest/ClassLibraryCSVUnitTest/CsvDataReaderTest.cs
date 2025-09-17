@@ -114,9 +114,9 @@ namespace CsvTools.Tests
           new Column("webLink", new ValueFormat(DataTypeEnum.TextToHtml)),
         }, treatLinefeedAsSpace: true, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t',
         fieldQualifierChar: char.MinValue);
-      var warningList = new RowErrorCollection(test);
+      var warningList = new RowErrorCollection();
       await test.OpenAsync(UnitTestStatic.Token);
-      warningList.HandleIgnoredColumns(test);
+      test.Warning += warningList.Add;
       // need 22 columns
       Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
@@ -1273,18 +1273,18 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, test.GetInt16(0));
     }
 
-    [TestMethod]
-    public async Task CsvDataReaderInitWarnings()
-    {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), hasFieldHeader: false, skipRows: 1, fieldDelimiterChar: ',', fieldQualifierChar: 'x');
-      var warningList = new RowErrorCollection(test);
-      await test.OpenAsync(UnitTestStatic.Token);
-      warningList.HandleIgnoredColumns(test);
-      // This is now check in the constructr, butr the constructor does not habe the error handling
-      // set Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used
-      // for quoting.")); Assert.IsTrue(warningList.Display.Contains("Only the first character of
-      // ',,' is used as delimiter."));
-    }
+    //[TestMethod]
+    //public async Task CsvDataReaderInitWarnings()
+    //{
+    //  using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), hasFieldHeader: false, skipRows: 1, fieldDelimiterChar: ',', fieldQualifierChar: 'x');
+    //  var warningList = new RowErrorCollection(test);
+    //  await test.OpenAsync(UnitTestStatic.Token);
+    //  warningList.HandleIgnoredColumns(test);
+    //  // This is now check in the constructr, butr the constructor does not habe the error handling
+    //  // set Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used
+    //  // for quoting.")); Assert.IsTrue(warningList.Display.Contains("Only the first character of
+    //  // ',,' is used as delimiter."));
+    //}
 
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterCr()

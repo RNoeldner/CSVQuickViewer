@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     {
       m_Visible = !m_Visible;
       m_Disposed = true;
-      ProgressStopEvent?.Invoke(this, null);
+      ProgressStopEvent?.SafeInvoke(this);
     }
 
   }
