@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -78,43 +79,93 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifierAsync(
-      this Stream stream,
-      int codePageId,
-      int skipRows,
-      char fieldDelimiterChar,
-      char fieldQualifierChar,
-      CancellationToken cancellationToken)
+         this Stream stream,
+         int codePageId,
+         int skipRows,
+         char fieldDelimiterChar,
+         char fieldQualifierChar,
+         CancellationToken cancellationToken)
     {
-      // if we do not have a quote defined it does not matter
       if (fieldQualifierChar == char.MinValue || cancellationToken.IsCancellationRequested)
         return false;
 
       using var streamReader =
-        await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
-      var isStartOfColumn = true;
-      while (!streamReader.EndOfStream)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          return false;
-        var c = (char) streamReader.Read();
-        if (c == '\r' || c == '\n' || c == fieldDelimiterChar)
-        {
-          isStartOfColumn = true;
-          continue;
-        }
+          await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
 
-        // if we are not at the start of a column we can get the next char
-        if (!isStartOfColumn)
-          continue;
-        // If we are at the start of a column and this is a ", we can stop, this is a real qualifier
-        if (c == fieldQualifierChar)
-          return true;
-        // Any non whitespace will start a column
-        isStartOfColumn = c != '\t' && CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.SpaceSeparator;
+      const int bufferSize = 4096;
+      char[] buffer = ArrayPool<char>.Shared.Rent(bufferSize);
+
+      try
+      {
+        bool isStartOfColumn = true;
+        char lastChar = '\0'; // carry across buffer boundaries
+
+        while (true)
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          int charsRead = await streamReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+          if (charsRead == 0)
+            break;
+
+          for (int i = 0; i < charsRead; i++)
+          {
+            char c = buffer[i];
+
+            // Handle line breaks robustly (\r, \n, \r\n, \n\r)
+            if (c == '\r' || c == '\n')
+            {
+              // only count new line if not part of pair
+              if (!((c == '\n' && lastChar == '\r') || (c == '\r' && lastChar == '\n')))
+              {
+                isStartOfColumn = true;
+              }
+
+              lastChar = c;
+              continue;
+            }
+
+            // Field delimiter → start of next column
+            if (c == fieldDelimiterChar)
+            {
+              isStartOfColumn = true;
+              lastChar = c;
+              continue;
+            }
+
+            if (!isStartOfColumn)
+            {
+              lastChar = c;
+              continue;
+            }
+
+            // Qualifier at start of column → success
+            if (c == fieldQualifierChar)
+              return true;
+
+            // Whitespace handling (avoid expensive UnicodeCategory when possible)
+            if (c == '\t' || c == ' ')
+            {
+              isStartOfColumn = true;
+            }
+            else
+            {
+              isStartOfColumn = !char.IsWhiteSpace(c);
+            }
+
+            lastChar = c;
+          }
+        }
+      }
+      finally
+      {
+        ArrayPool<char>.Shared.Return(buffer);
       }
 
       return false;
     }
+
+
 
     /// <summary>
     /// Determine a score for a quote between 0 and 99 in addition it determines if we have escaped quotes and duplicate quotes

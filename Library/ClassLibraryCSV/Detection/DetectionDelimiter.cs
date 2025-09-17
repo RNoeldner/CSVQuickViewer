@@ -12,6 +12,7 @@
  *
  */
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -77,7 +78,7 @@ namespace CsvTools
       if (textReader.CanSeek)
       {
         // Read the first line and check if it does contain the magic word sep=
-        firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
+        firstLine = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).Trim().Replace(" ", "");
         if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
         {
           var resultFl = firstLine.Substring(4);
@@ -90,7 +91,7 @@ namespace CsvTools
         textReader.ToBeginning();
       }
 
-      var delimiterCounter = textReader.GetDelimiterCounter(fieldQualifierChar, escapePrefixChar, 300, disallowedDelimiter, cancellationToken);
+      var delimiterCounter = await textReader.GetDelimiterCounterAsync(fieldQualifierChar, escapePrefixChar, 300, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
       var numberOfRows = delimiterCounter.FilledRows;
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
@@ -101,7 +102,7 @@ namespace CsvTools
         neededRows++;
 
       cancellationToken.ThrowIfCancellationRequested();
-      var validSeparatorIndex = new List<int>();
+      var validSeparatorIndex = new List<int>(delimiterCounter.Separators.Length);
       for (var index = 0; index < delimiterCounter.Separators.Length; index++)
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
@@ -169,11 +170,7 @@ namespace CsvTools
           {
             if (delimiterCounter.SeparatorsCount[index, row] == avg || delimiterCounter.SeparatorsCount[index, row] == 0)
               continue;
-
-            if (delimiterCounter.SeparatorsCount[index, row] > avg)
-              variance += delimiterCounter.SeparatorsCount[index, row] - avg;
-            else
-              variance += avg - delimiterCounter.SeparatorsCount[index, row];
+            variance += Math.Abs(delimiterCounter.SeparatorsCount[index, row] - avg);
           }
 
           // now waith the variance as well, if avg is high the variance is less important            
@@ -204,11 +201,21 @@ namespace CsvTools
         }
 
         if (sums.Count!= 0)
-          // get the best result by variance first then if equal by number of records
-          match  =  delimiterCounter.Separators[sums
-                          .OrderBy(x => x.Value)  // variance : low value means and even distribution
-                          .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]) // larger its better
-                          .First().Key];
+        {
+          int bestIndex = -1;
+          long bestVariance = long.MaxValue;
+          int bestScore = int.MinValue;
+          foreach (var kv in sums)
+          {
+            if (kv.Value < bestVariance || (kv.Value == bestVariance && delimiterCounter.SeparatorScore[kv.Key] > bestScore))
+            {
+              bestIndex = kv.Key;
+              bestVariance = kv.Value;
+              bestScore = delimiterCounter.SeparatorScore[kv.Key];
+            }
+          }
+          match = delimiterCounter.Separators[bestIndex];
+        }
       }
 
       if (match == char.MinValue)
@@ -220,6 +227,7 @@ namespace CsvTools
       Logger.Information($"Column Delimiter: {match.Text()}");
       return new DelimiterDetection(match, true, false);
     }
+
 
     /// <summary>Counts the delimiters in DelimiterCounter</summary>
     /// <param name="textReader">The text reader to read the data</param>
@@ -233,53 +241,132 @@ namespace CsvTools
     ///   A <see cref="DelimiterCounter" /> with the information on delimiters
     /// </returns>
     /// <exception cref="System.ArgumentNullException">textReader</exception>
-    private static DelimiterCounter GetDelimiterCounter(
-      this ImprovedTextReader textReader,
-      char quoteCharacter,
-      char escapeCharacter,
-      int numRows,
-      IEnumerable<char> disallowedDelimiter,
-      CancellationToken cancellationToken)
+
+    private static async Task<DelimiterCounter> GetDelimiterCounterAsync(
+        this ImprovedTextReader textReader,
+        char quoteCharacter,
+        char escapeCharacter,
+        int numRows,
+        IEnumerable<char> disallowedDelimiter,
+        CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
+
       var dc = new DelimiterCounter(numRows, disallowedDelimiter, quoteCharacter);
 
-      var quoted = false;
-      char readChar = ' ';
-      var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
-      {
-        var lastChar = readChar;
-        readChar = (char) textReader.Read();
-        if (lastChar == escapeCharacter)
-          continue;
-        if (readChar == quoteCharacter)
-        {
-          if (quoted)
-          {
-            if (textReader.Peek() == quoteCharacter)
-              textReader.MoveNext();
-            else
-              quoted = false;
-          }
-          else
-            quoted = true;
-        }
-        if (quoted)
-          continue;
+      const int bufferSize = 4096;
+      char[] buffer = ArrayPool<char>.Shared.Rent(bufferSize);
 
-        if (readChar == '\n' || readChar == '\r')
+      try
+      {
+        bool quoted = false;
+        char lastChar = ' ';
+        bool pendingQuoteCheck = false; // new flag
+
+        while (dc.LastRow < dc.NumRows && !cancellationToken.IsCancellationRequested)
         {
-          if (readChar == '\n' && lastChar != '\r' ||
-              readChar == '\r' && lastChar != '\n')
-            dc.LastRow++;
+          int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+          if (charsRead == 0)
+            break;
+
+          int i = 0;
+
+          // Handle pending quote from previous buffer
+          if (pendingQuoteCheck)
+          {
+            if (buffer[0] == quoteCharacter)
+            {
+              // Escaped quote "" -> skip it
+              i = 1;
+            }
+            else
+            {
+              // It was actually a closing quote
+              quoted = false;
+            }
+
+            pendingQuoteCheck = false;
+          }
+
+          for (; i < charsRead; i++)
+          {
+            char readChar = buffer[i];
+
+            // Skip escaped characters
+            if (lastChar == escapeCharacter)
+            {
+              lastChar = readChar;
+              continue;
+            }
+
+            // Handle quoting
+            if (readChar == quoteCharacter)
+            {
+              if (quoted)
+              {
+                if (i + 1 < charsRead)
+                {
+                  if (buffer[i + 1] == quoteCharacter)
+                  {
+                    i++; // skip escaped quote
+                  }
+                  else
+                  {
+                    quoted = false; // closing quote
+                  }
+                }
+                else
+                {
+                  // The last char in the buffer is a quote,
+                  // need to check next buffer
+                  pendingQuoteCheck = true;
+                }
+              }
+              else
+              {
+                quoted = true;
+              }
+
+              lastChar = readChar;
+              continue;
+            }
+
+            if (quoted)
+            {
+              lastChar = readChar;
+              continue;
+            }
+
+            // Row ending
+            if (readChar == '\n' || readChar == '\r')
+            {
+              if ((readChar == '\n' && lastChar != '\r') ||
+                  (readChar == '\r' && lastChar != '\n'))
+              {
+                dc.LastRow++;
+                if (dc.LastRow >= dc.NumRows)
+                  return dc; // early exit
+              }
+            }
+            else
+            {
+              dc.CheckChar(readChar, lastChar);
+            }
+
+            lastChar = readChar;
+          }
         }
-        else
-          dc.CheckChar(readChar, lastChar);
+
+        return dc;
       }
-      return dc;
+      finally
+      {
+        ArrayPool<char>.Shared.Return(buffer);
+      }
     }
+
+
 
     /// <summary>
     /// Result for Delimiter Detection

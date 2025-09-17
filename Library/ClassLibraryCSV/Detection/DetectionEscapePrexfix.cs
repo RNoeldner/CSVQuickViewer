@@ -58,7 +58,7 @@ namespace CsvTools
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       for (int current = 0; current< 500 && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested; current++)
       {
-        var line = (await textReader.ReadLineAsync().ConfigureAwait(false));
+        var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false));
         // in case none of the possible escapes is in the line skip it...
         if (line.IndexOfAny(checkedEscapeChars)==-1)
           continue;

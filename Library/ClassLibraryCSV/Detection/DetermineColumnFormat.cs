@@ -205,16 +205,15 @@ namespace CsvTools
         columnCollection.Add(readerColumn);
       }
 
+      cancellationToken.ThrowIfCancellationRequested();
+
       // Start Guessing
       var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
       foreach (var colIndex in sampleList.Keys)
       {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var readerColumn = fileReader.GetColumn(colIndex);
         var samples = sampleList[colIndex];
-
-        cancellationToken.ThrowIfCancellationRequested();
+        
         if (samples.Values.Count == 0)
         {
           try
@@ -325,8 +324,7 @@ namespace CsvTools
       // not distinguish between double and integer.
       if (checkDoubleToBeInteger)
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        {
-          cancellationToken.ThrowIfCancellationRequested();
+        {          
           var readerColumn = fileReader.GetColumn(colIndex);
 
           if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
@@ -371,6 +369,7 @@ namespace CsvTools
           }
         }
 
+      cancellationToken.ThrowIfCancellationRequested();
       if (fillGuessSettings.DateParts)
       {
         // Case a)
@@ -378,7 +377,6 @@ namespace CsvTools
         // a TimeFormat has already been recognized
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          cancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
           if (colIndexSetting == -1) continue;
@@ -451,7 +449,6 @@ namespace CsvTools
         // adjacent fields
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          cancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
 
@@ -886,7 +883,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the value format.
+    ///   Attempts to infer the most likely value format (Boolean, Guid, Numeric, DateTime, etc.) from a collection of sample strings.
     /// </summary>
     /// <param name="samples">The samples.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
@@ -898,13 +895,14 @@ namespace CsvTools
     /// <param name="guessDateTime">Try to determine if it is a date time</param>
     /// <param name="guessPercentage">Accept percentage values</param>
     /// <param name="serialDateTime">Allow serial Date time</param>
-    /// <param name="removeCurrencySymbols"></param>
+    /// <param name="removeCurrencySymbols">"If true, currency symbols will be ignored during numeric detection</param>
     /// <param name="othersValueFormatDate">
     ///   The date format found in prior columns, assuming the data format is the same in other
     ///   columns, we do not need that many samples
     /// </param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
+    /// <exception cref="OperationCanceledException">If cancellation is requested.</exception>
     public static CheckResult GuessValueFormat(IReadOnlyCollection<ReadOnlyMemory<char>> samples,
       int minRequiredSamples,
       ReadOnlySpan<char> trueValue,
@@ -992,7 +990,7 @@ namespace CsvTools
 
       cancellationToken.ThrowIfCancellationRequested();
 
-      // if we have less than the required samples values do not try and try to get a type
+      // Skip type inference if not enough samples
       if (samples.Count >= minRequiredSamples)
       {
         // Guess a date format that could be interpreted as number before testing numbers
@@ -1053,13 +1051,13 @@ namespace CsvTools
           return checkResult;
         }
       }
-
-      cancellationToken.ThrowIfCancellationRequested();
-
+      
       // if we have dates and allow serial dates, but do not guess numeric (this would be a fit) try
       // if the dates are all serial
       if (!guessDateTime || !serialDateTime || guessNumeric)
         return checkResult;
+
+      cancellationToken.ThrowIfCancellationRequested();
 
       // ReSharper disable once InvertIf
       if (samples.Count >= minRequiredSamples)
