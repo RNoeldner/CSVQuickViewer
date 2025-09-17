@@ -1167,6 +1167,7 @@ namespace CsvTools
         ? columnText.Trim()
         : columnText;
     }
+    private int m_RecordsSinceLastCheck;
 
     /// <summary>
     ///   Reads the record of the CSV file, this can span over multiple lines
