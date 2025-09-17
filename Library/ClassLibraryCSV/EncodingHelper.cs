@@ -14,6 +14,7 @@
 
 #nullable enable
 
+using System;
 using System.Text;
 using UtfUnknown;
 
@@ -94,6 +95,43 @@ namespace CsvTools
         default:
           return Encoding.GetEncoding(codePage);
       }
+    }
+
+    /// <summary>Gets the code page by byte order mark.</summary>
+    /// <param name="buffer">A character span.</param>    
+    /// <returns>The Code page id if, if the code page could not be identified 0</returns>
+    public static Encoding? GetEncodingByByteOrderMark(ReadOnlySpan<byte> buffer)
+    {
+      if (buffer.Length < 2)
+        return null;
+
+      // Check 4-byte BOMs first
+      if (buffer.Length >= 4)
+      {
+        if (buffer[0] == 0x00 && buffer[1] == 0x00 && buffer[2] == 0xFE && buffer[3] == 0xFF)
+          return Encoding.GetEncoding(12001); // UTF-32 BE
+        if (buffer[0] == 0xFF && buffer[1] == 0xFE && buffer[2] == 0x00 && buffer[3] == 0x00)
+          return Encoding.UTF32; // UTF-32 LE
+        if (buffer[0] == 0x84 && buffer[1] == 0x31 && buffer[2] == 0x95 && buffer[3] == 0x33)
+          return Encoding.GetEncoding(54936); // GB18030
+        if (buffer[0] == 0x2B && buffer[1] == 0x2F && buffer[2] == 0x76
+            && (buffer[3] == 0x38 || buffer[3] == 0x39 || buffer[3] == 0x2B || buffer[3] == 0x2F))
+#pragma warning disable SYSLIB0001
+          return Encoding.UTF7;
+#pragma warning restore SYSLIB0001
+      }
+
+      // Check 3-byte BOMs
+      if (buffer.Length >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
+        return Encoding.UTF8;
+
+      // Check 2-byte BOMs
+      if (buffer[0] == 0xFE && buffer[1] == 0xFF)
+        return Encoding.BigEndianUnicode;
+      if (buffer[0] == 0xFF && buffer[1] == 0xFE)
+        return Encoding.Unicode;
+
+      return null;
     }
 
     /// <summary>Gets the code page by byte order mark.</summary>

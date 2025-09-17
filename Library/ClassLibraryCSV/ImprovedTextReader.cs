@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
   /// <summary>
-  ///   Wrapper around a TestReader that handles BOM and Encoding and a has a method called
-  ///   ToBeginning to reset to the reader to the start of the stream
+  ///   Wrapper around a TextReader that handles BOM, encoding, and skipped lines.
+  ///   Provides a method <see cref="ToBeginning"/> to reset the reader to the start of the stream.
   /// </summary>
   public sealed class ImprovedTextReader : DisposableBase
   {
@@ -22,9 +22,10 @@ namespace CsvTools
     /// </summary>
     private const char cLf = (char) 0x0a;
 
-    private readonly int m_BomLength;
-    private readonly Stream m_Stream;
+    private readonly int m_BomLength = 0;
     private readonly int m_SkipLines;
+    private readonly Stream m_Stream;
+    private bool m_LastCharWasCR = false;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -50,7 +51,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
-        Logger.Warning("Code page {0} not supported, using UTF8", codePageId);
+        Logger.Warning("Code page {codePageId} not supported, using UTF8", codePageId);
         codePageId = Encoding.UTF8.CodePage;
       }
 
@@ -60,26 +61,18 @@ namespace CsvTools
         if (m_Stream.Position != 0L)
           m_Stream.Seek(0, SeekOrigin.Begin);
 
-        // Space for 4 BOM bytes
-        var buff = new byte[4];
+        // Space for 4 BOM bytes     
+#if NET6_0_OR_GREATER
+        Span<byte> bomBuffer = stackalloc byte[4];
+        int bytesRead = m_Stream.Read(bomBuffer); // read up to 4 bytes
 
-        // read only 2 to start
-        _ = m_Stream.Read(buff, 0, 2);
-        var intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 2);
-        // unfortunately Encoding.Unicode can not be determined by only 2 bytes as UTF-32 starts
-        // with the same BOM
-        if (intEncodingByBom is null || intEncodingByBom.Equals(Encoding.Unicode))
-        {
-          // read the 3th byte
-          _ = m_Stream.Read(buff, 2, 1);
-          intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 3);
-          if (intEncodingByBom is null || intEncodingByBom.Equals(Encoding.Unicode))
-          {
-            // read the 4th byte
-            _ = m_Stream.Read(buff, 3, 1);
-            intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
-          }
-        }
+        var intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(bomBuffer.Slice(0, bytesRead));
+#else
+        var bomBuffer = new byte[4];
+        int bytesRead = m_Stream.Read(bomBuffer, 0, 4); // read up to 4 bytes
+
+        var intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(bomBuffer, bytesRead);
+#endif
 
         if (intEncodingByBom != null)
         {
@@ -96,16 +89,16 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets a value indicating whether the current stream supports seeking.
+    /// </summary>
+    /// <returns><c>true</c> if the stream supports seeking; otherwise, false.</returns>
+    public bool CanSeek => m_Stream.CanSeek;
+
+    /// <summary>
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
     public bool EndOfStream => StreamReader.EndOfStream;
-
-    /// <summary>
-    ///   Closes the <see cref="ImprovedTextReader" /> and the underlying stream, and releases any
-    ///   system resources associated with the reader.
-    /// </summary>
-    public void Close() => StreamReader.Close();
 
     /// <summary>
     /// The line number in the current file
@@ -122,6 +115,16 @@ namespace CsvTools
     /// <value>The stream reader.</value>
     private StreamReader StreamReader { get; }
 
+    /// <summary>
+    ///   Closes the <see cref="ImprovedTextReader" /> and the underlying stream, and releases any
+    ///   system resources associated with the reader.
+    /// </summary>
+    public void Close()
+    {
+      // Dispose the StreamReader, but leave the underlying stream open
+      StreamReader.Dispose();
+      LineNumber = 0;
+    }
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
     ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
@@ -155,11 +158,40 @@ namespace CsvTools
     /// </remarks>
     public int Read()
     {
-      var character = StreamReader.Read();
-      if (character == cLf || character == cCr)
-        LineNumber++;
+      while (true)
+      {
+        int ch = StreamReader.Read();
+        if (ch == -1)
+        {
+          m_LastCharWasCR = false;
+          return -1;
+        }
 
-      return character;
+        char c = (char) ch;
+
+        if (m_LastCharWasCR && c == cLf)
+        {
+          m_LastCharWasCR = false;
+          continue; // skip LF
+        }
+
+        m_LastCharWasCR = (c == cCr);
+        if (c == cCr || c == cLf)
+          LineNumber++;
+
+        return ch;
+      }
+    }
+
+
+    /// <inheritdoc cref="TextReader" />
+    [Obsolete("Better use ReadLineAsync ")]
+    public string ReadLine()
+    {
+      var line = StreamReader.ReadLine();
+      if (line is not null)
+        LineNumber++;
+      return line ?? string.Empty;
     }
 
     /// <summary>
@@ -177,25 +209,51 @@ namespace CsvTools
     /// <exception cref="InvalidOperationException">
     ///   The reader is currently in use by a previous read operation.
     /// </exception>
-    /// <remarks>CR,LF,CRLF will end the line, LFCR is not supported</remarks>
-    public async Task<string> ReadLineAsync()
+    /// <remarks>CR,LF,CRLF will end the line, LFCR is not supported
+    /// LFCR  is treated as two line breaks, which is uncommon but can occur in some legacy files</remarks>
+    public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
     {
-      LineNumber++;
-      return await StreamReader.ReadLineAsync().ConfigureAwait(false) ?? string.Empty;
+#if NET6_0_OR_GREATER
+      var line = await StreamReader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+#else
+      var line = await StreamReader.ReadLineAsync().ConfigureAwait(false);
+#endif
+      if (line is not null)
+        LineNumber++;
+      return line ?? string.Empty;
     }
 
-    /// <inheritdoc cref="TextReader" />
-    [Obsolete("Better use ReadLineAsync ")]
-    public string ReadLine()
+    /// <summary>
+    ///  Reads a block of characters from the text reader and writes the data to a buffer, beginning at the specified index.
+    ///  This does not keep track of the line number
+    /// </summary>
+    /// <param name="readBuffer">Usage like Memory<char> buffer = new char[128] or ArrayPool<char>.Shared.Rent(4096)</param>
+    /// <returns>Number of read chars</returns>
+#if NET6_0_OR_GREATER
+   
+    public ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
+     => StreamReader.ReadBlockAsync(buffer, cancellationToken);
+#else
+    public async ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
     {
-      LineNumber++;
-      return StreamReader.ReadLine() ?? string.Empty;
+      char[] temp = System.Buffers.ArrayPool<char>.Shared.Rent(buffer.Length);
+      try
+      {
+        int read = await StreamReader.ReadBlockAsync(temp, 0, buffer.Length).ConfigureAwait(false);
+        new Span<char>(temp, 0, read).CopyTo(buffer.Span);
+        return read;
+      }
+      finally
+      {
+        System.Buffers.ArrayPool<char>.Shared.Return(temp);
+      }
     }
+#endif
 
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
     ///   scratch This is fast in case the text fitted into the buffer or the underlying stream
-    ///   supports seeking. In case this is not that cae it does reopen the text reader
+    ///   supports seeking. In case this is not that case it does reopen the text reader
     /// </summary>
     public void ToBeginning()
     {
@@ -207,12 +265,26 @@ namespace CsvTools
         m_Stream.Seek(0, SeekOrigin.Begin);
         // eat the bom
         if (m_BomLength > 0 && m_Stream.CanRead)
-          // ReSharper disable once MustUseReturnValue
-          m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+        {
+#if NET6_0_OR_GREATER
+          Span<byte> bom = stackalloc byte[m_BomLength];
+          _ = m_Stream.Read(bom);
+#else
+          byte[] bom = new byte[m_BomLength];
+          _ = m_Stream.Read(bom, 0, m_BomLength);
+#endif
+        }
         StreamReader.DiscardBufferedData();
       }
 
       AdjustStartLine();
+    }
+
+    /// <inheritdoc cref="IDisposable" />
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+        StreamReader.Dispose();
     }
 
     private void AdjustStartLine()
@@ -223,19 +295,6 @@ namespace CsvTools
         StreamReader.ReadLine();
         LineNumber++;
       }
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the current stream supports seeking.
-    /// </summary>
-    /// <returns><c>true</c> if the stream supports seeking; otherwise, false.</returns>
-    public bool CanSeek => m_Stream.CanSeek;
-
-    /// <inheritdoc cref="IDisposable" />
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-        StreamReader.Dispose();
     }
   }
 }
