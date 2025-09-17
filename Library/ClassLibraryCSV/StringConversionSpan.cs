@@ -99,7 +99,7 @@ namespace CsvTools
             break;
           }
           case DateTime timeValue:
-            timeSpanValue = new TimeSpan(0, timeValue.Hour, timeValue.Minute, timeValue.Second, timeValue.Millisecond);
+            timeSpanValue = timeValue.TimeOfDay;
             break;
 
           case TimeSpan span:
@@ -119,8 +119,7 @@ namespace CsvTools
 
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
       // proper formatted value
-      if (dateValue == DateTimeConstants.FirstDateTime && (dateColumnText.IsEmpty || dateColumnText.Length == 0
-                                                         || !dateColumnText.Equals(
+      if (dateValue == DateTimeConstants.FirstDateTime && (dateColumnText.IsEmpty || !dateColumnText.Equals(
                                                            DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat)
                                                              .AsSpan(), StringComparison.Ordinal)))
         return null;
@@ -483,14 +482,14 @@ namespace CsvTools
            numberFormatProvider.NumberNegativePattern <= 3;
            numberFormatProvider.NumberNegativePattern++)
       {
-        // Try to convert this value to a decimal value. 
-        if (!decimal.TryParse(
+        if (!
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-              text
+// Span overload exists
+decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result)
 #else
-              text.ToString()
+        decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result)
 #endif
-              , NumberStyles.Number, numberFormatProvider, out var result))
+        )       
           continue;
 
         // If this works, exit
@@ -509,17 +508,18 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The original value.</param>
     /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static Guid? StringToGuid(
-      this ReadOnlySpan<char> text)
+    public static Guid? StringToGuid(this ReadOnlySpan<char> text)
     {
-      if (Guid.TryParse(
+      if (text.IsEmpty)
+        return null;
+
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-              text
-#else
-            text.ToString()
-#endif
-            , out var result))
+    if (Guid.TryParse(text, out var result))
         return result;
+#else
+      if (Guid.TryParse(text.ToString(), out var result))
+        return result;
+#endif
       return null;
     }
 
@@ -531,24 +531,21 @@ namespace CsvTools
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static short? StringToInt16(
-      this ReadOnlySpan<char> text,
-      char decimalSeparatorChar,
-      char thousandSeparatorChar)
+    this ReadOnlySpan<char> text,
+    char decimalSeparatorChar,
+    char thousandSeparatorChar)
     {
       if (text.IsEmpty)
         return null;
-      try
-      {
-        var dec = StringToDecimal(text, decimalSeparatorChar, thousandSeparatorChar, false, false);
-        if (dec.HasValue)
-          return Convert.ToInt16(dec.Value, CultureInfo.InvariantCulture);
-      }
-      catch (OverflowException)
-      {
-        // The numerical value could not be converted to an integer
-      }
 
-      return null;
+      var dec = StringToDecimal(text, decimalSeparatorChar, thousandSeparatorChar, false, false);
+      if (!dec.HasValue)
+        return null;
+
+      if (dec.Value < short.MinValue || dec.Value > short.MaxValue)
+        return null;
+
+      return (short) dec.Value;
     }
 
     /// <summary>

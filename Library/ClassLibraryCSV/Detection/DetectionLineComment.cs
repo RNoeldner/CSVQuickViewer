@@ -48,7 +48,7 @@ namespace CsvTools
       var partsComment = -1;
       while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
-        var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
+        var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).TrimStart();
         if (string.IsNullOrEmpty(line))
           continue;
 
@@ -99,7 +99,7 @@ namespace CsvTools
       textReader.ToBeginning();
       for (int current = 0; current<50 && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested; current++)
       {
-        var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
+        var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).TrimStart();
         if (line.Length == 0)
           continue;
         foreach (var test in starts.Keys.Where(test => line.StartsWith(test, StringComparison.Ordinal)))

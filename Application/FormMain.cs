@@ -150,7 +150,7 @@ namespace CsvTools
 #endif
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
             for (var i = 0; i < m_FileSetting.SkipRows; i++)
-              skippedLines.AppendLine(await sr.ReadLineAsync());
+              skippedLines.AppendLine(await sr.ReadLineAsync(ct));
           }
 
           using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), ct);

@@ -273,7 +273,7 @@ namespace CsvTools
       var headerLine = string.Empty;
       while (string.IsNullOrEmpty(headerLine) && !reader.EndOfStream)
       {
-        headerLine = await reader.ReadLineAsync().ConfigureAwait(false);
+        headerLine = await reader.ReadLineAsync(CancellationToken.None).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(commentLine) && headerLine.TrimStart().StartsWith(commentLine, StringComparison.Ordinal))
           headerLine = string.Empty;
       }

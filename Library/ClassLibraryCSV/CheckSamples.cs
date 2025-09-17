@@ -11,9 +11,8 @@ namespace CsvTools
   public static class CheckTexts
   {
     /// <summary>
-    ///   Taking a collection of text values, tries parsing them as dates in the provided format, 
-    ///   and returns information on which succeeded or failed to help the caller determine if 
-    ///   the texts likely contain dates in that format.
+    ///   Attempts to parse a collection of text values as dates using the specified format,
+    ///   returning information on which values matched or failed.
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="shortDateFormat">The short date format.</param>
@@ -32,9 +31,7 @@ namespace CsvTools
       var allParsed = true;
       var counter = 0;
       var positiveMatches = 0;
-      var threshHoldPossible = 5;
-      if (samples.Count() < threshHoldPossible)
-        threshHoldPossible = samples.Count() - 1;
+      var threshHoldPossible = Math.Max(1, Math.Min(5, samples.Count));
 
       foreach (var value in samples)
       {
@@ -42,11 +39,11 @@ namespace CsvTools
           break;
 
         counter++;
-        var ret = value.Span.StringToDateTimeExact(shortDateFormat, dateSeparator, timeSeparator, culture);
-        if (!ret.HasValue)
+        var parsedDate = value.Span.StringToDateTimeExact(shortDateFormat, dateSeparator, timeSeparator, culture);
+        if (!parsedDate.HasValue)
         {
           allParsed = false;
-          checkResult.AddNonMatch(value.ToString());
+          checkResult.AddNonMatch(value.Span.ToString());
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 5)
             break;
@@ -167,16 +164,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the samples values are dates, times or serial dates
+    ///   Checks if the sample values can be interpreted as serial dates.
+    ///   Returns a CheckResult indicating the success or possible matches.
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="isCloseToNow">
-    ///   Only assume the number is a serial date if the resulting date is around the current date
-    ///   (-80 +20 years)
-    /// </param>
-    /// ///
+    ///   If true, only numbers that produce dates within ~80 years past to 20 years future relative to today are considered valid.    
+    /// </param>    
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
+    /// <returns>A CheckResult indicating whether all samples could be interpreted as serial dates,
+    /// and any possible matches found.</returns>
     public static CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow,
                                               CancellationToken cancellationToken)
     {
@@ -185,6 +182,8 @@ namespace CsvTools
       var allParsed = true;
       var positiveMatches = 0;
       var counter = 0;
+      var minYear = DateTime.Now.Year - 80;
+      var maxYear = DateTime.Now.Year +20;
 
       foreach (var value in samples)
       {
@@ -195,17 +194,17 @@ namespace CsvTools
         if (!ret.HasValue)
         {
           allParsed = false;
-          checkResult.AddNonMatch(value.ToString());
+          checkResult.AddNonMatch(value.Span.ToString());
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 3)
             break;
         }
         else
         {
-          if (isCloseToNow && (ret.Value.Year < DateTime.Now.Year - 80 || ret.Value.Year > DateTime.Now.Year + 20))
+          if (isCloseToNow && (ret.Value.Year < minYear || ret.Value.Year > maxYear))
           {
             allParsed = false;
-            checkResult.AddNonMatch(value.ToString());
+            checkResult.AddNonMatch(value.Span.ToString());
             // try to get some positive matches, in case the first record is invalid
             if (counter > 3)
               break;
@@ -230,7 +229,7 @@ namespace CsvTools
     ///   Check if a text does contain indications that suggest to use something else than DataType.String
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="minRequiredSamples">The minimum required samples.</param>
+    /// <param name="minRequiredSamples">Number of positive matches required before deciding a different type.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="DataTypeEnum.TextToHtml" /> is to be assumed the text has HTML encoding <see
@@ -242,21 +241,30 @@ namespace CsvTools
     {
       var foundUnescaped = 0;
       var foundHtml = 0;
+      var brSpan = "<br>".AsSpan();
+      var cdataSpan = "<![CDATA[".AsSpan();
       foreach (var text in samples)
       {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        if (text.Span.IndexOf("<br>".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1 ||
-            text.Span.StartsWith("<![CDATA[".AsSpan(), StringComparison.OrdinalIgnoreCase))
-          if (foundHtml++ > minRequiredSamples)
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var span = text.Span;
+
+        if (span.IndexOf(brSpan, StringComparison.OrdinalIgnoreCase) != -1 ||
+            span.StartsWith(cdataSpan, StringComparison.OrdinalIgnoreCase))
+        {
+          if (++foundHtml > minRequiredSamples)
             return DataTypeEnum.TextToHtml;
-        if (text.Span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) == -1 &&
-            text.Span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) == -1 &&
-            text.Span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) == -1 &&
-            text.Span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) == -1 &&
-            text.Span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) == -1) continue;
-        if (foundUnescaped++ > minRequiredSamples)
-          return DataTypeEnum.TextUnescape;
+        }
+
+        if (span.IndexOf("\\r".AsSpan(), StringComparison.Ordinal) != -1 ||
+            span.IndexOf("\\n".AsSpan(), StringComparison.Ordinal) != -1 ||
+            span.IndexOf("\\t".AsSpan(), StringComparison.Ordinal) != -1 ||
+            span.IndexOf("\\u".AsSpan(), StringComparison.Ordinal) != -1 ||
+            span.IndexOf("\\x".AsSpan(), StringComparison.Ordinal) != -1)
+        {
+          if (++foundUnescaped > minRequiredSamples)
+            return DataTypeEnum.TextUnescape;
+        }
       }
 
       return DataTypeEnum.String;

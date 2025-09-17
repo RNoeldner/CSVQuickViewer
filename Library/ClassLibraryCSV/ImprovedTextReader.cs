@@ -249,6 +249,8 @@ namespace CsvTools
       }
     }
 #endif
+    public int ReadBlock(char[] buffer, int index, int count)
+      => StreamReader.ReadBlock(buffer, index, count);
 
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
