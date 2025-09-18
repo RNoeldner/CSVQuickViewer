@@ -151,16 +151,17 @@ namespace CsvTools
           {
             if (value > 1)
             {
+              m_ProgressBar.Minimum = 0;
               m_ProgressBar.Maximum = value.ToInt();
               m_ProgressBar.Style = ProgressBarStyle.Continuous;
             }
             else
             {
-              m_ProgressBar.Maximum = 1;
+              m_ProgressBar.Minimum = 0;
               m_ProgressBar.Maximum = 10;
               m_LabelEtl.Text = string.Empty;
               m_ProgressBar.Style = ProgressBarStyle.Marquee;
-              Task.Run(AnimateBackground, CancellationToken);
+              // Task.Run(AnimateBackground, CancellationToken);
             }
           });
       }
