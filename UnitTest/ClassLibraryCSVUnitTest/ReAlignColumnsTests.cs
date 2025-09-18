@@ -50,7 +50,7 @@ namespace CsvTools.Tests
       // ReSharper disable once NotAccessedVariable
       string warning = string.Empty;
       var res = test.RealignColumn(values2, (_, s) => { warning = s; }, raw);
-      Assert.AreEqual(dt.Columns.Count, res.Length);
+      Assert.AreEqual(dt.Columns.Count, res.Count);
       // the column should be moved
       Assert.AreEqual(Convert.ToString(rowT[1]), res[1]);
       Assert.AreEqual(Convert.ToString(rowT[0]), res[0]);
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
       // ReSharper disable once NotAccessedVariable
       string warning = string.Empty;
       var res = test.RealignColumn(values2, (_, s) => { warning = s; }, raw);
-      Assert.AreEqual(dt.Columns.Count, res.Length);
+      Assert.AreEqual(dt.Columns.Count, res.Count);
 
       // the column should be moved
       Assert.AreEqual(Convert.ToString(rowT[1]), res[1]);

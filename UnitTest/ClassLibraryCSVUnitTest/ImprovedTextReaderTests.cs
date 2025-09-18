@@ -84,8 +84,8 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
       Assert.AreEqual(1, test.LineNumber);
-      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
-      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
+      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync(UnitTestStatic.Token));
+      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"));
       using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);
       // ReSharper disable once MethodHasAsyncOverload
-      Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync());
+      Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync(UnitTestStatic.Token));
 
     }
 
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt"));
       using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);
       // ReSharper disable once MethodHasAsyncOverload
-      Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync());
+      Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -149,8 +149,8 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream, 12000);
       Assert.AreEqual(1, test.LineNumber);
-      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
-      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
+      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync(UnitTestStatic.Token));
+      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -159,8 +159,8 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt.gz")));
       using var test = new ImprovedTextReader(impStream, 12000);
       Assert.AreEqual(1, test.LineNumber);
-      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
-      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
+      Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync(UnitTestStatic.Token));
+      Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -204,14 +204,14 @@ namespace CsvTools.Tests
           using var test = new ImprovedTextReader(impStream, type.Item2);
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 '{type.Item1}'");
+          Assert.AreEqual(line1, await test.ReadLineAsync(UnitTestStatic.Token), $"Issue reading Line1 '{type.Item1}'");
           Assert.AreEqual(2, test.LineNumber);
-          Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 '{type.Item1}'");
+          Assert.AreEqual(line2, await test.ReadLineAsync(UnitTestStatic.Token), $"Issue reading Line2 '{type.Item1}'");
 
           test.ToBeginning();
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset '{type.Item1}'");
+          Assert.AreEqual(line1, await test.ReadLineAsync(UnitTestStatic.Token), $"Issue reading after reset '{type.Item1}'");
         }
         FileSystemUtils.FileDelete(fileName);
       }
@@ -227,25 +227,25 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual(
         "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",
-        await test.ReadLineAsync());
+        await test.ReadLineAsync(UnitTestStatic.Token));
       for (var i = 0; i < 200; i++)
-        _ = await test.ReadLineAsync();
+        _ = await test.ReadLineAsync(UnitTestStatic.Token);
 
       test.ToBeginning();
 
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual(
         "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",
-        await test.ReadLineAsync());
+        await test.ReadLineAsync(UnitTestStatic.Token));
       for (var i = 0; i < 300; i++)
-        await test.ReadLineAsync();
+        await test.ReadLineAsync(UnitTestStatic.Token);
 
       test.ToBeginning();
 
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual(
         "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",
-        await test.ReadLineAsync());
+        await test.ReadLineAsync(UnitTestStatic.Token));
     }
   }
 }
