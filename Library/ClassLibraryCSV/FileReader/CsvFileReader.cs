@@ -1273,6 +1273,9 @@ namespace CsvTools
       RecordNumber = 0;
       m_EndOfLine = false;
       EndOfFile = false;
+
+      // Report process to start aragin
+      HandleShowProgress("Reset to start of file", 0);
     }
 
     /// <summary>
