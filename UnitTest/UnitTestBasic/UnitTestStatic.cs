@@ -133,7 +133,7 @@ namespace CsvTools.Tests
         var newVal = "RN";
         // ReSharper disable once ReplaceWithStringIsNullOrEmpty
         if (src != null && src.Length > 0)
-          newVal = UnitTestStaticData.GetRandomText(src.Length);
+          newVal = GetRandomText(src.Length);
         prop.SetValue(obj1, newVal);
 
         return ((string) prop.GetValue(obj1)!) == newVal;
@@ -242,6 +242,21 @@ namespace CsvTools.Tests
 #pragma warning restore CS8603
     }
 
+
+    public static string GetRandomText(int length)
+    {
+      // Space is in there a few times, so we get more spaces
+      var chars = " abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !§$%&/()=?+*#,.-;:_ "
+        .ToCharArray();
+      var data = new byte[length];
+      using var rnd = RandomNumberGenerator.Create();
+      rnd.GetBytes(data, 0, length);
+
+      var result = new StringBuilder(length);
+      foreach (var b in data)
+        result.Append(chars[b % chars.Length]);
+      return result.ToString();
+    }
 
     public static string GetTestPath(string fileName) =>
       Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));

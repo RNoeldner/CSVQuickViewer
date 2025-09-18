@@ -97,16 +97,6 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global    
     private IProgress<ProgressInfo> m_ReportProgress = new DummyProgress();
 
-    /// <summary>
-    /// Faster lookup for column ordinals
-    /// </summary>
-    private Dictionary<string, int>? m_ColumnLookup;
-
-    /// <summary>
-    /// Caching the number of visible fields
-    /// </summary>
-    private int m_VisibleFieldCount;
-
     /// <inheritdoc />
     /// <summary>
     ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" />
@@ -257,7 +247,7 @@ namespace CsvTools
     /// <summary>
     /// Gets the number of fields in the <see cref="T:System.Data.Common.DbDataReader"></see> that are not hidden.
     /// </summary>
-    public override int VisibleFieldCount => m_VisibleFieldCount;
+    public override int VisibleFieldCount => Column.Count(x => !x.Ignore);
 
     /// <summary>
     /// Gets the name of the file.
@@ -284,8 +274,13 @@ namespace CsvTools
     /// <inheritdoc />   
     public override void Close()
     {
-      EndOfFile = true;
-      CurrentRowColumnText = Array.Empty<string>();
+      if (!EndOfFile)
+        EndOfFile = true;
+
+      if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
+      {
+        CurrentRowColumnText = Array.Empty<string>();
+      }
 
       base.Close();
     }
@@ -499,9 +494,12 @@ namespace CsvTools
     /// <inheritdoc />
     public override int GetOrdinal(string name)
     {
-      if (string.IsNullOrEmpty(name) || m_ColumnLookup is null)
+      if (string.IsNullOrEmpty(name))
         return -1;
-      return m_ColumnLookup.TryGetValue(name, out var idx) ? idx : -1;
+      for (int i = 0; i < m_FieldCount; i++)
+        if (Column[i].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+          return i;
+      return -1;
     }
 
     /// <inheritdoc />
@@ -512,7 +510,7 @@ namespace CsvTools
 
       for (var col = 0; col < FieldCount; col++)
       {
-        var column = Column[col];
+        var column = GetColumn(col);
 
         schemaRow[1] = column.Name; // BaseColumnName
         schemaRow[4] = column.Name; // ColumnName
@@ -605,12 +603,14 @@ namespace CsvTools
     public override int GetValues(object[] values)
     {
       if (values is null) throw new ArgumentNullException(nameof(values));
-      var len = Math.Min(values.Length, FieldCount);
 
-      for (var col = 0; col < len; col++)
+      var maxFld = values.Length;
+      if (maxFld > FieldCount) maxFld = FieldCount;
+
+      for (var col = 0; col < maxFld; col++)
         values[col] = GetValue(col);
 
-      return len;
+      return maxFld;
     }
 
     /// <summary>
@@ -789,15 +789,6 @@ namespace CsvTools
     {
       m_IsFinished = false;
       EndOfFile = false;
-
-      // cache visible field count
-      m_VisibleFieldCount = Column.Count(x => !x.Ignore);
-
-      // build lookup dictionary
-      m_ColumnLookup = new Dictionary<string, int>(m_FieldCount, StringComparer.OrdinalIgnoreCase);
-      for (int i = 0; i < m_FieldCount; i++)
-        m_ColumnLookup[Column[i].Name] = i;
-
       OpenFinished?.SafeInvoke(this, Column);
     }
 

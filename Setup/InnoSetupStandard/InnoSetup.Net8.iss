@@ -6,10 +6,10 @@
 
 [Setup]
 AppVersion={#MyAppVersion}
-OutputBaseFilename={#MyAppName}Installer_{#MyAppVersion}_Net8
+OutputBaseFilename={#MyAppName}Installer_{#MyAppVersion}
 DefaultDirName={localappdata}\{#MyAppName}
 AppName={#MyAppName}
-OutputDir=..
+OutputDir=.\Setup
 PrivilegesRequiredOverridesAllowed=dialog
 PrivilegesRequired=lowest
 DisableDirPage=no    

@@ -131,7 +131,7 @@ namespace CsvTools
                                     : 50);
 
     /// <inheritdoc />
-    public virtual long RecordNumber { get; private set; }
+    public long RecordNumber { get; private set; }
 
     /// <inheritdoc />
     public override int RecordsAffected => RecordNumber.ToInt();
