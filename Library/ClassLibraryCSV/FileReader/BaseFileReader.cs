@@ -934,7 +934,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the relative position.
+    ///   Gets the relative position; this only works if RecordLimit is set
     /// </summary>
     /// <returns>A value between 0 and 1</returns>
     /// <summary>
