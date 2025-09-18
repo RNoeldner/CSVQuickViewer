@@ -79,7 +79,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
           DataTypeEnum.String, data.ToArray(), "d1", false, 20),
         "Column String");
-      Assert.AreEqual(15,fl.ValueClusterCollection.Count);
+      Assert.AreEqual(15, fl.ValueClusterCollection.Count);
       Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
 
       for (int i = 0; i < 20000; i++)
@@ -88,9 +88,9 @@ namespace CsvTools.Tests
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
           DataTypeEnum.String, data.ToArray(), "d1", false, 20),
         "Column String");
-      Assert.AreEqual(19,fl.ValueClusterCollection.Count);
+      Assert.AreEqual(19, fl.ValueClusterCollection.Count);
       Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
-     
+
     }
 
     [TestMethod]
@@ -107,8 +107,8 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=max1,
         $"Expected {4}-{max1} is: {fl.ValueClusterCollection.Count}");
-      var before = fl.ValueClusterCollection.Count;      
-      Assert.AreEqual(NumRecords, fl.ValueClusterCollection.Sum(x=> x.Count), "The cluster should cover each record");
+      var before = fl.ValueClusterCollection.Count;
+      Assert.AreEqual(NumRecords, fl.ValueClusterCollection.Sum(x => x.Count), "The cluster should cover each record");
       bool hadIssues = false;
       // the generated Conditions should not throw an error
       foreach (var cluster in fl.ValueClusterCollection)
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
         {
           Logger.Warning($"RowFilter shows {m_DataView.Count:N0} records Cluster expected {cluster.Count:N0} for '{cluster.SQLCondition}', maybe condition is not well formed");
           hadIssues=true;
-        }                 
+        }
       }
 
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
@@ -126,7 +126,7 @@ namespace CsvTools.Tests
           GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", false, max2),
         "Column String");
 
-      Assert.IsTrue(fl.ValueClusterCollection.Count>=before && fl.ValueClusterCollection.Count<=max2 , 
+      Assert.IsTrue(fl.ValueClusterCollection.Count>=before && fl.ValueClusterCollection.Count<=max2,
         $"Expected {before}-{max2} is: {fl.ValueClusterCollection.Count}");
       if (hadIssues)
         Assert.Inconclusive("Issues with RowFilter Count, please see messages in TestContext Messages");
@@ -180,8 +180,8 @@ namespace CsvTools.Tests
         if (index % 10000 == 0)
           value.Add(DBNull.Value);
         else
-          value.Add(UnitTestStatic.GetRandomText(25));
-      
+          value.Add(UnitTestStaticData.GetRandomText(25));
+
 
       var fl = GetFilterLogic(0);
 
@@ -198,8 +198,7 @@ namespace CsvTools.Tests
     {
       var possible = new List<string>();
       for (int index = 0; index < 20; index++)
-        possible.Add(UnitTestStatic.
-          GetRandomText(10));
+        possible.Add(UnitTestStaticData.GetRandomText(10));
 
       var value = new List<object>();
       for (int index = 0; index < 500000; index++)
@@ -208,7 +207,7 @@ namespace CsvTools.Tests
       var fl = GetFilterLogic(0);
       Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
         value, "d1", false, 50, true, false, 5.0,
-        new Progress<ProgressInfo>(info => { Logger.Debug($"{DateTime.Now} : {info.Text} {info.Value}"); }), UnitTestStatic.Token) , "Column String");
+        new Progress<ProgressInfo>(info => { Logger.Debug($"{DateTime.Now} : {info.Text} {info.Value}"); }), UnitTestStatic.Token), "Column String");
 
       Assert.IsNotNull(fl.ValueClusterCollection);
     }
@@ -312,7 +311,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(data.Count, test.Select(x => x.Count).Sum());
 
     }
-    
+
     [TestMethod]
     [Timeout(1000)]
     public void BuildValueClusters_DateTimeCombine()

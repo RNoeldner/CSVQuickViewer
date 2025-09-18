@@ -53,7 +53,7 @@ namespace CsvTools
         }
       }
       else
-        // IData Reader, any column
+      // IData Reader, any column
       {
         for (var col = 0; col < reader.FieldCount; col++)
         {
@@ -118,7 +118,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
       await
 #endif
-        using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         res.Add(fileReader.GetColumn(colIndex));
@@ -163,6 +163,111 @@ namespace CsvTools
       => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress,
         cancellationToken);
 
+    /// <summary>
+    /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors
+    /// </summary>
+    /// <param name="wrapper"></param>
+    /// <param name="maxDuration">Initial Duration for first return</param>    
+    /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
+    /// <param name="cancellationToken">Token to cancel the long running async method</param>     
+    /// <remarks>
+    /// 
+    /// Benchnmaks show this optimized version is NOT faster tha the orgiginal version, but rather  abit slower
+    /// 
+    /// Method                     | RowCount | Mean     | Error     | StdDev    | Ratio | RatioSD |  
+    ///-----------------------     |--------- |---------:|----------:|----------:|------:|--------:|
+    /// GetDataTableAsync          | 500      | 5.283 us | 0.0642 us | 0.0601 us |  1.00 |    0.02 |
+    /// GetDataTableAsyncOptimized | 500      | 5.274 us | 0.0387 us | 0.0323 us |  1.00 |    0.01 |
+    ///                            |          |          |           |           |       |         |
+    /// GetDataTableAsync          | 1000000  | 4.886 us | 0.0317 us | 0.0247 us |  1.00 |    0.01 |
+    /// GetDataTableAsyncOptimized | 1000000  | 5.311 us | 0.0346 us | 0.0289 us |  1.09 |    0.01 |
+    /// </remarks>
+    public static async Task<DataTable> GetDataTableAsyncOptimized(
+    this DataReaderWrapper wrapper,
+    TimeSpan maxDuration,
+    IProgress<ProgressInfo>? progress,
+    CancellationToken cancellationToken)
+    {
+      // Shortcut if wrapper is already DataTableWrapper
+      if (wrapper is DataTableWrapper dtw)
+        return dtw.DataTable;
+
+      var fieldCount = wrapper.FieldCount;
+      var dataTable = new DataTable
+      {
+        Locale = CultureInfo.CurrentCulture,
+        CaseSensitive = false
+      };
+
+      for (var colIndex = 0; colIndex < fieldCount; colIndex++)
+        dataTable.Columns.Add(
+            new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+
+      if (wrapper.EndOfFile)
+        return dataTable;
+
+      var intervalAction = IntervalAction.ForProgress(progress);
+      var watch = Stopwatch.StartNew();
+
+      const int cBatchSize = 500; // tune depending on memory/speed tradeoff
+      var batch = new List<object[]>(cBatchSize);
+
+      try
+      {
+
+        if (maxDuration < TimeSpan.MaxValue)
+          Logger.Debug("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
+        else
+          Logger.Debug("Reading all data");
+
+        dataTable.BeginLoadData();
+
+        var buffer = new object[fieldCount];
+
+        while (!cancellationToken.IsCancellationRequested &&
+               (watch.Elapsed < maxDuration || wrapper.Percent >= 95) &&
+               await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+          // Fill buffer with GetValues (faster than GetValue(colIndex) in a loop)
+          wrapper.GetValues(buffer);
+
+          // Clone into batch
+          var rowCopy = new object[fieldCount];
+          Array.Copy(buffer, rowCopy, fieldCount);
+          batch.Add(rowCopy);
+
+          if (batch.Count >= cBatchSize)
+          {
+            // flush into DataTable in one go
+            foreach (var rowData in batch)
+              dataTable.Rows.Add(rowData);
+
+            batch.Clear();
+            intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
+          }
+        }
+
+        // flush remainder
+        if (batch.Count > 0)
+        {
+          foreach (var rowData in batch)
+            dataTable.Rows.Add(rowData);
+          batch.Clear();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Warning(e, "GetDataTableAsync error");
+      }
+      finally
+      {
+        dataTable.EndLoadData(); // constraints/relations re-enabled
+        progress?.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
+      }
+
+      return dataTable;
+    }
+    
 
     /// <summary>
     /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors
@@ -178,42 +283,41 @@ namespace CsvTools
       if (wrapper is DataTableWrapper dtw)
         return dtw.DataTable;
 
+      var fieldCount = wrapper.FieldCount;
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
-      for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
+      for (var colIndex = 0; colIndex < fieldCount; colIndex++)
         dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
 
       if (wrapper.EndOfFile)
         return dataTable;
 
       var intervalAction = IntervalAction.ForProgress(progress);
-
       try
       {
-        try {
         if (maxDuration < TimeSpan.MaxValue)
           Logger.Debug("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
         else
           Logger.Debug("Reading all data");
-        } catch { }
         var watch = Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
-                                                          && await wrapper.ReadAsync(cancellationToken)
-                                                            .ConfigureAwait(false))
+        while ((watch.Elapsed < maxDuration || wrapper.Percent >= 95) &&
+               await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
           dataTable.Rows.Add(dataRow);
-          for (var i = 0; i < wrapper.FieldCount; i++)
+          for (var colIndex = 0; colIndex < fieldCount; colIndex++)
+          {
             try
             {
-              dataRow[i] = wrapper.GetValue(i);
+              dataRow[colIndex] = wrapper.GetValue(colIndex) ?? DBNull.Value;
             }
             catch (Exception ex)
             {
-              dataRow.SetColumnError(i, ex.Message);
+              dataRow.SetColumnError(colIndex, ex.Message);
+              dataRow[colIndex] = DBNull.Value;
             }
-
-          intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
+          }
           dataRow.SetErrorInformation(wrapper.RowErrorInformation);
+          intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
         }
       }
       catch (Exception e)

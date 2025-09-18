@@ -8,186 +8,174 @@
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
  *
  * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
+ * If not, see http://www.gnu.org/licenses/.
  */
 
 namespace CsvTools
 {
   /// <summary>
-  ///   Setting for reading  or writing a delimited file
+  ///   Settings for reading or writing a delimited file.
   /// </summary>
   public interface ICsvFile : IFileSettingPhysicalFile
   {
     /// <summary>
-    ///   Gets or sets a value indicating whether rows should combine if there are fewer columns.
+    ///   Gets or sets a value indicating whether rows with fewer columns
+    ///   should be combined with the following row.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
-    /// </value>
     bool AllowRowCombining { get; set; }
 
     /// <summary>
-    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
-    ///   line starts with the given text, it is ignored in the data grid.
-    /// </summary>    
+    ///   Gets or sets the prefix that marks a line as a comment (non-data).
+    ///   Any line starting with this value is ignored when reading.
+    /// </summary> 
     string CommentLine { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether context-sensitive qualification is used
-    /// </summary>    
+    ///   Gets or sets a value indicating whether qualifiers (quotes) are applied
+    ///   depending on context, e.g., only around fields containing delimiters.
+    /// </summary>
     bool ContextSensitiveQualifier { get; set; }
 
     /// <summary>
-    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, it's
-    ///   similar to escaping but could replace a delimiter with something completely different like a longer text, e.G. {Delimiter}
+    ///   Gets or sets the placeholder used to substitute a delimiter character
+    ///   inside a field. This can be used as an alternative to escaping,
+    ///   e.g., replacing <c>,</c> with "{Delimiter}".
     /// </summary>
-    /// <value>The new line placeholder.</value>
     string DelimiterPlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes 
+    ///   Gets or sets a value indicating whether a quote character inside text
+    ///   should be escaped by doubling it.
     /// </summary>
     bool DuplicateQualifierToEscape { get; set; }
 
     /// <summary>
-    ///   Gets the escape prefix as character
+    ///   Gets or sets the escape prefix character.
+    ///   If set to <c>\0</c>, escaping is usually done by doubling the qualifier.
     /// </summary>
-    /// <value>The field delimiter char.</value>
-    /// <remarks>If \0, the quote are often repeated to escape them</remarks>
     char EscapePrefixChar { get; set; }
 
     /// <summary>
-    ///   Gets the field delimiter as character, usually ,
+    ///   Gets or sets the field delimiter character (usually <c>,</c>).
     /// </summary>
-    /// <value>The field delimiter char.</value>
     char FieldDelimiterChar { get; set; }
 
     /// <summary>
-    ///  Gets the qualifier character as character, usually "
+    ///   Gets or sets the field qualifier character (usually <c>"</c>).
     /// </summary>
-    /// <value>The field delimiter char.</value>
     char FieldQualifierChar { get; set; }
 
     /// <summary>
-    ///  Determining the record separator used writing a delimited text file, while reading it does not matter
+    ///   Gets or sets the record separator used when writing a file.
+    ///   (When reading, any common line ending is accepted.)
     /// </summary>
     RecordDelimiterTypeEnum NewLine { get; set; }
 
     /// <summary>
-    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    ///   Gets or sets the placeholder used to substitute a line break inside a field.
     /// </summary>
-    /// <value>The new line placeholder.</value>
     string NewLinePlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether a file is most likely not a delimited file
+    ///   Gets or sets a value indicating whether the file is assumed
+    ///   to be non-delimited (e.g., fixed-width format).
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if the file is assumed to be a non-delimited file; otherwise, <c>false</c>.
-    /// </value>
     bool NoDelimitedFile { get; set; }
 
     /// <summary>
-    ///   Gets or sets the maximum number of warnings being raised
+    ///   Gets or sets the maximum number of warnings to raise
+    ///   before processing continues without further warnings.
     /// </summary>
-    /// <value>The number of warnings.</value>
     int NumWarnings { get; set; }
 
     /// <summary>
-    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, It's
-    ///   similar to escaping but could replace a Quote with something completely different or a
-    ///   longer text, e.G. {Quote}
+    ///   Gets or sets the placeholder used to substitute a qualifier character.
+    ///   For example, replacing <c>"</c> with "{Quote}".
     /// </summary>
-    /// <value>The quote placeholder.</value>
     string QualifierPlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets a value indicating whether to qualify every text even if number or empty. Usually false
+    ///   Gets or sets a value indicating whether all fields should always
+    ///   be qualified, even if not required. Usually <c>false</c>.
     /// </summary>
-    /// <value><c>true</c> if qualify even when not needed; otherwise, <c>false</c>.</value>
     bool QualifyAlways { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to qualify only if needed. Usually true
+    ///   Gets or sets a value indicating whether fields should only be qualified
+    ///   when necessary (e.g., when containing a delimiter or line break).
+    ///   Usually <c>true</c>.
     /// </summary>
-    /// <value><c>true</c> if qualify only when required; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to treat a single LF as space
+    ///   Gets or sets a value indicating whether a single LF (line feed) character
+    ///   should be treated as a space.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
-    /// </value>
     bool TreatLfAsSpace { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to replace unknown character.
+    ///   Gets or sets a value indicating whether unknown characters should
+    ///   be replaced with a space.
     /// </summary>
-    /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
     bool TreatUnknownCharacterAsSpace { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating when leading spaces should be trimmed.
-    ///   Other than general trimming there is the option to do this based on whether the text is quoted or not
+    ///   Gets or sets the trimming behavior for leading and trailing spaces.
+    ///   The behavior may depend on whether the field is quoted.
     /// </summary>
     TrimmingOptionEnum TrimmingOption { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
+    ///   Gets or sets a value indicating whether the reader should attempt
+    ///   to resolve misaligned rows with more columns than expected.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if it should be tried to solve misalignment more columns; otherwise, <c>false</c>.
-    /// </value>
     bool TryToSolveMoreColumns { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn if delimiter is in a value.
+    ///   Gets or sets a value indicating whether to warn when a delimiter
+    ///   appears inside a field value.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if a warning should be issued if a delimiter is encountered; otherwise, <c>false</c>.
-    /// </value>
     bool WarnDelimiterInValue { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn empty tailing columns.
+    ///   Gets or sets a value indicating whether to warn about trailing
+    ///   empty columns.
     /// </summary>
-    /// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
     bool WarnEmptyTailingColumns { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn line feeds in columns. Usually false
+    ///   Gets or sets a value indicating whether to warn when line breaks
+    ///   are found inside a field value. Usually <c>false</c>.
     /// </summary>
-    /// <value><c>true</c> if line feed should raise a warning; otherwise, <c>false</c>.</value>
     bool WarnLineFeed { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn occurrence of NBSP. Usually true
+    ///   Gets or sets a value indicating whether to warn when a non-breaking space (NBSP)
+    ///   character is encountered. Usually <c>true</c>.
     /// </summary>
-    /// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
     bool WarnNBSP { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files. Usually false
+    ///   Gets or sets a value indicating whether to warn when fields are unnecessarily quoted.
+    ///   Usually <c>false</c>.
     /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     bool WarnQuotes { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files. Usually true
+    ///   Gets or sets a value indicating whether to warn when quotes appear inside quoted text.
+    ///   Usually <c>true</c>.
     /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     bool WarnQuotesInQuotes { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to warn unknown character. Usually true
+    ///   Gets or sets a value indicating whether to warn when unknown characters are encountered.
+    ///   Usually <c>true</c>.
     /// </summary>
-    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
     bool WarnUnknownCharacter { get; set; }
 
     /// <summary>
-    ///  The resulting file should not use delimiters but instead use fixed length columns
+    ///   Gets or sets a value indicating whether to write the file using fixed-width columns
+    ///   instead of delimiters. Only supported for writing.
     /// </summary>
     bool WriteFixedLength { get; set; }
   }

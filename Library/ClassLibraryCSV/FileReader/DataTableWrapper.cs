@@ -31,16 +31,16 @@ namespace CsvTools
     /// Initializes a new instance of the <see cref="DataTableWrapper"/> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
-    /// <param name="addStartLine">if set to <c>true</c> [add start line].</param>
-    /// <param name="addEndLine">if set to <c>true</c> [add end line].</param>
-    /// <param name="addRecNum">if set to <c>true</c> [add record number].</param>
-    /// <param name="addErrorField">if set to <c>true</c> [add error field].</param>
-    public DataTableWrapper(in DataTable dataTable,
+    /// <param name="addStartLine">If set to <c>true</c>, adds a start line column.</param>
+    /// <param name="addEndLine">If set to <c>true</c>, adds an end line column.</param>
+    /// <param name="addRecNum">If set to <c>true</c>, adds a record number column.</param>
+    /// <param name="addErrorField">If set to <c>true</c>, adds an error field column.</param>
+    public DataTableWrapper(DataTable dataTable,
       bool addStartLine = false, bool addEndLine = false,
       bool addRecNum = false, bool addErrorField = false)
       : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField, dataTable.Rows.Count)
     {
-      DataTable = dataTable;
+      DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_AddErrorField = addErrorField;
     }
 
@@ -63,12 +63,16 @@ namespace CsvTools
     {
       var src = base.GetValue(ordinal);
       // in case of the error column add the information that stored in columns and row errors
-      if (m_AddErrorField && GetColumn(ordinal).Name == ReaderConstants.cErrorField)
+      if (m_AddErrorField && ReferenceEquals(GetColumn(ordinal).Name, ReaderConstants.cErrorField))
       {
         var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
-        var dbRowError = row.GetErrorInformation();
-        if (dbRowError.Length > 0)
-          src = IsDBNull(ordinal) ? dbRowError : src.ToString()!.AddMessage(dbRowError);
+        var rowError = row.GetErrorInformation();
+        if (rowError.Length > 0)
+        {
+          if (IsDBNull(ordinal))
+            return rowError;
+          src = src.ToString()!.AddMessage(rowError);
+        }
       }
       return src;
     }

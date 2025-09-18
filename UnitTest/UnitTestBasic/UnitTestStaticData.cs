@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 
 // ReSharper disable RedundantExplicitArrayCreation
 // ReSharper disable ArrangeObjectCreationWhenTypeEvident
@@ -26,6 +28,27 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStaticData
   {
+    public static string GetRandomText(int length)
+    {
+      // Space is in there a few times, so we get more spaces
+      var chars = " abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !§$%&/()=?+*#,.-;:_ "
+        .ToCharArray();
+      var data = new byte[length];
+      using var rnd = RandomNumberGenerator.Create();
+      rnd.GetBytes(data, 0, length);
+
+      var result = new StringBuilder(length);
+      foreach (var b in data)
+        result.Append(chars[b % chars.Length]);
+      return result.ToString();
+    }
+
+    // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
+#if NET6_0_OR_GREATER
+    private static readonly Random Random = Random.Shared;
+#else
+    private static readonly Random Random = new Random(Environment.TickCount);
+#endif
     public static readonly List<Column> Columns = new List<Column>(new[]
     {
       new Column("string", columnOrdinal:0), //0
@@ -62,26 +85,26 @@ namespace CsvTools.Tests
       var colIndex = 0;
 
       // 0
-      dr[colIndex] = UnitTestStatic.GetRandomText(25);
+      dr[colIndex] = GetRandomText(25);
       if (recordNumber % 10 == 0) dr[colIndex] = dr[colIndex] + "\r\nA Second Line";
 
       // 1
-      dr[++colIndex] = UnitTestStatic.Random.Next(-300, +600);
+      dr[++colIndex] = Random.Next(-300, +600);
 
       // 2
       colIndex++;
       if (recordNumber % 5 == 0)
-        dr[colIndex] = new DateTime((((maxDate - minDate) * UnitTestStatic.Random.NextDouble()) + minDate).ToInt64());
+        dr[colIndex] = new DateTime((((maxDate - minDate) * Random.NextDouble()) + minDate).ToInt64());
 
       // 3 bool
-      dr[++colIndex] = UnitTestStatic.Random.Next(0, 2) == 0;
+      dr[++colIndex] = Random.Next(0, 2) == 0;
 
       // 4 double
-      dr[++colIndex] = Math.Round(UnitTestStatic.Random.NextDouble() * 123.78, 4);
+      dr[++colIndex] = Math.Round(Random.NextDouble() * 123.78, 4);
 
       // 5 numeric
       colIndex++;
-      if (recordNumber % 4 == 0) dr[colIndex] = Math.Round(UnitTestStatic.Random.NextDouble(), 4);
+      if (recordNumber % 4 == 0) dr[colIndex] = Math.Round(Random.NextDouble(), 4);
 
       // 6 guid
       colIndex++;
@@ -92,19 +115,19 @@ namespace CsvTools.Tests
 
       // 8 PartEmpty
       colIndex++;
-      if (recordNumber % 2 == 0) dr[colIndex] = UnitTestStatic.GetRandomText(100);
+      if (recordNumber % 2 == 0) dr[colIndex] = GetRandomText(100);
 
       // 9 ID
       dr[++colIndex] = recordNumber;
 
       // Add Errors and Warnings to Columns and Rows
-      var rand = UnitTestStatic.Random.Next(0, 100);
+      var rand = Random.Next(0, 100);
       int warnings = 0;
       int errors = 0;
 
       if (rand > 70)
       {
-        var colNum = UnitTestStatic.Random.Next(0, 10);
+        var colNum = Random.Next(0, 10);
         if (rand < 85)
         {
           dr.SetColumnError(colNum, "First Warning".AddWarningId());
@@ -117,7 +140,7 @@ namespace CsvTools.Tests
         }
 
         // Add a possible second error in the same column
-        rand = UnitTestStatic.Random.Next(-2, 3);
+        rand = Random.Next(-2, 3);
         if (rand == 1)
         {
           dr.SetColumnError(colNum, dr.GetColumnError(colNum).AddMessage("Second Warning".AddWarningId()));
