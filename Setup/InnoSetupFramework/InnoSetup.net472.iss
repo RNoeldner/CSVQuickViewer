@@ -1,6 +1,6 @@
 [Setup]
 AppName=Csv Quick Viewer
-AppVersion=AppVersion=1.7.14.619
+AppVersion=AppVersion=1.7.14.621
 DefaultDirName={localappdata}\CsvQuickViewer
 DefaultGroupName=CsvQuickViewer
 OutputDir=.\bin
@@ -10,7 +10,7 @@ PrivilegesRequired=lowest
 DisableDirPage=yes    
 
 [Files]
-Source: "c:\Share\Repos\CSVQuickViewer\Application\bin\Release\net472\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "..\..\Application\bin\Release\net472\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Registry]
 ; --- Delimited Text Values  ---
