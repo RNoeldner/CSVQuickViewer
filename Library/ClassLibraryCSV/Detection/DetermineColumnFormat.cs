@@ -28,6 +28,9 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
+    private static readonly char[] m_TimeFormat = new[] { ':', 'h', 'H', 'm', 's', 't' };
+    private static readonly char[] m_DateFormat = new[] { '/', 'y', 'M', 'd' };
+
     /// <summary>
     /// Determines the most common date format used in the provided columns,
     /// or falls back to a guessed/default value or system culture format.
@@ -329,7 +332,7 @@ namespace CsvTools
 
           if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
               && readerColumn.ValueFormat.DataType != DataTypeEnum.Numeric) continue;
-          if (sampleList.Keys.Contains(colIndex + 1))
+          if (sampleList.ContainsKey(colIndex + 1))
           {
             var samples = sampleList[colIndex + 1];
 
@@ -407,9 +410,10 @@ namespace CsvTools
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
+          
           if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                              || columnFormat.DateFormat.IndexOfAny(
-                                                               new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
+                                                               m_TimeFormat) != -1)
             continue;
           // We have a date column without time
           for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
@@ -419,10 +423,7 @@ namespace CsvTools
             if (colTimeIndex == -1) continue;
             var timeFormat = columnCollection[colTimeIndex].ValueFormat;
             if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                             || timeFormat.DateFormat.IndexOfAny(new[]
-                                                             {
-                                                               '/', 'y', 'M', 'd'
-                                                             }) != -1)
+                                                             || timeFormat.DateFormat.IndexOfAny(m_DateFormat) != -1)
               continue;
             // We now have a time column, checked if the names somehow make sense
             if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
@@ -455,8 +456,7 @@ namespace CsvTools
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
           if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                             || columnFormat.DateFormat.IndexOfAny(
-                                                               new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
+                                                             || columnFormat.DateFormat.IndexOfAny(m_TimeFormat) != -1)
             continue;
 
           if (colIndex + 1 < fileReader.FieldCount)
@@ -480,7 +480,7 @@ namespace CsvTools
                   columnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
                   columnCollection[colIndexSetting].TimeZonePart));
 
-              var firstValueNewColumn = (sampleList.Keys.Contains(colIndex + 1)
+              var firstValueNewColumn = (sampleList.ContainsKey(colIndex + 1)
                 ? sampleList[colIndex + 1]
                 : (await GetSampleValuesAsync(
                   fileReader,
@@ -531,7 +531,7 @@ namespace CsvTools
               readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
               columnCollection[colIndexSetting].TimeZonePart));
 
-          var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
+          var firstValueNewColumn2 = (sampleList.ContainsKey(colIndex - 1)
             ? sampleList[colIndex - 1]
             : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, cancellationToken)
               .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();

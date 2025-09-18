@@ -135,7 +135,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Memo: A long text|\nmultiple words 17", result3[5], "Line 3");
 
       var result4 = test.RealignColumn(badLines[3].Split('|'), Handle, badLines[3]);
-      Assert.AreEqual(numColumns, result4.Length, "Line 4 - Lots of training columns");
+      Assert.AreEqual(numColumns, result4.Count, "Line 4 - Lots of training columns");
 
       var result5 = test.RealignColumn(badLines[4].Split('|'), Handle, badLines[4]);
       Assert.AreEqual("TRUE", result5[6], "Line 5 - Empty COlumn");
