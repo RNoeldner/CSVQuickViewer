@@ -35,7 +35,7 @@ namespace CsvTools
     public async Task<DataTable> StartAsync(
       IFileSetting fileSetting,
       TimeSpan durationInitial,
-      IProgress<ProgressInfo>? progress,
+      IProgress<ProgressInfo> progress,
       EventHandler<WarningEventArgs>? addWarning,
       CancellationToken cancellationToken)
     {
@@ -43,32 +43,37 @@ namespace CsvTools
       //m_Id = fileSetting.ID;
       var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       if (fileReader is null)
-        throw new FileReaderException($"Could not get reader for {fileSetting}");
-      if (progress != null)
-        fileReader.ReportProgress = progress;
+        throw new FileReaderException($"Could not get reader for {fileSetting}");             
+      try { Logger.Debug("Opening reader"); } catch { }
+      fileReader.ReportProgress = progress;
       if (addWarning != null)
         fileReader.Warning += addWarning;
-
-      try { Logger.Debug("Opening reader"); } catch { }
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       if (fileReader.FieldCount > cMaxColumns)
         throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
+
+      // Stop reporting progress to the outside, we do that in the DataReaderWrapper
+      fileReader.ReportProgress = new DummyProgress();
+
       m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
-      // Since fileReader ReportProgress is set, not need to pass it on
-      return await GetNextBatch(durationInitial, cancellationToken).ConfigureAwait(false);
+
+      return await GetNextBatch(progress, durationInitial, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Loads the next batch of data from a file setting into the data table from m_GetDataTable
+    /// Loads the next batch of data from a file setting into the data table from Wrapper
     /// </summary>
+    /// <param name="progress">Process display to pass on progress information</param>
+    /// /// <param name="duration">For maximum duration for the read process</param>    
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <param name="duration">For maximum duration for the read process</param>    
-    public async Task<DataTable> GetNextBatch(TimeSpan duration,
+    public async Task<DataTable> GetNextBatch(IProgress<ProgressInfo> progress, TimeSpan duration,
       CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return new DataTable();
+
+      m_DataReaderWrapper.ReportProgress = progress;
 
       try { Logger.Debug("Getting batch"); } catch { }
       var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, null, cancellationToken).ConfigureAwait(false);
