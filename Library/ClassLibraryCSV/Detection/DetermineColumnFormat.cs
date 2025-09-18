@@ -187,7 +187,7 @@ namespace CsvTools
         100, cancellationToken).ConfigureAwait(false);
 
       // In case there are not enough distinct records do not validate
-      if (sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
+      if (sampleList.Count==0 || sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
       {
         Logger.Information("Not enough records to determine types");
         var allcolumns = new List<Column>();
@@ -213,7 +213,7 @@ namespace CsvTools
       {
         var readerColumn = fileReader.GetColumn(colIndex);
         var samples = sampleList[colIndex];
-        
+
         if (samples.Values.Count == 0)
         {
           try
@@ -324,7 +324,7 @@ namespace CsvTools
       // not distinguish between double and integer.
       if (checkDoubleToBeInteger)
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        {          
+        {
           var readerColumn = fileReader.GetColumn(colIndex);
 
           if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
@@ -645,6 +645,9 @@ namespace CsvTools
       {
         // Only process warnings from requested columns
         if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber))
+          return;
+        // More Columns is ignored if the extra column is empty
+        if (e.Message.Contains(CsvFileReader.cMoreColumns) && e.Message.Contains("empty"))
           return;
         try
         {
@@ -1051,7 +1054,7 @@ namespace CsvTools
           return checkResult;
         }
       }
-      
+
       // if we have dates and allow serial dates, but do not guess numeric (this would be a fit) try
       // if the dates are all serial
       if (!guessDateTime || !serialDateTime || guessNumeric)

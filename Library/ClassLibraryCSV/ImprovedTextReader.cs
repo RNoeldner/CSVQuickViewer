@@ -25,7 +25,7 @@ namespace CsvTools
     private readonly int m_BomLength = 0;
     private readonly int m_SkipLines;
     private readonly Stream m_Stream;
-    private bool m_LastCharWasCR = false;
+    private int m_LastChar = -1;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -125,6 +125,7 @@ namespace CsvTools
       StreamReader.Dispose();
       LineNumber = 0;
     }
+
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
     ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
@@ -158,29 +159,12 @@ namespace CsvTools
     /// </remarks>
     public int Read()
     {
-      while (true)
-      {
-        int ch = StreamReader.Read();
-        if (ch == -1)
-        {
-          m_LastCharWasCR = false;
-          return -1;
-        }
-
-        char c = (char) ch;
-
-        if (m_LastCharWasCR && c == cLf)
-        {
-          m_LastCharWasCR = false;
-          continue; // skip LF
-        }
-
-        m_LastCharWasCR = (c == cCr);
-        if (c == cCr || c == cLf)
-          LineNumber++;
-
-        return ch;
-      }
+      var read = StreamReader.Read();
+      // Handle CR, LF and CRLF
+      if (read == cCr || (read == cLf && m_LastChar != cCr))
+        LineNumber++;
+      m_LastChar = read;
+      return read;
     }
 
 
@@ -225,9 +209,10 @@ namespace CsvTools
 
     /// <summary>
     ///  Reads a block of characters from the text reader and writes the data to a buffer, beginning at the specified index.
-    ///  This does not keep track of the line number
+    /// This does not keep track of the line number, use Read, ReadLine or ReadLineAsync for this
     /// </summary>
-    /// <param name="readBuffer">Usage like Memory<char> buffer = new char[128] or ArrayPool<char>.Shared.Rent(4096)</param>
+    /// <param name="buffer">The character array to write the data into.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>Number of read chars</returns>
 #if NET6_0_OR_GREATER
    
@@ -236,7 +221,7 @@ namespace CsvTools
 #else
     public async ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
     {
-      char[] temp = System.Buffers.ArrayPool<char>.Shared.Rent(buffer.Length);
+      var temp = System.Buffers.ArrayPool<char>.Shared.Rent(buffer.Length);
       try
       {
         int read = await StreamReader.ReadBlockAsync(temp, 0, buffer.Length).ConfigureAwait(false);
@@ -249,6 +234,15 @@ namespace CsvTools
       }
     }
 #endif
+
+    /// <summary>
+    /// Reads a specified maximum number of characters from the current stream and writes the data to a buffer, beginning at the specified index.
+    /// This does not keep track of the line number, use Read, ReadLine or ReadLineAsync for this
+    /// </summary>
+    /// <param name="buffer">When this method returns, contains the specified character array with the values between index and (index + count - 1) replaced by the characters read from the current source.</param>
+    /// <param name="index">The position in buffer at which to begin writing.</param>
+    /// <param name="count">The maximum number of characters to read.</param>
+    /// <returns>The number of characters that have been read. The number will be less than or equal to count, depending on whether all input characters have been read.</returns>
     public int ReadBlock(char[] buffer, int index, int count)
       => StreamReader.ReadBlock(buffer, index, count);
 

@@ -92,7 +92,7 @@ namespace CsvTools
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    // this is cleared on every new row and only used when m_RealignColumns is set
+    // this is cleared on every new currentRow and only used when m_RealignColumns is set
     private readonly StringBuilder m_RecordSource = new StringBuilder(100);
 
     private readonly bool m_SkipDuplicateHeader;
@@ -130,7 +130,7 @@ namespace CsvTools
     /// </summary>
     private bool m_EndOfLine;
 
-    private string[] m_HeaderRow;
+    private IReadOnlyList<string> m_HeaderRow;
 
     private Stream? m_Stream;
 
@@ -187,7 +187,7 @@ namespace CsvTools
     /// <param name="fileName">Fully qualified path of the file to write</param>
     /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
     /// <param name="skipRows">Number of rows that should be ignored in the beginning, e.G. for information not related  to the data</param>
-    /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read row</param>
+    /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read currentRow</param>
     /// <param name="columnDefinition">The column definition for value conversion.</param>
     /// <param name="trimmingOption">How should leading/trailing spaces be trimmed?. Option based on information whether the text is quoted or not</param>
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
@@ -202,7 +202,7 @@ namespace CsvTools
     /// <param name="newLinePlaceholder">The new line placeholder, similar to escaping but does replace the given placeholder with linefeed  e.G. "[LineFeed]" --> \n.</param>
     /// <param name="delimiterPlaceholder">The delimiter placeholder, similar to escaping but does replace the given placeholder with the delimiter  e.G. "{Del}" --> ","</param>
     /// <param name="quotePlaceholder">The quote placeholder, similar to escaping but does replace the given placeholder with the quote e.G. "{Quote}" --> "'"</param>
-    /// <param name="skipDuplicateHeader">if set to <c>true</c> does not return a  row if the header is in the file multiple time, used when files where combined without removing the header.</param>
+    /// <param name="skipDuplicateHeader">if set to <c>true</c> does not return a  currentRow if the header is in the file multiple time, used when files where combined without removing the header.</param>
     /// <param name="treatLinefeedAsSpace">if set to <c>true</c> treat any found linefeed as regular space.</param>
     /// <param name="treatUnknownCharacterAsSpace">if set to <c>true</c> treat the unknown character as space.</param>
     /// <param name="tryToSolveMoreColumns">if set to <c>true</c> try and resolved additional columns, this happens when column content is not properly quoted.</param>
@@ -554,7 +554,7 @@ namespace CsvTools
     {
       ResetPositionToStartOrOpen();
       if (m_HasFieldHeader)
-        // Read the header row, this could be more than one line
+        // Read the header currentRow, this could be more than one line
         ReadNextRow(false);
     }
 
@@ -631,11 +631,12 @@ namespace CsvTools
       try
       {
         bool readRowAgain;
+        IReadOnlyList<string> currentRow = new List<string>();
         do
         {
           readRowAgain = false;
-          CurrentRowColumnText = ReadNextRow(true);
-          if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
+          currentRow = ReadNextRow(true);
+          if (AllEmptyAndCountConsecutiveEmptyRows(currentRow))
           {
             if (EndOfFile)
               return false;
@@ -648,11 +649,11 @@ namespace CsvTools
             }
           }
 
-          if (CurrentRowColumnText.Length == FieldCount && m_HasFieldHeader && m_SkipDuplicateHeader)
+          if (currentRow.Count == FieldCount && m_HasFieldHeader && m_SkipDuplicateHeader)
           {
             var isRepeatedHeader = true;
             for (var col = 0; col < FieldCount; col++)
-              if (!m_HeaderRow[col].Equals(CurrentRowColumnText[col], StringComparison.OrdinalIgnoreCase))
+              if (!m_HeaderRow[col].Equals(currentRow[col], StringComparison.OrdinalIgnoreCase))
               {
                 isRepeatedHeader = false;
                 break;
@@ -664,56 +665,53 @@ namespace CsvTools
               readRowAgain = true;
             }
           }
+
         } while (readRowAgain);
 
-        RecordNumber++;
-        m_RealignColumns?.AddRow(CurrentRowColumnText);
-
         // Option a) Supported - We have a break in a middle column, the missing columns are pushed
-        // in the next row(s) // Option b) Not Supported - We have a line break in the last column,
-        // the text of this row belongs to the last Column of the last records, as the last record
+        // in the next currentRow(s) // Option b) Not Supported - We have a line break in the last column,
+        // the text of this currentRow belongs to the last Column of the last records, as the last record
         // had been processed already we can not change it anymore...
-        if (CurrentRowColumnText.Length < FieldCount)
+        if (currentRow.Count < FieldCount)
         {
           // if we still have only one column, and we should have a number of columns assume this was
           // nonsense like a report footer
-          if (CurrentRowColumnText.Length == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+          if (currentRow.Count == 1 && EndOfFile && currentRow[0].Length < 10)
           {
             // As the record is ignored this will most likely not be visible
             // -2 to indicate this error could be stored with the previous line....
             if (m_WarnEmptyTailingColumns)
-              HandleWarning(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
+              HandleWarning(-2, $"Last line is '{currentRow[0]}'. Assumed to be a EOF marker and ignored.");
             return false;
           }
 
           if (!m_AllowRowCombining)
           {
-            HandleWarning(-1, $"Line {cLessColumns} ({CurrentRowColumnText.Length}/{FieldCount}).");
+            HandleWarning(-1, $"Line {cLessColumns} ({currentRow.Count}/{FieldCount}).");
           }
           else
           {
             var startLine = StartLineNumber;
 
-            // get the next row
+            // get the next currentRow
             var nextLine = ReadNextRow(true);
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
-            if (nextLine.Length > 0 && nextLine.Length + CurrentRowColumnText.Length < FieldCount + 4)
+            if (nextLine.Count > 0 && nextLine.Count + currentRow.Count < FieldCount + 4)
             {
-              var combined = new List<string>(CurrentRowColumnText);
+              var combined = new List<string>(currentRow); 
 
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              HandleWarning(CurrentRowColumnText.Length - 1,
-                $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
-              combined[CurrentRowColumnText.Length - 1] += '\n' + nextLine[0];
+              HandleWarning(currentRow.Count - 1, $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
+              combined[currentRow.Count - 1] += '\n' + nextLine[0];
 
-              for (var col = 1; col < nextLine.Length; col++)
+              for (var col = 1; col < nextLine.Count; col++)
                 combined.Add(nextLine[col]);
 
-              CurrentRowColumnText = combined.ToArray();
+              currentRow = combined;
             }
 
             // we have an issue we went into the next Buffer there is no way back.
@@ -723,67 +721,74 @@ namespace CsvTools
         }
 
         // If more columns are present
-        if (CurrentRowColumnText.Length > FieldCount)
+        if (currentRow.Count > FieldCount)
         {
-          var text = $"Line {cMoreColumns} ({CurrentRowColumnText.Length}/{FieldCount}).";
-
-          if (m_RealignColumns != null)
+          var text = $"Line {cMoreColumns} ({currentRow.Count}/{FieldCount}).";
+          // check if the additional columns have contents
+          var hasContent = false;
+          for (var extraCol = FieldCount; extraCol < currentRow.Count; extraCol++)
           {
-            HandleWarning(-1, text + " Trying to realign columns.");
-
-            // determine which column could have caused the issue it could be any column, try to establish
-            CurrentRowColumnText = m_RealignColumns.RealignColumn(
-              CurrentRowColumnText,
-              HandleWarning,
-              m_RecordSource.ToString());
+            if (string.IsNullOrEmpty(currentRow[extraCol]))
+              continue;
+            hasContent = true;
+            break;
           }
+
+          if (!hasContent)
+          {
+            if (m_WarnEmptyTailingColumns)
+              HandleWarning(-1,
+                text + " All additional columns where empty.");
+          }
+          // there is something in the last columns
           else
           {
-            // check if the additional columns have contents
-            var hasContent = false;
-            for (var extraCol = FieldCount; extraCol < CurrentRowColumnText.Length; extraCol++)
+            if (m_RealignColumns != null)
             {
-              if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-                continue;
-              hasContent = true;
-              break;
-            }
+              HandleWarning(-1, text + " Trying to realign columns.");
 
-            if (!hasContent)
+              // determine which column could have caused the issue it could be any column, try to establish
+              currentRow = m_RealignColumns.RealignColumn(currentRow, HandleWarning, m_RecordSource.ToString());
+            }
+            else
             {
-              if (m_WarnEmptyTailingColumns)
-                HandleWarning(-1,
-                  text + " All additional columns where empty. Allow 're-align columns' to handle this.");
-              return true;
+              HandleWarning(-1,
+                text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
             }
-
-            HandleWarning(-1,
-              text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
           }
         }
 
-        // now handle Text replacements and warning in the read columns
-        for (var columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
+        // Handle Text replacements and warning in the read columns
+        for (var columnNo = 0; columnNo < FieldCount; columnNo++)
         {
-          if (GetColumn(columnNo).Ignore ||
-              string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
+          if (GetColumn(columnNo).Ignore)
+            continue;
+
+          // store the values from the currentRow
+          if (columnNo<currentRow.Count)
+            CurrentRowColumnText[columnNo] = currentRow[columnNo];
+          else
+            CurrentRowColumnText[columnNo] = string.Empty;
+            
+
+          if (string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
 
           // Handle replacements and warnings etc.
-          var adjustedValue = HandleTextSpecials(
+          var adjustedSpan = HandleTextSpecials(
             CurrentRowColumnText[columnNo]
               .ReplaceCaseInsensitive(m_NewLinePlaceholder, '\n')
               .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter)
               .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier).AsSpan(),
             columnNo);
 
-          if (adjustedValue.Length > 0)
+          if (adjustedSpan.Length > 0)
           {
-            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifier) != -1 &&
+            if (m_WarnQuotes && adjustedSpan.IndexOf(m_FieldQualifier) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
               HandleWarning(columnNo, $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
 
-            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiter) != -1 &&
+            if (m_WarnDelimiterInValue && adjustedSpan.IndexOf(m_FieldDelimiter) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
               HandleWarning(columnNo, $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
@@ -791,10 +796,10 @@ namespace CsvTools
             {
               var numberQuestionMark = 0;
               var lastPos = -1;
-              var length = adjustedValue.Length;
+              var length = adjustedSpan.Length;
               for (var pos = length - 1; pos >= 0; pos--)
               {
-                if (adjustedValue[pos] != '?')
+                if (adjustedSpan[pos] != '?')
                   continue;
                 numberQuestionMark++;
 
@@ -812,19 +817,21 @@ namespace CsvTools
               }
             }
 
-            if (m_WarnLineFeed && (adjustedValue.IndexOfAny(new[] { '\r', '\n' }) != -1))
+            if (m_WarnLineFeed && (adjustedSpan.IndexOfAny(new[] { '\r', '\n' }) != -1))
               WarnLinefeed(columnNo);
 
-            if (adjustedValue.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
-              adjustedValue = Array.Empty<char>();
+            if (adjustedSpan.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
+              adjustedSpan = Array.Empty<char>();
           }
 #if NET7_0_OR_GREATER
-          CurrentRowColumnText[columnNo] = new string(adjustedValue);
+          CurrentRowColumnText[columnNo] = new string(adjustedSpan);
 #else
-          CurrentRowColumnText[columnNo] = adjustedValue.ToString();
+          CurrentRowColumnText[columnNo] = adjustedSpan.ToString();
 #endif
         }
 
+        RecordNumber++;
+        m_RealignColumns?.AddRow(CurrentRowColumnText);
         return true;
       }
       catch (Exception ex)
@@ -833,7 +840,7 @@ namespace CsvTools
 
         EndOfFile = true;
         return false;
-      }      
+      }
     }
 
     /// <summary>
@@ -894,17 +901,17 @@ namespace CsvTools
         var nextLine = ReadNextRow(false);
 
         // if we have less columns than in the header exit the loop
-        if (nextLine.GetLength(0) < fields)
+        if (nextLine.Count < fields)
           break;
 
         // special case of missing linefeed, the line is twice as long minus 1 because of the
         // combined column in the middle
-        if (nextLine.Length == (fields * 2) - 1)
+        if (nextLine.Count == (fields * 2) - 1)
           continue;
 
-        while (nextLine.GetLength(0) > fields)
+        while (nextLine.Count > fields)
         {
-          HandleWarning(fields, $"No header for last {nextLine.GetLength(0) - fields} column(s)".AddWarningId());
+          HandleWarning(fields, $"No header for last {nextLine.Count - fields} column(s)".AddWarningId());
           fields++;
         }
 
@@ -1174,17 +1181,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Reads the record of the CSV file, this can span over multiple lines
+    ///   Reads the record of the CSV file, this can span over multiple lines, this method can return more or less columns than expected
     /// </summary>
-    /// <param name="storeWarnings">Set to <c>true</c> if the warnings should be issued.</param>
+    /// <param name="raiseWarnings">Set to <c>true</c> if the warnings should be issued.</param>
     /// <returns>
-    ///   <c>NULL</c> if the row can not be read, array of string values representing the columns of
-    ///   the row
+    ///   Empty List if the currentRow can not be read, or string values representing the columns of
+    ///   the currentRow
     /// </returns>
-    private string[] ReadNextRow(bool storeWarnings)
+    private IReadOnlyList<string> ReadNextRow(bool raiseWarnings)
     {
       bool restart;
-      // Special handling for the first column in the row
+      // Special handling for the first column in the currentRow
       string? item;
       do
       {
@@ -1240,18 +1247,16 @@ namespace CsvTools
       {
         // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
         // might have an opening delimiter with a missing closing delimiter
-        if (storeWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
+        if (raiseWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
             && item.IndexOf(m_FieldDelimiter) != -1)
-          HandleWarning(col,
-            $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
-              .AddWarningId());
+          HandleWarning(col, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters".AddWarningId());
         columns.Add(item);
 
         col++;
         item = ReadNextColumn(col);
       }
 
-      return ToArray(columns);
+      return columns;
     }
 
     /// <summary>

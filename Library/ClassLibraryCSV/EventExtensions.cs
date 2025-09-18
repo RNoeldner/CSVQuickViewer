@@ -1,6 +1,9 @@
 ﻿using System;
 namespace CsvTools
 {
+  /// <summary>
+  /// Making event invocation safer and logging exceptions from handlers
+  /// </summary>
   public static class EventExtensions
   {
     /// <summary>

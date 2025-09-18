@@ -431,11 +431,11 @@ namespace CsvTools
       if (e.ColumnNumber < 0)
       {
         m_ColumnErrorDictionary.Add(-1, e.Message);
-        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));        
+        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));
       }
       else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
       {
-        m_ColumnErrorDictionary.Add(ownColumnIndex, e.Message);
+        m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
         Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));        
       }
     }
