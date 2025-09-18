@@ -79,7 +79,7 @@ namespace CsvTools
     /// <param name="handleWarning">Action to be called to store a warning</param>
     /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
-    public string[] RealignColumn(in string[] row, Action<int, string> handleWarning, in string rawText)
+    public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, in string rawText)
     {
       if (row is null) throw new ArgumentNullException(nameof(row));
       if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
@@ -91,11 +91,11 @@ namespace CsvTools
       }
 
       // List is easier to handle than an array
-      var columns = new List<string>(row.Length);
-      for (int i = 0; i < row.Length; i++)
+      var columns = new List<string>(row.Count);
+      for (int i = 0; i < row.Count; i++)
         columns.Add(row[i]?.Trim() ?? string.Empty);
 
-      if (row.Length >= m_ExpectedColumns * 2 - 1)
+      if (row.Count >= m_ExpectedColumns * 2 - 1)
       {
         // take the columns as is...
         while (columns.Count > m_ExpectedColumns) columns.RemoveAt(m_ExpectedColumns);
@@ -165,7 +165,7 @@ namespace CsvTools
           col++;
         }
       }
-      return (columns.Count == row.Length && row.Length == m_ExpectedColumns)
+      return (columns.Count == row.Count && row.Count == m_ExpectedColumns)
           ? row : columns.ToArray();
     }
 

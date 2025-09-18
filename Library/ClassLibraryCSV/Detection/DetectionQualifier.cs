@@ -93,7 +93,7 @@ namespace CsvTools
           await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
 
       const int bufferSize = 4096;
-      char[] buffer = ArrayPool<char>.Shared.Rent(bufferSize);
+      var buffer = ArrayPool<char>.Shared.Rent(bufferSize);
 
       try
       {

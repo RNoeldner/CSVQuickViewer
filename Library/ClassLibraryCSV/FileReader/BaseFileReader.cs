@@ -15,7 +15,6 @@
 #nullable enable
 
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -79,7 +78,6 @@ namespace CsvTools
     private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
     private readonly bool m_RemoveCurrency;
-    private ArrayPool<string> m_ArrayPool = ArrayPool<string>.Shared;
     /// <summary>
     ///   An array of associated col
     /// </summary>
@@ -281,8 +279,6 @@ namespace CsvTools
 
       if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
       {
-        Array.Clear(CurrentRowColumnText, 0, CurrentRowColumnText.Length);
-        m_ArrayPool.Return(CurrentRowColumnText, clearArray: true);
         CurrentRowColumnText = Array.Empty<string>();
       }
 
@@ -624,8 +620,10 @@ namespace CsvTools
     /// <param name="message">The message to raise.</param>
     public void HandleError(int ordinal, in string message)
     {
-      if (ordinal < 0 || ordinal > Column.Length || !Column[ordinal].Ignore)      
-        Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
+      // Ignore message for ignore columns
+      if (ordinal>=0 && ordinal < Column.Length && Column[ordinal].Ignore)
+        return;
+      Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
     }
 
     /// <summary>
@@ -637,7 +635,7 @@ namespace CsvTools
 
       m_IsFinished = true;
       HandleShowProgress("Finished reading", 1);
-      ReadFinished?.SafeInvoke(this);      
+      ReadFinished?.SafeInvoke(this);
     }
 
     /// <summary>
@@ -1027,15 +1025,7 @@ namespace CsvTools
         throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000");
       m_FieldCount = fieldCount;
 
-      // Return previous array to pool if needed
-      if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
-      {
-        Array.Clear(CurrentRowColumnText, 0, CurrentRowColumnText.Length);
-        m_ArrayPool.Return(CurrentRowColumnText, clearArray: true);
-      }
-
-      // Rent a new array from the pool
-      CurrentRowColumnText = m_ArrayPool.Rent(fieldCount);
+      CurrentRowColumnText = new string[fieldCount];
 
       Column = new Column[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
@@ -1054,7 +1044,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>
-    /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
+    /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
     protected virtual void ParseColumnName(
       in IEnumerable<string> headerRow,
       in IEnumerable<DataTypeEnum>? dataType = null,
@@ -1166,22 +1156,6 @@ namespace CsvTools
       return eventArgs.Retry;
     }
 
-    protected string[] ToArray(ICollection<string> columns)
-    {
-      // Rent an array large enough
-      var tempArray = m_ArrayPool.Rent(Math.Max(columns.Count, FieldCount));
-
-      // Copy values
-      int i = 0;
-      foreach (var column in columns)
-        tempArray[i++] = column;
-
-      // Empty rest of array
-      for (var j = i; j < tempArray.Length; j++)
-        tempArray[j] = string.Empty;
-
-      return tempArray;
-    }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <summary>
