@@ -74,7 +74,7 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     public CsvFileWriter(
-      in string fullPath,
+      string fullPath,
       bool hasFieldHeader = true,
       in ValueFormat? valueFormat = null,
       int codePageId = 65001,
@@ -83,20 +83,20 @@ namespace CsvTools
       in string? identifierInContainer = "",
       in string? header = "",
       in string? footer = "",
-      in string fileSettingDisplay = "",
+      string fileSettingDisplay = "",
       in RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
       char fieldDelimiterChar = ',',
       char fieldQualifierChar = '"',
       char escapePrefixChar = '\0',
-      in string newLinePlaceholder = "",
-      in string delimiterPlaceholder = "",
-      in string qualifierPlaceholder = "",
+      string newLinePlaceholder = "",
+      string delimiterPlaceholder = "",
+      string qualifierPlaceholder = "",
       bool qualifyAlways = false,
       bool qualifyOnlyIfNeeded = true,
       bool fixedLength = false,
       in TimeZoneChangeDelegate? timeZoneAdjust = null,
-      in string sourceTimeZone = "",
-      in string publicKey = "",
+      string sourceTimeZone = "",
+      string publicKey = "",
       bool unencrypted = false
     )
       : base(

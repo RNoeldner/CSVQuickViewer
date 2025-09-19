@@ -37,7 +37,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
     {
       var output = HtmlStyle.TextToHtmlEncode(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

@@ -46,7 +46,7 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       char fieldDelimiterChar,
       char escapePrefixChar,
-      in string commentLine,
+      string commentLine,
       IEnumerable<char> possibleQuotes,
       in CancellationToken cancellationToken)
     {
@@ -183,7 +183,7 @@ namespace CsvTools
       char delimiterChar,
       char escapeChar,
       char quoteChar,
-      in string commentLine,
+      string commentLine,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));

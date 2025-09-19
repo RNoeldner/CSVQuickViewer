@@ -38,7 +38,7 @@ namespace CsvTools
     /// <param name="columns">A sequence of columns to analyze.</param>
     /// <param name="guessDefault">A fallback date string used to guess format and separator, if needed.</param>
     /// <returns>A <see cref="ValueFormat"/> representing the most likely date format.</returns>
-    public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, in string guessDefault)
+    public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, string guessDefault)
     {
       // Find the most-used date format among relevant columns.
       var mostUsed = columns

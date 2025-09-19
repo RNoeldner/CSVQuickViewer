@@ -60,7 +60,7 @@ namespace CsvTools
     /// Adding an entry. The value stored is a DateTimeFormatInformation object that analyzes the format to determine min and max lengths.
     /// </summary>
     /// <param name="entry">New DateTime format</param>
-    private void Add(in string entry)
+    private void Add(string entry)
     {
       if (string.IsNullOrWhiteSpace(entry))
         return;
@@ -94,7 +94,7 @@ namespace CsvTools
     /// <param name="actualLength">The actual value.</param>
     /// <param name="dateFormat">The date format to check.</param>
     /// <returns><c>true</c> if key was found</returns>    
-    public bool DateLengthMatches(int actualLength, in string dateFormat)
+    public bool DateLengthMatches(int actualLength, string dateFormat)
     {
       if (actualLength<4)
         return false;

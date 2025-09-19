@@ -57,7 +57,7 @@ namespace CsvTools
     ///   Replace c escaped text to verbatim text similar to RegEx UnEscape
     /// </summary>
     /// <param name="text">The text possibly containing c escaped text.</param>    
-    public static string Unescape(in string text)
+    public static string Unescape(string text)
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
       if (text.IndexOf('\\') == -1)
@@ -96,7 +96,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

@@ -178,7 +178,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
+    private void BuildTreeData(string parentCol, string idCol, in string? display1, in string? display2,
       IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
     {
       DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ??

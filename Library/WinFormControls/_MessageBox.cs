@@ -24,7 +24,7 @@ namespace CsvTools
 #pragma warning restore IDE1006 // Naming Styles
   {
     public static DialogResult Show(
-      in string message,
+      string message,
       in string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
@@ -49,11 +49,11 @@ namespace CsvTools
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
 
     public static DialogResult PersistentChoice(
-      in string message,
+      string message,
       in  string title,
       PersistentChoice massChoice,
-      in string button1Text = "Yes",
-      in string button2Text = "No")
+      string button1Text = "Yes",
+      string button2Text = "No")
     {
       if (massChoice.Chosen)
         return massChoice.DialogResult;
@@ -84,8 +84,8 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBigHtml(
-      in string html,
-      in string title,
+      string html,
+      string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
@@ -100,7 +100,7 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBig(
-      in string message,
+      string message,
       in  string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,

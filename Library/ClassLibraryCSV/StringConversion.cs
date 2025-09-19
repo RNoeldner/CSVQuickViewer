@@ -41,7 +41,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="cultureInfo"></param>
     /// <returns>Formatted value</returns>
-    public static string DateTimeToString(in DateTime dateTime, in string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
+    public static string DateTimeToString(in DateTime dateTime, string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
     {
       cultureInfo ??= CultureInfo.InvariantCulture;
 

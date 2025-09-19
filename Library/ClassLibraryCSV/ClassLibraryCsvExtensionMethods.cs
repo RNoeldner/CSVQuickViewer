@@ -38,7 +38,7 @@ namespace CsvTools
   /// <returns>
   ///   Converted date / time
   /// </returns>
-  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
+  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string srcTimeZone, string destTimeZone,
     in Action<string>? handleWarning);
 
   /// <summary>
@@ -75,7 +75,7 @@ namespace CsvTools
     /// <summary>    
     /// Generate a hash for two texts both case-insensitive
     /// </summary>    
-    public static int IdentifierHash(this string name, in string name2)
+    public static int IdentifierHash(this string name, string name2)
       => name.ToUpperInvariant().GetHashCode() + name2.ToUpperInvariant().GetHashCode();
 
 
@@ -430,7 +430,7 @@ namespace CsvTools
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
-    public static string PlaceholderReplace2(this string input, in string placeholder, string replacement)
+    public static string PlaceholderReplace2(this string input, string placeholder, string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
       var type = "{{" + placeholder.Trim() + "}}";
@@ -478,7 +478,7 @@ namespace CsvTools
     /// <param name="placeholder">The placeholder name.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    public static string PlaceholderReplace(this string input, in string placeholder, string replacement)
+    public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
       // if there is no placeholder we can exit
       if (string.IsNullOrEmpty(placeholder) || input.IndexOf(placeholder, StringComparison.OrdinalIgnoreCase) == -1)
@@ -529,7 +529,7 @@ namespace CsvTools
     /// <param name="placeholder">The identifiers of the placeholder.</param>
     /// <param name="formatedDateTime">The date time format in  case the placeholder has a format description</param>
     /// <returns></returns>
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime)
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, string formatedDateTime)
     {
       // Regex to match placeholders with a formatting part, e.g. {date:yyyy-MM-dd}
       // Non-capturing group (?:[\{#]{1,2}\s*placeholder\s*:\s*)  := Starting with { or # and then "placelodeor" and :
@@ -599,7 +599,7 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, in string? pattern, in string replacement)
+    public static string ReplaceCaseInsensitive(this string original, in string? pattern, string replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;
@@ -679,8 +679,8 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    public static string ReplaceDefaults(this string inputValue, in string old1, in string new1, in string old2,
-      in string new2)
+    public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2,
+      string new2)
     {
       if (inputValue.Length == 0)
         return string.Empty;

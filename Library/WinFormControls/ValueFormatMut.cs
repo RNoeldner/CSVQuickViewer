@@ -108,15 +108,15 @@ namespace CsvTools
       in string? decimalSeparator = null,
       in string? asTrue = null,
       in string? asFalse = null,
-      in string displayNullAs = "",
+      string displayNullAs = "",
       int part = 0,
       in string? partSplitter = null,
       bool partToEnd = true,
-      in string regexSearchPattern = "",
-      in string regexReplacement = "",
-      in string readFolder = "",
-      in string writeFolder = "",
-      in string fileOutPutPlaceholder = "",
+      string regexSearchPattern = "",
+      string regexReplacement = "",
+      string readFolder = "",
+      string writeFolder = "",
+      string fileOutPutPlaceholder = "",
       in bool overwrite = true)
     {
       m_DecimalSeparator = decimalSeparator?.FromText() ?? ValueFormat.Empty.DecimalSeparator;

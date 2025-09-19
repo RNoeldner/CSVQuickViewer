@@ -36,10 +36,10 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
-    public JsonFileWriter(in string fullPath, in string? identifierInContainer, in string? footer, in string? header,
+    public JsonFileWriter(string fullPath, in string? identifierInContainer, in string? footer, in string? header,
       bool emptyAsNull, int codePageId, bool byteOrderMark, IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay, in string row, TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone, in string publicKey, bool unencrypted)
+      string fileSettingDisplay, string row, TimeZoneChangeDelegate? timeZoneAdjust,
+      string sourceTimeZone, string publicKey, bool unencrypted)
       : base(fullPath, identifierInContainer, footer, header, codePageId, byteOrderMark, columnDefinition,
         fileSettingDisplay, row, timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, sourceTimeZone, publicKey,
         unencrypted)
@@ -77,7 +77,7 @@ namespace CsvTools
       return JsonConvert.ToString(typedValue);
     }
 
-    private WriterColumn FindWriterColumn(in string row, int startArray)
+    private WriterColumn FindWriterColumn(string row, int startArray)
     {
       // Determine columnInfo := Name of the column should be before : 
       var sep = row.Substring(0, startArray).LastIndexOf(":", StringComparison.Ordinal);
@@ -120,7 +120,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public override string BuildRow(in string placeHolderText, in IDataReader reader)
+    public override string BuildRow(string placeHolderText, in IDataReader reader)
     {
       var row = base.BuildRow(placeHolderText, reader);
       if (!string.IsNullOrEmpty(row))

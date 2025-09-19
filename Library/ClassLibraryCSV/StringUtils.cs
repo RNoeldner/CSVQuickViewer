@@ -72,7 +72,7 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIdColumn(in string columnName) => AssumeIdColumn(columnName.AsSpan());
+    public static int AssumeIdColumn(string columnName) => AssumeIdColumn(columnName.AsSpan());
 
 
     /// <summary>
@@ -135,7 +135,7 @@ namespace CsvTools
     /// <returns>
     ///   The text with every combination of line feed replaced with the given replacement
     /// </returns>
-    public static string HandleCrlfCombinations(this string text, in string replace = "\n")
+    public static string HandleCrlfCombinations(this string text, string replace = "\n")
     {
       var sb = new StringBuilder(text.Length);
       var lastC = '\0';
@@ -164,7 +164,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, in string joinWith)
+    public static string Join(this IEnumerable<string> parts, string joinWith)
     {
       var sb = new StringBuilder(100);
       foreach (var part in parts)
@@ -206,7 +206,7 @@ namespace CsvTools
     /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(this ICollection<string> previousColumns, in string nameToAdd)
+    public static string MakeUniqueInCollection(this ICollection<string> previousColumns, string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
@@ -387,7 +387,7 @@ namespace CsvTools
     /// <param name="original">The original.</param>
     /// <param name="allowedChars">a text containing all allowed characters</param>
     /// <returns>A test with only allowed characters</returns>
-    public static string OnlyAllowed(this string original, in string allowedChars)
+    public static string OnlyAllowed(this string original, string allowedChars)
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -456,7 +456,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull) =>
+    public static bool ShouldBeTreatedAsNull(in string? value, string treatAsNull) =>
       value is null || ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
 
     /// <summary>

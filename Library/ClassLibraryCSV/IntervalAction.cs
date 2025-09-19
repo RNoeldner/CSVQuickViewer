@@ -135,7 +135,7 @@ namespace CsvTools
     /// <summary>
     ///   Invoke progress on given interval
     /// </summary>
-    public void Invoke(in Action<string> action, in string txt)
+    public void Invoke(in Action<string> action, string txt)
     {
       // do nothing if the timespan between invokes is not reached
       if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)

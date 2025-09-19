@@ -34,7 +34,7 @@ namespace CsvTools
       dataObject is null ? string.Empty : HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
     {
       var output = HtmlStyle.HtmlEncodeShort(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

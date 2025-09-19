@@ -76,7 +76,7 @@ namespace CsvTools
     /// <param name="keepEncrypted"></param>
     /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
     /// <remarks>If it's a PGP file, but no key is given GetKeyAndPassphraseForFile is called to retrieve the information</remarks>
-    public SourceAccess(in string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "")
+    public SourceAccess(string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -197,7 +197,7 @@ namespace CsvTools
       return stream;
     }
     
-    private static FileTypeEnum GetFileType(in string fileName)
+    private static FileTypeEnum GetFileType(string fileName)
     {
       if (fileName.AssumeGZip())
         return FileTypeEnum.GZip;

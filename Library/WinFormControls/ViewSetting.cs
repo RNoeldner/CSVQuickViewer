@@ -25,7 +25,7 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
-    public static void ReStoreViewSetting(in string text, DataGridViewColumnCollection columns,
+    public static void ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
       IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
     {
       try

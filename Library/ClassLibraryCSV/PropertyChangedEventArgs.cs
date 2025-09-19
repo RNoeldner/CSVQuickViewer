@@ -27,7 +27,7 @@ namespace CsvTools
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
-    public PropertyChangedEventArgs(in string propertyName, T oldValue, T newValue) : base(propertyName)
+    public PropertyChangedEventArgs(string propertyName, T oldValue, T newValue) : base(propertyName)
     {
       OldValue = oldValue;
       NewValue = newValue;

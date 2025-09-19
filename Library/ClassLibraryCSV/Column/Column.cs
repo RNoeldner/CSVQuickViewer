@@ -50,7 +50,7 @@ namespace CsvTools
     /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>
     /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
     /// <exception cref="System.ArgumentNullException">name</exception>
-    public Column(in string name,
+    public Column(string name,
       in ValueFormat? valueFormat = null,
       int? columnOrdinal = 0,
       bool? ignore = false,

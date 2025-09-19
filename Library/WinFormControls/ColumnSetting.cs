@@ -32,7 +32,7 @@ namespace CsvTools
     /// <param name="sorted"></param>
     /// <param name="displayIndex"></param>
     /// <param name="width"></param>
-    public ColumnSetting(in string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
+    public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
     {
       DataPropertyName = dataPropertyName;
       Visible= visible;

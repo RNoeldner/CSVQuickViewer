@@ -79,16 +79,16 @@ namespace CsvTools
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// 
     protected BaseFileWriter(
-      in string fullPath,
+      string fullPath,
       in ValueFormat? valueFormatGeneral,
       in string? identifierInContainer,
       in string? footer,
       in string? header,
       in IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay,
+      string fileSettingDisplay,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
+      string sourceTimeZone,
+      string publicKey,
       bool unencrypted
       )
     {
@@ -362,7 +362,7 @@ namespace CsvTools
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
     /// <remarks>It can only be DBNull, long, bool, double, decimal, DateTime, Guid  or string</remarks>
     public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
-      in TimeZoneChangeDelegate timeZoneAdjust, in string sourceTimeZone, Action<string, string>? handleWarning = null)
+      in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return DBNull.Value;

@@ -79,7 +79,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="multipleBackups">if set to <c>true</c> multiple backup version are kept.</param>
-    public static void DeleteWithBackup(in string fileName, bool multipleBackups)
+    public static void DeleteWithBackup(string fileName, bool multipleBackups)
     {
       try
       {
@@ -284,7 +284,7 @@ namespace CsvTools
     /// <param name="folder">The directory to look in</param>
     /// <param name="searchPattern">The pattern to look for</param>
     /// <returns>No matching file is found of the folder does not exist an empty string is returned</returns>
-    public static string GetLatestFileOfPattern(string folder, in string searchPattern)
+    public static string GetLatestFileOfPattern(string folder, string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
         folder = ".";
@@ -309,7 +309,7 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
-    private static string ReplaceHolder(in string fileName, in string dir, in string placeHolder)
+    private static string ReplaceHolder(string fileName, string dir, string placeHolder)
     {
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
@@ -324,7 +324,7 @@ namespace CsvTools
       return string.Empty;
     }
 
-    private static string UseSpecialFolders(in string fileName)
+    private static string UseSpecialFolders(string fileName)
     {
       if (IsWindows)
       {
@@ -483,7 +483,7 @@ namespace CsvTools
     /// <param name="original">The original text.</param>
     /// <param name="replaceInvalid">The replacement for invalid chars</param>
     /// <returns>A text that is allowed in the file system as filename</returns>
-    public static string SafePath(this string original, in string replaceInvalid = "")
+    public static string SafePath(this string original, string replaceInvalid = "")
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -575,7 +575,7 @@ namespace CsvTools
 
     /// <summary>Opens the file for writing</summary>
     /// <param name="fileName">Name of the file.</param>
-    public static FileStream OpenWrite(in string fileName) => File.OpenWrite(fileName.LongPathPrefix());
+    public static FileStream OpenWrite(string fileName) => File.OpenWrite(fileName.LongPathPrefix());
 
     /// <summary>
     /// Creates a file in a particular path.  If the file exists, it is replaced. The file is opened with ReadWrite access and cannot be opened by another application until it has been closed.  
@@ -583,7 +583,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="bufferSize">Size of the buffer.</param>
     /// <param name="options">The options like RandomAccess or Asynchronous</param>    
-    public static FileStream Create(in string fileName, int bufferSize, in FileOptions options) =>
+    public static FileStream Create(string fileName, int bufferSize, in FileOptions options) =>
       File.Create(fileName.LongPathPrefix(), bufferSize, options);
 
     /// <summary>
@@ -591,7 +591,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents.</param>
-    public static void WriteAllText(in string fileName, in string contents) =>
+    public static void WriteAllText(string fileName, string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
     /// <summary>
@@ -600,7 +600,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents.</param>
     /// <param name="encoding">The encoding to be used</param>
-    public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
+    public static void WriteAllText(string fileName, string contents, in Encoding encoding) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
@@ -614,7 +614,7 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
+    public static Task WriteAllTextAsync(string fileName, string contents, CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
 
@@ -623,20 +623,20 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    public static string GetFullPath(in string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
+    public static string GetFullPath(string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
 
     /// <summary>
     /// Opens the file for reading
     /// </summary>
     /// <param name="fileName">Name of the file.</param>    
-    public static FileStream OpenRead(in string fileName) => File.OpenRead(fileName.LongPathPrefix());
+    public static FileStream OpenRead(string fileName) => File.OpenRead(fileName.LongPathPrefix());
 
     /// <summary>
     /// Writes all bytes of content to the file
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents to be written.</param>
-    public static void WriteAllBytes(in string fileName, in byte[] contents) =>
+    public static void WriteAllBytes(string fileName, in byte[] contents) =>
       File.WriteAllBytes(fileName.LongPathPrefix(), contents);
 
     /// <summary>
@@ -729,7 +729,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public static string ResolvePattern(in string fileName)
+    public static string ResolvePattern(string fileName)
     {
       if (fileName is null || fileName.Length == 0)
         return string.Empty;
@@ -770,13 +770,13 @@ namespace CsvTools
     /// Creates a text file
     /// </summary>
     /// <param name="path">The path to the file.</param>
-    public static StreamWriter CreateText(in string path) => File.CreateText(path.LongPathPrefix());
+    public static StreamWriter CreateText(string path) => File.CreateText(path.LongPathPrefix());
 
     /// <summary>
     /// Reads all text for a file
     /// </summary>
     /// <param name="path">The path to the file.</param>
-    public static string ReadAllText(in string path) => File.ReadAllText(path.LongPathPrefix());
+    public static string ReadAllText(string path) => File.ReadAllText(path.LongPathPrefix());
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <summary>

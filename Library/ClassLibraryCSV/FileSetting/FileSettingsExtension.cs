@@ -43,7 +43,7 @@ namespace CsvTools
       var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
       var fi = new FileInfo(fileSetting.FileName);
 
-      void AddInfo(in string label, in string text)
+      void AddInfo(string label, string text)
       {
         buffer.Append(label.Replace("\t", "  "));
         buffer.Append('\t');

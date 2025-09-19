@@ -32,7 +32,7 @@ namespace CsvTools
     /// <param name="start"></param>
     /// <param name="end"></param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    public ValueCluster(in string display, in string condition, int count, object? start, object? end = null,
+    public ValueCluster(string display, string condition, int count, object? start, object? end = null,
       bool active = false)
     {
       Display = display;

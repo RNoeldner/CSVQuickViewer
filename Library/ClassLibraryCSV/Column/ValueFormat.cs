@@ -168,9 +168,9 @@ namespace CsvTools
     /// <param name="writeFolder">The write folder.</param>
     /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
     /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
-    public ValueFormat(DataTypeEnum dataType, in string dateFormat, char dateSeparator, char timeSeparator,
-      in string numberFormat, char groupSeparator, char decimalSeparator,
-      in string asTrue, in string asFalse, in string displayNullAs,
+    public ValueFormat(DataTypeEnum dataType, string dateFormat, char dateSeparator, char timeSeparator,
+      string numberFormat, char groupSeparator, char decimalSeparator,
+      string asTrue, string asFalse, string displayNullAs,
       int part, char partSplitter, bool partToEnd,
       string regexSearchPattern, string regexReplacement,
       string readFolder, string writeFolder, string fileOutPutPlaceholder, bool overwrite)

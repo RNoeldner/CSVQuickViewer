@@ -110,11 +110,11 @@ namespace CsvTools
     /// </param>
     /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
     /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
-    protected BaseFileReader(in string fileName,
+    protected BaseFileReader(string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string returnedTimeZone,
+      string returnedTimeZone,
       bool allowPercentage,
       bool removeCurrency)
     {
@@ -618,7 +618,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column ordinal number.</param>
     /// <param name="message">The message to raise.</param>
-    public void HandleError(int ordinal, in string message)
+    public void HandleError(int ordinal, string message)
     {
       // Ignore message for ignore columns
       if (ordinal>=0 && ordinal < Column.Length && Column[ordinal].Ignore)
@@ -963,7 +963,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The ordinal.</param>
     /// <param name="message">The message.</param>
-    protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
+    protected WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
       new WarningEventArgs(
         RecordNumber,
         ordinal,
@@ -977,14 +977,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">Leading Text</param>
     /// <param name="percent">Value between 0 and 1 representing the relative position</param>
-    protected virtual void HandleShowProgress(in string text, double percent) =>
+    protected virtual void HandleShowProgress(string text, double percent) =>
       m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
 
     /// <summary>
     ///   Shows the process twice a second
     /// </summary>
     /// <param name="text">Leading Text</param>
-    protected virtual void HandleShowProgressPeriodic(in string text)
+    protected virtual void HandleShowProgressPeriodic(string text)
       => m_IntervalAction.Invoke(t => HandleShowProgress(t, GetRelativePosition()), text);
 
     /// <summary>
@@ -1168,7 +1168,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int ordinal, in string message)
+    protected FormatException WarnAddFormatException(int ordinal, string message)
     {
       HandleError(ordinal, message);
       return new FormatException(message);

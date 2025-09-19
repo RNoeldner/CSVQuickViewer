@@ -101,7 +101,7 @@ namespace CsvTools
       MaxLength = maxLength;
     }
 
-    private static void SetMinMaxAndRemove(in string search, int minLenSearch, int maxLenSearch, ref string format,
+    private static void SetMinMaxAndRemove(string search, int minLenSearch, int maxLenSearch, ref string format,
       ref int minLength,
       ref int maxLength)
     {

@@ -36,7 +36,7 @@ namespace CsvTools
     public WarningEventArgs(
       long recordNumber,
       int columnNumber,
-      in string warningMessage,
+      string warningMessage,
       long lineNumberStart,
       long lineNumberEnd,
       in string? columnName)

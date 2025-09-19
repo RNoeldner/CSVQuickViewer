@@ -30,7 +30,7 @@ namespace CsvTools
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormTextDisplay(in string display)
+    public FormTextDisplay(string display)
     {
       InitializeComponent();
       textBox.Text = display;

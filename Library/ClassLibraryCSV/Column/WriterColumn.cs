@@ -22,11 +22,11 @@ namespace CsvTools
 #endif
   {
     /// <inheritdoc />
-    public WriterColumn(in string name,
+    public WriterColumn(string name,
       in ValueFormat valueFormat,
       int colNum,
       int fieldLength = 0,
-      in string constantTimeZone = "",
+      string constantTimeZone = "",
       int columnOrdinalTimeZone = -1)
       : base(name, valueFormat, colNum)
     {

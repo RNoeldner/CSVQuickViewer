@@ -41,7 +41,7 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
       string destTimeZone,
@@ -51,7 +51,7 @@ namespace CsvTools
       m_Stream = stream;
 
     /// <inheritdoc />
-    public XmlFileReader(in string fileName,
+    public XmlFileReader(string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,

@@ -18,7 +18,7 @@ namespace CsvTools.Tests
         ID= id;
       }
 
-      public TestObject(in string name)
+      public TestObject(string name)
       {
         Name= name;
       }

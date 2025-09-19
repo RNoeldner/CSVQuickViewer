@@ -51,14 +51,14 @@ namespace CsvTools
     /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
     /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
     protected BaseFileReaderTyped(
-      in string fileName,
+      string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string returnedTimeZone,
+      string returnedTimeZone,
       bool allowPercentage ,
       bool removeCurrency)
       : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)

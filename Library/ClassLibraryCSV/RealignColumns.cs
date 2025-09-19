@@ -79,7 +79,7 @@ namespace CsvTools
     /// <param name="handleWarning">Action to be called to store a warning</param>
     /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
-    public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, in string rawText)
+    public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, string rawText)
     {
       if (row is null) throw new ArgumentNullException(nameof(row));
       if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));

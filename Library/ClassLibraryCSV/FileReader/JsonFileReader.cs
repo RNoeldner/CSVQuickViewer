@@ -56,7 +56,7 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
       string returnedTimeZone,
@@ -81,7 +81,7 @@ namespace CsvTools
     /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="FileNotFoundException"></exception>
-    public JsonFileReader(in string fileName,
+    public JsonFileReader(string fileName,
       in IEnumerable<Column>? columnDefinition = null,
       long recordLimit = 0,
       bool trim = false,

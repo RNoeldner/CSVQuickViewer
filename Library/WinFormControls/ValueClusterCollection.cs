@@ -74,7 +74,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, in ICollection<object> values,
-      in string escapedName, bool isActive, int maxNumber = 50,
+      string escapedName, bool isActive, int maxNumber = 50,
       bool combine = true, bool even = false, double maxSeconds = 5.0, IProgress<ProgressInfo>? progress = null,
       CancellationToken cancellationToken = default)
     {
@@ -219,7 +219,7 @@ namespace CsvTools
       m_ValueClusters.Add(item);
     }
 
-    private void AddValueClusterDateTime(in string escapedName, DateTime from, DateTime to,
+    private void AddValueClusterDateTime(string escapedName, DateTime from, DateTime to,
       IEnumerable<DateTime> values, DateTimeRange displayType, int desiredSize = int.MaxValue)
     {
       if (HasOverlappingCluster(from, to))
@@ -249,7 +249,7 @@ namespace CsvTools
       AddUnique(m_Last);
     }
 
-    private void AddValueClusterNull(in string escapedName, int count)
+    private void AddValueClusterNull(string escapedName, int count)
     {
       if (count <= 0 || m_ValueClusters.Any(x => x.Start is null))
         return;
@@ -261,7 +261,7 @@ namespace CsvTools
     ///   Builds the keyValue clusters date.
     /// </summary>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersDate(in ICollection<DateTime> values, in string escapedName,
+    private BuildValueClustersResult BuildValueClustersDate(in ICollection<DateTime> values, string escapedName,
       int max, bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
@@ -473,7 +473,7 @@ namespace CsvTools
       return BuildValueClustersResult.ListFilled;
     }
 
-    private BuildValueClustersResult BuildValueClustersLong(in ICollection<long> values, in string escapedName, int max,
+    private BuildValueClustersResult BuildValueClustersLong(in ICollection<long> values, string escapedName, int max,
       bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts      
@@ -606,7 +606,7 @@ namespace CsvTools
         cancellationToken);
     }
 
-    private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, in string escapedName,
+    private BuildValueClustersResult BuildValueClustersNumeric(in ICollection<double> values, string escapedName,
       int max, bool combine, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       // Get the distinct values and their counts
@@ -773,7 +773,7 @@ namespace CsvTools
     ///   Builds the data grid view column filter values.
     /// </summary>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersString(in ICollection<string> values, in string escapedName,
+    private BuildValueClustersResult BuildValueClustersString(in ICollection<string> values, string escapedName,
       int max, double maxSeconds, IProgress<ProgressInfo>? progress, CancellationToken cancellation)
     {
       // Get the distinct values and their counts

@@ -47,7 +47,7 @@ namespace CsvTools
     /// </remarks>
     public event EventHandler<ProgressInfo>? ProgressChanged;
 
-    public FormProgress(in string windowTitle)
+    public FormProgress(string windowTitle)
       : this(windowTitle, true, new FontConfig(), CancellationToken.None)
     {
     }

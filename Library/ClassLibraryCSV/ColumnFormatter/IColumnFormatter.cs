@@ -34,7 +34,7 @@ namespace CsvTools
     /// <param name="inputString">The input text that need to be processed</param>
     /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
     /// <returns>The formatted text</returns>
-    string FormatInputText(in string inputString, in Action<string>? handleWarning);
+    string FormatInputText(string inputString, in Action<string>? handleWarning);
 
     /// <summary>
     /// Format the text while reading, unlike in the string implementation this is built for speed, no warning will be raised.

@@ -60,18 +60,18 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-    protected StructuredFileWriter(in string fullPath,
+    protected StructuredFileWriter(string fullPath,
                                    in string? identifierInContainer,
                                    in string? footer,
                                    in string? header,
                                    int codePageId,
                                    bool byteOrderMark,
                                    in IEnumerable<Column>? columnDefinition,
-                                   in string fileSettingDisplay,
-                                   in string row,
+                                   string fileSettingDisplay,
+                                   string row,
                                    in TimeZoneChangeDelegate timeZoneAdjust,
-                                   in string sourceTimeZone,
-                                   in string publicKey,
+                                   string sourceTimeZone,
+                                   string publicKey,
                                    bool unencrypted)
       : base(
         fullPath,
@@ -206,7 +206,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="placeHolderText">The place holder text.</param>
     /// <param name="reader">The reader.</param>    
-    public virtual string BuildRow(in string placeHolderText, in IDataReader reader)
+    public virtual string BuildRow(string placeHolderText, in IDataReader reader)
     {
       if (string.IsNullOrEmpty(placeHolderText))
         return string.Empty;

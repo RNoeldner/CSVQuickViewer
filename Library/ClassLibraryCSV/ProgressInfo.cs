@@ -25,7 +25,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
     /// </summary>
     /// <param name="text">The informational text.</param>
-    public ProgressInfo(in string text)
+    public ProgressInfo(string text)
     {
       Text = text;
       Value = -1;
@@ -36,7 +36,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The informational text.</param>
     /// <param name="value">The progress value.</param>
-    public ProgressInfo(in string text, long value)
+    public ProgressInfo(string text, long value)
     {
       Text = text;
       Value = value;
@@ -47,7 +47,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The informational text.</param>
     /// <param name="value">The progress value.</param>
-    public ProgressInfo(in string text, float value)
+    public ProgressInfo(string text, float value)
     {
       Text = text;
       try

@@ -50,7 +50,7 @@ namespace CsvTools
     /// Add value to the list of non matches
     /// </summary>
     /// <param name="value"></param>
-    public void AddNonMatch(in string value)
+    public void AddNonMatch(string value)
     {
       if (!string.IsNullOrEmpty(value))
         m_ExampleNonMatch.Add(value);

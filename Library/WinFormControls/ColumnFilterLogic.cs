@@ -119,7 +119,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataPropertyName">Name of the data property.</param>
-    public ColumnFilterLogic(in Type columnDataType, in string dataPropertyName)
+    public ColumnFilterLogic(in Type columnDataType, string dataPropertyName)
     {
       if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
       if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
@@ -257,7 +257,7 @@ namespace CsvTools
       return retValues.ToArray();
     }
 
-    public static bool IsNotNullCompare(in string text)
+    public static bool IsNotNullCompare(string text)
     {
       if (string.IsNullOrEmpty(text))
         return false;
