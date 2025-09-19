@@ -20,8 +20,13 @@ namespace CsvTools
   /// <summary>
   /// Class with information on DateTime formats
   /// </summary>
+  /// <remarks>
+  /// Enumerating the dictionary in MatchingForLength is still not fully thread-safe if another thread adds entries concurrently. 
+  /// </remarks>
   public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
   {
+    private readonly object _lock = new object();
+
     /// <summary>
     ///   A lookup for minimum and maximum length by format description
     /// </summary>
@@ -37,78 +42,103 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Reads the given file line by line and adds each format string to the dictionary. It also adds some standard formats from the current culture.
-    /// </summary>
-    private void Load()
-    {
-      using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
-      while (!reader.EndOfStream)
-      {
-        var entry = reader.ReadLine();
-        if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-          continue;
-        Add(entry.Trim());
-      }
-      Add(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
-      Add(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
-      Add(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
-      Add(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
-      Add(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
-    }
-
-    /// <summary>
-    /// Adding an entry. The value stored is a DateTimeFormatInformation object that analyzes the format to determine min and max lengths.
-    /// </summary>
-    /// <param name="entry">New DateTime format</param>
-    private void Add(string entry)
-    {
-      if (string.IsNullOrWhiteSpace(entry))
-        return;
-      if (!ContainsKey(entry))
-        Add(entry, new DateTimeFormatInformation(entry));
-    }
-
-    /// <summary>
-    ///   Returns Date time formats that would fit the length of the input
-    /// </summary>
-    /// <param name="length">The length.</param>
-    /// <returns></returns>
-    public IEnumerable<string> MatchingForLength(int length)
-    {
-      if (Count==0)
-        Load();
-      var retList = new List<string>();
-      using var curEnum = GetEnumerator();
-      while (curEnum.MoveNext())
-      {
-        var item = curEnum.Current;
-        if (length >= item.Value.MinLength && length <= item.Value.MaxLength)
-          retList.Add(item.Key);
-      }
-      return retList;
-    }
-
-    /// <summary>
     ///   Check if the length of the provided string could fit to the date format
     /// </summary>
     /// <param name="actualLength">The actual value.</param>
     /// <param name="dateFormat">The date format to check.</param>
+    /// <remarks>Uses Lazy loading and is not thread safe</remarks>
     /// <returns><c>true</c> if key was found</returns>    
     public bool DateLengthMatches(int actualLength, string dateFormat)
     {
       if (actualLength<4)
         return false;
 
-      if (Count==0)
-        Load();
+      if (Count == 0)
+      {
+        lock (_lock)
+        {
+          if (Count == 0)
+            Load();
+        }
+      }
 
       if (TryGetValue(dateFormat, out var lengthMinMax))
         return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
 
-      lengthMinMax = new DateTimeFormatInformation(dateFormat);
-      base.Add(dateFormat, lengthMinMax);
-
+      lock (_lock)
+      {
+        lengthMinMax = AddInternal(dateFormat);
+      }
       return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
+    }
+
+    /// <summary>
+    /// Returns all date format strings in the collection whose minimum and maximum lengths
+    /// encompass the specified <paramref name="length"/>.
+    /// </summary>
+    /// <param name="length">The length of the string to match against date formats.</param>
+    /// <returns>
+    /// An <see cref="IEnumerable{String}"/> containing all matching date format strings.
+    /// </returns>
+    /// <remarks>
+    /// The collection is lazy-loaded on first access. Enumeration is **not fully thread-safe** 
+    /// if other threads add new entries concurrently.
+    /// </remarks>
+    public IEnumerable<string> MatchingForLength(int length)
+    {
+      if (Count == 0)
+      {
+        lock (_lock)
+        {
+          if (Count == 0)
+            Load();
+        }
+      }
+
+      foreach (var kvp in this)
+      {
+        if (length >= kvp.Value.MinLength && length <= kvp.Value.MaxLength)
+          yield return kvp.Key;
+      }
+    }
+
+    /// <summary>
+    /// Adding an entry. The value stored is a DateTimeFormatInformation object that analyzes the format to determine min and max lengths.
+    /// </summary>
+    /// <param name="entry">New DateTime format</param>
+    private DateTimeFormatInformation AddInternal(string entry)
+    {
+      var dtinfo = new DateTimeFormatInformation(entry);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      base.TryAdd(entry, dtinfo);
+#else
+      if (!ContainsKey(entry))
+        Add(entry, new DateTimeFormatInformation(entry));
+#endif
+      return dtinfo;
+    }
+
+    /// <summary>
+    /// Reads the given file line by line and adds each format string to the dictionary. It also adds some standard formats from the current culture.
+    /// </summary>    
+    private void Load()
+    {
+      lock (_lock)
+      {
+        using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
+        while (!reader.EndOfStream)
+        {
+          var entry = reader.ReadLine();
+          if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+            continue;
+          AddInternal(entry.Trim());
+        }
+        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
+        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+      }
     }
   }
 }
