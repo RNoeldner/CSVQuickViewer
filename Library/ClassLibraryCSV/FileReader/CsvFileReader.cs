@@ -985,14 +985,13 @@ namespace CsvTools
       }
 
       int res = m_TextReader!.Read();
-      if (res != -1)
+      if (res == -1)
       {
-        character = (char) res;
-        return;
+        EndOfFile = true;
+        character = cLf; // Return linefeed at EOF
       }
-
-      EndOfFile = true;
-      character = cLf; // Return linefeed at EOF
+      else
+        character = (char) res;
     }
 
     /// <summary>
