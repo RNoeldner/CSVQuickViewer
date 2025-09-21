@@ -28,7 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using static System.Environment;
-using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -257,7 +256,7 @@ namespace CsvTools
         basePath = ".";
       try
       {
-        fileName = Environment.ExpandEnvironmentVariables(fileName);
+        fileName = ExpandEnvironmentVariables(fileName);
         if (Path.IsPathRooted(fileName))
           return fileName;
 
@@ -309,7 +308,7 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
-    private static string ReplaceHolder(string fileName, string dir, string placeHolder)
+    private static string UsePlaceHolder(string fileName, string dir, string placeHolder)
     {
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
@@ -324,22 +323,31 @@ namespace CsvTools
       return string.Empty;
     }
 
-    private static string UseSpecialFolders(string fileName)
+    /// <summary>
+    /// Replace absolute special folder paths in a fileName with placeholders.
+    /// Example: C:\Users\Raphael → %UserProfile%
+    /// </summary>
+    public static string UseSpecialFolders(this string fileName)
     {
       if (IsWindows)
       {
-        var test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.UserProfile),
-        "%UserProfile%");
+        var test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.DesktopDirectory), "%Desktop%");
         if (test.Length > 0)
           return test;
 
-        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "%AppData%");
+        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.MyDocuments), "%Documents%");
         if (test.Length > 0)
           return test;
 
-        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-          "%LocalAppData%");
+        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.UserProfile), "%UserProfile%");
+        if (test.Length > 0)
+          return test;
+
+        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.ApplicationData), "%AppData%");
+        if (test.Length > 0)
+          return test;
+
+        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.LocalApplicationData), "%LocalAppData%");
         if (test.Length > 0)
           return test;
       }
@@ -354,21 +362,23 @@ namespace CsvTools
     /// <returns>A relative path if possible</returns>
     public static string GetRelativePath(this string? fileName, string? basePath)
     {
-      if (fileName is null || fileName.Length == 0 || fileName.StartsWith(".", StringComparison.Ordinal)
-          || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
-        return fileName ?? string.Empty;
+      if (fileName is null || fileName.Length == 0)
+        return string.Empty;
+
+      if (fileName.StartsWith(".", StringComparison.Ordinal)  || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
+        return string.Empty;
 
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
 
-      var test = ReplaceHolder(fileName, GetFullPath(basePath), ".");
+      var test = UsePlaceHolder(fileName, GetFullPath(basePath), ".");
       if (test.Length > 0)
         return test;
 
-      var otherDir = Path.GetFullPath(fileName);
-      //TODO: this looks odd, try to send in filename with "%UserProfile%"
-      var folder = GetRelativeFolder(otherDir, basePath);
-      return folder.Substring(0, folder.Length - 1);
+      var parts = SplitPath(fileName);
+      var folder = GetRelativeFolder(parts.DirectoryName, basePath);
+
+      return folder.Substring(0, folder.Length - 1) + parts.FileName;
     }
 
     /// <summary>
@@ -376,7 +386,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="otherDir">The directory to look for.</param>
     /// <param name="basePath">The base path for be assumed for relative path.</param>
-    /// <returns></returns>
+    /// <returns>The relative folder, alway ending with \</returns>
     public static string GetRelativeFolder(this string otherDir, string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))

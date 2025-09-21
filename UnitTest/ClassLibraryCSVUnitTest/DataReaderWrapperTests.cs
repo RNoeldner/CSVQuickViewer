@@ -276,7 +276,10 @@ namespace CsvTools.Tests
       await wrapper.ReadAsync(UnitTestStatic.Token);
 
       // Date is empty but time column has a value
+      // 14:26:58
       Assert.IsFalse(wrapper.IsDBNull(0));
+      Assert.AreNotEqual(DBNull.Value, wrapper.GetValue(0));
+
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);

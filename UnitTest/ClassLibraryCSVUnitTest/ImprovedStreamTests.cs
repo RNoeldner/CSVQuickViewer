@@ -26,8 +26,7 @@ namespace CsvTools.Tests
       var setting = new CsvFileDummy { FileName= UnitTestStatic.GetTestPath("BasicCsV.txt") };
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.IsNotNull(res);
-    }
-
+    }   
 
     [TestMethod]
     public async System.Threading.Tasks.Task PercentageAtEnd()

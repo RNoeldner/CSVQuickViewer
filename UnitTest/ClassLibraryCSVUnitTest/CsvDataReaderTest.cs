@@ -19,6 +19,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -70,31 +71,31 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false, hasFieldHeader:true);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(10, test.FieldCount);
       await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(2, test.StartLineNumber);
-      Assert.AreEqual(3, test.EndLineNumber);
-      Assert.AreEqual(1, test.RecordNumber);
+      Assert.AreEqual(2, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(3, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(1, test.RecordNumber, "RecordNumber");
       Assert.AreEqual("-22477", test.GetString(1));
       await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(3, test.StartLineNumber);
-      Assert.AreEqual(4, test.EndLineNumber);
-      Assert.AreEqual(2, test.RecordNumber);
+      Assert.AreEqual(3, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(4, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(2, test.RecordNumber, "RecordNumber");
       Assert.AreEqual("22435", test.GetString(1));
       for (var line = 3; line < 25; line++)
         await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("-21928", test.GetString(1));
-      Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"));
-      Assert.AreEqual(25, test.StartLineNumber);
-      Assert.AreEqual(27, test.EndLineNumber);
-      Assert.AreEqual(24, test.RecordNumber);
+      Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"), $"Line {test.StartLineNumber}-{test.EndLineNumber} EndsWith(\"twpapulfffy\") - {test.GetString(4)}");
+      Assert.AreEqual(25, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(27, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(24, test.RecordNumber, "RecordNumber");
 
       for (var line = 25; line < 47; line++)
         await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(49, test.EndLineNumber);
+      Assert.AreEqual(49, test.EndLineNumber, "EndLineNumber");
       Assert.AreEqual("4390", test.GetString(1));
 
       Assert.AreEqual(46, test.RecordNumber);
@@ -103,7 +104,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BadIssues.csv"),
+      using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite);
+      
+      using var test = new CsvFileReader(stream: stream, 
         columnDefinition: new[]
         {
           new Column("effectiveDate", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")),
@@ -115,84 +118,75 @@ namespace CsvTools.Tests
         }, treatLinefeedAsSpace: true, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t',
         fieldQualifierChar: char.MinValue);
       var warningList = new RowErrorCollection();
+      
       await test.OpenAsync(UnitTestStatic.Token);
       test.Warning += warningList.Add;
       // need 22 columns
       Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
+      Assert.AreEqual(0, warningList.CountRows, "Warnings");
 
-      // This should work
-      await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(0, warningList.CountRows);
-
+      // This should work 
+      test.Read();
       Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
 
       // There are more columns
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual(1, warningList.CountRows);
       Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
       Assert.AreEqual(3, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_600.364", test.GetValue(0));
       Assert.AreEqual(4, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
       Assert.AreEqual(5, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
       Assert.AreEqual(2, warningList.CountRows);
       Assert.AreEqual(6, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
       Assert.AreEqual(7, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
       Assert.AreEqual(8, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040002982", test.GetValue(0));
       // Assert.AreEqual(3, warningList.CountRows);
       Assert.AreEqual(9, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040002913", test.GetValue(0));
       Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
       // Assert.AreEqual(4, warningList.CountRows);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1003001000427", test.GetValue(0));
       Assert.AreEqual(12, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1008017000611", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040000268", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1008011000554", test.GetValue(0));
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1003001000936", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1200000124471", test.GetValue(0));
 
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1200000134529", test.GetValue(0));
-
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1004040003504", test.GetValue(0));
-
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1200000016068", test.GetValue(0));
-
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
     }
 
     [TestMethod]
@@ -486,8 +480,10 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
       var row = 0;
       while (await test.ReadAsync(UnitTestStatic.Token))
+      {
         row++;
-      Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
+        Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
+      }        
       Assert.AreEqual(7, row, "Read");
     }
 

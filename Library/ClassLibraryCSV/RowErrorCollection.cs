@@ -109,8 +109,7 @@ namespace CsvTools
         m_RowErrorCollection.Add(args.RecordNumber, columnErrorCollection);
       }
 
-      columnErrorCollection.Add(args.ColumnNumber, args.Message);
-      //   PassWarning?.Invoke(sender, args);
+      columnErrorCollection.Add(args.ColumnNumber, args.Message);    
     }
 
     /// <summary>

@@ -11,10 +11,11 @@ namespace CsvTools.Tests
   public class FileSystemUtilsTests
   {
     [TestMethod()]
-    public void GetRelativePathUserProfileTest()
+    public void UseSpecialFoldersTest()
     {
+      // This test does not make much sense
       var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
-      Assert.AreEqual(Path.Combine("%UserProfile%", "TestFile.txt"), testFile1.GetRelativePath("."));
+      Assert.AreEqual("%UserProfile%\\TestFile.txt", testFile1.UseSpecialFolders());
 
       var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
       Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));

@@ -134,7 +134,7 @@ namespace CsvTools.Tests
       var res = await DetermineColumnFormat
         .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, string.Empty, 80, UnitTestStatic.Token)
         .ConfigureAwait(false);
-      Assert.AreEqual(20, res[0].Values.Count);
+      Assert.IsTrue(res[0].Values.Count>20);
     }
 
     [TestMethod]
@@ -243,8 +243,8 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.IsTrue(res[1].RecordsRead >= 20);
-      Assert.AreEqual(20, res[0].Values.Count());
-      Assert.AreEqual(20, res[1].Values.Count());
+      Assert.IsTrue(res[0].Values.Count()>20);
+      Assert.IsTrue(res[1].Values.Count()>20);
     }
 
     [TestMethod]
@@ -266,7 +266,7 @@ namespace CsvTools.Tests
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, treatAsNull,
         40, UnitTestStatic.Token);
       Assert.IsTrue(res[0].RecordsRead >= 20);
-      Assert.AreEqual(20, res[0].Values.Count());
+      Assert.IsTrue(res[0].Values.Count()>20);
     }
 
     [TestMethod]

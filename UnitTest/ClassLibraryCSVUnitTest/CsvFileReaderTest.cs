@@ -939,7 +939,6 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = ',', CommentLine = "#" };
 
-
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("LongHeaders.txt"), 65001,
         0, setting.HasFieldHeader,
         new ColumnCollection(),
@@ -955,8 +954,8 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       var warningsList = new RowErrorCollection();
-      await test.OpenAsync(UnitTestStatic.Token);
       test.Warning += warningsList.Add;
+      await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual("a", test.GetName(0));
@@ -967,7 +966,8 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("d", test.GetName(3));
       Assert.AreEqual("e", test.GetName(4));
       Assert.AreEqual("f", test.GetName(5));
-      Assert.AreEqual(1, warningsList.CountRows, "Warnings");
+      // This works in debug mode but in release it does raise an error
+      Assert.AreEqual(1, warningsList.CountRows, "Number of Warnings");
       Assert.IsTrue(warningsList.Display.Contains("too long"));
 
       // check if we read the right line , and we do not end up in a commented line of read the
@@ -1004,7 +1004,7 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       var warningList = new RowErrorCollection();
       await test.OpenAsync(UnitTestStatic.Token);
-      test.Warning += warningList.Add;      
+      test.Warning += warningList.Add;
 
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -1366,7 +1366,7 @@ Line "Test"", "22",23,"  24"
     public async Task ReadDateWithTimeAndTimeZoneAsync()
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001, 0, true,
-        new[]{new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time", timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone")}, TrimmingOptionEnum.Unquoted, '\t');
+        new[] { new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time", timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone") }, TrimmingOptionEnum.Unquoted, '\t');
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1628,8 +1628,9 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       var warningList = new RowErrorCollection();
-      await test.OpenAsync(UnitTestStatic.Token);
       test.Warning += warningList.Add;
+      await test.OpenAsync(UnitTestStatic.Token);
+      
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual("1", test.GetName(0));
       Assert.AreEqual("2", test.GetName(1));
@@ -2247,8 +2248,9 @@ Line "Test"", "22",23,"  24"
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, TimeZoneAdjust, TimeZoneInfo.Local.Id, true, true);
       var warningList = new RowErrorCollection();
+      test.Warning += warningList.Add;
       await test.OpenAsync(UnitTestStatic.Token);
-      test.Warning += warningList.Add;      
+      
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual("a", test.GetName(0));
       Assert.AreEqual("b", test.GetName(1));

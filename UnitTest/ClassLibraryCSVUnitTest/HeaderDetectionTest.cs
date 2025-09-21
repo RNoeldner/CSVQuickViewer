@@ -85,7 +85,7 @@ namespace CsvTools.Tests
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
       var res = await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token);      
-      Assert.IsFalse(res.hasHeader);      
+      Assert.IsFalse(res.hasHeader);
     }
 
     [TestMethod]

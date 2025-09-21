@@ -52,15 +52,7 @@ namespace CsvTools
     {
       if (actualLength<4)
         return false;
-
-      if (Count == 0)
-      {
-        lock (_lock)
-        {
-          if (Count == 0)
-            Load();
-        }
-      }
+      EnsureLoaded();
 
       if (TryGetValue(dateFormat, out var lengthMinMax))
         return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
@@ -70,6 +62,33 @@ namespace CsvTools
         lengthMinMax = AddInternal(dateFormat);
       }
       return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
+    }
+
+    private void EnsureLoaded()
+    {
+      if (Count == 0)
+        return;
+
+      lock (_lock)
+      {
+        if (Count == 0)
+        {
+          using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
+          while (!reader.EndOfStream)
+          {
+            var entry = reader.ReadLine();
+            if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+              continue;
+            AddInternal(entry.Trim());
+          }
+          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
+          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+
+        }
+      }
     }
 
     /// <summary>
@@ -86,14 +105,7 @@ namespace CsvTools
     /// </remarks>
     public IEnumerable<string> MatchingForLength(int length)
     {
-      if (Count == 0)
-      {
-        lock (_lock)
-        {
-          if (Count == 0)
-            Load();
-        }
-      }
+      EnsureLoaded();
 
       foreach (var kvp in this)
       {
@@ -116,29 +128,6 @@ namespace CsvTools
         Add(entry, new DateTimeFormatInformation(entry));
 #endif
       return dtinfo;
-    }
-
-    /// <summary>
-    /// Reads the given file line by line and adds each format string to the dictionary. It also adds some standard formats from the current culture.
-    /// </summary>    
-    private void Load()
-    {
-      lock (_lock)
-      {
-        using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
-        while (!reader.EndOfStream)
-        {
-          var entry = reader.ReadLine();
-          if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-            continue;
-          AddInternal(entry.Trim());
-        }
-        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
-        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
-        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
-        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
-        AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
-      }
-    }
+    }   
   }
 }

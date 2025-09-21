@@ -130,7 +130,7 @@ namespace CsvTools.Tests
       {
         _ = bi.GetByValue(13);
       }
-      catch (ArgumentException)
+      catch (KeyNotFoundException)
       {
         exception = true;
       }
@@ -220,7 +220,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
+    [ExpectedException(typeof(KeyNotFoundException))]
     public void GetByValue_NotFound_ShouldThrow()
     {
       var dict = new BiDirectionalDictionary<int, string>();

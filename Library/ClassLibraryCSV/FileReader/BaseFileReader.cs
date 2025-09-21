@@ -648,7 +648,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
     {
-      if (CurrentRowColumnText.Length <= ordinal) return true;
+      if (ordinal<0 || CurrentRowColumnText.Length <= ordinal) return true;
 
       if (Column[ordinal].ValueFormat.DataType != DataTypeEnum.DateTime)
         return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
@@ -656,6 +656,7 @@ namespace CsvTools
       if (AssociatedTimeCol[ordinal] == -1 || AssociatedTimeCol[ordinal] >= CurrentRowColumnText.Length)
         return string.IsNullOrEmpty(CurrentRowColumnText[ordinal]);
 
+      /* For a combined date column to be empty both parts need to be empty */
       return string.IsNullOrEmpty(CurrentRowColumnText[ordinal])
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[ordinal]]);
     }

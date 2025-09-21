@@ -78,6 +78,21 @@ namespace CsvTools.Tests
       }
     }
 
+
+    [TestMethod]
+    public async Task ImprovedTextReaderToBeginning()
+    {
+      using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(),FileMode.Open, FileAccess.ReadWrite);
+      using var test = new ImprovedTextReader(stream);
+      var line1 = "ID\tTitleEN\tLanguages\ttitleLocal\tStatus\tprovider\tweblink\tversion\tdescriptionEN\tdescriptionLocal\tsubject\tAcmeVersion\tproviderLevel0\tproviderLevel1\tcontentOwner\tavailability\teffectiveDate\tretrainingRequired\tclassroomTraining\tinterestTracking\twaitlistAllowed\ttimestamp";
+      Assert.AreEqual(line1, test.ReadLine());
+      var line2= test.ReadLine();
+      test.ToBeginning();
+
+      Assert.AreEqual(line1, test.ReadLine());
+      Assert.AreEqual(line2, test.ReadLine());
+    }
+
     [TestMethod]
     public async Task ImprovedTextReaderTestBomAsync()
     {

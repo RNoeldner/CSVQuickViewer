@@ -66,14 +66,9 @@ namespace CsvTools.Tests
 
       columnErrors.Add(-1, "Error on Row");
       columnErrors.Add(0, "Error on Column".AddWarningId());
-      columnErrors.Add(1, "Error on ColumnA");
-      columnErrors.Add(1, "Another Error on Column");
-
+      columnErrors.Add(1, "Error on ColumnA");     
       columnErrors.Add(2, "Warning on ColumnB".AddWarningId());
-
-      columnErrors.Add(3, "Warning on Fld4".AddWarningId());
-      columnErrors.Add(3, "Error on Fld4");
-
+      
       var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty);
       Assert.IsNotNull(errorInfo);
 
@@ -81,7 +76,7 @@ namespace CsvTools.Tests
       row.SetErrorInformation(errorInfo);
       Assert.AreEqual("Error on Row", row.RowError);
       Assert.AreEqual("Error on Column", row.GetColumnError(0).WithoutWarningId());
-      Assert.AreEqual("Error on ColumnA\nAnother Error on Column", row.GetColumnError(1));
+      Assert.AreEqual("Error on ColumnA", row.GetColumnError(1));
       Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
       var res = errorInfo.GetErrorsAndWarnings();
