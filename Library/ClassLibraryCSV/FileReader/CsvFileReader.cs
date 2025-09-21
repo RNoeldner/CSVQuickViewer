@@ -20,6 +20,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,12 +46,12 @@ namespace CsvTools
     public const string cMoreColumns = " has more columns than expected";
 
     /// <summary>
-    ///   The carriage return character. Escape code is <c>\r</c>.
+    ///   The carriage return character. Escape code is <character>\r</character>.
     /// </summary>
     private const char cCr = (char) 0x0d;
 
     /// <summary>
-    ///   The line-feed character. Escape code is <c>\n</c>.
+    ///   The line-feed character. Escape code is <character>\n</character>.
     /// </summary>
     private const char cLf = (char) 0x0a;
 
@@ -126,6 +127,11 @@ namespace CsvTools
     private int m_ConsecutiveEmptyRows;
 
     /// <summary>
+    ///   An array of usual column length, this is used suring reading columns to avoid multiple allocations
+    /// </summary>
+    private int[] MaxColumnLengths = Array.Empty<int>();
+
+    /// <summary>
     ///   If the End of the line is reached this is true
     /// </summary>
     private bool m_EndOfLine;
@@ -187,40 +193,40 @@ namespace CsvTools
     /// <param name="fileName">Fully qualified path of the file to write</param>
     /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
     /// <param name="skipRows">Number of rows that should be ignored in the beginning, e.G. for information not related  to the data</param>
-    /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read currentRow</param>
+    /// <param name="hasFieldHeader">If set to <character>true</character> assume the name of the columns is in the first read currentRow</param>
     /// <param name="columnDefinition">The column definition for value conversion.</param>
     /// <param name="trimmingOption">How should leading/trailing spaces be trimmed?. Option based on information whether the text is quoted or not</param>
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
     /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting.</param>
     /// <param name="escapeCharacterChar">The escape character an escaped chars is read as is, 2nd method to have quotes or delimiter in column.</param>
     /// <param name="recordLimit">After the giving number of records stop reading</param>
-    /// <param name="allowRowCombining">if set to <c>true</c> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>
-    /// <param name="contextSensitiveQualifier">if set to <c>true</c> assume context-sensitive qualifiers, context-sensitive quoting looks at the surrounding character to determine if is a starting or ending quote.</param>
+    /// <param name="allowRowCombining">if set to <character>true</character> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>
+    /// <param name="contextSensitiveQualifier">if set to <character>true</character> assume context-sensitive qualifiers, context-sensitive quoting looks at the surrounding character to determine if is a starting or ending quote.</param>
     /// <param name="commentLine">Identifier for a comment line, a line starting with this text will be ignored.</param>
     /// <param name="numWarning">Warning will stop after the given number, information losses its value if repeated over and over</param>
-    /// <param name="duplicateQualifierToEscape">if set to <c>true</c> a repeated qualifier are not ending the column but will be regarded as quote contained in the column.</param>
+    /// <param name="duplicateQualifierToEscape">if set to <character>true</character> a repeated qualifier are not ending the column but will be regarded as quote contained in the column.</param>
     /// <param name="newLinePlaceholder">The new line placeholder, similar to escaping but does replace the given placeholder with linefeed  e.G. "[LineFeed]" --> \n.</param>
     /// <param name="delimiterPlaceholder">The delimiter placeholder, similar to escaping but does replace the given placeholder with the delimiter  e.G. "{Del}" --> ","</param>
     /// <param name="quotePlaceholder">The quote placeholder, similar to escaping but does replace the given placeholder with the quote e.G. "{Quote}" --> "'"</param>
-    /// <param name="skipDuplicateHeader">if set to <c>true</c> does not return a  currentRow if the header is in the file multiple time, used when files where combined without removing the header.</param>
-    /// <param name="treatLinefeedAsSpace">if set to <c>true</c> treat any found linefeed as regular space.</param>
-    /// <param name="treatUnknownCharacterAsSpace">if set to <c>true</c> treat the unknown character as space.</param>
-    /// <param name="tryToSolveMoreColumns">if set to <c>true</c> try and resolved additional columns, this happens when column content is not properly quoted.</param>
-    /// <param name="warnDelimiterInValue">if set to <c>true</c> raise a warning if the delimiter is part of a column.</param>
-    /// <param name="warnLineFeed">if set to <c>true</c> raise a warning if line feed is part of a column.</param>
-    /// <param name="warnNbsp">if set to <c>true</c> raise a warning if a non-breaking space is part of a column.</param>
-    /// <param name="warnQuotes">if set to <c>true</c> raise a warning if the quoting is part of a column.</param>
-    /// <param name="warnUnknownCharacter">if set to <c>true</c> raise a warning if � is part of a column.</param>
-    /// <param name="warnEmptyTailingColumns">if set to <c>true</c> raise a warning if empty tailing columns are found.</param>
-    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat a NBSP as regular space.</param>
-    /// <param name="treatTextAsNull">The text to treat as null. c.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
-    /// <param name="skipEmptyLines">if set to <c>true</c> if empty lines should simply be skipped.</param>
+    /// <param name="skipDuplicateHeader">if set to <character>true</character> does not return a  currentRow if the header is in the file multiple time, used when files where combined without removing the header.</param>
+    /// <param name="treatLinefeedAsSpace">if set to <character>true</character> treat any found linefeed as regular space.</param>
+    /// <param name="treatUnknownCharacterAsSpace">if set to <character>true</character> treat the unknown character as space.</param>
+    /// <param name="tryToSolveMoreColumns">if set to <character>true</character> try and resolved additional columns, this happens when column content is not properly quoted.</param>
+    /// <param name="warnDelimiterInValue">if set to <character>true</character> raise a warning if the delimiter is part of a column.</param>
+    /// <param name="warnLineFeed">if set to <character>true</character> raise a warning if line feed is part of a column.</param>
+    /// <param name="warnNbsp">if set to <character>true</character> raise a warning if a non-breaking space is part of a column.</param>
+    /// <param name="warnQuotes">if set to <character>true</character> raise a warning if the quoting is part of a column.</param>
+    /// <param name="warnUnknownCharacter">if set to <character>true</character> raise a warning if � is part of a column.</param>
+    /// <param name="warnEmptyTailingColumns">if set to <character>true</character> raise a warning if empty tailing columns are found.</param>
+    /// <param name="treatNbspAsSpace">if set to <character>true</character> treat a NBSP as regular space.</param>
+    /// <param name="treatTextAsNull">The text to treat as null. character.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
+    /// <param name="skipEmptyLines">if set to <character>true</character> if empty lines should simply be skipped.</param>
     /// <param name="consecutiveEmptyRowsMax">Number of consecutive empty rows where we should assume the file is at its end.</param>
     /// <param name="identifierInContainer">The identifier in container, in case the file a container file like zip.</param>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "24/01/2024 07:56" and "UTC" -->  "24/01/2024 13:26" (if IST is timezone specified) </param>
     /// <param name="returnedTimeZone">The time zone input file should be converted to, only viable if you have a date / time column and timezone column in the source.</param>
-    /// <param name="allowPercentage">if set to <c>true</c> convert percentages to numeric values e.G. 17% -> 0.17.</param>
-    /// <param name="removeCurrency">if set to <c>true</c> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
+    /// <param name="allowPercentage">if set to <character>true</character> convert percentages to numeric values e.G. 17% -> 0.17.</param>
+    /// <param name="removeCurrency">if set to <character>true</character> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
     /// <exception cref="System.ArgumentNullException">if fileName is not set</exception>
     /// <exception cref="System.ArgumentException">File can not be empty - fileName</exception>
     /// <exception cref="System.IO.FileNotFoundException">The file does not exist or is not accessible.</exception>
@@ -388,7 +394,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
-    /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
+    /// <value><character>true</character> if this instance is closed; otherwise, <character>false</character>.</value>
     public override bool IsClosed => m_TextReader is null;
 
     /// <inheritdoc />
@@ -448,6 +454,16 @@ namespace CsvTools
         _ => CurrentRowColumnText[ordinal]
       };
       return ret ?? DBNull.Value;
+    }
+
+    /// <inheritdoc  />
+    protected override void InitColumn(int fieldCount)
+    {
+      base.InitColumn(fieldCount);
+
+      MaxColumnLengths = new int[fieldCount];
+      for (int i = 0; i < fieldCount; i++)
+        MaxColumnLengths[i] = 32;
     }
 
     /// <inheritdoc cref="IFileReader.OpenAsync" />
@@ -625,7 +641,7 @@ namespace CsvTools
     ///   This does read the next record and stores it in CurrentRowColumnText /&gt;, it will handle
     ///   column mismatches
     /// </summary>
-    /// <returns><c>true</c> if a new record was read</returns>
+    /// <returns><character>true</character> if a new record was read</returns>
     private bool GetNextRecord()
     {
       try
@@ -700,7 +716,7 @@ namespace CsvTools
             // allow up to two extra columns they can be combined later
             if (nextLine.Count > 0 && nextLine.Count + currentRow.Count < FieldCount + 4)
             {
-              var combined = new List<string>(currentRow); 
+              var combined = new List<string>(currentRow);
 
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
@@ -769,7 +785,7 @@ namespace CsvTools
             CurrentRowColumnText[columnNo] = currentRow[columnNo];
           else
             CurrentRowColumnText[columnNo] = string.Empty;
-            
+
 
           if (string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
@@ -832,6 +848,7 @@ namespace CsvTools
 
         RecordNumber++;
         m_RealignColumns?.AddRow(CurrentRowColumnText);
+        TrackColumnLengths();
         return true;
       }
       catch (Exception ex)
@@ -847,14 +864,14 @@ namespace CsvTools
     ///   Indicates whether the specified Unicode character is categorized as white space.
     /// </summary>
     /// <param name="c">A Unicode character.</param>
-    /// <returns><c>true</c> if the character is a whitespace</returns>
+    /// <returns><character>true</character> if the character is a whitespace</returns>
     private bool IsWhiteSpace(char c)
     {
       // Handle cases where the delimiter is a whitespace (e.g. tab)
       if (c == m_FieldDelimiter)
         return false;
 
-      // See char.IsLatin1(char c) in Reflector
+      // See char.IsLatin1(char character) in Reflector
       if (c <= '\x00ff')
         // ReSharper disable once MergeIntoLogicalPattern
         return c == ' ' || c == '\t';
@@ -937,6 +954,7 @@ namespace CsvTools
     ///   Gets the next char from the buffer, but stay at the current position
     /// </summary>
     /// <returns>The next char</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private char Peek()
     {
       var res = m_TextReader!.Peek();
@@ -948,242 +966,214 @@ namespace CsvTools
       return cLf;
     }
 
-    private char ReadChar()
+    /// <summary>
+    ///   Reads the next character from the CSV input stream, handling optional column realignment
+    ///   and end-of-file detection.
+    /// </summary>
+    /// <returns>
+    ///   The next character from the input. Returns <c>cLf</c> if the end of the file is reached
+    ///   to indicate the end of a line.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ReadChar(out char character)
     {
       if (m_RealignColumns != null)
       {
-        var character = Peek();
+        character = Peek();
         m_RecordSource.Append(character);
         m_TextReader!.MoveNext();
-        return character;
       }
 
-      var res = m_TextReader!.Read();
+      int res = m_TextReader!.Read();
       if (res != -1)
-        return (char) res;
+        character = (char) res;
+
       EndOfFile = true;
-      // return a linefeed to determine the end of a line
-      return cLf;
+      character = cLf; // Return linefeed at EOF
     }
 
     /// <summary>
-    ///   Gets the next column in the buffer.
+    ///   Reads the next column from the current CSV row buffer.
     /// </summary>
-    /// <param name="columnNo">The column number for warnings</param>
-    /// <returns>The next column null after the last column</returns>
+    /// <param name="columnNo">
+    ///   The zero-based index of the column. Used for warning reporting and for
+    ///   adaptive initial buffer allocation based on <character>MaxColumnLengths</character>.
+    /// </param>
+    /// <returns>
+    ///   The column text as a <see cref="string"/>. Returns <character>null</character> if the end of the file
+    ///   has been reached or the current row has no more columns.
+    /// </returns>
     /// <remarks>
-    ///   If NULL is returned we are at the end of the file, an empty column is read as empty string
+    ///   <para>
+    ///     - If an empty column is read, it is returned as an empty string.
+    ///     - Allocates a <see cref="StringBuilder"/> with an initial capacity based on
+    ///       <character>MaxColumnLengths[columnNo]</character> to minimize buffer resizing.
+    ///     - Handles quoted columns, escaped quotes, line feeds inside quotes, and optional
+    ///       trimming.
+    ///     - Emits warnings for non-breaking spaces, unknown characters, or line feeds when
+    ///       configured.
+    ///     - Updates <character>m_EndOfLine</character> to indicate when the end of the current row is reached.
+    ///   </para>
+    ///   <para>
+    ///     Parsing respects the following CSV conventions:
+    ///       - Double quotes inside quoted fields are treated as a single quote if 
+    ///         <character>m_DuplicateQualifierToEscape</character> is enabled.
+    ///       - Line feeds inside quoted fields can be converted to spaces if
+    ///         <character>m_TreatLinefeedAsSpace</character> is enabled.
+    ///       - Context-sensitive closing of quotes is handled via 
+    ///         <character>m_ContextSensitiveQualifier</character>.
+    ///   </para>
+    ///   <para>
+    ///     This method should be called repeatedly until it returns <character>null</character> to read
+    ///     all columns in the current row.
+    ///   </para>
     /// </remarks>
     private string? ReadNextColumn(int columnNo)
     {
-      if (EndOfFile)
+      if (EndOfFile) 
         return null;
       if (m_EndOfLine)
       {
-        // previous item was last in line, start new line
         m_EndOfLine = false;
         return null;
       }
 
-      var stringBuilder = new StringBuilder(5);
-      var quoted = false;
-      var preData = true;
-      var postData = false;
-      var escaped = false;
+      int initLength = 96;
+      if (columnNo < FieldCount) initLength = MaxColumnLengths[columnNo];
+      var sb = new StringBuilder(initLength);
+
+      // local copies for performance
+      var fieldDelimiter = m_FieldDelimiter;
+      var fieldQualifier = m_FieldQualifier;
+      var escapePrefix = m_EscapePrefix;
+
+      bool quoted = false;
+      bool postData = false;
+
+      // Flags for batched warnings
+      bool foundNbsp = false;
+      bool foundLinefeed = false;
+      bool foundUnknownChar = false;
+
+      char character;
+
+      // --- Phase 1: Skip leading whitespace
       while (!EndOfFile)
       {
-        // Read a character
-        var character = ReadChar();
-
-        // in case we have a single LF
-        if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted)
+        ReadChar(out character);
+        if (IsWhiteSpace(character))
         {
-          var singleLf = true;
-          if (!EndOfFile)
-          {
-            var nextChar = Peek();
-            if (nextChar == cCr)
-              singleLf = false;
-          }
-
-          if (singleLf)
-          {
-            character = ' ';
-            EndLineNumber++;
-            if (m_WarnLineFeed)
-              WarnLinefeed(columnNo);
-          }
+          if (m_TrimmingOption == TrimmingOptionEnum.None) sb.Append(character);
+          continue;
         }
-
-        switch (character)
+        if (character == fieldQualifier && !postData)
         {
-          case cNbsp:
-            if (!postData)
-            {
-              // This is not 100% correct in case we have a misalignment of column that is corrected
-              // afterward warning for NBP need to be issues before trimming as trimming would
-              // remove the char
-              if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore &&
-                  (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
-                HandleWarning(
-                  columnNo,
-                  m_TreatNbspAsSpace
-                    ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
-                    : "Character Non Breaking Space found in field".AddWarningId());
-
-              if (m_TreatNbspAsSpace)
-                character = ' ';
-            }
-
-            break;
-
-          case cCr:
-          case cLf:
-            EndLineNumber++;
-
-            var nextChar = char.MinValue;
-            if (!EndOfFile)
-            {
-              nextChar = Peek();
-              if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
-              {
-                nextChar = char.MinValue;
-              }
-              else
-              {
-                MoveNext(nextChar);
-
-                if (character == cLf && nextChar == cCr)
-                  EndLineNumber++;
-              }
-            }
-
-            if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
-            {
-              stringBuilder.Append(character);
-              stringBuilder.Append(nextChar);
-              continue;
-            }
-
-            break;
+          quoted = true;
+          if (m_TrimmingOption != TrimmingOptionEnum.None)
+            sb.Clear();
         }
+        else
+          sb.Append(character);
 
-        // Finished with reading the column by Delimiter or EOF
-        if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || EndOfFile)
+        break;
+      }
+
+      // --- Phase 2: Read column content
+      while (!EndOfFile)
+      {
+        ReadChar(out character);
+
+        // End of column
+        if ((character == fieldDelimiter && !postData && (!quoted || postData)) || EndOfFile)
           break;
 
-        // Finished with reading the column by Linefeed
-        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
+        // End of row
+        if ((character == cCr || character == cLf) && (!quoted || postData))
         {
           m_EndOfLine = true;
           break;
         }
 
-        // Only check the characters if not past end of data
-        if (postData)
-          continue;
-
-        if (preData)
+        // Quoted logic
+        if (quoted)
         {
-          // whitespace preceding data
-          if (IsWhiteSpace(character))
+          if (character == fieldQualifier)
           {
-            // Store the white spaces if we do any kind of trimming
-            if (m_TrimmingOption == TrimmingOptionEnum.None)
-              // Values will be trimmed later, but we need to find out, if the filed is quoted first
-              stringBuilder.Append(character);
-            continue;
-          }
-
-          // data is starting
-          preData = false;
-
-          // Can not be escaped here
-          if (character == m_FieldQualifier && !escaped)
-          {
-            if (m_TrimmingOption != TrimmingOptionEnum.None)
-              stringBuilder.Length = 0;
-
-            // quoted data is starting
-            quoted = true;
-            continue;
-          }
-
-          goto append;
-        }
-
-        if (character == m_FieldQualifier && quoted && !escaped)
-        {
-          var peekNextChar = Peek();
-
-          // a "" should be regarded as " if the text is quoted
-          if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier)
-          {
-            // double quotes within quoted string means add a quote
-            stringBuilder.Append(m_FieldQualifier);
-            MoveNext(peekNextChar);
-
-            // handling for "" that is not only representing a " but also closes the text
-            if (m_ContextSensitiveQualifier)
+            var peekNext = Peek();
+            if (m_DuplicateQualifierToEscape && peekNext == fieldQualifier)
             {
-              peekNextChar = Peek();
-              if (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf)
-                postData = true;
+              sb.Append(fieldQualifier);
+              MoveNext(peekNext);
+              continue;
             }
-
-            continue;
-          }
-
-          // a single " should be regarded as closing when it's followed by the delimiter
-          if (m_ContextSensitiveQualifier &&
-              (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf))
-          {
             postData = true;
             continue;
           }
 
-          // a single " should be regarded as closing if we do not have alternate qualifier
-          if (!m_ContextSensitiveQualifier)
+          if (!postData && m_TreatLinefeedAsSpace && character == cLf)
           {
-            postData = true;
-            continue;
+            character = ' ';
+            EndLineNumber++;
+            foundLinefeed = true;
           }
         }
 
-        append:
-        if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter ||
-                        character == m_EscapePrefix))
-          // remove the already added escape char
-          stringBuilder.Length--;
+        // Track special characters
+        if (character == cNbsp) foundNbsp = true;
+        if (character == cUnknownChar) foundUnknownChar = true;
 
-        // all cases covered, character must be data
-        stringBuilder.Append(character);
+        // Escape logic, next
+        if (character == escapePrefix)
+        {
+          ReadChar(out character);
+          if (EndOfFile)
+            break;
+        }
 
-        escaped = !escaped && character == m_EscapePrefix;
-      } // While
+        sb.Append(character);
+      }
 
-      var columnText = stringBuilder.ToString();
-      if (columnText.IndexOf(cUnknownChar) != -1)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      string columnText = string.Create(sb.Length, sb, (span, s) => s.CopyTo(0, span, s.Length));
+#else
+    string columnText = sb.ToString();
+#endif
+
+      // --- Phase 3: Emit batched warnings
+      if (foundNbsp && m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore &&
+          (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
       {
-        if (m_WarnUnknownCharacter && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
-          HandleWarning(
-            columnNo,
+        HandleWarning(columnNo,
+            m_TreatNbspAsSpace
+                ? "Character Non Breaking Space found, treated as space".AddWarningId()
+                : "Character Non Breaking Space found in field".AddWarningId());
+        if (m_TreatNbspAsSpace)
+          columnText = columnText.Replace(cNbsp, ' ');
+      }
+
+      if (foundLinefeed && m_WarnLineFeed)
+        WarnLinefeed(columnNo);
+
+      if (foundUnknownChar && m_WarnUnknownCharacter && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
+      {
+        HandleWarning(columnNo,
             m_TreatUnknownCharacterAsSpace
-              ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-              : "Unknown Character '�' found in field".AddWarningId());
+                ? "Unknown Character '�' replaced with space".AddWarningId()
+                : "Unknown Character '�' found in field".AddWarningId());
         if (m_TreatUnknownCharacterAsSpace)
           columnText = columnText.Replace(cUnknownChar, ' ');
       }
 
+      // --- Phase 4: Trim if needed
       return m_TrimmingOption == TrimmingOptionEnum.All || (!quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted)
-        ? columnText.Trim()
-        : columnText;
+          ? columnText.Trim()
+          : columnText;
     }
 
     /// <summary>
     ///   Reads the record of the CSV file, this can span over multiple lines, this method can return more or less columns than expected
     /// </summary>
-    /// <param name="raiseWarnings">Set to <c>true</c> if the warnings should be issued.</param>
+    /// <param name="raiseWarnings">Set to <character>true</character> if the warnings should be issued.</param>
     /// <returns>
     ///   Empty List if the currentRow can not be read, or string values representing the columns of
     ///   the currentRow
@@ -1276,6 +1266,26 @@ namespace CsvTools
 
       // Report process to start aragin
       HandleShowProgress("Reset to start of file", 0);
+    }
+
+    /// <summary>
+    ///   Updates the estimated maximum length of each column based on the currently read row,
+    ///   to optimize buffer allocation for future rows. Weighted averaging naturally smooths
+    ///   out occasional large spikes in column length.
+    /// </summary>
+    private void TrackColumnLengths()
+    {
+      for (int i = 0; i < FieldCount; i++)
+      {
+        int currentLength = CurrentRowColumnText[i].Length;
+        int prevMax = MaxColumnLengths[i];
+
+        // Weighted average update
+        int newMax = (prevMax * 3 + currentLength) / 4 + 16;
+
+        // Minimum buffer length
+        MaxColumnLengths[i] = Math.Max(32, newMax);
+      }
     }
 
     /// <summary>
