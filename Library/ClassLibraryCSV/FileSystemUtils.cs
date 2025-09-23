@@ -248,31 +248,17 @@ namespace CsvTools
     /// <returns>The combined filename with the LongPathPrefix if necessary</returns>
     public static string GetAbsolutePath(this string? fileName, string? basePath = null)
     {
-      if (fileName is null || fileName.Length == 0)
+      if (string.IsNullOrWhiteSpace(fileName))
         return string.Empty;
-      if (basePath is null || basePath.Length == 0)
-        basePath = ".";
-      try
-      {
-        fileName = ExpandEnvironmentVariables(fileName);
-        if (Path.IsPathRooted(fileName))
-          return fileName;
 
-        var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
-        if (split == -1)
-          return Path.Combine(GetFullPath(basePath), fileName).RemovePrefix();
+      var expandedfileName = ExpandEnvironmentVariables(fileName).RemovePrefix();
 
-        // the Filename could contain wild cards, that is not supported when extending relative path
-        // the path part though ca not contain wild cards, so combine base and path
-        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))),
-            fileName.Substring(split))
-          .RemovePrefix();
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "Getting absolute path for combination {filename} {root}", fileName, basePath);
-        throw;
-      }
+      if (Path.IsPathRooted(expandedfileName))
+        return Path.GetFullPath(expandedfileName);
+
+      var adjustedBasePath = (basePath is null || basePath.Length == 0) ? "." : basePath;
+
+      return GetFullPath(Path.Combine(adjustedBasePath, expandedfileName));
     }
 
     /// <summary>
@@ -323,33 +309,32 @@ namespace CsvTools
 
     /// <summary>
     /// Replace absolute special folder paths in a fileName with placeholders.
-    /// Example: C:\Users\Raphael → %UserProfile%
+    /// Example: C:\Users\Raphael\test.txt → %UserProfile%\test.txt
     /// </summary>
     public static string UseSpecialFolders(this string fileName)
     {
-      if (IsWindows)
+      if (!IsWindows)
+        return fileName;
+
+      var candidates = new List<string>();
+      void TryAdd(SpecialFolder folder, string placeholder)
       {
-        var test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.DesktopDirectory), "%Desktop%");
-        if (test.Length > 0)
-          return test;
-
-        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.MyDocuments), "%Documents%");
-        if (test.Length > 0)
-          return test;
-
-        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.UserProfile), "%UserProfile%");
-        if (test.Length > 0)
-          return test;
-
-        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.ApplicationData), "%AppData%");
-        if (test.Length > 0)
-          return test;
-
-        test = UsePlaceHolder(fileName, GetFolderPath(SpecialFolder.LocalApplicationData), "%LocalAppData%");
-        if (test.Length > 0)
-          return test;
+        var replaced = UsePlaceHolder(fileName, GetFolderPath(folder), placeholder);
+        if (replaced.Length > 0)
+          candidates.Add(replaced);
       }
-      return fileName;
+
+      TryAdd(SpecialFolder.DesktopDirectory, "%Desktop%");
+      TryAdd(SpecialFolder.MyDocuments, "%Documents%");
+      TryAdd(SpecialFolder.ApplicationData, "%AppData%");
+      TryAdd(SpecialFolder.LocalApplicationData, "%LocalAppData%");
+      TryAdd(SpecialFolder.UserProfile, "%UserProfile%");
+
+      if (candidates.Count == 0)
+        return fileName;
+
+      // Return the shortest path replacement
+      return candidates.OrderBy(x => x.Length).First();
     }
 
     /// <summary>
@@ -569,14 +554,14 @@ namespace CsvTools
         return string.Empty;
 
       var absolute = fileName.GetAbsolutePath(basePath);
-      var relative = fileName.GetRelativePath(basePath);
-
-      if (relative.Length < absolute.Length)
-        return relative;
 
       var fileNameSpecial = UseSpecialFolders(absolute);
       if (fileNameSpecial.Length < absolute.Length)
         return fileNameSpecial;
+
+      var relative = fileName.GetRelativePath(basePath);
+      if (relative.Length < absolute.Length)
+        return relative;
 
       return absolute;
     }
@@ -725,11 +710,16 @@ namespace CsvTools
     /// <param name="path">The possibly prefixed name of th file.</param>
     public static string RemovePrefix(this string path)
     {
-      if (!IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
+      if (!IsWindows)
+        return path;
+
+      if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(cLongPathPrefix.Length);
-      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-        ? path.Substring(cUncLongPathPrefix.Length)
-        : path;
+
+      if (path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+        return @"\\" + path.Substring(cUncLongPathPrefix.Length);
+
+      return path;
     }
 
     /// <summary>
