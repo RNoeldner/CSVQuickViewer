@@ -76,7 +76,7 @@ namespace CsvTools
     /// <param name="character">The storage</param>
     /// <param name="value"></param>
     /// <returns><c>true</c> if value is changed</returns>
-    public static bool SetText(this ref char character, in string? value)
+    public static bool SetText(this ref char character, string? value)
     {
       if (character.Text().Equals(value, StringComparison.Ordinal))
         return false;

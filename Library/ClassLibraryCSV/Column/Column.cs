@@ -55,10 +55,10 @@ namespace CsvTools
       int? columnOrdinal = 0,
       bool? ignore = false,
       bool? convert = null,
-      in string? destinationName = "",
-      in string? timePart = "",
-      in string? timePartFormat = cDefaultTimePartFormat,
-      in string? timeZonePart = "")
+      string? destinationName = "",
+      string? timePart = "",
+      string? timePartFormat = cDefaultTimePartFormat,
+      string? timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
       ValueFormat = valueFormat ?? ValueFormat.Empty;

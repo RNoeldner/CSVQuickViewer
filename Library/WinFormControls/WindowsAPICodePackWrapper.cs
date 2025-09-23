@@ -91,7 +91,7 @@ namespace CsvTools
     public static bool IsDialogOpen { get; private set; }
 
     public static string? Open(string initialDirectory, string title, string filter,
-      in string? preselectFileName)
+      string? preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -151,7 +151,7 @@ namespace CsvTools
 
     public static string? Save(string initialDirectory, string title, string filter,
       string defaultExt, bool overwritePrompt = true,
-      in string? preselectFileName = null)
+      string? preselectFileName = null)
     {
       Retry:
       if (m_CommonFileDialogSupported)

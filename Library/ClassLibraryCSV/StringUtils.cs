@@ -111,7 +111,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
     /// <returns>The text with the maximum length, in case it has been cut off a … is added</returns>
-    public static string GetShortDisplay(in string? text, int length)
+    public static string GetShortDisplay(string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
         .Replace("  ", " ") ?? string.Empty;
@@ -300,7 +300,7 @@ namespace CsvTools
     /// <returns>True if text matches</returns>
     public static bool PassesFilter(
       this string? item,
-      in string? filter,
+      string? filter,
       StringComparison stringComparison = StringComparison.CurrentCultureIgnoreCase)
     {
       if (filter is null || filter.Length == 0)
@@ -456,7 +456,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(in string? value, string treatAsNull) =>
+    public static bool ShouldBeTreatedAsNull(string? value, string treatAsNull) =>
       value is null || ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
 
     /// <summary>

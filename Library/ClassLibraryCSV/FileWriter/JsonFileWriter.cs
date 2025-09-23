@@ -35,7 +35,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
-    public JsonFileWriter(string fullPath, in string? identifierInContainer, in string? footer, in string? header,
+    public JsonFileWriter(string fullPath, string? identifierInContainer, string? footer, string? header,
       bool emptyAsNull, int codePageId, bool byteOrderMark, IEnumerable<Column>? columnDefinition,
       string fileSettingDisplay, string row, TimeZoneChangeDelegate? timeZoneAdjust,
       string sourceTimeZone, string publicKey, bool unencrypted)

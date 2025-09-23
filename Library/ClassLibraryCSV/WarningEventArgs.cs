@@ -38,7 +38,7 @@ namespace CsvTools
       string warningMessage,
       long lineNumberStart,
       long lineNumberEnd,
-      in string? columnName)
+      string? columnName)
     {
       if (string.IsNullOrEmpty(warningMessage)) throw new ArgumentException("message", nameof(warningMessage));
 

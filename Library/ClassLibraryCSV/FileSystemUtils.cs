@@ -57,14 +57,14 @@ namespace CsvTools
     /// <param name="fileName"></param>
     /// <param name="root"></param>
     /// <returns></returns>
-    public static string FullPath(this string? fileName, in string? root) =>
+    public static string FullPath(this string? fileName, string? root) =>
       ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
     /// <summary>
     /// Creates a directory if it does not exist
     /// </summary>
     /// <param name="directoryName"></param>
-    public static void CreateDirectory(in string? directoryName)
+    public static void CreateDirectory(string? directoryName)
     {
       if (directoryName is null || directoryName.Length == 0)
         return;
@@ -121,7 +121,7 @@ namespace CsvTools
     /// Check if a directory exists.
     /// </summary>
     /// <param name="directoryName">Name of the directory.</param>    
-    public static bool DirectoryExists(in string? directoryName) =>
+    public static bool DirectoryExists(string? directoryName) =>
       !(directoryName is null || directoryName.Length == 0) && Directory.Exists(directoryName.LongPathPrefix());
 
     /// <summary>
@@ -225,7 +225,7 @@ namespace CsvTools
     ///   Deletes a file if it exists.
     /// </summary>
     /// <param name="fileName">Specify the file to be deleted</param>
-    public static void FileDelete(in string? fileName)
+    public static void FileDelete(string? fileName)
     {
       if (fileName is null || fileName.Length == 0) return;
       var fn = fileName.LongPathPrefix();
@@ -237,7 +237,7 @@ namespace CsvTools
     /// Checks if a file exists
     /// </summary>
     /// <param name="fileName">Name of the file.</param>    
-    public static bool FileExists(in string? fileName) =>
+    public static bool FileExists(string? fileName) =>
       !(fileName is null || fileName.Length == 0) && File.Exists(fileName.LongPathPrefix());
 
     /// <summary>
@@ -563,7 +563,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="basePath">The base path.</param>
     /// <returns></returns>
-    public static string GetShortestPath(this string? fileName, in string? basePath)
+    public static string GetShortestPath(this string? fileName, string? basePath)
     {
       if (fileName == null)
         return string.Empty;
@@ -766,7 +766,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The full path possibly with directories</param>
     /// <returns></returns>
-    public static string GetFileName(in string? path)
+    public static string GetFileName(string? path)
     {
       if (path is null || path.Length == 0)
         return string.Empty;

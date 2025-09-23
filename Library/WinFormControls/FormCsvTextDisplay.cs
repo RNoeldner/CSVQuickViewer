@@ -32,7 +32,7 @@ namespace CsvTools
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay(in string? fullPath,
+    public FormCsvTextDisplay(string? fullPath,
       in Func<IProgress<ProgressInfo>, CancellationToken, Task<string>> getContent)
     {
       m_FullPath = fullPath;

@@ -61,7 +61,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="style">The style.</param>
     [JsonConstructor]
-    public HtmlStyle(in string? style)
+    public HtmlStyle(string? style)
     {
       m_Style = style ?? cDefaultStyle;
     }

@@ -60,9 +60,9 @@ namespace CsvTools
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     protected StructuredFileWriter(string fullPath,
-                                   in string? identifierInContainer,
-                                   in string? footer,
-                                   in string? header,
+                                   string? identifierInContainer,
+                                   string? footer,
+                                   string? header,
                                    int codePageId,
                                    bool byteOrderMark,
                                    in IEnumerable<Column>? columnDefinition,

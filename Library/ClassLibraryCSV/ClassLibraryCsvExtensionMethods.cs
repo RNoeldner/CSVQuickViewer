@@ -562,7 +562,7 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, in string? pattern, char replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, char replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;
@@ -598,7 +598,7 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, in string? pattern, string replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, string replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;

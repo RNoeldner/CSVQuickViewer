@@ -81,9 +81,9 @@ namespace CsvTools
     protected BaseFileWriter(
       string fullPath,
       in ValueFormat? valueFormatGeneral,
-      in string? identifierInContainer,
-      in string? footer,
-      in string? header,
+      string? identifierInContainer,
+      string? footer,
+      string? header,
       in IEnumerable<Column>? columnDefinition,
       string fileSettingDisplay,
       in TimeZoneChangeDelegate? timeZoneAdjust,

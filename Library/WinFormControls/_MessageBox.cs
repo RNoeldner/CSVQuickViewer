@@ -25,7 +25,7 @@ namespace CsvTools
   {
     public static DialogResult Show(
       string message,
-      in string? title,
+      string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
@@ -106,9 +106,9 @@ namespace CsvTools
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
       double timeout = 4.0,
-      in string? button1Text = null,
-      in string? button2Text = null,
-      in string? button3Text = null)
+      string? button1Text = null,
+      string? button2Text = null,
+      string? button3Text = null)
     {
       using var tm = new TimedMessage();
       tm.Size = new Size(600, 450);

@@ -30,9 +30,9 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="XmlFileWriter" /> class.
     /// </summary>
     public XmlFileWriter(string fullPath,
-                         in string? identifierInContainer,
-                         in string? footer,
-                         in string? header,
+                         string? identifierInContainer,
+                         string? footer,
+                         string? header,
                          int codePageId,
                          bool byteOrderMark,
                          IEnumerable<Column>? columnDefinition,
