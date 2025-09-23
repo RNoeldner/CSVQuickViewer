@@ -81,7 +81,7 @@ namespace CsvTools.Tests
     public void DelimiterCounterSeparatorsCountTest()
     {
       var i = new DetectionDelimiter.DelimiterCounter(3, Array.Empty<char>(), '"');
-      Assert.AreEqual(i.Separators.Length, i.SeparatorsCount.GetLength(1));
+      Assert.AreEqual(3, i.SeparatorsCount.GetLength(1), "");
       // Initially all counts should be zero
       for (int row = 0; row < 3; row++)
         for (int col = 0; col < i.Separators.Length; col++)

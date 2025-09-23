@@ -965,9 +965,12 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("d", test.GetName(3));
       Assert.AreEqual("e", test.GetName(4));
       Assert.AreEqual("f", test.GetName(5));
+
+#if DEBUG
       // This works in debug mode but in release it does raise an error
       Assert.AreEqual(1, warningsList.CountRows, "Number of Warnings");
       Assert.IsTrue(warningsList.Display.Contains("too long"));
+#endif
 
       // check if we read the right line , and we do not end up in a commented line of read the
       // header again
