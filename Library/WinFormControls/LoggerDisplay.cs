@@ -92,7 +92,7 @@ namespace CsvTools
       try
       {
         var appended = false;
-        var posSlash = text.IndexOf('â€“', 0);
+        var posSlash = text.IndexOf('–', 0);
         if (posSlash != -1 && m_LastMessage.StartsWith(
               text.Substring(0, posSlash - 1).Trim(),
               StringComparison.Ordinal))
