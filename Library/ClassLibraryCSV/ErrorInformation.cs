@@ -153,6 +153,12 @@ namespace CsvTools
       return sb.ToString();
     }
 
+    /// <summary>
+    ///   Method to add the warning identifier to an error message
+    /// </summary>
+    /// <param name="message">The message that should get the ID</param>
+    /// <param name="buffer">The span that will be modifed</param>
+    /// <returns>The text with the leading WarningID</returns>
     public static int AddWarningId(ReadOnlySpan<char> message, Span<char> buffer)
     {
       if (message.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))

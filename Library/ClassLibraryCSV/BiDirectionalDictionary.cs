@@ -59,7 +59,7 @@ namespace CsvTools
     /// Adds a new key-value pair, ensuring uniqueness in both directions.
     /// </summary>
     /// <exception cref="ArgumentException">If either key or value already exists.</exception>
-    public void Add(TKey key, TValue value)
+    public new void Add(TKey key, TValue value)
     {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (!base.TryAdd(key, value))
@@ -103,7 +103,7 @@ namespace CsvTools
     /// <summary>
     /// Removes a key and its value.
     /// </summary>
-    public bool Remove(TKey key)
+    public new bool Remove(TKey key)
     {
       if (!base.TryGetValue(key, out var value))
         return false;
@@ -115,7 +115,7 @@ namespace CsvTools
     /// <summary>
     /// Attempts to add a pair, returns false if key or value already exists.
     /// </summary>
-    public bool TryAdd(TKey key, TValue value)
+    public new bool TryAdd(TKey key, TValue value)
     {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (!base.TryAdd(key, value))

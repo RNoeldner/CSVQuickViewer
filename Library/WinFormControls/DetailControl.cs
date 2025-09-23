@@ -58,7 +58,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     ///     
     public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
-      FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
+      FilterTypeEnum filterType, IProgress<ProgressInfo> progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       try
