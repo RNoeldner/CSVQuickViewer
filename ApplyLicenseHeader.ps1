@@ -16,21 +16,21 @@ function Apply-LicenseHeader($filePath, $header) {
     # Skip empty files
     if ([string]::IsNullOrWhiteSpace($content)) { return }
 
-    # If the file already starts with the correct header, skip
+    # If the file already starts with the header, skip
     if ($content.StartsWith($header)) { return }
 
-    # Detect existing block comment at top (/* ... */)
+    # Detect if the file has any existing block comment at the top
     $pattern = '^(?s)\s*/\*.*?\*/\s*'
-    $newContent = if ($content -match $pattern) {
-        # Replace existing top comment with the standard header
-        $content -replace $pattern, $header
-    } else {
-        # Prepend header
-        $header + $content
+    if ($content -match $pattern) {
+        # Skip files with any existing header
+        Write-Host "Skipping $filePath (existing header detected)"
+        return
     }
 
+    # Prepend the header
+    $newContent = $header + $content
     Set-Content $filePath $newContent
-    Write-Host "Updated header in $filePath"
+    Write-Host "Added header to $filePath"
 }
 
 # Get all .cs files recursively, excluding Designer, bin, and obj folders

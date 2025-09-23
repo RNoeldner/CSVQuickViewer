@@ -1,5 +1,5 @@
 /*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael N�ldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -410,7 +409,7 @@ namespace CsvTools
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
-          
+
           if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                              || columnFormat.DateFormat.IndexOfAny(
                                                                m_TimeFormat) != -1)

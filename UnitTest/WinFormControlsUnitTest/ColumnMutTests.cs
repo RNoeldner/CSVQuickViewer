@@ -1,4 +1,17 @@
-ï»¿using Microsoft.VisualStudio.TestTools.UnitTesting;
+/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CsvTools;
 using System;
 using System.Collections.Generic;
@@ -55,8 +68,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnMutProperties()
     {
-      var input = new ColumnMut("NÃ¤me",
-        new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "NÃ¶", "<N>", 3, "|", false, "pat",
+      var input = new ColumnMut("Näme",
+        new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false))
       { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input,
@@ -68,8 +81,8 @@ namespace CsvTools.Tests
           nameof(input.ValueFormat.False), nameof(input.ValueFormat.True)
         });
 
-      var input2 = new ColumnMut("NÃ¤me",
-        new ValueFormat(DataTypeEnum.TextPart, "XXX", "-", "?", "xx", "_", "=", "Yo", "NÃ¶", "<N>", 3, "|", false, "pat",
+      var input2 = new ColumnMut("Näme",
+        new ValueFormat(DataTypeEnum.TextPart, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false))
       { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input2,
@@ -113,8 +126,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(false, target.Convert);
       target.DestinationName = "->";
       Assert.AreEqual("->", target.DestinationName);
-      target.Name = "NÃ¤me";
-      Assert.AreEqual("NÃ¤me", target.Name);
+      target.Name = "Näme";
+      Assert.AreEqual("Näme", target.Name);
     }
 
     [TestMethod]
