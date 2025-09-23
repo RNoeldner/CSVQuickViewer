@@ -1265,44 +1265,7 @@ namespace CsvTools
       );
     }
 
-    //    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
-    //    {
-    //      if (m_FileSetting is null)
-    //        return;
-    //      try
-    //      {
-    //        var text = GetViewStatus;
-    //        if (!string.IsNullOrEmpty(text))
-    //        {
-    //          // Select Path
-    //          var fileName = WindowsAPICodePackWrapper.Save(
-    //            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-    //            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
-
-    //          if (fileName is null || fileName.Length == 0)
-    //            return;
-
-    //#if NET5_0_OR_GREATER
-    //          await
-    //#endif          
-    //          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
-
-    //#if NET5_0_OR_GREATER
-    //          await
-    //#endif
-    //          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-    //          await writer.WriteAsync(GetViewStatus);
-    //          await writer.FlushAsync();
-
-    //          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-    //            basePhysical.ColumnFile = fileName;
-    //        }
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //        FindForm()?.ShowError(ex);
-    //      }
-    //    }
+   
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.

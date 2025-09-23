@@ -193,7 +193,7 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(Footer()))
         await writer.WriteAsync(Footer()).ConfigureAwait(false);
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
 #else
       await writer.FlushAsync().ConfigureAwait(false);

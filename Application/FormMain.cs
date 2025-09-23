@@ -140,11 +140,11 @@ namespace CsvTools
           // in case we skipped lines read them as Header, so we do not lose them
           if (m_FileSetting.SkipRows > 0)
           {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             await
 #endif
             using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             await
 #endif
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
@@ -196,7 +196,7 @@ namespace CsvTools
           {
             var sa = new SourceAccess(m_FileSetting!.FullPath);
             sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
             // ReSharper disable once UseAwaitUsing
@@ -248,17 +248,15 @@ namespace CsvTools
       get
       {
         var assembly = Assembly.GetExecutingAssembly();
-        var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length <= 0)
-          return Path.GetFileNameWithoutExtension(assembly.Location);
+        var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>();
+        var version = assembly.GetName().Version;
 
-        var titleAttribute = (AssemblyTitleAttribute) attributes[0];
-        if (titleAttribute.Title.Length != 0)
-          return titleAttribute.Title + " " + assembly.GetName().Version;
-
-        return Path.GetFileNameWithoutExtension(assembly.Location);
+        return titleAttribute is { Title: { Length: > 0 } }
+          ? $"{titleAttribute.Title} {((version == null) ? "1.0.0" : $"{version.Major}.{version.Minor}.{(version.Build >= 0 ? version.Build : 0)}")}"
+          : Path.GetFileNameWithoutExtension(assembly.Location);
       }
     }
+
 
     private void ApplyViewSettings()
     {
@@ -637,7 +635,7 @@ namespace CsvTools
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
       {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await m_CancellationTokenSource.CancelAsync();
 #else
         m_CancellationTokenSource.Cancel();

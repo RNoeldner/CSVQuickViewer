@@ -169,7 +169,7 @@ namespace CsvTools
       if (numRecords.HasValue)
         AddInfo("Number of Records", numRecords.Value.ToString());
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var fileReader =

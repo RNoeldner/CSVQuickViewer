@@ -682,7 +682,7 @@ namespace CsvTools
         var hasRetried = false;
 
         retry:
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
         // ReSharper disable once ConvertToUsingDeclaration

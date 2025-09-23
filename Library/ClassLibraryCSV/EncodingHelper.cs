@@ -39,7 +39,7 @@ namespace CsvTools
       1250, 1253, 1255, 850, 852, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     };
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     static EncodingHelper()
     {
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

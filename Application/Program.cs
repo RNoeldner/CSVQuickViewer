@@ -32,7 +32,7 @@ namespace CsvTools
       AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
 
       var fileName = string.Empty;
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       Application.SetHighDpiMode(HighDpiMode.SystemAware);
 #endif
       Application.EnableVisualStyles();
@@ -52,7 +52,7 @@ namespace CsvTools
 
       var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
 

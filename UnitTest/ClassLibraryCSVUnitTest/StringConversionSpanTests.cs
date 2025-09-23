@@ -22,7 +22,7 @@ namespace CsvTools.Tests
   public class StringConversionSpanTests
   {
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [TestMethod]
     [Timeout(500)]
     public void GetPartsEndingSepTest()

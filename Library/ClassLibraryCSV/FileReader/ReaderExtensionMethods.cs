@@ -114,7 +114,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       var res = new List<Column>();
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
         using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
