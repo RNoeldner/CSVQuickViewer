@@ -1,4 +1,4 @@
-
+﻿
 namespace CsvTools
 {
   /// <summary>

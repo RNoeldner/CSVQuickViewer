@@ -1,5 +1,5 @@
-/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael N�ldner
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -240,7 +240,7 @@ namespace CsvTools
     /// <param name="warnLineFeed">if set to <character>true</character> raise a warning if line feed is part of a column.</param>
     /// <param name="warnNbsp">if set to <character>true</character> raise a warning if a non-breaking space is part of a column.</param>
     /// <param name="warnQuotes">if set to <character>true</character> raise a warning if the quoting is part of a column.</param>
-    /// <param name="warnUnknownCharacter">if set to <character>true</character> raise a warning if � is part of a column.</param>
+    /// <param name="warnUnknownCharacter">if set to <character>true</character> raise a warning if ï¿½ is part of a column.</param>
     /// <param name="warnEmptyTailingColumns">if set to <character>true</character> raise a warning if empty tailing columns are found.</param>
     /// <param name="treatNbspAsSpace">if set to <character>true</character> treat a NBSP as regular space.</param>
     /// <param name="treatTextAsNull">The text to treat as null. character.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
@@ -250,7 +250,7 @@ namespace CsvTools
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "24/01/2024 07:56" and "UTC" -->  "24/01/2024 13:26" (if IST is timezone specified) </param>
     /// <param name="returnedTimeZone">The time zone input file should be converted to, only viable if you have a date / time column and timezone column in the source.</param>
     /// <param name="allowPercentage">if set to <character>true</character> convert percentages to numeric values e.G. 17% -> 0.17.</param>
-    /// <param name="removeCurrency">if set to <character>true</character> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
+    /// <param name="removeCurrency">if set to <character>true</character> removed currency symbols to values can be read as decimals , .e.G. 17.82â‚¬ -> 17.82</param>
     /// <exception cref="System.ArgumentNullException">if fileName is not set</exception>
     /// <exception cref="System.ArgumentException">File can not be empty - fileName</exception>
     /// <exception cref="System.IO.FileNotFoundException">The file does not exist or is not accessible.</exception>

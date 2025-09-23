@@ -1,5 +1,5 @@
-/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ï»¿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael NÃ¶ldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -171,7 +171,7 @@ namespace CsvTools
 
       if (compareText.Equals("broken bar", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase))
-        return '¦';
+        return 'Â¦';
 
       if (compareText.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) || 
           compareText.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase))

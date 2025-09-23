@@ -1,4 +1,4 @@
-namespace CsvTools
+﻿namespace CsvTools
 {
   partial class FormEditSettings
   {

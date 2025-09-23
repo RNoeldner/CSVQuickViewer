@@ -1,5 +1,5 @@
-/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael N�ldner
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -270,7 +270,7 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// <param name="selectFile">´Function to be called if a file needs to be picked</param>
+    /// <param name="selectFile">Function to be called if a file needs to be picked</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
     /// <param name="privateKey"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>

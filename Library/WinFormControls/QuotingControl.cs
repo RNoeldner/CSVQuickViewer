@@ -1,5 +1,5 @@
-/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael N�ldner
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -251,7 +251,7 @@ namespace CsvTools
       this.m_RadioButtonNeeded.TabIndex = 3;
       this.m_RadioButtonNeeded.TabStop = true;
       this.m_RadioButtonNeeded.Text = "Qualify Only If Needed";
-      this.m_ToolTip.SetToolTip(this.m_RadioButtonNeeded, "Writing Text the content is quoted only if it’s necessary ");
+      this.m_ToolTip.SetToolTip(this.m_RadioButtonNeeded, "Writing Text the content is quoted only if it's necessary ");
       this.m_RadioButtonNeeded.UseVisualStyleBackColor = true;
       this.m_RadioButtonNeeded.Visible = false;
       // 

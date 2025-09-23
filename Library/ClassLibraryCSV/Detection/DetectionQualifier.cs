@@ -125,7 +125,7 @@ namespace CsvTools
               continue;
             }
 
-            // Field delimiter → start of next column
+            // Field delimiter ? start of next column
             if (c == fieldDelimiterChar)
             {
               isStartOfColumn = true;
@@ -139,7 +139,7 @@ namespace CsvTools
               continue;
             }
 
-            // Qualifier at start of column → success
+            // Qualifier at start of column ? success
             if (c == fieldQualifierChar)
               return true;
 
