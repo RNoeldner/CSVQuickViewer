@@ -19,7 +19,7 @@
     <CodePage>65001</CodePage>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
     <ReleaseVersion>1.4.6.499</ReleaseVersion>

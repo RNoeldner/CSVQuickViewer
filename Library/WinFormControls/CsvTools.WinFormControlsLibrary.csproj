@@ -9,9 +9,8 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <IsPublishable>False</IsPublishable>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvTools.WinFormControls</AssemblyName>    
