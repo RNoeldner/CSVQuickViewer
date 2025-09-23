@@ -721,75 +721,7 @@ namespace CsvTools
       });
 
       m_UpdateVisibility = true;
-    }
-
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    //    public async Task SafeCurrentFile(string fileName)
-    //    {
-    //      if (FilteredDataGridView.DataView is null)
-    //        return;
-
-    //      if (WriteSetting is null)
-    //      {
-    //        WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
-    //        FileSetting?.CopyTo(WriteSetting);
-    //      }
-
-    //      var skippedLines = new StringBuilder();
-    //      // in case we skipped lines read them as Header, so we do not loose them
-    //      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
-    //      {
-    //#if NET5_0_OR_GREATER
-    //        await
-    //#endif
-    //        using var iStream = FunctionalDI.GetStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
-    //        using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
-    //        for (var i = 0; i < physSource.SkipRows; i++)
-    //          skippedLines.AppendLine(await sr.ReadLineAsync());
-    //      }
-    //      using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
-    //      try
-    //      {
-    //        formProgress.Show(this);
-    //        BeforeFileStored?.Invoke(this, WriteSetting);
-
-    //        var writer = new CsvFileWriter(fileName, WriteSetting.HasFieldHeader, WriteSetting.ValueFormatWrite,
-    //          WriteSetting.CodePageId,
-    //          WriteSetting.ByteOrderMark,
-    //          WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer, skippedLines.ToString(),
-    //          WriteSetting.Footer,
-    //          string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar, WriteSetting.FieldQualifierChar,
-    //          WriteSetting.EscapePrefixChar,
-    //          WriteSetting.NewLinePlaceholder,
-    //          WriteSetting.DelimiterPlaceholder,
-    //          WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded,
-    //          WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
-
-    //          );
-
-    //#if NET5_0_OR_GREATER
-    //        await
-    //#endif
-    //        using var reader = new DataTableWrapper(
-    //          FilteredDataGridView.DataView.ToTable(false,
-    //            // Restrict to shown data
-    //            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-    //              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-    //              .OrderBy(col => col.DisplayIndex)
-    //              .Select(col => col.DataPropertyName).ToArray()));
-    //        // can not use filteredDataGridView.Columns directly
-    //        await writer.WriteAsync(reader, formProgress.CancellationToken);
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //        ParentForm.ShowError(ex);
-    //      }
-    //      finally
-    //      {
-    //        FileStored?.Invoke(this, WriteSetting);
-    //      }
-    //    }
+    }  
 
     private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {

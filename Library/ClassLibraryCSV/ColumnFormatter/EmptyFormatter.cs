@@ -29,7 +29,7 @@ namespace CsvTools
     public static readonly EmptyFormatter Instance = new EmptyFormatter();
 
     /// <inheritdoc/>
-    public override string FormatInputText(string inputString, in Action<string>? handleWarning) => inputString;
+    public override string FormatInputText(string inputString, Action<string>? handleWarning) => inputString;
 
     /// <inheritdoc/>
     public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString) => inputString;

@@ -39,7 +39,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, Action<string>? handleWarning)
     {
       var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
       if (RaiseWarning && output.IsEmpty)

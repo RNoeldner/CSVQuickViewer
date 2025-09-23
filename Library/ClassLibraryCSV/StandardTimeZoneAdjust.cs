@@ -51,7 +51,7 @@ namespace CsvTools
     /// <param name="destTimeZone">Destination TimeZone</param>
     /// <param name="handleWarning">Action to be called if a warning is raised</param>
     public static DateTime ChangeTimeZone(in DateTime input, string srcTimeZone, string destTimeZone,
-      in Action<string>? handleWarning)
+      Action<string>? handleWarning)
     {
       if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
           destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))

@@ -38,7 +38,7 @@ namespace CsvTools
   ///   Converted date / time
   /// </returns>
   public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string srcTimeZone, string destTimeZone,
-    in Action<string>? handleWarning);
+    Action<string>? handleWarning);
 
   /// <summary>
   ///   Class with extensions used in the class Library

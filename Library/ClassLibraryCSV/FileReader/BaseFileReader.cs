@@ -1149,10 +1149,7 @@ namespace CsvTools
 
       var eventArgs = new RetryEventArgs(ex) { Retry = false };
       var handler = Volatile.Read(ref OnAskRetry);
-      if (handler != null)
-      {
-        handler.Invoke(this, eventArgs);
-      }
+      handler?.Invoke(this, eventArgs);
       return eventArgs.Retry;
     }
 

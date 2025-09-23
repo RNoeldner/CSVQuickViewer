@@ -29,7 +29,7 @@ namespace CsvTools
     public static readonly TextToHtmlFormatter Instance = new TextToHtmlFormatter();
 
     /// <inheritdoc/>
-    public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
+    public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
     {
       if (dataObject is null)
         return string.Empty;
@@ -37,7 +37,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, Action<string>? handleWarning)
     {
       var output = HtmlStyle.TextToHtmlEncode(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

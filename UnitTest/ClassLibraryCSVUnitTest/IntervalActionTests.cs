@@ -24,7 +24,6 @@ namespace CsvTools.Tests
     public void Defaults()
     {
       var test = new IntervalAction();
-      Assert.IsTrue(test.NotifyAfterSeconds > 0 && test.NotifyAfterSeconds < 1);
 
       var test2 = IntervalAction.ForProgress(null);
       Assert.IsNull(test2);
@@ -37,14 +36,14 @@ namespace CsvTools.Tests
     public void IntervalActionError()
     {
       var intervalAction = new IntervalAction();
-      intervalAction.Invoke(()=> throw new ObjectDisposedException("dummy"));
-      intervalAction.Invoke((t)=> throw new ObjectDisposedException(t), "test");
+      intervalAction.Invoke(() => throw new ObjectDisposedException("dummy"));
+      intervalAction.Invoke((t) => throw new ObjectDisposedException(t), "test");
     }
 
     [TestMethod]
     public void OtherInvokeMethods()
     {
-      new IntervalAction().Invoke((num1,num2,num3) => { }, 669, 700, 701);
+      new IntervalAction().Invoke((num1, num2, num3) => { }, 669, 700, 701);
       new IntervalAction().Invoke((num1) => { }, 701);
       new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test1", 1.8f);
       new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test2", 100);
@@ -67,7 +66,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, called);
 
       // wait for some time
-      await Task.Delay(TimeSpan.FromSeconds(intervalAction.NotifyAfterSeconds).Milliseconds + 100);
+      await Task.Delay(TimeSpan.FromSeconds(.3d).Milliseconds);
 
       // now the value should be set
       intervalAction.Invoke(() => { setValue = 669; called++; });

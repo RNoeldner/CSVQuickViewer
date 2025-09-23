@@ -30,11 +30,11 @@ namespace CsvTools
     public static readonly TextToHtmlFullFormatter Instance = new TextToHtmlFullFormatter();
 
     /// <inheritdoc/>
-    public override string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning) => 
+    public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning) => 
       dataObject is null ? string.Empty : HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
 
     /// <inheritdoc/>
-    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, Action<string>? handleWarning)
     {
       var output = HtmlStyle.HtmlEncodeShort(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

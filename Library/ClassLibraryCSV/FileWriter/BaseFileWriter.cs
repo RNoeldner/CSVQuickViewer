@@ -345,7 +345,7 @@ namespace CsvTools
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
     protected void HandleWarning(string columnName, string message) =>
-      Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
+      Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     /// <summary>
     ///   Value conversion of a FileWriter

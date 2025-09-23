@@ -34,7 +34,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, Action<string>? handleWarning)
     {
       if (m_Regex?.IsMatch(inputString) ?? false)
       {

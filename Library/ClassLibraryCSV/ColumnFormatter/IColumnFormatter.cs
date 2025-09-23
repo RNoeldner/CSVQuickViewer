@@ -34,7 +34,7 @@ namespace CsvTools
     /// <param name="inputString">The input text that need to be processed</param>
     /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
     /// <returns>The formatted text</returns>
-    string FormatInputText(string inputString, in Action<string>? handleWarning);
+    string FormatInputText(string inputString, Action<string>? handleWarning);
 
     /// <summary>
     /// Format the text while reading, unlike in the string implementation this is built for speed, no warning will be raised.
@@ -50,6 +50,6 @@ namespace CsvTools
     /// <param name="dataRow">All values for the current row to support placeholders, to handle placeholders etc.</param>
     /// <param name="handleWarning"></param>
     /// <returns>An awaitable task with the text a text representation</returns>
-    string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning);
+    string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning);
   }
 }
