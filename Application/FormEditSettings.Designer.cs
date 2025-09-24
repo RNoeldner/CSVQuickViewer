@@ -1861,13 +1861,11 @@
     private System.Windows.Forms.Label label7;
     private System.Windows.Forms.Label labelVersion;
     private System.Windows.Forms.Label labelExecutable;
-    private System.Windows.Forms.LinkLabel linkLabelGnu;
-    private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
+    private System.Windows.Forms.LinkLabel linkLabelGnu;    
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     private System.Windows.Forms.Label label9;
     private System.Windows.Forms.Label label10;
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-    private System.Windows.Forms.Label labelCopyright;
     private System.Windows.Forms.LinkLabel linkLabelRepository;
     private System.Windows.Forms.Label label14;
     private System.Windows.Forms.Label label16;

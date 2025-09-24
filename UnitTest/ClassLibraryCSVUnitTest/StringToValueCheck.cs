@@ -160,10 +160,10 @@ namespace CsvTools.Tests
       Assert.IsFalse(Array.Empty<string>().Select(x => x.AsMemory()).ToArray().CheckGuid(UnitTestStatic.Token));
       Assert.IsTrue(
         new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }.Select(x => x.AsMemory()).ToArray().CheckGuid(UnitTestStatic.Token));
-      Assert.IsFalse(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }.Select(x => x.AsMemory()).CheckGuid(
+      Assert.IsFalse(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }.Select(x => x.AsMemory()).ToList().CheckGuid(
         UnitTestStatic.Token));
       Assert.IsTrue(
-        new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" }.Select(x => x.AsMemory()).CheckGuid(UnitTestStatic.Token));
+        new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" }.Select(x => x.AsMemory()).ToList().CheckGuid(UnitTestStatic.Token));
     }
 
     [TestMethod]

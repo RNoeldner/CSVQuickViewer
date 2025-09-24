@@ -15,12 +15,21 @@ using System;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// A dummy implementation of <see cref="IProgress{T}"/> that ignores progress reports.
+  /// Useful when you need to pass a progress reporter but do not want to handle progress updates.
+  /// </summary>
   public class DummyProgress : IProgress<ProgressInfo>
   {
+    /// <summary>
+    /// Reports progress information. This implementation ignores the reported value.
+    /// </summary>
+    /// <param name="value">The progress information to report.</param>
     public void Report(ProgressInfo value)
     {
+      // Intentionally does nothing.
+      // Uncomment the following line if you want to break in debugger during development.
       // Debugger.Break();
     }
   }
 }
-
