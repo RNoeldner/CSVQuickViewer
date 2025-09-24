@@ -117,7 +117,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fillGuessSettings));
 
       columnCollectionInput ??= Array.Empty<Column>();
-
+      
       if (!fillGuessSettings.Enabled || fillGuessSettings is
         {
           DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
@@ -145,12 +145,17 @@ namespace CsvTools
           columnCollection.Add(col);
           break;
         }
+      
+      var columnCache = new Dictionary<int, Column>();
+      // Pre-fill the cache for all columns
+      for (int colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        columnCache[colIndex] = fileReader.GetColumn(colIndex);
 
       // Build a list of columns to check
       var getSamples = new List<int>();
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
-        var column = fileReader.GetColumn(colIndex);
+        var column = columnCache[colIndex]; 
         // Check if column should be ignored        
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(column.Name) > 0)
         {
@@ -194,7 +199,7 @@ namespace CsvTools
         Logger.Information("Not enough records to determine types");
         var allcolumns = new List<Column>();
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-          allcolumns.Add(fileReader.GetColumn(colIndex));
+          allcolumns.Add(columnCache[colIndex]);
 
         return (Array.Empty<string>(), allcolumns);
       }
@@ -203,7 +208,7 @@ namespace CsvTools
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
         if (sampleList.ContainsKey(colIndex)) continue;
-        var readerColumn = fileReader.GetColumn(colIndex);
+        var readerColumn = columnCache[colIndex];
         columnCollection.Add(readerColumn);
       }
 
@@ -213,7 +218,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
       foreach (var colIndex in sampleList.Keys)
       {
-        var readerColumn = fileReader.GetColumn(colIndex);
+        var readerColumn = columnCache[colIndex];
         var samples = sampleList[colIndex];
 
         if (samples.Values.Count == 0)
@@ -327,7 +332,7 @@ namespace CsvTools
       if (checkDoubleToBeInteger)
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
 
           if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
               && readerColumn.ValueFormat.DataType != DataTypeEnum.Numeric) continue;
@@ -372,6 +377,7 @@ namespace CsvTools
         }
 
       cancellationToken.ThrowIfCancellationRequested();
+
       if (fillGuessSettings.DateParts)
       {
         // Case a)
@@ -379,7 +385,7 @@ namespace CsvTools
         // a TimeFormat has already been recognized
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
@@ -449,7 +455,7 @@ namespace CsvTools
         // adjacent fields
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
 
           if (colIndexSetting == -1) continue;
@@ -564,34 +570,26 @@ namespace CsvTools
         }
       }
 
-      // Goal: Reorders 'columnCollection' so that columns matching 'fileReader' field names (case-insensitive)
-      // come first (in field order), followed by the remaining columns.
+      // Reorder columns to match file order
+      return (result, ReorderColumns(columnCollection, fileReader));
+    }
 
-      // Step 1: Build a dictionary for fast (O(1)) lookup of columns by name, case-insensitive.
-      var columnLookup = columnCollection.ToDictionary(
-          col => col.Name,
-          StringComparer.OrdinalIgnoreCase);
+    // Reorder columns to match file order
+    private static IReadOnlyCollection<Column> ReorderColumns(ColumnCollection columnCollection, IFileReader fileReader)
+    {
+      var lookup = columnCollection.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+      var ordered = new List<Column>();
 
-      // Step 2: Collect columns present in 'fileReader', in order of appearance.
-      var orderedColumns = new List<Column>();
-
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      for (int i = 0; i < fileReader.FieldCount; i++)
       {
-        var colName = fileReader.GetName(colIndex);
-        // Match column by name, ignore case
-        if (columnLookup.TryGetValue(colName, out var matchedColumn))
-          orderedColumns.Add(matchedColumn);
+        if (lookup.TryGetValue(fileReader.GetName(i), out var col))
+          ordered.Add(col);
       }
 
-      // Step 3: Add any remaining columns not present in the 'fileReader' field list.
-      // THese could have been added by a column split
       foreach (var col in columnCollection)
-      {
-        if (!orderedColumns.Contains(col))
-          orderedColumns.Add(col);
-      }
-
-      return (result, orderedColumns);
+        if (!ordered.Contains(col))
+          ordered.Add(col);
+      return ordered;
     }
 
     /// <summary>
@@ -805,7 +803,7 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = samples.CheckDate(fmt.AsSpan(), sep, ':', CultureInfo.CurrentCulture, cancellationToken);
+            var res = samples.CheckDate(fmt, sep, ':', CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -815,7 +813,7 @@ namespace CsvTools
         else
         {
           // we have no date separator in the format no need to test different separators
-          var res = samples.CheckDate(fmt.AsSpan(), char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
+          var res = samples.CheckDate(fmt, char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -860,17 +858,17 @@ namespace CsvTools
       if (possibleDecimal.Count == 0)
         possibleDecimal.Add('.');
 
-      foreach (var thousandSeparator in possibleGrouping)
+      foreach (var thousandSep in possibleGrouping)
         // Try Numbers: Int and Decimal
-        foreach (var decimalSeparator in possibleDecimal)
+        foreach (var decimalSep in possibleDecimal)
         {
           if (cancellationToken.IsCancellationRequested)
             return checkResult;
-          if (decimalSeparator.Equals(thousandSeparator))
+          if (decimalSep.Equals(thousandSep))
             continue;
           var res = samples.CheckNumber(
-            decimalSeparator,
-            thousandSeparator,
+            decimalSep,
+            thousandSep,
             guessPercentage,
             allowStartingZero,
             removeCurrencySymbols,
@@ -981,7 +979,7 @@ namespace CsvTools
             othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = samples.CheckDate(
-          othersValueFormatDate.DateFormat.AsSpan(),
+          othersValueFormatDate.DateFormat,
           othersValueFormatDate.DateSeparator,
           othersValueFormatDate.TimeSeparator,
           CultureInfo.CurrentCulture, cancellationToken);
@@ -998,7 +996,7 @@ namespace CsvTools
         // Guess a date format that could be interpreted as number before testing numbers
         if (guessDateTime && firstValue.Length == 8)
         {
-          var checkResultDateTime = samples.CheckDate("yyyyMMdd".AsSpan(), char.MinValue, ':',
+          var checkResultDateTime = samples.CheckDate("yyyyMMdd", char.MinValue, ':',
             CultureInfo.InvariantCulture, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;

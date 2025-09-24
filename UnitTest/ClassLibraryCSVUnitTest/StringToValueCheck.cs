@@ -334,7 +334,7 @@ namespace CsvTools.Tests
                 samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(
-          samples.Select(x => x.AsMemory()).ToArray().CheckDate(fmt.AsSpan(), dateSep, ':', CultureInfo.CurrentCulture, UnitTestStatic.Token)
+          samples.Select(x => x.AsMemory()).ToArray().CheckDate(fmt, dateSep, ':', CultureInfo.CurrentCulture, UnitTestStatic.Token)
             .FoundValueFormat,
           $"Test format {fmt}\nFirst not matching: {samples.First()}");
       }
