@@ -35,23 +35,55 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A CheckResult with information on what was found and what did not match</returns>
     public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-                                        string dateFormatPattern, char dateSep, char timeSep,
+                                        ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
                                         in CultureInfo culture, CancellationToken cancellationToken)
     {
-      var cultureCopy = culture; // make a local copy, safe to capture
+      var checkResult = new CheckResult();
+      if (samples.Count == 0)
+        return checkResult;
+      var allParsed = true;
+      var counter = 0;
+      var positiveMatches = 0;
+      var threshHoldPossible = Math.Max(1, Math.Min(5, samples.Count));
 
-      return samples.CheckPattern(
-        tryParse: mem => mem.Span.StringToDateTimeExact(dateFormatPattern.AsSpan(), dateSep, timeSep, cultureCopy),
-        maxFails: 5,
-        maxPositives: Math.Max(1, Math.Min(5, samples.Count)),
-        createFormat: _ => new ValueFormat(
+      foreach (var value in samples)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+
+        counter++;
+        var parsedDate = value.Span.StringToDateTimeExact(dateFormatPattern, dateSep, timeSep, culture);
+        if (!parsedDate.HasValue)
+        {
+          allParsed = false;
+          checkResult.AddNonMatch(value.Span.ToString());
+          // try to get some positive matches, in case the first record is invalid
+          if (counter >= 5)
+            break;
+        }
+        else
+        {
+          positiveMatches++;
+          // if we have 5 hits or only one fail (for very low number of sample values, assume it's a
+          // possible match
+          if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
+          checkResult.PossibleMatch = true;
+          checkResult.ValueFormatPossibleMatch = new ValueFormat(
+            DataTypeEnum.DateTime,
+            dateFormatPattern.ToString(),
+            dateSep.ToString(),
+            timeSep.ToString());
+        }
+      }
+
+      if (allParsed)
+        checkResult.FoundValueFormat = new ValueFormat(
           DataTypeEnum.DateTime,
-          dateFormatPattern,
+          dateFormatPattern.ToString(),
           dateSep.ToString(),
-          timeSep.ToString()),
-        cancellationToken: cancellationToken
-      );
+          timeSep.ToString());
 
+      return checkResult;
     }
 
     /// <summary>
@@ -61,20 +93,21 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
-    public static bool CheckGuid(this IReadOnlyCollection<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
+    public static bool CheckGuid(this IEnumerable<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
     {
-      if (samples.Count== 0)
-        return false;
+      var isEmpty = true;
       foreach (var value in samples)
       {
         if (cancellationToken.IsCancellationRequested)
           break;
 
+        isEmpty = false;
         var ret = value.Span.StringToGuid();
         if (!ret.HasValue)
           return false;
       }
-      return true;
+
+      return !isEmpty;
     }
 
     /// <summary>
@@ -89,47 +122,58 @@ namespace CsvTools
     /// <param name="removeCurrencySymbols">if set to <c>true</c> common currency symbols are removed.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A CheckResult with information on what was found and what did not match</returns>
-    public static CheckResult CheckNumber(
-     this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-     char decimalSep,
-     char thousandSep,
-     bool allowPercentage,
-     bool allowStartingZero,
-     bool removeCurrencySymbols,
-     CancellationToken cancellationToken)
+    public static CheckResult CheckNumber(this IReadOnlyCollection<ReadOnlyMemory<char>> samples, char decimalSep,
+                                          char thousandSep, bool allowPercentage, bool allowStartingZero,
+                                          bool removeCurrencySymbols, CancellationToken cancellationToken)
     {
-      return samples.CheckPattern(
-        tryParse: mem =>
+      var checkResult = new CheckResult();
+      if (samples.Count == 0)
+        return checkResult;
+      var allParsed = true;
+      var assumeInteger = true;
+
+      foreach (var value in samples)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+
+        var ret = value.Span.StringToDecimal(decimalSep, thousandSep, allowPercentage,
+          removeCurrencySymbols);
+        // Any number with leading 0 should NOT be treated as numeric this is to avoid problems with
+        // 0002 etc.
+        if (!ret.HasValue || (!allowStartingZero && value.Span.StartsWith("0".AsSpan(), StringComparison.Ordinal)
+                                                 && Math.Floor(ret.Value) != 0))
         {
-          var span = mem.Span;
-          var ret = span.StringToDecimal(decimalSep, thousandSep, allowPercentage, removeCurrencySymbols);
-
-          if (!ret.HasValue)
-            return null;
-
-          // Reject numbers with leading zero unless allowed
-          if (!allowStartingZero &&
-              span.StartsWith("0".AsSpan(), StringComparison.Ordinal) &&
-              Math.Floor(ret.Value) != 0)
-            return null;
-
-          return ret;
-        },
-        maxFails: 3,
-        maxPositives: 2,
-        createFormat: val =>
+          allParsed = false;
+          checkResult.AddNonMatch(value.ToString());
+          // try to get some positive matches, in case the first record is invalid
+          if (checkResult.ExampleNonMatch.Count > 2)
+            break;
+        }
+        else
         {
-          var isInteger = val == Math.Truncate(val) &&
-                          val <= int.MaxValue &&
-                          val >= int.MinValue;
-
-          return new ValueFormat(
-            isInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
+          // if the value contains the decimal separator or is too large to be an integer, it's not
+          // an integer
+          if (value.Span.IndexOf(decimalSep) != -1)
+            assumeInteger = false;
+          else
+            assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue
+                            && ret.Value >= int.MinValue;
+          if (checkResult.PossibleMatch) continue;
+          checkResult.PossibleMatch = true;
+          checkResult.ValueFormatPossibleMatch = new ValueFormat(
+            assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
             groupSeparator: thousandSep.ToStringHandle0(),
             decimalSeparator: decimalSep.ToStringHandle0());
-        },
-        cancellationToken: cancellationToken
-      );
+        }
+      }
+
+      if (allParsed)
+        checkResult.FoundValueFormat = new ValueFormat(
+          assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
+          groupSeparator: thousandSep.ToStringHandle0(),
+          decimalSeparator: decimalSep.ToStringHandle0());
+      return checkResult;
     }
 
     /// <summary>
@@ -143,32 +187,55 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A CheckResult indicating whether all samples could be interpreted as serial dates,
     /// and any possible matches found.</returns>
-
-    public static CheckResult CheckSerialDate(
-      this IEnumerable<ReadOnlyMemory<char>> samples,
-      bool isCloseToNow,
-      CancellationToken cancellationToken)
+    public static CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow,
+                                              CancellationToken cancellationToken)
     {
+      var checkResult = new CheckResult();
+
+      var allParsed = true;
+      var positiveMatches = 0;
+      var counter = 0;
       var minYear = DateTime.Now.Year - 80;
-      var maxYear = DateTime.Now.Year + 20;
+      var maxYear = DateTime.Now.Year +20;
 
-      return samples.CheckPattern(
-          tryParse: mem =>
+      foreach (var value in samples)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+        counter++;
+        var ret = value.Span.SerialStringToDateTime();
+        if (!ret.HasValue)
+        {
+          allParsed = false;
+          checkResult.AddNonMatch(value.Span.ToString());
+          // try to get some positive matches, in case the first record is invalid
+          if (counter >= 3)
+            break;
+        }
+        else
+        {
+          if (isCloseToNow && (ret.Value.Year < minYear || ret.Value.Year > maxYear))
           {
-            var dt = mem.Span.SerialStringToDateTime();
-            if (!dt.HasValue)
-              return null;
+            allParsed = false;
+            checkResult.AddNonMatch(value.Span.ToString());
+            // try to get some positive matches, in case the first record is invalid
+            if (counter > 3)
+              break;
+          }
+          else
+          {
+            positiveMatches++;
+            if (positiveMatches <= 5 || checkResult.PossibleMatch) continue;
+            checkResult.PossibleMatch = true;
+            checkResult.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
+          }
+        }
+      }
 
-            if (isCloseToNow && (dt.Value.Year < minYear || dt.Value.Year > maxYear))
-              return null;
+      if (allParsed && counter > 0)
+        checkResult.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
 
-            return dt;
-          },
-          maxFails: 3,               // stop early if too many invalid
-          maxPositives: 5,           // consider possible match after 5 positives
-          createFormat: _ => new ValueFormat(DataTypeEnum.DateTime, "SerialDate"),
-          cancellationToken: cancellationToken
-      );
+      return checkResult;
     }
 
     /// <summary>
@@ -183,7 +250,7 @@ namespace CsvTools
     ///   <see cref="DataTypeEnum.String" />
     /// </returns>
     internal static DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples,
-                                              CancellationToken cancellationToken)
+                                                CancellationToken cancellationToken)
     {
       var foundUnescaped = 0;
       var foundHtml = 0;
@@ -214,67 +281,6 @@ namespace CsvTools
       }
 
       return DataTypeEnum.String;
-    }
-
-    /// <summary>
-    /// Generic checker for sample values.
-    /// </summary>
-    /// <typeparam name="T">The type returned by the parse function.</typeparam>
-    /// <param name="samples">The sample values to check.</param>
-    /// <param name="tryParse">
-    /// Delegate that tries to parse the memory block. Returns <c>null</c> if parsing fails.
-    /// </param>
-    /// <param name="maxFails">Maximum allowed fails before early exit.</param>
-    /// <param name="maxPositives">Number of positives required to assume a possible match.</param>
-    /// <param name="createFormat">Factory to build a ValueFormat when match is found.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>CheckResult with details about matches.</returns>
-    private static CheckResult CheckPattern<T>(
-        this IEnumerable<ReadOnlyMemory<char>> samples,
-        Func<ReadOnlyMemory<char>, T?> tryParse,
-        int maxFails,
-        int maxPositives,
-        Func<T, ValueFormat> createFormat,
-        CancellationToken cancellationToken
-        ) where T : struct
-    {
-      var checkResult = new CheckResult();
-      var allParsed = true;
-      var positiveMatches = 0;
-      var failCount = 0;
-      T? firstValid = null;
-
-      foreach (var value in samples)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-
-        var result = tryParse(value);
-        if (!result.HasValue)
-        {
-          allParsed = false;
-          checkResult.AddNonMatch(value.ToString());
-          if (++failCount >= maxFails)
-            break;
-        }
-        else
-        {
-          firstValid ??= result;
-          positiveMatches++;
-          if (positiveMatches >= maxPositives && !checkResult.PossibleMatch)
-          {
-            checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = createFormat(result.Value);
-          }
-        }
-      }
-
-      if (allParsed && positiveMatches > 0 && firstValid.HasValue)
-      {
-        checkResult.FoundValueFormat = createFormat(firstValid.Value);
-      }
-
-      return checkResult;
     }
   }
 }

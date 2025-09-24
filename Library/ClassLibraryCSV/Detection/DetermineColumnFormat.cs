@@ -803,7 +803,7 @@ namespace CsvTools
         {
           foreach (var sep in possibleDateSeparators)
           {
-            var res = samples.CheckDate(fmt, sep, ':', CultureInfo.CurrentCulture, cancellationToken);
+            var res = samples.CheckDate(fmt.AsSpan(), sep, ':', CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -813,7 +813,7 @@ namespace CsvTools
         else
         {
           // we have no date separator in the format no need to test different separators
-          var res = samples.CheckDate(fmt, char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
+          var res = samples.CheckDate(fmt.AsSpan(), char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -979,7 +979,7 @@ namespace CsvTools
             othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = samples.CheckDate(
-          othersValueFormatDate.DateFormat,
+          othersValueFormatDate.DateFormat.AsSpan(),
           othersValueFormatDate.DateSeparator,
           othersValueFormatDate.TimeSeparator,
           CultureInfo.CurrentCulture, cancellationToken);
@@ -996,7 +996,7 @@ namespace CsvTools
         // Guess a date format that could be interpreted as number before testing numbers
         if (guessDateTime && firstValue.Length == 8)
         {
-          var checkResultDateTime = samples.CheckDate("yyyyMMdd", char.MinValue, ':',
+          var checkResultDateTime = samples.CheckDate("yyyyMMdd".AsSpan(), char.MinValue, ':',
             CultureInfo.InvariantCulture, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;

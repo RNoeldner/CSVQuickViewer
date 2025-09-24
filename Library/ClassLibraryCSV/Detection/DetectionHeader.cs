@@ -260,8 +260,7 @@ namespace CsvTools
           border=3;
 
         return (msg.ToString(),
-          tooLong.Count <= 0  &&
-          numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count < border);
+          tooLong.Count <= 0  && numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count < border);
       }
       return (string.Empty, true);
     }

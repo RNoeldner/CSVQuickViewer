@@ -85,7 +85,7 @@ namespace CsvTools.Tests
       // Initially all counts should be zero
       for (int row = 0; row < 3; row++)
         for (int col = 0; col < i.Separators.Length; col++)
-          Assert.AreEqual(0, i.SeparatorsCount[row, col]);
+          Assert.AreEqual(0, i.SeparatorsCount[col, row]);
     }
 
     [TestMethod]

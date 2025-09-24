@@ -53,14 +53,14 @@ namespace CsvTools
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
       var bestQuoteTestResults = new QuoteTestResult();
-      foreach (var t in possibleQuotes)
+      foreach (var quoteChar in possibleQuotes)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, commentLine, cancellationToken);
+        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score >= 25)
+        if (quoteChar == '"' && currentQuote.Score >= 45)
           break;
       }
 
@@ -294,7 +294,7 @@ namespace CsvTools
       if (bufferPos > 3)
       {
         // normalize this, line should start and end with delimiter for out of range safety:
-        //  t","t","t",t,t,t"t,t"t,t -> ,t","t","t",t,t,t"t,t"t,t,
+        //  quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar -> ,quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar,
         // End with delimiter
         buffer[++bufferPos]=delimiterChar;
         buffer[++bufferPos]=delimiterChar;

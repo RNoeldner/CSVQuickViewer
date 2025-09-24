@@ -26,12 +26,15 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void UseSpecialFoldersTest()
     {
-      // This test does not make much sense
-      var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
-      Assert.AreEqual("%UserProfile%\\TestFile.txt", testFile1.UseSpecialFolders());
+      // This test does not make sense if its shorter...
+      if (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Length > "%UserProfile%".Length)
+      {
+        var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
+        Assert.AreEqual("%UserProfile%\\TestFile.txt", testFile1.UseSpecialFolders());
 
-      var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));
+        var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));
+      }
     }
 
 

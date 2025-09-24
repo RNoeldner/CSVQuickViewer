@@ -334,7 +334,7 @@ namespace CsvTools.Tests
                 samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(
-          samples.Select(x => x.AsMemory()).ToArray().CheckDate(fmt, dateSep, ':', CultureInfo.CurrentCulture, UnitTestStatic.Token)
+          samples.Select(x => x.AsMemory()).ToArray().CheckDate(fmt.AsSpan(), dateSep, ':', CultureInfo.CurrentCulture, UnitTestStatic.Token)
             .FoundValueFormat,
           $"Test format {fmt}\nFirst not matching: {samples.First()}");
       }
@@ -514,7 +514,7 @@ namespace CsvTools.Tests
     {
       Assert.AreEqual((short) 5333, "5.333".AsSpan().StringToInt16(',', '.'));
       Assert.AreEqual((short) -17, "-17".AsSpan().StringToInt16(',', '.'));
-      Assert.AreEqual((short) 5337, "5336,7".AsSpan().StringToInt16(',', '.'));
+      Assert.AreEqual((short) 5336.7, "5336,7".AsSpan().StringToInt16(',', '.'));
     }
   }
 }

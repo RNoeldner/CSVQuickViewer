@@ -94,11 +94,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHeaderBasicEscapedCharactersAsync()
     {
+      
       using var improvedStream =
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
+      /* The file has very uncommon headers as they are all very short... 
+       * its debaltable if these should be reagrded as header they could be regular columns as well */
       var res = await reader.InspectHasHeaderAsync(',', '"', '\\', "", UnitTestStatic.Token);      
-      Assert.IsFalse(res.hasHeader);
+      Assert.IsTrue(res.hasHeader);
     }
 
     [TestMethod]

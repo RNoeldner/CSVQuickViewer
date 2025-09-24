@@ -349,7 +349,7 @@ namespace CsvTools
         return string.Empty;
 
       if (fileName.StartsWith(".", StringComparison.Ordinal)  || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
-        return string.Empty;
+        return fileName;
 
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();

@@ -51,6 +51,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessQualifier_Quoting1Reverse()
     {
+      /* Quoting1Reverse.txt is the same as Quoting1.txt but with ' as qualifier
+       * Its very ounlikly to observe a stange file like this */
       using var improvedStream =
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1Reverse.txt")));
 
