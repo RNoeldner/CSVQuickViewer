@@ -24,8 +24,6 @@ namespace CsvTools
   /// </remarks>
   public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
   {
-    private readonly object _lock = new object();
-
     /// <summary>
     ///   A lookup for minimum and maximum length by format description
     /// </summary>
@@ -56,10 +54,9 @@ namespace CsvTools
       if (TryGetValue(dateFormat, out var lengthMinMax))
         return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
 
-      lock (_lock)
-      {
-        lengthMinMax = AddInternal(dateFormat);
-      }
+
+      lengthMinMax = AddInternal(dateFormat);
+
       return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
     }
 
@@ -68,26 +65,21 @@ namespace CsvTools
       if (Count != 0)
         return;
 
-      lock (_lock)
-      {
-        if (Count == 0)
-        {
-          using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
-          while (!reader.EndOfStream)
-          {
-            var entry = reader.ReadLine();
-            if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-              continue;
-            AddInternal(entry.Trim());
-          }
-          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
-          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
-          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
-          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
-          AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
 
-        }
+      using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
+      while (!reader.EndOfStream)
+      {
+        var entry = reader.ReadLine();
+        if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+          continue;
+        AddInternal(entry.Trim());
       }
+      AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+      AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+      AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+      AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
+      AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
+
     }
 
     /// <summary>
@@ -102,15 +94,18 @@ namespace CsvTools
     /// The collection is lazy-loaded on first access. Enumeration is **not fully thread-safe** 
     /// if other threads add new entries concurrently.
     /// </remarks>
-    public IEnumerable<string> MatchingForLength(int length)
+    public IReadOnlyCollection<string> MatchingForLength(int length)
     {
       EnsureLoaded();
 
+      // Make sure adding to collection while enumerating does not cause issues.
+      List<string> matches = new();
       foreach (var kvp in this)
       {
         if (length >= kvp.Value.MinLength && length <= kvp.Value.MaxLength)
-          yield return kvp.Key;
+          matches.Add(kvp.Key);
       }
+      return matches;
     }
 
     /// <summary>
@@ -121,12 +116,12 @@ namespace CsvTools
     {
       var dtinfo = new DateTimeFormatInformation(entry);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      base.TryAdd(entry, dtinfo);
+      TryAdd(entry, dtinfo);
 #else
       if (!ContainsKey(entry))
         Add(entry, new DateTimeFormatInformation(entry));
 #endif
       return dtinfo;
-    }   
+    }
   }
 }

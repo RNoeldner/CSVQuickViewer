@@ -117,7 +117,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fillGuessSettings));
 
       columnCollectionInput ??= Array.Empty<Column>();
-      
+
       if (!fillGuessSettings.Enabled || fillGuessSettings is
         {
           DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
@@ -145,7 +145,7 @@ namespace CsvTools
           columnCollection.Add(col);
           break;
         }
-      
+
       var columnCache = new Dictionary<int, Column>();
       // Pre-fill the cache for all columns
       for (int colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -155,7 +155,7 @@ namespace CsvTools
       var getSamples = new List<int>();
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
-        var column = columnCache[colIndex]; 
+        var column = columnCache[colIndex];
         // Check if column should be ignored        
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(column.Name) > 0)
         {
@@ -1085,7 +1085,7 @@ namespace CsvTools
       {
         RecordsRead = records;
 #if NET6_0_OR_GREATER
-    var random =  Random.Shared;
+        var random = Random.Shared;
 #else
         var random = new Random(Environment.TickCount);
 #endif

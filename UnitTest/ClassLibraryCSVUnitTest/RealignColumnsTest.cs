@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001, 0,
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 65001, 0,
         true, null, TrimmingOptionEnum.Unquoted,
         fieldDelimiterChar: '\t', fieldQualifierChar: '"', escapeCharacterChar: char.MinValue,
         recordLimit: 0, allowRowCombining: false, contextSensitiveQualifier: false, commentLine: "", numWarning: 0,
@@ -46,8 +46,8 @@ namespace CsvTools.Tests
       await test.ReadAsync(UnitTestStatic.Token); // Line 5
       await test.ReadAsync(UnitTestStatic.Token); // Line 6
 
-      // Issue row Column 3 = Text|6
-      await test.ReadAsync(UnitTestStatic.Token); // Line 6
+      // Issue row Column 3 	17.10.2014	-29015	28411.75	Text	F	30853.25
+      await test.ReadAsync(UnitTestStatic.Token); // Line 7
       Assert.AreEqual("Text\tF", test.GetValue(3));
 
       await test.ReadAsync(UnitTestStatic.Token); // Line 7

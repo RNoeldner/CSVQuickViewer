@@ -46,7 +46,7 @@ namespace CsvTools.Tests
     public async Task GetColumnsOfReaderTest()
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        650001,
+        65001,
         0,
         true,
         null,

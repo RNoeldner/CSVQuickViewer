@@ -62,9 +62,6 @@ namespace CsvTools
       if (newRow.Length != m_ExpectedColumns)
         return;
 
-      for (int i = 0; i < newRow.Length; i++)
-        newRow[i] = newRow[i]?.Trim() ?? string.Empty;
-
       if (m_GoodRows.Count < cMaxGoodRows)
         m_GoodRows.Add(newRow);
       else
@@ -91,9 +88,7 @@ namespace CsvTools
       }
 
       // List is easier to handle than an array
-      var columns = new List<string>(row.Count);
-      for (int i = 0; i < row.Count; i++)
-        columns.Add(row[i]?.Trim() ?? string.Empty);
+      var columns = new List<string>(row);
 
       if (row.Count >= m_ExpectedColumns * 2 - 1)
       {
@@ -113,11 +108,9 @@ namespace CsvTools
         // Step 1: try combining
         while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
         {
-
-          if (col + 1 < columns.Count &&
-            string.IsNullOrEmpty(columns[col]) &&
-            !otherColumns[col].HasFlag(ColumnOption.Empty) &&
-            GetColumnOption(columns[col + 1]) == otherColumns[col])
+          if (string.IsNullOrEmpty(columns[col])
+            && !otherColumns[col].HasFlag(ColumnOption.Empty)
+            && GetColumnOption(columns[col + 1].Trim()) == otherColumns[col])
           {
             handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
             columns.RemoveAt(col);
@@ -137,6 +130,8 @@ namespace CsvTools
                 var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
                 if (pos1 != -1)
                 {
+                  // TODO: It could well be that we combine too early, 
+                  // Better would be to find the best match over several columns
                   var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
                   if (pos2 != -1)
                   {
@@ -203,7 +198,6 @@ namespace CsvTools
         if (all.HasFlag(ColumnOption.NoSpace) && char.IsWhiteSpace(c))
           all &= ~ColumnOption.NoSpace;
 
-        // early shortcut
         if (all == ColumnOption.None)
           return ColumnOption.None;
       }

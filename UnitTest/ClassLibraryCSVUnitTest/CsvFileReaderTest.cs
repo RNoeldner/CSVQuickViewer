@@ -697,7 +697,7 @@ Line "Test"", "22",23,"  24"
     {
       try
       {
-        using var reader = new CsvFileReader(string.Empty, 650001,
+        using var reader = new CsvFileReader(string.Empty, 65001,
           0,
           true,
           null,
@@ -743,7 +743,7 @@ Line "Test"", "22",23,"  24"
       {
 #pragma warning disable CS8625
         // ReSharper disable once RedundantCast
-        using (new CsvFileReader((string?) null, 650001,
+        using (new CsvFileReader((string?) null, 65001,
                  0,
                  true,
                  null,
@@ -789,7 +789,7 @@ Line "Test"", "22",23,"  24"
 
       try
       {
-        using (new CsvFileReader("(string) null.txt", 650001,
+        using (new CsvFileReader("(string) null.txt", 65001,
                  0,
                  true,
                  null,
@@ -839,7 +839,7 @@ Line "Test"", "22",23,"  24"
 #pragma warning disable CS8600
 #pragma warning disable CS8625
         // ReSharper disable once RedundantCast
-        using (new CsvFileReader((Stream) null, 650001,
+        using (new CsvFileReader((Stream) null, 65001,
                  0,
                  true,
                  null,
@@ -1034,7 +1034,7 @@ Line "Test"", "22",23,"  24"
     public async Task NextResult()
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"),
-        codePageId: 650001,
+        codePageId: 65001,
         skipRows: 0,
         hasFieldHeader: true,
         columnDefinition: new[]
