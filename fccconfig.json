@@ -1,0 +1,17 @@
+{
+  "RunMsCodeCoverage": "Yes",
+  "Include": [
+    "[MyExeProject]*",
+    "[MyLibrary1]*",
+    "[MyLibrary2]*"
+  ],
+  "Exclude": [
+    "[*.Tests]*",
+    "[xunit.*]*",
+    "[nunit.*]*",
+    "[MSTest.*]*",
+    "[*]Migrations.*"
+  ],
+  "ReportTypes": [ "Html" ],
+  "OutputDirectory": "TestResults/FineCodeCoverage"
+}

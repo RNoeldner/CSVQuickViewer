@@ -793,7 +793,6 @@ namespace CsvTools
         possibleDateSeparators.Add(kv.Key);
       }
 
-
       foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
@@ -1005,8 +1004,7 @@ namespace CsvTools
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // We need to have at least 10 sample values here it's too dangerous to assume it is a date
-        if (guessDateTime && serialDateTime && samples.Count > 10)
+        if (guessDateTime && serialDateTime)
         {
           var checkResultDateTime = samples.CheckSerialDate(true, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
@@ -1028,7 +1026,8 @@ namespace CsvTools
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // ---------------- Date -------------------------- Minimum length of a date is 4 characters
+        // ---------------- Date --------------------------
+        // Minimum length of a date is 4 characters
         if (guessDateTime && firstValue.Length > 3)
         {
           var checkResultDateTime = GuessDateTime(samples, cancellationToken);

@@ -53,13 +53,13 @@ namespace CsvTools
     }
 
     /// <inheritdoc cref="Stream.CanRead"/>
-    public override bool CanRead => AccessStream!.CanRead && BaseStream.CanRead;
+    public override bool CanRead => BaseStream.CanRead && AccessStream!.CanRead;
 
     /// <inheritdoc cref="Stream.CanSeek"/>
     public override bool CanSeek => BaseStream.CanSeek;
 
     /// <inheritdoc cref="Stream.CanWrite"/>
-    public override bool CanWrite => AccessStream!.CanWrite && BaseStream.CanWrite;
+    public override bool CanWrite => BaseStream.CanWrite && AccessStream!.CanWrite;
 
     /// <inheritdoc cref="Stream.Length"/>
     public override long Length => BaseStream.Length;
@@ -176,7 +176,7 @@ namespace CsvTools
       if (origin != SeekOrigin.Begin || offset != 0)
         throw new NotSupportedException("Seek is only allowed to be beginning of the feed");
 
-      // Reopen Completely      
+      // Reopen Completely
       Close();
       BaseStream = SourceAccess.OpenStream();
       OpenByFileType(SourceAccess.FileType);

@@ -69,6 +69,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadErrorInformationTestSetErrorInformation()
     {
+      // After incorporating the class for Errors in columns into RowErrorCollection,
+      // this test make less sense, there is no need to test Dictioray
+      // It now mainly tests ReadErrorInformation */
       var columnErrors = new Dictionary<int, string>();
 
       var colNames = new List<string>();
@@ -93,8 +96,8 @@ namespace CsvTools.Tests
       Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
       var res = errorInfo.GetErrorsAndWarnings();
-      Assert.AreEqual(4, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
-      Assert.AreEqual(3, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(2, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(2, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
     }
 
     [TestMethod]

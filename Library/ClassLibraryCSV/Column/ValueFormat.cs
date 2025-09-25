@@ -16,6 +16,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -25,6 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   Setting for a value format
   /// </summary>
+  [DebuggerDisplay("{GetTypeAndFormatDescription(),nq}")]
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
     /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>

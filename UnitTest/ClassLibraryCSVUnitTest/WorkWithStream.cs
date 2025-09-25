@@ -67,17 +67,16 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
-    {
-      using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
-      ICollection<Column> determinedColumns;
-      // Not closing the stream
-      using var impStream = new ImprovedStream(new SourceAccess(stream, FileTypeEnum.GZip));
+    { 
+      // Can not use Stream but must use Imporooved stream for gzip, otherwise Seek(0, SeekOrigin.Begin); will fail
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")));
+      
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false,
        false, '\0', Array.Empty<char>(), UnitTestStatic.Token);
 
       impStream.Seek(0, SeekOrigin.Begin);
-
+      ICollection<Column> determinedColumns;
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
@@ -86,10 +85,11 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
-          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
+          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);        
+        Assert.AreEqual(6, columns.Count(), "6 Columns: ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang");
+        Assert.AreEqual(6, info.Count, "6 Information Lines");
+
         determinedColumns = columns.ToList();
-        Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
-        Assert.AreEqual(6, info.Count, "Information Lines");
       }
 
       impStream.Seek(0, SeekOrigin.Begin);

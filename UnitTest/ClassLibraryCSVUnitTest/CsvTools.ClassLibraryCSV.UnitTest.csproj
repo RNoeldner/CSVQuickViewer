@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net472;net8.0</TargetFrameworks>
+		<TargetFrameworks>net472</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
@@ -28,22 +28,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove=".runsettings" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\\Microsoft.TestPlatform.AdapterUtilities.dll" />
-	</ItemGroup>
-	
-	<ItemGroup>
 		<Compile Include="..\..\Application\CsvFileDummy.cs" Link="CsvFileDummy.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Content Include=".runsettings">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
 	
 	<ItemGroup>

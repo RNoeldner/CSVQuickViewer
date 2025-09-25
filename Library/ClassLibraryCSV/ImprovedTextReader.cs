@@ -41,6 +41,19 @@ namespace CsvTools
     private readonly int m_CodePageId;
     private int m_LastChar = -1;
 
+
+    private void PositionAfterBom()
+    {
+        m_Stream.Seek(0, SeekOrigin.Begin);
+#if NET6_0_OR_GREATER
+        Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
+        m_Stream.Read(bomBufferPass);
+#else
+            m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+#endif
+
+    }
+
     /// <summary>
     ///   Creates an instance of the TextReader
     /// </summary>
@@ -96,8 +109,8 @@ namespace CsvTools
           m_BomLength = EncodingHelper.BOMLength(m_CodePageId);
         }
 
-        if (m_Stream.Position != m_BomLength)
-          m_Stream.Seek(m_BomLength, SeekOrigin.Begin);
+        // By reading We have moved the position, so move it back
+        PositionAfterBom();
       }
 
       StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePageId), false, 4096, true);
@@ -230,7 +243,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>Number of read chars</returns>
 #if NET6_0_OR_GREATER
-   
+
     public ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
      => StreamReader.ReadBlockAsync(buffer, cancellationToken);
 #else
@@ -268,15 +281,13 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
+
       if (!m_Stream.CanSeek)
         throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
 
-      m_Stream.Seek(m_BomLength, SeekOrigin.Begin);
+      PositionAfterBom();
+      StreamReader.DiscardBufferedData();
       
-      // Leave Open does not close the underlying stream
-      StreamReader.Dispose();
-      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePageId), false, 4096, true);
-
       if (LineNumber != 1 || m_SkipLines>0)
         AdjustStartLine();
     }

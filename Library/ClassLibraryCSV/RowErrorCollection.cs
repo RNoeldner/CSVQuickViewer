@@ -22,7 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   Stores all Messages for a m_Reader
   /// </summary>
-  public sealed class RowErrorCollection 
+  public sealed class RowErrorCollection
   {
     /// <summary>
     ///   A List containing warnings by row/column
@@ -103,20 +103,27 @@ namespace CsvTools
     /// <param name="args"></param>
     public void Add(object? sender, WarningEventArgs args)
     {
+
+      // Ensure we have a dictionary for the given row. If it doesn't exist, create one.
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))
       {
         columnErrorCollection = new Dictionary<int, string>();
-        m_RowErrorCollection.Add(args.RecordNumber, columnErrorCollection);
+        m_RowErrorCollection[args.RecordNumber] = columnErrorCollection;
       }
 
-      columnErrorCollection.Add(args.ColumnNumber, args.Message);    
+      // If there is already an error message for the column, append the new message.
+      // Otherwise, add the new column error.
+      columnErrorCollection[args.ColumnNumber] =
+          columnErrorCollection.TryGetValue(args.ColumnNumber, out var old)
+              ? old.AddMessage(args.Message)  // Combine old message with new
+              : args.Message;                // Add new message if none exists
     }
 
     /// <summary>
     ///   Empties out the warning list
     /// </summary>
     public void Clear() => m_RowErrorCollection.Clear();
- 
+
 
     /// <summary>
     ///   Tries the retrieve the value for a given record

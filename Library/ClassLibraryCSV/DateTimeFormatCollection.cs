@@ -65,7 +65,7 @@ namespace CsvTools
 
     private void EnsureLoaded()
     {
-      if (Count == 0)
+      if (Count != 0)
         return;
 
       lock (_lock)
