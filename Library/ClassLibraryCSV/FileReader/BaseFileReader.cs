@@ -435,8 +435,7 @@ namespace CsvTools
       var column = GetColumn(ordinal);
 
       var parsed =
-        CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.DecimalSeparator,
-          column.ValueFormat.GroupSeparator);
+        CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null
@@ -451,8 +450,7 @@ namespace CsvTools
     /// <returns>a nullable integer</returns>
     public int? GetInt32Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = inputValue.StringToInt32(column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+      var ret = inputValue.StringToInt32(column.ValueFormat.GroupSeparator);
       if (ret.HasValue) return ret.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an integer");
@@ -464,8 +462,7 @@ namespace CsvTools
     {
       var column = GetColumn(ordinal);
 
-      var parsed = CurrentRowColumnText[ordinal].AsSpan().StringToInt64(column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+      var parsed = CurrentRowColumnText[ordinal].AsSpan().StringToInt64(column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
@@ -478,9 +475,7 @@ namespace CsvTools
     /// <param name="column">The column.</param>    
     public long? GetInt64Null(ReadOnlySpan<char> inputValue, in Column column)
     {
-      var ret = inputValue.StringToInt64(
-        column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+      var ret = inputValue.StringToInt64(column.ValueFormat.GroupSeparator);
       if (ret.HasValue) return ret.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an long integer");
@@ -1214,8 +1209,7 @@ namespace CsvTools
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);
 
-      var parsed = value.StringToInt16(column.ValueFormat.DecimalSeparator,
-        column.ValueFormat.GroupSeparator);
+      var parsed = value.StringToInt16(column.ValueFormat.GroupSeparator);
       if (parsed.HasValue) return parsed.Value;
 
       // Warning was added by GetInt32Null

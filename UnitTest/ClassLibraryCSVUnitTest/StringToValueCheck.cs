@@ -266,7 +266,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsTrue(new[] { "16673" }.Select(x => x.AsMemory()).ToArray().CheckNumber( '.', char.MinValue, false, false, false, UnitTestStatic.Token)
+      Assert.IsTrue(new[] { "16673" }.Select(x => x.AsMemory()).ToArray().CheckNumber('.', char.MinValue, false, false, false, UnitTestStatic.Token)
         .FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Integer,
@@ -289,7 +289,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CombineStringsToDateTimeTest()
     {
-      Assert.AreEqual(DateTimeConstants.FirstDateTime.AddDays(1), ReadOnlySpan<char>.Empty.CombineStringsToDateTime("HH:mm:ss".AsSpan(), "24:00:00".AsSpan(), 
+      Assert.AreEqual(DateTimeConstants.FirstDateTime.AddDays(1), ReadOnlySpan<char>.Empty.CombineStringsToDateTime("HH:mm:ss".AsSpan(), "24:00:00".AsSpan(),
         char.MinValue, ':', false));
 
       Assert.IsNull("20161224".AsSpan().CombineStringsToDateTime(null, "17:24".AsSpan(), char.MinValue, ':', false));
@@ -358,15 +358,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToInt64()
     {
-      Assert.AreEqual(null, StringConversionSpan.StringToInt64(null, '.', char.MinValue));
-      Assert.AreEqual(17, "17.4".AsSpan().StringToInt64('.', ','));
-      Assert.AreEqual(18, "17.6".AsSpan().StringToInt64('.', ','));
-      Assert.AreEqual(-18, "-17.6".AsSpan().StringToInt64('.', ','));
-      Assert.AreEqual(
-        null,
-        "99999999999999999999999999999999999999999999999999".AsSpan().StringToInt64('.', ','));
-      Assert.AreEqual(null, "AB".AsSpan().StringToInt64('.', ','));
-      Assert.AreEqual(null, "".AsSpan().StringToInt64('.', ','));
+      Assert.AreEqual(null, StringConversionSpan.StringToInt64(null, '.'));
+      Assert.AreEqual(17, "17STUFF".AsSpan().StringToInt64(','));
+      Assert.AreEqual(17, "17.999999999999999".AsSpan().StringToInt64(','));
+      Assert.AreEqual(7150000, "7,150,000".AsSpan().StringToInt64(','));
+      Assert.AreEqual(17, "17.6".AsSpan().StringToInt64(','));
+      Assert.AreEqual(-17, "-17.6".AsSpan().StringToInt64(','));
+      Assert.AreEqual(null, "99999999999999999999999999999999999999999999999999".AsSpan().StringToInt64(','));
+      Assert.AreEqual(null, "AB".AsSpan().StringToInt64(','));
+      Assert.AreEqual(null, ".6647".AsSpan().StringToInt64(','));
     }
 
     [TestMethod]
@@ -422,7 +422,7 @@ namespace CsvTools.Tests
     public void CheckSerialDateFail() =>
       // last value is not a date
       Assert.IsNull(
-        new[] { "239324", "239324.344", "4358784" }.Select(x => x.AsMemory()).CheckSerialDate( false, UnitTestStatic.Token)
+        new[] { "239324", "239324.344", "4358784" }.Select(x => x.AsMemory()).CheckSerialDate(false, UnitTestStatic.Token)
           .FoundValueFormat);
 
     [TestMethod]
@@ -504,17 +504,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToInt32()
     {
-      Assert.AreEqual(-17, "-17".AsSpan().StringToInt32(',', '.'));
-      Assert.AreEqual(53337, "53336,7".AsSpan().StringToInt32(',', '.'));
-      Assert.AreEqual(52333, "52.333".AsSpan().StringToInt32(',', '.'));
+      Assert.AreEqual(-17, "-17".AsSpan().StringToInt32('.'));
+      Assert.AreEqual(53336, "53336,7".AsSpan().StringToInt32('.'));
+      Assert.AreEqual(52333, "52.333".AsSpan().StringToInt32('.'));
     }
 
     [TestMethod]
     public void StringToInt16()
     {
-      Assert.AreEqual((short) 5333, "5.333".AsSpan().StringToInt16(',', '.'));
-      Assert.AreEqual((short) -17, "-17".AsSpan().StringToInt16(',', '.'));
-      Assert.AreEqual((short) 5336.7, "5336,7".AsSpan().StringToInt16(',', '.'));
+      Assert.AreEqual((short) 5333, "5.333".AsSpan().StringToInt16('.'));
+      Assert.AreEqual((short) -17, "-17".AsSpan().StringToInt16('.'));
+      Assert.AreEqual((short) 5336.7, "5336,7".AsSpan().StringToInt16('.'));
     }
   }
 }
