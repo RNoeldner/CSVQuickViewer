@@ -71,6 +71,7 @@
     <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="FileAssiciation.cs" />
     <Compile Remove="FileSettingPhysicalFile.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,9 @@
  *
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -20,7 +22,7 @@ namespace CsvTools.Tests
 {
   [TestClass]
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
-  public class RealignColumnsTest
+  public class CsvColumnMergerTests
   {
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
@@ -56,7 +58,9 @@ namespace CsvTools.Tests
       await test.ReadAsync(UnitTestStatic.Token); // Line 10
 
       await test.ReadAsync(UnitTestStatic.Token); // Line 11
-      Assert.AreEqual("Memo: A long text, \t multiple words 11", test.GetValue(5));
+      // We we might have lost a space because of trimming
+      var val = test.GetString(5);
+      Assert.AreEqual("Memo: A long text, \t multiple words 11", val);
     }
 
     [TestMethod]
@@ -126,32 +130,38 @@ namespace CsvTools.Tests
         });
 
       var numColumns = goodLines[0].Split('|').Length;
-      var test = new ReAlignColumns(numColumns);
+      var test = new CsvColumnMerger(numColumns, '|');
       foreach (var line in goodLines)
-        test.AddRow(line.Split('|'));
-      var col = -1;
+        test.AddAlignedRow(line.Split('|'));
 
-      void Handle(int i, string s)
+      var col = -1;
+      void HandleWarning(int i, string s)
       {
         col = i;
       }
-
-      var result1 = test.RealignColumn(badLines[0].Split('|'), Handle, badLines[0]);
+      var result1 = test.MergeMisalignedColumns(badLines[0].Split('|'), HandleWarning, badLines[0]);
       Assert.AreEqual("Text|F", result1[3], "Line 1");
       Assert.AreEqual(3, col);
 
-      var result2 = test.RealignColumn(badLines[1].Split('|'), Handle, badLines[1]);
+      var result2 = test.MergeMisalignedColumns(badLines[1].Split('|'), HandleWarning, badLines[1]);
       Assert.AreEqual("Memo: A long text, | multiple words 11", result2[5], "Line 2");
 
-      var result3 = test.RealignColumn(badLines[2].Split('|'), Handle, badLines[2]);
+      var result3 = test.MergeMisalignedColumns(badLines[2].Split('|'), HandleWarning, badLines[2]);
       Assert.AreEqual("Text | R", result3[3], "Line 3");
       Assert.AreEqual("Memo: A long text|\nmultiple words 17", result3[5], "Line 3");
 
-      var result4 = test.RealignColumn(badLines[3].Split('|'), Handle, badLines[3]);
+      var result4 = test.MergeMisalignedColumns(badLines[3].Split('|'), HandleWarning, badLines[3]);
       Assert.AreEqual(numColumns, result4.Count, "Line 4 - Lots of training columns");
 
-      var result5 = test.RealignColumn(badLines[4].Split('|'), Handle, badLines[4]);
+      var result5 = test.MergeMisalignedColumns(badLines[4].Split('|'), HandleWarning, badLines[4]);
       Assert.AreEqual("TRUE", result5[6], "Line 5 - Empty COlumn");
+    }
+
+    [TestMethod()]
+    public void CsvColumnMerger_CreationTest()
+    {
+      var test = new CsvColumnMerger(5, ',');
+      Assert.IsNotNull(test);
     }
   }
 }

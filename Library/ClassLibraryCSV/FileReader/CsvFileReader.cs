@@ -92,7 +92,7 @@ namespace CsvTools
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    // this is cleared on every new currentRow and only used when m_RealignColumns is set
+    // this is cleared on every new currentRow and only used when m_ColumnMerger is set
     private readonly StringBuilder m_RecordSource = new StringBuilder(100);
 
     private readonly bool m_SkipDuplicateHeader;
@@ -126,7 +126,7 @@ namespace CsvTools
     private int m_ConsecutiveEmptyRows;
 
     /// <summary>
-    ///   An array of usual column length, this is used suring reading columns to avoid multiple allocations
+    ///   An array of usual column length, this is used during reading columns to avoid multiple allocations
     /// </summary>
     private int[] MaxColumnLengths = Array.Empty<int>();
 
@@ -156,7 +156,7 @@ namespace CsvTools
     /// The class that might realign columns, this is only used if the option to realign columns is set
     /// it will keep track of a limited number of known to be good rows and try to realign rows 
     /// </summary>
-    private ReAlignColumns? m_RealignColumns;
+    private CsvColumnMerger? m_ColumnMerger;
 
     /// <summary>
     ///   The TextReader to read the file
@@ -536,7 +536,7 @@ namespace CsvTools
               unescapedFormatter.RaiseWarning = false;
 
         if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
-          m_RealignColumns = new ReAlignColumns(FieldCount);
+          m_ColumnMerger = new CsvColumnMerger(FieldCount, m_FieldDelimiter);
 
         if (m_TextReader.CanSeek)
           // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on teh first data row
@@ -783,12 +783,12 @@ namespace CsvTools
           // there is something in the last columns
           else
           {
-            if (m_RealignColumns != null)
+            if (m_ColumnMerger != null)
             {
               HandleWarning(-1, text + " Trying to realign columns.");
 
               // determine which column could have caused the issue it could be any column, try to establish
-              currentRow = m_RealignColumns.RealignColumn(currentRow, HandleWarning, m_RecordSource.ToString());
+              currentRow = m_ColumnMerger.MergeMisalignedColumns(currentRow, HandleWarning, m_RecordSource.ToString());
             }
             else
             {
@@ -867,7 +867,7 @@ namespace CsvTools
         }
 
         RecordNumber++;
-        m_RealignColumns?.AddRow(CurrentRowColumnText);
+        m_ColumnMerger?.AddAlignedRow(CurrentRowColumnText);
         for (int i = 0; i < FieldCount; i++)
         {
           int currentLength = CurrentRowColumnText[i]?.Length ?? 0;
@@ -915,7 +915,7 @@ namespace CsvTools
     /// <param name="current">The recent character that has been read</param>
     private void MoveNext(char current)
     {
-      if (m_RealignColumns != null)
+      if (m_ColumnMerger != null)
         m_RecordSource.Append(current);
       m_TextReader?.MoveNext();
     }
@@ -1016,7 +1016,7 @@ namespace CsvTools
       else
       {
         character = (char) res;
-        if (m_RealignColumns != null)
+        if (m_ColumnMerger != null)
           m_RecordSource.Append(character);
       }
     }
@@ -1285,7 +1285,7 @@ namespace CsvTools
         restart = false;
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
-        if (m_RealignColumns != null)
+        if (m_ColumnMerger != null)
           m_RecordSource.Clear();
 
         // If already at end of file, return null
