@@ -114,6 +114,7 @@
       selectFont = new SelectFont();
       label6 = new System.Windows.Forms.Label();
       labelWarningLimit = new System.Windows.Forms.Label();
+      checkBoxAutoLoad = new System.Windows.Forms.CheckBox();
       tabPageFormat = new System.Windows.Forms.TabPage();
       fillGuessSettingEdit = new FillGuessSettingEdit();
       tabPageFile = new System.Windows.Forms.TabPage();
@@ -163,7 +164,7 @@
       tabPageAbout.Location = new System.Drawing.Point(4, 22);
       tabPageAbout.Name = "tabPageAbout";
       tabPageAbout.Padding = new System.Windows.Forms.Padding(3);
-      tabPageAbout.Size = new System.Drawing.Size(692, 316);
+      tabPageAbout.Size = new System.Drawing.Size(692, 486);
       tabPageAbout.TabIndex = 11;
       tabPageAbout.Text = "About";
       tabPageAbout.UseVisualStyleBackColor = true;
@@ -199,7 +200,7 @@
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(686, 310);
+      tableLayoutPanel1.Size = new System.Drawing.Size(686, 480);
       tableLayoutPanel1.TabIndex = 6;
       // 
       // label7
@@ -318,7 +319,7 @@
       flowLayoutPanel.Location = new System.Drawing.Point(69, 200);
       flowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
       flowLayoutPanel.Name = "flowLayoutPanel";
-      flowLayoutPanel.Size = new System.Drawing.Size(617, 110);
+      flowLayoutPanel.Size = new System.Drawing.Size(617, 280);
       flowLayoutPanel.TabIndex = 5;
       // 
       // linkLabelGnu
@@ -1327,7 +1328,7 @@
       tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
       tabPageBehaviour.Name = "tabPageBehaviour";
       tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-      tabPageBehaviour.Size = new System.Drawing.Size(692, 316);
+      tabPageBehaviour.Size = new System.Drawing.Size(692, 486);
       tabPageBehaviour.TabIndex = 9;
       tabPageBehaviour.Text = "Behavior and Warnings";
       // 
@@ -1366,6 +1367,7 @@
       tableLayoutPanelBehaviour.Controls.Add(numericUpDownLength, 1, 19);
       tableLayoutPanelBehaviour.Controls.Add(labelWarningLimit, 2, 12);
       tableLayoutPanelBehaviour.Controls.Add(numericUpDownNumWarnings, 3, 12);
+      tableLayoutPanelBehaviour.Controls.Add(checkBoxAutoLoad, 2, 7);
       tableLayoutPanelBehaviour.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelBehaviour.Location = new System.Drawing.Point(2, 2);
       tableLayoutPanelBehaviour.Margin = new System.Windows.Forms.Padding(2);
@@ -1449,6 +1451,19 @@
       labelWarningLimit.TabIndex = 18;
       labelWarningLimit.Text = "Warning Limit:";
       // 
+      // checkBoxAutoLoad
+      // 
+      checkBoxAutoLoad.AutoSize = true;
+      tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAutoLoad, 2);
+      checkBoxAutoLoad.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "AutoStartMode", true));
+      checkBoxAutoLoad.Location = new System.Drawing.Point(307, 147);
+      checkBoxAutoLoad.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAutoLoad.Name = "checkBoxAutoLoad";
+      checkBoxAutoLoad.Size = new System.Drawing.Size(208, 17);
+      checkBoxAutoLoad.TabIndex = 13;
+      checkBoxAutoLoad.Text = "Background load for remaining records";
+      checkBoxAutoLoad.UseVisualStyleBackColor = true;
+      // 
       // tabPageFormat
       // 
       tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
@@ -1457,7 +1472,7 @@
       tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
       tabPageFormat.Name = "tabPageFormat";
       tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFormat.Size = new System.Drawing.Size(692, 316);
+      tabPageFormat.Size = new System.Drawing.Size(692, 486);
       tabPageFormat.TabIndex = 0;
       tabPageFormat.Text = "Detection";
       // 
@@ -1468,7 +1483,7 @@
       fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
       fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
       fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      fillGuessSettingEdit.Size = new System.Drawing.Size(688, 312);
+      fillGuessSettingEdit.Size = new System.Drawing.Size(688, 482);
       fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageFile
@@ -1479,7 +1494,7 @@
       tabPageFile.Margin = new System.Windows.Forms.Padding(2);
       tabPageFile.Name = "tabPageFile";
       tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFile.Size = new System.Drawing.Size(692, 316);
+      tabPageFile.Size = new System.Drawing.Size(692, 486);
       tabPageFile.TabIndex = 6;
       tabPageFile.Text = "Read Settings";
       // 
@@ -1495,7 +1510,7 @@
       tabControl.Margin = new System.Windows.Forms.Padding(2);
       tabControl.Name = "tabControl";
       tabControl.SelectedIndex = 0;
-      tabControl.Size = new System.Drawing.Size(700, 342);
+      tabControl.Size = new System.Drawing.Size(700, 512);
       tabControl.TabIndex = 0;
       // 
       // tabPageWrite
@@ -1505,7 +1520,7 @@
       tabPageWrite.Location = new System.Drawing.Point(4, 22);
       tabPageWrite.Name = "tabPageWrite";
       tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-      tabPageWrite.Size = new System.Drawing.Size(692, 316);
+      tabPageWrite.Size = new System.Drawing.Size(692, 486);
       tabPageWrite.TabIndex = 10;
       tabPageWrite.Text = "Write Settings";
       // 
@@ -1714,7 +1729,7 @@
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      ClientSize = new System.Drawing.Size(700, 342);
+      ClientSize = new System.Drawing.Size(700, 512);
       Controls.Add(tabControl);
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       Margin = new System.Windows.Forms.Padding(2);
@@ -1873,5 +1888,6 @@
     private System.Windows.Forms.Label label18;
     private System.Windows.Forms.Label label19;
     private System.Windows.Forms.PictureBox pictureBox;
+    private System.Windows.Forms.CheckBox checkBoxAutoLoad;
   }
 }

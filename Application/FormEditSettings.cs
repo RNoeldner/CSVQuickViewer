@@ -56,6 +56,7 @@ namespace CsvTools
       if (setting != null)
         quotingControl.CsvFile = setting;
       buttonFileInfo.Enabled = setting != null;
+      
 
       m_Warnings = warnings;
 #if !SupportPGP
@@ -77,6 +78,7 @@ This is a very risky option, in some cases rows might be lost.");
         @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
       m_NumRecords = numRecords;
+      
 
       var assembly = Assembly.GetExecutingAssembly();
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -423,7 +425,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       quotingControlWrite.CsvFile = m_ViewSettings.WriteSetting;
       quotingControlWrite.IsWriteSetting = true;
-
+      
       UpdateUI();
     }
 

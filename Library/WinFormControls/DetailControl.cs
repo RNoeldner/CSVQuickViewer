@@ -44,19 +44,30 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
+    private bool m_BackgroundLoad = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
     /// <summary>
-    /// Loads the setting asynchronous and displays the result
+    /// Asynchronously loads a CSV or data setting into the detail control and updates the display.
+    /// Optionally triggers background loading of remaining data if <paramref name="autoLoad"/> is true.
     /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="durationInitial">The duration initial.</param>
-    /// <param name="filterType">Type of the filter.</param>
-    /// <param name="progress">The progress.</param>
-    /// <param name="addWarning">The add warning.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    ///     
-    public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
+    /// <param name="fileSetting">The file setting describing the source and format of the data.</param>
+    /// <param name="durationInitial">The initial duration used for stepped loading operations.</param>
+    /// <param name="autoLoad">
+    /// If true, automatically triggers loading of remaining data in the background after the initial load
+    /// with a short delay to ensure the control has finished rendering.
+    /// </param>
+    /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
+    /// <param name="progress">A progress reporter to receive progress updates during loading.</param>
+    /// <param name="addWarning">
+    /// Optional event handler to receive warnings that may occur during loading.
+    /// </param>
+    /// <param name="cancellationToken">Cancellation token that can stop the loading operation if requested.</param>
+    /// <remarks>
+    /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
+    /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
+    /// </remarks>
+    public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
       FilterTypeEnum filterType, IProgress<ProgressInfo> progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
@@ -72,6 +83,18 @@ namespace CsvTools
       finally
       {
         RefreshDisplay(filterType, cancellationToken);
+      }
+      if (autoLoad)
+      {
+        m_BackgroundLoad = true;
+
+        // half a second delay so the control finishes rendering
+        await Task.Delay(500, cancellationToken);
+
+        if (!cancellationToken.IsCancellationRequested)
+          // Trigger the load as if the user pressed the button,
+          // is async but not awaited so it starts in the background
+          ToolStripButtonLoadRemaining_Click(this, EventArgs.Empty);
       }
     }
 
@@ -389,16 +412,16 @@ namespace CsvTools
     {
       if (disposing)
       {
-        components.Dispose();
+        components?.Dispose();
         m_FormShowMaxLength?.Dispose();
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
-        m_DataTable.Dispose();
-        m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_SteppedDataTableLoader.Dispose();
-      }
 
+        m_DataTable?.Dispose();
+        m_FilterDataTable?.Dispose();
+        m_SteppedDataTableLoader?.Dispose();
+      }
       base.Dispose(disposing);
     }
 
@@ -721,7 +744,7 @@ namespace CsvTools
       });
 
       m_UpdateVisibility = true;
-    }  
+    }
 
     private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {
@@ -805,7 +828,10 @@ namespace CsvTools
         // ReSharper disable once LocalizableElement
         using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size),
           m_CancellationToken);
+        // make sure this is behind the windows 
         formProgress.Show(this);
+        if (m_BackgroundLoad)
+          formProgress.SendToBack();
         formProgress.Maximum = 3;
 
         m_ToolStripLabelCount.Text = " loading...";

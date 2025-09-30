@@ -14,6 +14,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Threading;
 
 namespace CsvTools
 {
@@ -50,28 +51,36 @@ namespace CsvTools
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
     private int m_ShowButtonAtLength = 2000;
-    private Duration m_LimitDuration = Duration.FiveSecond;
+    private Duration m_LimitDuration = Duration.Second;
+    private bool m_AutoStartRemaining = true;
 
     public enum Duration
     {
-      [Description("unlimited")] [ShortDescription("∞")]
+      [Description("unlimited")]
+      [ShortDescription("∞")]
       Unlimited,
 
-      [Description("1/2 second")] [ShortDescription("½ s")]
+      [Description("1/2 second")]
+      [ShortDescription("½ s")]
       HalfSecond,
 
-      [Description("1 second")] [ShortDescription("1 s")]
+      [Description("1 second")]
+      [ShortDescription("1 s")]
       Second,
 
-      [Description("2 seconds")] [ShortDescription("2 s")]
+      [Description("2 seconds")]
+      [ShortDescription("2 s")]
       TwoSecond,
 
-      [Description("5 seconds")] [ShortDescription("5 s")]
+      [Description("5 seconds")]
+      [ShortDescription("5 s")]
       FiveSecond,
 
-      [Description("10 seconds")] [ShortDescription("10 s")]
-      TenSecond,
+      [Description("10 seconds")]
+      [ShortDescription("10 s")]
+      TenSecond
     }
+
 #if SupportPGP
     private string m_KeyFileRead = string.Empty;
     private string m_KeyFileWrite = string.Empty;    
@@ -124,6 +133,13 @@ namespace CsvTools
     }
 
     [DefaultValue(true)]
+    public bool AutoStartMode
+    {
+      get => m_AutoStartRemaining;
+      set => SetProperty(ref m_AutoStartRemaining, value);
+    }
+
+    [DefaultValue(true)]
     public bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
@@ -144,7 +160,8 @@ namespace CsvTools
       set => SetProperty(ref m_DetectFileChanges, value);
     }
 
-    [JsonIgnore] public ICsvFile WriteSetting { get; } = new CsvFileDummy();
+    [JsonIgnore] 
+    public ICsvFile WriteSetting { get; } = new CsvFileDummy();
 
     [JsonIgnore]
     public TimeSpan DurationTimeSpan
@@ -156,8 +173,9 @@ namespace CsvTools
           Duration.HalfSecond => TimeSpan.FromSeconds(.5),
           Duration.Second => TimeSpan.FromSeconds(1),
           Duration.TwoSecond => TimeSpan.FromSeconds(2),
+          Duration.FiveSecond => TimeSpan.FromSeconds(5),
           Duration.TenSecond => TimeSpan.FromSeconds(10),
-          _ => TimeSpan.MaxValue
+          _ => Timeout.InfiniteTimeSpan,
         };
       }
     }
@@ -233,7 +251,7 @@ namespace CsvTools
       set => SetProperty(ref m_GuessStartRow, value);
     }
 
-    [DefaultValue(Duration.FiveSecond)]
+    [DefaultValue(Duration.Second)]
     public Duration LimitDuration
     {
       get => m_LimitDuration;
@@ -373,4 +391,5 @@ namespace CsvTools
       fileSetting.DisplayRecordNo = DisplayRecordNo;
     }
   }
+
 }

@@ -688,7 +688,7 @@ namespace CsvTools
           {
             formProgress.Show(this);
             m_LoadWarnings.Clear();
-            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, FilterTypeEnum.All,
+            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, FilterTypeEnum.All,
               formProgress,
               AddWarning, formProgress.CancellationToken);
           }
