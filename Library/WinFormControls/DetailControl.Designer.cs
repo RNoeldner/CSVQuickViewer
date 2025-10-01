@@ -55,7 +55,7 @@ namespace CsvTools
       this.m_ToolStripButtonColumnLength = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
       this.m_TimerVisibility = new System.Windows.Forms.Timer(this.components);
-      this.searchBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+      
       ((System.ComponentModel.ISupportInitialize) (this.m_BindingNavigator)).BeginInit();
       this.m_BindingNavigator.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize) (this.m_BindingSource)).BeginInit();
@@ -331,13 +331,7 @@ namespace CsvTools
       this.m_TimerVisibility.Enabled = true;
       this.m_TimerVisibility.Interval = 150;
       this.m_TimerVisibility.Tick += new System.EventHandler(this.TimerVisibility_Tick);
-      // 
-      // searchBackgroundWorker
-      // 
-      this.searchBackgroundWorker.WorkerSupportsCancellation = true;
-      this.searchBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SearchBackgroundWorker_DoWork);
-      this.searchBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.SearchBackgroundWorker_RunWorkerCompleted);
-      // 
+       // 
       // DetailControl
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -369,7 +363,6 @@ namespace CsvTools
     }
 
     private FilteredDataGridView FilteredDataGridView;
-    private BackgroundWorker searchBackgroundWorker;
     private ToolStripButton m_ToolStripButtonSource;
   }
 }

@@ -132,7 +132,6 @@ namespace CsvTools
 
     private void Cancel_Click(object? sender, EventArgs e)
     {
-      // m_TimerChange.Stop();
       OnSearchClear?.SafeInvoke(this);
       Hide();
     }
