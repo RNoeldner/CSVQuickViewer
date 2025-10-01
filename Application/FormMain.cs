@@ -490,8 +490,12 @@ namespace CsvTools
     {
       if (m_CheckRunning)
         return;
+      // In case the file was deleted we can not reload it...
+      if (m_FileChanged && m_FileSetting != null && m_FileSetting.FileName.Length > 0 && !File.Exists(m_FileSetting.FileName))
+        m_FileChanged=false;
       if (!m_ShouldReloadData && !m_FileChanged)
         return;
+
       try
       {
         m_CheckRunning = true;
