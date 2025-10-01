@@ -59,7 +59,8 @@ namespace CsvTools
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvColumnMerger"/> class.
     /// </summary>
-    /// <param name="expectedColumns">The expected columns.</param>    
+    /// <param name="expectedColumns">The expected columns.</param>
+    /// <param name="delimiter">The delimiter used in the CSV file.</param>
     public CsvColumnMerger(int expectedColumns, char delimiter)
     {
       m_ExpectedColumns = expectedColumns;
