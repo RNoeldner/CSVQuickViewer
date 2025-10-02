@@ -35,13 +35,25 @@ namespace CsvTools
     /// </summary>
     public const string cSettingExtension = ".setting";
 
-    private static readonly Lazy<Regex> RemoveEmpty =
-      new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
+    private static readonly Lazy<Regex> RemoveEmptyAndFixCommas =
+     new Lazy<Regex>(() => new Regex(
+         @"
+        # Match empty objects or arrays for keys except 'row'
+        \s*                     # Optional whitespace before the key
+        ""(?!row"")[^""]+""     # Key in quotes, negative lookahead to skip 'row' << This is a special case for json string of row
+        :                       # Colon separator
+        \s*                     # Optional whitespace after colon
+        (\[\s*\]|\{\s*\})       # Either empty array [] or empty object {}
+        \s*,?                   # Optional whitespace and optional trailing comma
 
-    private static readonly Lazy<Regex> RemoveEmpty2 = 
-      new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
+        |                       # OR
 
-    private static readonly Lazy<Regex> RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
+        # Match dangling commas before closing braces/brackets
+        ,?                      # Optional comma
+        (?=\s*[}\]])             # Only if followed by optional whitespace and } or ]
+        ",
+         RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace
+     ));
 
     /// <summary>
     /// Serialization Settings
@@ -72,8 +84,7 @@ namespace CsvTools
     {
       var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
       // remove empty array or class
-      return RemoveComma.Value.Replace(
-        RemoveEmpty2.Value.Replace(RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
+      return RemoveEmptyAndFixCommas.Value.Replace(json, string.Empty);
     }
 
     /// <summary>
@@ -84,7 +95,7 @@ namespace CsvTools
     /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
-      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());} catch { }
+      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName()); } catch { }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
@@ -135,7 +146,7 @@ namespace CsvTools
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
         return newContent;
-      try { Logger.Debug("No change to file {filename}", fileName);} catch { }
+      try { Logger.Debug("No change to file {filename}", fileName); } catch { }
       return null;
     }
 
@@ -177,7 +188,7 @@ namespace CsvTools
         using (var improvedStream = new ImprovedStream(new SourceAccess(fileName, false)))
         using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
           await sr.WriteAsync(content);
-        
+
         Logger.Information($"Written file {fileName.GetShortDisplayFileName()}");
       }
       catch (Exception ex)
