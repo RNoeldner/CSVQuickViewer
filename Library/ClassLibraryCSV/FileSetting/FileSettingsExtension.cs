@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +42,7 @@ namespace CsvTools
       var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
       var fi = new FileInfo(fileSetting.FileName);
 
-      void AddInfo(in string label, in string text)
+      void AddInfo(string label, string text)
       {
         buffer.Append(label.Replace("\t", "  "));
         buffer.Append('\t');
@@ -170,7 +169,7 @@ namespace CsvTools
       if (numRecords.HasValue)
         AddInfo("Number of Records", numRecords.Value.ToString());
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var fileReader =

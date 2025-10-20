@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -119,7 +119,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataPropertyName">Name of the data property.</param>
-    public ColumnFilterLogic(in Type columnDataType, in string dataPropertyName)
+    public ColumnFilterLogic(in Type columnDataType, string dataPropertyName)
     {
       if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
       if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
@@ -257,7 +257,7 @@ namespace CsvTools
       return retValues.ToArray();
     }
 
-    public static bool IsNotNullCompare(in string text)
+    public static bool IsNotNullCompare(string text)
     {
       if (string.IsNullOrEmpty(text))
         return false;

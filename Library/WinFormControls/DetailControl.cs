@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace CsvTools
 {
   /// <inheritdoc cref="UserControl" />
@@ -32,7 +30,11 @@ namespace CsvTools
   /// </summary>
   public sealed partial class DetailControl : UserControl
   {
+    // Storing foundCells cells for search next / previous
     private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
+    // Token source for managing cancellation of the current search
+    private CancellationTokenSource? m_SearchCancellation;
+
     private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
     private CancellationToken m_CancellationToken = CancellationToken.None;
     private DataTable m_DataTable = new DataTable();
@@ -45,20 +47,31 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
+    private bool m_BackgroundLoad = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
     /// <summary>
-    /// Loads the setting asynchronous and displays the result
+    /// Asynchronously loads a CSV or data setting into the detail control and updates the display.
+    /// Optionally triggers background loading of remaining data if <paramref name="autoLoad"/> is true.
     /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="durationInitial">The duration initial.</param>
-    /// <param name="filterType">Type of the filter.</param>
-    /// <param name="progress">The progress.</param>
-    /// <param name="addWarning">The add warning.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    ///     
-    public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial,
-      FilterTypeEnum filterType, IProgress<ProgressInfo>? progress,
+    /// <param name="fileSetting">The file setting describing the source and format of the data.</param>
+    /// <param name="durationInitial">The initial duration used for stepped loading operations.</param>
+    /// <param name="autoLoad">
+    /// If true, automatically triggers loading of remaining data in the background after the initial load
+    /// with a short delay to ensure the control has finished rendering.
+    /// </param>
+    /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
+    /// <param name="progress">A progress reporter to receive progress updates during loading.</param>
+    /// <param name="addWarning">
+    /// Optional event handler to receive warnings that may occur during loading.
+    /// </param>
+    /// <param name="cancellationToken">Cancellation token that can stop the loading operation if requested.</param>
+    /// <remarks>
+    /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
+    /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
+    /// </remarks>
+    public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
+      FilterTypeEnum filterType, IProgress<ProgressInfo> progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       try
@@ -73,6 +86,18 @@ namespace CsvTools
       finally
       {
         RefreshDisplay(filterType, cancellationToken);
+      }
+      if (autoLoad)
+      {
+        m_BackgroundLoad = true;
+
+        // half a second delay so the control finishes rendering
+        await Task.Delay(500, cancellationToken);
+
+        if (!cancellationToken.IsCancellationRequested)
+          // Trigger the load as if the user pressed the button,
+          // is async but not awaited so it starts in the background
+          ToolStripButtonLoadRemaining_Click(this, EventArgs.Empty);
       }
     }
 
@@ -110,7 +135,6 @@ namespace CsvTools
     [Browsable(false)]
     public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
 
-
     [Bindable(false)]
     [Browsable(true)]
     [DefaultValue(500)]
@@ -121,7 +145,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Sort the data by this column ascending 
+    /// Sort the data by this column ascending
     /// </summary>
     /// <param name="dataColumnName">The name of the data column</param>
     /// <param name="direction">Direction for sorting, by default it is Ascending</param>
@@ -142,17 +166,6 @@ namespace CsvTools
       {
         try { Logger.Warning(ex, "Processing Sorting {exception}", ex.InnerExceptionMessages()); } catch { }
       }
-    }
-
-    /// <summary>
-    /// Search the displayed data for a specific text, and highlight the found items 
-    /// </summary>
-    /// <param name="searchText"></param>
-    // ReSharper disable once MemberCanBePrivate.Global
-    public void SearchText(string searchText)
-    {
-      searchBackgroundWorker.CancelAsync();
-      searchBackgroundWorker.RunWorkerAsync(searchText);
     }
 
     private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
@@ -231,7 +244,6 @@ namespace CsvTools
         m_CancellationToken = value;
       }
     }
-
 
     /// <summary>
     ///   Allows setting the data table
@@ -374,7 +386,6 @@ namespace CsvTools
       }
     }
 
-
     private void DetailControl_FontChanged(object? sender, EventArgs e)
     {
       this.SafeInvoke(() =>
@@ -390,80 +401,99 @@ namespace CsvTools
     {
       if (disposing)
       {
-        components.Dispose();
+        m_SearchCancellation?.Dispose();
+        components?.Dispose();
         m_FormShowMaxLength?.Dispose();
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
-        m_DataTable.Dispose();
-        m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_SteppedDataTableLoader.Dispose();
-      }
 
+        m_DataTable?.Dispose();
+        m_DataTable = null!;
+        m_FilterDataTable?.Dispose();
+        m_FilterDataTable = null!;
+        m_SteppedDataTableLoader?.Dispose();
+      }
       base.Dispose(disposing);
     }
 
-    private void SearchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+    /// <summary>
+    /// Performs a case-insensitive search across all visible columns.
+    /// Cancels any ongoing search before starting a new one.
+    /// Limits the result set to the first 1000 matching cells to
+    /// prevent excessive processing.
+    /// Runs asynchronously to avoid UI freezes and updates the
+    /// highlight and result count upon completion.
+    /// </summary>
+    public async Task SearchTextAsync(string searchText)
     {
-      // Start the search
-      if (!(sender is BackgroundWorker bw)) return;
-      if (!(e.Argument is string searchText)) return;
-      if (searchText.Length <= 0)
-        return;
+      // Cancel any ongoing search
+      m_SearchCancellation?.Cancel();
+      m_SearchCancellation?.Dispose();
+      m_SearchCancellation = new CancellationTokenSource();
 
-      var found = new List<DataGridViewCell>();
-
-      foreach (var viewColumn in FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                 .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)))
-      {
-        if (found.Count > 999)
-          break;
-        foreach (DataGridViewRow row in FilteredDataGridView.Rows)
-        {
-          if (bw.CancellationPending)
-            return;
-          try
-          {
-            var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
-                -1)
-              continue;
-            found.Add(cell);
-            if (found.Count > 999)
-              break;
-          }
-          catch
-          {
-            //ignore
-          }
-        }
-      }
-
-      e.Result = new Tuple<IEnumerable<DataGridViewCell>, string>(found, searchText);
-    }
-
-    private void SearchBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-    {
       m_FoundCells.Clear();
       FilteredDataGridView.HighlightText = string.Empty;
-      if (!e.Cancelled)
+      m_Search.Results = 0;
+
+      if (string.IsNullOrWhiteSpace(searchText))
+        return;
+
+      // Set the highlight text
+      this.SafeBeginInvoke(() => { FilteredDataGridView.HighlightText = searchText; });
+
+      try
       {
-        if (e.Result is Tuple<IEnumerable<DataGridViewCell>, string> tpl)
+        await Task.Run(() =>
         {
-          foreach (var cell in tpl.Item1)
+          // Limit to columns that are not hidden
+          foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
           {
-            if (cell.Displayed)
-              FilteredDataGridView.InvalidateCell(cell);
-            m_FoundCells.Add(cell);
+            if (!col.Visible || string.IsNullOrEmpty(col.DataPropertyName))
+              continue;
+
+            foreach (DataGridViewRow row in FilteredDataGridView.Rows)
+            {
+              m_SearchCancellation.Token.ThrowIfCancellationRequested();
+              try
+              {
+                var cell = row.Cells[col.Index];
+                if (cell.FormattedValue?.ToString()?
+                    .IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                  m_FoundCells.Add(cell);
+                  if (m_FoundCells.Count > 999)
+                    break;
+                }
+              }
+              catch
+              {
+                // Ignore invalid cells
+              }
+            }
+
+            if (m_FoundCells.Count > 999)
+              break;
           }
+        }, m_SearchCancellation.Token);
 
-          FilteredDataGridView.HighlightText = tpl.Item2;
-        }
-
-        m_Search.Results = m_FoundCells.Count;
+        // Apply result back to UI
+        this.SafeInvoke(() =>
+        {
+          m_FoundCells.ForEach(c => FilteredDataGridView.InvalidateCell(c));
+          m_Search.Results = m_FoundCells.Count;
+          if (m_FoundCells.Count > 0)
+          {
+            FilteredDataGridView.InvalidateCell(m_FoundCells[0]);
+            FilteredDataGridView.CurrentCell = m_FoundCells[0];
+          }
+          FilteredDataGridView.Refresh();
+        });
       }
-
-      FilteredDataGridView.Refresh();
+      catch (OperationCanceledException)
+      {
+        // search was cancelled – ignore
+      }
     }
 
     private bool CancelMissingData()
@@ -588,12 +618,17 @@ namespace CsvTools
       }, ParentForm);
     }
 
+    /// <summary>
+    /// Clears the search and cancels any running search operation.
+    /// </summary>
     private void OnSearchClear(object? sender, EventArgs e)
     {
       // Cancel the current search
-      searchBackgroundWorker.CancelAsync();
+      m_SearchCancellation?.Cancel();
+      m_SearchCancellation?.Dispose();
       m_Search.Hide();
       FilteredDataGridView.HighlightText = string.Empty;
+      FilteredDataGridView.Refresh();
     }
 
     private void DataViewChanged(object? sender, EventArgs args)
@@ -639,9 +674,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
-    private void OnSearchChanged(object? sender, SearchEventArgs e)
+    private async void OnSearchChanged(object? sender, SearchEventArgs e)
     {
-      SearchText(e.SearchText);
+      await SearchTextAsync(e.SearchText);
     }
 
     /// <summary>
@@ -669,7 +704,6 @@ namespace CsvTools
         });
     }
 
-
     /// <summary>
     ///   Sets the data source.
     /// </summary>
@@ -679,10 +713,7 @@ namespace CsvTools
       var oldOrder = FilteredDataGridView.SortOrder;
 
       // Cancel the current search
-      searchBackgroundWorker.CancelAsync();
-
-      // Hide any showing search
-      m_Search.Visible = false;
+      OnSearchClear(this, EventArgs.Empty);
 
       var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
 
@@ -724,74 +755,6 @@ namespace CsvTools
       m_UpdateVisibility = true;
     }
 
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    //    public async Task SafeCurrentFile(string fileName)
-    //    {
-    //      if (FilteredDataGridView.DataView is null)
-    //        return;
-
-    //      if (WriteSetting is null)
-    //      {
-    //        WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
-    //        FileSetting?.CopyTo(WriteSetting);
-    //      }
-
-    //      var skippedLines = new StringBuilder();
-    //      // in case we skipped lines read them as Header, so we do not loose them
-    //      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
-    //      {
-    //#if NET5_0_OR_GREATER
-    //        await
-    //#endif
-    //        using var iStream = FunctionalDI.GetStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
-    //        using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
-    //        for (var i = 0; i < physSource.SkipRows; i++)
-    //          skippedLines.AppendLine(await sr.ReadLineAsync());
-    //      }
-    //      using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), m_CancellationToken);
-    //      try
-    //      {
-    //        formProgress.Show(this);
-    //        BeforeFileStored?.Invoke(this, WriteSetting);
-
-    //        var writer = new CsvFileWriter(fileName, WriteSetting.HasFieldHeader, WriteSetting.ValueFormatWrite,
-    //          WriteSetting.CodePageId,
-    //          WriteSetting.ByteOrderMark,
-    //          WriteSetting.ColumnCollection, WriteSetting.IdentifierInContainer, skippedLines.ToString(),
-    //          WriteSetting.Footer,
-    //          string.Empty, WriteSetting.NewLine, WriteSetting.FieldDelimiterChar, WriteSetting.FieldQualifierChar,
-    //          WriteSetting.EscapePrefixChar,
-    //          WriteSetting.NewLinePlaceholder,
-    //          WriteSetting.DelimiterPlaceholder,
-    //          WriteSetting.QualifierPlaceholder, WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded,
-    //          WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, WriteSetting.KeepUnencrypted
-
-    //          );
-
-    //#if NET5_0_OR_GREATER
-    //        await
-    //#endif
-    //        using var reader = new DataTableWrapper(
-    //          FilteredDataGridView.DataView.ToTable(false,
-    //            // Restrict to shown data
-    //            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-    //              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-    //              .OrderBy(col => col.DisplayIndex)
-    //              .Select(col => col.DataPropertyName).ToArray()));
-    //        // can not use filteredDataGridView.Columns directly
-    //        await writer.WriteAsync(reader, formProgress.CancellationToken);
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //        ParentForm.ShowError(ex);
-    //      }
-    //      finally
-    //      {
-    //        FileStored?.Invoke(this, WriteSetting);
-    //      }
-    //    }
-
     private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {
       if (WriteFileAsync == null || FilteredDataGridView.DataView == null)
@@ -809,7 +772,6 @@ namespace CsvTools
 
         await WriteFileAsync.Invoke(m_CancellationToken, reader);
       }, ParentForm);
-
 
       //try
       //{
@@ -840,7 +802,6 @@ namespace CsvTools
 
     public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
 
-
     private FilterTypeEnum GetCurrentFilter()
     {
       int index = 0;
@@ -867,14 +828,17 @@ namespace CsvTools
         return;
 
       // Cancel the current search
-      searchBackgroundWorker.CancelAsync();
+      OnSearchClear(this, EventArgs.Empty);
 
       await this.RunWithHourglassAsync(async () =>
       {
         // ReSharper disable once LocalizableElement
         using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size),
           m_CancellationToken);
+        // make sure this is behind the windows
         formProgress.Show(this);
+        if (m_BackgroundLoad)
+          formProgress.SendToBack();
         formProgress.Maximum = 3;
 
         m_ToolStripLabelCount.Text = " loading...";
@@ -988,15 +952,6 @@ namespace CsvTools
       frm.KeyDown += DetailControl_KeyDown;
       Font = frm.Font;
     }
-
-    //private FormCsvTextDisplay? m_SourceDisplay;
-
-    //private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
-    //{
-    //  m_SourceDisplay?.Dispose();
-    //  m_SourceDisplay = null;
-    //}
-
 
     private async void DisplaySource_Click(object sender, EventArgs e)
     {

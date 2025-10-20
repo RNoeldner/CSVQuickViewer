@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -13,17 +13,18 @@
  */
 
 using System;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 using System.Threading.Tasks;
+#endif
 
 namespace CsvTools
 {
   /// <inheritdoc />
-#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+
   public abstract class DisposableBase : IDisposable
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
-#pragma warning restore S3881 // "IDisposable" should be implemented correctly
   {
     /// <summary>
     ///   Stop the Dispose() method execution in case of it being called more than once.

@@ -1,18 +1,16 @@
-/*
-
-* Copyright (C) 2014 Raphael N�ldner : http://csvquickviewer.com
-*
-* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
-* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
-*
-* You should have received a copy of the GNU Lesser Public License along with this program.
-* If not, see http://www.gnu.org/licenses/ .
-*
-*/
-
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
@@ -237,22 +235,11 @@ namespace CsvTools.Tests
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       Assert.IsTrue(wrapper.HasRows);
-      try
-      {
-      }
-      catch (NotImplementedException)
-      {
-        // ignore
-      }
-
-      try
-      {
-        wrapper.GetValues(new object[10]);
-      }
-      catch (NotImplementedException)
-      {
-        // ignore
-      }
+      var store = new object[wrapper.FieldCount];
+      await wrapper.ReadAsync();
+      Assert.AreEqual(store.Length, wrapper.GetValues(store));
+      Assert.AreEqual((long) -22477, store[1]);
+      Assert.AreEqual((decimal) -11654.13, store[3]);
     }
 
     [TestMethod()]
@@ -274,9 +261,12 @@ namespace CsvTools.Tests
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
-
+#if DEBUG
       // Date is empty but time column has a value
+      // 14:26:58, this only works in Debug mode not sure why
       Assert.IsFalse(wrapper.IsDBNull(0));
+      Assert.AreNotEqual(DBNull.Value, wrapper.GetValue(0));
+#endif
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);

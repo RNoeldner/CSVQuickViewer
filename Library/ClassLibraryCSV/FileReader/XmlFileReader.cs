@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -41,7 +41,7 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
       string destTimeZone,
@@ -51,7 +51,7 @@ namespace CsvTools
       m_Stream = stream;
 
     /// <inheritdoc />
-    public XmlFileReader(in string fileName,
+    public XmlFileReader(string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,

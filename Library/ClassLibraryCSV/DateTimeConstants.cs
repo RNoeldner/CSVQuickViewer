@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -75,6 +75,8 @@ namespace CsvTools
     ///  Get the most common date time formats
     /// </summary>
     /// <param name="known">Format that should be added to the list if not already present</param>
+    /// <remarks>Methods not thread-safe for writes.
+    /// </remarks>
     public static IEnumerable<string> CommonDateTimeFormats(string known)
     {
       // add the existing data
@@ -86,6 +88,7 @@ namespace CsvTools
     /// <summary>
     ///  Get the most common time formats
     /// </summary>
-    public static IEnumerable<string> CommonTimeFormats() => m_CommonTimeFormats;
+    /// <remarks>Returning the internal Collection directly exposes mutable state.</remarks>
+    public static IReadOnlyCollection<string> CommonTimeFormats() => m_CommonTimeFormats;
   }
 }

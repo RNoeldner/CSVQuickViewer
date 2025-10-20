@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System;
 
 namespace CsvTools
@@ -26,7 +25,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="searchText">Text to search</param>
     /// <param name="result">Number of the result to focus</param>
-    public SearchEventArgs(in string searchText, int result = 1)
+    public SearchEventArgs(string searchText, int result = 1)
     {
       SearchText = searchText;
       Result = result;

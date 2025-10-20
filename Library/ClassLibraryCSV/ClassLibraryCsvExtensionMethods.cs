@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections;
@@ -38,8 +37,8 @@ namespace CsvTools
   /// <returns>
   ///   Converted date / time
   /// </returns>
-  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
-    in Action<string>? handleWarning);
+  public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string srcTimeZone, string destTimeZone,
+    Action<string>? handleWarning);
 
   /// <summary>
   ///   Class with extensions used in the class Library
@@ -71,13 +70,6 @@ namespace CsvTools
     /// <param name="name">The identifier to base the hash on.</param>
     public static int IdentifierHash(this string name)
       => name.ToUpperInvariant().GetHashCode();
-
-    /// <summary>    
-    /// Generate a hash for two texts both case-insensitive
-    /// </summary>    
-    public static int IdentifierHash(this string name, in string name2)
-      => name.ToUpperInvariant().GetHashCode() + name2.ToUpperInvariant().GetHashCode();
-
 
     /// <summary>
     ///   <para>
@@ -114,18 +106,20 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeZip(this string fileName) =>
+      fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Assumes it's a delimited or text file, based on extension</summary>
+    /// <param name="fileName">Name of the file.</param>
+    public static bool AssumeDelimited(this string fileName) =>
+      fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) || AssumeDelimited1(fileName);
 
     /// <summary>Assumes it's a delimited file, based on extension</summary>
     /// <param name="fileName">Name of the file.</param>
-    /// <returns>
-    ///   <br />
-    /// </returns>
-    public static bool AssumeDelimited(this string fileName) =>
-      fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeDelimited1(this string fileName) =>
+     fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
+     fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase) ||
+     fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -430,7 +424,7 @@ namespace CsvTools
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
-    public static string PlaceholderReplace2(this string input, in string placeholder, string replacement)
+    public static string PlaceholderReplace2(this string input, string placeholder, string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
       var type = "{{" + placeholder.Trim() + "}}";
@@ -478,7 +472,7 @@ namespace CsvTools
     /// <param name="placeholder">The placeholder name.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    public static string PlaceholderReplace(this string input, in string placeholder, string replacement)
+    public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
       // if there is no placeholder we can exit
       if (string.IsNullOrEmpty(placeholder) || input.IndexOf(placeholder, StringComparison.OrdinalIgnoreCase) == -1)
@@ -529,7 +523,7 @@ namespace CsvTools
     /// <param name="placeholder">The identifiers of the placeholder.</param>
     /// <param name="formatedDateTime">The date time format in  case the placeholder has a format description</param>
     /// <returns></returns>
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, in string formatedDateTime)
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, string formatedDateTime)
     {
       // Regex to match placeholders with a formatting part, e.g. {date:yyyy-MM-dd}
       // Non-capturing group (?:[\{#]{1,2}\s*placeholder\s*:\s*)  := Starting with { or # and then "placelodeor" and :
@@ -563,7 +557,7 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, in string? pattern, char replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, char replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;
@@ -599,7 +593,7 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, in string? pattern, in string replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, string replacement)
     {
       if (pattern is null || pattern.Length == 0)
         return original;
@@ -679,8 +673,8 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    public static string ReplaceDefaults(this string inputValue, in string old1, in string new1, in string old2,
-      in string new2)
+    public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2,
+      string new2)
     {
       if (inputValue.Length == 0)
         return string.Empty;

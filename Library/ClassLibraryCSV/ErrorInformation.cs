@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -56,7 +55,7 @@ namespace CsvTools
     ///   usually messages are appended, unless they are errors and the list contains only warnings
     ///   so far
     /// </returns>
-    public static string AddMessage(this string errorList, in string newError, bool isWarning)
+    public static string AddMessage(this string errorList, string newError, bool isWarning)
     {
       if (string.IsNullOrEmpty(newError))
         throw new ArgumentException("Error can not be empty", nameof(newError));
@@ -102,7 +101,7 @@ namespace CsvTools
     ///   usually messages are appended, unless they are errors and the list contains only warnings
     ///   so far
     /// </returns>
-    public static string AddMessage(this string errorList, in string newError)
+    public static string AddMessage(this string errorList, string newError)
     {
       if (string.IsNullOrEmpty(newError))
         throw new ArgumentException("Error can not be empty", nameof(newError));
@@ -154,12 +153,31 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Method to add the warning identifier to an error message
+    /// </summary>
+    /// <param name="message">The message that should get the ID</param>
+    /// <param name="buffer">The span that will be modifed</param>
+    /// <returns>The text with the leading WarningID</returns>
+    public static int AddWarningId(ReadOnlySpan<char> message, Span<char> buffer)
+    {
+      if (message.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
+      {
+        message.CopyTo(buffer);
+        return message.Length;
+      }
+
+      cWarningId.AsSpan().CopyTo(buffer);
+      message.CopyTo(buffer.Slice(cWarningId.Length));
+      return cWarningId.Length + message.Length;
+    }
+
+    /// <summary>
     ///   Combines column and error information
     /// </summary>
     /// <param name="column">The column.</param>
     /// <param name="errorMessage">The error message.</param>
     /// <returns>An error message to be stored</returns>
-    public static string CombineColumnAndError(in string column, in string errorMessage)
+    public static string CombineColumnAndError(string column, string errorMessage)
     {
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
@@ -259,14 +277,23 @@ namespace CsvTools
     /// </returns>
     public static bool IsWarningMessage(this string errorList)
     {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  ReadOnlySpan<char> span = errorList.AsSpan();
+
+  if (span.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
+    return true;
+
+  var splitter = span.IndexOf(cClosingField);
+  return splitter != -1 && splitter < span.Length - 2
+                        && span.Slice(splitter + 2).StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal);
+#else
       if (errorList.StartsWith(cWarningId, StringComparison.Ordinal))
         return true;
 
-      // In case we have a column name in front we have to look into the middle of the string We
-      // only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(cClosingField);
       return splitter != -1 && splitter < errorList.Length - 2
                             && errorList.Substring(splitter + 2).StartsWith(cWarningId, StringComparison.Ordinal);
+#endif
     }
 
     /// <summary>
@@ -350,8 +377,19 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
-    public static string WithoutWarningId(this string errorList) =>
-      errorList.Length <= cWarningId.Length ? errorList : errorList.Substring(cWarningId.Length);
+    public static string WithoutWarningId(this string errorList)
+    {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  ReadOnlySpan<char> span = errorList.AsSpan();
+  return span.Length <= cWarningId.Length 
+    ? errorList 
+    : span.Slice(cWarningId.Length).ToString();
+#else
+      return errorList.Length <= cWarningId.Length
+        ? errorList
+        : errorList.Substring(cWarningId.Length);
+#endif
+    }
 
     /// <summary>
     ///   Builds a list from the provided error list, sorting error in front, this will show
@@ -374,23 +412,40 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Parses the list
+    /// Parses the error list text into individual messages with their columns.
     /// </summary>
-    /// <param name="errorList">The error list.</param>
-    /// <returns></returns>
-    private static IEnumerable<ColumnAndMessage> ParseList(string errorList)
+    /// <param name="errorList">The combined error text.</param>
+    /// <returns>A list of messages with column information.</returns>
+    private static IReadOnlyCollection<ColumnAndMessage> ParseList(string errorList)
     {
-      if (errorList.Length == 0)
-        yield break;
-      var start = 0;
+      var result = new List<ColumnAndMessage>();
+      if (string.IsNullOrEmpty(errorList))
+        return result;
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    ReadOnlySpan<char> span = errorList.AsSpan();
+    int start = 0;
+    while (start < span.Length)
+    {
+        int end = span.Slice(start + 1).IndexOf(cSeparator);
+        if (end == -1)
+            end = span.Length - start;
+        result.Add(SplitColumnAndMessage(span.Slice(start, end).ToString()));
+        start += end + 1;
+    }
+#else
+      int start = 0;
       while (start < errorList.Length)
       {
-        var end = errorList.IndexOf(cSeparator, start + 1);
+        int end = errorList.IndexOf(cSeparator, start + 1);
         if (end == -1)
           end = errorList.Length;
-        yield return SplitColumnAndMessage(errorList.Substring(start, end - start));
+        result.Add(SplitColumnAndMessage(errorList.Substring(start, end - start)));
         start = end + 1;
       }
+#endif
+
+      return result;
     }
 
 
@@ -414,7 +469,7 @@ namespace CsvTools
       /// </summary>
       /// <param name="column"></param>
       /// <param name="message"></param>
-      public ColumnAndMessage(in string column, in string message)
+      public ColumnAndMessage(string column, string message)
       {
         Column = column;
         Message = message;
@@ -426,25 +481,31 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The column with error.</param>
     /// <returns></returns>
-    private static ColumnAndMessage SplitColumnAndMessage(in string text)
+    private static ColumnAndMessage SplitColumnAndMessage(string text)
     {
-      if (text[0] == cOpenField)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  ReadOnlySpan<char> span = text.AsSpan();
+  if (!span.IsEmpty && span[0] == cOpenField)
+  {
+    var close = span.Slice(1).IndexOf(cClosingField);
+    if (close == -1)
+      return new ColumnAndMessage(string.Empty, text);
+
+    var column = span.Slice(1, close).ToString();
+    var message = span.Slice(close + 2).ToString();
+    return new ColumnAndMessage(column, message);
+  }
+  return new ColumnAndMessage(string.Empty, text);
+#else
+      if (text.Length > 0 && text[0] == cOpenField)
       {
         var close = text.IndexOf(cClosingField);
         return close == -1
           ? new ColumnAndMessage(string.Empty, text)
           : new ColumnAndMessage(text.Substring(1, close - 1), text.Substring(close + 2));
       }
-
       return new ColumnAndMessage(string.Empty, text);
-      /* not sure anymore why this was added, but it causes problems
-       when copy past to HTMl in QuickViewer
-
-      var splitterAlt = text.IndexOf(cAlternateColumnMessageSeparator);
-      return splitterAlt == -1
-        ? new ColumnAndMessage(string.Empty, text)
-        : new ColumnAndMessage(text.Substring(0, splitterAlt), text.Substring(splitterAlt + 1).TrimStart());
-      */
+#endif
     }
   }
 }

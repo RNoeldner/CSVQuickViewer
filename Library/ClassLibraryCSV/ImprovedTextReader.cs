@@ -1,3 +1,16 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using System;
 using System.IO;
 using System.Text;
@@ -25,7 +38,21 @@ namespace CsvTools
     private readonly int m_BomLength = 0;
     private readonly int m_SkipLines;
     private readonly Stream m_Stream;
+    private readonly int m_CodePageId;
     private int m_LastChar = -1;
+
+
+    private void PositionAfterBom()
+    {
+      m_Stream.Seek(0, SeekOrigin.Begin);
+#if NET6_0_OR_GREATER
+      Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
+      m_Stream.Read(bomBufferPass);
+#else
+            m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+#endif
+
+    }
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -39,6 +66,7 @@ namespace CsvTools
     ///   This routine uses a TextReader to allow character decoding, it will read the
     ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
+    ///   Close or Dispose will dispose the underlying stream
     /// </remarks>
     public ImprovedTextReader(in Stream stream, int codePageId = 65001, int skipLines = 0)
     {
@@ -48,11 +76,12 @@ namespace CsvTools
       try
       {
         _ = Encoding.GetEncoding(codePageId);
+        m_CodePageId =codePageId;
       }
       catch (Exception)
       {
         Logger.Warning("Code page {codePageId} not supported, using UTF8", codePageId);
-        codePageId = Encoding.UTF8.CodePage;
+        m_CodePageId = Encoding.UTF8.CodePage;
       }
 
       // read the BOM if we have seek
@@ -76,16 +105,16 @@ namespace CsvTools
 
         if (intEncodingByBom != null)
         {
-          codePageId = intEncodingByBom.CodePage;
-          m_BomLength = EncodingHelper.BOMLength(codePageId);
+          m_CodePageId = intEncodingByBom.CodePage;
+          m_BomLength = EncodingHelper.BOMLength(m_CodePageId);
         }
+
+        // By reading We have moved the position, so move it back
+        PositionAfterBom();
       }
 
-      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId), false, 4096, true);
-      if (m_Stream.CanSeek)
-        ToBeginning();
-      else
-        AdjustStartLine();
+      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePageId), false, 4096, true);
+      AdjustStartLine();
     }
 
     /// <summary>
@@ -113,7 +142,7 @@ namespace CsvTools
     ///   Gets the stream reader.
     /// </summary>
     /// <value>The stream reader.</value>
-    private StreamReader StreamReader { get; }
+    private StreamReader StreamReader { get; set; }
 
     /// <summary>
     ///   Closes the <see cref="ImprovedTextReader" /> and the underlying stream, and releases any
@@ -169,7 +198,6 @@ namespace CsvTools
 
 
     /// <inheritdoc cref="TextReader" />
-    [Obsolete("Better use ReadLineAsync ")]
     public string ReadLine()
     {
       var line = StreamReader.ReadLine();
@@ -215,7 +243,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>Number of read chars</returns>
 #if NET6_0_OR_GREATER
-   
+
     public ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
      => StreamReader.ReadBlockAsync(buffer, cancellationToken);
 #else
@@ -253,27 +281,15 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
+
       if (!m_Stream.CanSeek)
         throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
 
-      if (m_Stream.Position != m_BomLength)
-      {
-        m_Stream.Seek(0, SeekOrigin.Begin);
-        // eat the bom
-        if (m_BomLength > 0 && m_Stream.CanRead)
-        {
-#if NET6_0_OR_GREATER
-          Span<byte> bom = stackalloc byte[m_BomLength];
-          _ = m_Stream.Read(bom);
-#else
-          byte[] bom = new byte[m_BomLength];
-          _ = m_Stream.Read(bom, 0, m_BomLength);
-#endif
-        }
-        StreamReader.DiscardBufferedData();
-      }
+      PositionAfterBom();
+      StreamReader.DiscardBufferedData();
 
-      AdjustStartLine();
+      if (LineNumber != 1 || m_SkipLines>0)
+        AdjustStartLine();
     }
 
     /// <inheritdoc cref="IDisposable" />
@@ -287,10 +303,7 @@ namespace CsvTools
     {
       LineNumber = 1;
       for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
-      {
-        StreamReader.ReadLine();
-        LineNumber++;
-      }
+        _ = ReadLine();
     }
   }
 }

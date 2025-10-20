@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -100,23 +99,23 @@ namespace CsvTools
     /// </exception>
     public ValueFormatMut(
       in DataTypeEnum dataType = DataTypeEnum.String,
-      in string? dateFormat = null,
-      in string? dateSeparator = null,
-      in string? timeSeparator = null,
-      in string? numberFormat = null,
-      in string? groupSeparator = null,
-      in string? decimalSeparator = null,
-      in string? asTrue = null,
-      in string? asFalse = null,
-      in string displayNullAs = "",
+      string? dateFormat = null,
+      string? dateSeparator = null,
+      string? timeSeparator = null,
+      string? numberFormat = null,
+      string? groupSeparator = null,
+      string? decimalSeparator = null,
+      string? asTrue = null,
+      string? asFalse = null,
+      string displayNullAs = "",
       int part = 0,
-      in string? partSplitter = null,
+      string? partSplitter = null,
       bool partToEnd = true,
-      in string regexSearchPattern = "",
-      in string regexReplacement = "",
-      in string readFolder = "",
-      in string writeFolder = "",
-      in string fileOutPutPlaceholder = "",
+      string regexSearchPattern = "",
+      string regexReplacement = "",
+      string readFolder = "",
+      string writeFolder = "",
+      string fileOutPutPlaceholder = "",
       in bool overwrite = true)
     {
       m_DecimalSeparator = decimalSeparator?.FromText() ?? ValueFormat.Empty.DecimalSeparator;

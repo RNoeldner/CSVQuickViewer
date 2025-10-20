@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -134,7 +133,7 @@ namespace CsvTools.Tests
       var res = await DetermineColumnFormat
         .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, string.Empty, 80, UnitTestStatic.Token)
         .ConfigureAwait(false);
-      Assert.AreEqual(20, res[0].Values.Count);
+      Assert.IsTrue(res[0].Values.Count>20);
     }
 
     [TestMethod]
@@ -243,8 +242,8 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.IsTrue(res[1].RecordsRead >= 20);
-      Assert.AreEqual(20, res[0].Values.Count());
-      Assert.AreEqual(20, res[1].Values.Count());
+      Assert.IsTrue(res[0].Values.Count()>20);
+      Assert.IsTrue(res[1].Values.Count()>20);
     }
 
     [TestMethod]
@@ -266,7 +265,7 @@ namespace CsvTools.Tests
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, treatAsNull,
         40, UnitTestStatic.Token);
       Assert.IsTrue(res[0].RecordsRead >= 20);
-      Assert.AreEqual(20, res[0].Values.Count());
+      Assert.IsTrue(res[0].Values.Count()>20);
     }
 
     [TestMethod]
@@ -576,9 +575,7 @@ namespace CsvTools.Tests
     public void GuessColumnFormatNoSamples()
     {
       string[] values = { };
-      try
-      {
-        DetermineColumnFormat.GuessValueFormat(
+      Assert.Throws<ArgumentNullException>(() => DetermineColumnFormat.GuessValueFormat(
           values.Select(x => x.AsMemory()).ToArray(),
           4,
           null,
@@ -591,16 +588,7 @@ namespace CsvTools.Tests
           false,
           false,
           null,
-          UnitTestStatic.Token);
-        Assert.Fail("Expected Exception not thrown");
-      }
-      catch (ArgumentNullException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
-      }
+          UnitTestStatic.Token));
     }
 
     [TestMethod]

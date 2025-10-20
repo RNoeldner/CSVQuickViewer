@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -38,7 +37,7 @@ namespace CsvTools
     /// <param name="columns">A sequence of columns to analyze.</param>
     /// <param name="guessDefault">A fallback date string used to guess format and separator, if needed.</param>
     /// <returns>A <see cref="ValueFormat"/> representing the most likely date format.</returns>
-    public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, in string guessDefault)
+    public static ValueFormat CommonDateFormat(in IEnumerable<Column> columns, string guessDefault)
     {
       // Find the most-used date format among relevant columns.
       var mostUsed = columns
@@ -147,11 +146,16 @@ namespace CsvTools
           break;
         }
 
+      var columnCache = new Dictionary<int, Column>();
+      // Pre-fill the cache for all columns
+      for (int colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        columnCache[colIndex] = fileReader.GetColumn(colIndex);
+
       // Build a list of columns to check
       var getSamples = new List<int>();
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
-        var column = fileReader.GetColumn(colIndex);
+        var column = columnCache[colIndex];
         // Check if column should be ignored        
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(column.Name) > 0)
         {
@@ -195,7 +199,7 @@ namespace CsvTools
         Logger.Information("Not enough records to determine types");
         var allcolumns = new List<Column>();
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-          allcolumns.Add(fileReader.GetColumn(colIndex));
+          allcolumns.Add(columnCache[colIndex]);
 
         return (Array.Empty<string>(), allcolumns);
       }
@@ -204,7 +208,7 @@ namespace CsvTools
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
         if (sampleList.ContainsKey(colIndex)) continue;
-        var readerColumn = fileReader.GetColumn(colIndex);
+        var readerColumn = columnCache[colIndex];
         columnCollection.Add(readerColumn);
       }
 
@@ -214,7 +218,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
       foreach (var colIndex in sampleList.Keys)
       {
-        var readerColumn = fileReader.GetColumn(colIndex);
+        var readerColumn = columnCache[colIndex];
         var samples = sampleList[colIndex];
 
         if (samples.Values.Count == 0)
@@ -328,7 +332,7 @@ namespace CsvTools
       if (checkDoubleToBeInteger)
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
 
           if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
               && readerColumn.ValueFormat.DataType != DataTypeEnum.Numeric) continue;
@@ -373,6 +377,7 @@ namespace CsvTools
         }
 
       cancellationToken.ThrowIfCancellationRequested();
+
       if (fillGuessSettings.DateParts)
       {
         // Case a)
@@ -380,7 +385,7 @@ namespace CsvTools
         // a TimeFormat has already been recognized
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
@@ -410,7 +415,7 @@ namespace CsvTools
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
-          
+
           if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                              || columnFormat.DateFormat.IndexOfAny(
                                                                m_TimeFormat) != -1)
@@ -450,7 +455,7 @@ namespace CsvTools
         // adjacent fields
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var readerColumn = fileReader.GetColumn(colIndex);
+          var readerColumn = columnCache[colIndex];
           var colIndexSetting = columnCollection.IndexOf(readerColumn);
 
           if (colIndexSetting == -1) continue;
@@ -565,34 +570,26 @@ namespace CsvTools
         }
       }
 
-      // Goal: Reorders 'columnCollection' so that columns matching 'fileReader' field names (case-insensitive)
-      // come first (in field order), followed by the remaining columns.
+      // Reorder columns to match file order
+      return (result, ReorderColumns(columnCollection, fileReader));
+    }
 
-      // Step 1: Build a dictionary for fast (O(1)) lookup of columns by name, case-insensitive.
-      var columnLookup = columnCollection.ToDictionary(
-          col => col.Name,
-          StringComparer.OrdinalIgnoreCase);
+    // Reorder columns to match file order
+    private static IReadOnlyCollection<Column> ReorderColumns(ColumnCollection columnCollection, IFileReader fileReader)
+    {
+      var lookup = columnCollection.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+      var ordered = new List<Column>();
 
-      // Step 2: Collect columns present in 'fileReader', in order of appearance.
-      var orderedColumns = new List<Column>();
-
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      for (int i = 0; i < fileReader.FieldCount; i++)
       {
-        var colName = fileReader.GetName(colIndex);
-        // Match column by name, ignore case
-        if (columnLookup.TryGetValue(colName, out var matchedColumn))
-          orderedColumns.Add(matchedColumn);
+        if (lookup.TryGetValue(fileReader.GetName(i), out var col))
+          ordered.Add(col);
       }
 
-      // Step 3: Add any remaining columns not present in the 'fileReader' field list.
-      // THese could have been added by a column split
       foreach (var col in columnCollection)
-      {
-        if (!orderedColumns.Contains(col))
-          orderedColumns.Add(col);
-      }
-
-      return (result, orderedColumns);
+        if (!ordered.Contains(col))
+          ordered.Add(col);
+      return ordered;
     }
 
     /// <summary>
@@ -796,7 +793,6 @@ namespace CsvTools
         possibleDateSeparators.Add(kv.Key);
       }
 
-
       foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
@@ -861,17 +857,17 @@ namespace CsvTools
       if (possibleDecimal.Count == 0)
         possibleDecimal.Add('.');
 
-      foreach (var thousandSeparator in possibleGrouping)
+      foreach (var thousandSep in possibleGrouping)
         // Try Numbers: Int and Decimal
-        foreach (var decimalSeparator in possibleDecimal)
+        foreach (var decimalSep in possibleDecimal)
         {
           if (cancellationToken.IsCancellationRequested)
             return checkResult;
-          if (decimalSeparator.Equals(thousandSeparator))
+          if (decimalSep.Equals(thousandSep))
             continue;
           var res = samples.CheckNumber(
-            decimalSeparator,
-            thousandSeparator,
+            decimalSep,
+            thousandSep,
             guessPercentage,
             allowStartingZero,
             removeCurrencySymbols,
@@ -1008,8 +1004,7 @@ namespace CsvTools
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // We need to have at least 10 sample values here it's too dangerous to assume it is a date
-        if (guessDateTime && serialDateTime && samples.Count > 10)
+        if (guessDateTime && serialDateTime)
         {
           var checkResultDateTime = samples.CheckSerialDate(true, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
@@ -1031,7 +1026,8 @@ namespace CsvTools
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // ---------------- Date -------------------------- Minimum length of a date is 4 characters
+        // ---------------- Date --------------------------
+        // Minimum length of a date is 4 characters
         if (guessDateTime && firstValue.Length > 3)
         {
           var checkResultDateTime = GuessDateTime(samples, cancellationToken);
@@ -1089,7 +1085,7 @@ namespace CsvTools
       {
         RecordsRead = records;
 #if NET6_0_OR_GREATER
-    var random =  Random.Shared;
+        var random = Random.Shared;
 #else
         var random = new Random(Environment.TickCount);
 #endif

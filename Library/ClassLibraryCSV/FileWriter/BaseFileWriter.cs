@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -79,16 +79,16 @@ namespace CsvTools
     /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
     /// 
     protected BaseFileWriter(
-      in string fullPath,
+      string fullPath,
       in ValueFormat? valueFormatGeneral,
-      in string? identifierInContainer,
-      in string? footer,
-      in string? header,
+      string? identifierInContainer,
+      string? footer,
+      string? header,
       in IEnumerable<Column>? columnDefinition,
-      in string fileSettingDisplay,
+      string fileSettingDisplay,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone,
-      in string publicKey,
+      string sourceTimeZone,
+      string publicKey,
       bool unencrypted
       )
     {
@@ -345,7 +345,7 @@ namespace CsvTools
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
     protected void HandleWarning(string columnName, string message) =>
-      Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
+      Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     /// <summary>
     ///   Value conversion of a FileWriter
@@ -362,7 +362,7 @@ namespace CsvTools
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
     /// <remarks>It can only be DBNull, long, bool, double, decimal, DateTime, Guid  or string</remarks>
     public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
-      in TimeZoneChangeDelegate timeZoneAdjust, in string sourceTimeZone, Action<string, string>? handleWarning = null)
+      in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return DBNull.Value;

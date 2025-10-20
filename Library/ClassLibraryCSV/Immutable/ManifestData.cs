@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,9 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
-using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -128,10 +126,11 @@ namespace CsvTools
     /// <returns></returns>
     public static async Task<InspectionResult?> ReadManifestZip(string fileName)
     {
-      using var archive = new ZipFile(fileName.LongPathPrefix());
+      using var archive = new ICSharpCode.SharpZipLib.Zip.ZipFile(fileName.LongPathPrefix());
 
-      // Find Manifest      
-      var manifestEntry = archive.GetFilesInZip().FirstOrDefault(x => x.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+      // Find Manifest 
+      var manifestEntry = archive.Cast<ICSharpCode.SharpZipLib.Zip.ZipEntry>().FirstOrDefault(e => e.IsFile &&
+                                                e.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
       if (manifestEntry is null)
         return null;
       try { Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name); } catch { }
@@ -148,8 +147,8 @@ namespace CsvTools
     {
       var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync()
         .ConfigureAwait(false);
-      var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
-      if (mani is null)
+      var jsonManifest = JsonConvert.DeserializeObject<ManifestData>(strContend);
+      if (jsonManifest is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
       var detectionResult = new InspectionResult
       {
@@ -165,7 +164,7 @@ namespace CsvTools
         HasFieldHeader = false
       };
 
-      foreach (var fld in mani.Fields)
+      foreach (var fld in jsonManifest.Fields)
       {
         ValueFormat vf;
         switch (fld.Type.ToLower().TrimEnd('?', ')', ',', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'))

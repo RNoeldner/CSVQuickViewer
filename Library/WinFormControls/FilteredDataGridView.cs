@@ -1,17 +1,16 @@
-/*
-* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
-*
-* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
-* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
-*
-* You should have received a copy of the GNU Lesser Public License along with this program.
-* If not, see http://www.gnu.org/licenses/ .
-*
-*/
-
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 #nullable enable
 
 using System;
@@ -1266,44 +1265,7 @@ namespace CsvTools
       );
     }
 
-    //    private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
-    //    {
-    //      if (m_FileSetting is null)
-    //        return;
-    //      try
-    //      {
-    //        var text = GetViewStatus;
-    //        if (!string.IsNullOrEmpty(text))
-    //        {
-    //          // Select Path
-    //          var fileName = WindowsAPICodePackWrapper.Save(
-    //            m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-    //            "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
-
-    //          if (fileName is null || fileName.Length == 0)
-    //            return;
-
-    //#if NET5_0_OR_GREATER
-    //          await
-    //#endif          
-    //          using var stream = FunctionalDI.GetStream(new SourceAccess(fileName, false));
-
-    //#if NET5_0_OR_GREATER
-    //          await
-    //#endif
-    //          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-    //          await writer.WriteAsync(GetViewStatus);
-    //          await writer.FlushAsync();
-
-    //          if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-    //            basePhysical.ColumnFile = fileName;
-    //        }
-    //      }
-    //      catch (Exception ex)
-    //      {
-    //        FindForm()?.ShowError(ex);
-    //      }
-    //    }
+   
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.

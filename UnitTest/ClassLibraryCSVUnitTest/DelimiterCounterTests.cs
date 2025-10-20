@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -81,12 +80,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DelimiterCounterSeparatorsCountTest()
     {
-      var i = new DetectionDelimiter.DelimiterCounter(3, Array.Empty<char>(), '"');      
-      Assert.AreEqual(i.Separators.Length, i.SeparatorsCount.GetLength(1));
+      var i = new DetectionDelimiter.DelimiterCounter(3, Array.Empty<char>(), '"');
+      Assert.AreEqual(3, i.SeparatorsCount.GetLength(1), "");
       // Initially all counts should be zero
       for (int row = 0; row < 3; row++)
         for (int col = 0; col < i.Separators.Length; col++)
-          Assert.AreEqual(0, i.SeparatorsCount[row, col]);
+          Assert.AreEqual(0, i.SeparatorsCount[col, row]);
     }
 
     [TestMethod]

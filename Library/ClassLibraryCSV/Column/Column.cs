@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -50,15 +50,15 @@ namespace CsvTools
     /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>
     /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
     /// <exception cref="System.ArgumentNullException">name</exception>
-    public Column(in string name,
+    public Column(string name,
       in ValueFormat? valueFormat = null,
       int? columnOrdinal = 0,
       bool? ignore = false,
       bool? convert = null,
-      in string? destinationName = "",
-      in string? timePart = "",
-      in string? timePartFormat = cDefaultTimePartFormat,
-      in string? timeZonePart = "")
+      string? destinationName = "",
+      string? timePart = "",
+      string? timePartFormat = cDefaultTimePartFormat,
+      string? timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
       ValueFormat = valueFormat ?? ValueFormat.Empty;

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,8 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-
 // Ignore Spelling: Serializer Deserialize
 
 using Newtonsoft.Json;
@@ -21,8 +19,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -36,14 +34,6 @@ namespace CsvTools
     ///   File ending for a setting file
     /// </summary>
     public const string cSettingExtension = ".setting";
-
-    private static readonly Lazy<Regex> RemoveEmpty =
-      new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
-
-    private static readonly Lazy<Regex> RemoveEmpty2 = 
-      new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
-
-    private static readonly Lazy<Regex> RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 
     /// <summary>
     /// Serialization Settings
@@ -66,16 +56,63 @@ namespace CsvTools
       });
 
     /// <summary>
-    ///   Serialize an object with formatting
+    /// Recursively removes empty objects and empty arrays from a JSON structure.
+    /// Also removes objects that contain only "$type".
+    /// Returns true if the token itself is considered empty and should be removed by its parent.
+    /// Nulls and empty strings are preserved.
     /// </summary>
-    /// <param name="data">The object to be serialized</param>
-    /// <returns>The resulting Json string</returns>
+    private static bool RemoveEmptyTokens(JToken token)
+    {
+      switch (token.Type)
+      {
+        case JTokenType.Object:
+          var obj = (JObject) token;
+          // copy property list to avoid modifying during enumeration
+          foreach (var prop in obj.Properties().ToList())
+          {
+            if (RemoveEmptyTokens(prop.Value))
+              prop.Remove();
+          }
+
+          // Remove object if empty OR contains only "$type"
+          return !obj.HasValues || (obj.Properties().Count() == 1 && obj.Property("$type") != null);
+
+        case JTokenType.Array:
+          var arr = (JArray) token;
+          // copy items to avoid modifying during enumeration
+          foreach (var item in arr.ToList())
+          {
+            if (RemoveEmptyTokens(item))
+              item.Remove();
+          }
+          // if array has no items left it's empty
+          return !arr.HasValues;
+
+        default:
+          // Leave primitives (including nulls and empty strings)
+          return false;
+      }
+    }
+
+    /// <summary>
+    /// Serializes an object to indented JSON using the configured serializer settings
+    /// and removes empty arrays and empty objects.
+    /// </summary>
     public static string SerializeIndentedJson<T>(this T data) where T : class
     {
-      var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
-      // remove empty array or class
-      return RemoveComma.Value.Replace(
-        RemoveEmpty2.Value.Replace(RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
+      if (data == null) throw new ArgumentNullException(nameof(data));
+
+      // Create a serializer with your settings
+      var serializer = JsonSerializer.Create(JsonSerializerSettings.Value);
+
+      // Convert the object into a JToken (respects all settings)
+      var token = JToken.FromObject(data, serializer);
+
+      // Remove empty objects and arrays recursively
+      RemoveEmptyTokens(token);
+
+      // Return formatted JSON
+      return token.ToString(Formatting.Indented);
     }
 
     /// <summary>
@@ -86,11 +123,11 @@ namespace CsvTools
     /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
-      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());} catch { }
+      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName()); } catch { }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -132,12 +169,12 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
         return newContent;
-      try { Logger.Debug("No change to file {filename}", fileName);} catch { }
+      try { Logger.Debug("No change to file {filename}", fileName); } catch { }
       return null;
     }
 
@@ -176,10 +213,10 @@ namespace CsvTools
         if (delete)
           FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-        using (var improvedStream = new ImprovedStream(new SourceAccess(fileName, false)))
+        using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName, false)))
         using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
           await sr.WriteAsync(content);
-        
+
         Logger.Information($"Written file {fileName.GetShortDisplayFileName()}");
       }
       catch (Exception ex)

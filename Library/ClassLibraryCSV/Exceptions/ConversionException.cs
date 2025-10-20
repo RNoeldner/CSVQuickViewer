@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,13 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System;
 
 namespace CsvTools
 {
   /// <summary>
-  /// Raised if the conversion of types of or timezone conversion has issues
+  /// Raised if the conversion of types of or time zone conversion has issues
   /// </summary>
   /// <seealso cref="System.ApplicationException" />
   public sealed class ConversionException : ApplicationException

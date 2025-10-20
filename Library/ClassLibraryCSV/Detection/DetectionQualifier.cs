@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -46,21 +46,21 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       char fieldDelimiterChar,
       char escapePrefixChar,
-      in string commentLine,
+      string commentLine,
       IEnumerable<char> possibleQuotes,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
       var bestQuoteTestResults = new QuoteTestResult();
-      foreach (var t in possibleQuotes)
+      foreach (var quoteChar in possibleQuotes)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, t, commentLine, cancellationToken);
+        var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
         if (currentQuote.Score > bestQuoteTestResults.Score)
           bestQuoteTestResults = currentQuote;
         // Give " a large edge
-        if (currentQuote.QuoteChar == '"' && currentQuote.Score >= 25)
+        if (quoteChar == '"' && currentQuote.Score >= 45)
           break;
       }
 
@@ -125,7 +125,7 @@ namespace CsvTools
               continue;
             }
 
-            // Field delimiter → start of next column
+            // Field delimiter ? start of next column
             if (c == fieldDelimiterChar)
             {
               isStartOfColumn = true;
@@ -139,7 +139,7 @@ namespace CsvTools
               continue;
             }
 
-            // Qualifier at start of column → success
+            // Qualifier at start of column ? success
             if (c == fieldQualifierChar)
               return true;
 
@@ -183,7 +183,7 @@ namespace CsvTools
       char delimiterChar,
       char escapeChar,
       char quoteChar,
-      in string commentLine,
+      string commentLine,
       in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
@@ -294,7 +294,7 @@ namespace CsvTools
       if (bufferPos > 3)
       {
         // normalize this, line should start and end with delimiter for out of range safety:
-        //  t","t","t",t,t,t"t,t"t,t -> ,t","t","t",t,t,t"t,t"t,t,
+        //  quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar -> ,quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar,
         // End with delimiter
         buffer[++bufferPos]=delimiterChar;
         buffer[++bufferPos]=delimiterChar;

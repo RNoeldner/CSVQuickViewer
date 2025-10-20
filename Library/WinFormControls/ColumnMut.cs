@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using Newtonsoft.Json;
@@ -61,15 +60,15 @@ namespace CsvTools
     /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
     /// <exception cref="System.ArgumentNullException">name</exception>
     [JsonConstructor]
-    public ColumnMut(in string name,
+    public ColumnMut(string name,
       in ValueFormat? valueFormat = null,
       int columnOrdinal = -1,
       bool ignore = false,
       bool? convert = null,
-      in string destinationName = "",
-      in string timePart = "",
-      in string timePartFormat = Column.cDefaultTimePartFormat,
-      in string timeZonePart = "")
+      string destinationName = "",
+      string timePart = "",
+      string timePartFormat = Column.cDefaultTimePartFormat,
+      string timeZonePart = "")
     {
       m_Name = name ?? throw new ArgumentNullException(nameof(name));
       m_ValueFormatMut = new ValueFormatMut(valueFormat ?? ValueFormat.Empty);

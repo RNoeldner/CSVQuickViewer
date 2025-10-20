@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -51,14 +51,14 @@ namespace CsvTools
     /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
     /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
     protected BaseFileReaderTyped(
-      in string fileName,
+      string fileName,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string returnedTimeZone,
+      string returnedTimeZone,
       bool allowPercentage ,
       bool removeCurrency)
       : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)

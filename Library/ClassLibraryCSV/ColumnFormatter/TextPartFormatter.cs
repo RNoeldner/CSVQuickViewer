@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -39,7 +39,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
+    public override string FormatInputText(string inputString, Action<string>? handleWarning)
     {
       var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
       if (RaiseWarning && output.IsEmpty)

@@ -1,4 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,13 +24,17 @@ namespace CsvTools.Tests
   public class FileSystemUtilsTests
   {
     [TestMethod()]
-    public void GetRelativePathUserProfileTest()
+    public void UseSpecialFoldersTest()
     {
-      var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
-      Assert.AreEqual(Path.Combine("%UserProfile%", "TestFile.txt"), testFile1.GetRelativePath("."));
+      // This test does not make sense if its shorter...
+      if (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Length > "%UserProfile%".Length)
+      {
+        var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
+        Assert.AreEqual("%UserProfile%\\TestFile.txt", testFile1.UseSpecialFolders());
 
-      var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));
+        var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        Assert.AreEqual("%UserProfile%", testFile2.GetRelativePath("."));
+      }
     }
 
 
@@ -70,32 +87,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(Path.GetFullPath($".{Path.DirectorySeparatorChar}Test"), $".{Path.DirectorySeparatorChar}Test".GetDirectoryName());
     }
 
-    [TestMethod]
-    public async Task FileCopy()
-    {
-      var dest = UnitTestStatic.GetTestPath("xyz.txt");
-      try
-      {
-        var progress = new Progress<ProgressInfo>();
-
-        Assert.IsFalse(FileSystemUtils.FileExists(dest));
-        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
-          progress, UnitTestStatic.Token);
-        Assert.IsTrue(FileSystemUtils.FileExists(dest));
-
-
-        // Copy again, the old file should be overwritten
-        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
-          progress, UnitTestStatic.Token);
-        Assert.IsTrue(FileSystemUtils.FileExists(dest));
-        Assert.AreEqual(new FileInfo(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")).Length,
-          new FileInfo(dest).Length);
-      }
-      finally
-      {
-        FileSystemUtils.FileDelete(dest);
-      }
-    }
+ 
 
     [TestMethod]
     [Ignore("PathTooLongException when compiled in .net standard")]

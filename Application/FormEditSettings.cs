@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,13 +11,14 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -55,6 +56,7 @@ namespace CsvTools
       if (setting != null)
         quotingControl.CsvFile = setting;
       buttonFileInfo.Enabled = setting != null;
+      
 
       m_Warnings = warnings;
 #if !SupportPGP
@@ -76,6 +78,24 @@ This is a very risky option, in some cases rows might be lost.");
         @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
       m_NumRecords = numRecords;
+      
+
+      var assembly = Assembly.GetExecutingAssembly();
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      labelExecutable.Text= Environment.ProcessPath;
+#else
+      labelExecutable.Text= assembly.Location;
+#endif
+
+      labelVersion.Text =   assembly.GetName().Version!.ToString();
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        labelFrameWork.Text = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#else
+      labelFrameWork.Text = Environment.Version.ToString();
+#endif
+      linkLabelRepository.Links.Add(0, linkLabelRepository.Text.Length, "https://github.com/RNoeldner/CSVQuickViewer");
+      linkLabelGnu.Links.Add(0, linkLabelGnu.Text.Length, "http://www.gnu.org/licenses/lgpl-3.0.html");
     }
 
     public CsvFileDummy? FileSetting { get; private set; }
@@ -160,12 +180,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonEscapeSequence.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader =
@@ -184,7 +204,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonGuessCP.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
@@ -204,12 +224,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
@@ -230,12 +250,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonGuessHeader.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
@@ -258,12 +278,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonGuessLineComment.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
@@ -281,12 +301,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
@@ -327,12 +347,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonSkipLine.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader =
@@ -405,7 +425,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       quotingControlWrite.CsvFile = m_ViewSettings.WriteSetting;
       quotingControlWrite.IsWriteSetting = true;
-
+      
       UpdateUI();
     }
 
@@ -431,12 +451,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         StoreFromUI(FileSetting);
         await buttonNewLine.RunWithHourglassAsync(async () =>
         {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows,
@@ -625,6 +645,30 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           MessageBoxIcon.Information,
           MessageBoxDefaultButton.Button1, 120D);
       });
+    }
+
+    private void LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+      try
+      {
+        Process.Start(new ProcessStartInfo { FileName = e.Link!.LinkData!.ToString(), UseShellExecute = true });
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
+    }
+
+    private void pictureBox_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        Process.Start(new ProcessStartInfo { FileName = "https://sourceforge.net/projects/CSVQuickViewer/files", UseShellExecute = true });
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
   }
 }

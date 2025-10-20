@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 // ReSharper disable once RedundantNullableDirective
 
 #nullable enable
@@ -46,7 +45,7 @@ namespace CsvTools
     /// <param name="initialColumn">The initial column to use</param>
     /// <param name="htmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
-    public FormUniqueDisplay(in DataTable dataTable, in DataRow[] dataRows, in string? initialColumn,
+    public FormUniqueDisplay(in DataTable dataTable, in DataRow[] dataRows, string? initialColumn,
       in HtmlStyle htmlStyle)
     {
       if (htmlStyle is null)

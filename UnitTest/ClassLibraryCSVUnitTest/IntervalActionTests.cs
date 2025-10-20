@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
@@ -25,7 +24,6 @@ namespace CsvTools.Tests
     public void Defaults()
     {
       var test = new IntervalAction();
-      Assert.IsTrue(test.NotifyAfterSeconds > 0 && test.NotifyAfterSeconds < 1);
 
       var test2 = IntervalAction.ForProgress(null);
       Assert.IsNull(test2);
@@ -38,16 +36,12 @@ namespace CsvTools.Tests
     public void IntervalActionError()
     {
       var intervalAction = new IntervalAction();
-      intervalAction.Invoke(()=> throw new ObjectDisposedException("dummy"));
-      intervalAction.Invoke((t)=> throw new ObjectDisposedException(t), "test");
+      intervalAction.Invoke(() => throw new ObjectDisposedException("dummy"));
     }
 
     [TestMethod]
     public void OtherInvokeMethods()
     {
-      new IntervalAction().Invoke((num1,num2,num3) => { }, 669, 700, 701);
-      new IntervalAction().Invoke((num1) => { }, 701);
-      new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test1", 1.8f);
       new IntervalAction().Invoke(new Progress<ProgressInfo>(), "Test2", 100);
     }
 
@@ -63,12 +57,12 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, called);
 
       // rapid call should be swallowed
-      intervalAction.Invoke(num => { setValue = num; called++; }, 669);
+      intervalAction.Invoke(() => { setValue = 669; called++; });
       Assert.AreEqual(666L, setValue);
       Assert.AreEqual(1, called);
 
       // wait for some time
-      await Task.Delay(TimeSpan.FromSeconds(intervalAction.NotifyAfterSeconds).Milliseconds + 100);
+      await Task.Delay(TimeSpan.FromSeconds(.3d).Milliseconds);
 
       // now the value should be set
       intervalAction.Invoke(() => { setValue = 669; called++; });

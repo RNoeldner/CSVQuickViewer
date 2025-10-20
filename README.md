@@ -1,38 +1,50 @@
 # CSVQuickViewer
 
-CSVQuickViewer is a Windows application to view delimited text or JSON files. JSON files are flattened to fit in tabular format. It’s designed to be robust and easy to use.
+CSVQuickViewer is a Windows application for viewing delimited text and JSON files. JSON files are automatically flattened for tabular display. The application is designed to be robust, easy to use, and does not require administrative rights for installation.
 
-The application has an installer that does not require administrative rights.
+## Quick Start
 
+1. **Download** the latest version from [SourceForge](https://sourceforge.net/projects/csvquickviewer/files/latest/download).
+2. **Install** by running the installer (no admin rights required).
+3. **Launch** CSVQuickViewer and open a delimited text or JSON file.
+4. **Explore** features such as filtering, sorting, column configuration, and exporting data.
 ## Features
 
 ### File Parsing
-* Detects appropriate Code Page (he .NET 7 version does not support as many code pages; currently some are rarely used, but supprted through 3rd party libarraies).  
-* Determines field delimiter & record separator.  
-* Detects quoting characters, escape characters, and comment text.  
-* Skips header/comment rows automatically.  
-* Configurable quote handling, including context-sensitive quoting.  
-* Issues warnings for problematic characters (non-breaking spaces, unknown text placeholders, quotes, delimiters).
+- **Automatic Code Page Detection:** Detects the correct encoding for most files. (.NET 7 version supports fewer code pages; rare ones are handled via third-party libraries.)
+- **Delimiter & Separator Detection:** Determines field delimiter and record separator automatically.
+- **Quoting & Escaping:** Detects quoting characters, escape characters, and comment text. Configurable quote handling, including context-sensitive quoting.
+- **Header/Comment Skipping:** Skips header and comment rows automatically.
+- **Warnings:** Issues warnings for problematic characters (e.g., non-breaking spaces, unknown placeholders, quotes, delimiters).
 
 ### Data Handling
 * Supports typed values (switch between typed and text values in UI).  
-* Handles 386 date formats.  
-* Displays text files, including compressed formats (Zip, GZip).  
-* Issues warnings for unparseable column content.  
-* Combines date and time columns with timezone conversion.  
-* Auto realignment of columns in case of delimiter or linefeed issues (configurable).
+### Data Handling
+- **Typed/Text Values:** Switch between typed and text values in the UI.
+- **Date Format Support:** Handles 386 date formats and combines date/time columns with timezone conversion.
+- **Compressed Files:** Displays text files, including Zip and GZip formats.
+- **Column Realignment:** Auto realignment of columns if delimiter or linefeed issues are detected (configurable).
+- **Warnings for Unparseable Content:** Highlights columns with problematic or unparseable data.
 
 ### User Interface
 * Filter, sort, hide, and reorder columns.  
-* Save and load column configuration.  
-* Incremental search and highlighting (slower than filtering).  
-* Displays column length, hierarchy, duplicate/unique values, and warnings.  
-* HTML copy/paste to Excel/Word, retaining value types.  
-* Export filtered data to delimited text files.
+### User Interface
+- **Column Operations:** Filter, sort, hide, and reorder columns. Save/load column configuration.
+- **Search & Highlight:** Incremental search and highlighting (note: slower than filtering).
+- **Column Insights:** Displays column length, hierarchy, duplicate/unique values, and warnings.
+- **HTML Copy/Paste:** Copy/paste to Excel/Word with value types preserved.
+- **Export:** Export filtered data to delimited text files.
+
+## Download
+## Project Structure
+
+- `Application/` – WinForms UI, main entry point, and user interaction logic.
+- `Library/ClassLibraryCSV/` – Core parsing, data transformation, encoding detection, and utility classes.
+- `UnitTest/` – Unit tests for core library and UI logic.
+- `Setup/` – Installer scripts and portable builds.
 
 ## Download
 [Download Latest Version from SourceForge](https://sourceforge.net/projects/csvquickviewer/files/latest/download)
-
 ## Dependencies
 This application uses several NuGet libraries:  
 * [Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier) – Improved stack trace display  

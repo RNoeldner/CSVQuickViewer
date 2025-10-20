@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using System;
@@ -178,7 +177,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
+    private void BuildTreeData(string parentCol, string idCol, string? display1, string? display2,
       IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
     {
       DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ??

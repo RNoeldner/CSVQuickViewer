@@ -1,3 +1,16 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -76,6 +89,21 @@ namespace CsvTools.Tests
       {
         m_Stream.Write(buffer, offset, count);
       }
+    }
+
+
+    [TestMethod]
+    public void ImprovedTextReaderToBeginning()
+    {
+      using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite);
+      using var test = new ImprovedTextReader(stream);
+      var line1 = "ID\tTitleEN\tLanguages\ttitleLocal\tStatus\tprovider\tweblink\tversion\tdescriptionEN\tdescriptionLocal\tsubject\tAcmeVersion\tproviderLevel0\tproviderLevel1\tcontentOwner\tavailability\teffectiveDate\tretrainingRequired\tclassroomTraining\tinterestTracking\twaitlistAllowed\ttimestamp";
+      Assert.AreEqual(line1, test.ReadLine());
+      var line2 = test.ReadLine();
+      test.ToBeginning();
+
+      Assert.AreEqual(line1, test.ReadLine());
+      Assert.AreEqual(line2, test.ReadLine());
     }
 
     [TestMethod]

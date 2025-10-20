@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using Newtonsoft.Json;
@@ -62,7 +61,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="style">The style.</param>
     [JsonConstructor]
-    public HtmlStyle(in string? style)
+    public HtmlStyle(string? style)
     {
       m_Style = style ?? cDefaultStyle;
     }
@@ -355,7 +354,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text possibly containing HTML codes.</param>
     /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
-    public static string TextToHtmlEncode(in string text)
+    public static string TextToHtmlEncode(string text)
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
 
@@ -371,7 +370,7 @@ namespace CsvTools
     /// <param name="text"></param>
     /// <returns>The text without HTML Encoding</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static string HtmlDecode(in string text)
+    public static string HtmlDecode(string text)
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
 

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -19,6 +18,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -70,31 +70,31 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false);
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false, hasFieldHeader: true);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(10, test.FieldCount);
       await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(2, test.StartLineNumber);
-      Assert.AreEqual(3, test.EndLineNumber);
-      Assert.AreEqual(1, test.RecordNumber);
+      Assert.AreEqual(2, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(3, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(1, test.RecordNumber, "RecordNumber");
       Assert.AreEqual("-22477", test.GetString(1));
       await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(3, test.StartLineNumber);
-      Assert.AreEqual(4, test.EndLineNumber);
-      Assert.AreEqual(2, test.RecordNumber);
+      Assert.AreEqual(3, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(4, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(2, test.RecordNumber, "RecordNumber");
       Assert.AreEqual("22435", test.GetString(1));
       for (var line = 3; line < 25; line++)
         await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("-21928", test.GetString(1));
-      Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"));
-      Assert.AreEqual(25, test.StartLineNumber);
-      Assert.AreEqual(27, test.EndLineNumber);
-      Assert.AreEqual(24, test.RecordNumber);
+      Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"), $"Line {test.StartLineNumber}-{test.EndLineNumber} EndsWith(\"twpapulfffy\") - {test.GetString(4)}");
+      Assert.AreEqual(25, test.StartLineNumber, "StartLineNumber");
+      Assert.AreEqual(27, test.EndLineNumber, "EndLineNumber");
+      Assert.AreEqual(24, test.RecordNumber, "RecordNumber");
 
       for (var line = 25; line < 47; line++)
         await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(49, test.EndLineNumber);
+      Assert.AreEqual(49, test.EndLineNumber, "EndLineNumber");
       Assert.AreEqual("4390", test.GetString(1));
 
       Assert.AreEqual(46, test.RecordNumber);
@@ -103,7 +103,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BadIssues.csv"),
+      using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite);
+
+      using var test = new CsvFileReader(stream: stream,
         columnDefinition: new[]
         {
           new Column("effectiveDate", new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")),
@@ -115,84 +117,75 @@ namespace CsvTools.Tests
         }, treatLinefeedAsSpace: true, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t',
         fieldQualifierChar: char.MinValue);
       var warningList = new RowErrorCollection();
+
       await test.OpenAsync(UnitTestStatic.Token);
       test.Warning += warningList.Add;
       // need 22 columns
       Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
+      Assert.AreEqual(0, warningList.CountRows, "Warnings");
 
-      // This should work
-      await test.ReadAsync(UnitTestStatic.Token);
-      Assert.AreEqual(0, warningList.CountRows);
-
+      // This should work 
+      test.Read();
       Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
 
       // There are more columns
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual(1, warningList.CountRows);
       Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
       Assert.AreEqual(3, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_600.364", test.GetValue(0));
       Assert.AreEqual(4, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
       Assert.AreEqual(5, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
       Assert.AreEqual(2, warningList.CountRows);
       Assert.AreEqual(6, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
       Assert.AreEqual(7, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
       Assert.AreEqual(8, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040002982", test.GetValue(0));
       // Assert.AreEqual(3, warningList.CountRows);
       Assert.AreEqual(9, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040002913", test.GetValue(0));
       Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
       // Assert.AreEqual(4, warningList.CountRows);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1003001000427", test.GetValue(0));
       Assert.AreEqual(12, test.StartLineNumber);
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1008017000611", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1004040000268", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1008011000554", test.GetValue(0));
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1003001000936", test.GetValue(0));
 
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
       Assert.AreEqual("doc_1200000124471", test.GetValue(0));
 
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1200000134529", test.GetValue(0));
-
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1004040003504", test.GetValue(0));
-
-      //await test.ReadAsync(UnitTestStatic.Token);
-      //Assert.AreEqual("doc_1200000016068", test.GetValue(0));
-
-      await test.ReadAsync(UnitTestStatic.Token);
+      test.Read();
     }
 
     [TestMethod]
@@ -389,13 +382,12 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task GetDateTimeTestAsync()
     {
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TestFile.txt"), fieldDelimiterChar: '\t', columnDefinition: new[] { new Column("Title", new ValueFormat(DataTypeEnum.DateTime)) });
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
-      _ = test.GetDateTime(1);
+      Assert.Throws<FormatException>(() => test.GetDateTime(1));
     }
 
     [TestMethod]
@@ -486,8 +478,10 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
       var row = 0;
       while (await test.ReadAsync(UnitTestStatic.Token))
+      {
         row++;
-      Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
+        Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
+      }
       Assert.AreEqual(7, row, "Read");
     }
 
@@ -581,7 +575,9 @@ namespace CsvTools.Tests
       Assert.AreEqual(3, test.GetOrdinal("Score"));
       Assert.AreEqual(4, test.GetOrdinal("Proficiency"));
       Assert.AreEqual(5, test.GetOrdinal("IsNativeLang"));
-      Assert.AreEqual(-1, test.GetOrdinal("Not Existing"));
+
+      Assert.Throws<IndexOutOfRangeException>(() => test.GetOrdinal("Not Existing"));
+      Assert.Throws<ArgumentException>(() => test.GetOrdinal(""));
     }
 
     [TestMethod]
@@ -709,7 +705,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetBooleanErrorAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -732,7 +727,7 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      _ = test.GetBoolean(1);
+      Assert.Throws<FormatException>(() => _ = test.GetBoolean(1));
     }
 
     [TestMethod]
@@ -763,7 +758,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeErrorAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -786,7 +780,8 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetDateTime(1);
+      Assert.Throws<FormatException>(() => test.GetDateTime(1));
+
     }
 
     [TestMethod]
@@ -816,7 +811,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32ErrorAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -839,7 +833,7 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetInt32(1);
+      Assert.Throws<FormatException>(() => test.GetInt32(1));
     }
 
     [TestMethod]
@@ -869,7 +863,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalErrorAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -892,11 +885,10 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetDecimal(1);
+      Assert.Throws<FormatException>(() => test.GetDecimal(1));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32NullAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -920,7 +912,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetInt32(4);
+      Assert.Throws<FormatException>(() => test.GetInt32(4));
     }
 
     [TestMethod]
@@ -950,7 +942,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetDataAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -972,9 +963,7 @@ namespace CsvTools.Tests
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
-#pragma warning disable CS0618 // Typ oder Element ist veraltet
-      test.GetData(0);
-#pragma warning restore CS0618 // Typ oder Element ist veraltet
+      Assert.Throws<NotImplementedException>(() => test.GetData(0));
     }
 
     [TestMethod]
@@ -1004,7 +993,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetFloatErrorAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -1027,11 +1015,11 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetFloat(1);
+      Assert.Throws<FormatException>(() => test.GetFloat(1));
+
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetGuidAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -1054,11 +1042,10 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetGuid(1);
+      Assert.Throws<FormatException>(() => test.GetGuid(1));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeNullAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -1083,11 +1070,10 @@ namespace CsvTools.Tests
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetDateTime(2);
+      Assert.Throws<FormatException>(() => test.GetDateTime(2));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeWrongTypeAsync()
     {
       var setting = GetDummyBasicCSV();
@@ -1110,11 +1096,10 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetDateTime(1);
+      Assert.Throws<FormatException>(() => test.GetDateTime(1));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalFormatException()
     {
       var setting = GetDummyBasicCSV();
@@ -1138,7 +1123,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetDecimal(4);
+      Assert.Throws<FormatException>(() => test.GetDecimal(4));
     }
 
     [TestMethod]
@@ -1168,7 +1153,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetByteFormat()
     {
       var setting = GetDummyBasicCSV();
@@ -1191,7 +1175,7 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual(1, test.GetByte(1));
+      Assert.Throws<FormatException>(() => test.GetByte(1));
     }
 
     [TestMethod]
@@ -1221,7 +1205,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDoubleFormat()
     {
       var setting = GetDummyBasicCSV();
@@ -1244,7 +1227,7 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual(1, test.GetDouble(1));
+      Assert.Throws<FormatException>(() => test.GetDouble(1));
     }
 
     [TestMethod]
@@ -1446,41 +1429,27 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt16Format()
     {
-      var exception = false;
-      try
-      {
-        var setting = GetDummyBasicCSV();
-        using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-          setting.HasFieldHeader,
-          setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
-          setting.FieldQualifierChar,
-          setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-          setting.ContextSensitiveQualifier,
-          setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-          setting.NewLinePlaceholder,
-          setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
-          setting.TreatLfAsSpace,
-          setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
-          setting.WarnDelimiterInValue, setting.WarnLineFeed,
-          setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-          setting.WarnEmptyTailingColumns,
-          setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-          setting.ConsecutiveEmptyRows,
-          setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
-        await test.OpenAsync(UnitTestStatic.Token);
-        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-        Assert.AreEqual(1, test.GetInt16(1));
-      }
-      catch (FormatException)
-      {
-        exception = true;
-      }
-      catch (Exception)
-      {
-        Assert.Fail("Wrong Exception Type");
-      }
-
-      Assert.IsTrue(exception, "No Exception thrown");
+      var setting = GetDummyBasicCSV();
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
+         setting.HasFieldHeader,
+         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
+         setting.FieldQualifierChar,
+         setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
+         setting.ContextSensitiveQualifier,
+         setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+         setting.NewLinePlaceholder,
+         setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
+         setting.TreatLfAsSpace,
+         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
+         setting.WarnDelimiterInValue, setting.WarnLineFeed,
+         setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+         setting.WarnEmptyTailingColumns,
+         setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+         setting.ConsecutiveEmptyRows,
+         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.Throws<FormatException>(() => test.GetInt16(1));
     }
 
     [TestMethod]
@@ -1512,41 +1481,27 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt64Error()
     {
-      var exception = false;
-      try
-      {
-        var setting = GetDummyBasicCSV();
-        using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-          setting.HasFieldHeader,
-          setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
-          setting.FieldQualifierChar,
-          setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-          setting.ContextSensitiveQualifier,
-          setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-          setting.NewLinePlaceholder,
-          setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
-          setting.TreatLfAsSpace,
-          setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
-          setting.WarnDelimiterInValue, setting.WarnLineFeed,
-          setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-          setting.WarnEmptyTailingColumns,
-          setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-          setting.ConsecutiveEmptyRows,
-          setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
-        await test.OpenAsync(UnitTestStatic.Token);
-        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-        Assert.AreEqual(1, test.GetInt64(1));
-      }
-      catch (FormatException)
-      {
-        exception = true;
-      }
-      catch (Exception)
-      {
-        Assert.Fail("Wrong Exception Type");
-      }
-
-      Assert.IsTrue(exception, "No Exception thrown");
+      var setting = GetDummyBasicCSV();
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
+        setting.HasFieldHeader,
+        setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
+        setting.FieldQualifierChar,
+        setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier,
+        setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+        setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
+        setting.TreatLfAsSpace,
+        setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
+        setting.WarnDelimiterInValue, setting.WarnLineFeed,
+        setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns,
+        setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+        setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.Throws<FormatException>(() => test.GetInt64(1));
     }
 
     [TestMethod]
@@ -1596,31 +1551,9 @@ namespace CsvTools.Tests
         setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
-      var exception = false;
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
-      try
-      {
-        test.GetString(666);
-      }
-      catch (IndexOutOfRangeException)
-      {
-        exception = true;
-      }
-      catch (ArgumentOutOfRangeException)
-      {
-        exception = true;
-      }
-      catch (InvalidOperationException)
-      {
-        exception = true;
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail($"Wrong Exception Type raised was {ex.GetType()}");
-      }
-
-      Assert.IsTrue(exception, "No Exception thrown");
+      Assert.Throws<IndexOutOfRangeException>(() => test.GetString(666));
     }
 
     [TestMethod]

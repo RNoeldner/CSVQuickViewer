@@ -19,23 +19,15 @@
 		<Compile Remove="WinAppLoggingTests.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove=".runsettings" />
-	</ItemGroup>
-	<ItemGroup>
 		<Compile Include="..\..\Application\CsvFileDummy.cs" Link="CsvFileDummy.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Content Include=".runsettings">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="MSTest" Version="3.10.4" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.10.4" />
+		<PackageReference Include="MSTest" Version="4.0.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.0.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />

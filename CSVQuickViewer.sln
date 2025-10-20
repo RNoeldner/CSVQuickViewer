@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32421.90
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11012.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{DC98E363-87E9-48CD-9C7A-A7BDEC8D73E1}"
 EndProject
@@ -27,12 +27,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Executable", "Executable", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoSetupFramework", "Setup\InnoSetupFramework\InnoSetupFramework.csproj", "{56C440C9-3DC0-41CC-BFEC-12A3BA3A6182}"
 	ProjectSection(ProjectDependencies) = postProject
+		{45743EE3-F753-42FC-A721-99CCB44B8A7A} = {45743EE3-F753-42FC-A721-99CCB44B8A7A}
+		{B0E0095C-2E55-4067-8444-C88213B98F37} = {B0E0095C-2E55-4067-8444-C88213B98F37}
 		{C07F9282-7816-4B22-8B1E-F7AA0812ED67} = {C07F9282-7816-4B22-8B1E-F7AA0812ED67}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoSetupStandard", "Setup\InnoSetupStandard\InnoSetupStandard.csproj", "{932FE2B6-F0E7-40B4-8785-950E38FE3F2F}"
 	ProjectSection(ProjectDependencies) = postProject
+		{45743EE3-F753-42FC-A721-99CCB44B8A7A} = {45743EE3-F753-42FC-A721-99CCB44B8A7A}
+		{B0E0095C-2E55-4067-8444-C88213B98F37} = {B0E0095C-2E55-4067-8444-C88213B98F37}
 		{C07F9282-7816-4B22-8B1E-F7AA0812ED67} = {C07F9282-7816-4B22-8B1E-F7AA0812ED67}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F33DF6DD-EC4C-4288-820E-FD552390B435}"
+	ProjectSection(SolutionItems) = preProject
+		CONTRIBUTING.md = CONTRIBUTING.md
+		fccconfig.json = fccconfig.json
+		README.md = README.md
+		sgKey.snk = sgKey.snk
 	EndProjectSection
 EndProject
 Global
@@ -68,6 +80,7 @@ Global
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Debug|x86.Build.0 = Debug|Any CPU
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{333C01D0-3A86-451A-AB26-73C395F83600}.Release|Any CPU.Build.0 = Release|Any CPU
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Release|ARM.ActiveCfg = Release|Any CPU
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Release|ARM.Build.0 = Release|Any CPU
 		{333C01D0-3A86-451A-AB26-73C395F83600}.Release|ARM64.ActiveCfg = Release|Any CPU

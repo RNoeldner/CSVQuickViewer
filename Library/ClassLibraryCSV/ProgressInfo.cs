@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System;
 
 namespace CsvTools
@@ -25,7 +24,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
     /// </summary>
     /// <param name="text">The informational text.</param>
-    public ProgressInfo(in string text)
+    public ProgressInfo(string text)
     {
       Text = text;
       Value = -1;
@@ -36,28 +35,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The informational text.</param>
     /// <param name="value">The progress value.</param>
-    public ProgressInfo(in string text, long value)
+    public ProgressInfo(string text, long value)
     {
       Text = text;
       Value = value;
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
-    /// </summary>
-    /// <param name="text">The informational text.</param>
-    /// <param name="value">The progress value.</param>
-    public ProgressInfo(in string text, float value)
-    {
-      Text = text;
-      try
-      {
-        Value = Convert.ToInt64(value);
-      }
-      catch (OverflowException)
-      {
-        // ignore
-      }
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net472;net8.0</TargetFrameworks>
+		<TargetFrameworks>net472</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
@@ -28,30 +28,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove=".runsettings" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
-	  <None Remove="C:\Users\rnoldner\.nuget\packages\mstest.testadapter\3.1.1\build\net462\\Microsoft.TestPlatform.AdapterUtilities.dll" />
-	</ItemGroup>
-	
-	<ItemGroup>
 		<Compile Include="..\..\Application\CsvFileDummy.cs" Link="CsvFileDummy.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
 		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Content Include=".runsettings">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-	
-	<ItemGroup>
 		<PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-		<PackageReference Include="MSTest" Version="3.10.4" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.10.4" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.10.4" />		
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+		<PackageReference Include="MSTest" Version="4.0.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.0.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.0.1" />		
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>
 	
@@ -64,6 +51,7 @@
 	<ItemGroup>
 	  <Folder Include="Database\" />
 	  <Folder Include="FileSetting\" />
+	  <Folder Include="FileWriter\" />
 	  <Folder Include="Mutable\" />
 	  <Folder Include="TestFiles\Serialization\" />
 	</ItemGroup>

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -74,29 +74,29 @@ namespace CsvTools
     /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
     /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
     public CsvFileWriter(
-      in string fullPath,
+      string fullPath,
       bool hasFieldHeader = true,
       in ValueFormat? valueFormat = null,
       int codePageId = 65001,
       bool byteOrderMark = true,
       in IEnumerable<Column>? columnDefinition = null,
-      in string? identifierInContainer = "",
-      in string? header = "",
-      in string? footer = "",
-      in string fileSettingDisplay = "",
+      string? identifierInContainer = "",
+      string? header = "",
+      string? footer = "",
+      string fileSettingDisplay = "",
       in RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
       char fieldDelimiterChar = ',',
       char fieldQualifierChar = '"',
       char escapePrefixChar = '\0',
-      in string newLinePlaceholder = "",
-      in string delimiterPlaceholder = "",
-      in string qualifierPlaceholder = "",
+      string newLinePlaceholder = "",
+      string delimiterPlaceholder = "",
+      string qualifierPlaceholder = "",
       bool qualifyAlways = false,
       bool qualifyOnlyIfNeeded = true,
       bool fixedLength = false,
       in TimeZoneChangeDelegate? timeZoneAdjust = null,
-      in string sourceTimeZone = "",
-      in string publicKey = "",
+      string sourceTimeZone = "",
+      string publicKey = "",
       bool unencrypted = false
     )
       : base(
@@ -251,7 +251,7 @@ namespace CsvTools
         // and store the possibly remaining data
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
       }
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
 #else
       await writer.FlushAsync().ConfigureAwait(false);

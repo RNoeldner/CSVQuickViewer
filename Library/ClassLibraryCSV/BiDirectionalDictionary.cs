@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -16,86 +16,86 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
 
 namespace CsvTools
 {
-
   /// <summary>
   /// A bidirectional dictionary that maps keys to values and values to keys for fast lookups in both directions.
-  /// Inherits from <see cref="Dictionary{TKey, TValue}" /> and adds reverse lookups.
   /// The keys and values cannot be null. Keys and Values are unique.
   /// </summary>
-  /// <typeparam name="TKey"></typeparam>
-  /// <typeparam name="TValue"></typeparam>
-  /// <remarks>Adding or Removing is not thread safe</remarks>
+  /// <typeparam name="TKey">The type of the keys, must be non-null and unique.</typeparam>
+  /// <typeparam name="TValue">The type of the values, must be non-null and unique.</typeparam>
+  /// <remarks>This collection is not thread-safe.</remarks>
   [DebuggerDisplay("Count = {Count}")]
-  [DefaultMember("Item")]
   public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
-    where TKey : notnull where TValue : notnull
+    where TKey : notnull
+    where TValue : notnull
   {
-
-
-    /// <summary>
-    /// Dictionary mapping values to keys for fast lookups of keys from values.
-    /// </summary>
-    private readonly Dictionary<TValue, TKey> m_SecondToFirst;
+        private readonly Dictionary<TValue, TKey> m_SecondToFirst;
 
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.BiDirectionalDictionary`2" /> class.
     /// </summary>
-    public BiDirectionalDictionary() => m_SecondToFirst = new Dictionary<TValue, TKey>();
+    public BiDirectionalDictionary()
+    {      
+      m_SecondToFirst = new Dictionary<TValue, TKey>();
+    }
 
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.BiDirectionalDictionary`2" /> class.
     /// </summary>
     /// <param name="capacity">Initial capacity.</param>
-    public BiDirectionalDictionary(int capacity)
-      : base(capacity) =>
+    public BiDirectionalDictionary(int capacity) : base(capacity)
+    {      
       m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
-
-    /// <inheritdoc />
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="T:CsvTools.BiDirectionalDictionary`2" /> class.
-    /// </summary>
-    /// <param name="dictionary">
-    ///   A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copy to the new class
-    /// </param>
-    /// <exception cref="T:System.ArgumentException">Duplicate key - key or Duplicate value - value</exception>
-    public BiDirectionalDictionary(in IDictionary<TKey, TValue>? dictionary)
-    {
-      m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
-      if (dictionary is null) return;
-      foreach (var keyValuePair in dictionary)
-        Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
-    /// <remarks>This is not thread safe</remarks>
-    public void Add(in TKey key, in TValue value)
+    /// <summary>
+    /// Dictionary mapping values to keys for fast lookups of keys from values.
+    /// </summary>
+    public BiDirectionalDictionary(IDictionary<TKey, TValue>? dictionary) 
+    {      
+      m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
+      if (dictionary is null) return;
+      foreach (var kv in dictionary)
+        Add(kv.Key, kv.Value);
+    }
+
+
+
+    /// <summary>
+    /// Adds a new key-value pair, ensuring uniqueness in both directions.
+    /// </summary>
+    /// <exception cref="ArgumentException">If either key or value already exists.</exception>
+    public new void Add(TKey key, TValue value)
     {
-      if (ContainsKey(key))
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      if (!base.TryAdd(key, value))
+        throw new ArgumentException("Duplicate key", nameof(key));
+      if (!m_SecondToFirst.TryAdd(value, key))
+      {
+        base.Remove(key);
+        throw new ArgumentException("Duplicate value", nameof(value));
+      }
+#else
+      if (base.ContainsKey(key))
         throw new ArgumentException("Duplicate key", nameof(key));
       if (m_SecondToFirst.ContainsKey(value))
         throw new ArgumentException("Duplicate value", nameof(value));
 
       base.Add(key, value);
       m_SecondToFirst.Add(value, key);
+#endif
     }
 
-    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
-    public new void Remove(TKey key)
-    {
-      m_SecondToFirst.Remove(base[key]);
-      base.Remove(key);
-    }
-
-    /// <inheritdoc cref="Dictionary{TKey,TValue}" />
+    /// <summary>
+    /// Clears the dictionary.
+    /// </summary>
     public new void Clear()
     {
       m_SecondToFirst.Clear();
@@ -103,41 +103,55 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Reverse lookup. Throws an exception if value is not found
+    /// Reverse lookup by value. Throws if not found.
     /// </summary>
-    /// <param name="value">the value to search for</param>
-    /// <returns>The key corresponding to value</returns>
-    public TKey GetByValue(in TValue value)
+    /// <exception cref="KeyNotFoundException">If value is not in the dictionary.</exception>
+    public TKey GetByValue(TValue value)
     {
       if (!m_SecondToFirst.TryGetValue(value, out var key))
-        throw new ArgumentException(nameof(value));
-
+        throw new KeyNotFoundException($"The value '{value}' was not found.");
       return key;
     }
 
     /// <summary>
-    ///   Tries to add the pair to the dictionary. Returns false if element is already in the dictionary
+    /// Removes a key and its value.
     /// </summary>
-    /// <param name="key">The key value</param>
-    /// <param name="value">The value</param>
-    /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    /// <remarks>This is not thread safe</remarks>
-    public bool TryAdd(in TKey key, in TValue value)
+    public new bool Remove(TKey key)
     {
-      if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
+      if (!TryGetValue(key, out var value))
         return false;
-      base.Add(key, value);
-      m_SecondToFirst.Add(value, key);
+      base.Remove(key);
+      m_SecondToFirst.Remove(value);
       return true;
     }
 
     /// <summary>
-    ///   Reverse lookup. Returns false if value is not found.
+    /// Attempts to add a pair, returns false if key or value already exists.
     /// </summary>
-    /// <param name="value">the key to search for</param>
-    /// <param name="key">the corresponding value</param>
-    /// <returns>true if value is in the dictionary, false otherwise</returns>
-    public bool TryGetByValue(in TValue value,
+    public new bool TryAdd(TKey key, TValue value)
+    {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      if (!base.TryAdd(key, value))
+        return false;
+      if (!m_SecondToFirst.TryAdd(value, key))
+      {
+        base.Remove(key);
+        return false;
+      }
+      return true;
+#else
+      if (base.ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
+        return false;
+      base.Add(key, value);
+      m_SecondToFirst.Add(value, key);
+      return true;
+#endif
+    }
+    /// <summary>
+    /// Reverse lookup by value. Returns false if not found.
+    /// </summary>
+    public bool TryGetByValue(
+      TValue value,
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       [MaybeNullWhen(false)]
 #endif

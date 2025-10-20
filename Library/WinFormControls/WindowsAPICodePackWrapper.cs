@@ -1,3 +1,16 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 #nullable enable
 
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -39,7 +52,7 @@ namespace CsvTools
       }
     }
 
-    public static string? Folder(in string initialDirectory, in string title)
+    public static string? Folder(string initialDirectory, string title)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -63,7 +76,7 @@ namespace CsvTools
       return null;
     }
 
-    private static void SetFilter(in string filter, CommonFileDialogFilterCollection col)
+    private static void SetFilter(string filter, CommonFileDialogFilterCollection col)
     {
       var parts = filter.Split('|');
       if (parts.Length > 1)
@@ -77,8 +90,8 @@ namespace CsvTools
 
     public static bool IsDialogOpen { get; private set; }
 
-    public static string? Open(in string initialDirectory, in string title, in string filter,
-      in string? preselectFileName)
+    public static string? Open(string initialDirectory, string title, string filter,
+      string? preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -136,9 +149,9 @@ namespace CsvTools
       return null;
     }
 
-    public static string? Save(in string initialDirectory, in string title, in string filter,
-      in string defaultExt, bool overwritePrompt = true,
-      in string? preselectFileName = null)
+    public static string? Save(string initialDirectory, string title, string filter,
+      string defaultExt, bool overwritePrompt = true,
+      string? preselectFileName = null)
     {
       Retry:
       if (m_CommonFileDialogSupported)

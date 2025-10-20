@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -68,15 +68,46 @@ namespace CsvTools
     public string IdentifierInContainer;
 
     /// <summary>
-    ///   Get a new SourceAccess 
+    /// Initializes a new instance of the <see cref="SourceAccess"/> class,
+    /// encapsulating all parameters required to open a source file for reading or writing.
     /// </summary>
-    /// <param name="fileName">Name of the file</param>
-    /// <param name="isReading"><c>true</c> if the files is for reading</param>
-    /// <param name="passPhrase">Known pass phrase for Zip or PGP file</param>
-    /// <param name="keepEncrypted"></param>
-    /// <param name="pgpKey">Private key when reading pgp encrypted data or public key when writing pgp file</param>
-    /// <remarks>If it's a PGP file, but no key is given GetKeyAndPassphraseForFile is called to retrieve the information</remarks>
-    public SourceAccess(in string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "")
+    /// <param name="fileName">
+    /// The full path to the file to be accessed. Must not be empty or whitespace.
+    /// </param>
+    /// <param name="isReading">
+    /// Indicates whether the file should be opened for reading (<c>true</c>) or writing (<c>false</c>).
+    /// </param>
+    /// <param name="passPhrase">
+    /// The optional passphrase used to decrypt password-protected ZIP or PGP files.
+    /// </param>
+    /// <param name="keepEncrypted">
+    /// If <c>true</c>, PGP-encrypted output will remain encrypted (no decryption performed before writing).
+    /// </param>
+    /// <param name="pgpKey">
+    /// When reading PGP-encrypted data, specifies the private key to use for decryption;
+    /// when writing, specifies the public key used for encryption.
+    /// </param>
+    /// <param name="identifierInContainer">
+    /// An optional identifier for a specific file within a container (e.g., ZIP entry name).
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// If the file is PGP-encrypted and no key or passphrase is provided,
+    /// <see cref="FunctionalDI.GetKeyAndPassphraseForFile"/> is invoked to retrieve them dynamically.
+    /// </para>
+    /// <para>
+    /// When <paramref name="keepEncrypted"/> is <c>true</c> for PGP output,
+    /// the target file will be created without removing the <c>.pgp</c> extension,
+    /// preserving the encrypted format.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="fileName"/> is null, empty, or whitespace.
+    /// </exception>
+    /// <exception cref="FileNotFoundException">
+    /// Thrown when <paramref name="isReading"/> is <c>true</c> and the specified file does not exist.
+    /// </exception>
+    public SourceAccess(string fileName, bool isReading = true, string passPhrase = "", bool keepEncrypted = false, string pgpKey = "", string identifierInContainer = "")
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -97,7 +128,7 @@ namespace CsvTools
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
       FileType = GetFileType(fileName);
-      IdentifierInContainer = string.Empty;
+      IdentifierInContainer = identifierInContainer;
       switch (FileType)
       {
         case FileTypeEnum.Zip when !isReading:
@@ -197,7 +228,7 @@ namespace CsvTools
       return stream;
     }
     
-    private static FileTypeEnum GetFileType(in string fileName)
+    private static FileTypeEnum GetFileType(string fileName)
     {
       if (fileName.AssumeGZip())
         return FileTypeEnum.GZip;

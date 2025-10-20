@@ -1,177 +1,121 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
-
-#nullable enable
-
+using CsvTools;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace CsvTools
+/// <summary>
+///   Class to throttle calls to actions, ensuring they are invoked only after a specified interval.
+/// </summary>
+/// <remarks>
+///   This class is <b>not thread-safe</b>. Using the same instance concurrently from multiple threads
+///   may cause actions to be invoked more or less frequently than intended.
+/// </remarks>
+public sealed class IntervalAction
 {
+  private DateTime m_LastNotification = DateTime.MinValue;
+  private TimeSpan m_NotifyAfter;
+
   /// <summary>
-  ///   Class to notify only after a given period of time
+  ///   Initializes a new instance of the <see cref="IntervalAction"/> class with a default
+  ///   notification interval of 0.25 seconds.
   /// </summary>
-  public sealed class IntervalAction
+  public IntervalAction()
+      : this(0.25d)
   {
-    private DateTime m_LastNotification = DateTime.MinValue;
+  }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="T:CsvTools.IntervalAction" /> class.
-    /// </summary>
-    /// <remarks>If no notification period is set 1/4 a second is assumed</remarks>
-    public IntervalAction()
-      : this(.25d)
-    {
-    }
-
-    /// <summary>Gets an IntervalAction for a Progress report</summary>
-    /// <param name="progress">The progress, in case its null, null is returned</param>
+  /// <summary>
+  ///   Factory method to create an <see cref="IntervalAction"/> for a progress reporter.
+  /// </summary>
+  /// <param name="progress">The progress reporter to use; returns null if <c>null</c>.</param>
+  /// <returns>An <see cref="IntervalAction"/> instance if <paramref name="progress"/> is not null; otherwise null.</returns>
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
 #endif
-    public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) =>
+  public static IntervalAction? ForProgress(IProgress<ProgressInfo>? progress) =>
       progress is null ? null : new IntervalAction();
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
-    /// </summary>
-    /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
-    public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="IntervalAction"/> class with a custom interval.
+  /// </summary>
+  /// <param name="notifyAfterSeconds">
+  ///   Minimum interval, in seconds, between invocations of the action.
+  /// </param>
+  public IntervalAction(double notifyAfterSeconds) => m_NotifyAfter = TimeSpan.FromSeconds(notifyAfterSeconds);
 
-    /// <summary>
-    /// Gets or sets the value after how many seconds the action should be invoked again
-    /// </summary>
-    /// <value>
-    /// The notify after seconds.
-    /// </value>
-    public double NotifyAfterSeconds { get; set; }
-
-    /// <summary>
-    ///   Invoke the given action if the set interval has passed
-    /// </summary>
-    /// <param name="action">the action to invoke</param>
-    public void Invoke(in Action action)
-    {
-      // do nothing if the timespan between invokes is not reached
-      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-        return;
-
-      m_LastNotification = DateTime.UtcNow;
-      try
-      {
-        action.Invoke();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
-      }
-    }
-
-    /// <summary>
-    ///   Invoke progress on given interval
-    /// </summary>
-    /// <param name="action">The action to be done</param>
-    /// <param name="number">The number parameter</param>
-    public void Invoke(in Action<long> action, long number)
-    {
-      // do nothing if the timespan between invokes is not reached
-      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-        return;
-
-      m_LastNotification = DateTime.UtcNow;
-      try
-      {
-        action.Invoke(number);
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "IntervalAction.Invoke {Error}", ex.Message);
-      }
-    }
-    
-    /// <summary>
-    ///   Invoke progress on given interval
-    /// </summary>
-    public void Invoke(in Action<long, long, long> action, long number1, long number2, long number3)
-    {
-      // do nothing if the timespan between invokes is not reached
-      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-        return;
-
-      m_LastNotification = DateTime.UtcNow;
-      try
-      {
-        action.Invoke(number1, number2, number3);
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "IntervalAction.Invoke {Error}", ex.Message);
-      }
-    }
-
-    /// <summary>
-    ///   Invoke progress on given interval
-    /// </summary>
-    public void Invoke(in Action<string> action, in string txt)
-    {
-      // do nothing if the timespan between invokes is not reached
-      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-        return;
-
-      m_LastNotification = DateTime.UtcNow;
-      try
-      {
-        action.Invoke(txt);
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "IntervalAction.Invoke(()=> {MethodInfo})", action.Method);
-      }
-    }
-
-    /// <summary>
-    ///   Invoke progress on given interval
-    /// </summary>
-    /// <param name="progress">The process display</param>
-    /// <param name="text">The text to display.</param>
-    /// <param name="value">The current progress value</param>
-    public void Invoke(IProgress<ProgressInfo> progress, string text, long value) =>
-      Invoke(() => progress.Report(new ProgressInfo(text, value)));
-
-    /// <summary>
-    ///   Invoke progress on given interval
-    /// </summary>
-    /// <param name="progress">The process display</param>
-    /// <param name="text">The text to display.</param>
-    /// <param name="value">The current progress value</param>
-    public void Invoke(IProgress<ProgressInfo> progress, string text, float value) =>
-      Invoke(() => progress.Report(new ProgressInfo(text, value)));
+  /// <summary>
+  ///   Sets the minimum interval, in seconds, between successive invocations.
+  /// </summary>
+  /// <value>The minimum interval in seconds.</value>
+  [Obsolete("Use constructor with interval instead")]
+  public double NotifyAfterSeconds
+  {
+    set => m_NotifyAfter = TimeSpan.FromSeconds(value);
   }
+
+  /// <summary>
+  ///   Invokes the specified action if the minimum interval has elapsed.
+  ///   Updates the last invocation timestamp on execution.
+  /// </summary>
+  /// <param name="action">The action to invoke.</param>
+  public void Invoke(Action action)
+  {
+    var now = DateTime.UtcNow;
+    if (now - m_LastNotification < m_NotifyAfter)
+      return;
+
+    m_LastNotification = now;
+    try
+    {
+      action();
+    }
+    catch (ObjectDisposedException) { }
+    catch (Exception ex)
+    {
+      Logger.Warning(ex, "IntervalAction.Invoke {Method} failed: {Message}", action.Method, ex.Message);
+    }
+  }
+
+  /// <summary>
+  ///   Asynchronously invokes the specified <see cref="Func{Task}"/> if the minimum interval has elapsed
+  ///   since the last invocation.
+  /// </summary>
+  /// <param name="asyncAction">The asynchronous action to invoke.</param>
+  /// <param name="cancellationToken">
+  ///   The cancellation token that can be passed to <paramref name="asyncAction"/> to 
+  ///   signal cancellation of the operation.
+  /// </param>
+  /// <remarks>
+  ///   Exceptions thrown by the action are logged but do not propagate.
+  ///   <see cref="ObjectDisposedException"/> is silently ignored.
+  /// </remarks>
+  public async Task InvokeAsync(Func<CancellationToken, Task> asyncAction, CancellationToken cancellationToken)
+  {
+    cancellationToken.ThrowIfCancellationRequested();
+
+    var now = DateTime.UtcNow;
+    if (now - m_LastNotification < m_NotifyAfter)
+      return;
+
+    m_LastNotification = now;
+    try
+    {
+      await asyncAction(cancellationToken).ConfigureAwait(false);
+    }
+    catch (ObjectDisposedException) { }
+    catch (Exception ex)
+    {
+      Logger.Warning(ex, "IntervalAction.InvokeAsync {Method} failed: {Message}", asyncAction.Method, ex.Message);
+    }
+  }
+
+  /// <summary>
+  ///   Reports progress using an <see cref="IProgress{ProgressInfo}"/> instance
+  ///   if the minimum interval has elapsed.
+  /// </summary>
+  /// <param name="progress">The progress reporter.</param>
+  /// <param name="text">The text description to report.</param>
+  /// <param name="value">The numeric progress value.</param>
+  public void Invoke(IProgress<ProgressInfo> progress, string text, long value)
+      => Invoke(() => progress.Report(new ProgressInfo(text, value)));
 }

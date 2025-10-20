@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
@@ -244,19 +243,9 @@ namespace CsvTools.Tests
       using (var file = new StreamWriter(fn))
       {
         await file.WriteLineAsync("Hello");
-        try
-        {
-          var writer = new CsvFileWriter(fn);
-          using var reader = new DataTableWrapper(dataTable);
-
-          await writer.WriteAsync(reader, UnitTestStatic.Token);
-
-          Assert.Fail("Exception not thrown");
-        }
-        catch (FileWriterException)
-        {
-        }
-
+        var writer = new CsvFileWriter(fn);
+        using var reader = new DataTableWrapper(dataTable);
+        await Assert.ThrowsAsync<FileWriterException>(() => writer.WriteAsync(reader, UnitTestStatic.Token));
         await file.WriteLineAsync("World");
       }
       FileSystemUtils.FileDelete(fn);

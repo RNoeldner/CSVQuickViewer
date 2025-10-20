@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
@@ -29,11 +28,11 @@ namespace CsvTools.Tests
     public void SearchText()
     {
       using var dt = UnitTestStaticData.RandomDataTable(1000);
-      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, ctrl =>
+      UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
       {
         ctrl.DataTable = dt;
         ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
-        ctrl.SearchText("212");
+        await ctrl.SearchTextAsync("212");
       });
     }
 

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using Newtonsoft.Json;
@@ -73,10 +72,7 @@ namespace CsvTools
         throw new ArgumentException("File name can not be empty", nameof(fileName));
 
       inspectionResult.FileName = fileName;
-
-      var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey);
-      if (fileName.AssumeZip() && !string.IsNullOrEmpty(identifierInContainer))
-        sourceAccess.IdentifierInContainer = identifierInContainer;
+      var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey, identifierInContainer: identifierInContainer);
 
       inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -205,59 +201,106 @@ namespace CsvTools
     /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
     public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows,
         CancellationToken cancellationToken)
-      // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
       => new ImprovedTextReader(stream,
         await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
     /// <summary>
-    ///   Guesses the code page from a stream.
+    /// Asynchronously inspects the given <see cref="Stream"/> to determine its most likely text encoding.
     /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="token">The token.</param>
-    /// <returns></returns>
+    /// <param name="stream">
+    /// The input <see cref="Stream"/> from which to read the initial bytes for encoding detection.
+    /// The stream must support reading.
+    /// </param>
+    /// <param name="token">
+    /// A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    ///   <item><description><c>codePage</c> – the detected encoding’s code page number.</description></item>
+    ///   <item><description><c>bom</c> – <c>true</c> if a byte-order mark (BOM) was detected; otherwise <c>false</c>.</description></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// The method reads up to 256 KB from the start of the stream (or less if the stream is smaller)
+    /// to identify the encoding using BOM or heuristic detection.
+    /// </para>
+    /// <para>
+    /// If the stream begins with a BOM, the corresponding encoding is returned immediately.
+    /// Otherwise, <see cref="EncodingHelper.DetectEncodingNoBom(byte[])"/> is used to guess
+    /// the most appropriate encoding, defaulting to UTF-8 for ASCII results.
+    /// </para>
+    /// <para>
+    /// The stream’s position is reset to the beginning if it supports seeking.
+    /// </para>
+    /// </remarks>
     public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
     {
-      // Read 256 kBytes
-      int maxlength = (stream is FileStream fs) ? fs.Length.ToInt() : 262144;
-      if (maxlength > 262144)
-        maxlength = 262144;
-      var buff = new byte[maxlength];
+      if (stream == null)
+        throw new ArgumentNullException(nameof(stream));
+      if (!stream.CanRead)
+        throw new ArgumentException("Stream must be readable.", nameof(stream));
 
-#pragma warning disable CA1835
-      var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
-#pragma warning restore CA1835
-      if (length >= 2)
+      // Determine max read length (up to 256 KB)
+      int maxLength = (stream is FileStream fs)
+          ? (int) Math.Min(fs.Length, 262_144)
+          : 262_144;
+
+      byte[] buffer = new byte[maxLength];
+
+      // Read initial bytes (up to buffer size)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), token).ConfigureAwait(false);
+#else
+      int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), token).ConfigureAwait(false);
+#endif
+
+      // Check for BOM-based encoding
+      if (bytesRead >= 2)
       {
-        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, Math.Min(4, length));
+        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buffer, Math.Min(4, bytesRead));
         if (byBom != null)
         {
-          try { Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(byBom, true)}"); } catch { }
+          try
+          {
+            Logger.Information($"Detected encoding by BOM: {EncodingHelper.GetEncodingName(byBom, true)}");
+          }
+          catch { /* ignore logging errors */ }
+
+          if (stream.CanSeek)
+            stream.Seek(0, SeekOrigin.Begin);
+
           return (byBom.CodePage, true);
         }
       }
 
-      var detected = EncodingHelper.DetectEncodingNoBom(buff);
+      // Read more for non-BOM detection if needed
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), token).ConfigureAwait(false);
+#else
+      int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, token).ConfigureAwait(false);
+#endif
+
+      int totalRead = bytesRead + additionalBytes;
+
+      // Detect encoding heuristically
+      var detected = EncodingHelper.DetectEncodingNoBom(buffer.AsSpan(0, totalRead).ToArray());
       if (detected.Equals(Encoding.ASCII))
         detected = Encoding.UTF8;
-      try { Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(detected, false)}"); } catch { }
+
+      try
+      {
+        Logger.Information($"Detected encoding (no BOM): {EncodingHelper.GetEncodingName(detected, false)}");
+      }
+      catch { /* ignore logging errors */ }
+
+      if (stream.CanSeek)
+        stream.Seek(0, SeekOrigin.Begin);
+
       return (detected.CodePage, false);
     }
 
-    /// <summary>
-    /// Get all ZipEntry that are files
-    /// </summary>
-    /// <param name="archive">the zip file</param>    
-    public static IEnumerable<ZipEntry> GetFilesInZip(this ZipFile archive)
-    {
-      // ReSharper disable once NotDisposedResource
-      var entryEnumerator = archive.GetEnumerator();
-      while (entryEnumerator.MoveNext())
-      {
-        var entry = entryEnumerator.Current as ZipEntry;
-        if (entry?.IsFile ?? false)
-          yield return entry;
-      }
-    }
 
     /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
     /// <param name="fileName">Name of the file.</param>
@@ -271,7 +314,7 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// <param name="selectFile">´Function to be called if a file needs to be picked</param>
+    /// <param name="selectFile">Function to be called if a file needs to be picked</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
     /// <param name="privateKey"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
@@ -333,8 +376,7 @@ namespace CsvTools
         }
 
         using var zipFile = new ZipFile(fileName2);
-
-        var filesInZip = zipFile.GetFilesInZip().OrderByDescending(x => x.Name.AssumeDelimited()).ThenByDescending(x => x.Size).Select(x => x.Name);
+        var filesInZip = ImprovedStream.SuitableZipEntries(zipFile).Select(x => x.Name);
         selectedFile = selectFile?.Invoke(filesInZip.ToList()) ?? filesInZip.FirstOrDefault();
         if (selectedFile is null)
           throw new FileNotFoundException("No suitable file found in the ZIP archive.");
@@ -729,9 +771,9 @@ CommentLine
           hasFieldHeader: inspectionResult.HasFieldHeader,
           columnDefinition: inspectionResult.Columns,
           trimmingOption: TrimmingOptionEnum.Unquoted,
-          fieldDelimiter: inspectionResult.FieldDelimiter,
-          fieldQualifier: inspectionResult.FieldQualifier,
-          escapeCharacter: inspectionResult.EscapePrefix,
+          fieldDelimiterChar: inspectionResult.FieldDelimiter,
+          fieldQualifierChar: inspectionResult.FieldQualifier,
+          escapeCharacterChar: inspectionResult.EscapePrefix,
           recordLimit: 0L, allowRowCombining: false,
           contextSensitiveQualifier: inspectionResult.ContextSensitiveQualifier,
           commentLine: inspectionResult.CommentLine, numWarning: 0,

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -72,7 +72,7 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIdColumn(in string columnName) => AssumeIdColumn(columnName.AsSpan());
+    public static int AssumeIdColumn(string columnName) => AssumeIdColumn(columnName.AsSpan());
 
 
     /// <summary>
@@ -111,7 +111,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
     /// <returns>The text with the maximum length, in case it has been cut off a … is added</returns>
-    public static string GetShortDisplay(in string? text, int length)
+    public static string GetShortDisplay(string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
         .Replace("  ", " ") ?? string.Empty;
@@ -135,7 +135,7 @@ namespace CsvTools
     /// <returns>
     ///   The text with every combination of line feed replaced with the given replacement
     /// </returns>
-    public static string HandleCrlfCombinations(this string text, in string replace = "\n")
+    public static string HandleCrlfCombinations(this string text, string replace = "\n")
     {
       var sb = new StringBuilder(text.Length);
       var lastC = '\0';
@@ -164,7 +164,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, in string joinWith)
+    public static string Join(this IEnumerable<string> parts, string joinWith)
     {
       var sb = new StringBuilder(100);
       foreach (var part in parts)
@@ -201,33 +201,55 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Adds a counter to the name until the nae is unique ion the collection
+    /// Ensures that a given name is unique within a collection by appending a numeric suffix if necessary.
     /// </summary>
-    /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
-    /// <param name="nameToAdd">The default name</param>
-    /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(this ICollection<string> previousColumns, in string nameToAdd)
+    /// <param name="previousColumns">
+    /// A collection of already used names. Names in this collection will not be modified.
+    /// Typically, this should be case-insensitive if the caller wants uniqueness to ignore case.
+    /// </param>
+    /// <param name="nameToAdd">The desired name to add to the collection.</param>
+    /// <returns>
+    /// A name that is guaranteed to be unique in <paramref name="previousColumns"/>.  
+    /// If the original name already exists, a numeric suffix is appended (e.g., "Column1", "Column2", etc.).  
+    /// If the original name ended with a trailing ellipsis (…), the ellipsis is preserved in the returned name.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="nameToAdd"/> is null.</exception>
+    /// <remarks>
+    /// 1. Trailing ellipsis (… or Unicode U+2026) is temporarily removed to avoid interfering with numeric suffix logic, 
+    ///    and then re-added to the generated unique name if present.  
+    /// 2. Any existing numeric suffix in the name is removed before generating the counter to avoid conflicts.  
+    /// </remarks>
+    public static string MakeUniqueInCollection(this IReadOnlyCollection<string> previousColumns, string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
 
+      // Already unique
       if (!previousColumns.Contains(nameToAdd))
         return nameToAdd;
 
-      // The name is present already
+      // Detect and temporarily remove trailing ellipsis
+      bool hadEllipsis = nameToAdd.EndsWith("…");
+      string cleanName = hadEllipsis ? nameToAdd.Substring(0, nameToAdd.Length - 1) : nameToAdd;
 
-      // cut off any trailing numbers
-      var nameNoNumber = nameToAdd.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', ' ');
+      // Remove numeric suffix if present
+      int lastIndex = cleanName.Length - 1;
+      while (lastIndex >= 0 && char.IsDigit(cleanName[lastIndex]))
+        lastIndex--;
 
-      // add 1 for the first add 2 for the second etc
-      var counterAdd = 1;
-      string fieldName;
+      var prefix = cleanName.Substring(0, lastIndex + 1);
+
+      // Generate unique name
+      int counter = 1;
+      string candidate;
       do
       {
-        fieldName = nameNoNumber + counterAdd++;
-      } while (previousColumns.Contains(fieldName));
+        candidate = prefix + counter++;
+        if (hadEllipsis)
+          candidate += "…"; // Re-add ellipsis
+      } while (previousColumns.Contains(candidate));
 
-      return fieldName;
+      return candidate;
     }
 
     /// <summary>
@@ -300,7 +322,7 @@ namespace CsvTools
     /// <returns>True if text matches</returns>
     public static bool PassesFilter(
       this string? item,
-      in string? filter,
+      string? filter,
       StringComparison stringComparison = StringComparison.CurrentCultureIgnoreCase)
     {
       if (filter is null || filter.Length == 0)
@@ -387,7 +409,7 @@ namespace CsvTools
     /// <param name="original">The original.</param>
     /// <param name="allowedChars">a text containing all allowed characters</param>
     /// <returns>A test with only allowed characters</returns>
-    public static string OnlyAllowed(this string original, in string allowedChars)
+    public static string OnlyAllowed(this string original, string allowedChars)
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -456,7 +478,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(in string? value, in string treatAsNull) =>
+    public static bool ShouldBeTreatedAsNull(string? value, string treatAsNull) =>
       value is null || ShouldBeTreatedAsNull(value.AsSpan(), treatAsNull.AsSpan());
 
     /// <summary>

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -17,107 +17,109 @@ using System.ComponentModel;
 namespace CsvTools
 {
   /// <summary>
-  ///   Enumeration of the supported Data Types
+  ///   Enumeration of the supported data types.
   /// </summary>
   public enum DataTypeEnum
   {
     /// <summary>
-    ///   An 32 Bit Integer
+    ///   A 32-bit integer.
     /// </summary>
     [Description("Integer")]
     Integer = 0,
 
     /// <summary>
-    ///   A "decimal" value 28-29 significant digits, used for money values
+    ///   A decimal value (28–29 significant digits), typically used for precise monetary values.
     /// </summary>
     [Description("Money (High Precision)")]
     [ShortDescription("Numeric")]
     Numeric = 1,
 
     /// <summary>
-    ///   A "Double" 15-16 significant digits, used for floating point calculation
+    ///   A double-precision floating point value (15–16 significant digits), used for scientific or large-range calculations.
     /// </summary>
-    [Description("Floating  Point (High Range)")]
+    [Description("Floating Point (High Range)")]
     [ShortDescription("Double")]
     Double = 2,
 
     /// <summary>
-    ///   A Date or Time Values
+    ///   A date or time value.
     /// </summary>
-    /// 
     [Description("Date Time")]
     DateTime = 3,
 
     /// <summary>
-    ///   A boolean
+    ///   A boolean value.
     /// </summary>
-    [Description("Boolean")]    
+    [Description("Boolean")]
     Boolean = 4,
 
     /// <summary>
-    ///   A system GUID
+    ///   A system GUID or UUID.
     /// </summary>
     [Description("GUID / UUID")]
     [ShortDescription("GUID")]
     Guid = 5,
 
+    // ------------------------
+    // Text and transformation types
+    // ------------------------
+
     /// <summary>
-    ///   A String or VarChar
+    ///   Plain text or string value.
     /// </summary>
     [Description("Text")]
     String = 10,
 
     /// <summary>
-    ///   A String or VarChar, but do some basic HTML encoding, "Encode HTML (Linefeed only)"
+    ///   Encodes text for HTML output, preserving line breaks (minimal HTML encoding).
     /// </summary>
-    [Description("Encode HTML (CData, Linefeed, List)")]
+    [Description("Encode HTML (Linefeed only)")]
     [ShortDescription("HTML Min")]
     TextToHtml = 11,
 
     /// <summary>
-    ///   A String or VarChar, but do some advanced HTML encoding, "Encode HTML"
+    ///   Fully encodes text for HTML output (e.g., '&lt;' → '&amp;lt;').
     /// </summary>
-    [Description("Encode HTML ('<' -> '&lt;')")]
+    [Description("Encode HTML ('<' → '&lt;')")]
     [ShortDescription("HTML")]
     TextToHtmlFull = 12,
 
     /// <summary>
-    ///   A given part of the text separate be a splitter
+    ///   A substring extracted by a specified splitter.
     /// </summary>
     [Description("Text Part")]
     TextPart = 13,
 
     /// <summary>
-    ///   Unescape c or c# escaped text to a verbatim text, e.g. \n will become a CR
+    ///   Converts escaped sequences (e.g. '\n', '\r') to their literal characters.
     /// </summary>
-    [Description("Unescape Text ('\\r' -> \u240D)")]
-    [ShortDescription("Unescape Text")]
+    [Description(@"Unescaped Text (\r → ␍)")]
+    [ShortDescription("Unescaped Text")]
     TextUnescape = 14,
 
     /// <summary>
-    ///   Binary data usually stored in a file
+    ///   Binary data stored in a file; the text value refers to the file path.
     /// </summary>
     [Description("Binary (File Reference)")]
     [ShortDescription("Binary")]
     Binary = 15,
 
 #if !QUICK
-
     /// <summary>
-    ///   Convert Markdown text to HTML
+    ///   Converts Markdown text to HTML.
     /// </summary>
-    [Description("Markdown to HTML")]    
+    [Description("Markdown to HTML")]
     Markdown2Html = 16,
 #endif
 
     /// <summary>
-    ///   Perform Regex.Replace 
+    ///   Performs a regular expression replacement on the text.
     /// </summary>
     [Description("Text Replace")]
     TextReplace = 17,
 
     /// <summary>
-    ///   A String or VarChar, but do some basic HTML encoding, "Encode HTML (Linefeed only)"
+    ///   Decodes HTML entities to plain text.
     /// </summary>
     [Description("Decode HTML")]
     [ShortDescription("HTML Read")]

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -41,7 +41,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="cultureInfo"></param>
     /// <returns>Formatted value</returns>
-    public static string DateTimeToString(in DateTime dateTime, in string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
+    public static string DateTimeToString(in DateTime dateTime, string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
     {
       cultureInfo ??= CultureInfo.InvariantCulture;
 
@@ -192,3 +192,4 @@ namespace CsvTools
       dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddDays(1);
   }
 }
+

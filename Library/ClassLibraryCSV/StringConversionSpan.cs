@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -400,7 +400,8 @@ namespace CsvTools
         timeSeparatorChar,
         culture);
     }
-    
+
+
     /// <summary>
     ///   Parses a string to a decimal
     /// </summary>
@@ -428,7 +429,7 @@ namespace CsvTools
         {
           text = text.ToString().Remove(pos, 1).AsSpan();
           pos = text.IndexOfAny(StaticCollections.CurrencySymbols);
-        }          
+        }
       }
 
       var startDecimal = text.Length;
@@ -440,7 +441,7 @@ namespace CsvTools
         if (text[pos] == decimalSeparatorChar)
         {
           if (startDecimal < text.Length)
-            // Second decimal seperator
+            // Second decimal separator
             return null;
           startDecimal = pos;
         }
@@ -453,7 +454,7 @@ namespace CsvTools
         }
       }
 
-      // if we have a decimal point the group seperator has to be 3 places from the right e.g. 63.467.8373 is not ok, but 634.678.373 is
+      // if we have a decimal point the group separator has to be 3 places from the right e.g. 63.467.8373 is not ok, but 634.678.373 is
       if (lastPos > 0 && startDecimal != lastPos + 4)
         return null;
 
@@ -489,7 +490,7 @@ decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result
 #else
         decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result)
 #endif
-        )       
+        )
           continue;
 
         // If this works, exit
@@ -526,47 +527,43 @@ decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result
     /// <summary>
     ///   Parses a strings to an int.
     /// </summary>
-    /// <param name="text">The value.</param>
-    /// <param name="decimalSeparatorChar">The decimal separator.</param>
+    /// <param name="text">The value.</param>    
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static short? StringToInt16(
     this ReadOnlySpan<char> text,
-    char decimalSeparatorChar,
     char thousandSeparatorChar)
     {
       if (text.IsEmpty)
         return null;
+      var parsed = StringToInt64(text, thousandSeparatorChar);
 
-      var dec = StringToDecimal(text, decimalSeparatorChar, thousandSeparatorChar, false, false);
-      if (!dec.HasValue)
+      if (!parsed.HasValue)
         return null;
 
-      if (dec.Value < short.MinValue || dec.Value > short.MaxValue)
+      if (parsed.Value < short.MinValue || parsed.Value > short.MaxValue)
         return null;
 
-      return (short) dec.Value;
+      return (short) parsed.Value;
     }
 
     /// <summary>
     ///   Parses a strings to an int.
     /// </summary>
     /// <param name="text">The value.</param>
-    /// <param name="decimalSeparatorChar">The decimal separator.</param>
     /// <param name="thousandSeparatorChar">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
     public static int? StringToInt32(
       this ReadOnlySpan<char> text,
-      char decimalSeparatorChar,
       char thousandSeparatorChar)
     {
       if (text.IsEmpty)
         return null;
       try
       {
-        var dec = StringToDecimal(text, decimalSeparatorChar, thousandSeparatorChar, false, false);
-        if (dec.HasValue)
-          return dec.Value.ToInt();
+        var parsed = StringToInt64(text, thousandSeparatorChar);
+        if (parsed.HasValue)
+          return parsed.Value.ToInt();
       }
       catch (OverflowException)
       {
@@ -577,29 +574,79 @@ decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result
     }
 
     /// <summary>
-    ///   Parses a strings to an int.
+    ///   Parses a span of characters into a <see cref="long"/>.
     /// </summary>
-    /// <param name="text">The value.</param>
-    /// <param name="decimalSeparatorChar">The decimal separator.</param>
-    /// <param name="thousandSeparatorChar">The thousand separator.</param>
-    /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
+    /// <param name="text">The input text.</param>
+    /// <param name="thousandSeparatorChar">The thousands separator. If not needed, pass '\0'.</param>
+    /// <returns>A <see cref="long"/> if successful, otherwise <c>null</c>.</returns>
     public static long? StringToInt64(
       this ReadOnlySpan<char> text,
-      char decimalSeparatorChar,
       char thousandSeparatorChar)
     {
       if (text.IsEmpty)
         return null;
-      try
+
+      // Trim leading whitespace
+      text = text.TrimStart();
+      if (text.IsEmpty)
+        return null;
+
+      // Handle parentheses for negatives
+      var roundBraces = text[0] == '(' && text[text.Length - 1] == ')';
+      if (roundBraces)
       {
-        var dec = StringToDecimal(text, decimalSeparatorChar, thousandSeparatorChar, false, false);
-        if (dec.HasValue)
-          return dec.Value.ToInt64();
+        text = text.Slice(1, text.Length - 2).Trim();
+        if (text.IsEmpty)
+          return null;
       }
-      catch (OverflowException)
+
+      // Handle optional sign
+      bool hasMinus = false;
+      if (text[0] == '+')
       {
-        // The numerical value could not be converted to an integer
+        text = text.Slice(1).TrimStart();
       }
+      else if (text[0] == '-')
+      {
+        hasMinus = true;
+        text = text.Slice(1).TrimStart();
+      }
+
+      if (text.IsEmpty)
+        return null;
+
+      // Collect digits only (skip group separators)
+      Span<char> buffer = stackalloc char[text.Length];
+      int k = 0;
+      for (int i = 0; i < text.Length; i++)
+      {
+        char c = text[i];
+        if (char.IsDigit(c))
+        {
+          buffer[k++] = c;
+        }
+        else if (thousandSeparatorChar != '\0' && c == thousandSeparatorChar)
+        {
+          // skip group separator
+          continue;
+        }
+        else
+        {
+          break; // stop at first non-digit
+        }
+      }
+
+      if (k == 0)
+        return null;
+
+      var digits = buffer.Slice(0, k);
+
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+  if (long.TryParse(digits, out var result))
+#else
+      if (long.TryParse(digits.ToString(), out var result))
+#endif
+        return (roundBraces || hasMinus) ? -result : result;
 
       return null;
     }

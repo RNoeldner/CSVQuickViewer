@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,12 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -26,6 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   Setting for a value format
   /// </summary>
+  [DebuggerDisplay("{GetTypeAndFormatDescription(),nq}")]
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
     /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
@@ -104,17 +105,17 @@ namespace CsvTools
     [JsonConstructor]
     public ValueFormat(
       in DataTypeEnum? dataType = DataTypeEnum.String,
-      in string? dateFormat = cDateFormatDefault,
-      in string? dateSeparator = cDateSeparatorDefault,
-      in string? timeSeparator = cTimeSeparatorDefault,
-      in string? numberFormat = cNumberFormatDefault,
-      in string? groupSeparator = cGroupSeparatorDefault,
-      in string? decimalSeparator = cDecimalSeparatorDefault,
-      in string? asTrue = cTrueDefault,
-      in string? asFalse = cFalseDefault,
-      in string? displayNullAs = "",
+      string? dateFormat = cDateFormatDefault,
+      string? dateSeparator = cDateSeparatorDefault,
+      string? timeSeparator = cTimeSeparatorDefault,
+      string? numberFormat = cNumberFormatDefault,
+      string? groupSeparator = cGroupSeparatorDefault,
+      string? decimalSeparator = cDecimalSeparatorDefault,
+      string? asTrue = cTrueDefault,
+      string? asFalse = cFalseDefault,
+      string? displayNullAs = "",
       int? part = cPartDefault,
-      in string? partSplitter = cPartSplitterDefault,
+      string? partSplitter = cPartSplitterDefault,
       bool? partToEnd = cPartToEndDefault,
       string? regexSearchPattern = "",
       string? regexReplacement = "",
@@ -168,9 +169,9 @@ namespace CsvTools
     /// <param name="writeFolder">The write folder.</param>
     /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
     /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
-    public ValueFormat(DataTypeEnum dataType, in string dateFormat, char dateSeparator, char timeSeparator,
-      in string numberFormat, char groupSeparator, char decimalSeparator,
-      in string asTrue, in string asFalse, in string displayNullAs,
+    public ValueFormat(DataTypeEnum dataType, string dateFormat, char dateSeparator, char timeSeparator,
+      string numberFormat, char groupSeparator, char decimalSeparator,
+      string asTrue, string asFalse, string displayNullAs,
       int part, char partSplitter, bool partToEnd,
       string regexSearchPattern, string regexReplacement,
       string readFolder, string writeFolder, string fileOutPutPlaceholder, bool overwrite)

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -23,13 +23,13 @@ namespace CsvTools
   public abstract class BaseColumnFormatter : IColumnFormatter
   {
     /// <inheritdoc/>
-    public abstract string FormatInputText(in string inputString, in Action<string>? handleWarning);
+    public abstract string FormatInputText(string inputString, Action<string>? handleWarning);
 
     /// <inheritdoc/>
     public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
 
     /// <inheritdoc/>
-    public virtual string Write(in object? dataObject, in IDataRecord? dataRow, in Action<string>? handleWarning)
+    public virtual string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
       => dataObject?.ToString() ?? string.Empty;    
 
     /// <inheritdoc/>

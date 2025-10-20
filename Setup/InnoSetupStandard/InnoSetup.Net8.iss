@@ -6,10 +6,10 @@
 
 [Setup]
 AppVersion={#MyAppVersion}
-OutputBaseFilename={#MyAppName}Installer_{#MyAppVersion}
+OutputBaseFilename={#MyAppName}Installer.Net8
 DefaultDirName={localappdata}\{#MyAppName}
 AppName={#MyAppName}
-OutputDir=.\Setup
+OutputDir=..
 PrivilegesRequiredOverridesAllowed=dialog
 PrivilegesRequired=lowest
 DisableDirPage=no    
@@ -22,7 +22,8 @@ Name: "startmenuicon"; Description: "Create a Start Menu shortcut"; GroupDescrip
 Name: "registerext"; Description: "Associate .EIHconf files with {#MyAppTitle}"; GroupDescription: "Optional actions:"
 
 [Files]
-Source: "{#MyOutputDir}*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "{#MyOutputDir}CSV*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "{#MyOutputDir}*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Registry]
 ; --- Delimited Text Values  ---
@@ -51,7 +52,7 @@ Filename: "{app}\{#MyAppName}.exe"; Description: "{cm:LaunchProgram,{#MyAppTitle
 
 [UninstallDelete]
 ; Always clean up empty app folder
-Type: dirifempty; Name: "{localappdata}\{#MyAppName}"
+Type: dirifempty; Name: "{userappdata}\{#MyAppName}"
 Type: dirifempty; Name: "{app}"
 
 [Code]
@@ -118,14 +119,13 @@ begin
     begin
       // Interactive uninstall: ask user
       RemoveData := MsgBox(
-        'Do you want to remove all local settings and data for {#MyAppTitle}?'#13#10 +
-        'This includes the settings, most recently used list and not saved configurations.',
+        'Do you want to remove all local settings and data for {#MyAppTitle}?',
         mbConfirmation, MB_YESNO) = IDYES;
     end;
 
     if RemoveData then
     begin
-      DelTree(ExpandConstant('{localappdata}\{#MyAppName}'), True, True, False);
+      DelTree(ExpandConstant('{userappdata}\{#MyAppName}'), True, True, False);
     end;
   end;
 end;

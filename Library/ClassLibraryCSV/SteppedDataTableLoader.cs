@@ -1,3 +1,16 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 #nullable enable
 using System;
 using System.Data;
@@ -39,26 +52,36 @@ namespace CsvTools
       EventHandler<WarningEventArgs>? addWarning,
       CancellationToken cancellationToken)
     {
-      try { Logger.Debug("Starting to load data"); } catch { }
+      Logger.Debug("Starting to load data");
       //m_Id = fileSetting.ID;
       var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       if (fileReader is null)
-        throw new FileReaderException($"Could not get reader for {fileSetting}");             
-      try { Logger.Debug("Opening reader"); } catch { }
-      fileReader.ReportProgress = progress;
-      if (addWarning != null)
-        fileReader.Warning += addWarning;
-      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      if (fileReader.FieldCount > cMaxColumns)
-        throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
+        throw new FileReaderException($"Could not get reader for {fileSetting}");
 
-      // Stop reporting progress to the outside, we do that in the DataReaderWrapper
-      fileReader.ReportProgress = new DummyProgress();
+      try
+      {
+        Logger.Debug("Opening reader");
+        fileReader.ReportProgress = progress;
+        if (addWarning != null)
+          fileReader.Warning += addWarning;
 
-      m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
+        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-      return await GetNextBatch(progress, durationInitial, cancellationToken).ConfigureAwait(false);
+        if (fileReader.FieldCount > cMaxColumns)
+          throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
+
+        // Stop reporting progress to the outside, we do that in the DataReaderWrapper
+        fileReader.ReportProgress = new DummyProgress();
+
+        m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
+          fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
+
+        return await GetNextBatch(progress, durationInitial, cancellationToken).ConfigureAwait(false);
+      }
+      catch (Exception ex) when (ex is not FileReaderException)
+      {
+        throw new FileReaderException($"Error initializing reader for {fileSetting.GetDisplay()}", ex);
+      }
     }
 
     /// <summary>
@@ -67,21 +90,53 @@ namespace CsvTools
     /// <param name="progress">Process display to pass on progress information</param>
     /// /// <param name="duration">For maximum duration for the read process</param>    
     /// <param name="cancellationToken">The cancellation token.</param>
-    public async Task<DataTable> GetNextBatch(IProgress<ProgressInfo> progress, TimeSpan duration,
-      CancellationToken cancellationToken)
+    public async Task<DataTable> GetNextBatch(
+     IProgress<ProgressInfo> progress,
+     TimeSpan duration,
+     CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return new DataTable();
 
-      m_DataReaderWrapper.ReportProgress = progress;
+      try
+      {
+        m_DataReaderWrapper.ReportProgress = progress;
+        Logger.Debug("Getting batch");
 
-      try { Logger.Debug("Getting batch"); } catch { }
-      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, null, cancellationToken).ConfigureAwait(false);
+        var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, null, cancellationToken)
+            .ConfigureAwait(false);
 
-      if (m_DataReaderWrapper.EndOfFile)
-        Dispose(true);
+        if (m_DataReaderWrapper.EndOfFile)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await DisposeAsync().ConfigureAwait(false);
+#else
+          Dispose();
+#endif
+        return dt;
+      }
+      catch (OperationCanceledException)
+      {
+        throw; // Let cancellation propagate
+      }
+      catch (Exception ex)
+      {
+        throw new FileReaderException("Error reading next batch of data", ex);
+      }
+    }
 
-      return dt;
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (!disposing) return;
+
+      try
+      {
+        m_DataReaderWrapper?.Dispose();
+      }
+      finally
+      {
+        m_DataReaderWrapper = null;
+      }
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -90,19 +145,16 @@ namespace CsvTools
     {
       if (m_DataReaderWrapper != null)
       {
-        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
-        m_DataReaderWrapper = null;
+        try
+        {
+            await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            m_DataReaderWrapper = null;
+        }
       }
     }
 #endif
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-      if (!disposing)
-        return;
-      m_DataReaderWrapper?.Dispose();
-      m_DataReaderWrapper = null;
-    }
   }
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 
@@ -47,7 +46,7 @@ namespace CsvTools
     /// </remarks>
     public event EventHandler<ProgressInfo>? ProgressChanged;
 
-    public FormProgress(in string windowTitle)
+    public FormProgress(string windowTitle)
       : this(windowTitle, true, new FontConfig(), CancellationToken.None)
     {
     }
@@ -58,7 +57,7 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProgress(in string? windowTitle, bool withLoggerDisplay, in IFontConfig? fontConfig,
+    public FormProgress(string? windowTitle, bool withLoggerDisplay, in IFontConfig? fontConfig,
       in CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

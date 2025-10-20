@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System;
 using System.Windows.Forms;
 
@@ -33,7 +32,7 @@ namespace CsvTools
       AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
 
       var fileName = string.Empty;
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       Application.SetHighDpiMode(HighDpiMode.SystemAware);
 #endif
       Application.EnableVisualStyles();
@@ -53,7 +52,7 @@ namespace CsvTools
 
       var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
 

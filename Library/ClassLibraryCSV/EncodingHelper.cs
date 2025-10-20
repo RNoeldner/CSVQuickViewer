@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using System;
@@ -40,7 +39,7 @@ namespace CsvTools
       1250, 1253, 1255, 850, 852, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     };
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     static EncodingHelper()
     {
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -49,7 +48,7 @@ namespace CsvTools
 
     // ReSharper disable once InconsistentNaming
     /// <summary>
-    /// Determine the length of the BO´M
+    /// Determine the length of the BOM
     /// </summary>
     /// <param name="codePage">Code Page</param>
     /// <returns>Length in Bytes</returns>
@@ -97,9 +96,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>Gets the code page by byte order mark.</summary>
-    /// <param name="buffer">A character span.</param>    
-    /// <returns>The Code page id if, if the code page could not be identified 0</returns>
+    /// <summary>
+    /// Determines the encoding based on the byte order mark (BOM) at the start of the buffer.
+    /// </summary>
+    /// <param name="buffer">The byte span containing the start of the file. Only the first 4 bytes are examined.</param>
+    /// <returns>The detected <see cref="Encoding"/> if a BOM is found; otherwise, <c>null</c>.</returns>
     public static Encoding? GetEncodingByByteOrderMark(ReadOnlySpan<byte> buffer)
     {
       if (buffer.Length < 2)
@@ -117,6 +118,7 @@ namespace CsvTools
         if (buffer[0] == 0x2B && buffer[1] == 0x2F && buffer[2] == 0x76
             && (buffer[3] == 0x38 || buffer[3] == 0x39 || buffer[3] == 0x2B || buffer[3] == 0x2F))
 #pragma warning disable SYSLIB0001
+          // UTF-7 is obsolete and should not be used. 
           return Encoding.UTF7;
 #pragma warning restore SYSLIB0001
       }
@@ -134,41 +136,15 @@ namespace CsvTools
       return null;
     }
 
-    /// <summary>Gets the code page by byte order mark.</summary>
+    /// <summary>
+    /// Determines the encoding based on the byte order mark (BOM) at the start of the buffer.
+    /// </summary>
     /// <param name="buff">The buff.</param>
     /// <param name="length"></param>
-    /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    public static Encoding? GetEncodingByByteOrderMark(byte[]? buff, int length)
-    {
-      if (buff is null || length < 2)
-        return null;
+    /// <returns>The detected <see cref="Encoding"/> if a BOM is found; otherwise, <c>null</c>.</returns>
+    public static Encoding? GetEncodingByByteOrderMark(byte[]? buff, int length) =>
+        buff is null || length < 2 ? null : GetEncodingByByteOrderMark(buff.AsSpan(0, length));
 
-      if (length >= 4)
-      {
-        // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars
-        if (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0xFE && buff[3] == 0xFF)
-          return Encoding.GetEncoding(12001);
-        if (buff[0] == 0xFF && buff[1] == 0xFE && buff[2] == 0x00 && buff[3] == 0x00)
-          return Encoding.UTF32;
-        if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
-          return Encoding.GetEncoding(54936);
-        if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76
-            && (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
-#pragma warning disable SYSLIB0001
-          return Encoding.UTF7;
-#pragma warning restore SYSLIB0001
-      }
-
-      if (length >= 3 && buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
-        return Encoding.UTF8;
-
-      if (buff[0] == 0xFE && buff[1] == 0xFF)
-        return Encoding.BigEndianUnicode;
-      if (buff[0] == 0xFF && buff[1] == 0xFE)
-        return Encoding.Unicode;
-
-      return null;
-    }
 
     /// <summary>
     ///   Gets the name of the encoding.
@@ -246,10 +222,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the code page.
+    /// Guesses the encoding of a buffer when no BOM is present. Uses heuristic detection.
     /// </summary>
-    /// <param name="buff">The buff containing the characters.</param>
-    /// <returns><see cref="Encoding" /></returns>
+    /// <param name="buff">The byte array containing file data.</param>
+    /// <returns>The detected <see cref="Encoding"/>. Defaults to UTF-8 if detection fails.</returns>
     public static Encoding DetectEncodingNoBom(byte[]? buff)
     {
       if (buff is null || buff.Length < 1)
@@ -266,11 +242,11 @@ namespace CsvTools
         $"Confidence for detected character set {results.Detected.EncodingName} is only {results.Detected.Confidence:P}");
       foreach (var res in results.Details)
       {
-        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.UTF8))
+        if (res.Confidence > 0.5 && Encoding.UTF8.Equals(res.Encoding))
           return Encoding.UTF8;
-        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.UTF32))
+        if (res.Confidence > 0.5 && Encoding.UTF32.Equals(res.Encoding))
           return Encoding.UTF32;
-        if (res.Confidence > 0.5 && res.Encoding.Equals(Encoding.Unicode))
+        if (res.Confidence > 0.5 && Encoding.Unicode.Equals(res.Encoding))
           return Encoding.Unicode;
       }
 

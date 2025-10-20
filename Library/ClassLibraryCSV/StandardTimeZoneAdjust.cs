@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -31,7 +31,7 @@ namespace CsvTools
 
     private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
-    private static TimeZoneInfo FindTimeZoneInfo(in string timeZone)
+    private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
     {
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;
@@ -50,8 +50,8 @@ namespace CsvTools
     /// <param name="srcTimeZone">Source TimeZone</param>
     /// <param name="destTimeZone">Destination TimeZone</param>
     /// <param name="handleWarning">Action to be called if a warning is raised</param>
-    public static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone, in string destTimeZone,
-      in Action<string>? handleWarning)
+    public static DateTime ChangeTimeZone(in DateTime input, string srcTimeZone, string destTimeZone,
+      Action<string>? handleWarning)
     {
       if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
           destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))

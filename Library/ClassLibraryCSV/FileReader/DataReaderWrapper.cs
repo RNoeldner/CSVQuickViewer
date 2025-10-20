@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using System;
@@ -320,8 +319,6 @@ namespace CsvTools
 
       var maxFld = values.Length;
       if (maxFld > FieldCount) maxFld = FieldCount;
-
-      // get ordinsl from mapped
 
       for (var col = 0; col < maxFld; col++)
         values[col] = GetValue(m_ReaderMapping.ResultToSource(col));

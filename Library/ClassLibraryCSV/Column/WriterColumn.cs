@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -22,11 +22,11 @@ namespace CsvTools
 #endif
   {
     /// <inheritdoc />
-    public WriterColumn(in string name,
+    public WriterColumn(string name,
       in ValueFormat valueFormat,
       int colNum,
       int fieldLength = 0,
-      in string constantTimeZone = "",
+      string constantTimeZone = "",
       int columnOrdinalTimeZone = -1)
       : base(name, valueFormat, colNum)
     {

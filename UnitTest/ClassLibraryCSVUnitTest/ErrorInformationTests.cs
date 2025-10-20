@@ -1,6 +1,19 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using CsvTools;
 /*
-* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+* CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
 * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -56,6 +69,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadErrorInformationTestSetErrorInformation()
     {
+      // After incorporating the class for Errors in columns into RowErrorCollection,
+      // this test make less sense, there is no need to test Dictionary
+      // It now mainly tests ReadErrorInformation */
       var columnErrors = new Dictionary<int, string>();
 
       var colNames = new List<string>();
@@ -66,14 +82,9 @@ namespace CsvTools.Tests
 
       columnErrors.Add(-1, "Error on Row");
       columnErrors.Add(0, "Error on Column".AddWarningId());
-      columnErrors.Add(1, "Error on ColumnA");
-      columnErrors.Add(1, "Another Error on Column");
-
+      columnErrors.Add(1, "Error on ColumnA");     
       columnErrors.Add(2, "Warning on ColumnB".AddWarningId());
-
-      columnErrors.Add(3, "Warning on Fld4".AddWarningId());
-      columnErrors.Add(3, "Error on Fld4");
-
+      
       var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty);
       Assert.IsNotNull(errorInfo);
 
@@ -81,12 +92,12 @@ namespace CsvTools.Tests
       row.SetErrorInformation(errorInfo);
       Assert.AreEqual("Error on Row", row.RowError);
       Assert.AreEqual("Error on Column", row.GetColumnError(0).WithoutWarningId());
-      Assert.AreEqual("Error on ColumnA\nAnother Error on Column", row.GetColumnError(1));
+      Assert.AreEqual("Error on ColumnA", row.GetColumnError(1));
       Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
       var res = errorInfo.GetErrorsAndWarnings();
-      Assert.AreEqual(4, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
-      Assert.AreEqual(3, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(2, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(2, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
     }
 
     [TestMethod]

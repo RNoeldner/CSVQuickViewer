@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using CsvTools.Properties;
@@ -141,11 +140,11 @@ namespace CsvTools
           // in case we skipped lines read them as Header, so we do not lose them
           if (m_FileSetting.SkipRows > 0)
           {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             await
 #endif
             using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             await
 #endif
             using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
@@ -197,7 +196,7 @@ namespace CsvTools
           {
             var sa = new SourceAccess(m_FileSetting!.FullPath);
             sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
             // ReSharper disable once UseAwaitUsing
@@ -249,15 +248,12 @@ namespace CsvTools
       get
       {
         var assembly = Assembly.GetExecutingAssembly();
-        var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length <= 0)
-          return Path.GetFileNameWithoutExtension(assembly.Location);
+        var titleAttribute = assembly.GetCustomAttribute<AssemblyTitleAttribute>();
+        var version = assembly.GetName().Version;
 
-        var titleAttribute = (AssemblyTitleAttribute) attributes[0];
-        if (titleAttribute.Title.Length != 0)
-          return titleAttribute.Title + " " + assembly.GetName().Version;
-
-        return Path.GetFileNameWithoutExtension(assembly.Location);
+        return titleAttribute is { Title: { Length: > 0 } }
+          ? $"{titleAttribute.Title} {((version == null) ? "1.0.0" : $"{version.Major}.{version.Minor}.{(version.Build >= 0 ? version.Build : 0)}")}"
+          : Path.GetFileNameWithoutExtension(assembly.Location);
       }
     }
 
@@ -493,8 +489,12 @@ namespace CsvTools
     {
       if (m_CheckRunning)
         return;
+      // In case the file was deleted we can not reload it...
+      if (m_FileChanged && m_FileSetting != null && m_FileSetting.FileName.Length > 0 && !File.Exists(m_FileSetting.FileName))
+        m_FileChanged=false;
       if (!m_ShouldReloadData && !m_FileChanged)
         return;
+
       try
       {
         m_CheckRunning = true;
@@ -638,7 +638,7 @@ namespace CsvTools
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
       {
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await m_CancellationTokenSource.CancelAsync();
 #else
         m_CancellationTokenSource.Cancel();
@@ -691,7 +691,7 @@ namespace CsvTools
           {
             formProgress.Show(this);
             m_LoadWarnings.Clear();
-            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, FilterTypeEnum.All,
+            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, FilterTypeEnum.All,
               formProgress,
               AddWarning, formProgress.CancellationToken);
           }

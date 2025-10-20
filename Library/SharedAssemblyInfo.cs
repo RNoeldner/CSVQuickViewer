@@ -1,3 +1,16 @@
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using System;
 using System.Reflection;
 
@@ -11,6 +24,6 @@ using System.Reflection;
 // Version information for an assembly consists of the following four values: Major Version Minor
 // Version Build Number Revision You can specify all the values or you can default the Build and.Json
 // Revision Numbers by using the '*' as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.7.14.621")]
-[assembly: AssemblyFileVersion("1.7.14.621")]
-[assembly: AssemblyInformationalVersion("1.7.14.621")] // a.k.a. "Product version"
+[assembly: AssemblyVersion("1.7.17.634")]
+[assembly: AssemblyFileVersion("1.7.17.634")]
+[assembly: AssemblyInformationalVersion("1.7.16.633")] // a.k.a. "Product version"

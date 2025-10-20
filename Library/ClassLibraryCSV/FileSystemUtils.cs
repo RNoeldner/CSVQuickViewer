@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,8 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-
 // Ignore Spelling: Utc
 
 #nullable enable
@@ -24,11 +22,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
 using System.Collections.Generic;
-using static System.Environment;
-using static System.Net.Mime.MediaTypeNames;
+
 
 // ReSharper disable UseIndexFromEndExpression
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -60,14 +56,14 @@ namespace CsvTools
     /// <param name="fileName"></param>
     /// <param name="root"></param>
     /// <returns></returns>
-    public static string FullPath(this string? fileName, in string? root) =>
+    public static string FullPath(this string? fileName, string? root) =>
       ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
     /// <summary>
     /// Creates a directory if it does not exist
     /// </summary>
     /// <param name="directoryName"></param>
-    public static void CreateDirectory(in string? directoryName)
+    public static void CreateDirectory(string? directoryName)
     {
       if (directoryName is null || directoryName.Length == 0)
         return;
@@ -79,52 +75,45 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="multipleBackups">if set to <c>true</c> multiple backup version are kept.</param>
-    public static void DeleteWithBackup(in string fileName, bool multipleBackups)
+    public static void DeleteWithBackup(string fileName, bool multipleBackups)
     {
-      try
-      {
-        if (!FileExists(fileName))
-          return;
+      if (!FileExists(fileName))
+        return;
 
-        var backupName = fileName + ".bak";
-        if (multipleBackups)
+      var backupName = fileName + ".bak";
+      if (multipleBackups)
+      {
+        var split = SplitPath(fileName);
+        var names = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
+          SearchOption.TopDirectoryOnly);
+        var numBackup = 1;
+        foreach (var name in names)
         {
-          var split = SplitPath(fileName);
-          var names = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
-            SearchOption.TopDirectoryOnly);
-          var numBackup = 1;
-          foreach (var name in names)
+          var psStart = name.LastIndexOf('V');
+          var psEnd = name.LastIndexOf('.');
+          if (psStart != -1 && psEnd <= psStart + 5)
           {
-            var psStart = name.LastIndexOf('V');
-            var psEnd = name.LastIndexOf('.');
-            if (psStart != -1 && psEnd <= psStart + 5)
-            {
-              if (int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num))
-                if (num > numBackup)
-                  numBackup = num;
-            }
+            if (int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num))
+              if (num > numBackup)
+                numBackup = num;
           }
-
-          backupName = fileName + $"_V{numBackup + 1}.bak";
-        }
-        else
-        {
-          FileDelete(backupName);
         }
 
-        File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
+        backupName = fileName + $"_V{numBackup + 1}.bak";
       }
-      catch (Exception ex)
+      else
       {
-        Logger.Information(ex, "DeleteWithBackup {fileName}", fileName);
+        FileDelete(backupName);
       }
+
+      File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
     }
 
     /// <summary>
     /// Check if a directory exists.
     /// </summary>
     /// <param name="directoryName">Name of the directory.</param>    
-    public static bool DirectoryExists(in string? directoryName) =>
+    public static bool DirectoryExists(string? directoryName) =>
       !(directoryName is null || directoryName.Length == 0) && Directory.Exists(directoryName.LongPathPrefix());
 
     /// <summary>
@@ -143,92 +132,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Copy the content from one stream to another
-    /// </summary>
-    /// <param name="fromStream">From stream.</param>
-    /// <param name="toStream">To stream.</param>
-    /// <param name="progress">The progress.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    public static async Task StreamCopy(
-      Stream fromStream,
-      Stream toStream,
-      IProgress<ProgressInfo>? progress,
-      CancellationToken cancellationToken)
-    {
-      var bytes = new byte[81920];
-      int bytesRead;
-      long totalReads = 0;
-      // The original maximum value of the progress object, in case it implements the IProgressTime interface
-      long oldMax = 0;
-      if (progress is IProgressTime progressTime)
-      {
-        oldMax = progressTime.Maximum;
-        progressTime.Maximum = fromStream.Length;
-      }
-
-      // invoked at regular intervals to report the progress
-      var intervalAction = IntervalAction.ForProgress(progress);
-      // Read data from the source stream until there is no more data or the operation is canceled
-      while (!cancellationToken.IsCancellationRequested && (bytesRead = await fromStream
-               .ReadAsync(bytes, 0, bytes.Length, cancellationToken)
-               .ConfigureAwait(false)) > 0)
-      {
-        totalReads += bytesRead;
-        // This line writes the data read from the source stream to the destination stream
-        await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS8604 // Possible null reference argument.
-        intervalAction?.Invoke(progress, "Copy data", totalReads);
-#pragma warning restore CS8604 // Possible null reference argument.
-      }
-
-      progress.SetMaximum(oldMax);
-    }
-
-    /// <summary>
-    ///   Copies a file from one location to another asynchronously, while checking if the file has changed, reporting the progress and supporting cancellation.
-    /// </summary>
-    /// <param name="sourceFile">The file to be copied from</param>
-    /// <param name="destFile">The file to be created / overwritten</param>
-    /// <param name="onlyChanged">
-    ///   Checks if the source file is newer or has a different length, if not file will not be copied,
-    /// </param>
-    /// <param name="progress">Progress used to report the progress of the copy operation</param>    
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public static async Task FileCopy(
-      string sourceFile,
-      string destFile,
-      bool onlyChanged,
-      IProgress<ProgressInfo>? progress,
-      CancellationToken cancellationToken)
-    {
-      if (onlyChanged)
-      {
-        var fiSource = new FileInfo(sourceFile);
-        var fiDestInfo = new FileInfo(destFile);
-        if (fiDestInfo.Exists && fiSource.LastWriteTimeUtc <= fiDestInfo.LastWriteTimeUtc
-                              && fiSource.Length == fiDestInfo.Length)
-          return;
-      }
-
-      // If the source file exists, delete the destination file if it exists
-      if (FileExists(sourceFile))
-        FileDelete(destFile);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-      using var fromStream = OpenRead(sourceFile);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-      using var toStream = OpenWrite(destFile);
-      await StreamCopy(fromStream, toStream, progress, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
     ///   Deletes a file if it exists.
     /// </summary>
     /// <param name="fileName">Specify the file to be deleted</param>
-    public static void FileDelete(in string? fileName)
+    public static void FileDelete(string? fileName)
     {
       if (fileName is null || fileName.Length == 0) return;
       var fn = fileName.LongPathPrefix();
@@ -240,7 +147,7 @@ namespace CsvTools
     /// Checks if a file exists
     /// </summary>
     /// <param name="fileName">Name of the file.</param>    
-    public static bool FileExists(in string? fileName) =>
+    public static bool FileExists(string? fileName) =>
       !(fileName is null || fileName.Length == 0) && File.Exists(fileName.LongPathPrefix());
 
     /// <summary>
@@ -251,31 +158,17 @@ namespace CsvTools
     /// <returns>The combined filename with the LongPathPrefix if necessary</returns>
     public static string GetAbsolutePath(this string? fileName, string? basePath = null)
     {
-      if (fileName is null || fileName.Length == 0)
+      if (string.IsNullOrWhiteSpace(fileName))
         return string.Empty;
-      if (basePath is null || basePath.Length == 0)
-        basePath = ".";
-      try
-      {
-        fileName = Environment.ExpandEnvironmentVariables(fileName);
-        if (Path.IsPathRooted(fileName))
-          return fileName;
 
-        var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
-        if (split == -1)
-          return Path.Combine(GetFullPath(basePath), fileName).RemovePrefix();
+      var expandedFileName = Environment.ExpandEnvironmentVariables(fileName).RemovePrefix();
 
-        // the Filename could contain wild cards, that is not supported when extending relative path
-        // the path part though ca not contain wild cards, so combine base and path
-        return string.Concat(GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))),
-            fileName.Substring(split))
-          .RemovePrefix();
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "Getting absolute path for combination {filename} {root}", fileName, basePath);
-        throw;
-      }
+      if (Path.IsPathRooted(expandedFileName))
+        return Path.GetFullPath(expandedFileName);
+
+      var adjustedBasePath = (basePath is null || basePath.Length == 0) ? "." : basePath;
+
+      return GetFullPath(Path.Combine(adjustedBasePath, expandedFileName));
     }
 
     /// <summary>
@@ -284,7 +177,7 @@ namespace CsvTools
     /// <param name="folder">The directory to look in</param>
     /// <param name="searchPattern">The pattern to look for</param>
     /// <returns>No matching file is found of the folder does not exist an empty string is returned</returns>
-    public static string GetLatestFileOfPattern(string folder, in string searchPattern)
+    public static string GetLatestFileOfPattern(string folder, string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
         folder = ".";
@@ -309,7 +202,7 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
-    private static string ReplaceHolder(in string fileName, in string dir, in string placeHolder)
+    private static string UsePlaceHolder(string fileName, string dir, string placeHolder)
     {
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
@@ -324,26 +217,34 @@ namespace CsvTools
       return string.Empty;
     }
 
-    private static string UseSpecialFolders(in string fileName)
+    /// <summary>
+    /// Replace absolute special folder paths in a fileName with placeholders.
+    /// Example: C:\Users\Raphael\test.txt → %UserProfile%\test.txt
+    /// </summary>
+    public static string UseSpecialFolders(this string fileName)
     {
-      if (IsWindows)
+      if (!IsWindows)
+        return fileName;
+
+      var candidates = new List<string>();
+      void TryAdd(Environment.SpecialFolder folder, string placeholder)
       {
-        var test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.UserProfile),
-        "%UserProfile%");
-        if (test.Length > 0)
-          return test;
-
-        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "%AppData%");
-        if (test.Length > 0)
-          return test;
-
-        test = ReplaceHolder(fileName, GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-          "%LocalAppData%");
-        if (test.Length > 0)
-          return test;
+        var replaced = UsePlaceHolder(fileName, Environment.GetFolderPath(folder), placeholder);
+        if (replaced.Length > 0)
+          candidates.Add(replaced);
       }
-      return fileName;
+
+      TryAdd(Environment.SpecialFolder.DesktopDirectory, "%Desktop%");
+      TryAdd(Environment.SpecialFolder.MyDocuments, "%Documents%");
+      TryAdd(Environment.SpecialFolder.ApplicationData, "%AppData%");
+      TryAdd(Environment.SpecialFolder.LocalApplicationData, "%LocalAppData%");
+      TryAdd(Environment.SpecialFolder.UserProfile, "%UserProfile%");
+
+      if (candidates.Count == 0)
+        return fileName;
+
+      // Return the shortest path replacement
+      return candidates.OrderBy(x => x.Length).First();
     }
 
     /// <summary>
@@ -354,21 +255,23 @@ namespace CsvTools
     /// <returns>A relative path if possible</returns>
     public static string GetRelativePath(this string? fileName, string? basePath)
     {
-      if (fileName is null || fileName.Length == 0 || fileName.StartsWith(".", StringComparison.Ordinal)
-          || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
-        return fileName ?? string.Empty;
+      if (fileName is null || fileName.Length == 0)
+        return string.Empty;
+
+      if (fileName.StartsWith(".", StringComparison.Ordinal)  || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
+        return fileName;
 
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
 
-      var test = ReplaceHolder(fileName, GetFullPath(basePath), ".");
+      var test = UsePlaceHolder(fileName, GetFullPath(basePath), ".");
       if (test.Length > 0)
         return test;
 
-      var otherDir = Path.GetFullPath(fileName);
-      //TODO: this looks odd, try to send in filename with "%UserProfile%"
-      var folder = GetRelativeFolder(otherDir, basePath);
-      return folder.Substring(0, folder.Length - 1);
+      var parts = SplitPath(fileName);
+      var folder = GetRelativeFolder(parts.DirectoryName, basePath);
+
+      return folder.Substring(0, folder.Length - 1) + parts.FileName;
     }
 
     /// <summary>
@@ -376,7 +279,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="otherDir">The directory to look for.</param>
     /// <param name="basePath">The base path for be assumed for relative path.</param>
-    /// <returns></returns>
+    /// <returns>The relative folder, alway ending with \</returns>
     public static string GetRelativeFolder(this string otherDir, string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
@@ -483,7 +386,7 @@ namespace CsvTools
     /// <param name="original">The original text.</param>
     /// <param name="replaceInvalid">The replacement for invalid chars</param>
     /// <returns>A text that is allowed in the file system as filename</returns>
-    public static string SafePath(this string original, in string replaceInvalid = "")
+    public static string SafePath(this string original, string replaceInvalid = "")
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -555,27 +458,27 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="basePath">The base path.</param>
     /// <returns></returns>
-    public static string GetShortestPath(this string? fileName, in string? basePath)
+    public static string GetShortestPath(this string? fileName, string? basePath)
     {
       if (fileName == null)
         return string.Empty;
 
       var absolute = fileName.GetAbsolutePath(basePath);
-      var relative = fileName.GetRelativePath(basePath);
-
-      if (relative.Length < absolute.Length)
-        return relative;
 
       var fileNameSpecial = UseSpecialFolders(absolute);
       if (fileNameSpecial.Length < absolute.Length)
         return fileNameSpecial;
+
+      var relative = fileName.GetRelativePath(basePath);
+      if (relative.Length < absolute.Length)
+        return relative;
 
       return absolute;
     }
 
     /// <summary>Opens the file for writing</summary>
     /// <param name="fileName">Name of the file.</param>
-    public static FileStream OpenWrite(in string fileName) => File.OpenWrite(fileName.LongPathPrefix());
+    public static FileStream OpenWrite(string fileName) => File.OpenWrite(fileName.LongPathPrefix());
 
     /// <summary>
     /// Creates a file in a particular path.  If the file exists, it is replaced. The file is opened with ReadWrite access and cannot be opened by another application until it has been closed.  
@@ -583,7 +486,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="bufferSize">Size of the buffer.</param>
     /// <param name="options">The options like RandomAccess or Asynchronous</param>    
-    public static FileStream Create(in string fileName, int bufferSize, in FileOptions options) =>
+    public static FileStream Create(string fileName, int bufferSize, in FileOptions options) =>
       File.Create(fileName.LongPathPrefix(), bufferSize, options);
 
     /// <summary>
@@ -591,7 +494,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents.</param>
-    public static void WriteAllText(in string fileName, in string contents) =>
+    public static void WriteAllText(string fileName, string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
     /// <summary>
@@ -600,7 +503,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents.</param>
     /// <param name="encoding">The encoding to be used</param>
-    public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
+    public static void WriteAllText(string fileName, string contents, in Encoding encoding) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
@@ -614,7 +517,7 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
+    public static System.Threading.Tasks.Task WriteAllTextAsync(string fileName, string contents, System.Threading.CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
 
@@ -623,20 +526,20 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns></returns>
-    public static string GetFullPath(in string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
+    public static string GetFullPath(string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
 
     /// <summary>
     /// Opens the file for reading
     /// </summary>
     /// <param name="fileName">Name of the file.</param>    
-    public static FileStream OpenRead(in string fileName) => File.OpenRead(fileName.LongPathPrefix());
+    public static FileStream OpenRead(string fileName) => File.OpenRead(fileName.LongPathPrefix());
 
     /// <summary>
     /// Writes all bytes of content to the file
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="contents">The contents to be written.</param>
-    public static void WriteAllBytes(in string fileName, in byte[] contents) =>
+    public static void WriteAllBytes(string fileName, in byte[] contents) =>
       File.WriteAllBytes(fileName.LongPathPrefix(), contents);
 
     /// <summary>
@@ -648,35 +551,29 @@ namespace CsvTools
     public static StreamReader GetStreamReaderForFileOrResource(string resourceName)
     {
       var fileName = Path.Combine(ExecutableDirectoryName(), resourceName);
-      try
-      {
-        if (FileExists(fileName))
-          return new StreamReader(OpenRead(fileName), true);
 
-        var executingAssembly = Assembly.GetExecutingAssembly();
-        Stream? stream = null;
-        var foundName = executingAssembly.GetManifestResourceNames()
+      if (FileExists(fileName))
+        return new StreamReader(OpenRead(fileName), true);
+
+      var executingAssembly = Assembly.GetExecutingAssembly();
+      Stream? stream = null;
+      var foundName = executingAssembly.GetManifestResourceNames()
+        .FirstOrDefault(x => x.EndsWith("." + resourceName, StringComparison.OrdinalIgnoreCase));
+      // try the embedded resource
+      if (foundName != null)
+        stream = executingAssembly.GetManifestResourceStream(foundName);
+
+      var callingAssembly = Assembly.GetCallingAssembly();
+      if (callingAssembly != executingAssembly)
+      {
+        foundName = callingAssembly.GetManifestResourceNames()
           .FirstOrDefault(x => x.EndsWith("." + resourceName, StringComparison.OrdinalIgnoreCase));
-        // try the embedded resource
         if (foundName != null)
-          stream = executingAssembly.GetManifestResourceStream(foundName);
-
-        var callingAssembly = Assembly.GetCallingAssembly();
-        if (callingAssembly != executingAssembly)
-        {
-          foundName = callingAssembly.GetManifestResourceNames()
-            .FirstOrDefault(x => x.EndsWith("." + resourceName, StringComparison.OrdinalIgnoreCase));
-          if (foundName != null)
-            stream = callingAssembly.GetManifestResourceStream(foundName);
-        }
-
-        if (stream != null)
-          return new StreamReader(stream, true);
+          stream = callingAssembly.GetManifestResourceStream(foundName);
       }
-      catch (Exception ex)
-      {
-        try { Logger.Error(ex); } catch { }
-      }
+
+      if (stream != null)
+        return new StreamReader(stream, true);
 
       throw new ArgumentException($"Could not locate stream for {resourceName}");
     }
@@ -717,11 +614,16 @@ namespace CsvTools
     /// <param name="path">The possibly prefixed name of th file.</param>
     public static string RemovePrefix(this string path)
     {
-      if (!IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
+      if (!IsWindows)
+        return path;
+
+      if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(cLongPathPrefix.Length);
-      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-        ? path.Substring(cUncLongPathPrefix.Length)
-        : path;
+
+      if (path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+        return @"\\" + path.Substring(cUncLongPathPrefix.Length);
+
+      return path;
     }
 
     /// <summary>
@@ -729,7 +631,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public static string ResolvePattern(in string fileName)
+    public static string ResolvePattern(string fileName)
     {
       if (fileName is null || fileName.Length == 0)
         return string.Empty;
@@ -758,7 +660,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The full path possibly with directories</param>
     /// <returns></returns>
-    public static string GetFileName(in string? path)
+    public static string GetFileName(string? path)
     {
       if (path is null || path.Length == 0)
         return string.Empty;
@@ -770,13 +672,13 @@ namespace CsvTools
     /// Creates a text file
     /// </summary>
     /// <param name="path">The path to the file.</param>
-    public static StreamWriter CreateText(in string path) => File.CreateText(path.LongPathPrefix());
+    public static StreamWriter CreateText(string path) => File.CreateText(path.LongPathPrefix());
 
     /// <summary>
     /// Reads all text for a file
     /// </summary>
     /// <param name="path">The path to the file.</param>
-    public static string ReadAllText(in string path) => File.ReadAllText(path.LongPathPrefix());
+    public static string ReadAllText(string path) => File.ReadAllText(path.LongPathPrefix());
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <summary>
@@ -784,7 +686,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The path to the file.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public static Task<string> ReadAllTextAsync(string path, CancellationToken cancellationToken)
+    public static System.Threading.Tasks.Task<string> ReadAllTextAsync(string path, System.Threading.CancellationToken cancellationToken)
       => File.ReadAllTextAsync(path.LongPathPrefix(), cancellationToken);
 #endif
 
@@ -847,20 +749,13 @@ namespace CsvTools
         }
 
         Name = fileName.RemovePrefix();
-        try
-        {
-          m_Info = new System.IO.FileInfo(fileName.LongPathPrefix());
-          if (!m_Info.Exists)
-            return;
+        m_Info = new System.IO.FileInfo(fileName.LongPathPrefix());
+        if (!m_Info.Exists)
+          return;
 
-          Exists = true;
-          Length = m_Info.Length;
-          m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
-        }
-        catch (Exception ex)
-        {
-          Logger.Information(ex, "FileInfo {fileName}", Name);
-        }
+        Exists = true;
+        Length = m_Info.Length;
+        m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
       }
 
 

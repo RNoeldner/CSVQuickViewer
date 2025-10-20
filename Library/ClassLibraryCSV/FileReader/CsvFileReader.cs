@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 using System;
@@ -20,6 +19,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,12 +45,12 @@ namespace CsvTools
     public const string cMoreColumns = " has more columns than expected";
 
     /// <summary>
-    ///   The carriage return character. Escape code is <c>\r</c>.
+    ///   The carriage return character. Escape code is <character>\r</character>.
     /// </summary>
     private const char cCr = (char) 0x0d;
 
     /// <summary>
-    ///   The line-feed character. Escape code is <c>\n</c>.
+    ///   The line-feed character. Escape code is <character>\n</character>.
     /// </summary>
     private const char cLf = (char) 0x0a;
 
@@ -92,7 +92,7 @@ namespace CsvTools
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    // this is cleared on every new currentRow and only used when m_RealignColumns is set
+    // this is cleared on every new currentRow and only used when m_ColumnMerger is set
     private readonly StringBuilder m_RecordSource = new StringBuilder(100);
 
     private readonly bool m_SkipDuplicateHeader;
@@ -126,9 +126,15 @@ namespace CsvTools
     private int m_ConsecutiveEmptyRows;
 
     /// <summary>
+    ///   An array of usual column length, this is used during reading columns to avoid multiple allocations
+    /// </summary>
+    private int[] MaxColumnLengths = Array.Empty<int>();
+
+    /// <summary>
     ///   If the End of the line is reached this is true
     /// </summary>
     private bool m_EndOfLine;
+    private long m_EndLineNumber = 0;
 
     private IReadOnlyList<string> m_HeaderRow;
 
@@ -151,27 +157,52 @@ namespace CsvTools
     /// The class that might realign columns, this is only used if the option to realign columns is set
     /// it will keep track of a limited number of known to be good rows and try to realign rows 
     /// </summary>
-    private ReAlignColumns? m_RealignColumns;
+    private CsvColumnMerger? m_ColumnMerger;
 
     /// <summary>
     ///   The TextReader to read the file
     /// </summary>
     private ImprovedTextReader? m_TextReader;
 
-    /// <inheritdoc />
-    public CsvFileReader(in Stream stream, int codePageId, int skipRows,
-      bool hasFieldHeader, in IEnumerable<Column>? columnDefinition, in TrimmingOptionEnum trimmingOption,
-      char fieldDelimiter, char fieldQualifier, char escapeCharacter,
-      long recordLimit, bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine,
-      int numWarning, bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
-      in string quotePlaceholder, bool skipDuplicateHeader, bool treatLinefeedAsSpace,
-      bool treatUnknownCharacterAsSpace,
-      bool tryToSolveMoreColumns, bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes,
-      bool warnUnknownCharacter, bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull,
-      bool skipEmptyLines, int consecutiveEmptyRowsMax, in TimeZoneChangeDelegate timeZoneAdjust,
-      in string returnedTimeZone, bool allowPercentage, bool removeCurrency)
+    /// <inheritdoc />    
+    public CsvFileReader(in Stream stream,
+      int codePageId = 65001,
+      int skipRows = 0,
+      bool hasFieldHeader = true,
+      in IEnumerable<Column>? columnDefinition = null,
+      in TrimmingOptionEnum trimmingOption = TrimmingOptionEnum.Unquoted,
+      char fieldDelimiterChar = ',',
+      char fieldQualifierChar = '"',
+      char escapeCharacterChar = '\0',
+      long recordLimit = 0,
+      bool allowRowCombining = false,
+      bool contextSensitiveQualifier = false,
+      string commentLine = "#",
+      int numWarning = 0,
+      bool duplicateQualifierToEscape = true,
+      string newLinePlaceholder = "",
+      string delimiterPlaceholder = "",
+      string quotePlaceholder = "",
+      bool skipDuplicateHeader = true,
+      bool treatLinefeedAsSpace = false,
+      bool treatUnknownCharacterAsSpace = false,
+      bool tryToSolveMoreColumns = false,
+      bool warnDelimiterInValue = false,
+      bool warnLineFeed = false,
+      bool warnNbsp = false,
+      bool warnQuotes = false,
+      bool warnUnknownCharacter = false,
+      bool warnEmptyTailingColumns = true,
+      bool treatNbspAsSpace = false,
+      string treatTextAsNull = "null",
+      bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 5,
+      in TimeZoneChangeDelegate? timeZoneAdjust = null,
+      string returnedTimeZone = "",
+      bool allowPercentage = true,
+      bool removeCurrency = true)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
+        trimmingOption, fieldDelimiterChar, fieldQualifierChar, escapeCharacterChar, recordLimit, allowRowCombining,
         contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
         delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLinefeedAsSpace, treatUnknownCharacterAsSpace,
         tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
@@ -187,44 +218,44 @@ namespace CsvTools
     /// <param name="fileName">Fully qualified path of the file to write</param>
     /// <param name="codePageId">The code page identifier. UTF8 is 65001</param>
     /// <param name="skipRows">Number of rows that should be ignored in the beginning, e.G. for information not related  to the data</param>
-    /// <param name="hasFieldHeader">If set to <c>true</c> assume the name of the columns is in the first read currentRow</param>
+    /// <param name="hasFieldHeader">If set to <character>true</character> assume the name of the columns is in the first read currentRow</param>
     /// <param name="columnDefinition">The column definition for value conversion.</param>
     /// <param name="trimmingOption">How should leading/trailing spaces be trimmed?. Option based on information whether the text is quoted or not</param>
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
     /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting.</param>
     /// <param name="escapeCharacterChar">The escape character an escaped chars is read as is, 2nd method to have quotes or delimiter in column.</param>
     /// <param name="recordLimit">After the giving number of records stop reading</param>
-    /// <param name="allowRowCombining">if set to <c>true</c> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>
-    /// <param name="contextSensitiveQualifier">if set to <c>true</c> assume context-sensitive qualifiers, context-sensitive quoting looks at the surrounding character to determine if is a starting or ending quote.</param>
+    /// <param name="allowRowCombining">if set to <character>true</character> try to combine rows, assuming not properly quoted the content of a columns has pushed data to next line</param>
+    /// <param name="contextSensitiveQualifier">if set to <character>true</character> assume context-sensitive qualifiers, context-sensitive quoting looks at the surrounding character to determine if is a starting or ending quote.</param>
     /// <param name="commentLine">Identifier for a comment line, a line starting with this text will be ignored.</param>
     /// <param name="numWarning">Warning will stop after the given number, information losses its value if repeated over and over</param>
-    /// <param name="duplicateQualifierToEscape">if set to <c>true</c> a repeated qualifier are not ending the column but will be regarded as quote contained in the column.</param>
+    /// <param name="duplicateQualifierToEscape">if set to <character>true</character> a repeated qualifier are not ending the column but will be regarded as quote contained in the column.</param>
     /// <param name="newLinePlaceholder">The new line placeholder, similar to escaping but does replace the given placeholder with linefeed  e.G. "[LineFeed]" --> \n.</param>
     /// <param name="delimiterPlaceholder">The delimiter placeholder, similar to escaping but does replace the given placeholder with the delimiter  e.G. "{Del}" --> ","</param>
     /// <param name="quotePlaceholder">The quote placeholder, similar to escaping but does replace the given placeholder with the quote e.G. "{Quote}" --> "'"</param>
-    /// <param name="skipDuplicateHeader">if set to <c>true</c> does not return a  currentRow if the header is in the file multiple time, used when files where combined without removing the header.</param>
-    /// <param name="treatLinefeedAsSpace">if set to <c>true</c> treat any found linefeed as regular space.</param>
-    /// <param name="treatUnknownCharacterAsSpace">if set to <c>true</c> treat the unknown character as space.</param>
-    /// <param name="tryToSolveMoreColumns">if set to <c>true</c> try and resolved additional columns, this happens when column content is not properly quoted.</param>
-    /// <param name="warnDelimiterInValue">if set to <c>true</c> raise a warning if the delimiter is part of a column.</param>
-    /// <param name="warnLineFeed">if set to <c>true</c> raise a warning if line feed is part of a column.</param>
-    /// <param name="warnNbsp">if set to <c>true</c> raise a warning if a non-breaking space is part of a column.</param>
-    /// <param name="warnQuotes">if set to <c>true</c> raise a warning if the quoting is part of a column.</param>
-    /// <param name="warnUnknownCharacter">if set to <c>true</c> raise a warning if � is part of a column.</param>
-    /// <param name="warnEmptyTailingColumns">if set to <c>true</c> raise a warning if empty tailing columns are found.</param>
-    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat a NBSP as regular space.</param>
-    /// <param name="treatTextAsNull">The text to treat as null. c.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
-    /// <param name="skipEmptyLines">if set to <c>true</c> if empty lines should simply be skipped.</param>
+    /// <param name="skipDuplicateHeader">if set to <character>true</character> does not return a  currentRow if the header is in the file multiple time, used when files where combined without removing the header.</param>
+    /// <param name="treatLinefeedAsSpace">if set to <character>true</character> treat any found linefeed as regular space.</param>
+    /// <param name="treatUnknownCharacterAsSpace">if set to <character>true</character> treat the unknown character as space.</param>
+    /// <param name="tryToSolveMoreColumns">if set to <character>true</character> try and resolved additional columns, this happens when column content is not properly quoted.</param>
+    /// <param name="warnDelimiterInValue">if set to <character>true</character> raise a warning if the delimiter is part of a column.</param>
+    /// <param name="warnLineFeed">if set to <character>true</character> raise a warning if line feed is part of a column.</param>
+    /// <param name="warnNbsp">if set to <character>true</character> raise a warning if a non-breaking space is part of a column.</param>
+    /// <param name="warnQuotes">if set to <character>true</character> raise a warning if the quoting is part of a column.</param>
+    /// <param name="warnUnknownCharacter">if set to <character>true</character> raise a warning if ï¿½ is part of a column.</param>
+    /// <param name="warnEmptyTailingColumns">if set to <character>true</character> raise a warning if empty tailing columns are found.</param>
+    /// <param name="treatNbspAsSpace">if set to <character>true</character> treat a NBSP as regular space.</param>
+    /// <param name="treatTextAsNull">The text to treat as null. character.G. "NULL" -> DBNull.Value; "N/A" -> DBNull.Value</param>
+    /// <param name="skipEmptyLines">if set to <character>true</character> if empty lines should simply be skipped.</param>
     /// <param name="consecutiveEmptyRowsMax">Number of consecutive empty rows where we should assume the file is at its end.</param>
     /// <param name="identifierInContainer">The identifier in container, in case the file a container file like zip.</param>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments while reading, only used if you have a date / time column and timezone column in the source, e.G. "24/01/2024 07:56" and "UTC" -->  "24/01/2024 13:26" (if IST is timezone specified) </param>
     /// <param name="returnedTimeZone">The time zone input file should be converted to, only viable if you have a date / time column and timezone column in the source.</param>
-    /// <param name="allowPercentage">if set to <c>true</c> convert percentages to numeric values e.G. 17% -> 0.17.</param>
-    /// <param name="removeCurrency">if set to <c>true</c> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
+    /// <param name="allowPercentage">if set to <character>true</character> convert percentages to numeric values e.G. 17% -> 0.17.</param>
+    /// <param name="removeCurrency">if set to <character>true</character> removed currency symbols to values can be read as decimals , .e.G. 17.82€ -> 17.82</param>
     /// <exception cref="System.ArgumentNullException">if fileName is not set</exception>
     /// <exception cref="System.ArgumentException">File can not be empty - fileName</exception>
     /// <exception cref="System.IO.FileNotFoundException">The file does not exist or is not accessible.</exception>
-    public CsvFileReader(in string fileName,
+    public CsvFileReader(string fileName,
       int codePageId = 65001,
       int skipRows = 0,
       bool hasFieldHeader = true,
@@ -236,12 +267,12 @@ namespace CsvTools
       long recordLimit = 0,
       bool allowRowCombining = false,
       bool contextSensitiveQualifier = false,
-      in string commentLine = "#",
+      string commentLine = "#",
       int numWarning = 0,
       bool duplicateQualifierToEscape = true,
-      in string newLinePlaceholder = "",
-      in string delimiterPlaceholder = "",
-      in string quotePlaceholder = "",
+      string newLinePlaceholder = "",
+      string delimiterPlaceholder = "",
+      string quotePlaceholder = "",
       bool skipDuplicateHeader = true,
       bool treatLinefeedAsSpace = false,
       bool treatUnknownCharacterAsSpace = false,
@@ -253,10 +284,10 @@ namespace CsvTools
       bool warnUnknownCharacter = false,
       bool warnEmptyTailingColumns = true,
       bool treatNbspAsSpace = false,
-      in string treatTextAsNull = "null",
+      string treatTextAsNull = "null",
       bool skipEmptyLines = true,
       int consecutiveEmptyRowsMax = 5,
-      in string identifierInContainer = "",
+      string identifierInContainer = "",
       in TimeZoneChangeDelegate? timeZoneAdjust = null,
       string returnedTimeZone = "",
       bool allowPercentage = true,
@@ -292,12 +323,12 @@ namespace CsvTools
       long recordLimit,
       bool allowRowCombining,
       bool contextSensitiveQualifier,
-      in string commentLine,
+      string commentLine,
       int numWarning,
       bool duplicateQualifierToEscape,
-      in string newLinePlaceholder,
-      in string delimiterPlaceholder,
-      in string quotePlaceholder,
+      string newLinePlaceholder,
+      string delimiterPlaceholder,
+      string quotePlaceholder,
       bool skipDuplicateHeader,
       bool treatLinefeedAsSpace,
       bool treatUnknownCharacterAsSpace,
@@ -309,13 +340,13 @@ namespace CsvTools
       bool warnUnknownCharacter,
       bool warnEmptyTailingColumns,
       bool treatNbspAsSpace,
-      in string treatTextAsNull,
+      string treatTextAsNull,
       bool skipEmptyLines,
       int consecutiveEmptyRowsMax,
-      in string identifierInContainer,
-      in string fileName,
+      string identifierInContainer,
+      string fileName,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string destTimeZone,
+      string destTimeZone,
       bool allowPercentage,
       bool removeCurrency)
       : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
@@ -388,7 +419,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
-    /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
+    /// <value><character>true</character> if this instance is closed; otherwise, <character>false</character>.</value>
     public override bool IsClosed => m_TextReader is null;
 
     /// <inheritdoc />
@@ -450,6 +481,16 @@ namespace CsvTools
       return ret ?? DBNull.Value;
     }
 
+    /// <inheritdoc  />
+    protected override void InitColumn(int fieldCount)
+    {
+      base.InitColumn(fieldCount);
+
+      MaxColumnLengths = new int[fieldCount];
+      for (int i = 0; i < fieldCount; i++)
+        MaxColumnLengths[i] = 32;
+    }
+
     /// <inheritdoc cref="IFileReader.OpenAsync" />
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
@@ -462,12 +503,7 @@ namespace CsvTools
       {
         if (SelfOpenedStream)
         {
-          if (m_Stream != null)
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            await m_Stream.DisposeAsync().ConfigureAwait(false);
-#else
-            m_Stream.Dispose();
-#endif
+          m_Stream?.Dispose();
           m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath)
           {
             IdentifierInContainer = m_IdentifierInContainer
@@ -482,7 +518,11 @@ namespace CsvTools
         m_TextReader?.Dispose();
         m_TextReader = await m_Stream.GetTextReaderAsync(m_CodePageId, m_SkipRows, token).ConfigureAwait(false);
 
-        ResetPositionToStartOrOpen();
+        EndLineNumber = 1 + m_SkipRows;
+        StartLineNumber = EndLineNumber;
+        RecordNumber = 0;
+        m_EndOfLine = false;
+        EndOfFile = false;
 
         m_HeaderRow = ReadNextRow(false);
 
@@ -497,9 +537,10 @@ namespace CsvTools
               unescapedFormatter.RaiseWarning = false;
 
         if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
-          m_RealignColumns = new ReAlignColumns(FieldCount);
+          m_ColumnMerger = new CsvColumnMerger(FieldCount, m_FieldDelimiter);
 
         if (m_TextReader.CanSeek)
+          // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on teh first data row
           ResetPositionToFirstDataRow();
 
         FinishOpen();
@@ -622,10 +663,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   This does read the next record and stores it in CurrentRowColumnText /&gt;, it will handle
-    ///   column mismatches
+    ///   Current Line Number in the text file, a record can span multiple lines and lines are
+    ///   skipped, this is he ending line
     /// </summary>
-    /// <returns><c>true</c> if a new record was read</returns>
+    public override long EndLineNumber { get => m_EndLineNumber; protected set => m_EndLineNumber = value; }
+
+    /// <summary>
+    ///   Reads the next record and stores it in CurrentRowColumnText, handling column mismatches.
+    /// </summary>
+    /// <returns>True if a new record was read; otherwise, false.</returns>
     private bool GetNextRecord()
     {
       try
@@ -700,7 +746,7 @@ namespace CsvTools
             // allow up to two extra columns they can be combined later
             if (nextLine.Count > 0 && nextLine.Count + currentRow.Count < FieldCount + 4)
             {
-              var combined = new List<string>(currentRow); 
+              var combined = new List<string>(currentRow);
 
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
@@ -716,7 +762,7 @@ namespace CsvTools
 
             // we have an issue we went into the next Buffer there is no way back.
             HandleError(-1,
-              $"Line {cLessColumns}\nAttempting to combined lines some line(s) have been read this information is now lost, please turn off Row Combination");
+              $"Line {cLessColumns}\nAttempting to combine lines; some line(s) have been read and this information is now lost. Please turn off Row Combination.");
           }
         }
 
@@ -738,17 +784,36 @@ namespace CsvTools
           {
             if (m_WarnEmptyTailingColumns)
               HandleWarning(-1,
-                text + " All additional columns where empty.");
+                text + " All additional columns were empty.");
           }
           // there is something in the last columns
           else
           {
-            if (m_RealignColumns != null)
+            if (m_ColumnMerger != null)
             {
               HandleWarning(-1, text + " Trying to realign columns.");
 
               // determine which column could have caused the issue it could be any column, try to establish
-              currentRow = m_RealignColumns.RealignColumn(currentRow, HandleWarning, m_RecordSource.ToString());
+              currentRow = m_ColumnMerger.MergeMisalignedColumns(currentRow, HandleWarning,
+                (col, raw) =>
+                {
+                  var pos = 0;
+                  bool eol = false;
+                  long ignored = 0;
+
+                  if (m_FieldQualifier!=0 && raw[0] != m_FieldQualifier)
+                    // Need to add quoting so parse does not stop with the included delimiter
+                    raw = $"{m_FieldQualifier}{raw}{m_FieldQualifier}";
+
+                  return ParseColumn(
+                    readChar: () => raw[pos++],
+                    peekChar: () => raw[pos],
+                    moveNext: (c) => pos++,
+                    endOfFile: () => pos >= raw.Length,
+                    columnNo: col,
+                    endOfLine: ref eol,
+                    ref ignored)!;
+                }, m_RecordSource.ToString());
             }
             else
             {
@@ -761,17 +826,13 @@ namespace CsvTools
         // Handle Text replacements and warning in the read columns
         for (var columnNo = 0; columnNo < FieldCount; columnNo++)
         {
-          if (GetColumn(columnNo).Ignore)
-            continue;
-
-          // store the values from the currentRow
-          if (columnNo<currentRow.Count)
+          // store the values from the currentRow, even ignore rows need to be copied, in case they are referenced like a time column 
+          if (columnNo < currentRow.Count)
             CurrentRowColumnText[columnNo] = currentRow[columnNo];
           else
             CurrentRowColumnText[columnNo] = string.Empty;
-            
 
-          if (string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
+          if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
 
           // Handle replacements and warnings etc.
@@ -831,7 +892,18 @@ namespace CsvTools
         }
 
         RecordNumber++;
-        m_RealignColumns?.AddRow(CurrentRowColumnText);
+        m_ColumnMerger?.AddAlignedRow(CurrentRowColumnText);
+        for (int i = 0; i < FieldCount; i++)
+        {
+          int currentLength = CurrentRowColumnText[i]?.Length ?? 0;
+          int prevMax = MaxColumnLengths[i];
+
+          // Weighted average update
+          int newMax = (prevMax * 3 + currentLength) / 4 + 16;
+
+          // Minimum buffer length
+          MaxColumnLengths[i] = Math.Max(32, newMax);
+        }
         return true;
       }
       catch (Exception ex)
@@ -847,14 +919,14 @@ namespace CsvTools
     ///   Indicates whether the specified Unicode character is categorized as white space.
     /// </summary>
     /// <param name="c">A Unicode character.</param>
-    /// <returns><c>true</c> if the character is a whitespace</returns>
+    /// <returns><character>true</character> if the character is a whitespace</returns>
     private bool IsWhiteSpace(char c)
     {
       // Handle cases where the delimiter is a whitespace (e.g. tab)
       if (c == m_FieldDelimiter)
         return false;
 
-      // See char.IsLatin1(char c) in Reflector
+      // See char.IsLatin1(char character) in Reflector
       if (c <= '\x00ff')
         // ReSharper disable once MergeIntoLogicalPattern
         return c == ' ' || c == '\t';
@@ -868,7 +940,7 @@ namespace CsvTools
     /// <param name="current">The recent character that has been read</param>
     private void MoveNext(char current)
     {
-      if (m_RealignColumns != null)
+      if (m_ColumnMerger != null)
         m_RecordSource.Append(current);
       m_TextReader?.MoveNext();
     }
@@ -937,6 +1009,7 @@ namespace CsvTools
     ///   Gets the next char from the buffer, but stay at the current position
     /// </summary>
     /// <returns>The next char</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private char Peek()
     {
       var res = m_TextReader!.Peek();
@@ -948,60 +1021,134 @@ namespace CsvTools
       return cLf;
     }
 
+    /// <summary>
+    /// Reads the next character from the CSV input stream.
+    /// Handles end-of-file detection and optionally appends characters
+    /// to the record buffer if column merging is enabled.
+    /// </summary>
+    /// <returns>
+    /// The next character read from the input stream.  
+    /// If the end of the file is reached, returns <c>cLf</c> to signal
+    /// an artificial line break and sets EndOfFile to <c>true</c>.
+    /// </returns>
     private char ReadChar()
     {
-      if (m_RealignColumns != null)
+      int res = m_TextReader!.Read();
+      if (res == -1)
       {
-        var character = Peek();
-        m_RecordSource.Append(character);
-        m_TextReader!.MoveNext();
+        EndOfFile = true;
+        return cLf; // Return linefeed at EOF
+      }
+      else
+      {
+        var character = (char) res;
+        if (m_ColumnMerger != null)
+          m_RecordSource.Append(character);
         return character;
       }
-
-      var res = m_TextReader!.Read();
-      if (res != -1)
-        return (char) res;
-      EndOfFile = true;
-      // return a linefeed to determine the end of a line
-      return cLf;
     }
 
+
     /// <summary>
-    ///   Gets the next column in the buffer.
+    ///   Reads the next column from the current CSV row buffer.
     /// </summary>
-    /// <param name="columnNo">The column number for warnings</param>
-    /// <returns>The next column null after the last column</returns>
+    /// <param name="columnNo">
+    ///   The zero-based index of the column. Used for warning reporting and for
+    ///   adaptive initial buffer allocation based on <character>MaxColumnLengths</character>.
+    /// </param>
+    /// <returns>
+    ///   The column text as a <see cref="string"/>. Returns <character>null</character> if the end of the file
+    ///   has been reached or the current row has no more columns.
+    /// </returns>
     /// <remarks>
-    ///   If NULL is returned we are at the end of the file, an empty column is read as empty string
+    ///   <para>
+    ///     - If an empty column is read, it is returned as an empty string.
+    ///     - Allocates a <see cref="StringBuilder"/> with an initial capacity based on
+    ///       <character>MaxColumnLengths[columnNo]</character> to minimize buffer resizing.
+    ///     - Handles quoted columns, escaped quotes, line feeds inside quotes, and optional
+    ///       trimming.
+    ///     - Emits warnings for non-breaking spaces, unknown characters, or line feeds when
+    ///       configured.
+    ///     - Updates <character>endOfLine</character> to indicate when the end of the current row is reached.
+    ///   </para>
+    ///   <para>
+    ///     Parsing respects the following CSV conventions:
+    ///       - Double quotes inside quoted fields are treated as a single quote if 
+    ///         <character>m_DuplicateQualifierToEscape</character> is enabled.
+    ///       - Line feeds inside quoted fields can be converted to spaces if
+    ///         <character>m_TreatLinefeedAsSpace</character> is enabled.
+    ///       - Context-sensitive closing of quotes is handled via 
+    ///         <character>m_ContextSensitiveQualifier</character>.
+    ///   </para>
+    ///   <para>
+    ///     This method should be called repeatedly until it returns <character>null</character> to read
+    ///     all columns in the current row.
+    ///   </para>
     /// </remarks>
-    private string? ReadNextColumn(int columnNo)
+    private string? ReadNextColumn(int columnNo) => ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, columnNo, ref m_EndOfLine, ref m_EndLineNumber);
+
+    /// <summary>
+    ///   Parses the next column from the input stream using provided character access functions.
+    ///   Handles field delimiters, line breaks (CR/LF), whitespace trimming, qualifiers (quotes),
+    ///   escape sequences, and special characters such as non-breaking spaces and unknown chars.
+    ///   
+    ///   Behavior:
+    ///   - Starts a new line if the previous field ended with a line break.
+    ///   - Supports quoted fields with optional escape/duplicate qualifier handling.
+    ///   - Treats CR/LF combinations correctly, including mixed order (LF+CR).
+    ///   - Can replace line feeds inside quoted fields with spaces (if configured).
+    ///   - Emits warnings for special characters (e.g., NBSP, unknown chars) depending on settings.
+    ///   - Applies trimming rules (None, All, or Unquoted) before returning the final value.
+    /// 
+    ///   Returns:
+    ///   - The parsed column text, with applied transformations.
+    ///   - <c>null</c> if at end of file or if a new line has just started.
+    /// </summary>
+    /// <param name="readChar">Delegate that returns the next character and advances the reader position.</param>
+    /// <param name="peekChar">Delegate that returns the next character without advancing the reader.</param>
+    /// <param name="moveNext">Delegate that consumes the specified character, advancing the reader.</param>
+    /// <param name="endOfFile">Delegate that indicates whether the end of the input stream has been reached.</param>
+    /// <param name="columnNo">Zero-based column index currently being parsed.</param>
+    /// <param name="endOfLine">
+    ///   Reference flag set to <c>true</c> when the parser encounters a line break,
+    ///   indicating the end of the current row.
+    /// </param>re
+    /// <param name="endLineNumber">
+    ///   Reference counter tracking the line number up to and including the parsed value,
+    ///   incremented on line breaks.
+    /// </param>
+    private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
     {
-      if (EndOfFile)
+      if (endOfFile())
         return null;
-      if (m_EndOfLine)
+      if (endOfLine)
       {
         // previous item was last in line, start new line
-        m_EndOfLine = false;
+        endOfLine = false;
         return null;
       }
 
-      var stringBuilder = new StringBuilder(5);
+      int initLength = 96;
+      if (columnNo < FieldCount) initLength = MaxColumnLengths[columnNo];
+      var stringBuilder = new StringBuilder(initLength);
+
       var quoted = false;
       var preData = true;
       var postData = false;
       var escaped = false;
-      while (!EndOfFile)
+
+      while (!endOfFile())
       {
         // Read a character
-        var character = ReadChar();
+        char character = readChar();
 
         // in case we have a single LF
         if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted)
         {
           var singleLf = true;
-          if (!EndOfFile)
+          if (!endOfFile())
           {
-            var nextChar = Peek();
+            var nextChar = peekChar();
             if (nextChar == cCr)
               singleLf = false;
           }
@@ -1009,7 +1156,7 @@ namespace CsvTools
           if (singleLf)
           {
             character = ' ';
-            EndLineNumber++;
+            endLineNumber++;
             if (m_WarnLineFeed)
               WarnLinefeed(columnNo);
           }
@@ -1039,22 +1186,22 @@ namespace CsvTools
 
           case cCr:
           case cLf:
-            EndLineNumber++;
+            endLineNumber++;
 
             var nextChar = char.MinValue;
-            if (!EndOfFile)
+            if (!endOfFile())
             {
-              nextChar = Peek();
+              nextChar = peekChar();
               if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
               {
                 nextChar = char.MinValue;
               }
               else
               {
-                MoveNext(nextChar);
+                moveNext(nextChar);
 
                 if (character == cLf && nextChar == cCr)
-                  EndLineNumber++;
+                  endLineNumber++;
               }
             }
 
@@ -1069,13 +1216,13 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || EndOfFile)
+        if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || endOfFile())
           break;
 
         // Finished with reading the column by Linefeed
         if ((character == cCr || character == cLf) && (preData || postData || !quoted))
         {
-          m_EndOfLine = true;
+          endOfLine = true;
           break;
         }
 
@@ -1114,19 +1261,19 @@ namespace CsvTools
 
         if (character == m_FieldQualifier && quoted && !escaped)
         {
-          var peekNextChar = Peek();
+          var peekNextChar = peekChar();
 
           // a "" should be regarded as " if the text is quoted
           if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_FieldQualifier);
-            MoveNext(peekNextChar);
+            moveNext(peekNextChar);
 
             // handling for "" that is not only representing a " but also closes the text
             if (m_ContextSensitiveQualifier)
             {
-              peekNextChar = Peek();
+              peekNextChar = peekChar();
               if (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf)
                 postData = true;
             }
@@ -1181,24 +1328,23 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Reads the record of the CSV file, this can span over multiple lines, this method can return more or less columns than expected
+    ///   Reads the record of the CSV file, which can span multiple lines. This method can return more or fewer columns than expected.
     /// </summary>
-    /// <param name="raiseWarnings">Set to <c>true</c> if the warnings should be issued.</param>
+    /// <param name="raiseWarnings">Set to true if warnings should be issued.</param>
     /// <returns>
-    ///   Empty List if the currentRow can not be read, or string values representing the columns of
-    ///   the currentRow
+    ///   An empty list if the row cannot be read, or string values representing the columns of the row.
     /// </returns>
     private IReadOnlyList<string> ReadNextRow(bool raiseWarnings)
     {
       bool restart;
-      // Special handling for the first column in the currentRow
+      // Special handling for the first column in the row
       string? item;
       do
       {
         restart = false;
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
-        if (m_RealignColumns != null)
+        if (m_ColumnMerger != null)
           m_RecordSource.Clear();
 
         // If already at end of file, return null
@@ -1245,7 +1391,7 @@ namespace CsvTools
 
       while (item != null)
       {
-        // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
+        // If a column is quoted and contains the delimiter and linefeed, issue a warning; we
         // might have an opening delimiter with a missing closing delimiter
         if (raiseWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
             && item.IndexOf(m_FieldDelimiter) != -1)
@@ -1260,13 +1406,39 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Resets the position and buffer to the first line, excluding headers, use
-    ///   ResetPositionToStart if you want to go to first data line
+    /// Resets the reading position and internal buffers to the first line of the file
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the reader cannot seek and the stream was not opened by this instance.
+    /// </exception>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_TextReader!.CanSeek)
+      if (m_TextReader?.CanSeek ?? false)
+      {
         m_TextReader.ToBeginning();
+      }
+      else if (SelfOpenedStream)
+      {
+        // Dispose and reopen the stream from the start
+        // TextReader Dispose will take care of the stream
+        m_TextReader?.Dispose();
+
+        m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath)
+        {
+          IdentifierInContainer = m_IdentifierInContainer
+        });
+
+        m_TextReader = m_Stream
+         .GetTextReaderAsync(m_CodePageId, m_SkipRows, CancellationToken.None)
+         .ConfigureAwait(false)
+         .GetAwaiter()
+         .GetResult();
+      }
+      else
+      {
+        throw new InvalidOperationException(
+           "Resetting to the start of the stream is not supported for externally provided streams.");
+      }
 
       EndLineNumber = 1 + m_SkipRows;
       StartLineNumber = EndLineNumber;
@@ -1277,6 +1449,7 @@ namespace CsvTools
       // Report process to start aragin
       HandleShowProgress("Reset to start of file", 0);
     }
+
 
     /// <summary>
     ///   Add warnings for Linefeed.

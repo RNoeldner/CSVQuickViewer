@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -38,7 +38,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="args">The arguments.</param>
-    public static void Debug(in string? message, params object[] args)
+    public static void Debug(string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
         return;
@@ -50,7 +50,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Error(in string? message, params object[] args)
+    public static void Error(string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
         return;
@@ -62,13 +62,13 @@ namespace CsvTools
     /// <param name="exception">Exception that need to be documented</param>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Error(in Exception exception, in string? message = null, params object[] args) =>
+    public static void Error(in Exception exception, string? message = null, params object[] args) =>
       LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
 
     /// <summary>Logs a message on information level.</summary>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Information(in string? message, params object[] args)
+    public static void Information(string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
         return;
@@ -79,7 +79,7 @@ namespace CsvTools
     /// <param name="exception">Exception that need to be documented</param>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Information(in Exception exception, in string? message, params object[] args)
+    public static void Information(in Exception exception, string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
         return;
@@ -89,7 +89,7 @@ namespace CsvTools
     /// <summary>Logs a warning level message.</summary>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Warning(in string? message, params object[] args)
+    public static void Warning(string? message, params object[] args)
     {
       if (message is null || message.Length == 0)
         return;
@@ -100,7 +100,7 @@ namespace CsvTools
     /// <param name="exception">Exception that need to be documented</param>
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
-    public static void Warning(in Exception exception, in string? message, params object[] args) =>
+    public static void Warning(in Exception exception, string? message, params object[] args) =>
       LoggerInstance?.LogWarning(exception.Demystify(), message ?? string.Empty, args);
   }
 }

@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using System;
 
 namespace CsvTools
 {
@@ -29,11 +42,11 @@ namespace CsvTools
         '&' => "Ampersand &",
         '*' => "Asterisk *",
         '`' => "Tick Mark `",
-        '✓' => "Check mark ✓",
+        '?' => "Check mark ?",
         '\u001C' => "File Separator Char 28",
         '\u001D' => "Group Separator Char 29",
-        '\u001E' => "Record Separator ␞",
-        '\u001F' => "Unit Separator ␟",
+        '\u001E' => "Record Separator ?",
+        '\u001F' => "Unit Separator ?",
         _ => character.ToString()
       };
 
@@ -63,7 +76,7 @@ namespace CsvTools
     /// <param name="character">The storage</param>
     /// <param name="value"></param>
     /// <returns><c>true</c> if value is changed</returns>
-    public static bool SetText(this ref char character, in string? value)
+    public static bool SetText(this ref char character, string? value)
     {
       if (character.Text().Equals(value, StringComparison.Ordinal))
         return false;
@@ -100,9 +113,9 @@ namespace CsvTools
         return char.MinValue;
       if (inputString.Length == 1)
       {
-        if (inputString.Equals("␍", StringComparison.Ordinal))
+        if (inputString.Equals("?", StringComparison.Ordinal))
           return '\r';
-        return inputString.Equals("␊", StringComparison.Ordinal) ? '\n' : inputString[0];
+        return inputString.Equals("?", StringComparison.Ordinal) ? '\n' : inputString[0];
       }
 
       // Only do a trim if we do not have a single char, otherwise Space or Tab are removed
@@ -162,7 +175,7 @@ namespace CsvTools
 
       if (compareText.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) || 
           compareText.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase))
-        return '￤';
+        return '?';
 
       if (compareText.Equals("Semicolon", StringComparison.OrdinalIgnoreCase))
         return ';';
@@ -214,7 +227,7 @@ namespace CsvTools
 
       if (compareText.Equals("Check mark", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("Check", StringComparison.OrdinalIgnoreCase))
-        return '✓';
+        return '?';
 
       if (compareText.Equals("Feed", StringComparison.OrdinalIgnoreCase)
           || compareText.Equals("LineFeed", StringComparison.OrdinalIgnoreCase)
@@ -243,3 +256,4 @@ namespace CsvTools
     }
   }
 }
+

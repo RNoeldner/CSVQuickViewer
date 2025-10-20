@@ -1,17 +1,16 @@
-/*
-* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
-*
-* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
-* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
-*
-* You should have received a copy of the GNU Lesser Public License along with this program.
-* If not, see http://www.gnu.org/licenses/ .
-*
-*/
-
+﻿/*
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -22,21 +21,19 @@ namespace CsvTools.Tests
   public class BiDirectionalDictionaryTests
   {
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Add_DuplicateKey_ShouldThrow()
     {
       var dict = new BiDirectionalDictionary<int, string>();
       dict.Add(1, "A");
-      dict.Add(1, "B");
+      Assert.Throws<ArgumentException>(() => dict.Add(1, "B"));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Add_DuplicateValue_ShouldThrow()
     {
       var dict = new BiDirectionalDictionary<int, string>();
       dict.Add(1, "A");
-      dict.Add(2, "A");
+      Assert.Throws<ArgumentException>(() => dict.Add(2, "A"));
     }
 
     [TestMethod]
@@ -48,25 +45,13 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, dict.GetByValue("A"));
       Assert.AreEqual(2, dict.GetByValue("B"));
     }
+
     [TestMethod]
     public void BiDirectionalDictionaryAddException1()
     {
       var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       Assert.AreEqual(2, bi.Count);
-      var exception = false;
-      try
-      {
-        bi.Add(3, 2);
-      }
-      catch (ArgumentException)
-      {
-        exception = true;
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-      Assert.IsTrue(exception, "No Exception thrown");
+      Assert.Throws<ArgumentException>(() => bi.Add(3, 2));
     }
 
     [TestMethod]
@@ -125,20 +110,7 @@ namespace CsvTools.Tests
     {
       var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 12 } };
       Assert.AreEqual(2, bi.Count);
-      var exception = false;
-      try
-      {
-        _ = bi.GetByValue(13);
-      }
-      catch (ArgumentException)
-      {
-        exception = true;
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-      Assert.IsTrue(exception, "No Exception thrown");
+      Assert.Throws<KeyNotFoundException>(() => _ = bi.GetByValue(13));
     }
 
     [TestMethod]
@@ -203,11 +175,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Constructor_FromDictionary_DuplicateValue_ShouldThrow()
     {
       var source = new Dictionary<int, string> { { 1, "A" }, { 2, "A" } };
-      var dict = new BiDirectionalDictionary<int, string>(source);
+      Assert.Throws<ArgumentException>(() => { var dict = new BiDirectionalDictionary<int, string>(source); });
     }
 
     [TestMethod]
@@ -220,11 +191,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void GetByValue_NotFound_ShouldThrow()
     {
       var dict = new BiDirectionalDictionary<int, string>();
-      dict.GetByValue("X");
+      Assert.Throws<KeyNotFoundException>(() => dict.GetByValue("X"));
     }
 
     [TestMethod]

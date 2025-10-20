@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -87,17 +87,7 @@ namespace CsvTools
           csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
           csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, TimeZoneAdjust, LocalTimeZone, publicKey, csv.KeepUnencrypted
           ),
-
-        IJsonFile jsonFile => new JsonFileWriter(jsonFile.FullPath, jsonFile.IdentifierInContainer,
-          jsonFile.Footer, jsonFile.Header, jsonFile.EmptyAsNull, jsonFile.CodePageId,
-          jsonFile.ByteOrderMark, jsonFile.ColumnCollection, jsonFile.GetDisplay(), jsonFile.Row,
-          TimeZoneAdjust, LocalTimeZone, publicKey, jsonFile.KeepUnencrypted
-          ),
-
-        IXmlFile xmlFile => new XmlFileWriter(xmlFile.FullPath, xmlFile.IdentifierInContainer, xmlFile.Footer,
-          xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark, xmlFile.ColumnCollection, xmlFile.GetDisplay(),
-          xmlFile.Row, TimeZoneAdjust, LocalTimeZone, publicKey, xmlFile.KeepUnencrypted
-          ),
+       
         _ => throw new FileWriterException($"Writer for {fileSetting} not found"),
       };
     }
