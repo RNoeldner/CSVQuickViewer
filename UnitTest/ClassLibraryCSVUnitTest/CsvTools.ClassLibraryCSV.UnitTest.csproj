@@ -51,7 +51,6 @@
 	<ItemGroup>
 	  <Folder Include="Database\" />
 	  <Folder Include="FileSetting\" />
-	  <Folder Include="FileWriter\" />
 	  <Folder Include="Mutable\" />
 	  <Folder Include="TestFiles\Serialization\" />
 	</ItemGroup>
