@@ -66,7 +66,7 @@ namespace CsvTools
       if (fileSetting.IdentifierInContainer.Length > 0)
         AddInfo("Name in Container", fileSetting.IdentifierInContainer);
 
-      AddInfo("File Size", fi.Length.ToString() + " Bytes");
+      AddInfo("File Size", fi.Length + " Bytes");
       AddInfo("File Date", fi.LastWriteTimeUtc.ToString("R"));
 
       AddInfo("File Encoding", EncodingHelper.GetEncodingName(fileSetting.CodePageId,

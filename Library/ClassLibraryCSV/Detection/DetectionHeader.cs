@@ -65,27 +65,24 @@ namespace CsvTools
         }
 
         // Skip commented lines
-        if (commentLine.Length > 0 && columnText.TrimStart().StartsWith(commentLine, StringComparison.Ordinal))
+        if (commentLine.Length <= 0 ||
+            !columnText.TrimStart().StartsWith(commentLine, StringComparison.Ordinal)) continue;
+        restartLineCommented = true;
+        // "Eat" the remaining columns of the commented line
+        if (endOfLine) continue;
+        while (!reader.EndOfStream)
         {
-          restartLineCommented = true;
-          // "Eat" the remaining columns of the commented line
-          if (!endOfLine)
+          var character = reader.Read();
+          if (character != cCr && character != cLf)
+            continue;
+          if (!reader.EndOfStream)
           {
-            while (!reader.EndOfStream)
-            {
-              var character = reader.Read();
-              if (character != cCr && character != cLf)
-                continue;
-              if (!reader.EndOfStream)
-              {
-                var nextChar = reader.Peek();
-                if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
-                  reader.MoveNext();
-              }
-
-              break;
-            }
+            var nextChar = reader.Peek();
+            if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
+              reader.MoveNext();
           }
+
+          break;
         }
       } while (restartLineCommented);
 
@@ -291,7 +288,7 @@ namespace CsvTools
         // Read a character
         var character = reader.Read();
         rawData.Append((char) character);
-        if (character == cCr || character == cLf)
+        if (character is cCr or cLf)
         {
           var nextChar = 0;
           if (!reader.EndOfStream)
@@ -320,7 +317,7 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == cCr || character == cLf) && (preData || !quoted))
+        if (character is cCr or cLf && (preData || !quoted))
         {
           eol = true;
           break;

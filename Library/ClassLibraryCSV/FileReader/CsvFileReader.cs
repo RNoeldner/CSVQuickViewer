@@ -360,11 +360,11 @@ namespace CsvTools
       if (m_FieldDelimiter == char.MinValue)
         throw new FileReaderException("All delimited text files do need a delimiter.");
 
-      if (m_FieldQualifier == cCr || m_FieldQualifier == cLf)
+      if (m_FieldQualifier is cCr or cLf)
         throw new FileReaderException(
           "The text qualifier characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiter == cCr || m_FieldDelimiter == cLf || m_FieldDelimiter == ' ')
+      if (m_FieldDelimiter is cCr or cLf or ' ')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -1220,7 +1220,7 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
+        if (character is cCr or cLf && (preData || postData || !quoted))
         {
           endOfLine = true;
           break;
@@ -1281,19 +1281,17 @@ namespace CsvTools
             continue;
           }
 
-          // a single " should be regarded as closing when it's followed by the delimiter
-          if (m_ContextSensitiveQualifier &&
-              (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf))
+          switch (m_ContextSensitiveQualifier)
           {
-            postData = true;
-            continue;
-          }
-
-          // a single " should be regarded as closing if we do not have alternate qualifier
-          if (!m_ContextSensitiveQualifier)
-          {
-            postData = true;
-            continue;
+            // a single " should be regarded as closing when it's followed by the delimiter
+            case true when
+              (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf):
+              postData = true;
+              continue;
+            // a single " should be regarded as closing if we do not have alternate qualifier
+            case false:
+              postData = true;
+              continue;
           }
         }
 

@@ -174,7 +174,7 @@ namespace CsvTools
     /// merge.
     /// </returns>
 
-    private string MergeUsingRawText(IReadOnlyList<string> columns, int mergeIndex, string rawText, Func<int, string, string> parseColumn)
+    private string MergeUsingRawText(List<string> columns, int mergeIndex, string rawText, Func<int, string, string> parseColumn)
     {
       // Compute start positions
       var starts = new int[mergeIndex+2];
@@ -220,7 +220,7 @@ namespace CsvTools
     ///   Positive scores favor good matches; negative scores penalize mismatches.
     ///   Soft scoring allows "almost matching" characteristics to gain partial credit.
     /// </summary>
-    private int ScoreCandidate(IReadOnlyList<string> candidate, IReadOnlyList<ColumnCharacteristic> expected)
+    private int ScoreCandidate(string[] candidate, IReadOnlyList<ColumnCharacteristic> expected)
     {
       int score = 0;
 
@@ -228,7 +228,7 @@ namespace CsvTools
       var sb = new System.Text.StringBuilder();
 #endif
 
-      for (int colNo = 0; colNo < Math.Min(candidate.Count, expected.Count); colNo++)
+      for (int colNo = 0; colNo < Math.Min(candidate.Length, expected.Count); colNo++)
       {
         var thisCol = GetCharacteristicScore(expected[colNo], GetColumnOption(candidate[colNo]));
 #if DEBUG
@@ -243,8 +243,7 @@ namespace CsvTools
       return score;
     }
 
-
-    private int GetCharacteristicScore(ColumnCharacteristic expected, ColumnCharacteristic actual)
+    private static int GetCharacteristicScore(ColumnCharacteristic expected, ColumnCharacteristic actual)
     {
       int score = 0;
       // if we have NumbersOnly and DecimalChars in both its counts extra
@@ -264,7 +263,7 @@ namespace CsvTools
         {
           score+=2;
           // very strong characteristic value more
-          if (flag== ColumnCharacteristic.Email || flag== ColumnCharacteristic.Url || flag== ColumnCharacteristic.Long || flag== ColumnCharacteristic.Empty)
+          if (flag is ColumnCharacteristic.Email or ColumnCharacteristic.Url or ColumnCharacteristic.Long or ColumnCharacteristic.Empty)
             score++;
         }
 
@@ -281,7 +280,7 @@ namespace CsvTools
     /// <returns>
     ///   The index of the column to merge into its left neighbor, or -1 if no suitable merge is found.
     /// </returns>
-    private int SelectBestMergeIndex(IReadOnlyList<string> columns, IReadOnlyList<ColumnCharacteristic> expected)
+    private int SelectBestMergeIndex(List<string> columns, IReadOnlyList<ColumnCharacteristic> expected)
     {
       int bestScore = int.MinValue;
       int bestIndex = -1;
@@ -338,12 +337,18 @@ namespace CsvTools
       if (BoolSet.Contains(text))
         all |= ColumnCharacteristic.Boolean;
 
-      if (text.Length <= 10)
-        all |= ColumnCharacteristic.VeryShort;
-      else if (text.Length <= 30)
-        all |= ColumnCharacteristic.Short;
-      else if (text.Length > 80)
-        all |= ColumnCharacteristic.Long;
+      switch (text.Length)
+      {
+        case <= 10:
+          all |= ColumnCharacteristic.VeryShort;
+          break;
+        case <= 30:
+          all |= ColumnCharacteristic.Short;
+          break;
+        case > 80:
+          all |= ColumnCharacteristic.Long;
+          break;
+      }
 
       // Detect Email
       if (EmailRegex.IsMatch(text)) all |= ColumnCharacteristic.Email;

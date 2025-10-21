@@ -207,14 +207,11 @@ namespace CsvTools
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
 
-      if (fileName.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
-      {
-        if (placeHolder == ".")
-          return fileName.Substring(dir.Length + 1);
-        return placeHolder + fileName.Substring(dir.Length);
-      }
+      if (!fileName.StartsWith(dir, StringComparison.OrdinalIgnoreCase)) return string.Empty;
+      if (placeHolder == ".")
+        return fileName.Substring(dir.Length + 1);
+      return placeHolder + fileName.Substring(dir.Length);
 
-      return string.Empty;
     }
 
     /// <summary>
@@ -240,11 +237,9 @@ namespace CsvTools
       TryAdd(Environment.SpecialFolder.LocalApplicationData, "%LocalAppData%");
       TryAdd(Environment.SpecialFolder.UserProfile, "%UserProfile%");
 
-      if (candidates.Count == 0)
-        return fileName;
-
-      // Return the shortest path replacement
-      return candidates.OrderBy(x => x.Length).First();
+      return candidates.Count == 0 ? fileName :
+        // Return the shortest path replacement
+        candidates.OrderBy(x => x.Length).First();
     }
 
     /// <summary>
@@ -290,9 +285,6 @@ namespace CsvTools
         basePath += Path.DirectorySeparatorChar;
       if (otherDir[otherDir.Length - 1] != Path.DirectorySeparatorChar)
         otherDir += Path.DirectorySeparatorChar;
-
-      if (otherDir.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
-        return otherDir.Substring(basePath.Length);
 
       var startPathParts = basePath.Split(Path.DirectorySeparatorChar);
       var destinationPathParts = otherDir.Split(Path.DirectorySeparatorChar);

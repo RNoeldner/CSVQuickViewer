@@ -289,12 +289,10 @@ namespace CsvTools
     public static string GetIdFromFileName(this string path)
     {
       var fileName = FileSystemUtils.SplitPath(path).FileNameWithoutExtension.ProcessByCategory(
-        x => x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter
-                                                  || x == UnicodeCategory.OtherLetter
-                                                  || x == UnicodeCategory.ConnectorPunctuation
-                                                  || x == UnicodeCategory.DashPunctuation
-                                                  || x == UnicodeCategory.OtherPunctuation
-                                                  || x == UnicodeCategory.DecimalDigitNumber);
+        x => x is UnicodeCategory.UppercaseLetter or UnicodeCategory.LowercaseLetter
+           or UnicodeCategory.OtherLetter or UnicodeCategory.ConnectorPunctuation 
+           or UnicodeCategory.DashPunctuation or UnicodeCategory.OtherPunctuation 
+           or UnicodeCategory.DecimalDigitNumber);
 
       const string timeSep = "(:|-|_)?";
       const string dateSep = @"(\/|\.|-|_)?";

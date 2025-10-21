@@ -70,19 +70,19 @@ namespace CsvTools
     /// Flag to indicate that it's a Json file
     /// </summary>    
     [DefaultValue(false)]
-    public bool IsJson { get; set; } = false;
+    public bool IsJson { get; set; }
 
     /// <summary>
     /// Flag to indicate that it's an XML file
     /// </summary>    
     [DefaultValue(false)]
-    public bool IsXml { get; set; } = false;
+    public bool IsXml { get; set; }
 
     /// <summary>
     /// Flag to indicate that it's not a delimiter, Json or XMl file
     /// </summary>    
     [DefaultValue(false)]
-    public bool NoDelimitedFile { get; set; } = false;
+    public bool NoDelimitedFile { get; set; }
 
     /// <summary>
     /// File containing Column definitions

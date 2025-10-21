@@ -141,16 +141,21 @@ namespace CsvTools
       var lastC = '\0';
       foreach (var chr in text)
       {
-        if ((chr == '\r' && lastC == '\n') ||
-            (chr == '\n' && lastC == '\r'))
+        switch (chr)
         {
-          lastC = '\0';
-          continue;
+          case '\r' when lastC == '\n':
+          case '\n' when lastC == '\r':
+            lastC = '\0';
+            continue;
+          case '\r':
+          case '\n':
+            sb.Append(replace);
+            break;
+          default:
+            sb.Append(chr);
+            break;
         }
-        if (chr=='\r' || chr == '\n')
-          sb.Append(replace);
-        else
-          sb.Append(chr);
+
         lastC  = chr;
       }
       return sb.ToString();
@@ -380,12 +385,10 @@ namespace CsvTools
       bool hasTests = false;
       for (int i = 0; i < slices.Count; i++)
       {
-        if (slices[i].length != 0 && !requiredParts.Contains(i))
-        {
-          hasTests = true;
-          if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1)
-            return true;
-        }
+        if (slices[i].length == 0 || requiredParts.Contains(i)) continue;
+        hasTests = true;
+        if (item.IndexOf(filter.Slice(slices[i].start, slices[i].length), stringComparison) != -1)
+          return true;
       }
 
       return (allRequiredFound && requiredParts.Count > 0) || !hasTests;
@@ -454,7 +457,7 @@ namespace CsvTools
     /// <param name="original">The original text as span</param>
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
-    public static ReadOnlySpan<char> ProcessByCategory(this ReadOnlySpan<char> original, Func<UnicodeCategory, bool> testFunction)
+    private static ReadOnlySpan<char> ProcessByCategory(this ReadOnlySpan<char> original, Func<UnicodeCategory, bool> testFunction)
     {
       if (original.Length==0)
         return original;
@@ -625,25 +628,23 @@ namespace CsvTools
     public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
     {
       result = entry;
-      if (entry.Length == 0)
-        return false;
-
-      if (entry.Length > 2
-#pragma warning disable IDE0056
-          && ((entry[0] == '"' && entry[entry.Length-1]=='"')
-           || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
-#pragma warning restore IDE0056
+      switch (entry.Length)
       {
-        result = entry.Slice(1, entry.Length - 2);
-        return true;
-      }
-
-      // Should be a English number
+        case 0:
+          return false;
+        case > 2
+          when ((entry[0] == '"' && entry[entry.Length-1]=='"')
+                || (entry[0] == '\'' && entry[entry.Length-1]=='\'')):
+          result = entry.Slice(1, entry.Length - 2);
+          return true;
+        default:
+          // Should be a English number
 #if NET7_0_OR_GREATER
-      return Regex.IsMatch(entry, @"[+\-]?[0-9]+\.?[0-9]*");
+          return Regex.IsMatch(entry, @"[+\-]?[0-9]+\.?[0-9]*");
 #else
       return Regex.IsMatch(entry.ToString(), @"[+\-]?[0-9]+\.?[0-9]*");
 #endif
+      }
     }
 
   }

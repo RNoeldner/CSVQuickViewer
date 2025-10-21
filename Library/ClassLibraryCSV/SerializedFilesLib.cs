@@ -123,7 +123,7 @@ namespace CsvTools
     /// <returns>New instance of the class</returns>
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
-      try { Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName()); } catch { }
+      Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName()); 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
@@ -174,7 +174,12 @@ namespace CsvTools
       var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
       if (oldContent != newContent)
         return newContent;
-      try { Logger.Debug("No change to file {filename}", fileName); } catch { }
+      try { Logger.Debug("No change to file {filename}", fileName); }
+      catch
+      {
+        // ignored
+      }
+
       return null;
     }
 
@@ -213,8 +218,14 @@ namespace CsvTools
         if (delete)
           FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-        using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName, false)))
-        using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        await
+#endif
+          using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName, false)))
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await
+#endif
+            using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
           await sr.WriteAsync(content);
 
         Logger.Information($"Written file {fileName.GetShortDisplayFileName()}");

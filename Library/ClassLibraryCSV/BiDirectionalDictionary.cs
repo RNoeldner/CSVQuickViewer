@@ -77,11 +77,9 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (!base.TryAdd(key, value))
         throw new ArgumentException("Duplicate key", nameof(key));
-      if (!m_SecondToFirst.TryAdd(value, key))
-      {
-        base.Remove(key);
-        throw new ArgumentException("Duplicate value", nameof(value));
-      }
+      if (m_SecondToFirst.TryAdd(value, key)) return;
+      base.Remove(key);
+      throw new ArgumentException("Duplicate value", nameof(value));
 #else
       if (base.ContainsKey(key))
         throw new ArgumentException("Duplicate key", nameof(key));
@@ -106,12 +104,7 @@ namespace CsvTools
     /// Reverse lookup by value. Throws if not found.
     /// </summary>
     /// <exception cref="KeyNotFoundException">If value is not in the dictionary.</exception>
-    public TKey GetByValue(TValue value)
-    {
-      if (!m_SecondToFirst.TryGetValue(value, out var key))
-        throw new KeyNotFoundException($"The value '{value}' was not found.");
-      return key;
-    }
+    public TKey GetByValue(TValue value) => !m_SecondToFirst.TryGetValue(value, out var key) ? throw new KeyNotFoundException($"The value '{value}' was not found.") : key;
 
     /// <summary>
     /// Removes a key and its value.
@@ -133,12 +126,9 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (!base.TryAdd(key, value))
         return false;
-      if (!m_SecondToFirst.TryAdd(value, key))
-      {
-        base.Remove(key);
-        return false;
-      }
-      return true;
+      if (m_SecondToFirst.TryAdd(value, key)) return true;
+      base.Remove(key);
+      return false;
 #else
       if (base.ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;

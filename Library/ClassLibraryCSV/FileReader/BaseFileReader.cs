@@ -407,20 +407,18 @@ namespace CsvTools
     public override decimal GetDecimal(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-      if (decimalValue.HasValue) return decimalValue.Value;
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a decimal");
+      return decimalValue.HasValue ? decimalValue.Value : throw
+        // Warning was added by GetDecimalNull
+        WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a decimal");
     }
 
     /// <inheritdoc />
     public override double GetDouble(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-      if (decimalValue.HasValue) return Convert.ToDouble(decimalValue.Value);
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
+      return decimalValue.HasValue ? Convert.ToDouble(decimalValue.Value) : throw
+        // Warning was added by GetDecimalNull
+        WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
     }
 
     /// <inheritdoc />
@@ -433,10 +431,9 @@ namespace CsvTools
     public override float GetFloat(int ordinal)
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-      if (decimalValue.HasValue) return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a float");
+      return decimalValue.HasValue ? Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture) : throw
+        // Warning was added by GetDecimalNull
+        WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a float");
     }
 
     /// <inheritdoc />
@@ -444,9 +441,7 @@ namespace CsvTools
     {
       var parsed = GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
 
-      if (parsed.HasValue) return parsed.Value;
-
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an GUID");
+      return parsed.HasValue ? parsed.Value : throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an GUID");
     }
 
     /// <inheritdoc />
@@ -456,10 +451,9 @@ namespace CsvTools
 
       var parsed =
         CurrentRowColumnText[ordinal].AsSpan().StringToInt16(column.ValueFormat.GroupSeparator);
-      if (parsed.HasValue) return parsed.Value;
-
-      // Warning was added by GetInt32Null
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a short");
+      return parsed.HasValue ? parsed.Value : throw
+        // Warning was added by GetInt32Null
+        WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a short");
     }
 
     /// <inheritdoc />
@@ -469,10 +463,9 @@ namespace CsvTools
 
       var parsed =
         CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.GroupSeparator);
-      if (parsed.HasValue) return parsed.Value;
-
-      // Warning was added by GetInt32Null
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an integer");
+      return parsed.HasValue ? parsed.Value : throw
+        // Warning was added by GetInt32Null
+        WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an integer");
     }
 
     /// <summary>
@@ -496,9 +489,7 @@ namespace CsvTools
       var column = GetColumn(ordinal);
 
       var parsed = CurrentRowColumnText[ordinal].AsSpan().StringToInt64(column.ValueFormat.GroupSeparator);
-      if (parsed.HasValue) return parsed.Value;
-
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
+      return parsed.HasValue ? parsed.Value : throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
     }
 
     /// <summary>
@@ -965,7 +956,7 @@ namespace CsvTools
       }
 
       // ReSharper disable once MergeIntoPattern
-      if (dateTime.HasValue && dateTime.Value.Year > 1752 && dateTime.Value.Year <= 9999)
+      if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
       {
         // get the time zone either from constant or from other column
         if (!column.TimeZonePart.TryGetConstant(out var timeZone) &&
@@ -1049,7 +1040,7 @@ namespace CsvTools
     /// <returns>A value between 0 and 1 for 0% to 100%</returns>
     protected virtual double GetRelativePosition()
     {
-      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
+      if (RecordLimit is > 0 and < long.MaxValue)
         return (double) RecordNumber / RecordLimit;
       return 0;
     }

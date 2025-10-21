@@ -68,17 +68,17 @@ namespace CsvTools
         }
       }
 
-      // if we could not find a commented line exit and assume the comment line is wrong.
-      if (lineCommented == 0)
-        return false;
-
-      // in case we have 3 or more commented lines assume the comment was ok
-      if (lineCommented > 2)
-        return true;
+      return lineCommented switch
+      {
+        // if we could not find a commented line exit and assume the comment line is wrong.
+        0 => false,
+        // in case we have 3 or more commented lines assume the comment was ok
+        > 2 => true,
+        _ => partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row)
+      };
 
       // since we did not properly parse the delimited text accounting for quoting (delimiter in
       // column or newline splitting columns) apply some variance to it
-      return partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row);
     }
 
     /// <summary>Guesses the line comment</summary>

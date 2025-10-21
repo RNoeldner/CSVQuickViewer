@@ -15,9 +15,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -113,7 +111,7 @@ namespace CsvTools
             char c = buffer[i];
 
             // Handle line breaks robustly (\r, \n, \r\n, \n\r)
-            if (c == '\r' || c == '\n')
+            if (c is '\r' or '\n')
             {
               // only count new line if not part of pair
               if (!((c == '\n' && lastChar == '\r') || (c == '\r' && lastChar == '\n')))
@@ -144,7 +142,7 @@ namespace CsvTools
               return true;
 
             // Whitespace handling (avoid expensive UnicodeCategory when possible)
-            if (c == '\t' || c == ' ')
+            if (c is '\t' or ' ')
             {
               isStartOfColumn = true;
             }

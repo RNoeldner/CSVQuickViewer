@@ -287,7 +287,7 @@ namespace CsvTools
     {
       var items = m_Doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.Element).ToList();
       // go deeper until we have some a list of child nodes
-      while (items != null && items.Count ==1)
+      while (items is { Count: 1 })
         items = items.FirstOrDefault(x => x.ChildNodes.Count >1)?.ChildNodes.OfType<XmlNode>().ToList();
       return (items?.Count ?? 0) >0 ? items?.First() : null;
     }

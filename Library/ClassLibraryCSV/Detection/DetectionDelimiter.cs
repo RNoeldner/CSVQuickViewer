@@ -43,7 +43,7 @@ namespace CsvTools
       {
         if (name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
           return ',';
-        else if (name.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".tab", StringComparison.OrdinalIgnoreCase))
+        if (name.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".tab", StringComparison.OrdinalIgnoreCase))
           return '\t';
       }
       return '\0';
@@ -112,109 +112,115 @@ namespace CsvTools
         validSeparatorIndex.Add(index);
       }
 
-      if (validSeparatorIndex.Count == 0)
+      switch (validSeparatorIndex.Count)
       {
-        // we can not determine by the number of rows That the delimiter with most occurrence in general
-        var maxNum = int.MinValue;
-        for (var index = 0; index < delimiterCounter.Separators.Length; index++)
+        case 0:
         {
-          var sumCount = 0;
-          for (var row = startRow; row < delimiterCounter.LastRow; row++)
-            sumCount += delimiterCounter.SeparatorsCount[index, row];
-          if (sumCount > maxNum)
+          // we can not determine by the number of rows That the delimiter with most occurrence in general
+          var maxNum = int.MinValue;
+          for (var index = 0; index < delimiterCounter.Separators.Length; index++)
           {
-            maxNum = sumCount;
-            match = delimiterCounter.Separators[index];
-          }
-        }
-      }
-      else if (validSeparatorIndex.Count == 1)
-      {
-        // if only one was found done here
-        match = delimiterCounter.Separators[validSeparatorIndex[0]];
-      }
-      else
-      {
-        // otherwise find the best
-        var sums = new Dictionary<int, long>();
-        foreach (var index in validSeparatorIndex)
-        {
-          var intEmptyRows = 0;
-          var totalRows = (double) (delimiterCounter.LastRow - startRow);
-          var sumCount = 0;
-          // If there are enough rows skip the first rows, there might be a descriptive introduction
-          // this can not be done in case there are not many rows
-          for (var row = startRow; row < delimiterCounter.LastRow; row++)
-          {
-            cancellationToken.ThrowIfCancellationRequested();
-            // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
-            sumCount += delimiterCounter.SeparatorsCount[index, row];
-            if (delimiterCounter.SeparatorsCount[index, row] == 0)
-              intEmptyRows++;
-          }
-
-          // if a lot of rows do not have a columns disregard the delimiter
-          if (intEmptyRows  > totalRows * 4 / 5)
-            continue;
-
-          // Get the average of the rows
-          var avg = (int) Math.Ceiling(sumCount / (totalRows -intEmptyRows));
-
-          // Only proceed if there is usually more than one occurrence, and we have more then one row
-          if (avg < 1 || delimiterCounter.SeparatorRows[index] == 1)
-            continue;
-
-          // First determine the variance, low value means and even distribution
-          long variance = 0;
-          for (var row = startRow; row < delimiterCounter.LastRow; row++)
-          {
-            if (delimiterCounter.SeparatorsCount[index, row] == avg || delimiterCounter.SeparatorsCount[index, row] == 0)
-              continue;
-            variance += Math.Abs(delimiterCounter.SeparatorsCount[index, row] - avg);
-          }
-
-          // now waith the variance as well, if avg is high the variance is less important            
-          sums.Add(index, variance * 4 / avg);
-
-          // handling on probability of delimiter
-          if (delimiterCounter.Separators[index]== probableDelimiter)
-            sums[index]++;
-          else if (delimiterCounter.Separators[index]== '\'' || delimiterCounter.Separators[index]==  '*' || delimiterCounter.Separators[index]==   '`')
-            sums[index]--;
-
-
-          if (firstLine.Length> 0 && !firstLine.StartsWith("#", StringComparison.Ordinal))
-          {
-            // in case the checked delimiter is in the header its a good indication that its correct
-            if (firstLine.Contains(delimiterCounter.Separators[index]))
-              sums[index]++;
-            else
-              // otherwise its pretty save to say its not good.
-              sums[index]--;
-          }
-        }
-
-        if (sums.Count > 1)
-        {
-          foreach (var kv in sums)
-            Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].Description()} -  Variance {kv.Value:N0} Score {delimiterCounter.SeparatorScore[kv.Key]:N0}");
-        }
-
-        if (sums.Count!= 0)
-        {
-          int bestIndex = -1;
-          long bestVariance = long.MaxValue;
-          int bestScore = int.MinValue;
-          foreach (var kv in sums)
-          {
-            if (kv.Value < bestVariance || (kv.Value == bestVariance && delimiterCounter.SeparatorScore[kv.Key] > bestScore))
+            var sumCount = 0;
+            for (var row = startRow; row < delimiterCounter.LastRow; row++)
+              sumCount += delimiterCounter.SeparatorsCount[index, row];
+            if (sumCount > maxNum)
             {
-              bestIndex = kv.Key;
-              bestVariance = kv.Value;
-              bestScore = delimiterCounter.SeparatorScore[kv.Key];
+              maxNum = sumCount;
+              match = delimiterCounter.Separators[index];
             }
           }
-          match = delimiterCounter.Separators[bestIndex];
+
+          break;
+        }
+        case 1:
+          // if only one was found done here
+          match = delimiterCounter.Separators[validSeparatorIndex[0]];
+          break;
+        default:
+        {
+          // otherwise find the best
+          var sums = new Dictionary<int, long>();
+          foreach (var index in validSeparatorIndex)
+          {
+            var intEmptyRows = 0;
+            var totalRows = (double) (delimiterCounter.LastRow - startRow);
+            var sumCount = 0;
+            // If there are enough rows skip the first rows, there might be a descriptive introduction
+            // this can not be done in case there are not many rows
+            for (var row = startRow; row < delimiterCounter.LastRow; row++)
+            {
+              cancellationToken.ThrowIfCancellationRequested();
+              // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
+              sumCount += delimiterCounter.SeparatorsCount[index, row];
+              if (delimiterCounter.SeparatorsCount[index, row] == 0)
+                intEmptyRows++;
+            }
+
+            // if a lot of rows do not have a columns disregard the delimiter
+            if (intEmptyRows  > totalRows * 4 / 5)
+              continue;
+
+            // Get the average of the rows
+            var avg = (int) Math.Ceiling(sumCount / (totalRows -intEmptyRows));
+
+            // Only proceed if there is usually more than one occurrence, and we have more then one row
+            if (avg < 1 || delimiterCounter.SeparatorRows[index] == 1)
+              continue;
+
+            // First determine the variance, low value means and even distribution
+            long variance = 0;
+            for (var row = startRow; row < delimiterCounter.LastRow; row++)
+            {
+              if (delimiterCounter.SeparatorsCount[index, row] == avg || delimiterCounter.SeparatorsCount[index, row] == 0)
+                continue;
+              variance += Math.Abs(delimiterCounter.SeparatorsCount[index, row] - avg);
+            }
+
+            // now waith the variance as well, if avg is high the variance is less important            
+            sums.Add(index, variance * 4 / avg);
+
+            // handling on probability of delimiter
+            if (delimiterCounter.Separators[index]== probableDelimiter)
+              sums[index]++;
+            else if (delimiterCounter.Separators[index]== '\'' || delimiterCounter.Separators[index]==  '*' || delimiterCounter.Separators[index]==   '`')
+              sums[index]--;
+
+
+            if (firstLine.Length> 0 && !firstLine.StartsWith("#", StringComparison.Ordinal))
+            {
+              // in case the checked delimiter is in the header its a good indication that its correct
+              if (firstLine.Contains(delimiterCounter.Separators[index]))
+                sums[index]++;
+              else
+                // otherwise its pretty save to say its not good.
+                sums[index]--;
+            }
+          }
+
+          if (sums.Count > 1)
+          {
+            foreach (var kv in sums)
+              Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].Description()} -  Variance {kv.Value:N0} Score {delimiterCounter.SeparatorScore[kv.Key]:N0}");
+          }
+
+          if (sums.Count!= 0)
+          {
+            int bestIndex = -1;
+            long bestVariance = long.MaxValue;
+            int bestScore = int.MinValue;
+            foreach (var kv in sums)
+            {
+              if (kv.Value < bestVariance || (kv.Value == bestVariance && delimiterCounter.SeparatorScore[kv.Key] > bestScore))
+              {
+                bestIndex = kv.Key;
+                bestVariance = kv.Value;
+                bestScore = delimiterCounter.SeparatorScore[kv.Key];
+              }
+            }
+            match = delimiterCounter.Separators[bestIndex];
+          }
+
+          break;
         }
       }
 
@@ -339,7 +345,7 @@ namespace CsvTools
             }
 
             // Row ending
-            if (readChar == '\n' || readChar == '\r')
+            if (readChar is '\n' or '\r')
             {
               if ((readChar == '\n' && lastChar != '\r') ||
                   (readChar == '\r' && lastChar != '\n'))

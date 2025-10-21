@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -41,11 +42,11 @@ namespace CsvTools
     {
       // Find the most-used date format among relevant columns.
       var mostUsed = columns
-          .Where(x => !x.Ignore && x.ValueFormat.DataType == DataTypeEnum.DateTime)
-          .GroupBy(x => x.ValueFormat)
-          .OrderByDescending(g => g.Count())
-          .Select(g => g.Key)
-          .FirstOrDefault();
+        .Where(x => x is { Ignore: false, ValueFormat.DataType: DataTypeEnum.DateTime })
+        .GroupBy(x => x.ValueFormat)
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault();
 
       if (mostUsed != null)
       {
@@ -54,36 +55,44 @@ namespace CsvTools
       }
 
       // If no strong candidate, try to infer from the provided guessDefault string.
-      if (!string.IsNullOrEmpty(guessDefault))
+      if (string.IsNullOrEmpty(guessDefault))
       {
-        // Check for any common date separator in the guessDefault.
-        var separators = new[] { '/', '\\', '.', '-' };
-        var posSep = guessDefault.IndexOfAny(separators);
-
-        // Only proceed if a separator was found.
-        if (posSep != -1)
-        {
-          var separator = guessDefault[posSep].ToString();
-
-          // Normalize the pattern by replacing found separator with "/".
-          var normalizedPattern = guessDefault.Replace(separator, "/").Trim();
-
-          // Return constructed ValueFormat based on guessDefault.
-          return new ValueFormat(
-              DataTypeEnum.DateTime,
-              normalizedPattern,
-              separator
-          );
-        }
-      }
-
-      // Fallback: Use the system's default short date pattern and separators.      
-      return new ValueFormat(
+        return new ValueFormat(
           DataTypeEnum.DateTime,
           CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
           CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
           CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator
+        );
+      }
+
+      // Check for any common date separator in the guessDefault.
+      var separators = new[] { '/', '\\', '.', '-' };
+      var posSep = guessDefault.IndexOfAny(separators);
+
+      // Only proceed if a separator was found.
+      if (posSep == -1)
+      {
+        return new ValueFormat(
+          DataTypeEnum.DateTime,
+          CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+          CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
+          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator
+        );
+      }
+
+      var separator = guessDefault[posSep].ToString();
+
+      // Normalize the pattern by replacing found separator with "/".
+      var normalizedPattern = guessDefault.Replace(separator, "/").Trim();
+
+      // Return constructed ValueFormat based on guessDefault.
+      return new ValueFormat(
+        DataTypeEnum.DateTime,
+        normalizedPattern,
+        separator
       );
+
+      // Fallback: Use the system's default short date pattern and separators.      
     }
 
     /// <summary>
@@ -119,10 +128,10 @@ namespace CsvTools
       columnCollectionInput ??= Array.Empty<Column>();
 
       if (!fillGuessSettings.Enabled || fillGuessSettings is
-        {
-          DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
-          DetectPercentage: false, SerialDateTime: false
-        })
+          {
+            DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
+            DetectPercentage: false, SerialDateTime: false
+          })
         return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
 
       if (fileReader.FieldCount == 0)
@@ -170,15 +179,16 @@ namespace CsvTools
         // Check for already-known data types
         var dt = column.ValueFormat.DataType;
         bool isKnownType = dt == DataTypeEnum.Guid
-                            || dt == DataTypeEnum.Integer
-                            || dt == DataTypeEnum.Boolean
-                            || dt == DataTypeEnum.DateTime
-                            || (dt == DataTypeEnum.Numeric && !checkDoubleToBeInteger)
-                            || (dt == DataTypeEnum.Double && !checkDoubleToBeInteger);
+                           || dt == DataTypeEnum.Integer
+                           || dt == DataTypeEnum.Boolean
+                           || dt == DataTypeEnum.DateTime
+                           || (dt == DataTypeEnum.Numeric && !checkDoubleToBeInteger)
+                           || (dt == DataTypeEnum.Double && !checkDoubleToBeInteger);
 
         if (isKnownType)
         {
-          Logger.Information("{column} - Existing Type : {format}", column.Name, column.ValueFormat.GetTypeAndFormatDescription());
+          Logger.Information("{column} - Existing Type : {format}", column.Name,
+            column.ValueFormat.GetTypeAndFormatDescription());
           result.Add($"{column.Name} - Existing Type : {column.ValueFormat.GetTypeAndFormatDescription()}");
           continue;
         }
@@ -194,7 +204,7 @@ namespace CsvTools
         100, cancellationToken).ConfigureAwait(false);
 
       // In case there are not enough distinct records do not validate
-      if (sampleList.Count==0 || sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
+      if (sampleList.Count == 0 || sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
       {
         Logger.Information("Not enough records to determine types");
         var allcolumns = new List<Column>();
@@ -223,14 +233,10 @@ namespace CsvTools
 
         if (samples.Values.Count == 0)
         {
-          try
-          {
-            Logger.Information(
+          Logger.Information(
             "{column} – No values found – Format : {format}",
             readerColumn.Name,
             readerColumn.GetTypeAndFormatDescription());
-          }
-          catch { }
           result.Add($"{readerColumn.Name} – No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
           if (!addTextColumns)
             continue;
@@ -238,15 +244,11 @@ namespace CsvTools
         }
         else
         {
-          try
-          {
-            Logger.Information(
+          Logger.Information(
             "{column} – {values} values found in {records} row.",
             readerColumn.Name,
             samples.Values.Count(),
             samples.RecordsRead);
-          }
-          catch { }
 
           var checkResult = GuessValueFormat(
             samples.Values,
@@ -283,22 +285,19 @@ namespace CsvTools
 
             if (checkResult.FoundValueFormat.Equals(columnCollection[colIndexCurrent].ValueFormat))
             {
-              try { Logger.Information("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat); } catch { }
+              Logger.Information("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
             else
             {
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
                 continue;
-              try
-              {
-                Logger.Information(
+              Logger.Information(
                 "{column} – Format : {format} – updated from {old format}",
                 readerColumn.Name,
                 newValueFormat,
                 oldValueFormat);
-              }
-              catch { }
+
               result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
 
               columnCollection.Replace(columnCollection[colIndexCurrent]
@@ -314,7 +313,9 @@ namespace CsvTools
 
             if (!addTextColumns && format.DataType == DataTypeEnum.String) continue;
 
-            try { Logger.Information("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription()); } catch { }
+            Logger.Information("{column} – Format : {format}", readerColumn.Name,
+              format.GetTypeAndFormatDescription());
+
             result.Add($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
             columnCollection.Add(readerColumn.ReplaceValueFormat(format));
 
@@ -355,15 +356,13 @@ namespace CsvTools
             {
               var oldVf = columnCollection[colIndexExisting].ValueFormat;
               if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
-              try
-              {
-                Logger.Information(
+              Logger.Information(
                 "{column} – Format : {format} – updated from {old format}",
                 columnCollection[colIndexExisting].Name,
                 checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
                 oldVf.GetTypeAndFormatDescription());
-              }
-              catch { }
+
+
               result.Add(
                 $"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
               columnCollection.Replace(
@@ -411,7 +410,8 @@ namespace CsvTools
                   columnCollection[colIndexSetting].DestinationName,
                   columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
                   columnTimeZone.Name));
-              try { Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name); } catch { }
+              Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
+
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
@@ -445,7 +445,8 @@ namespace CsvTools
                 columnCollection[colIndexSetting].DestinationName,
                 columnTime.Name, timeFormat.DateFormat, columnCollection[colIndexSetting].TimeZonePart));
 
-            try { Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name); } catch { }
+            Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
+
             result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
           }
         }
@@ -498,14 +499,11 @@ namespace CsvTools
                 columnCollection.Add(columnTime.ReplaceValueFormat(
                   new ValueFormat(DataTypeEnum.DateTime,
                     firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
-                try
-                {
                   Logger.Information(
-                  "{column} – Format : {format}",
-                  columnTime.Name,
-                  columnTime.GetTypeAndFormatDescription());
-                }
-                catch { }
+                    "{column} – Format : {format}",
+                    columnTime.Name,
+                    columnTime.GetTypeAndFormatDescription());
+
                 result.Add($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
               }
 
@@ -556,11 +554,12 @@ namespace CsvTools
             try
             {
               Logger.Information(
-              "{column} – Format : {format}",
-              columnCollection[colIndexSetting].Name,
-              columnCollection[colIndexSetting].GetTypeAndFormatDescription());
+                "{column} – Format : {format}",
+                columnCollection[colIndexSetting].Name,
+                columnCollection[colIndexSetting].GetTypeAndFormatDescription());
             }
             catch { }
+
             result.Add(
               $"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
           }
@@ -575,7 +574,7 @@ namespace CsvTools
     }
 
     // Reorder columns to match file order
-    private static IReadOnlyCollection<Column> ReorderColumns(ColumnCollection columnCollection, IFileReader fileReader)
+    private static List<Column> ReorderColumns(ColumnCollection columnCollection, IFileReader fileReader)
     {
       var lookup = columnCollection.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
       var ordered = new List<Column>();
@@ -605,12 +604,12 @@ namespace CsvTools
     /// 
     /// <returns>Dictionary: column index -> result object containing list of samples and records read</returns>
     public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(
-        IFileReader fileReader,
-        long maxRecords,
-        IEnumerable<int> columns,
-        string treatAsNull,
-        int maxChars,
-        CancellationToken cancellationToken)
+      IFileReader fileReader,
+      long maxRecords,
+      IEnumerable<int> columns,
+      string treatAsNull,
+      int maxChars,
+      CancellationToken cancellationToken)
     {
       // Argument checks
       if (fileReader is null)
@@ -625,9 +624,9 @@ namespace CsvTools
 
       // Prepare dictionary to collect unique sample values per column
       var sampleDict = columns
-          .Where(col => col >= 0 && col < fileReader.FieldCount)
-          .Distinct()
-          .ToDictionary(col => col, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+        .Where(col => col >= 0 && col < fileReader.FieldCount)
+        .Distinct()
+        .ToDictionary(col => col, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
       // Return empty if no valid columns
       if (sampleDict.Count == 0)
@@ -656,9 +655,14 @@ namespace CsvTools
               Logger.Debug("No further warnings will be shown for sample extraction.");
           }
         }
-        catch { /* Logging shouldn't crash sampling */ }
+        catch
+        {
+          /* Logging shouldn't crash sampling */
+        }
+
         hasWarningOnRow = true;
       }
+
       fileReader.Warning += OnWarning;
 
       var recordsScanned = 0;
@@ -681,11 +685,14 @@ namespace CsvTools
           try
           {
             action.Invoke(() =>
-                Logger.Information(
-                    $"Sampling progress: {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"
-                ));
+              Logger.Information(
+                $"Sampling progress: {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"
+              ));
           }
-          catch { /* Ignore logging exceptions */ }
+          catch
+          {
+            /* Ignore logging exceptions */
+          }
 
           // Handle EOF and looping
           if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
@@ -733,7 +740,8 @@ namespace CsvTools
           }
           catch (Exception ex)
           {
-            Logger.Warning(ex, "Problem parsing a row during sample extraction at line {line}", fileReader.StartLineNumber);
+            Logger.Warning(ex, "Problem parsing a row during sample extraction at line {line}",
+              fileReader.StartLineNumber);
           }
 
           // Detect looped through data (e.g. after reset for non-eof sources)
@@ -752,8 +760,8 @@ namespace CsvTools
 
       // Construct results: column index => SampleResult
       return sampleDict.ToDictionary(
-          kvp => kvp.Key,
-          kvp => new SampleResult(kvp.Value, recordsScanned)
+        kvp => kvp.Key,
+        kvp => new SampleResult(kvp.Value, recordsScanned)
       );
     }
 
@@ -847,11 +855,11 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(samples));
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
-      var possibleGrouping = StaticCollections.DecimalGroupingChars.Where(
-        decGroup => samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
+      var possibleGrouping = StaticCollections.DecimalGroupingChars
+        .Where(decGroup => samples.Any(smp => smp.Span.IndexOf(decGroup) > -1)).ToList();
       possibleGrouping.Add('\0');
-      var possibleDecimal = StaticCollections.DecimalSeparatorChars.Where(
-        decSep => samples.Any(smp => smp.Span.IndexOf(decSep) > -1)).ToList();
+      var possibleDecimal = StaticCollections.DecimalSeparatorChars
+        .Where(decSep => samples.Any(smp => smp.Span.IndexOf(decSep) > -1)).ToList();
 
       // Need to have at least one decimal separator
       if (possibleDecimal.Count == 0)
@@ -859,24 +867,24 @@ namespace CsvTools
 
       foreach (var thousandSep in possibleGrouping)
         // Try Numbers: Int and Decimal
-        foreach (var decimalSep in possibleDecimal)
-        {
-          if (cancellationToken.IsCancellationRequested)
-            return checkResult;
-          if (decimalSep.Equals(thousandSep))
-            continue;
-          var res = samples.CheckNumber(
-            decimalSep,
-            thousandSep,
-            guessPercentage,
-            allowStartingZero,
-            removeCurrencySymbols,
-            cancellationToken);
-          if (res.FoundValueFormat != null)
-            return res;
+      foreach (var decimalSep in possibleDecimal)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          return checkResult;
+        if (decimalSep.Equals(thousandSep))
+          continue;
+        var res = samples.CheckNumber(
+          decimalSep,
+          thousandSep,
+          guessPercentage,
+          allowStartingZero,
+          removeCurrencySymbols,
+          cancellationToken);
+        if (res.FoundValueFormat != null)
+          return res;
 
-          checkResult.KeepBestPossibleMatch(res);
-        }
+        checkResult.KeepBestPossibleMatch(res);
+      }
 
       return checkResult;
     }
@@ -1132,10 +1140,10 @@ namespace CsvTools
 
       // Check if we are supposed to check something
       if (!fillGuessSettings.Enabled || fillGuessSettings is
-        {
-          DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
-          DetectPercentage: false, SerialDateTime: false
-        })
+          {
+            DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
+            DetectPercentage: false, SerialDateTime: false
+          })
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter, but it's a delimited file, do nothing
@@ -1145,7 +1153,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);
+        using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);
       return await FillGuessColumnFormatReaderAsyncReader(
         fileReader,
         fillGuessSettings,

@@ -179,7 +179,7 @@ namespace CsvTools
     /// <returns>An error message to be stored</returns>
     public static string CombineColumnAndError(string column, string errorMessage)
     {
-      if (errorMessage is null)
+      if (string.IsNullOrEmpty(errorMessage))
         throw new ArgumentNullException(nameof(errorMessage));
       // pass back messages that already have column information
       if (column.Length == 0 && errorMessage[0] == cOpenField)
@@ -416,7 +416,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The combined error text.</param>
     /// <returns>A list of messages with column information.</returns>
-    private static IReadOnlyCollection<ColumnAndMessage> ParseList(string errorList)
+    private static List<ColumnAndMessage> ParseList(string errorList)
     {
       var result = new List<ColumnAndMessage>();
       if (string.IsNullOrEmpty(errorList))

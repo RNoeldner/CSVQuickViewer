@@ -35,7 +35,7 @@ namespace CsvTools
     /// </summary>
     private const char cLf = (char) 0x0a;
 
-    private readonly int m_BomLength = 0;
+    private readonly int m_BomLength;
     private readonly int m_SkipLines;
     private readonly Stream m_Stream;
     private readonly int m_CodePageId;

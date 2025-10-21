@@ -120,7 +120,7 @@ namespace CsvTools
     public override decimal GetDecimal(int ordinal)
     {
       var val = GetCurrentValue(ordinal);
-      if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+      if (val is decimal or double or float or short or int or long)
         return Convert.ToDecimal(val, CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDecimal(ordinal);
@@ -130,7 +130,7 @@ namespace CsvTools
     public override double GetDouble(int ordinal)
     {
       var val = GetCurrentValue(ordinal);
-      if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+      if (val is decimal or double or float or short or int or long)
         return Convert.ToDouble(val, CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDouble(ordinal);
@@ -142,7 +142,7 @@ namespace CsvTools
       var val = GetCurrentValue(ordinal);
       try
       {
-        if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+        if (val is decimal or double or float or short or int or long)
           return Convert.ToSingle(val, CultureInfo.CurrentCulture);
       }
       catch (Exception e)

@@ -114,9 +114,7 @@ namespace CsvTools
         return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
       dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
-      if (FileSystemUtils.FileExists(dataFile))
-        return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
-      throw new FileNotFoundException(dataFile);
+      return FileSystemUtils.FileExists(dataFile) ? ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty) : throw new FileNotFoundException(dataFile);
     }
 
     /// <summary>
@@ -166,50 +164,18 @@ namespace CsvTools
 
       foreach (var fld in jsonManifest.Fields)
       {
-        ValueFormat vf;
-        switch (fld.Type.ToLower().TrimEnd('?', ')', ',', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'))
-        {
-          case "int":
-          case "long":
-          case "byte":
-          case "short":
-            vf = new ValueFormat(DataTypeEnum.Integer);
-            break;
-
-          case "decimal":
-          case "single":
-          case "double":
-            vf = new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".");
-            break;
-
-          case "uuid":
-          case "guid":
-            vf = new ValueFormat(DataTypeEnum.Guid);
-            break;
-
-          case "bit":
-            vf = new ValueFormat(DataTypeEnum.Boolean);
-            break;
-
-          case "date":
-          case "localdate":
-            vf = new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-");
-            break;
-
-          case "datetime":
-          case "localdatetime":
-            vf = new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
-            break;
-
-          case "time":
-          case "localtime":
-            vf = new ValueFormat(DataTypeEnum.DateTime, "HH:mm:ss.FFFFFFF");
-            break;
-
-          default:
-            vf = ValueFormat.Empty;
-            break;
-        }
+        ValueFormat vf =
+          fld.Type.ToLower().TrimEnd('?', ')', ',', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9') switch
+          {
+            "int" or "long" or "byte" or "short" => new ValueFormat(DataTypeEnum.Integer),
+            "decimal" or "single" or "double" => new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."),
+            "uuid" or "guid" => new ValueFormat(DataTypeEnum.Guid),
+            "bit" => new ValueFormat(DataTypeEnum.Boolean),
+            "date" or "localdate" => new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-"),
+            "datetime" or "localdatetime" => new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-"),
+            "time" or "localtime" => new ValueFormat(DataTypeEnum.DateTime, "HH:mm:ss.FFFFFFF"),
+            _ => ValueFormat.Empty
+          };
 
         detectionResult.Columns.Add(new Column(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
       }

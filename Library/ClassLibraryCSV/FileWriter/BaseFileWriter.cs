@@ -34,8 +34,9 @@ namespace CsvTools
 
     /// <summary>The display text for the writer</summary>
     protected readonly string FileSettingDisplay;
+
     private readonly string m_Footer;
-    internal readonly string FullPath;
+    private readonly string FullPath;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
     private readonly string m_PublicKey;
@@ -90,7 +91,7 @@ namespace CsvTools
       string sourceTimeZone,
       string publicKey,
       bool unencrypted
-      )
+    )
     {
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
@@ -102,7 +103,7 @@ namespace CsvTools
       m_Footer = ReplacePlaceHolder(footer, fileName);
 
       ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
-      ColumnDefinition =  columnDefinition is null ? new List<Column>() : new List<Column>(columnDefinition);
+      ColumnDefinition = columnDefinition is null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
 
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
@@ -156,8 +157,12 @@ namespace CsvTools
       foreach (var col in columns)
       {
         var colNo = col.ColumnOrdinal;
-        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-        var writeFolder = (string.IsNullOrEmpty(column?.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column?.ValueFormat.WriteFolder).GetAbsolutePath(string.Empty);
+        var column =
+          columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
+        var writeFolder =
+          (string.IsNullOrEmpty(column?.ValueFormat.WriteFolder)
+            ? generalFormat.WriteFolder
+            : column?.ValueFormat.WriteFolder).GetAbsolutePath(string.Empty);
 
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
@@ -234,7 +239,8 @@ namespace CsvTools
         }
 
         // this is problematic, we need to apply timezone mapping here and on date
-        var ci = new WriterColumn(colNames[colNo], valueFormat, colNo, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
+        var ci = new WriterColumn(colNames[colNo], valueFormat, colNo, fieldLength, constantTimeZone,
+          columnOrdinalTimeZoneReader);
 
         result.Add(ci);
 
@@ -279,19 +285,22 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
-        using var stream = FunctionalDI.GetStream(sourceAccess);
+          using var stream = FunctionalDI.GetStream(sourceAccess);
         await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)
       {
-        try { Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName()); } catch { }
+        Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName()); 
+        
         throw new FileWriterException(
           $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
       {
-        try { Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records); } catch { }
+        Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records); 
+        
+
         HandleWriteEnd();
       }
 
@@ -308,7 +317,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected void HandleError(string columnName, string message) => Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
+    protected void HandleError(string columnName, string message) =>
+      Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
 
     /// <summary>Is called whenever there is progress to report</summary>
@@ -316,10 +326,10 @@ namespace CsvTools
     protected static void HandleProgress(string text) => Logger.Information(text);
 
     /// <summary>Should be called whenever the writing starts</summary>
-    protected virtual void HandleWriteStart() => Records = 0;
+    protected void HandleWriteStart() => Records = 0;
 
     /// <summary>Should be called whenever the writer finished</summary>
-    protected virtual void HandleWriteEnd() => WriteFinished?.SafeInvoke(this);
+    protected void HandleWriteEnd() => WriteFinished?.SafeInvoke(this);
 
 
     /// <summary>Called when the next record is written, handles counters and progress</summary>
@@ -337,7 +347,8 @@ namespace CsvTools
     private static string ReplacePlaceHolder(string? input, string fileName) =>
       input?.PlaceholderReplace("FileName", fileName)
         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;
+        .PlaceholderReplace("CDateLong",
+          string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;
 
     /// <summary>
     ///   Calls the event handler for warnings
@@ -364,7 +375,7 @@ namespace CsvTools
     public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
       in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
-      if (dataObject is null || dataObject is DBNull)
+      if (dataObject is null or DBNull)
         return DBNull.Value;
 
       switch (columnInfo.ValueFormat.DataType)
@@ -404,7 +415,8 @@ namespace CsvTools
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
 
         default:
-          return columnInfo.ColumnFormatter.Write(dataObject, dataRecord, msg => handleWarning?.Invoke(columnInfo.Name, msg));
+          return columnInfo.ColumnFormatter.Write(dataObject, dataRecord,
+            msg => handleWarning?.Invoke(columnInfo.Name, msg));
       }
     }
 
@@ -424,7 +436,8 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, SourceTimeZone, HandleWarning);
+        var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, SourceTimeZone,
+          HandleWarning);
         if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else

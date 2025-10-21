@@ -49,7 +49,7 @@ namespace CsvTools
     ///   Determines if we could reset the position to allow processing text that had been read before
     ///   If its supported it will do so.
     /// </summary>
-    public bool CouldStartFromBeginning()
+    private bool CouldStartFromBeginning()
     {
       if (m_ArrivedAtEndOnce || m_LineStarted <= 1)
         return false;

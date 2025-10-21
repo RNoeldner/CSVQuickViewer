@@ -84,7 +84,7 @@ namespace CsvTools
     ///   Gets the estimated percentage assuming a steady progress
     /// </summary>
     /// <value>Percent (usually between 0 and 1)</value>
-    public double EstimatedPercent { get; private set; }
+    private double EstimatedPercent { get; set; }
 
     /// <summary>
     ///   Gets the estimated percentage as Text 
@@ -94,7 +94,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the estimated percentage as Text 
     /// </summary>
-    public string EstimatedPercentDisplay => EstimatedPercent < 10 ? $"{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
+    //public string EstimatedPercentDisplay => EstimatedPercent < 10 ? $"{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
 
     /// <summary>
     ///   Gets or sets the target value / maximum that would match 100%.

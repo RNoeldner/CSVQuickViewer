@@ -344,16 +344,13 @@ namespace CsvTools
     [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
     public Task OpenAsync(CancellationToken token)
     {
-      if (m_FileReader == null)
-      {
-        OnOpenAsync?.Invoke();
-        ResetPositionToFirstDataRow();        
-        OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
+      if (m_FileReader != null) return m_FileReader.OpenAsync(token);
+      OnOpenAsync?.Invoke();
+      ResetPositionToFirstDataRow();        
+      OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
         
-        return Task.CompletedTask;
-      }
+      return Task.CompletedTask;
 
-      return m_FileReader.OpenAsync(token);
     }
 
     /// <inheritdoc cref="IFileReader" />
@@ -382,13 +379,12 @@ namespace CsvTools
             i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
           m_ColumnErrorDictionary.Clear();
         }
-        if (RowErrorInformation.Length>0)
-        {
-          if (RowErrorInformation.IsWarningMessage())
-            NumberRowWarnings++;
-          else
-            NumberRowError++;
-        }
+
+        if (RowErrorInformation.Length <= 0) return true;
+        if (RowErrorInformation.IsWarningMessage())
+          NumberRowWarnings++;
+        else
+          NumberRowError++;
         return true;
       }
 

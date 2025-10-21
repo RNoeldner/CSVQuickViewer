@@ -25,12 +25,8 @@ namespace CsvTools
     /// <summary>
     /// Short description
     /// </summary>
-    public string ShortDescription { get; protected set; }
+    public string ShortDescription { get;  }
     
-    /// <inheritdoc />
-    public ShortDescriptionAttribute() : this(string.Empty)
-    { }
-
     /// <inheritdoc />
     public ShortDescriptionAttribute(string value) => ShortDescription = value;
   }

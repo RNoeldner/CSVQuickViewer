@@ -69,7 +69,7 @@ namespace CsvTools
           csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, TimeZoneAdjust,
           LocalTimeZone, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
 
-        _ => throw new FileReaderException($"Reader for {setting} not found"),
+        _ => throw new FileReaderException($"Reader for {setting} not found")
 
       };
     }
@@ -88,7 +88,7 @@ namespace CsvTools
           csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, TimeZoneAdjust, LocalTimeZone, publicKey, csv.KeepUnencrypted
           ),
        
-        _ => throw new FileWriterException($"Writer for {fileSetting} not found"),
+        _ => throw new FileWriterException($"Writer for {fileSetting} not found")
       };
     }
   }
