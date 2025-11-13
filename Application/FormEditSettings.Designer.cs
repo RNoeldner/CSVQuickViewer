@@ -164,7 +164,7 @@
       tabPageAbout.Location = new System.Drawing.Point(4, 22);
       tabPageAbout.Name = "tabPageAbout";
       tabPageAbout.Padding = new System.Windows.Forms.Padding(3);
-      tabPageAbout.Size = new System.Drawing.Size(692, 486);
+      tabPageAbout.Size = new System.Drawing.Size(806, 486);
       tabPageAbout.TabIndex = 11;
       tabPageAbout.Text = "About";
       tabPageAbout.UseVisualStyleBackColor = true;
@@ -200,7 +200,7 @@
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(686, 480);
+      tableLayoutPanel1.Size = new System.Drawing.Size(800, 480);
       tableLayoutPanel1.TabIndex = 6;
       // 
       // label7
@@ -268,8 +268,7 @@
       // 
       labelCopyright.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelCopyright.AutoSize = true;
-      labelCopyright.Location = new System.Drawing.Point(191, 8);
-      labelCopyright.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
+      labelCopyright.Location = new System.Drawing.Point(191, 5);
       labelCopyright.Name = "labelCopyright";
       labelCopyright.Size = new System.Drawing.Size(126, 13);
       labelCopyright.TabIndex = 7;
@@ -290,12 +289,11 @@
       linkLabelRepository.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRepository.AutoSize = true;
       linkLabelRepository.Location = new System.Drawing.Point(72, 148);
-      linkLabelRepository.Margin = new System.Windows.Forms.Padding(3);
       linkLabelRepository.Name = "linkLabelRepository";
       linkLabelRepository.Size = new System.Drawing.Size(90, 13);
       linkLabelRepository.TabIndex = 4;
       linkLabelRepository.TabStop = true;
-      linkLabelRepository.Text = "Source on Github";
+      linkLabelRepository.Text = "Source on GitHub";
       toolTip.SetToolTip(linkLabelRepository, "https://github.com/RNoeldner/CSVQuickViewer");
       linkLabelRepository.LinkClicked += LinkClicked;
       // 
@@ -303,8 +301,7 @@
       // 
       label18.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       label18.AutoSize = true;
-      label18.Location = new System.Drawing.Point(19, 204);
-      label18.Margin = new System.Windows.Forms.Padding(3, 4, 3, 0);
+      label18.Location = new System.Drawing.Point(19, 200);
       label18.Name = "label18";
       label18.Size = new System.Drawing.Size(47, 13);
       label18.TabIndex = 1;
@@ -316,17 +313,15 @@
       flowLayoutPanel.Controls.Add(linkLabelGnu);
       flowLayoutPanel.Controls.Add(label10);
       flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      flowLayoutPanel.Location = new System.Drawing.Point(69, 200);
-      flowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+      flowLayoutPanel.Location = new System.Drawing.Point(72, 203);
       flowLayoutPanel.Name = "flowLayoutPanel";
-      flowLayoutPanel.Size = new System.Drawing.Size(617, 280);
+      flowLayoutPanel.Size = new System.Drawing.Size(725, 274);
       flowLayoutPanel.TabIndex = 5;
       // 
       // linkLabelGnu
       // 
       linkLabelGnu.AutoSize = true;
-      linkLabelGnu.Location = new System.Drawing.Point(3, 3);
-      linkLabelGnu.Margin = new System.Windows.Forms.Padding(3);
+      linkLabelGnu.Location = new System.Drawing.Point(3, 0);
       linkLabelGnu.Name = "linkLabelGnu";
       linkLabelGnu.Size = new System.Drawing.Size(326, 13);
       linkLabelGnu.TabIndex = 4;
@@ -339,8 +334,7 @@
       // 
       label10.AutoSize = true;
       flowLayoutPanel.SetFlowBreak(label10, true);
-      label10.Location = new System.Drawing.Point(3, 22);
-      label10.Margin = new System.Windows.Forms.Padding(3);
+      label10.Location = new System.Drawing.Point(3, 13);
       label10.Name = "label10";
       label10.Size = new System.Drawing.Size(447, 13);
       label10.TabIndex = 0;
@@ -350,7 +344,7 @@
       // 
       label16.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label16.AutoSize = true;
-      label16.Location = new System.Drawing.Point(357, 118);
+      label16.Location = new System.Drawing.Point(414, 118);
       label16.Name = "label16";
       label16.Size = new System.Drawing.Size(49, 13);
       label16.TabIndex = 1;
@@ -360,7 +354,7 @@
       // 
       labelFrameWork.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelFrameWork.AutoSize = true;
-      labelFrameWork.Location = new System.Drawing.Point(412, 118);
+      labelFrameWork.Location = new System.Drawing.Point(469, 118);
       labelFrameWork.Name = "labelFrameWork";
       labelFrameWork.Size = new System.Drawing.Size(32, 13);
       labelFrameWork.TabIndex = 8;
@@ -370,7 +364,7 @@
       // 
       label19.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label19.AutoSize = true;
-      label19.Location = new System.Drawing.Point(348, 148);
+      label19.Location = new System.Drawing.Point(405, 148);
       label19.Name = "label19";
       label19.Size = new System.Drawing.Size(58, 13);
       label19.TabIndex = 1;
@@ -380,7 +374,7 @@
       // 
       pictureBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
       pictureBox.ImageLocation = "https://img.shields.io/sourceforge/dt/csvquickviewer.png";
-      pictureBox.Location = new System.Drawing.Point(412, 145);
+      pictureBox.Location = new System.Drawing.Point(469, 145);
       pictureBox.Name = "pictureBox";
       pictureBox.Size = new System.Drawing.Size(100, 20);
       pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -391,8 +385,6 @@
       // 
       // tableLayoutPanelFile
       // 
-      tableLayoutPanelFile.AutoSize = true;
-      tableLayoutPanelFile.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.ColumnCount = 7;
       tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanelFile.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -440,7 +432,6 @@
       tableLayoutPanelFile.Controls.Add(buttonInteractiveSettings, 6, 5);
       tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
-      tableLayoutPanelFile.Margin = new System.Windows.Forms.Padding(2);
       tableLayoutPanelFile.Name = "tableLayoutPanelFile";
       tableLayoutPanelFile.RowCount = 10;
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -453,15 +444,14 @@
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelFile.Size = new System.Drawing.Size(688, 483);
+      tableLayoutPanelFile.Size = new System.Drawing.Size(802, 483);
       tableLayoutPanelFile.TabIndex = 0;
       // 
       // labelDelimitedFile
       // 
       labelDelimitedFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDelimitedFile.AutoSize = true;
-      labelDelimitedFile.Location = new System.Drawing.Point(80, 9);
-      labelDelimitedFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelDelimitedFile.Location = new System.Drawing.Point(81, 9);
       labelDelimitedFile.Name = "labelDelimitedFile";
       labelDelimitedFile.Size = new System.Drawing.Size(26, 13);
       labelDelimitedFile.TabIndex = 1;
@@ -470,8 +460,7 @@
       // textBoxComment
       // 
       textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      textBoxComment.Location = new System.Drawing.Point(110, 129);
-      textBoxComment.Margin = new System.Windows.Forms.Padding(2);
+      textBoxComment.Location = new System.Drawing.Point(113, 129);
       textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxComment.Name = "textBoxComment";
       textBoxComment.Size = new System.Drawing.Size(62, 20);
@@ -481,8 +470,7 @@
       // 
       label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label2.AutoSize = true;
-      label2.Location = new System.Drawing.Point(29, 133);
-      label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label2.Location = new System.Drawing.Point(30, 133);
       label2.Name = "label2";
       label2.Size = new System.Drawing.Size(77, 13);
       label2.TabIndex = 14;
@@ -490,11 +478,11 @@
       // 
       // textBoxFile
       // 
+      textBoxFile.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
       tableLayoutPanelFile.SetColumnSpan(textBoxFile, 4);
-      textBoxFile.Location = new System.Drawing.Point(110, 2);
-      textBoxFile.Margin = new System.Windows.Forms.Padding(2);
+      textBoxFile.Location = new System.Drawing.Point(113, 5);
       textBoxFile.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxFile.Name = "textBoxFile";
       textBoxFile.Size = new System.Drawing.Size(466, 20);
@@ -508,9 +496,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonGuessDelimiter, 2);
       buttonGuessDelimiter.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuessDelimiter.Location = new System.Drawing.Point(581, 96);
+      buttonGuessDelimiter.Location = new System.Drawing.Point(585, 96);
       buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-      buttonGuessDelimiter.Size = new System.Drawing.Size(104, 25);
+      buttonGuessDelimiter.Size = new System.Drawing.Size(214, 25);
       buttonGuessDelimiter.TabIndex = 13;
       buttonGuessDelimiter.Text = "Detect Delimiter";
       buttonGuessDelimiter.UseVisualStyleBackColor = true;
@@ -520,9 +508,9 @@
       // 
       btnOpenFile.AutoSize = true;
       btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
-      btnOpenFile.Location = new System.Drawing.Point(581, 3);
+      btnOpenFile.Location = new System.Drawing.Point(585, 3);
       btnOpenFile.Name = "btnOpenFile";
-      btnOpenFile.Size = new System.Drawing.Size(65, 25);
+      btnOpenFile.Size = new System.Drawing.Size(137, 25);
       btnOpenFile.TabIndex = 1;
       btnOpenFile.Text = "Select File";
       btnOpenFile.UseVisualStyleBackColor = true;
@@ -532,8 +520,7 @@
       // 
       labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDelimiter.AutoSize = true;
-      labelDelimiter.Location = new System.Drawing.Point(56, 102);
-      labelDelimiter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelDelimiter.Location = new System.Drawing.Point(57, 102);
       labelDelimiter.Name = "labelDelimiter";
       labelDelimiter.Size = new System.Drawing.Size(50, 13);
       labelDelimiter.TabIndex = 10;
@@ -544,8 +531,7 @@
       checkBoxHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxHeader.AutoSize = true;
       tableLayoutPanelFile.SetColumnSpan(checkBoxHeader, 2);
-      checkBoxHeader.Location = new System.Drawing.Point(110, 38);
-      checkBoxHeader.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxHeader.Location = new System.Drawing.Point(113, 38);
       checkBoxHeader.Name = "checkBoxHeader";
       checkBoxHeader.Size = new System.Drawing.Size(126, 17);
       checkBoxHeader.TabIndex = 2;
@@ -557,8 +543,7 @@
       // 
       labelCodePage.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelCodePage.AutoSize = true;
-      labelCodePage.Location = new System.Drawing.Point(43, 71);
-      labelCodePage.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelCodePage.Location = new System.Drawing.Point(44, 71);
       labelCodePage.Name = "labelCodePage";
       labelCodePage.Size = new System.Drawing.Size(63, 13);
       labelCodePage.TabIndex = 5;
@@ -570,8 +555,7 @@
       tableLayoutPanelFile.SetColumnSpan(cboCodePage, 2);
       cboCodePage.DisplayMember = "Display";
       cboCodePage.FormattingEnabled = true;
-      cboCodePage.Location = new System.Drawing.Point(110, 67);
-      cboCodePage.Margin = new System.Windows.Forms.Padding(2);
+      cboCodePage.Location = new System.Drawing.Point(113, 67);
       cboCodePage.MinimumSize = new System.Drawing.Size(46, 0);
       cboCodePage.Name = "cboCodePage";
       cboCodePage.Size = new System.Drawing.Size(221, 21);
@@ -584,9 +568,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonGuessCP, 2);
       buttonGuessCP.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuessCP.Location = new System.Drawing.Point(581, 65);
+      buttonGuessCP.Location = new System.Drawing.Point(585, 65);
       buttonGuessCP.Name = "buttonGuessCP";
-      buttonGuessCP.Size = new System.Drawing.Size(104, 25);
+      buttonGuessCP.Size = new System.Drawing.Size(214, 25);
       buttonGuessCP.TabIndex = 9;
       buttonGuessCP.Text = "Detect Code Page";
       buttonGuessCP.UseVisualStyleBackColor = true;
@@ -597,8 +581,7 @@
       checkBoxGuessHasHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxGuessHasHeader.AutoSize = true;
       checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessHasHeader", true));
-      checkBoxGuessHasHeader.Location = new System.Drawing.Point(411, 38);
-      checkBoxGuessHasHeader.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessHasHeader.Location = new System.Drawing.Point(418, 38);
       checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
       checkBoxGuessHasHeader.Size = new System.Drawing.Size(99, 17);
       checkBoxGuessHasHeader.TabIndex = 3;
@@ -616,9 +599,9 @@
       buttonSkipLine.AutoSize = true;
       buttonSkipLine.Dock = System.Windows.Forms.DockStyle.Top;
       buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonSkipLine.Location = new System.Drawing.Point(581, 158);
+      buttonSkipLine.Location = new System.Drawing.Point(585, 158);
       buttonSkipLine.Name = "buttonSkipLine";
-      buttonSkipLine.Size = new System.Drawing.Size(65, 25);
+      buttonSkipLine.Size = new System.Drawing.Size(137, 25);
       buttonSkipLine.TabIndex = 22;
       buttonSkipLine.Text = "Detect Start Row";
       buttonSkipLine.UseVisualStyleBackColor = true;
@@ -629,8 +612,7 @@
       checkBoxGuessDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxGuessDelimiter.AutoSize = true;
       checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessDelimiter", true));
-      checkBoxGuessDelimiter.Location = new System.Drawing.Point(411, 100);
-      checkBoxGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessDelimiter.Location = new System.Drawing.Point(418, 100);
       checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
       checkBoxGuessDelimiter.Size = new System.Drawing.Size(104, 17);
       checkBoxGuessDelimiter.TabIndex = 12;
@@ -644,9 +626,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonGuessHeader, 2);
       buttonGuessHeader.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuessHeader.Location = new System.Drawing.Point(581, 34);
+      buttonGuessHeader.Location = new System.Drawing.Point(585, 34);
       buttonGuessHeader.Name = "buttonGuessHeader";
-      buttonGuessHeader.Size = new System.Drawing.Size(104, 25);
+      buttonGuessHeader.Size = new System.Drawing.Size(214, 25);
       buttonGuessHeader.TabIndex = 4;
       buttonGuessHeader.Text = "Detect Header";
       buttonGuessHeader.UseVisualStyleBackColor = true;
@@ -656,8 +638,7 @@
       // 
       checkBoxBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxBOM.AutoSize = true;
-      checkBoxBOM.Location = new System.Drawing.Point(335, 69);
-      checkBoxBOM.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxBOM.Location = new System.Drawing.Point(340, 69);
       checkBoxBOM.Name = "checkBoxBOM";
       checkBoxBOM.Size = new System.Drawing.Size(72, 17);
       checkBoxBOM.TabIndex = 7;
@@ -670,8 +651,7 @@
       checkBoxGuessCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxGuessCodePage.AutoSize = true;
       checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessCodePage", true));
-      checkBoxGuessCodePage.Location = new System.Drawing.Point(411, 69);
-      checkBoxGuessCodePage.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxGuessCodePage.Location = new System.Drawing.Point(418, 69);
       checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
       checkBoxGuessCodePage.Size = new System.Drawing.Size(117, 17);
       checkBoxGuessCodePage.TabIndex = 8;
@@ -685,9 +665,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonGuessLineComment, 2);
       buttonGuessLineComment.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessLineComment.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuessLineComment.Location = new System.Drawing.Point(581, 127);
+      buttonGuessLineComment.Location = new System.Drawing.Point(585, 127);
       buttonGuessLineComment.Name = "buttonGuessLineComment";
-      buttonGuessLineComment.Size = new System.Drawing.Size(104, 25);
+      buttonGuessLineComment.Size = new System.Drawing.Size(214, 25);
       buttonGuessLineComment.TabIndex = 17;
       buttonGuessLineComment.Text = "Detect Comment";
       buttonGuessLineComment.UseVisualStyleBackColor = true;
@@ -698,8 +678,7 @@
       checkBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBox3.AutoSize = true;
       checkBox3.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessComment", true));
-      checkBox3.Location = new System.Drawing.Point(411, 131);
-      checkBox3.Margin = new System.Windows.Forms.Padding(2);
+      checkBox3.Location = new System.Drawing.Point(418, 131);
       checkBox3.Name = "checkBox3";
       checkBox3.Size = new System.Drawing.Size(131, 17);
       checkBox3.TabIndex = 16;
@@ -713,9 +692,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonGuessTextQualifier, 2);
       buttonGuessTextQualifier.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessTextQualifier.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuessTextQualifier.Location = new System.Drawing.Point(581, 189);
+      buttonGuessTextQualifier.Location = new System.Drawing.Point(585, 189);
       buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-      buttonGuessTextQualifier.Size = new System.Drawing.Size(104, 25);
+      buttonGuessTextQualifier.Size = new System.Drawing.Size(214, 25);
       buttonGuessTextQualifier.TabIndex = 26;
       buttonGuessTextQualifier.Text = "Detect Text Qualifier";
       buttonGuessTextQualifier.UseVisualStyleBackColor = true;
@@ -725,8 +704,8 @@
       // 
       quotingControl.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelFile.SetColumnSpan(quotingControl, 7);
-      quotingControl.Location = new System.Drawing.Point(4, 284);
-      quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      quotingControl.Location = new System.Drawing.Point(3, 281);
+      quotingControl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
       quotingControl.Name = "quotingControl";
       quotingControl.Size = new System.Drawing.Size(680, 194);
@@ -738,9 +717,9 @@
       tableLayoutPanelFile.SetColumnSpan(buttonEscapeSequence, 2);
       buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
       buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonEscapeSequence.Location = new System.Drawing.Point(581, 220);
+      buttonEscapeSequence.Location = new System.Drawing.Point(585, 220);
       buttonEscapeSequence.Name = "buttonEscapeSequence";
-      buttonEscapeSequence.Size = new System.Drawing.Size(104, 25);
+      buttonEscapeSequence.Size = new System.Drawing.Size(214, 25);
       buttonEscapeSequence.TabIndex = 30;
       buttonEscapeSequence.Text = "Detect Escape";
       buttonEscapeSequence.UseVisualStyleBackColor = true;
@@ -748,10 +727,11 @@
       // 
       // textBoxDelimiter
       // 
+      textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
       textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      textBoxDelimiter.Location = new System.Drawing.Point(111, 96);
+      textBoxDelimiter.Location = new System.Drawing.Point(113, 98);
       textBoxDelimiter.Name = "textBoxDelimiter";
       textBoxDelimiter.Size = new System.Drawing.Size(62, 20);
       textBoxDelimiter.TabIndex = 11;
@@ -761,8 +741,7 @@
       // 
       label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label5.AutoSize = true;
-      label5.Location = new System.Drawing.Point(25, 164);
-      label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label5.Location = new System.Drawing.Point(26, 164);
       label5.Name = "label5";
       label5.Size = new System.Drawing.Size(81, 13);
       label5.TabIndex = 18;
@@ -771,7 +750,7 @@
       // numericUpDownSkipRows
       // 
       numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      numericUpDownSkipRows.Location = new System.Drawing.Point(111, 160);
+      numericUpDownSkipRows.Location = new System.Drawing.Point(113, 160);
       numericUpDownSkipRows.Name = "numericUpDownSkipRows";
       numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
       numericUpDownSkipRows.TabIndex = 19;
@@ -783,8 +762,7 @@
       checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBox2.AutoSize = true;
       checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessStartRow", true));
-      checkBox2.Location = new System.Drawing.Point(411, 162);
-      checkBox2.Margin = new System.Windows.Forms.Padding(2);
+      checkBox2.Location = new System.Drawing.Point(418, 162);
       checkBox2.Name = "checkBox2";
       checkBox2.Size = new System.Drawing.Size(111, 17);
       checkBox2.TabIndex = 21;
@@ -796,8 +774,7 @@
       // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(2, 195);
-      label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label1.Location = new System.Drawing.Point(3, 195);
       label1.Name = "label1";
       label1.Size = new System.Drawing.Size(104, 13);
       label1.TabIndex = 23;
@@ -805,9 +782,9 @@
       // 
       // textBoxTextAsNull
       // 
+      textBoxTextAsNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] { "NULL", "(null)", "n.a.", "n/a" });
-      textBoxTextAsNull.Location = new System.Drawing.Point(110, 188);
-      textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
+      textBoxTextAsNull.Location = new System.Drawing.Point(113, 191);
       textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxTextAsNull.Name = "textBoxTextAsNull";
       textBoxTextAsNull.Size = new System.Drawing.Size(62, 20);
@@ -818,8 +795,7 @@
       checkBoxCheckQuote.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxCheckQuote.AutoSize = true;
       checkBoxCheckQuote.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessQualifier", true));
-      checkBoxCheckQuote.Location = new System.Drawing.Point(411, 193);
-      checkBoxCheckQuote.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxCheckQuote.Location = new System.Drawing.Point(418, 193);
       checkBoxCheckQuote.Name = "checkBoxCheckQuote";
       checkBoxCheckQuote.Size = new System.Drawing.Size(126, 17);
       checkBoxCheckQuote.TabIndex = 25;
@@ -830,8 +806,7 @@
       // 
       labelEscape.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelEscape.AutoSize = true;
-      labelEscape.Location = new System.Drawing.Point(11, 226);
-      labelEscape.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelEscape.Location = new System.Drawing.Point(12, 226);
       labelEscape.Name = "labelEscape";
       labelEscape.Size = new System.Drawing.Size(95, 13);
       labelEscape.TabIndex = 27;
@@ -839,11 +814,11 @@
       // 
       // textBoxEscapeRead
       // 
+      textBoxEscapeRead.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxEscapeRead.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
       textBoxEscapeRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBoxEscapeRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      textBoxEscapeRead.Location = new System.Drawing.Point(110, 219);
-      textBoxEscapeRead.Margin = new System.Windows.Forms.Padding(2);
+      textBoxEscapeRead.Location = new System.Drawing.Point(113, 222);
       textBoxEscapeRead.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxEscapeRead.Name = "textBoxEscapeRead";
       textBoxEscapeRead.Size = new System.Drawing.Size(62, 20);
@@ -856,8 +831,7 @@
       checkBoxDetermineEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxDetermineEscape.AutoSize = true;
       checkBoxDetermineEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "GuessEscapePrefix", true));
-      checkBoxDetermineEscape.Location = new System.Drawing.Point(411, 224);
-      checkBoxDetermineEscape.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDetermineEscape.Location = new System.Drawing.Point(418, 224);
       checkBoxDetermineEscape.Name = "checkBoxDetermineEscape";
       checkBoxDetermineEscape.Size = new System.Drawing.Size(152, 17);
       checkBoxDetermineEscape.TabIndex = 29;
@@ -868,8 +842,7 @@
       // 
       labelPGPRead.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelPGPRead.AutoSize = true;
-      labelPGPRead.Location = new System.Drawing.Point(53, 257);
-      labelPGPRead.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPGPRead.Location = new System.Drawing.Point(54, 257);
       labelPGPRead.Name = "labelPGPRead";
       labelPGPRead.Size = new System.Drawing.Size(53, 13);
       labelPGPRead.TabIndex = 31;
@@ -877,11 +850,11 @@
       // 
       // textBoxKeyFileRead
       // 
+      textBoxKeyFileRead.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxKeyFileRead.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       textBoxKeyFileRead.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
       tableLayoutPanelFile.SetColumnSpan(textBoxKeyFileRead, 4);
-      textBoxKeyFileRead.Location = new System.Drawing.Point(110, 250);
-      textBoxKeyFileRead.Margin = new System.Windows.Forms.Padding(2);
+      textBoxKeyFileRead.Location = new System.Drawing.Point(113, 253);
       textBoxKeyFileRead.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxKeyFileRead.Name = "textBoxKeyFileRead";
       textBoxKeyFileRead.Size = new System.Drawing.Size(466, 20);
@@ -893,9 +866,9 @@
       buttonKeyFileRead.AutoSize = true;
       tableLayoutPanelFile.SetColumnSpan(buttonKeyFileRead, 2);
       buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
-      buttonKeyFileRead.Location = new System.Drawing.Point(581, 251);
+      buttonKeyFileRead.Location = new System.Drawing.Point(585, 251);
       buttonKeyFileRead.Name = "buttonKeyFileRead";
-      buttonKeyFileRead.Size = new System.Drawing.Size(104, 25);
+      buttonKeyFileRead.Size = new System.Drawing.Size(214, 25);
       buttonKeyFileRead.TabIndex = 33;
       buttonKeyFileRead.Text = "Select File";
       buttonKeyFileRead.UseVisualStyleBackColor = true;
@@ -903,10 +876,11 @@
       // 
       // buttonFileInfo
       // 
+      buttonFileInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       buttonFileInfo.Dock = System.Windows.Forms.DockStyle.Top;
-      buttonFileInfo.Location = new System.Drawing.Point(652, 3);
+      buttonFileInfo.Location = new System.Drawing.Point(728, 3);
       buttonFileInfo.Name = "buttonFileInfo";
-      buttonFileInfo.Size = new System.Drawing.Size(33, 25);
+      buttonFileInfo.Size = new System.Drawing.Size(71, 25);
       buttonFileInfo.TabIndex = 35;
       buttonFileInfo.Text = "Info";
       buttonFileInfo.UseVisualStyleBackColor = true;
@@ -916,9 +890,9 @@
       // 
       buttonInteractiveSettings.Dock = System.Windows.Forms.DockStyle.Top;
       buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonInteractiveSettings.Location = new System.Drawing.Point(652, 158);
+      buttonInteractiveSettings.Location = new System.Drawing.Point(728, 158);
       buttonInteractiveSettings.Name = "buttonInteractiveSettings";
-      buttonInteractiveSettings.Size = new System.Drawing.Size(33, 25);
+      buttonInteractiveSettings.Size = new System.Drawing.Size(71, 25);
       buttonInteractiveSettings.TabIndex = 20;
       buttonInteractiveSettings.Text = "...";
       toolTip.SetToolTip(buttonInteractiveSettings, "Interactive Skip First Lines");
@@ -929,8 +903,7 @@
       // 
       checkBoxTreatNBSPAsSpace.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatNBSPAsSpace, 2);
-      checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(307, 126);
-      checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(346, 137);
       checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
       checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
       checkBoxTreatNBSPAsSpace.TabIndex = 13;
@@ -942,8 +915,7 @@
       // 
       checkBoxSkipEmptyLines.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxSkipEmptyLines, 2);
-      checkBoxSkipEmptyLines.Location = new System.Drawing.Point(307, 21);
-      checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxSkipEmptyLines.Location = new System.Drawing.Point(346, 22);
       checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
       checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
       checkBoxSkipEmptyLines.TabIndex = 3;
@@ -956,8 +928,7 @@
       checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
       checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatUnknowCharaterAsSpace, 2);
-      checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(307, 105);
-      checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(346, 114);
       checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
       checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
       checkBoxTreatUnknowCharaterAsSpace.TabIndex = 11;
@@ -969,8 +940,7 @@
       // 
       checkBoxTreatLfAsSpace.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatLfAsSpace, 2);
-      checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(307, 84);
-      checkBoxTreatLfAsSpace.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(346, 91);
       checkBoxTreatLfAsSpace.Name = "checkBoxTreatLfAsSpace";
       checkBoxTreatLfAsSpace.Size = new System.Drawing.Size(143, 17);
       checkBoxTreatLfAsSpace.TabIndex = 9;
@@ -982,10 +952,9 @@
       // 
       checkBoxTryToSolveMoreColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTryToSolveMoreColumns, 2);
-      checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(307, 63);
-      checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(346, 68);
       checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
-      checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(379, 17);
+      checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(426, 17);
       checkBoxTryToSolveMoreColumns.TabIndex = 7;
       checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns";
       toolTip.SetToolTip(checkBoxTryToSolveMoreColumns, "If it’s recognized that a record has more columns than expected the application will check if an unquoted delimiter was possibly shifting the columns and try to rectify this");
@@ -996,10 +965,9 @@
       // 
       checkBoxAllowRowCombining.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAllowRowCombining, 2);
-      checkBoxAllowRowCombining.Location = new System.Drawing.Point(307, 42);
-      checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAllowRowCombining.Location = new System.Drawing.Point(346, 45);
       checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
-      checkBoxAllowRowCombining.Size = new System.Drawing.Size(379, 17);
+      checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
       checkBoxAllowRowCombining.TabIndex = 5;
       checkBoxAllowRowCombining.Text = "Try to Combine Row / Handle records that have less than the expected columns";
       toolTip.SetToolTip(checkBoxAllowRowCombining, "If it’s recognized that a record has less columns than expected, the application will check if an unquoted linefeed was possibly causing the issue any try to rectify this.");
@@ -1011,8 +979,7 @@
       checkBoxAllowJson.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAllowJson, 2);
       checkBoxAllowJson.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "AllowJson", true));
-      checkBoxAllowJson.Location = new System.Drawing.Point(2, 126);
-      checkBoxAllowJson.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAllowJson.Location = new System.Drawing.Point(3, 137);
       checkBoxAllowJson.Name = "checkBoxAllowJson";
       checkBoxAllowJson.Size = new System.Drawing.Size(111, 17);
       checkBoxAllowJson.TabIndex = 12;
@@ -1027,8 +994,7 @@
       checkBoxDisplayRecordNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDisplayRecordNo, 2);
       checkBoxDisplayRecordNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DisplayRecordNo", true));
-      checkBoxDisplayRecordNo.Location = new System.Drawing.Point(2, 105);
-      checkBoxDisplayRecordNo.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDisplayRecordNo.Location = new System.Drawing.Point(3, 114);
       checkBoxDisplayRecordNo.Name = "checkBoxDisplayRecordNo";
       checkBoxDisplayRecordNo.Size = new System.Drawing.Size(176, 17);
       checkBoxDisplayRecordNo.TabIndex = 10;
@@ -1041,8 +1007,7 @@
       checkBoxDetectFileChanges.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDetectFileChanges, 2);
       checkBoxDetectFileChanges.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DetectFileChanges", true));
-      checkBoxDetectFileChanges.Location = new System.Drawing.Point(2, 21);
-      checkBoxDetectFileChanges.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDetectFileChanges.Location = new System.Drawing.Point(3, 22);
       checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
       checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
       checkBoxDetectFileChanges.TabIndex = 2;
@@ -1055,8 +1020,7 @@
       checkBoxMenuDown.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxMenuDown, 2);
       checkBoxMenuDown.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "MenuDown", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxMenuDown.Location = new System.Drawing.Point(2, 42);
-      checkBoxMenuDown.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxMenuDown.Location = new System.Drawing.Point(3, 45);
       checkBoxMenuDown.Name = "checkBoxMenuDown";
       checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
       checkBoxMenuDown.TabIndex = 4;
@@ -1068,8 +1032,7 @@
       checkBoxStoreSettingsByFile.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxStoreSettingsByFile, 2);
       checkBoxStoreSettingsByFile.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "StoreSettingsByFile", true));
-      checkBoxStoreSettingsByFile.Location = new System.Drawing.Point(2, 63);
-      checkBoxStoreSettingsByFile.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxStoreSettingsByFile.Location = new System.Drawing.Point(3, 68);
       checkBoxStoreSettingsByFile.Name = "checkBoxStoreSettingsByFile";
       checkBoxStoreSettingsByFile.Size = new System.Drawing.Size(132, 17);
       checkBoxStoreSettingsByFile.TabIndex = 6;
@@ -1084,8 +1047,7 @@
       checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxDisplayStartLineNo, 2);
       checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "DisplayStartLineNo", true));
-      checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 84);
-      checkBoxDisplayStartLineNo.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(3, 91);
       checkBoxDisplayStartLineNo.Name = "checkBoxDisplayStartLineNo";
       checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(161, 17);
       checkBoxDisplayStartLineNo.TabIndex = 8;
@@ -1097,8 +1059,7 @@
       // 
       labelLimitOpen.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelLimitOpen.AutoSize = true;
-      labelLimitOpen.Location = new System.Drawing.Point(3, 150);
-      labelLimitOpen.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
+      labelLimitOpen.Location = new System.Drawing.Point(3, 157);
       labelLimitOpen.Name = "labelLimitOpen";
       labelLimitOpen.Size = new System.Drawing.Size(153, 13);
       labelLimitOpen.TabIndex = 14;
@@ -1109,8 +1070,7 @@
       checkBoxWarnEmptyTailingColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnEmptyTailingColumns, 2);
       checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
-      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(2, 236);
-      checkBoxWarnEmptyTailingColumns.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 249);
       checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
       checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
       checkBoxWarnEmptyTailingColumns.TabIndex = 17;
@@ -1124,8 +1084,7 @@
       checkBoxWarnNBSP.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnNBSP, 2);
       checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnNBSP", true));
-      checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 325);
-      checkBoxWarnNBSP.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 344);
       checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
       checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
       checkBoxWarnNBSP.TabIndex = 23;
@@ -1138,8 +1097,7 @@
       checkBoxWarnUnknowCharater.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnUnknowCharater, 2);
       checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnUnknownCharacter", true));
-      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 304);
-      checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 321);
       checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
       checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
       checkBoxWarnUnknowCharater.TabIndex = 22;
@@ -1152,8 +1110,7 @@
       checkBoxWarnDelimiterInValue.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnDelimiterInValue, 2);
       checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnDelimiterInValue", true));
-      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 262);
-      checkBoxWarnDelimiterInValue.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 275);
       checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
       checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
       checkBoxWarnDelimiterInValue.TabIndex = 20;
@@ -1166,8 +1123,7 @@
       checkBoxWarnQuotes.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnQuotes, 2);
       checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnQuotes", true));
-      checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 283);
-      checkBoxWarnQuotes.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 298);
       checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
       checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
       checkBoxWarnQuotes.TabIndex = 21;
@@ -1180,8 +1136,7 @@
       checkBoxWriteBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxWriteBOM.AutoSize = true;
       checkBoxWriteBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceWrite, "ByteOrderMark", true));
-      checkBoxWriteBOM.Location = new System.Drawing.Point(572, 4);
-      checkBoxWriteBOM.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWriteBOM.Location = new System.Drawing.Point(577, 5);
       checkBoxWriteBOM.Name = "checkBoxWriteBOM";
       checkBoxWriteBOM.Size = new System.Drawing.Size(50, 17);
       checkBoxWriteBOM.TabIndex = 2;
@@ -1200,8 +1155,7 @@
       textBox9.AutoCompleteCustomSource.AddRange(new string[] { "<br>", "{n}" });
       textBox9.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBox9.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "NewLinePlaceholder", true));
-      textBox9.Location = new System.Drawing.Point(295, 106);
-      textBox9.Margin = new System.Windows.Forms.Padding(2);
+      textBox9.Location = new System.Drawing.Point(302, 113);
       textBox9.MinimumSize = new System.Drawing.Size(46, 4);
       textBox9.Name = "textBox9";
       textBox9.Size = new System.Drawing.Size(62, 20);
@@ -1214,8 +1168,7 @@
       textBox7.AutoCompleteCustomSource.AddRange(new string[] { "{d}" });
       textBox7.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBox7.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "DelimiterPlaceholder", true));
-      textBox7.Location = new System.Drawing.Point(115, 106);
-      textBox7.Margin = new System.Windows.Forms.Padding(2);
+      textBox7.Location = new System.Drawing.Point(118, 113);
       textBox7.MinimumSize = new System.Drawing.Size(46, 4);
       textBox7.Name = "textBox7";
       textBox7.Size = new System.Drawing.Size(62, 20);
@@ -1230,8 +1183,7 @@
       cboRecordDelimiter.DisplayMember = "Display";
       cboRecordDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       cboRecordDelimiter.FormattingEnabled = true;
-      cboRecordDelimiter.Location = new System.Drawing.Point(115, 54);
-      cboRecordDelimiter.Margin = new System.Windows.Forms.Padding(2);
+      cboRecordDelimiter.Location = new System.Drawing.Point(118, 58);
       cboRecordDelimiter.MinimumSize = new System.Drawing.Size(46, 0);
       cboRecordDelimiter.Name = "cboRecordDelimiter";
       cboRecordDelimiter.Size = new System.Drawing.Size(226, 21);
@@ -1245,8 +1197,7 @@
       checkBoxWarnLineFeed.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnLineFeed, 2);
       checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnLineFeed", true));
-      checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 346);
-      checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 367);
       checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
       checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
       checkBoxWarnLineFeed.TabIndex = 24;
@@ -1257,7 +1208,7 @@
       // numericUpDownNumWarnings
       // 
       numericUpDownNumWarnings.Increment = new decimal(new int[] { 10, 0, 0, 0 });
-      numericUpDownNumWarnings.Location = new System.Drawing.Point(398, 237);
+      numericUpDownNumWarnings.Location = new System.Drawing.Point(436, 249);
       numericUpDownNumWarnings.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
       numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
       numericUpDownNumWarnings.Size = new System.Drawing.Size(110, 20);
@@ -1270,7 +1221,7 @@
       comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceViewSetting, "LimitDuration", true));
       comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       comboBoxLimitDuration.FormattingEnabled = true;
-      comboBoxLimitDuration.Location = new System.Drawing.Point(162, 148);
+      comboBoxLimitDuration.Location = new System.Drawing.Point(162, 160);
       comboBoxLimitDuration.Name = "comboBoxLimitDuration";
       comboBoxLimitDuration.Size = new System.Drawing.Size(110, 21);
       comboBoxLimitDuration.TabIndex = 15;
@@ -1280,7 +1231,7 @@
       // 
       numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceViewSetting, "ShowButtonAtLength", true));
       numericUpDownLength.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-      numericUpDownLength.Location = new System.Drawing.Point(162, 368);
+      numericUpDownLength.Location = new System.Drawing.Point(162, 390);
       numericUpDownLength.Maximum = new decimal(new int[] { 4000, 0, 0, 0 });
       numericUpDownLength.Name = "numericUpDownLength";
       numericUpDownLength.Size = new System.Drawing.Size(110, 20);
@@ -1292,10 +1243,9 @@
       // 
       checkBoxCopySkipped.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxCopySkipped.AutoSize = true;
-      checkBoxCopySkipped.Location = new System.Drawing.Point(572, 28);
-      checkBoxCopySkipped.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxCopySkipped.Location = new System.Drawing.Point(577, 31);
       checkBoxCopySkipped.Name = "checkBoxCopySkipped";
-      checkBoxCopySkipped.Size = new System.Drawing.Size(112, 17);
+      checkBoxCopySkipped.Size = new System.Drawing.Size(120, 17);
       checkBoxCopySkipped.TabIndex = 5;
       checkBoxCopySkipped.Text = "Copy Skipped Lines";
       toolTip.SetToolTip(checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
@@ -1308,8 +1258,7 @@
       textBoxKeyFileWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
       tableLayoutPanelWrite.SetColumnSpan(textBoxKeyFileWrite, 3);
       textBoxKeyFileWrite.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceWrite, "KeyFile", true));
-      textBoxKeyFileWrite.Location = new System.Drawing.Point(115, 130);
-      textBoxKeyFileWrite.Margin = new System.Windows.Forms.Padding(2);
+      textBoxKeyFileWrite.Location = new System.Drawing.Point(118, 139);
       textBoxKeyFileWrite.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxKeyFileWrite.Name = "textBoxKeyFileWrite";
       textBoxKeyFileWrite.Size = new System.Drawing.Size(453, 20);
@@ -1325,10 +1274,9 @@
       tabPageBehaviour.BackColor = System.Drawing.SystemColors.Control;
       tabPageBehaviour.Controls.Add(tableLayoutPanelBehaviour);
       tabPageBehaviour.Location = new System.Drawing.Point(4, 22);
-      tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
       tabPageBehaviour.Name = "tabPageBehaviour";
       tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-      tabPageBehaviour.Size = new System.Drawing.Size(692, 486);
+      tabPageBehaviour.Size = new System.Drawing.Size(806, 486);
       tabPageBehaviour.TabIndex = 9;
       tabPageBehaviour.Text = "Behavior and Warnings";
       // 
@@ -1370,7 +1318,6 @@
       tableLayoutPanelBehaviour.Controls.Add(checkBoxAutoLoad, 2, 7);
       tableLayoutPanelBehaviour.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelBehaviour.Location = new System.Drawing.Point(2, 2);
-      tableLayoutPanelBehaviour.Margin = new System.Windows.Forms.Padding(2);
       tableLayoutPanelBehaviour.Name = "tableLayoutPanelBehaviour";
       tableLayoutPanelBehaviour.RowCount = 20;
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -1393,7 +1340,7 @@
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(688, 391);
+      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(802, 413);
       tableLayoutPanelBehaviour.TabIndex = 3;
       // 
       // labelPersistentSettings
@@ -1410,7 +1357,7 @@
       // labelByFile
       // 
       labelByFile.AutoSize = true;
-      labelByFile.Location = new System.Drawing.Point(308, 0);
+      labelByFile.Location = new System.Drawing.Point(346, 0);
       labelByFile.Name = "labelByFile";
       labelByFile.Padding = new System.Windows.Forms.Padding(3);
       labelByFile.Size = new System.Drawing.Size(84, 19);
@@ -1423,9 +1370,9 @@
       selectFont.Dock = System.Windows.Forms.DockStyle.Top;
       selectFont.FontName = "Microsoft Sans Serif";
       selectFont.FontSize = 9.75F;
-      selectFont.Location = new System.Drawing.Point(3, 175);
+      selectFont.Location = new System.Drawing.Point(3, 187);
       selectFont.Name = "selectFont";
-      selectFont.Size = new System.Drawing.Size(299, 56);
+      selectFont.Size = new System.Drawing.Size(337, 56);
       selectFont.TabIndex = 16;
       selectFont.ValueChanged += SelectFont_ValueChanged;
       // 
@@ -1433,8 +1380,7 @@
       // 
       label6.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       label6.AutoSize = true;
-      label6.Location = new System.Drawing.Point(25, 370);
-      label6.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+      label6.Location = new System.Drawing.Point(24, 387);
       label6.Name = "label6";
       label6.Size = new System.Drawing.Size(132, 13);
       label6.TabIndex = 25;
@@ -1444,8 +1390,7 @@
       // 
       labelWarningLimit.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelWarningLimit.AutoSize = true;
-      labelWarningLimit.Location = new System.Drawing.Point(319, 239);
-      labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+      labelWarningLimit.Location = new System.Drawing.Point(356, 246);
       labelWarningLimit.Name = "labelWarningLimit";
       labelWarningLimit.Size = new System.Drawing.Size(74, 13);
       labelWarningLimit.TabIndex = 18;
@@ -1456,8 +1401,7 @@
       checkBoxAutoLoad.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAutoLoad, 2);
       checkBoxAutoLoad.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "AutoStartMode", true));
-      checkBoxAutoLoad.Location = new System.Drawing.Point(307, 147);
-      checkBoxAutoLoad.Margin = new System.Windows.Forms.Padding(2);
+      checkBoxAutoLoad.Location = new System.Drawing.Point(346, 160);
       checkBoxAutoLoad.Name = "checkBoxAutoLoad";
       checkBoxAutoLoad.Size = new System.Drawing.Size(208, 17);
       checkBoxAutoLoad.TabIndex = 13;
@@ -1469,10 +1413,9 @@
       tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
       tabPageFormat.Controls.Add(fillGuessSettingEdit);
       tabPageFormat.Location = new System.Drawing.Point(4, 22);
-      tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
       tabPageFormat.Name = "tabPageFormat";
       tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFormat.Size = new System.Drawing.Size(692, 486);
+      tabPageFormat.Size = new System.Drawing.Size(806, 486);
       tabPageFormat.TabIndex = 0;
       tabPageFormat.Text = "Detection";
       // 
@@ -1480,10 +1423,10 @@
       // 
       fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
       fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
-      fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
+      fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(2);
       fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
       fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      fillGuessSettingEdit.Size = new System.Drawing.Size(688, 482);
+      fillGuessSettingEdit.Size = new System.Drawing.Size(802, 482);
       fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageFile
@@ -1491,10 +1434,9 @@
       tabPageFile.BackColor = System.Drawing.SystemColors.Control;
       tabPageFile.Controls.Add(tableLayoutPanelFile);
       tabPageFile.Location = new System.Drawing.Point(4, 22);
-      tabPageFile.Margin = new System.Windows.Forms.Padding(2);
       tabPageFile.Name = "tabPageFile";
       tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFile.Size = new System.Drawing.Size(692, 486);
+      tabPageFile.Size = new System.Drawing.Size(806, 486);
       tabPageFile.TabIndex = 6;
       tabPageFile.Text = "Read Settings";
       // 
@@ -1505,12 +1447,10 @@
       tabControl.Controls.Add(tabPageFormat);
       tabControl.Controls.Add(tabPageWrite);
       tabControl.Controls.Add(tabPageAbout);
-      tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       tabControl.Location = new System.Drawing.Point(0, 0);
-      tabControl.Margin = new System.Windows.Forms.Padding(2);
       tabControl.Name = "tabControl";
       tabControl.SelectedIndex = 0;
-      tabControl.Size = new System.Drawing.Size(700, 512);
+      tabControl.Size = new System.Drawing.Size(814, 512);
       tabControl.TabIndex = 0;
       // 
       // tabPageWrite
@@ -1520,7 +1460,7 @@
       tabPageWrite.Location = new System.Drawing.Point(4, 22);
       tabPageWrite.Name = "tabPageWrite";
       tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-      tabPageWrite.Size = new System.Drawing.Size(692, 486);
+      tabPageWrite.Size = new System.Drawing.Size(806, 486);
       tabPageWrite.TabIndex = 10;
       tabPageWrite.Text = "Write Settings";
       // 
@@ -1555,7 +1495,6 @@
       tableLayoutPanelWrite.Controls.Add(textBoxKeyFileWrite, 1, 5);
       tableLayoutPanelWrite.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelWrite.Location = new System.Drawing.Point(3, 3);
-      tableLayoutPanelWrite.Margin = new System.Windows.Forms.Padding(2);
       tableLayoutPanelWrite.Name = "tableLayoutPanelWrite";
       tableLayoutPanelWrite.RowCount = 8;
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -1566,7 +1505,7 @@
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      tableLayoutPanelWrite.Size = new System.Drawing.Size(686, 365);
+      tableLayoutPanelWrite.Size = new System.Drawing.Size(800, 367);
       tableLayoutPanelWrite.TabIndex = 0;
       // 
       // quotingControlWrite
@@ -1574,8 +1513,8 @@
       quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelWrite.SetColumnSpan(quotingControlWrite, 5);
       quotingControlWrite.IsWriteSetting = true;
-      quotingControlWrite.Location = new System.Drawing.Point(9, 164);
-      quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
+      quotingControlWrite.Location = new System.Drawing.Point(3, 169);
+      quotingControlWrite.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
       quotingControlWrite.Name = "quotingControlWrite";
       quotingControlWrite.Size = new System.Drawing.Size(673, 176);
@@ -1585,8 +1524,7 @@
       // 
       label11.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label11.AutoSize = true;
-      label11.Location = new System.Drawing.Point(48, 6);
-      label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label11.Location = new System.Drawing.Point(49, 7);
       label11.Name = "label11";
       label11.Size = new System.Drawing.Size(63, 13);
       label11.TabIndex = 0;
@@ -1596,8 +1534,7 @@
       // 
       label17.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label17.AutoSize = true;
-      label17.Location = new System.Drawing.Point(181, 109);
-      label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label17.Location = new System.Drawing.Point(186, 116);
       label17.Name = "label17";
       label17.Size = new System.Drawing.Size(110, 13);
       label17.TabIndex = 13;
@@ -1607,8 +1544,7 @@
       // 
       label15.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label15.AutoSize = true;
-      label15.Location = new System.Drawing.Point(2, 109);
-      label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label15.Location = new System.Drawing.Point(3, 116);
       label15.Name = "label15";
       label15.Size = new System.Drawing.Size(109, 13);
       label15.TabIndex = 11;
@@ -1618,19 +1554,17 @@
       // 
       label13.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label13.AutoSize = true;
-      label13.Location = new System.Drawing.Point(12, 58);
-      label13.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label13.Location = new System.Drawing.Point(13, 62);
       label13.Name = "label13";
       label13.Size = new System.Drawing.Size(99, 13);
       label13.TabIndex = 6;
-      label13.Text = "Record Seperation:";
+      label13.Text = "Record Separation:";
       // 
       // label4
       // 
       label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label4.AutoSize = true;
-      label4.Location = new System.Drawing.Point(61, 30);
-      label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label4.Location = new System.Drawing.Point(62, 33);
       label4.Name = "label4";
       label4.Size = new System.Drawing.Size(50, 13);
       label4.TabIndex = 3;
@@ -1643,8 +1577,7 @@
       textBoxWriteDelim.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBoxWriteDelim.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       textBoxWriteDelim.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceWrite, "FieldDelimiterChar", true));
-      textBoxWriteDelim.Location = new System.Drawing.Point(115, 27);
-      textBoxWriteDelim.Margin = new System.Windows.Forms.Padding(2);
+      textBoxWriteDelim.Location = new System.Drawing.Point(118, 30);
       textBoxWriteDelim.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxWriteDelim.Name = "textBoxWriteDelim";
       textBoxWriteDelim.Size = new System.Drawing.Size(62, 20);
@@ -1658,8 +1591,7 @@
       cboWriteCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceWrite, "CodePageId", true));
       cboWriteCodePage.DisplayMember = "Display";
       cboWriteCodePage.FormattingEnabled = true;
-      cboWriteCodePage.Location = new System.Drawing.Point(115, 2);
-      cboWriteCodePage.Margin = new System.Windows.Forms.Padding(2);
+      cboWriteCodePage.Location = new System.Drawing.Point(118, 3);
       cboWriteCodePage.MinimumSize = new System.Drawing.Size(46, 0);
       cboWriteCodePage.Name = "cboWriteCodePage";
       cboWriteCodePage.Size = new System.Drawing.Size(226, 21);
@@ -1670,8 +1602,7 @@
       // 
       labelEscapeWrite.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelEscapeWrite.AutoSize = true;
-      labelEscapeWrite.Location = new System.Drawing.Point(16, 85);
-      labelEscapeWrite.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelEscapeWrite.Location = new System.Drawing.Point(17, 90);
       labelEscapeWrite.Name = "labelEscapeWrite";
       labelEscapeWrite.Size = new System.Drawing.Size(95, 13);
       labelEscapeWrite.TabIndex = 9;
@@ -1684,8 +1615,7 @@
       textBoxEscapeWrite.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       textBoxEscapeWrite.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       textBoxEscapeWrite.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceWrite, "EscapePrefixChar", true));
-      textBoxEscapeWrite.Location = new System.Drawing.Point(115, 82);
-      textBoxEscapeWrite.Margin = new System.Windows.Forms.Padding(2);
+      textBoxEscapeWrite.Location = new System.Drawing.Point(118, 87);
       textBoxEscapeWrite.MinimumSize = new System.Drawing.Size(46, 4);
       textBoxEscapeWrite.Name = "textBoxEscapeWrite";
       textBoxEscapeWrite.Size = new System.Drawing.Size(62, 20);
@@ -1696,8 +1626,7 @@
       // 
       labelPGPKey.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelPGPKey.AutoSize = true;
-      labelPGPKey.Location = new System.Drawing.Point(58, 137);
-      labelPGPKey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPGPKey.Location = new System.Drawing.Point(59, 145);
       labelPGPKey.Name = "labelPGPKey";
       labelPGPKey.Size = new System.Drawing.Size(53, 13);
       labelPGPKey.TabIndex = 15;
@@ -1706,7 +1635,7 @@
       // buttonNewLine
       // 
       buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonNewLine.Location = new System.Drawing.Point(573, 52);
+      buttonNewLine.Location = new System.Drawing.Point(577, 56);
       buttonNewLine.Name = "buttonNewLine";
       buttonNewLine.Size = new System.Drawing.Size(110, 25);
       buttonNewLine.TabIndex = 8;
@@ -1717,7 +1646,7 @@
       // buttonKeyFileWrite
       // 
       buttonKeyFileWrite.AutoSize = true;
-      buttonKeyFileWrite.Location = new System.Drawing.Point(573, 131);
+      buttonKeyFileWrite.Location = new System.Drawing.Point(577, 139);
       buttonKeyFileWrite.Name = "buttonKeyFileWrite";
       buttonKeyFileWrite.Size = new System.Drawing.Size(66, 25);
       buttonKeyFileWrite.TabIndex = 17;
@@ -1729,10 +1658,9 @@
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      ClientSize = new System.Drawing.Size(700, 512);
+      ClientSize = new System.Drawing.Size(814, 512);
       Controls.Add(tabControl);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      Margin = new System.Windows.Forms.Padding(2);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
       MaximizeBox = false;
       MinimizeBox = false;
       MinimumSize = new System.Drawing.Size(716, 334);
@@ -1765,7 +1693,6 @@
       tableLayoutPanelBehaviour.PerformLayout();
       tabPageFormat.ResumeLayout(false);
       tabPageFile.ResumeLayout(false);
-      tabPageFile.PerformLayout();
       tabControl.ResumeLayout(false);
       tabPageWrite.ResumeLayout(false);
       tabPageWrite.PerformLayout();

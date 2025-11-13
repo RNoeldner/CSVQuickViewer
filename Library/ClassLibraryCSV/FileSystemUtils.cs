@@ -306,7 +306,8 @@ namespace CsvTools
       sBuilder.Length--;
 
       var result = sBuilder.ToString();
-      if (result[result.Length - 1] == Path.DirectorySeparatorChar) return result;
+      if (result[result.Length - 1] == Path.DirectorySeparatorChar) 
+        return result;
       sBuilder.Append(Path.DirectorySeparatorChar);
       return sBuilder.ToString();
     }

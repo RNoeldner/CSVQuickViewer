@@ -14,8 +14,10 @@
 namespace CsvTools
 {
   /// <summary>
-  ///   Display Items are used for combo boxes
+  /// Represents a displayable item, typically used for ComboBox or ListBox data binding.
   /// </summary>
+  /// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
+#if NETFRAMEWORK
   public sealed class DisplayItem<T>
   {
     /// <summary>
@@ -30,15 +32,28 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the display.
+    /// Gets the display text for this item.
     /// </summary>
-    /// <value>The display.</value>
     public string Display { get; }
 
     /// <summary>
-    ///   Gets or sets the ID.
+    /// Gets the underlying identifier or value.
     /// </summary>
-    /// <value>The ID.</value>
     public T ID { get; }
+
+    /// <summary>
+    /// Returns the display text.
+    /// </summary>
+    public override string ToString() => Display ?? string.Empty;
   }
+#else
+  /// <summary>
+  /// Represents a displayable item, typically used for ComboBox or ListBox data binding.
+  /// </summary>
+  /// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
+  public sealed record class DisplayItem<T>(T ID, string Display)
+  {
+    public override string ToString() => Display ?? string.Empty;
+  }
+#endif
 }

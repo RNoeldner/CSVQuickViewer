@@ -2,10 +2,10 @@
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <OutputType>Library</OutputType>
-    <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <IsPublishable>False</IsPublishable>

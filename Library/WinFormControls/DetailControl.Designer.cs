@@ -178,7 +178,6 @@ namespace CsvTools
       this.FilteredDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.FilteredDataGridView.HighlightText = "";
       this.FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
-      this.FilteredDataGridView.Margin = new System.Windows.Forms.Padding(2);
       this.FilteredDataGridView.Name = "FilteredDataGridView";
       dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;

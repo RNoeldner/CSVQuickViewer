@@ -18,19 +18,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
-// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-
 namespace CsvTools
 {
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [DebuggerDisplay("Column {Name}")]
-#if NETFRAMEWORK
-  public class Column : IEquatable<Column>, ICollectionIdentity
-#else
   public record Column : ICollectionIdentity
-#endif
   {
     /// <summary>
     /// Default Format for Time is 24 hrs clock with seconds

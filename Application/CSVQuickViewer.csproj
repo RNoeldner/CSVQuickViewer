@@ -9,13 +9,14 @@
     <PackageIcon>Picture.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
     <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>CsvTools</RootNamespace>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <Configurations>Debug;Release</Configurations>
-    <LangVersion>latest</LangVersion>
+    
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IsPublishable>True</IsPublishable>

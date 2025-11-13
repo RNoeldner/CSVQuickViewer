@@ -19,15 +19,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
-// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-
 namespace CsvTools
 {
   /// <summary>
   ///   Setting for a value format
   /// </summary>
   [DebuggerDisplay("{GetTypeAndFormatDescription(),nq}")]
-  public sealed class ValueFormat : IEquatable<ValueFormat>
+  public sealed record ValueFormat : IEquatable<ValueFormat>
   {
     /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
     public const string cDateFormatDefault = "MM/dd/yyyy";
@@ -320,63 +318,6 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(cOverwriteDefault)]
     public bool Overwrite { get; }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is ValueFormat other && Equals(other);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(ValueFormat? other)
-    {
-      if (other is null) return false;
-
-      return DataType == other.DataType
-             && DateFormat == other.DateFormat
-             && DateSeparator == other.DateSeparator
-             && DecimalSeparator == other.DecimalSeparator
-             && DisplayNullAs == other.DisplayNullAs
-             && False == other.False
-             && GroupSeparator == other.GroupSeparator
-             && NumberFormat == other.NumberFormat
-             && Part == other.Part
-             && PartSplitter == other.PartSplitter
-             && PartToEnd == other.PartToEnd
-             && TimeSeparator == other.TimeSeparator
-             && True == other.True
-             && RegexSearchPattern == other.RegexSearchPattern
-             && RegexReplacement == other.RegexReplacement
-             && ReadFolder == other.ReadFolder
-             && WriteFolder == other.WriteFolder
-             && FileOutPutPlaceholder == other.FileOutPutPlaceholder
-             && Overwrite == other.Overwrite;
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = (int) DataType;
-        hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
-        hashCode = (hashCode * 397) ^ DecimalSeparator.GetHashCode();
-        hashCode = (hashCode * 397) ^ DisplayNullAs.GetHashCode();
-        hashCode = (hashCode * 397) ^ False.GetHashCode();
-        hashCode = (hashCode * 397) ^ GroupSeparator.GetHashCode();
-        hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ Part;
-        hashCode = (hashCode * 397) ^ PartSplitter.GetHashCode();
-        hashCode = (hashCode * 397) ^ PartToEnd.GetHashCode();
-        hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
-        hashCode = (hashCode * 397) ^ True.GetHashCode();
-        hashCode = (hashCode * 397) ^ RegexSearchPattern.GetHashCode();
-        hashCode = (hashCode * 397) ^ RegexReplacement.GetHashCode();
-        hashCode = (hashCode * 397) ^ ReadFolder.GetHashCode();
-        hashCode = (hashCode * 397) ^ WriteFolder.GetHashCode();
-        hashCode = (hashCode * 397) ^ FileOutPutPlaceholder.GetHashCode();
-        hashCode = (hashCode * 397) ^ Overwrite.GetHashCode();
-        return hashCode;
-      }
-    }
 
     /// <summary>
     ///   Determines whether the ValueFormats does matching and expected format

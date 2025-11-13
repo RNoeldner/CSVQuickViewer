@@ -15,11 +15,7 @@
 namespace CsvTools
 {
   /// <inheritdoc />
-#if NETFRAMEWORK
-  public sealed class WriterColumn : Column
-#else
-  public record WriterColumn : Column
-#endif
+  public sealed record WriterColumn : Column
   {
     /// <inheritdoc />
     public WriterColumn(string name,

@@ -154,7 +154,7 @@ namespace CsvTools
       try
       {
         // this should not use ConfigureAwait(false);
-        await action.Invoke();
+        await action.Invoke().ConfigureAwait(true); ;
       }
       finally
       {
@@ -233,13 +233,16 @@ namespace CsvTools
           action.Invoke();
         else
         {
-          var runThread = new Thread(action.Invoke);
-          runThread.SetApartmentState(ApartmentState.STA);
-          runThread.Start();
+          var thread = new Thread(action.Invoke)
+          {
+            IsBackground = true
+          };
+          thread.SetApartmentState(ApartmentState.STA);
+          thread.Start();
           if (timeoutMilliseconds > 0)
-            runThread.Join(timeoutMilliseconds);
+            thread.Join(timeoutMilliseconds);
           else
-            runThread.Join();
+            thread.Join();
         }
       }
       catch (Exception e)
@@ -407,7 +410,7 @@ namespace CsvTools
           uiElement.BeginInvoke(action);
           return;
         }
-      }
+      } 
       catch
       {
         // sometimes there is an error accessing InvokeRequired
@@ -418,40 +421,60 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    /// Executes an action on the UI thread safely and synchronously.
+    /// If called from the UI thread, executes immediately.
     /// </summary>
-    /// <param name="uiElement">Type of the Object that will get the extension</param>
-    /// <param name="action">A delegate for the action</param>
+    /// <param name="uiElement">The control on which to invoke the action.</param>
+    /// <param name="action">The action to execute.</param>
     public static void SafeInvoke(this Control uiElement, Action action)
     {
-      if (!uiElement.IsHandleCreated)
+      if (uiElement.IsDisposed)
         return;
+
+      // Ensure control handle is created (lazy creation)
+      if (!uiElement.IsHandleCreated)
+        try { _ = uiElement.Handle; }
+        catch
+        {
+          // Any exception while checking handle => skip
+          return;
+        }
       SafeInvokeNoHandleNeeded(uiElement, action);
 
       ProcessUIElements();
     }
 
     /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    /// Executes an action on the UI thread safely and synchronously.
+    /// Assumes the control handle is already created (no handle check).
     /// </summary>
-    /// <param name="uiElement">Type of the Object that will get the extension</param>
-    /// <param name="action">A delegate for the action</param>
-    /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
-    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action,
-      long timeoutTicks = TimeSpan.TicksPerSecond / 10)
+    /// <param name="uiElement">The control on which to invoke the action.</param>
+    /// <param name="action">The action to execute.</param>
+    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
     {
       if (uiElement.IsDisposed)
         return;
-      if (uiElement.InvokeRequired)
+      try
       {
-        var result = uiElement.BeginInvoke(action);
-        result.AsyncWaitHandle.WaitOne(new TimeSpan(timeoutTicks));
-        result.AsyncWaitHandle.Close();
-        if (result.IsCompleted)
-          uiElement.EndInvoke(result);
+        if (uiElement.InvokeRequired)
+        {
+          // Synchronous invoke on UI thread
+          uiElement.Invoke(action);
+        }
+        else
+        {
+          // Already on UI thread
+          action();
+        }
       }
-      else
-        action();
+      catch (ObjectDisposedException)
+      {
+        // Control disposed mid-invoke, safely ignore
+      }
+      catch (InvalidOperationException) when (!uiElement.IsHandleCreated || uiElement.IsDisposed)
+      {
+        // Control handle invalid or disposed
+      }
     }
 
     public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)

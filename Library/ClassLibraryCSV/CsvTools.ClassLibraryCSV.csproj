@@ -12,7 +12,7 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
+		<LangVersion>latest</LangVersion>
     <SignAssembly>True</SignAssembly>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
