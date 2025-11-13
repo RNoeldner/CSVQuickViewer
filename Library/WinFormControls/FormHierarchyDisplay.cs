@@ -82,7 +82,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        try { Logger.Warning(e, "FormColumnUiRead ctor"); } catch { };
+        try { Logger.Warning(e, "FormColumnUiRead ctor"); } catch { }
       }
     }
 
@@ -631,7 +631,7 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
-        try { Logger.Information("Adding Tree with children"); } catch { };
+        try { Logger.Information("Adding Tree with children"); } catch { }
         foreach (var treeData in m_TreeData)
         {
           cancellationToken.ThrowIfCancellationRequested();
@@ -640,7 +640,7 @@ namespace CsvTools
             AddTreeDataNodeWithChild(treeData, null, cancellationToken);
         }
 
-        try { Logger.Information("Finding Cycles in Hierarchy");} catch { };
+        try { Logger.Information("Finding Cycles in Hierarchy");} catch { }
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
@@ -656,7 +656,7 @@ namespace CsvTools
         if (!hasCycles)
           return;
 
-        try { Logger.Information("Adding Cycles");} catch { };
+        try { Logger.Information("Adding Cycles");} catch { }
         var rootNode = new TreeNode("Cycles in Hierarchy");
         m_TreeView.Nodes.Add(rootNode);
 

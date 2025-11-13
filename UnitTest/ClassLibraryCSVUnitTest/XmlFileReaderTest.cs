@@ -51,7 +51,7 @@ namespace CsvTools.Tests
       using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
-      xml.Open();
+      // xml.Open();
       Assert.AreEqual("COMMON", xml.GetName(0));
       Assert.AreEqual("BOTANICAL", xml.GetName(1));
 

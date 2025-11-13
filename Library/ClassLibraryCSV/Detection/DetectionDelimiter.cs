@@ -59,7 +59,7 @@ namespace CsvTools
     /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
     /// <param name="probableDelimiter">Give this delimiter a higher score, commonly derived from file extension</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
@@ -188,11 +188,11 @@ namespace CsvTools
 
             if (firstLine.Length> 0 && !firstLine.StartsWith("#", StringComparison.Ordinal))
             {
-              // in case the checked delimiter is in the header its a good indication that its correct
+              // in case the checked delimiter is in the header it's a good indication that its correct
               if (firstLine.Contains(delimiterCounter.Separators[index]))
                 sums[index]++;
               else
-                // otherwise its pretty save to say its not good.
+                // otherwise its pretty save to say it's not good.
                 sums[index]--;
             }
           }
@@ -242,7 +242,7 @@ namespace CsvTools
     /// <param name="numRows">The number of rows to read</param>
     /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
     /// if you know that a delimiter is defiantly not suitable.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>
     ///   A <see cref="DelimiterCounter" /> with the information on delimiters
     /// </returns>

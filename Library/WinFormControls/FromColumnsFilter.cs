@@ -61,7 +61,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        try { Logger.Warning(e, "FromColumnsFilter ctor"); } catch { };
+        try { Logger.Warning(e, "FromColumnsFilter ctor"); } catch { }
       }
     }
 

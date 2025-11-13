@@ -83,7 +83,7 @@ namespace CsvTools.Tests
           UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
 
       var setting = new CsvFileDummy();
-      manifest.CopyToCsv(setting);
+      manifest!.CopyToCsv(setting);
 
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable 8602

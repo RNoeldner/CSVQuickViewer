@@ -199,8 +199,8 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-            // ReSharper disable once UseAwaitUsing
             using var stream = FunctionalDI.GetStream(sa);
+
             using var textReader =
               new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
 

@@ -31,9 +31,7 @@ namespace CsvTools
     /// <inheritdoc/>
     public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
     {
-      if (dataObject is null)
-        return string.Empty;
-      return HtmlStyle.HtmlDecode(dataObject?.ToString() ?? string.Empty);
+      return dataObject is null ? string.Empty : HtmlStyle.HtmlDecode(dataObject.ToString() ?? string.Empty);
     }
 
     /// <inheritdoc/>

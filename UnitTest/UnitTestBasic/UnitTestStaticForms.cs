@@ -97,7 +97,7 @@ namespace CsvTools.Tests
       double waitBeforeActionSeconds = 0.1)
       where T : Form
     {
-      Extensions.RunStaThread(async () =>
+      Extensions.RunStaThread(async void () =>
       {
         try
         {

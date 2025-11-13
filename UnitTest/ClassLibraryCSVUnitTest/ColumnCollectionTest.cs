@@ -31,7 +31,9 @@ namespace CsvTools.Tests
       test.Add(item2);
       Assert.AreEqual(1, test.Count);
       test.Add(new Column("New"));
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
       Assert.Throws<ArgumentException>(() => test.Add(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
     [TestMethod]

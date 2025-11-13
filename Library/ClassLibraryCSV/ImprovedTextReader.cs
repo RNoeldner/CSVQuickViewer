@@ -47,7 +47,7 @@ namespace CsvTools
       m_Stream.Seek(0, SeekOrigin.Begin);
 #if NET6_0_OR_GREATER
       Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
-      m_Stream.Read(bomBufferPass);
+      m_Stream.ReadExactly(bomBufferPass);
 #else
             m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
 #endif

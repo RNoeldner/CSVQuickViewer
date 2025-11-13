@@ -126,7 +126,7 @@ namespace CsvTools
     /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="lineComment">The lineComment.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>Explanation why there is no header, if empty the header was found</returns>
     public static async Task<(string message, bool hasHeader)> InspectHasHeaderAsync(this ImprovedTextReader reader,
       char fieldDelimiterChar,

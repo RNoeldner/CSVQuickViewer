@@ -29,7 +29,7 @@ namespace CsvTools
     /// <param name="textReader">The improved text reader.</param>
     /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
     /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The Escape Prefix used</returns>    
     public static async Task<char> InspectEscapePrefixAsync(this ImprovedTextReader textReader,
       char fieldDelimiterChar, char fieldQualifierChar, CancellationToken cancellationToken)

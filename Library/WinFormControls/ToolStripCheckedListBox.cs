@@ -84,7 +84,7 @@ namespace CsvTools
       base.OnUnsubscribeControlEvents(control);
       
       if (control is CheckedListBox checkedListBoxControl)
-      checkedListBoxControl.ItemCheck -= OnItemCheck;
+        checkedListBoxControl.ItemCheck -= OnItemCheck;
     }
 
     /// <summary>

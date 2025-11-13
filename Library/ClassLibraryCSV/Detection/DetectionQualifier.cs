@@ -171,10 +171,10 @@ namespace CsvTools
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="delimiterChar">The char to be used as field delimiter</param>
     /// <param name="escapeChar">Used to escape a delimiter or quoting char</param>
-    /// <param name="quoteChar">Possibles quotes to test, usually its ' and "</param>
+    /// <param name="quoteChar">Possible quotes to test, usually its ' and "</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-    /// <returns>The score is between 0 and 99, 99 meaning almost certain, a only text with hardly any quotes will still have a low score</returns>
+    /// <returns>The score is between 0 and 99, 99 meaning almost certain, an only text with hardly any quotes will still have a low score</returns>
     /// <exception cref="ArgumentNullException"></exception>
     private static QuoteTestResult GetScoreForQuote(
       in ImprovedTextReader textReader,
@@ -250,7 +250,7 @@ namespace CsvTools
 
           case var _ when c == quoteChar:
             // If we have a duplicate quote, and is not followed by delimiter and started by delimiter
-            // .e.G. ,"", is not a duplicate quote, its an empty text
+            // .e.G. "", is not a duplicate quote, it's an empty text
             if (last == quoteChar)
             {
               if (textReader.EndOfStream || delimiterChar != textReader.Peek())
@@ -260,7 +260,7 @@ namespace CsvTools
                 c = placeHolderText;
               }
 
-              // Its safe to modify the StringBuilder length as last is '\0' in case nothing was added
+              // It's safe to modify the StringBuilder length as last is '\0' in case nothing was added
               bufferPos--;
             }
             break;

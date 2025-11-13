@@ -25,7 +25,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [DebuggerDisplay("{GetTypeAndFormatDescription(),nq}")]
-  public sealed record ValueFormat : IEquatable<ValueFormat>
+  public sealed record ValueFormat 
   {
     /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
     public const string cDateFormatDefault = "MM/dd/yyyy";

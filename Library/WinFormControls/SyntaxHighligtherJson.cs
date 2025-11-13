@@ -60,7 +60,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        try { Logger.Warning(e, "Highlight"); } catch { };
+        try { Logger.Warning(e, "Highlight"); } catch { }
       }
     }
   }

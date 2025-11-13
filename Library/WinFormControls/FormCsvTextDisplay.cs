@@ -55,7 +55,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange"); } catch { };
+        try { Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange"); } catch { }
       }
     }
 

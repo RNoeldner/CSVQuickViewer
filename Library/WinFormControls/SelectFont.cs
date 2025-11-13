@@ -109,7 +109,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        try { Logger.Warning(e, "SelectFont ctor"); } catch { };
+        try { Logger.Warning(e, "SelectFont ctor"); } catch { }
       }
     }
 

@@ -25,7 +25,7 @@ namespace CsvTools
         if (string.IsNullOrEmpty(value))
           return string.Empty;
         // Escape internal quotes by doubling them, then wrap in quotes
-        return value.IndexOfAny(needQuoting)!=-1 ? "\"" + value.Replace("\"", "\"\"") + "\"" : value;
+        return value!.IndexOfAny(needQuoting)!=-1 ? "\"" + value.Replace("\"", "\"\"") + "\"" : value;
       }
 
       logEvent.AddOrUpdateProperty(propertyFactory.CreateProperty(

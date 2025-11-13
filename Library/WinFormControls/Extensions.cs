@@ -154,7 +154,7 @@ namespace CsvTools
       try
       {
         // this should not use ConfigureAwait(false);
-        await action.Invoke().ConfigureAwait(true); ;
+        await action.Invoke().ConfigureAwait(true); 
       }
       finally
       {
