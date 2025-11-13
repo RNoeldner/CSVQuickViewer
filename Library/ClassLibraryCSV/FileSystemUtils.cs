@@ -202,16 +202,41 @@ namespace CsvTools
       return lastFile.RemovePrefix();
     }
 
+
+    /// <summary>
+    /// Replaces the directory portion of a file path with a placeholder if the file path starts with the specified directory.
+    /// </summary>
+    /// <param name="fileName">The full file path.</param>
+    /// <param name="dir">The directory to replace.</param>
+    /// <param name="placeHolder">The placeholder to use (e.g., ".", "%AppData%").</param>
+    /// <returns>
+    /// - <paramref name="placeHolder"/> if <paramref name="fileName"/> equals <paramref name="dir"/>.
+    /// - A relative path using <paramref name="placeHolder"/> if <paramref name="fileName"/> starts with <paramref name="dir"/>.
+    /// - Empty string if <paramref name="fileName"/> does not start with <paramref name="dir"/>.
+    /// </returns>
     private static string UsePlaceHolder(string fileName, string dir, string placeHolder)
     {
+      if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(dir))
+        return string.Empty;
+
+      // Normalize separators
+      fileName = fileName.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+      dir = dir.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+      // Remove trailing separator from dir
+      dir = dir.TrimEnd(Path.DirectorySeparatorChar);
+
       if (fileName.Equals(dir, StringComparison.OrdinalIgnoreCase))
         return placeHolder;
 
-      if (!fileName.StartsWith(dir, StringComparison.OrdinalIgnoreCase)) return string.Empty;
-      if (placeHolder == ".")
-        return fileName.Substring(dir.Length + 1);
-      return placeHolder + fileName.Substring(dir.Length);
+      if (!fileName.StartsWith(dir + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        return string.Empty;
 
+      var relativePart = fileName.Substring(dir.Length + 1);
+
+      return placeHolder == "."
+          ? relativePart
+          : placeHolder + Path.DirectorySeparatorChar + relativePart;
     }
 
     /// <summary>
@@ -253,20 +278,26 @@ namespace CsvTools
       if (fileName is null || fileName.Length == 0)
         return string.Empty;
 
+
+      // Expand environment variables and normalize
+      fileName = Environment.ExpandEnvironmentVariables(fileName)
+          .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+          .RemovePrefix();
+
       if (fileName.StartsWith(".", StringComparison.Ordinal)  || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
         return fileName;
 
       if (basePath is null || basePath.Length == 0)
         basePath = Directory.GetCurrentDirectory();
+      else
+        basePath = GetFullPath(basePath);
 
-      var test = UsePlaceHolder(fileName, GetFullPath(basePath), ".");
+      var test = UsePlaceHolder(fileName, basePath, ".");
       if (test.Length > 0)
         return test;
 
-      var parts = SplitPath(fileName);
-      var folder = GetRelativeFolder(parts.DirectoryName, basePath);
-
-      return folder.Substring(0, folder.Length - 1) + parts.FileName;
+      var parts = SplitPath(fileName);      
+      return GetRelativeFolder(parts.DirectoryName, basePath) + parts.FileName;
     }
 
     /// <summary>
@@ -306,7 +337,8 @@ namespace CsvTools
       sBuilder.Length--;
 
       var result = sBuilder.ToString();
-      if (result[result.Length - 1] == Path.DirectorySeparatorChar) 
+      // Should end with \
+      if (result[result.Length - 1] == Path.DirectorySeparatorChar)
         return result;
       sBuilder.Append(Path.DirectorySeparatorChar);
       return sBuilder.ToString();
@@ -602,17 +634,24 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Removed the prefix that allows .NET windows system to deal with filename that exceed 248 characters
+    /// Removes the Windows long path prefix from a file path if present.
     /// </summary>
-    /// <param name="path">The possibly prefixed name of th file.</param>
+    /// <remarks>
+    /// Windows uses special prefixes (e.g., "\\?\" or "\\?\UNC\") to support paths longer than 248 characters.
+    /// This method strips those prefixes so the path can be used with standard .NET APIs.
+    /// </remarks>
+    /// <param name="path">The possibly prefixed file path.</param>
+    /// <returns>The path without the long path prefix.</returns>
     public static string RemovePrefix(this string path)
     {
       if (!IsWindows)
         return path;
 
+      // Local long path prefix: \\?\
       if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(cLongPathPrefix.Length);
 
+      // UNC long path prefix: \\?\UNC\
       if (path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
         return @"\\" + path.Substring(cUncLongPathPrefix.Length);
 
@@ -683,28 +722,47 @@ namespace CsvTools
       => File.ReadAllTextAsync(path.LongPathPrefix(), cancellationToken);
 #endif
 
+
     /// <summary>
-    /// Splits the full path of a file into directory and filename
+    /// Splits the full or relative file path into its directory and filename components.
     /// </summary>
-    /// <param name="path">The full path.</param>    
+    /// <param name="path">The full or relative path. May include environment variables or Windows long path prefixes.</param>
+    /// <returns>
+    /// A <see cref="SplitResult"/> containing:
+    /// - <see cref="SplitResult.DirectoryName"/>: The directory portion without a trailing separator.
+    /// - <see cref="SplitResult.FileName"/>: The file name portion (including extension).
+    /// </returns>
+    /// <remarks>
+    /// - If <paramref name="path"/> is null or empty, both directory and filename are empty strings.
+    /// - Environment variables (e.g., %USERPROFILE%) are expanded.
+    /// - Relative paths are converted to absolute paths using <see cref="Path.GetFullPath"/>.
+    /// - Directory separators are normalized to <see cref="Path.DirectorySeparatorChar"/>.
+    /// - Windows long path prefixes (e.g., "\\?\" or "\\?\UNC\") are removed.
+    /// - DirectoryName never ends with a separator.
+    /// </remarks>
     public static SplitResult SplitPath(string? path)
     {
-      if (path is null || path.Length == 0)
+      if (string.IsNullOrEmpty(path))
         return new SplitResult(string.Empty, string.Empty);
 
-      var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
-      if (path.StartsWith(".", StringComparison.Ordinal))
-      {
-        if (lastIndex != -1)
-          path = Path.GetFullPath(path.Substring(0, lastIndex)) + path.Substring(lastIndex);
-        else
-          path = Path.GetFullPath(path);
-        lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
-      }
+      // Expand environment variables first
+      path = Environment.ExpandEnvironmentVariables(path);
 
-      return lastIndex != -1
-        ? new SplitResult(path.Substring(0, lastIndex).RemovePrefix(), path.Substring(lastIndex + 1))
-        : new SplitResult(string.Empty, path.RemovePrefix());
+      // Normalize separators
+      path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+      // Remove Windows long path prefix if present
+      path = path.RemovePrefix();
+
+      // Convert relative paths to absolute
+      if (!Path.IsPathRooted(path))
+        path = Path.GetFullPath(path);
+
+      // Use built-in methods for reliability
+      var directory = Path.GetDirectoryName(path) ?? string.Empty;
+      var fileName = Path.GetFileName(path) ?? string.Empty;
+
+      return new SplitResult(directory, fileName);
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -808,31 +866,39 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   class storing the result for spited file names, mainly used to handle extension
+    /// Represents the result of splitting a file path into directory and filename components.
+    /// Provides convenient access to the file extension and name without extension.
     /// </summary>
     public class SplitResult
     {
-      /// <summary>The directory name</summary>
+      /// <summary>
+      /// The directory portion of the path, without a trailing separator.
+      /// </summary>
       public readonly string DirectoryName;
 
-      /// <summary>The file name with extension</summary>
+
+      /// <summary>
+      /// The file name portion of the path, including its extension if present.
+      /// </summary>
       public readonly string FileName;
+
 
       /// <summary>
       /// Initializes a new instance of the <see cref="SplitResult"/> class.
       /// </summary>
-      /// <param name="dir">The directory</param>
-      /// <param name="file">The filename</param>
+      /// <param name="dir">The directory path without trailing separator.</param>
+      /// <param name="file">The file name with extension.</param>
       public SplitResult(string dir, string file)
       {
         DirectoryName = dir;
         FileName = file;
       }
 
+
       /// <summary>
-      ///   Get the extension with the dot
+      /// Gets the file extension (including the dot), or an empty string if none exists.
+      /// Example: "Test.docx" → ".docx"
       /// </summary>
-      /// <example>Test.docx -&gt; .docx</example>
       public string Extension
       {
         get
@@ -842,10 +908,11 @@ namespace CsvTools
         }
       }
 
+
       /// <summary>
-      ///   Get the filename without the extension or the dot
+      /// Gets the file name without its extension.
+      /// Example: "Test.docx" → "Test"
       /// </summary>
-      /// <example>Test.docx -&gt; Test</example>
       public string FileNameWithoutExtension
       {
         get
