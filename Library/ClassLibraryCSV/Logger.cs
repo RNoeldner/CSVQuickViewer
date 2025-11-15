@@ -15,7 +15,6 @@
 
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 
 namespace CsvTools
 {
@@ -63,7 +62,7 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
     public static void Error(in Exception exception, string? message = null, params object[] args) =>
-      LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
+      LoggerInstance?.LogError(exception, message ?? exception.ExceptionMessages(2), args);
 
     /// <summary>Logs a message on information level.</summary>
     /// <param name="message">The message.</param>
@@ -101,6 +100,6 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     /// <param name="args">Message arguments.</param>
     public static void Warning(in Exception exception, string? message, params object[] args) =>
-      LoggerInstance?.LogWarning(exception.Demystify(), message ?? string.Empty, args);
+      LoggerInstance?.LogWarning(exception, message ?? string.Empty, args);
   }
 }

@@ -74,7 +74,6 @@
     <EmbeddedResource Include="DateTimeFormats.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
