@@ -22,6 +22,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer", "Application\CSVQuickViewer.csproj", "{C07F9282-7816-4B22-8B1E-F7AA0812ED67}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{5B4CEAEF-43AD-4AF5-BE87-620C14444CA8}"
+	ProjectSection(SolutionItems) = preProject
+		UnitTest\WinFormControlsUnitTest\LoggerTest.cs = UnitTest\WinFormControlsUnitTest\LoggerTest.cs
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Executable", "Executable", "{EEAB9498-ACFF-4554-BD0D-B50B774DD847}"
 EndProject

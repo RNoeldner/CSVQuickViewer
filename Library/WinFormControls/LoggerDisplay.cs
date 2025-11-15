@@ -46,11 +46,8 @@ namespace CsvTools
       ReadOnly = true;
       ShowLineNumbers = false;
       AllowDrop = false;
-      WinAppLogging.AddLog(this);
     }
     
-    public void StopLogging()
-    => WinAppLogging.RemoveLog(this);
     
     /// <inheritdoc />
     public sealed override bool AllowDrop
@@ -125,21 +122,6 @@ namespace CsvTools
       Extensions.ProcessUIElements();
     }
 
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-        StopLogging();
-
-      try
-      {
-        this.SafeBeginInvoke(() => base.Dispose(disposing));
-      }
-      catch (Exception)
-      {
-        // ignore, sometimes a cross thread exception is thrown
-      }
-    }
 
     public void AppendText(string text, bool timestamp, LogLevel level)
     {

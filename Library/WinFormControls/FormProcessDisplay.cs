@@ -75,10 +75,6 @@ namespace CsvTools
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         m_LoggerDisplay.Dock = DockStyle.Fill;
       }
-      else
-      {
-        WinAppLogging.AddLog(this);
-      }
 
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
@@ -89,15 +85,6 @@ namespace CsvTools
 
       Maximum = 0;
     }
-
-    public void StopLogging()
-    {
-      if (m_LoggerDisplay != null)
-        m_LoggerDisplay.StopLogging();
-      else
-        WinAppLogging.RemoveLog(this);
-    }
-
 
     public FormProgress()
       : this(string.Empty, true, new FontConfig(), CancellationToken.None)
@@ -382,10 +369,6 @@ namespace CsvTools
         {
           CancellationTokenSource.Dispose();
 
-          if (m_LoggerDisplay == null)
-            WinAppLogging.RemoveLog(this);
-          else
-            m_LoggerDisplay.Dispose();
 
           base.Dispose(disposing);
         }
