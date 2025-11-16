@@ -52,32 +52,26 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(htmlStyle));
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
-      try
-      {
-        var listRem = new List<DataColumn>();
-        foreach (DataColumn col in m_DataTable.Columns)
-        {
-          if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
-              col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
-              col.ColumnName == ReaderConstants.cErrorField ||
-              col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
-            listRem.Add(col);
-        }
 
-        foreach (var col in listRem)
-          m_DataTable.Columns.Remove(col);
-
-        m_InitialColumn = initialColumn;
-        InitializeComponent();
-        detailControl.ReadOnly = true;
-        detailControl.ShowFilter = false;
-        detailControl.ShowInfoButtons = false;
-        detailControl.HtmlStyle = htmlStyle;
-      }
-      catch (Exception e)
+      var listRem = new List<DataColumn>();
+      foreach (DataColumn col in m_DataTable.Columns)
       {
-        try { Logger.Warning(e, "FormUniqueDisplay ctor"); } catch { }
+        if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
+            col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
+            col.ColumnName == ReaderConstants.cErrorField ||
+            col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
+          listRem.Add(col);
       }
+
+      foreach (var col in listRem)
+        m_DataTable.Columns.Remove(col);
+
+      m_InitialColumn = initialColumn;
+      InitializeComponent();
+      detailControl.ReadOnly = true;
+      detailControl.ShowFilter = false;
+      detailControl.ShowInfoButtons = false;
+      detailControl.HtmlStyle = htmlStyle;
     }
 
     /// <summary>
@@ -144,12 +138,11 @@ namespace CsvTools
         var dictIdToCount = new Dictionary<string, int>(StringComparer.Ordinal);
 
         using var formProgress =
-          new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token)
+          new FormProgress($"Processing {dataColumnName}", m_CancellationTokenSource.Token)
           {
             Maximum = m_DataRow.Length
           };
         formProgress.Show(this);
-        try { Logger.Information("Getting Unique values"); } catch { }
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {

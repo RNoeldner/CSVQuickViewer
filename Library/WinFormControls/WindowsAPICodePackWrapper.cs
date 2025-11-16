@@ -16,6 +16,7 @@
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -181,7 +182,7 @@ namespace CsvTools
         }
         catch (Exception exception)
         {
-          try { Logger.Warning(exception, "Using CommonSaveFileDialog"); } catch { }
+          Debug.WriteLine($"Using CommonSaveFileDialog {exception.Message}");
           m_CommonFileDialogSupported = false;
           goto Retry;
         }

@@ -133,7 +133,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           return;
         SetDefaultInspectionResult();
 
-        using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress("Examining file", m_CancellationTokenSource.Token);
         formProgress.Maximum = 0;
         formProgress.Show(this);
 

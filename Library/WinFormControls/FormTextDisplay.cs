@@ -131,7 +131,7 @@ namespace CsvTools
         webBrowser.Visible=false;
         textBox.Visible=true;
         radioButtonText.Checked = true;
-        // fastColoredTextBoxRO.Text =textBox.Text;
+        // fastColoredTextBoxRO.Text =historyDisplay.Text;
         FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");
       }
     }

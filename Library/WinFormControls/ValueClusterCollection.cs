@@ -172,10 +172,6 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Error(ex); }
-        catch { }
-
-
         progress?.Report(new ProgressInfo(ex.Message));
         return BuildValueClustersResult.Error;
       }

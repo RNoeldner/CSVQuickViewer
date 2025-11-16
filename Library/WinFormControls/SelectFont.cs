@@ -22,7 +22,7 @@ namespace CsvTools
 {
   public partial class SelectFont : UserControl
   {
-    [Category("Action")] 
+    [Category("Action")]
     public event EventHandler? ValueChanged;
 
     private bool m_UiChange = true;
@@ -81,36 +81,31 @@ namespace CsvTools
 
     public SelectFont()
     {
-      try
-      {
-        InitializeComponent();
+
+      InitializeComponent();
 #pragma warning disable CA1416
-        this.toolTip.SetToolTip(this.buttonDefault,
-          $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
+      this.toolTip.SetToolTip(this.buttonDefault,
+        $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
 
 
-        comboBoxFont.BeginUpdate();
-        using var col = new InstalledFontCollection();
-        foreach (FontFamily fa in col.Families)
-          if (fa.IsStyleAvailable(FontStyle.Regular))
-            comboBoxFont.Items.Add(fa.Name);
-        comboBoxFont.EndUpdate();
+      comboBoxFont.BeginUpdate();
+      using var col = new InstalledFontCollection();
+      foreach (FontFamily fa in col.Families)
+        if (fa.IsStyleAvailable(FontStyle.Regular))
+          comboBoxFont.Items.Add(fa.Name);
+      comboBoxFont.EndUpdate();
 
-        comboBoxSize.BeginUpdate();
-        using Graphics g = CreateGraphics();
-        for (int pixel = 8; pixel < 24; pixel++)
-          comboBoxSize.Items.Add(new DisplayItem<float>(pixel * 72 / g.DpiX,
-            $"{pixel,2} Pixel - {pixel * 72 / g.DpiX} Points"));
+      comboBoxSize.BeginUpdate();
+      using Graphics g = CreateGraphics();
+      for (int pixel = 8; pixel < 24; pixel++)
+        comboBoxSize.Items.Add(new DisplayItem<float>(pixel * 72 / g.DpiX,
+          $"{pixel,2} Pixel - {pixel * 72 / g.DpiX} Points"));
 
-        comboBoxSize.ValueMember = "ID";
-        comboBoxSize.DisplayMember = "Display";
-        comboBoxSize.EndUpdate();
+      comboBoxSize.ValueMember = "ID";
+      comboBoxSize.DisplayMember = "Display";
+      comboBoxSize.EndUpdate();
 #pragma warning restore CA1416
-      }
-      catch (Exception e)
-      {
-        try { Logger.Warning(e, "SelectFont ctor"); } catch { }
-      }
+
     }
 
     private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)

@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using System.Text.RegularExpressions;
 using FastColoredTextBoxNS;
 using System;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
@@ -60,7 +61,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        try { Logger.Warning(e, "Highlight"); } catch { }
+        Debug.WriteLine($"Issue in Highlight {e.Message}");
       }
     }
   }

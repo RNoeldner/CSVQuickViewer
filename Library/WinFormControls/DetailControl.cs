@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -164,7 +165,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "Processing Sorting {exception}", ex.InnerExceptionMessages()); } catch { }
+        Debug.WriteLine($"Processing Sorting {ex.Message}");
       }
     }
 
@@ -201,7 +202,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "Processing Filter {exception}", ex.InnerExceptionMessages()); } catch { }
+        Debug.WriteLine($"Processing Filter {ex.Message}");
       }
     }
 
@@ -833,8 +834,7 @@ namespace CsvTools
       await this.RunWithHourglassAsync(async () =>
       {
         // ReSharper disable once LocalizableElement
-        using var formProgress = new FormProgress("Load more...", false, new FontConfig(Font.Name, Font.Size),
-          m_CancellationToken);
+        using var formProgress = new FormProgress("Load more...", m_CancellationToken);
         // make sure this is behind the windows
         formProgress.Show(this);
         if (m_BackgroundLoad)
@@ -929,9 +929,9 @@ namespace CsvTools
         m_ToolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
         m_ToolStripComboBoxFilterType.Enabled = hasData;
       }
-      catch (InvalidOperationException exception)
+      catch (InvalidOperationException ex)
       {
-        try { Logger.Warning(exception, "Issue updating the UI"); } catch { }
+        Debug.WriteLine("Issue updating UI: {ex.Message}");
         // ignore error in regard to cross thread issues, SafeBeginInvoke should have handled
         // this though
       }

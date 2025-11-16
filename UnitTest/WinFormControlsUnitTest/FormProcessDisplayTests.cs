@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [Timeout(1000)]
     public void FormProcessCancel()
     {
-      using var formProgress = new FormProgress("Test Logger", true, new FontConfig(), UnitTestStatic.Token);
+      using var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token);
       formProgress.ShowInTaskbar = true;
       formProgress.Show();
       UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
@@ -38,7 +38,7 @@ namespace CsvTools.Tests
     public void FormProgressLogger()
     {
       // Log
-      using (var formProgress = new FormProgress("Test Logger", true, new FontConfig(), UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
     {
 
       // marquee
-      using (var formProgress = new FormProgress("Test Marquee", false, new FontConfig(), UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Marquee", UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       }
 
       // NoLog
-      using (var formProgress = new FormProgress("Test", false, new FontConfig(), UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -111,7 +111,7 @@ namespace CsvTools.Tests
     {
 
       // NoLog
-      using (var formProgress = new FormProgress("Test", false, new FontConfig(), UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
       {
         formProgress.ShowInTaskbar = false;
         formProgress.Show();
@@ -138,7 +138,7 @@ namespace CsvTools.Tests
     public void FormprogressTest1()
     {
       using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", false, new FontConfig(), tokenSrc.Token);
+      using var formProgress = new FormProgress("Title", tokenSrc.Token);
       Assert.AreEqual("Title", formProgress.Text);
       Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
       tokenSrc.Cancel();
@@ -150,7 +150,7 @@ namespace CsvTools.Tests
     public void CancelTest()
     {
       using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", true, new FontConfig(), tokenSrc.Token);
+      using var formProgress = new FormProgress("Title", tokenSrc.Token);
       Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
       formProgress.Close();
       Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);

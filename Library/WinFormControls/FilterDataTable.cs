@@ -191,7 +191,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex.SourceExceptionMessage());
+        Debug.WriteLine(ex);
       }
       finally
       {

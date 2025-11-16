@@ -63,7 +63,7 @@ namespace CsvTools
 
     private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
-      using var formProgress = new FormProgress("Check", true, FontConfig, CancellationToken.None);
+      using var formProgress = new FormProgress("Check", CancellationToken.None);
       formProgress.Show(this);
       formProgress.Maximum = 0;
       using var stream = FunctionalDI.GetStream(new SourceAccess(m_CsvFile));

@@ -60,10 +60,10 @@ namespace CsvTools
       FontConfig = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
+      WinAppLogging.AddLog(loggerDisplay);
 
       FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone,
         m_ViewSettings.FillGuessSettings);
-
 #if SupportPGP
       FunctionalDI.GetKeyAndPassphraseForFile = fileName =>
         fileName.GetKeyAndPassphraseForFile(
@@ -152,7 +152,7 @@ namespace CsvTools
               skippedLines.AppendLine(await sr.ReadLineAsync(ct));
           }
 
-          using var formProgress = new FormProgress("Writing file", true, new FontConfig(Font.Name, Font.Size), ct);
+          using var formProgress = new FormProgress("Writing file", ct);
 
           formProgress.Show(this);
           fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
@@ -687,7 +687,7 @@ namespace CsvTools
           });
 
           try { Logger.Debug("Loading Batch"); } catch { }
-          using (var formProgress = new FormProgress(fileNameShort, false, FontConfig, cancellationToken))
+          using (var formProgress = new FormProgress(fileNameShort, cancellationToken))
           {
             formProgress.Show(this);
             m_LoadWarnings.Clear();

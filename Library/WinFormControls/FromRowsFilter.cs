@@ -261,7 +261,7 @@ namespace CsvTools
     {
       timerRebuild.Stop();
 
-      using var frm = new FormProgress("Filter", false, FontConfig, m_CancellationTokenSource.Token);
+      using var frm = new FormProgress("Filter", m_CancellationTokenSource.Token);
       frm.SetMaximum(100);
       frm.Show();
       frm.Report(new ProgressInfo("Building clusters", 1));

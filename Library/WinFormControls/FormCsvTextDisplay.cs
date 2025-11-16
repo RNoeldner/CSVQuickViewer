@@ -12,8 +12,9 @@
  *
  */
 #nullable enable
-using System;
 using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +56,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange"); } catch { }
+        Debug.WriteLine($"HighlightVisibleRange {ex.Message}");
       }
     }
 
@@ -63,7 +64,7 @@ namespace CsvTools
     {
       await textBox.RunWithHourglassAsync(async () =>
       {
-        using var formProgress = new FormProgress("Display Source", false, FontConfig, cancellationToken);
+        using var formProgress = new FormProgress("Display Source", cancellationToken);
         formProgress.Show(this);
         textBox.ClearUndo();
         formProgress.Report(new ProgressInfo("Display of read file"));
@@ -84,7 +85,7 @@ namespace CsvTools
     {
       textBox.RunWithHourglass(() =>
       {
-        using var formProgress = new FormProgress("Pretty Print Source", false, FontConfig, cancellationToken);
+        using var formProgress = new FormProgress("Pretty Print Source", cancellationToken);
         formProgress.Show(this);
         formProgress.Maximum = 0;
         formProgress.Report(new ProgressInfo("Parsing Text as Json"));
