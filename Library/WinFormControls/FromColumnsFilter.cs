@@ -41,28 +41,22 @@ namespace CsvTools
     public FromColumnsFilter(in DataGridViewColumnCollection columns, in IEnumerable<DataRow> dataRows,
       in IEnumerable<int> withFilter, bool allDataPresent = true)
     {
-      try
+
+      InitializeComponent();
+      buttonEmpty.Enabled = allDataPresent;
+
+      m_Columns.AddRange(columns.OfType<DataGridViewColumn>());
+      m_Rows.AddRange(dataRows);
+
+      foreach (var col in m_Columns)
       {
-        InitializeComponent();
-        buttonEmpty.Enabled = allDataPresent;
-
-        m_Columns.AddRange(columns.OfType<DataGridViewColumn>());
-        m_Rows.AddRange(dataRows);
-
-        foreach (var col in m_Columns)
-        {
-          if (col.Visible)
-            m_Checked.Add(col.DataPropertyName);
-          if (col.Frozen || withFilter.Contains(col.Index))
-            m_Protected.Add(col.DataPropertyName);
-        }
-
-        Filter(string.Empty);
+        if (col.Visible)
+          m_Checked.Add(col.DataPropertyName);
+        if (col.Frozen || withFilter.Contains(col.Index))
+          m_Protected.Add(col.DataPropertyName);
       }
-      catch (Exception e)
-      {
-        try { Logger.Warning(e, "FromColumnsFilter ctor"); } catch { }
-      }
+
+      Filter(string.Empty);
     }
 
 

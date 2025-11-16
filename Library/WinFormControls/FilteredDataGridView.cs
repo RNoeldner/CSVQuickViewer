@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -78,45 +79,39 @@ namespace CsvTools
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
       InitializeComponent();
-      try
+
+      CellFormatting += CellFormatDate;
+      FontChanged += PassOnFontChanges;
+
+      Scroll += (o, e) => SetRowHeight();
+
+      var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
+      m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
+                             throw new InvalidOperationException("Resource not found");
+
+      DataError += FilteredDataGridView_DataError;
+
+      if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
+        tableLayoutSettings.ColumnCount = 3;
+
+      ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+
+      CellMouseClick += FilteredDataGridView_CellMouseClick;
+      CellPainting += HighlightCellPainting;
+      ColumnWidthChanged += FilteredDataGridView_ColumnWidthChanged;
+      KeyDown += FilteredDataGridView_KeyDown;
+      ColumnAdded += FilteredDataGridView_ColumnAdded;
+
+      DefaultCellStyle.ForeColor = Color.Black;
+      DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
+      SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+      FontChanged += (o, e) =>
       {
-        CellFormatting += CellFormatDate;
-        FontChanged += PassOnFontChanges;        
-
-        Scroll += (o, e) => SetRowHeight();
-
-        var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-        m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
-                               throw new InvalidOperationException("Resource not found");
-
-        DataError += FilteredDataGridView_DataError;
-
-        if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
-          tableLayoutSettings.ColumnCount = 3;
-
-        ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-
-        CellMouseClick += FilteredDataGridView_CellMouseClick;
-        CellPainting += HighlightCellPainting;
-        ColumnWidthChanged += FilteredDataGridView_ColumnWidthChanged;
-        KeyDown += FilteredDataGridView_KeyDown;
-        ColumnAdded += FilteredDataGridView_ColumnAdded;
-
-        DefaultCellStyle.ForeColor = Color.Black;
-        DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-
-        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-
-        FontChanged += (o, e) =>
-        {
-          AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-          SetRowHeight();
-        };
-      }
-      catch (Exception e)
-      {
-        try { Logger.Warning(e, "FilteredDataGridView ctor"); } catch { }
-      }
+        AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        SetRowHeight();
+      };
     }
 
     /// <summary>
@@ -466,7 +461,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "Click in DataGrid"); } catch { }
+        Debug.WriteLine(ex.Message);
       }
     }
 
@@ -637,10 +632,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Error(ex, "FilteredDataGridView: Mouse Click {columnIndex} {rowIndex} {button}", e.ColumnIndex, e.RowIndex, e.Button); }
-        catch
-        { // ignore          
-        }
+        Debug.WriteLine(ex);
       }
     }
 
@@ -955,8 +947,7 @@ namespace CsvTools
       catch (Exception ex)
       {
         e.Handled = false;
-        try { Logger.Warning(ex, "HighlightCellPainting"); } catch { }
-
+        Debug.WriteLine(ex);
       }
     }
 
@@ -974,10 +965,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "ResetDataSource"); }
-        catch
-        {          // ignore;
-        }
+        Debug.WriteLine($"Error in ResetDataSource {ex.Message}");
       }
     }
 
@@ -1028,7 +1016,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "SetBoundDataView"); } catch { }
+        Debug.WriteLine($"Error in SetBoundDataView {ex.Message}");
       }
     }
 
@@ -1122,12 +1110,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "ToolStripMenuItemCF_Click"); }
-        catch
-        {
-          //ignore
-        }
-
+        Debug.WriteLine($"Error in ToolStripMenuItemCF_Click {ex.Message}");
       }
     }
 
@@ -1140,12 +1123,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "Issue during Copy"); }
-        catch
-        {
-          // ignore;
-        }
-
+        Debug.WriteLine($"Issue during Copy {ex.Message}");
       }
     }
 
@@ -1188,8 +1166,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "ToolStripMenuItemFilterRemoveOne_Click"); } catch { }
-
+        Debug.WriteLine($"Issue during ToolStripMenuItemFilterRemoveOne_Click {ex.Message}");
       }
     }
 
@@ -1201,7 +1178,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "ToolStripMenuItemOpenEditor_Click"); } catch { }
+        Debug.WriteLine($"Issue during ToolStripMenuItemFilterRemoveOne_Click {ex.Message}");
       }
     }
 
@@ -1224,7 +1201,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "ToolStripMenuItemHideThisColumn_Click"); } catch { }
+        Debug.WriteLine($"Issue during ToolStripMenuItemHideThisColumn_Click {ex.Message}");
       }
     }
 
@@ -1265,7 +1242,7 @@ namespace CsvTools
       );
     }
 
-   
+
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortAscending control.

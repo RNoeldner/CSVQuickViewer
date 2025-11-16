@@ -290,8 +290,8 @@ namespace CsvTools
     {
       var fileName = FileSystemUtils.SplitPath(path).FileNameWithoutExtension.ProcessByCategory(
         x => x is UnicodeCategory.UppercaseLetter or UnicodeCategory.LowercaseLetter
-           or UnicodeCategory.OtherLetter or UnicodeCategory.ConnectorPunctuation 
-           or UnicodeCategory.DashPunctuation or UnicodeCategory.OtherPunctuation 
+           or UnicodeCategory.OtherLetter or UnicodeCategory.ConnectorPunctuation
+           or UnicodeCategory.DashPunctuation or UnicodeCategory.OtherPunctuation
            or UnicodeCategory.DecimalDigitNumber);
 
       const string timeSep = "(:|-|_)?";
@@ -777,7 +777,7 @@ namespace CsvTools
       if (!(progress is IProgressTime progressTime)) return;
       try
       {
-        progressTime.Maximum = maximum;
+          progressTime.Maximum = maximum;
       }
       catch (InvalidOperationException)
       {

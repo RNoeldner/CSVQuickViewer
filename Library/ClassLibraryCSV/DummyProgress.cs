@@ -12,19 +12,38 @@
  *
  */
 using System;
+using System.Threading;
 
 namespace CsvTools
 {
   /// <summary>
-  /// A dummy implementation of <see cref="IProgress{T}"/> that ignores progress reports.
-  /// Useful when you need to pass a progress reporter but do not want to handle progress updates.
+  /// A dummy implementation of <see cref="IProgress{T}"/> 
+  /// that silently ignores all reported progress values.
+  ///
+  /// This is useful in scenarios where:
+  /// <list type="bullet">
+  /// <item><description>A method requires a progress reporter, but the caller has no interest in handling updates.</description></item>
+  /// <item><description>You want to avoid creating conditional logic around optional progress reporting.</description></item>
+  /// <item><description>You want a safe fallback that supports cancellation token exposure without UI or logging dependencies.</description></item>
+  /// </list>
   /// </summary>
-  public class DummyProgress : IProgress<ProgressInfo>
+  /// <typeparam name="T">The type of progress updates being reported.</typeparam>
+  public class DummyProgress : IProgressWithCancellation
   {
     /// <summary>
-    /// Reports progress information. This implementation ignores the reported value.
+    /// Default instance
     /// </summary>
-    /// <param name="value">The progress information to report.</param>
+    public static DummyProgress Instance = new DummyProgress();
+
+    /// <summary>
+    /// Always returns <see cref="CancellationToken.None"/>, as this dummy implementation does not support cancellation.
+    /// </summary>
+    public CancellationToken CancellationToken => CancellationToken.None;
+
+    /// <summary>
+    /// Reports a progress update. This implementation intentionally ignores the value.
+    /// </summary>
+    /// <param name="value">The progress information to report. It is not processed.</param>
     public void Report(ProgressInfo value)
     {
       // Intentionally does nothing.

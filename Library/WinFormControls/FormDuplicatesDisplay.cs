@@ -125,7 +125,7 @@ namespace CsvTools
           return;
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
-        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, FontConfig, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress($"Processing {dataColumnName}", m_CancellationTokenSource.Token);
         formProgress.Maximum = m_DataRow.Length;
         formProgress.Show(this);
         var intervalAction = new IntervalAction();
@@ -180,7 +180,7 @@ namespace CsvTools
 
         m_DataTable.EndLoadData();
         formProgress.Maximum = 0;
-        formProgress.SetProcess("Sorting");
+        formProgress.Report("Sorting");
         detailControl.Sort(dataColumnName);
       }
       finally

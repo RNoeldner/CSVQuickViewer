@@ -12,8 +12,9 @@
  *
  */
 #nullable enable
-using System;
 using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +56,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange"); } catch { }
+        Debug.WriteLine($"HighlightVisibleRange {ex.Message}");
       }
     }
 
@@ -63,17 +64,17 @@ namespace CsvTools
     {
       await textBox.RunWithHourglassAsync(async () =>
       {
-        using var formProgress = new FormProgress("Display Source", false, FontConfig, cancellationToken);
+        using var formProgress = new FormProgress("Display Source", cancellationToken);
         formProgress.Show(this);
         textBox.ClearUndo();
-        formProgress.Report(new ProgressInfo("Display of read file"));
+        formProgress.Report("Display of read file");
 
         // Actually now read the text to display
         textBox.Text = (await m_GetContent(formProgress, cancellationToken)).Replace("\t", "⇥");
 
         textBox.IsChanged = false;
         formProgress.Maximum = 0;
-        formProgress.Report(new ProgressInfo("Applying color coding"));
+        formProgress.Report("Applying color coding");
         HighlightVisibleRange();
         prettyPrintJsonToolStripMenuItem.Checked = false;
         originalFileToolStripMenuItem.Checked = true;
@@ -84,16 +85,16 @@ namespace CsvTools
     {
       textBox.RunWithHourglass(() =>
       {
-        using var formProgress = new FormProgress("Pretty Print Source", false, FontConfig, cancellationToken);
+        using var formProgress = new FormProgress("Pretty Print Source", cancellationToken);
         formProgress.Show(this);
         formProgress.Maximum = 0;
-        formProgress.Report(new ProgressInfo("Parsing Text as Json"));
+        formProgress.Report("Parsing Text as Json");
         var t = JsonConvert.DeserializeObject<object>(textBox.Text);
-        formProgress.Report(new ProgressInfo("Indenting Json"));
+        formProgress.Report("Indenting Json");
         textBox.ClearUndo();
         textBox.Text = JsonConvert.SerializeObject(t, Formatting.Indented);
         textBox.IsChanged = false;
-        formProgress.Report(new ProgressInfo("Applying color coding"));
+        formProgress.Report("Applying color coding");
         HighlightVisibleRange();
         prettyPrintJsonToolStripMenuItem.Checked = true;
         originalFileToolStripMenuItem.Checked = false;

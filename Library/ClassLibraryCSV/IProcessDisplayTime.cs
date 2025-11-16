@@ -29,7 +29,7 @@ namespace CsvTools
     long Maximum { get; set; }
 
     /// <summary>
-    /// Time to completion, calculated on velocity Maxvalue and current value
+    /// Time to completion, calculated on velocity Maximum and current value
     /// </summary>
     /// <value>
     /// The time to completion.

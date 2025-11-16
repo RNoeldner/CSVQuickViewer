@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -37,48 +38,40 @@ namespace CsvTools
             x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
           if (col == null)
             continue;
-          try
+
+          if (col.Visible != storedColumn.Visible)
+            col.Visible = storedColumn.Visible;
+
+          if (col.Visible)
           {
-            if (col.Visible != storedColumn.Visible)
-              col.Visible = storedColumn.Visible;
-
-            if (col.Visible)
-            {
-              col.Width = storedColumn.Width;
-              if (storedColumn.Sort == 1)
-                doSort?.Invoke(col, ListSortDirection.Ascending);
-              if (storedColumn.Sort == 2)
-                doSort?.Invoke(col, ListSortDirection.Descending);
-            }
-
-            col.DisplayIndex = displayIndex++;
-
-            var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
-
-            foreach (var cluster in storedColumn.ValueFilters)
-              columnFilters[col.Index].ValueClusterCollection
-                .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
-            if (storedColumn.ValueFilters.Count == 0)
-            {
-              columnFilters[col.Index].Operator = storedColumn.Operator;
-              columnFilters[col.Index].ValueText = storedColumn.ValueText;
-              columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
-            }
-
-            columnFilters[col.Index] = newColumnFilterLogic;
-
-            break;
+            col.Width = storedColumn.Width;
+            if (storedColumn.Sort == 1)
+              doSort?.Invoke(col, ListSortDirection.Ascending);
+            if (storedColumn.Sort == 2)
+              doSort?.Invoke(col, ListSortDirection.Descending);
           }
-          catch (Exception ex)
+
+          col.DisplayIndex = displayIndex++;
+
+          var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
+
+          foreach (var cluster in storedColumn.ValueFilters)
+            columnFilters[col.Index].ValueClusterCollection
+              .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
+          if (storedColumn.ValueFilters.Count == 0)
           {
-            try { Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col); } catch { }
-
+            columnFilters[col.Index].Operator = storedColumn.Operator;
+            columnFilters[col.Index].ValueText = storedColumn.ValueText;
+            columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
           }
+
+          columnFilters[col.Index] = newColumnFilterLogic;
+          break;
         }
       }
       catch (Exception ex)
       {
-        try { Logger.Warning(ex, "Restoring View Setting"); } catch { }
+        Debug.WriteLine(ex);
       }
     }
 
@@ -119,7 +112,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Error(ex, "GetViewSetting");} catch { }
+        Debug.WriteLine(ex);
         return null;
       }
     }

@@ -42,6 +42,14 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Allows automatic conversion from string to ProgressInfo.
+    /// Example:
+    ///   ProgressInfo info = "Loading...";
+    /// </summary>
+    public static implicit operator ProgressInfo(string text)
+        => new ProgressInfo(text);
+
+    /// <summary>
     ///   Gets the text.
     /// </summary>
     /// <value>The text.</value>

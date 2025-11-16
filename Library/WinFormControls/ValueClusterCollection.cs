@@ -122,7 +122,7 @@ namespace CsvTools
           var countNull = MakeTypedValues(values, typedValues, Convert.ToString, progress, cancellationToken);
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
           AddValueClusterNull(escapedName, countNull);
-          progress?.Report(new ProgressInfo("Combining values to clusters"));
+          progress?.Report("Combining values to clusters");
           return BuildValueClustersString(typedValues.ToArray(), escapedName, maxNumber, maxSeconds, progress, cancellationToken);
         }
 
@@ -132,8 +132,8 @@ namespace CsvTools
           var countNull = MakeTypedValues(values, typedValues, Convert.ToDateTime, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining dates to clusters of even size")
-            : new ProgressInfo("Combining dates to clusters"));
+            ? "Combining dates to clusters of even size"
+            : "Combining dates to clusters");
 
           return even
             ? BuildValueClustersDateEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
@@ -146,8 +146,8 @@ namespace CsvTools
           var countNull = MakeTypedValues(values, typedValues, Convert.ToInt64, progress, cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining integer to clusters of even size")
-            : new ProgressInfo("Combining integer to clusters"));
+            ? "Combining integer to clusters of even size"
+            : "Combining integer to clusters");
           return even
             ? BuildValueClustersLongEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
             : BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, maxSeconds, progress, cancellationToken);
@@ -161,8 +161,8 @@ namespace CsvTools
             cancellationToken);
           AddValueClusterNull(escapedName, countNull);
           progress?.Report(even
-            ? new ProgressInfo("Combining numbers to clusters of even size")
-            : new ProgressInfo("Combining numbers to clusters"));
+            ? "Combining numbers to clusters of even size"
+            : "Combining numbers to clusters");
           return even
             ? BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, maxSeconds, progress, cancellationToken)
             : BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, maxSeconds, progress, cancellationToken);
@@ -172,10 +172,6 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Error(ex); }
-        catch { }
-
-
         progress?.Report(new ProgressInfo(ex.Message));
         return BuildValueClustersResult.Error;
       }

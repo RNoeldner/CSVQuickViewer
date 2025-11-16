@@ -29,7 +29,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
-
+    
     /// <inheritdoc />
     public void Report(ProgressInfo  args)
     {

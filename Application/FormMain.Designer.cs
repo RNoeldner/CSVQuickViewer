@@ -52,7 +52,6 @@ namespace CsvTools
       this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).BeginInit();
       this.toolStripLog.SuspendLayout();
       this.textPanel.BottomToolStripPanel.SuspendLayout();
       this.textPanel.ContentPanel.SuspendLayout();
@@ -69,41 +68,18 @@ namespace CsvTools
       // 
       // loggerDisplay
       // 
-      this.loggerDisplay.AllowDrop = false;
-      this.loggerDisplay.AutoCompleteBracketsList = new char[] {
-        '(',
-        ')',
-        '{',
-        '}',
-        '[',
-        ']',
-        '\"',
-        '\"',
-        '\'',
-        '\''};
-      this.loggerDisplay.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-    "?<range>:)\\s*(?<range>[^;]+);";
-      this.loggerDisplay.AutoScrollMinSize = new System.Drawing.Size(2, 14);
-      this.loggerDisplay.BackBrush = null;
+      this.loggerDisplay.AllowDrop = false;      
       this.loggerDisplay.BackColor = System.Drawing.SystemColors.Window;
       this.loggerDisplay.CausesValidation = false;
-      this.loggerDisplay.CharHeight = 14;
-      this.loggerDisplay.CharWidth = 8;
       this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.loggerDisplay.IsReplaceMode = false;
       this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
       this.loggerDisplay.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
       this.loggerDisplay.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
       this.loggerDisplay.Name = "loggerDisplay";
-      this.loggerDisplay.Paddings = new System.Windows.Forms.Padding(0);
       this.loggerDisplay.ReadOnly = true;
-      this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));      
-      this.loggerDisplay.ShowLineNumbers = false;
       this.loggerDisplay.Size = new System.Drawing.Size(913, 400);
       this.loggerDisplay.TabIndex = 2;
-      this.loggerDisplay.Zoom = 100;
       // 
       // detailControl
       // 
@@ -260,8 +236,7 @@ namespace CsvTools
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileDragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileDragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
-      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();      
       this.toolStripLog.ResumeLayout(false);
       this.toolStripLog.PerformLayout();
       this.textPanel.BottomToolStripPanel.ResumeLayout(false);

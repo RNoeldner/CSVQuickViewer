@@ -81,30 +81,23 @@ namespace CsvTools
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
 
       InitializeComponent();
-      try
-      {
-        // needed for TimeZone, Name or TimePart
-        columnBindingSource.DataSource = m_ColumnEdit;
-        // needed for Formats
-        bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
-        comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
+      // needed for TimeZone, Name or TimePart
+      columnBindingSource.DataSource = m_ColumnEdit;
+      // needed for Formats
+      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
+      comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
 
-        comboBoxColumnName.Enabled = enableChangeColumn;
-        checkBoxIgnore.Visible = showIgnore;
+      comboBoxColumnName.Enabled = enableChangeColumn;
+      checkBoxIgnore.Visible = showIgnore;
 
-        labelDisplayNullAs.Visible = showWriteNull;
-        textBoxDisplayNullAs.Visible = showWriteNull;
+      labelDisplayNullAs.Visible = showWriteNull;
+      textBoxDisplayNullAs.Visible = showWriteNull;
 
-        toolTip.SetToolTip(
-          comboBoxTimeZone,
-          showWriteNull
-            ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
-            : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
-      }
-      catch (Exception e)
-      {
-        try { Logger.Warning(e, "FormColumnUiRead ctor"); } catch { }
-      }
+      toolTip.SetToolTip(
+        comboBoxTimeZone,
+        showWriteNull
+          ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
+          : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
     }
 
     private void AddDateFormat(string format)
@@ -128,13 +121,13 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Information(ex, "AddDateFormat {format}", format); } catch { }
+        Debug.WriteLine($"Issue during AddDateFormat {format} {ex.Message}");
       }
     }
 
     private async Task DisplayValues()
     {
-      using var formProgress = new FormProgress("Display Values", true, FontConfig, m_CancellationTokenSource.Token);
+      using var formProgress = new FormProgress("Display Values", m_CancellationTokenSource.Token);
 
       formProgress.Show(this);
       var values = await GetSampleValuesAsync(comboBoxColumnName.Text, formProgress, formProgress.CancellationToken);
@@ -173,7 +166,7 @@ namespace CsvTools
 
       await buttonGuess.RunWithHourglassAsync(async () =>
       {
-        using var formProgress = new FormProgress("Guess Value", true, FontConfig, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress("Guess Value", m_CancellationTokenSource.Token);
         formProgress.Show(this);
         {
           var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
@@ -408,7 +401,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try { Logger.Information(ex, "UpdateDateLabel"); } catch { }
+        Debug.WriteLine($"Issue during UpdateDateLabel {ex.Message}");
       }
     }
 
@@ -435,12 +428,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        try
-        {
-          Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}",
-          decimalSeparator, numberFormat, groupSeparator);
-        }
-        catch { }
+        Debug.WriteLine($"UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator} {ex.Message}");
       }
     }
 
@@ -559,9 +547,9 @@ namespace CsvTools
         columnBindingSource.DataSource = m_ColumnEdit;
         SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-        using var formProgress = new FormProgress("Getting column headers", false, FontConfig, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress("Getting column headers", m_CancellationTokenSource.Token);
         formProgress.Show(this);
-        formProgress.SetProcess("Getting columns from source");
+        formProgress.Report("Getting columns from source");
         HashSet<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var col in await GetReaderForColumnsAsync(m_FileSetting, formProgress.CancellationToken))

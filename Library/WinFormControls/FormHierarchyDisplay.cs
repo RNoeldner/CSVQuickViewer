@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -65,25 +66,19 @@ namespace CsvTools
     public FormHierarchyDisplay(in DataTable dataTable, in DataRow[] dataRows, in HtmlStyle hTmlStyle)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
-      try
-      {
-        m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
-        m_DataRow = dataRows;
-        InitializeComponent();
-        m_TimerSearch.Elapsed += FilterValueChangedElapsed;
-        m_TimerSearch.Interval = 200;
-        m_TimerSearch.AutoReset = false;
+      m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
+      m_DataRow = dataRows;
+      InitializeComponent();
+      m_TimerSearch.Elapsed += FilterValueChangedElapsed;
+      m_TimerSearch.Interval = 200;
+      m_TimerSearch.AutoReset = false;
 
-        m_TimerDisplay.Elapsed += TimerDisplayElapsed;
-        m_TimerDisplay.Interval = 1000;
-        m_TimerDisplay.AutoReset = false;
+      m_TimerDisplay.Elapsed += TimerDisplayElapsed;
+      m_TimerDisplay.Interval = 1000;
+      m_TimerDisplay.AutoReset = false;
 
-        m_TreeView.HtmlStyle = hTmlStyle;
-      }
-      catch (Exception e)
-      {
-        try { Logger.Warning(e, "FormColumnUiRead ctor"); } catch { }
-      }
+      m_TreeView.HtmlStyle = hTmlStyle;
+
     }
 
     /// <summary>
@@ -93,7 +88,7 @@ namespace CsvTools
     {
       this.RunWithHourglass(() =>
       {
-        using var formProgress = new FormProgress("Building Tree", false, FontConfig, m_CancellationTokenSource.Token);
+        using var formProgress = new FormProgress("Building Tree", m_CancellationTokenSource.Token);
         formProgress.Show(this);
         formProgress.Maximum = m_DataRow.GetLength(0) * 2;
 
@@ -120,7 +115,7 @@ namespace CsvTools
         m_ToolTip?.Dispose();
         m_CancellationTokenSource.Dispose();
         components?.Dispose();
-        
+
       }
 
       base.Dispose(disposing);
@@ -329,7 +324,7 @@ namespace CsvTools
       {
         try
         {
-          using var formProgress = new FormProgress("Searching", false, FontConfig, m_CancellationTokenSource.Token);
+          using var formProgress = new FormProgress("Searching", m_CancellationTokenSource.Token);
           formProgress.Show(this);
           Search(m_TextBoxValue!.Text, m_TreeView.Nodes, formProgress.CancellationToken);
         }
@@ -631,7 +626,7 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
-        try { Logger.Information("Adding Tree with children"); } catch { }
+        Debug.WriteLine("Adding Tree with children");
         foreach (var treeData in m_TreeData)
         {
           cancellationToken.ThrowIfCancellationRequested();
@@ -639,8 +634,7 @@ namespace CsvTools
           if (string.IsNullOrEmpty(treeData.ParentID))
             AddTreeDataNodeWithChild(treeData, null, cancellationToken);
         }
-
-        try { Logger.Information("Finding Cycles in Hierarchy");} catch { }
+        Debug.WriteLine("Finding Cycles in Hierarchy");
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
@@ -655,8 +649,7 @@ namespace CsvTools
 
         if (!hasCycles)
           return;
-
-        try { Logger.Information("Adding Cycles");} catch { }
+        Debug.WriteLine("Adding Cycles");
         var rootNode = new TreeNode("Cycles in Hierarchy");
         m_TreeView.Nodes.Add(rootNode);
 

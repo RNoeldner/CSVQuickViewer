@@ -95,7 +95,7 @@ namespace CsvTools
     private bool m_IsFinished;
 
     // ReSharper disable once FieldCanBeMadeReadOnly.Global    
-    private IProgress<ProgressInfo> m_ReportProgress = new DummyProgress();
+    private IProgress<ProgressInfo> m_ReportProgress = DummyProgress.Instance;
 
     /// <inheritdoc />
     /// <summary>

@@ -13,62 +13,71 @@
  */
 #nullable enable
 
-using FastColoredTextBoxNS;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="System.Windows.Forms.TextBox" />
   /// <inheritdoc cref="Microsoft.Extensions.Logging.ILogger" />
   /// <summary>
-  ///   Only the most recently created Logger Display will get the log messages
+  /// Displays log messages in real time and keeps track of the last displayed message
+  /// to optionally merge related output.
   /// </summary>
-  public class LoggerDisplay : FastColoredTextBox, ILogger
+  public class LoggerDisplay : TextBox, ILogger
   {
-#pragma warning disable CA1416
-    private readonly TextStyle m_ErrorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
-    private readonly TextStyle m_InfoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
-    private readonly TextStyle m_RegStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
-    private readonly TextStyle m_TimestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
-    private readonly TextStyle m_WarningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
-#pragma warning restore CA1416
-    // private DateTime m_LastDisplay = DateTime.UtcNow;
-    private bool m_Initial = true;
-
+    // Stores the last printed message to detect incremental updates.
     private string m_LastMessage = string.Empty;
 
     public LoggerDisplay()
     {
+      // Make the control suitable for multi-line log output.
       Multiline = true;
-      ReadOnly = true;
-      ShowLineNumbers = false;
       AllowDrop = false;
     }
-    
-    
-    /// <inheritdoc />
-    public sealed override bool AllowDrop
-    {
-      get { return base.AllowDrop; }
-      set { base.AllowDrop = value; }
-    }
 
+    /// <summary>
+    /// Minimum log level to be displayed.
+    /// </summary>
     [DefaultValue(LogLevel.Information)]
-    public LogLevel MinLevel
-    {
-      get;
-      set;
-    } = LogLevel.Debug;
+    public LogLevel MinLevel { get; set; } = LogLevel.Debug;
 
-    [DefaultValue(120)]
-    public int LimitLength
+    /// <summary>
+    /// Appends or merges log history entries into the TextBox.
+    /// Must be called on UI Thread
+    /// </summary>
+    public void AddHistory(string text)
     {
-      get;
-      set;
-    } = 120;
+      if (string.IsNullOrWhiteSpace(text))
+        return;
+      try
+      {
+        // Detect continuation marker (en dash first, hyphen fallback)
+        int pos = text.IndexOf('–');
+        if (pos < 0)
+          pos = text.IndexOf('-');
+        if (pos > 1)
+        {
+          if (m_LastMessage.StartsWith(text.Substring(0, pos - 1).Trim(), StringComparison.Ordinal))
+          {
+            AppendText(text.Substring(pos - 1).TrimStart());
+            return;
+          }
+        }
+        // New log entry
+        if (Text.Length>0)
+          AppendText(Environment.NewLine);
+        AppendText($"{DateTime.Now:HH:mm:ss} {text.TrimStart()}");
+        m_LastMessage = text;
+      }
+      catch (Exception)
+      {
+        // Fail silently – ensures UI logging never breaks application flow
+      }
+    }
 
 #pragma warning disable CS8633
     public IDisposable BeginScope<TState>(TState state) => default!;
@@ -76,110 +85,26 @@ namespace CsvTools
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
 
+    /// <summary>
+    /// Writes a log entry to the TextBox in a thread-safe manner.
+    /// </summary>
     [DebuggerStepThrough]
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-      Func<TState, Exception?, string> formatter)
+    Func<TState, Exception?, string> formatter)
     {
       if (!IsEnabled(logLevel))
         return;
+
       var text = formatter(state, exception);
 
+      // Avoid duplicate lines
       if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal))
         return;
-      try
-      {
-        var appended = false;
-        var posSlash = text.IndexOf('–', 0);
-        if (posSlash != -1 && m_LastMessage.StartsWith(
-              text.Substring(0, posSlash - 1).Trim(),
-              StringComparison.Ordinal))
-        {
-          // add to previous item,
-          AppendText(text.Substring(posSlash - 1), false, logLevel);
-          appended = true;
-        }
 
-        m_LastMessage = text;
-        if (!appended)
-        {
-          if (logLevel < LogLevel.Warning)
-            text = StringUtils.GetShortDisplay(text.HandleCrlfCombinations(" "), LimitLength);
-          if (!string.IsNullOrEmpty(text) && text != "\"\"")
-            AppendText(text, true, logLevel);
-        }
-
-        m_Initial = false;
-      }
-      catch (Exception)
-      {
-        // ignore
-      }
+      // Ensure UI safety
+      this.SafeInvoke(() => AddHistory(text));
     }
 
-    public new void Clear()
-    {
-      this.SafeBeginInvoke(() => { Text = string.Empty; });
-      Extensions.ProcessUIElements();
-    }
-
-
-    public void AppendText(string text, bool timestamp, LogLevel level)
-    {
-      this.SafeInvoke(() =>
-      {
-        try
-        {
-          //some stuffs for best performance
-          BeginUpdate();
-          Selection.BeginUpdate();
-          //remember user selection
-          var userSelection = Selection.Clone();
-          //add text with predefined style
-          TextSource.CurrentTB = this;
-
-          var style = m_RegStyle;
-          if (level < LogLevel.Information)
-            style = m_InfoStyle;
-          else if (level >= LogLevel.Error)
-            style = m_ErrorStyle;
-          else if (level >= LogLevel.Warning)
-            style = m_WarningStyle;
-
-          if (timestamp)
-          {
-            AppendText(m_Initial ? $"{DateTime.Now:HH:mm:ss}" : $"\n{DateTime.Now:HH:mm:ss}", m_TimestampStyle);
-            AppendText(" ");
-          }
-
-          AppendText(text, style);
-
-          //restore user selection
-          if (!userSelection.IsEmpty || userSelection.Start.iLine < LinesCount - 2)
-          {
-            Selection.Start = userSelection.Start;
-            Selection.End = userSelection.End;
-          }
-          else
-          {
-            Selection.Start = new Place(0, Lines.Count - 1);
-            DoCaretVisible();
-          }
-
-          Selection.EndUpdate();
-          EndUpdate();
-        }
-        catch
-        {
-          // ignore
-        }
-      });
-
-      //if ((DateTime.UtcNow -m_LastDisplay).TotalMilliseconds>500)
-      //{
-      //  Extensions.ProcessUIElements();
-      //  m_LastDisplay = DateTime.UtcNow;
-      //}
-    }
-
+    public new void Clear() => this.SafeInvoke(() => Text = string.Empty);
   }
 }

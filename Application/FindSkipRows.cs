@@ -63,11 +63,12 @@ namespace CsvTools
 
     private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
-      using var formProgress = new FormProgress("Check", true, FontConfig, CancellationToken.None);
+      using var formProgress = new FormProgress("Check", CancellationToken.None);
       formProgress.Show(this);
-      formProgress.Maximum = 0;
-      using var stream = FunctionalDI.GetStream(new SourceAccess(m_CsvFile));
-      using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
+      formProgress.Report("Opening");
+      using var stream = FunctionalDI.GetStream(new SourceAccess(m_CsvFile));      
+      using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);      
+      formProgress.Report("Inspecting");
       m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Character, m_TextBoxQuote.Character,
         textBoxEscape.Character, textBoxComment.Text,
         formProgress.CancellationToken);

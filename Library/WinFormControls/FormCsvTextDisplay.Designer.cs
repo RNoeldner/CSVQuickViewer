@@ -41,7 +41,7 @@ namespace CsvTools
       this.contextMenuJson.SuspendLayout();
       this.SuspendLayout();
       // 
-      // textBox
+      // m_HistoryDisplay
       // 
       this.textBox.AllowDrop = false;
       this.textBox.AutoCompleteBracketsList = new char[] {

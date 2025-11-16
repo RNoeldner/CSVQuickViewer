@@ -40,6 +40,7 @@ namespace CsvTools
   {
     private readonly string m_Font;
     private readonly float m_FontSize;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FontConfig"/> class.
     /// </summary>
@@ -58,4 +59,3 @@ namespace CsvTools
     public float FontSize => m_FontSize;
   }
 }
-

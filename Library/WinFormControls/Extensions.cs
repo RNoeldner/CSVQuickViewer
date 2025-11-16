@@ -120,7 +120,7 @@ namespace CsvTools
       bool withLogger,
       in CancellationToken cancellationToken)
     {
-      var formProgress = new FormProgress(fileSetting.GetDisplay(), withLogger, new FontConfig(owner?.Font.Name, owner?.Font.Size), cancellationToken);
+      var formProgress = new FormProgress(fileSetting.GetDisplay(), cancellationToken);
       formProgress.Show(owner);
 
       return formProgress;
@@ -154,7 +154,7 @@ namespace CsvTools
       try
       {
         // this should not use ConfigureAwait(false);
-        await action.Invoke().ConfigureAwait(true); 
+        await action.Invoke().ConfigureAwait(true);
       }
       finally
       {
@@ -227,27 +227,20 @@ namespace CsvTools
 
     public static void RunStaThread(Action action, int timeoutMilliseconds = 20000)
     {
-      try
+      if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+        action.Invoke();
+      else
       {
-        if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-          action.Invoke();
-        else
+        var thread = new Thread(action.Invoke)
         {
-          var thread = new Thread(action.Invoke)
-          {
-            IsBackground = true
-          };
-          thread.SetApartmentState(ApartmentState.STA);
-          thread.Start();
-          if (timeoutMilliseconds > 0)
-            thread.Join(timeoutMilliseconds);
-          else
-            thread.Join();
-        }
-      }
-      catch (Exception e)
-      {
-        try { Logger.Error(e); } catch { }
+          IsBackground = true
+        };
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        if (timeoutMilliseconds > 0)
+          thread.Join(timeoutMilliseconds);
+        else
+          thread.Join();
       }
     }
 
@@ -410,7 +403,7 @@ namespace CsvTools
           uiElement.BeginInvoke(action);
           return;
         }
-      } 
+      }
       catch
       {
         // sometimes there is an error accessing InvokeRequired
@@ -512,14 +505,6 @@ namespace CsvTools
     /// <param name="timeout">Timeout in Seconds</param>
     public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
     {
-      try
-      {
-        if (from != null)
-          Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
-        else
-          Logger.Warning(ex, ex.SourceExceptionMessage());
-      }
-      catch { }
       Cursor.Current = Cursors.Default;
 
       MessageBox.Show(

@@ -133,10 +133,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           return;
         SetDefaultInspectionResult();
 
-        using var formProgress = new FormProgress("Examining file", false, FontConfig, m_CancellationTokenSource.Token);
-        formProgress.Maximum = 0;
+        using var formProgress = new FormProgress("Examining file", m_CancellationTokenSource.Token);
+        
         formProgress.Show(this);
-
+        formProgress.Report("Inspecting");
         var ir = await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
           m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
