@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+using FastColoredTextBoxNS;
 using System;
 using System.ComponentModel;
 using System.Text;
@@ -136,16 +137,18 @@ namespace CsvTools
       }
     }
 
-    private void HighlightVisibleRange()
+    private void HighlightVisibleRange(object? sender)
     {
+      if (sender is not FastColoredTextBox fcTextBox)
+        return;
       try
       {
-        var startLine = Math.Max(0, textBox.VisibleRange.Start.iLine - 20);
-        var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 20);
-        var range = new FastColoredTextBoxNS.Range(fastColoredTextBoxRO, 0, startLine, 0, endLine);
+        var startLine = Math.Max(0, fcTextBox.VisibleRange.Start.iLine - 20);
+        var endLine = Math.Min(fcTextBox.LinesCount - 1, fcTextBox.VisibleRange.End.iLine + 20);
+        var range = new FastColoredTextBoxNS.Range(fcTextBox, 0, startLine, 0, endLine);
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (m_CurrentLang == Language.Xml)
-          textBox.SyntaxHighlighter.XMLSyntaxHighlight(range);
+          fcTextBox.SyntaxHighlighter.XMLSyntaxHighlight(range);
         else if (m_CurrentLang == Language.Json) m_HighLighter?.Highlight(range);
       }
       catch
@@ -178,14 +181,13 @@ namespace CsvTools
         HandleText(Language.HTML);
     }
 
-    private void TextBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+    private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
       buttonSave.Enabled = textBox.IsChanged;
     }
 
-    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) =>
-                          HighlightVisibleRange();
+    private void TextBox_TextChangedDelayed(object? sender, TextChangedEventArgs e) =>  HighlightVisibleRange(sender);
 
-    private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
+    private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange(sender);
   }
 }
