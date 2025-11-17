@@ -48,7 +48,6 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
-    private bool m_BackgroundLoad = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
     /// <summary>
@@ -86,19 +85,9 @@ namespace CsvTools
       {
         RefreshDisplay(filterType, progress.CancellationToken);
       }
-      if (autoLoad)
-      {
-        m_BackgroundLoad = true;
-
-        // half a second delay so the control finishes rendering
-        await Task.Delay(500, progress.CancellationToken);
-
-        if (!progress.CancellationToken.IsCancellationRequested)
-          // Trigger the load as if the user pressed the button,
-          // is async but not awaited so it starts in the background
-          ToolStripButtonLoadRemaining_Click(this, EventArgs.Empty);
-      }
+      timerLoadRemain.Enabled=autoLoad;
     }
+
 
     /// <inheritdoc />
     /// <summary>
@@ -821,38 +810,37 @@ namespace CsvTools
 
     public bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
 
-    private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
+    private async Task LoadBatch(bool backgroundLoad)
     {
-      if (EndOfFile)
-        return;
-
       // Cancel the current search
       OnSearchClear(this, EventArgs.Empty);
 
-      await this.RunWithHourglassAsync(async () =>
+      var timeSpan = backgroundLoad ? TimeSpan.MaxValue : TimeSpan.FromSeconds(5);
+      IProgressWithCancellation progress = backgroundLoad ? new ProgressCancellation(m_CancellationToken) : new FormProgress("Load more...", m_CancellationToken); ;
+      try
       {
-        // ReSharper disable once LocalizableElement
-        using var formProgress = new FormProgress("Load more...", m_CancellationToken);
-        // make sure this is behind the windows
-        formProgress.Show(this);
-        if (m_BackgroundLoad)
-          formProgress.SendToBack();
-        formProgress.Maximum = 3;
-
-        m_ToolStripLabelCount.Text = " loading...";
-        var newDt = await m_SteppedDataTableLoader.GetNextBatch(TimeSpan.FromSeconds(10), formProgress);
-
+        m_ToolStripButtonLoadRemaining.Enabled = false;
+        if (progress is FormProgress formProgress)
+          formProgress.Show(FindForm());
+        var newDt = await m_SteppedDataTableLoader.GetNextBatch(timeSpan, progress);
         if (newDt.Rows.Count > 0)
-        {
-          formProgress.Report(new ProgressInfo($"Adding {newDt.Rows.Count:N0} new rows", 2));
           DataTable.Merge(newDt, false, MissingSchemaAction.Error);
-        }
 
-        formProgress.Report(new ProgressInfo("Refresh Display", 3));
-        RefreshDisplay(GetCurrentFilter(), formProgress.CancellationToken);
-      });
+        RefreshDisplay(GetCurrentFilter(), progress.CancellationToken);
+      }
+      finally
+      {
+        m_ToolStripButtonLoadRemaining.Enabled = true;
+        if (progress is FormProgress formProgress)
+          formProgress.Dispose();
+      }
+    }
 
-      Extensions.ProcessUIElements();
+    private void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
+    {
+      if (EndOfFile)
+        return;
+      _ = LoadBatch(false);
     }
 
     private void TimerVisibility_Tick(object? sender, EventArgs e)
@@ -959,6 +947,12 @@ namespace CsvTools
       {
         await DisplaySourceAsync.Invoke(m_CancellationToken);
       }, ParentForm);
+    }
+
+    private void timerLoadRemain_Tick(object sender, EventArgs e)
+    {
+      timerLoadRemain.Enabled=false;
+      _ = LoadBatch(true);
     }
   }
 }

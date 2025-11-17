@@ -68,7 +68,7 @@ namespace CsvTools
           throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
 
         // Stop reporting progress to the outside, we do that in the DataReaderWrapper
-        fileReader.ReportProgress = ProgressCancellation.Instance;
+        fileReader.ReportProgress = new Progress<ProgressInfo>();
 
         m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
           fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
