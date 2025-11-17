@@ -27,7 +27,7 @@ namespace CsvTools
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>true if the comment line seems to be ok</returns>
     public static async Task<bool> InspectLineCommentIsValidAsync(
       this ImprovedTextReader textReader,
@@ -83,7 +83,7 @@ namespace CsvTools
 
     /// <summary>Guesses the line comment</summary>
     /// <param name="textReader">The text reader to read the data</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The determined comment</returns>
     /// <exception cref="System.ArgumentNullException">textReader</exception>
     public static async Task<string> InspectLineCommentAsync(this ImprovedTextReader textReader,
@@ -115,11 +115,9 @@ namespace CsvTools
       if (maxCount > 0)
       {
         var check = starts.First(x => x.Value == maxCount);
-        Logger.Information($"Comment Line: {check.Key}");
         return check.Key;
       }
 
-      Logger.Information("No Comment Line");
       return string.Empty;
     }
   }

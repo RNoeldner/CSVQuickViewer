@@ -33,7 +33,7 @@ namespace CsvTools
     /// <param name="fieldDelimiterChar">The char to be used as field delimiter</param>
     /// <param name="escapePrefixChar">Used to escape a delimiter or quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="possibleQuotes">Possibles quotes to test, usually its ' and "</param>
+    /// <param name="possibleQuotes">Possible quotes to test, usually its ' and "</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>
@@ -46,7 +46,7 @@ namespace CsvTools
       char escapePrefixChar,
       string commentLine,
       IEnumerable<char> possibleQuotes,
-      in CancellationToken cancellationToken)
+      CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
@@ -62,7 +62,6 @@ namespace CsvTools
           break;
       }
 
-      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.Text()} Score:{bestQuoteTestResults.Score:N0}");
       return bestQuoteTestResults;
     }
 

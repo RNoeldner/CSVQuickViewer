@@ -14,7 +14,6 @@
 #nullable enable
 using System;
 using System.Data;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -42,41 +41,39 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="durationInitial">The duration for the initial load</param>
     /// <param name="progress">Process display to pass on progress information</param>
-    /// <param name="addWarning">Add warnings.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="addWarning">Add warnings.</param>    
     /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
     public async Task<DataTable> StartAsync(
       IFileSetting fileSetting,
       TimeSpan durationInitial,
-      IProgress<ProgressInfo> progress,
-      EventHandler<WarningEventArgs>? addWarning,
-      CancellationToken cancellationToken)
+      IProgressWithCancellation progress,
+      EventHandler<WarningEventArgs>? addWarning)
     {
-      Logger.Debug("Starting to load data");
+      progress.Report("Starting to load data");
       //m_Id = fileSetting.ID;
-      var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
+      var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
       if (fileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 
       try
       {
-        Logger.Debug("Opening reader");
+        progress.Report("Opening reader");
         fileReader.ReportProgress = progress;
         if (addWarning != null)
           fileReader.Warning += addWarning;
 
-        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await fileReader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
 
         if (fileReader.FieldCount > cMaxColumns)
           throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
 
         // Stop reporting progress to the outside, we do that in the DataReaderWrapper
-        fileReader.ReportProgress = DummyProgress.Instance;
+        fileReader.ReportProgress = ProgressCancellation.Instance;
 
         m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
           fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 
-        return await GetNextBatch(progress, durationInitial, cancellationToken).ConfigureAwait(false);
+        return await GetNextBatch(durationInitial, progress).ConfigureAwait(false);
       }
       catch (Exception ex) when (ex is not FileReaderException)
       {
@@ -88,12 +85,8 @@ namespace CsvTools
     /// Loads the next batch of data from a file setting into the data table from Wrapper
     /// </summary>
     /// <param name="progress">Process display to pass on progress information</param>
-    /// /// <param name="duration">For maximum duration for the read process</param>    
-    /// <param name="cancellationToken">The cancellation token.</param>
-    public async Task<DataTable> GetNextBatch(
-     IProgress<ProgressInfo> progress,
-     TimeSpan duration,
-     CancellationToken cancellationToken)
+    /// <param name="duration">For maximum duration for the read process</param>        
+    public async Task<DataTable> GetNextBatch(TimeSpan duration, IProgressWithCancellation progress)
     {
       if (m_DataReaderWrapper is null)
         return new DataTable();
@@ -101,9 +94,9 @@ namespace CsvTools
       try
       {
         m_DataReaderWrapper.ReportProgress = progress;
-        Logger.Debug("Getting batch");
+        progress.Report("Getting batch");
 
-        var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, null, cancellationToken)
+        var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress)
             .ConfigureAwait(false);
 
         if (m_DataReaderWrapper.EndOfFile)

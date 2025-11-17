@@ -84,7 +84,6 @@ namespace CsvTools
           var resultFl = firstLine.Substring(4);
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
-          Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}");
           return new DelimiterDetection(resultFl.FromText(), true, true);
         }
 
@@ -176,7 +175,7 @@ namespace CsvTools
               variance += Math.Abs(delimiterCounter.SeparatorsCount[index, row] - avg);
             }
 
-            // now waith the variance as well, if avg is high the variance is less important            
+            // now weigtin  the variance as well, if avg is high the variance is less important            
             sums.Add(index, variance * 4 / avg);
 
             // handling on probability of delimiter
@@ -225,12 +224,8 @@ namespace CsvTools
       }
 
       if (match == char.MinValue)
-      {
-        Logger.Information("Not a delimited file");
         return new DelimiterDetection('\t', false, false);
-      }
 
-      Logger.Information($"Column Delimiter: {match.Text()}");
       return new DelimiterDetection(match, true, false);
     }
 

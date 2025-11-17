@@ -53,11 +53,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Event raised whenever progress changes.
-    /// </summary>
-    public event EventHandler<ProgressInfo>? ProgressChanged;
-
-    /// <summary>
     /// Exposes the cancellation token for the running operation.
     /// </summary>
     public CancellationToken CancellationToken =>
@@ -107,6 +102,10 @@ namespace CsvTools
     /// </summary>
     /// <info>The cancellation token.</info>
     private CancellationTokenSource CancellationTokenSource { get; }
+
+
+    /// <inheritdoc />
+    public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
 
     /// <summary>
     /// Closes the form and triggers cancellation of the process.
@@ -277,7 +276,8 @@ namespace CsvTools
     {
       if (CancellationToken.IsCancellationRequested)
         return;
-
+      // Pass everything to the logger
+      Logger.Information(prof.Text);
       try
       {
         // Calculate TimeRemaining
@@ -285,47 +285,47 @@ namespace CsvTools
         WindowsAPICodePackWrapper.SetProgressValue(TimeToCompletion.Percent);
 
         // Raise event for subscribers
-        ProgressChanged?.Invoke(this, prof);
+        ProgressChanged?.Invoke((prof, TimeToCompletion));
 
         // Update UI elements on the UI thread
         m_LabelText.SafeBeginInvoke(
-          () =>
-          {
-            if (!Visible)
-            {
-              Show();
-              Extensions.ProcessUIElements();
-            }
-
-            m_LabelText.Text = prof.Text;
-
-            if (TimeToCompletion.Value <= 0 || Maximum <= 1)
-            {
-              // No meaningful ETA available
-              m_LabelEtl.Text = string.Empty;
-            }
-            else
-            {
-              // Update progress bar
-              if (TimeToCompletion.Value > 0 && TimeToCompletion.Value <= Maximum)
-                m_ProgressBar.Value = TimeToCompletion.Value.ToInt();
-
-              // Build ETA text
-              var sb = new StringBuilder();
-              sb.Append(TimeToCompletion.PercentDisplay.PadLeft(10));
-
-              var t1 = TimeToCompletion.EstimatedTimeRemainingDisplay;
-              if (t1.Length > 0)
+              () =>
               {
-                sb.Append("   Estimated time remaining: ");
-                sb.Append(t1);
-              }
+                if (!Visible)
+                {
+                  Show();
+                  Extensions.ProcessUIElements();
+                }
 
-              m_LabelEtl.Text = sb.ToString();
-            }
-            // Append log output
-            m_LoggerDisplay.AddHistory(prof.Text);
-          });
+                m_LabelText.Text = prof.Text;
+
+                if (TimeToCompletion.Value <= 0 || Maximum <= 1)
+                {
+                  // No meaningful ETA available
+                  m_LabelEtl.Text = string.Empty;
+                }
+                else
+                {
+                  // Update progress bar
+                  if (TimeToCompletion.Value > 0 && TimeToCompletion.Value <= Maximum)
+                    m_ProgressBar.Value = TimeToCompletion.Value.ToInt();
+
+                  // Build ETA text
+                  var sb = new StringBuilder();
+                  sb.Append(TimeToCompletion.PercentDisplay.PadLeft(10));
+
+                  var t1 = TimeToCompletion.EstimatedTimeRemainingDisplay;
+                  if (t1.Length > 0)
+                  {
+                    sb.Append("   Estimated time remaining: ");
+                    sb.Append(t1);
+                  }
+
+                  m_LabelEtl.Text = sb.ToString();
+                }
+                // Append log output
+                m_LoggerDisplay.AddHistory(prof.Text);
+              });
       }
       finally
       {

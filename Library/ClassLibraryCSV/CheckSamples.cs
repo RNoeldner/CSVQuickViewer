@@ -32,7 +32,7 @@ namespace CsvTools
     /// <param name="dateSep">The date separator character.</param>
     /// <param name="timeSep">The time separator character.</param>
     /// <param name="culture">The culture used for parsing (important for named days or months).</param>
-    /// <param name="cancellationToken">Token used to cancel the operation if it takes too long.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
     public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
                                         ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
@@ -97,7 +97,7 @@ namespace CsvTools
     ///   Checks whether all sample values are valid GUIDs.
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <c>true</c> if all non-empty values can be interpreted as <see cref="Guid"/>; 
     ///   <c>false</c> otherwise.
@@ -249,7 +249,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The text samples to analyze.</param>
     /// <param name="minRequiredSamples">The minimum number of matches required to decide on a non-string type.</param>
-    /// <param name="cancellationToken">A token to cancel long-running operations.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     /// Returns one of the following:
     /// <list type="bullet">

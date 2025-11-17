@@ -263,7 +263,7 @@ namespace CsvTools
       detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
     }
 
-    private async Task RunDetection(CancellationToken cancellationToken)
+    private async Task RunDetection(IProgressWithCancellation progress)
     {
       if (m_FileSetting is null)
         return;
@@ -271,9 +271,9 @@ namespace CsvTools
       ShowTextPanel(true);
       try
       {
-        var (_, detected) = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
+        var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
           m_ViewSettings.FillGuessSettings,
-          cancellationToken);
+          progress);
         ChangeColumnsNoEvent(false, detected);
 
         m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
@@ -292,38 +292,36 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public async Task LoadCsvOrZipFileAsync(string fileName, CancellationToken cancellationToken)
+    public async Task LoadCsvOrZipFileAsync(string fileName)
     {
       if (IsDisposed || string.IsNullOrEmpty(fileName))
         return;
-
-      var split = FileSystemUtils.SplitPath(fileName);
-
-      if (FileSystemUtils.DirectoryExists(split.DirectoryName))
-        m_ViewSettings.InitialFolder = split.DirectoryName;
-
-      var fi = new FileSystemUtils.FileInfo(fileName);
-      if (!fi.Exists)
+      await this.RunWithHourglassAsync(async () =>
       {
-        try { Logger.Warning("Filename {filename} not found or not accessible.", fileName); } catch { }
-        return;
-      }
+        using var progress = new FormProgress("Load File", m_CancellationTokenSource.Token);
+        progress.Show(this);
+        var split = FileSystemUtils.SplitPath(fileName);
 
-      if (fi.Length == 0)
-      {
-        try { Logger.Warning("File {filename} is empty.", fileName); } catch { }
-        return;
-      }
+        if (FileSystemUtils.DirectoryExists(split.DirectoryName))
+          m_ViewSettings.InitialFolder = split.DirectoryName;
 
-      ShowTextPanel(true);
-      try { Logger.Information("Loading {filename}", fileName); } catch { }
-      try
-      {
+
+
+
+        var fi = new FileSystemUtils.FileInfo(fileName);
+        if (fi.Length <= 4)
+        {
+          progress.Report($"Filename '{fileName}' only has {fi.Length} byte.");
+          return;
+        }
+        if (!fi.Exists)
+        {
+          progress.Report($"Filename '{fileName}' not found or not accessible.");
+          return;
+        }
+
+        progress.Report("Loading {fileName}");
         DetachPropertyChanged();
-        // using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
-        //{
-        // formProgress.Maximum = 0;
-        // formProgress.ShowWithFont(this);
 
         // make sure old columns are removed
         m_ViewSettings.DefaultInspectionResult.Columns.Clear();
@@ -351,7 +349,7 @@ namespace CsvTools
 #else
           string.Empty,
 #endif
-          cancellationToken);
+          progress);
 
         m_FileSetting = new CsvFileDummy
         {
@@ -380,8 +378,6 @@ namespace CsvTools
         // If keyFile was set in the process it's not yet stored
         m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
 #endif
-        // formProgress.Close();
-        //}
 
         if (m_FileSetting is null)
           return;
@@ -392,40 +388,30 @@ namespace CsvTools
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
 
         SetFileSystemWatcher(fileName);
+        var display = fileName;
+        if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+          display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
-        // update the UI
-        // ReSharper disable once AsyncVoidLambda
-        this.SafeInvoke(async () =>
+        var title = new StringBuilder(display.GetShortDisplayFileName(50));
+        if (m_FileSetting is ICsvFile csv)
         {
-          var display = fileName;
-          if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-            display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
-
-          var title = new StringBuilder(display.GetShortDisplayFileName(50));
-          if (m_FileSetting is ICsvFile csv)
-          {
-            title.Append(" - ");
-            title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
-            if (csv.NumWarnings > 0)
-              m_WarningMax = csv.NumWarnings;
-          }
-
           title.Append(" - ");
-          title.Append(AssemblyTitle);
+          title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
+          if (csv.NumWarnings > 0)
+            m_WarningMax = csv.NumWarnings;
+        }
+        title.Append(" - ");
+        title.Append(AssemblyTitle);
 
-          ToolStripButtonAsText(false);
-          Text = title.ToString();
-          m_ToolStripButtonSettings.Visible = m_FileSetting != null;
-          m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
-            x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
-          await OpenDataReaderAsync(cancellationToken);
-        });
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, $"Load File {fileName}");
-      }
-    } // ReSharper disable StringLiteralTypo
+        ToolStripButtonAsText(false);
+        Text = title.ToString();
+        m_ToolStripButtonSettings.Visible = m_FileSetting != null;
+        m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
+          x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
+        await OpenDataReaderAsync(progress.CancellationToken);
+
+      });
+    }
 
     private Task SelectFile()
     {
@@ -443,7 +429,10 @@ namespace CsvTools
         m_ViewSettings.InitialFolder = ".";
       var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
       if (!(fileName is null || fileName.Length == 0))
-        return LoadCsvOrZipFileAsync(fileName, m_CancellationTokenSource.Token);
+      {
+        return LoadCsvOrZipFileAsync(fileName);
+      }
+
       return Task.CompletedTask;
     }
 
@@ -509,8 +498,11 @@ namespace CsvTools
           {
             if (m_RunDetection)
             {
-              await RunDetection(m_CancellationTokenSource.Token);
+              using var progress = new FormProgress("Detection", m_CancellationTokenSource.Token);
+              progress.Show(this);
+              await RunDetection(progress);
               m_RunDetection = false;
+              progress.Close();
             }
 
             await OpenDataReaderAsync(m_CancellationTokenSource.Token);
@@ -530,7 +522,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await LoadCsvOrZipFileAsync(m_FileSetting.FileName, m_CancellationTokenSource.Token);
+          await LoadCsvOrZipFileAsync(m_FileSetting.FileName);
         else
           m_FileChanged = false;
 
@@ -582,7 +574,7 @@ namespace CsvTools
         if (WindowsAPICodePackWrapper.IsDialogOpen) return;
         await SaveIndividualFileSettingAsync();
 
-        await LoadCsvOrZipFileAsync(files[0], m_CancellationTokenSource.Token);
+        await LoadCsvOrZipFileAsync(files[0]);
       });
 
     /// <summary>
@@ -690,9 +682,7 @@ namespace CsvTools
           {
             formProgress.Show(this);
             m_LoadWarnings.Clear();
-            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, FilterTypeEnum.All,
-              formProgress,
-              AddWarning, formProgress.CancellationToken);
+            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, FilterTypeEnum.All, formProgress, AddWarning);
           }
 
           var keepVisible = new List<string>();

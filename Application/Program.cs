@@ -64,7 +64,7 @@ namespace CsvTools
         // Can not use await as this need async main (not supported for Windows Form executable)
         // If using GetAwaiter().GetResult() it gets stuck when opening the progress bar.
 #pragma warning disable CS4014
-        frm.LoadCsvOrZipFileAsync(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
+        frm.LoadCsvOrZipFileAsync(FileSystemUtils.GetFullPath(fileName));
 #pragma warning restore CS4014
       Application.Run(frm);
     }

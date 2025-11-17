@@ -28,7 +28,7 @@ namespace CsvTools.Tests
       using var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token);
       formProgress.ShowInTaskbar = true;
       formProgress.Show();
-      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);      
+      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
     }
 
     [TestMethod]
@@ -43,10 +43,8 @@ namespace CsvTools.Tests
         formProgress.Show();
         formProgress.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        formProgress.ProgressChanged += (obj, _) =>
-        {
-          sentTime = ((IProgressTime) obj).TimeToCompletion.EstimatedTimeRemaining;
-        };
+        formProgress.ProgressChanged = (param) => sentTime = formProgress.TimeToCompletion.EstimatedTimeRemaining;
+
         var end = 50;
         var step = 5;
         var wait = .1;
@@ -165,7 +163,7 @@ namespace CsvTools.Tests
       formProgress.Show();
       long called = 10;
 
-      formProgress.ProgressChanged += (_, e) => { called = e.Value; };
+      formProgress.ProgressChanged = (p) => { called = p.Item1.Value; };
 
       formProgress.Report(new ProgressInfo("Help", 20));
 

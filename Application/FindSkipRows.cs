@@ -71,7 +71,7 @@ namespace CsvTools
       formProgress.Report("Inspecting");
       m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Character, m_TextBoxQuote.Character,
         textBoxEscape.Character, textBoxComment.Text,
-        formProgress.CancellationToken);
+        formProgress.CancellationToken);      
 
       HighlightVisibleRange(m_CsvFile.SkipRows);
     }

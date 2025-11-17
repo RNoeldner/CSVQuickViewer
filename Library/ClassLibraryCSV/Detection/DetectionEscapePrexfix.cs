@@ -90,12 +90,6 @@ namespace CsvTools
           bestScore=score[i];
         }
       }
-       
-      if (bestScore > 0)
-        Logger.Information("Escape : {comment}", bestIndex.Text());
-      else
-        Logger.Information("No Escape found");
-      
       return bestIndex;
     }
   }

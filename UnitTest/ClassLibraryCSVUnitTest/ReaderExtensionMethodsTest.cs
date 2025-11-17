@@ -105,7 +105,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
 
       var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
-        false, false, false, null, UnitTestStatic.Token);
+        false, false, false, UnitTestStatic.TesterProgress);
       Assert.AreEqual(setting.RecordLimit, dt.Rows.Count);
     }
 
@@ -129,7 +129,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
-        true, true, true, null, UnitTestStatic.Token);
+        true, true, true, UnitTestStatic.TesterProgress);
       // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
       // Line end
       Assert.AreEqual(10 - 1 + 4, dt.Columns.Count);

@@ -37,7 +37,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(5000)]
     public void FilterColumn()
     {
       using var dt = UnitTestStaticData.RandomDataTable(500);

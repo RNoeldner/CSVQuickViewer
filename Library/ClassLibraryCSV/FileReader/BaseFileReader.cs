@@ -95,7 +95,7 @@ namespace CsvTools
     private bool m_IsFinished;
 
     // ReSharper disable once FieldCanBeMadeReadOnly.Global    
-    private IProgress<ProgressInfo> m_ReportProgress = DummyProgress.Instance;
+    private IProgress<ProgressInfo> m_ReportProgress = ProgressCancellation.Instance;
 
     /// <inheritdoc />
     /// <summary>
@@ -106,7 +106,7 @@ namespace CsvTools
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="timeZoneAdjust">Class to modify date time for time zones</param>
     /// <param name="returnedTimeZone">
-    ///   Name of the time zone datetime values that have a source time zone should be converted to
+    ///   Name of the time zone datetime values that have a source time zone should be converted toTim
     /// </param>
     /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
     /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>

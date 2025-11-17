@@ -66,14 +66,13 @@ namespace CsvTools
     /// <param name="addWarning">
     /// Optional event handler to receive warnings that may occur during loading.
     /// </param>
-    /// <param name="cancellationToken">Cancellation token that can stop the loading operation if requested.</param>
     /// <remarks>
     /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
     /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
     /// </remarks>
     public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
-      FilterTypeEnum filterType, IProgress<ProgressInfo> progress,
-      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
+      FilterTypeEnum filterType, IProgressWithCancellation progress,
+      EventHandler<WarningEventArgs>? addWarning)
     {
       try
       {
@@ -81,21 +80,20 @@ namespace CsvTools
         FilteredDataGridView.FileSetting = fileSetting;
 
         m_ToolStripLabelCount.Text = " loading...";
-        DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning,
-          cancellationToken);
+        DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning);
       }
       finally
       {
-        RefreshDisplay(filterType, cancellationToken);
+        RefreshDisplay(filterType, progress.CancellationToken);
       }
       if (autoLoad)
       {
         m_BackgroundLoad = true;
 
         // half a second delay so the control finishes rendering
-        await Task.Delay(500, cancellationToken);
+        await Task.Delay(500, progress.CancellationToken);
 
-        if (!cancellationToken.IsCancellationRequested)
+        if (!progress.CancellationToken.IsCancellationRequested)
           // Trigger the load as if the user pressed the button,
           // is async but not awaited so it starts in the background
           ToolStripButtonLoadRemaining_Click(this, EventArgs.Empty);
@@ -842,8 +840,7 @@ namespace CsvTools
         formProgress.Maximum = 3;
 
         m_ToolStripLabelCount.Text = " loading...";
-        var newDt = await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(10),
-          formProgress.CancellationToken);
+        var newDt = await m_SteppedDataTableLoader.GetNextBatch(TimeSpan.FromSeconds(10), formProgress);
 
         if (newDt.Rows.Count > 0)
         {

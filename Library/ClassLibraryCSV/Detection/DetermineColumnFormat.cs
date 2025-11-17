@@ -109,16 +109,16 @@ namespace CsvTools
     /// </param>
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
     /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="progress">Cancellation and progress reporting to stop a possibly long running process</param>
     /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
-    public static async Task<(IList<string>, IReadOnlyCollection<Column>)> FillGuessColumnFormatReaderAsyncReader(
+    public static async Task<IReadOnlyCollection<Column>> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
       FillGuessSettings fillGuessSettings,
       IEnumerable<Column>? columnCollectionInput,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
-      CancellationToken cancellationToken)
+      IProgressWithCancellation progress)
     {
       if (fileReader is null)
         throw new ArgumentNullException(nameof(fileReader));
@@ -132,18 +132,16 @@ namespace CsvTools
             DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
             DetectPercentage: false, SerialDateTime: false
           })
-        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
+        return [.. columnCollectionInput];
 
       if (fileReader.FieldCount == 0)
-        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
+        return [.. columnCollectionInput];
 
       if (fileReader.EndOfFile)
         fileReader.ResetPositionToFirstDataRow();
 
       if (fileReader.EndOfFile) // still end of file
-        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
-
-      var result = new List<string>();
+        return [.. columnCollectionInput];
 
       var columnCollection = new ColumnCollection();
       // Only use column definition for columns that do not exist
@@ -168,8 +166,7 @@ namespace CsvTools
         // Check if column should be ignored        
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIdColumn(column.Name) > 0)
         {
-          Logger.Information("{column} – ID columns ignored", column.Name);
-          result.Add($"{column.Name} – ID columns ignored");
+          progress.Report($"{column.Name} – ID columns ignored");
 
           if (!addTextColumns || columnCollection.Contains(column)) continue;
           columnCollection.Add(column);
@@ -187,9 +184,8 @@ namespace CsvTools
 
         if (isKnownType)
         {
-          Logger.Information("{column} - Existing Type : {format}", column.Name,
-            column.ValueFormat.GetTypeAndFormatDescription());
-          result.Add($"{column.Name} - Existing Type : {column.ValueFormat.GetTypeAndFormatDescription()}");
+          progress.Report($"{column.Name} - Existing Type : {column.ValueFormat.GetTypeAndFormatDescription()}");
+          
           continue;
         }
 
@@ -201,17 +197,17 @@ namespace CsvTools
         fillGuessSettings.CheckedRecords,
         getSamples,
         treatTextAsNull,
-        100, cancellationToken).ConfigureAwait(false);
+        100, progress.CancellationToken).ConfigureAwait(false);
 
       // In case there are not enough distinct records do not validate
       if (sampleList.Count == 0 || sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
       {
-        Logger.Information("Not enough records to determine types");
+        progress.Report("Not enough records to determine types");
         var allcolumns = new List<Column>();
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           allcolumns.Add(columnCache[colIndex]);
 
-        return (Array.Empty<string>(), allcolumns);
+        return allcolumns;
       }
 
       // Add all columns that will not be guessed
@@ -222,7 +218,7 @@ namespace CsvTools
         columnCollection.Add(readerColumn);
       }
 
-      cancellationToken.ThrowIfCancellationRequested();
+      progress.CancellationToken.ThrowIfCancellationRequested();
 
       // Start Guessing
       var othersValueFormatDate = CommonDateFormat(columnCollection, fillGuessSettings.DateFormat);
@@ -233,23 +229,14 @@ namespace CsvTools
 
         if (samples.Values.Count == 0)
         {
-          Logger.Information(
-            "{column} – No values found – Format : {format}",
-            readerColumn.Name,
-            readerColumn.GetTypeAndFormatDescription());
-          result.Add($"{readerColumn.Name} – No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
+          progress.Report($"{readerColumn.Name} – No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
           if (!addTextColumns)
             continue;
           columnCollection.Add(readerColumn);
         }
         else
         {
-          Logger.Information(
-            "{column} – {values} values found in {records} row.",
-            readerColumn.Name,
-            samples.Values.Count(),
-            samples.RecordsRead);
-
+          progress.Report($"{readerColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead} rows.");
           var checkResult = GuessValueFormat(
             samples.Values,
             fillGuessSettings.MinSamples,
@@ -263,7 +250,7 @@ namespace CsvTools
             fillGuessSettings.SerialDateTime,
             fillGuessSettings.RemoveCurrencySymbols,
             othersValueFormatDate,
-            cancellationToken);
+            progress.CancellationToken);
 
           // if nothing is found take what was configured before, as the reader could possibly
           // provide typed data (Json, Excel...)
@@ -285,21 +272,14 @@ namespace CsvTools
 
             if (checkResult.FoundValueFormat.Equals(columnCollection[colIndexCurrent].ValueFormat))
             {
-              Logger.Information("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
+              progress.Report($"{readerColumn.Name} – Format : {oldValueFormat} – not changed");
             }
             else
             {
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
                 continue;
-              Logger.Information(
-                "{column} – Format : {format} – updated from {old format}",
-                readerColumn.Name,
-                newValueFormat,
-                oldValueFormat);
-
-              result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
-
+              progress.Report($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
               columnCollection.Replace(columnCollection[colIndexCurrent]
                 .ReplaceValueFormat(checkResult.FoundValueFormat));
             }
@@ -313,10 +293,7 @@ namespace CsvTools
 
             if (!addTextColumns && format.DataType == DataTypeEnum.String) continue;
 
-            Logger.Information("{column} – Format : {format}", readerColumn.Name,
-              format.GetTypeAndFormatDescription());
-
-            result.Add($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
+            progress.Report($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
             columnCollection.Add(readerColumn.ReplaceValueFormat(format));
 
             // Adjust or Set the common date format
@@ -326,7 +303,7 @@ namespace CsvTools
         }
       }
 
-      cancellationToken.ThrowIfCancellationRequested();
+      progress.CancellationToken.ThrowIfCancellationRequested();
 
       // check all doubles if they could be integer needed for excel files as the typed values do
       // not distinguish between double and integer.
@@ -347,7 +324,7 @@ namespace CsvTools
               false,
               true,
               fillGuessSettings.RemoveCurrencySymbols,
-              cancellationToken);
+              progress.CancellationToken);
             if (checkResult.FoundValueFormat is null ||
                 checkResult.FoundValueFormat.DataType == DataTypeEnum.Double) continue;
             var colIndexExisting = columnCollection.IndexOf(readerColumn);
@@ -356,15 +333,8 @@ namespace CsvTools
             {
               var oldVf = columnCollection[colIndexExisting].ValueFormat;
               if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
-              Logger.Information(
-                "{column} – Format : {format} – updated from {old format}",
-                columnCollection[colIndexExisting].Name,
-                checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
-                oldVf.GetTypeAndFormatDescription());
 
-
-              result.Add(
-                $"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
+              progress.Report($"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
               columnCollection.Replace(
                 columnCollection[colIndexExisting].ReplaceValueFormat(checkResult.FoundValueFormat));
             }
@@ -375,7 +345,7 @@ namespace CsvTools
           }
         }
 
-      cancellationToken.ThrowIfCancellationRequested();
+      progress.CancellationToken.ThrowIfCancellationRequested();
 
       if (fillGuessSettings.DateParts)
       {
@@ -410,9 +380,8 @@ namespace CsvTools
                   columnCollection[colIndexSetting].DestinationName,
                   columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
                   columnTimeZone.Name));
-              Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
 
-              result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
+              progress.Report($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
 
@@ -445,9 +414,7 @@ namespace CsvTools
                 columnCollection[colIndexSetting].DestinationName,
                 columnTime.Name, timeFormat.DateFormat, columnCollection[colIndexSetting].TimeZonePart));
 
-            Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
-
-            result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+            progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
           }
         }
 
@@ -493,22 +460,17 @@ namespace CsvTools
                   1,
                   new[] { colIndex + 1 },
                   treatTextAsNull,
-                  80, cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+                  80, progress.CancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (!firstValueNewColumn.IsEmpty && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
                 columnCollection.Add(columnTime.ReplaceValueFormat(
                   new ValueFormat(DataTypeEnum.DateTime,
                     firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
-                  Logger.Information(
-                    "{column} – Format : {format}",
-                    columnTime.Name,
-                    columnTime.GetTypeAndFormatDescription());
 
-                result.Add($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
+                progress.Report($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
               }
 
-              Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
-              result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+              progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
               continue;
             }
           }
@@ -536,7 +498,7 @@ namespace CsvTools
 
           var firstValueNewColumn2 = (sampleList.ContainsKey(colIndex - 1)
             ? sampleList[colIndex - 1]
-            : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, cancellationToken)
+            : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, progress.CancellationToken)
               .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
           if (!firstValueNewColumn2.IsEmpty && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
@@ -551,26 +513,15 @@ namespace CsvTools
                 columnCollection[colIndexSetting].TimePart, firstValueNewColumn2.Length == 8 ? "HH:mm:ss" : "HH:mm",
                 columnCollection[colIndexSetting].TimeZonePart));
 
-            try
-            {
-              Logger.Information(
-                "{column} – Format : {format}",
-                columnCollection[colIndexSetting].Name,
-                columnCollection[colIndexSetting].GetTypeAndFormatDescription());
-            }
-            catch { }
-
-            result.Add(
-              $"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
+            progress.Report($"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
           }
 
-          Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, readerColumnTime.Name);
-          result.Add($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
+          progress.Report($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
         }
       }
 
       // Reorder columns to match file order
-      return (result, ReorderColumns(columnCollection, fileReader));
+      return ReorderColumns(columnCollection, fileReader);
     }
 
     // Reorder columns to match file order
@@ -600,8 +551,7 @@ namespace CsvTools
     /// <param name="columns">Enumerable of column indices to sample values from</param>
     /// <param name="treatAsNull">Semicolon-separated words to treat as null (e.g. "NULL;n/a")</param>
     /// <param name="maxChars">Trim samples to at most this many characters (0=no trim)</param>
-    /// <param name="cancellationToken">Allows canceling the operation</param>
-    /// 
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
     /// <returns>Dictionary: column index -> result object containing list of samples and records read</returns>
     public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(
       IFileReader fileReader,
@@ -1123,15 +1073,14 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     /// <returns>A list of columns with new format that have been changed</returns>
-    public static async Task<(IList<string>, IReadOnlyCollection<Column>)> FillGuessColumnFormatReaderAsync(
+    public static async Task<IReadOnlyCollection<Column>> FillGuessColumnFormatReaderAsync(
       this IFileSetting fileSetting,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       FillGuessSettings fillGuessSettings,
-      CancellationToken cancellationToken)
+      IProgressWithCancellation progress)
     {
       if (fileSetting is null)
         throw new ArgumentNullException(nameof(fileSetting));
@@ -1144,16 +1093,16 @@ namespace CsvTools
             DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
             DetectPercentage: false, SerialDateTime: false
           })
-        return (new List<string>(), fileSetting.ColumnCollection);
+        return fileSetting.ColumnCollection;
 
       // in case there is no delimiter, but it's a delimited file, do nothing
       if (fileSetting is ICsvFile { FieldDelimiterChar: char.MinValue })
-        return (new List<string>(), fileSetting.ColumnCollection);
+        return fileSetting.ColumnCollection;
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-        using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);
+        using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken);
       return await FillGuessColumnFormatReaderAsyncReader(
         fileReader,
         fillGuessSettings,
@@ -1161,7 +1110,7 @@ namespace CsvTools
         addTextColumns,
         checkDoubleToBeInteger,
         fileSetting.TreatTextAsNull,
-        cancellationToken).ConfigureAwait(false);
+        progress).ConfigureAwait(false);
     }
   }
 }

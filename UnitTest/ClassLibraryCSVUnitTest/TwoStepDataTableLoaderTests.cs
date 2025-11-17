@@ -36,9 +36,7 @@ namespace CsvTools.Tests
         CommentLine = "#"
       };
 
-      var proc = new Progress<ProgressInfo>();
-      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), proc,
-        (o, a) => { warningCalled = true; }, UnitTestStatic.Token);
+      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
       Assert.IsFalse(warningCalled);
       Assert.AreEqual(7, myDataTable.Columns.Count());
     }
@@ -56,9 +54,7 @@ namespace CsvTools.Tests
         WarnQuotesInQuotes = true
       };
 
-      var proc = new Progress<ProgressInfo>();
-      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), proc,
-        (o, a) => { warningCalled = true; }, UnitTestStatic.Token);
+      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
       Assert.IsTrue(warningCalled);
       Assert.AreEqual(7, myDataTable.Columns.Count());
     }

@@ -156,7 +156,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #else
           string.Empty,
 #endif
-          formProgress.CancellationToken);
+          formProgress);
         formProgress.Close();
 
         FileSetting ??= new CsvFileDummy();

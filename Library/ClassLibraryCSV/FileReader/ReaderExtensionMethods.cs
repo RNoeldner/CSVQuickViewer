@@ -153,14 +153,10 @@ namespace CsvTools
     /// <param name="progress">
     ///   Used to pass on progress information with number of records and percentage
     /// </param>
-    /// <param name="cancellationToken">Token to cancel the long running async method</param>
-    /// 
     /// <returns>A Data Table with all records from the reader</returns>    
     public static Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
-      bool startLine, bool endLine, bool recNum, bool errorField, IProgress<ProgressInfo>? progress,
-      CancellationToken cancellationToken)
-      => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress,
-        cancellationToken);
+      bool startLine, bool endLine, bool recNum, bool errorField, IProgressWithCancellation progress)
+      => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress);
 
 
     /// <summary>
@@ -169,9 +165,8 @@ namespace CsvTools
     /// <param name="wrapper"></param>
     /// <param name="maxDuration">Initial Duration for first return</param>    
     /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
-    /// <param name="cancellationToken">Token to cancel the long running async method</param>    
     public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
-      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      IProgressWithCancellation progress)
     {
       // Shortcut if the wrapper is a DataTableWrapper
       if (wrapper is DataTableWrapper dtw)
@@ -190,13 +185,13 @@ namespace CsvTools
       {
         
         if (maxDuration < TimeSpan.MaxValue)
-          Logger.Debug("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
+          progress.Report($"Reading batch (Limit {maxDuration.TotalSeconds:F1}s)");
         else
-          Logger.Debug("Reading all data");
+          progress.Report($"Reading all data");
         
         var watch = Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
-                                                          && await wrapper.ReadAsync(cancellationToken)
+        while (!progress.CancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
+                                                          && await wrapper.ReadAsync(progress.CancellationToken)
                                                             .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
@@ -211,17 +206,17 @@ namespace CsvTools
               dataRow.SetColumnError(i, ex.Message);
             }
 
-          intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
+          intervalAction?.Invoke(progress, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
           dataRow.SetErrorInformation(wrapper.RowErrorInformation);
         }
       }
       catch (Exception e)
       {
-        Logger.Warning(e, "GetDataTableAsync error");
+        progress.Report($"GetDataTableAsync error {e.Message}");
       }
       finally
       {
-        progress?.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
+        progress.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
       }
 
       return dataTable;

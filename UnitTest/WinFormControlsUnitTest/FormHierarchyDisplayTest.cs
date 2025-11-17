@@ -139,14 +139,11 @@ namespace CsvTools.Tests
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
       // load the csvFile FileWithHierarchy
-      using var formProgress = new FormProgress("FileWithHierarchy");
-      formProgress.Show();
-      
       using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), fieldDelimiterChar:'\t');
-      await csvDataReader.OpenAsync(formProgress.CancellationToken);
+      await csvDataReader.OpenAsync(UnitTestStatic.TesterProgress.CancellationToken);
 
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
-        false, false, false, null, formProgress.CancellationToken);
+        false, false, false, UnitTestStatic.TesterProgress);
 
       UnitTestStaticForms.ShowForm(() => new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default), .1, frm =>
       {

@@ -48,14 +48,15 @@ namespace CsvTools.Tests
 #else
     public static readonly Random Random = new Random(Environment.TickCount);
 #endif
-    
+
 #pragma warning restore IDE0090
 #pragma warning disable CS8618
     private static UnitTestLogger m_TestLogger;
 #pragma warning restore CS8618
     public static string LastLogMessage => m_TestLogger.LastMessage;
 
-    public static CancellationToken Token { get; set; } = CancellationToken.None;
+    public static ProgressCancellation TesterProgress { get; private set; } = new ProgressCancellation(CancellationToken.None);
+    public static CancellationToken Token { get; private set; } = CancellationToken.None;
 
     public static ILogger SetupTestContextLogger(TestContext context)
     {
@@ -63,12 +64,7 @@ namespace CsvTools.Tests
 #pragma warning disable CS0618
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 #pragma warning restore CS0618
-      //AppDomain.CurrentDomain.UnhandledException += delegate (object _, UnhandledExceptionEventArgs args)
-      //{
-      //  if (!Token.IsCancellationRequested)
-      //    WriteToContext(args.ExceptionObject.ToString()!);
-      //  Assert.Fail(args.ExceptionObject.ToString());
-      //};
+      TesterProgress = new ProgressCancellation(Token);
       m_TestLogger = new UnitTestLogger(context);
       return m_TestLogger;
     }

@@ -44,14 +44,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void XmlFileSync()
+    public async Task XmlFileSyncAsync()
     {
       var setting = new CsvFileDummy();
         
       using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
         setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
-      // xml.Open();
+      await xml.OpenAsync(UnitTestStatic.Token);
+
       Assert.AreEqual("COMMON", xml.GetName(0));
       Assert.AreEqual("BOTANICAL", xml.GetName(1));
 

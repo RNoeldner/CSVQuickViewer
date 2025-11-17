@@ -137,7 +137,7 @@ namespace CsvTools
         res = RecordDelimiterTypeEnum.Crlf;
       else if (count[lfCr] == maxCount)
         res = RecordDelimiterTypeEnum.Lfcr;
-      Logger.Information($"Record Delimiter: {res.Description()}");
+      
       return res;
     }
   }

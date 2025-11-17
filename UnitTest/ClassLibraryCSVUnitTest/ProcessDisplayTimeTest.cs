@@ -24,7 +24,7 @@ namespace CsvTools.Tests
 		[Timeout(3000)]
 		public void MeasureTimeToCompletion()
 		{
-			var test = new ProgressTime { Maximum = 100 };
+			var test = new ProgressTime() { Maximum = 100 };
 
 			for (long counter = 1; counter <= 20; counter++)
 			{
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void Properties()
 		{
-			var test = new ProgressTime { Maximum = 5 };
+			var test = new ProgressTime() { Maximum = 5 };
 			Assert.AreEqual(5, test.Maximum);
 			test.Maximum = 100;
 			Assert.AreEqual(100, test.Maximum);

@@ -57,8 +57,7 @@ namespace CsvTools
     /// <param name="inspectionResult">Default in case inspection is wanted</param>
     /// <param name="fillGuessSettings"></param>
     /// <param name="pgpKey">Private PGP key in case reading an encrypted file</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
     public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
       string identifierInContainer,
@@ -66,7 +65,7 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
       bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
-      FillGuessSettings fillGuessSettings, string pgpKey, CancellationToken cancellationToken)
+      FillGuessSettings fillGuessSettings, string pgpKey, IProgressWithCancellation progress)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File name can not be empty", nameof(fileName));
@@ -78,7 +77,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, cancellationToken).ConfigureAwait(false);
+      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
       var disallowedDelimiter = new List<char>();
 
       var delimiterByExtension = DetectionDelimiter.GetDelimiterByExtension(!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName);
@@ -92,25 +91,24 @@ namespace CsvTools
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
           guessStartRow, guessHasHeader, guessNewLine, guessCommentLine, delimiterByExtension,
-          disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+          disallowedDelimiter, progress).ConfigureAwait(false);
 
         // if it's a delimited file, but we do not have fields,
         // the delimiter must have been wrong, pick another one, after 3 though give up
 
         if (!inspectionResult.IsJson && !inspectionResult.IsXml)
         {
-          try { Logger.Information("Checking field delimiter"); } catch { }
+          progress.Report("Checking field delimiter");
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
           using var reader = GetFileReader(inspectionResult, usedStream);
-          await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+          await reader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
           if (reader.FieldCount <= 1)
           {
             try
             {
-              Logger.Information(
-              $"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
+              progress.Report($"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
             }
             catch { }
             disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
@@ -136,21 +134,21 @@ namespace CsvTools
         await usedStream.UpdateInspectionResultAsync(inspectionResult, guessJson,
           guessCodePage, guessEscapePrefix, guessDelimiter, guessQualifier,
           guessStartRow, guessHasHeader, guessNewLine, guessCommentLine, delimiterByExtension,
-          Array.Empty<char>(), cancellationToken).ConfigureAwait(false);
+          Array.Empty<char>(), progress).ConfigureAwait(false);
       }
 
       if (fillGuessSettings.Enabled)
       {
-        try { Logger.Information("Determining column format by reading samples"); } catch { }
+        progress.Report("Determining column format by reading samples");
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
         using var reader2 = GetFileReader(inspectionResult, usedStream);
-        await reader2.OpenAsync(cancellationToken).ConfigureAwait(false);
-        var (_, b) = await reader2.FillGuessColumnFormatReaderAsyncReader(
+        await reader2.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
+        var b = await reader2.FillGuessColumnFormatReaderAsyncReader(
           fillGuessSettings, columnCollectionInput: null,
           addTextColumns: false, checkDoubleToBeInteger: true, treatTextAsNull: string.Empty,
-          cancellationToken).ConfigureAwait(false);
+          progress).ConfigureAwait(false);
         inspectionResult.Columns.AddRangeNoClone(b);
       }
 
@@ -197,7 +195,7 @@ namespace CsvTools
     /// <param name="stream">The open read stream</param>
     /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
     /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="cancellationToken">Progress reporting and cancellation to stop a possibly long running process</param>
     /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
     public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows,
         CancellationToken cancellationToken)
@@ -211,14 +209,12 @@ namespace CsvTools
     /// The input <see cref="Stream"/> from which to read the initial bytes for encoding detection.
     /// The stream must support reading.
     /// </param>
-    /// <param name="token">
-    /// A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.
-    /// </param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.</param>
     /// <returns>
     /// A tuple containing:
     /// <list type="bullet">
-    ///   <item><description><c>codePage</c> – the detected encoding’s code page number.</description></item>
-    ///   <item><description><c>bom</c> – <c>true</c> if a byte-order mark (BOM) was detected; otherwise <c>false</c>.</description></item>
+    ///   <item><description><c>codePage</c> – the encodingDetected encoding’s code page number.</description></item>
+    ///   <item><description><c>bom</c> – <c>true</c> if a byte-order mark (BOM) was encodingDetected; otherwise <c>false</c>.</description></item>
     /// </list>
     /// </returns>
     /// <remarks>
@@ -235,7 +231,7 @@ namespace CsvTools
     /// The stream’s position is reset to the beginning if it supports seeking.
     /// </para>
     /// </remarks>
-    public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken token)
+    public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken cancellationToken)
     {
       if (stream == null)
         throw new ArgumentNullException(nameof(stream));
@@ -251,54 +247,42 @@ namespace CsvTools
 
       // Read initial bytes (up to buffer size)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), token).ConfigureAwait(false);
+      int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), cancellationToken).ConfigureAwait(false);
 #else
-      int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), token).ConfigureAwait(false);
+      int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), cancellationToken).ConfigureAwait(false);
 #endif
 
       // Check for BOM-based encoding
       if (bytesRead >= 2)
       {
-        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buffer, Math.Min(4, bytesRead));
-        if (byBom != null)
+        var encodingBom = EncodingHelper.GetEncodingByByteOrderMark(buffer, Math.Min(4, bytesRead));
+        if (encodingBom != null)
         {
-          try
-          {
-            Logger.Information($"Detected encoding by BOM: {EncodingHelper.GetEncodingName(byBom, true)}");
-          }
-          catch { /* ignore logging errors */ }
-
           if (stream.CanSeek)
             stream.Seek(0, SeekOrigin.Begin);
 
-          return (byBom.CodePage, true);
+          return (encodingBom.CodePage, true);
         }
       }
 
       // Read more for non-BOM detection if needed
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), token).ConfigureAwait(false);
+      int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), cancellationToken).ConfigureAwait(false);
 #else
-      int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, token).ConfigureAwait(false);
+      int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, cancellationToken).ConfigureAwait(false);
 #endif
 
       int totalRead = bytesRead + additionalBytes;
 
       // Detect encoding heuristically
-      var detected = EncodingHelper.DetectEncodingNoBom(buffer.AsSpan(0, totalRead).ToArray());
-      if (detected.Equals(Encoding.ASCII))
-        detected = Encoding.UTF8;
-
-      try
-      {
-        Logger.Information($"Detected encoding (no BOM): {EncodingHelper.GetEncodingName(detected, false)}");
-      }
-      catch { /* ignore logging errors */ }
+      var encodingDetected = EncodingHelper.DetectEncodingNoBom(buffer.AsSpan(0, totalRead).ToArray());
+      if (encodingDetected.Equals(Encoding.ASCII))
+        encodingDetected = Encoding.UTF8;
 
       if (stream.CanSeek)
         stream.Seek(0, SeekOrigin.Begin);
 
-      return (detected.CodePage, false);
+      return (encodingDetected.CodePage, false);
     }
 
 
@@ -317,7 +301,7 @@ namespace CsvTools
     /// <param name="selectFile">Function to be called if a file needs to be picked</param>
     /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
     /// <param name="privateKey"></param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
     /// </returns>
@@ -327,7 +311,7 @@ namespace CsvTools
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
       FillGuessSettings fillGuessSettings, Func<IReadOnlyCollection<string>, string>? selectFile,
-      InspectionResult defaultInspectionResult, string privateKey, CancellationToken cancellationToken)
+      InspectionResult defaultInspectionResult, string privateKey, IProgressWithCancellation progress)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Argument can not be empty", nameof(fileName));
@@ -341,8 +325,8 @@ namespace CsvTools
 
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
 
-      try { Logger.Information("Examining file {filename}", fileName2.GetShortDisplayFileName(40)); } catch { }
-      try { Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}"); } catch { }
+      progress.Report($"Examining file {fileName2.GetShortDisplayFileName(40)}");
+      progress.Report($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
       var selectedFile = string.Empty;
 
       // load from Setting file
@@ -357,12 +341,12 @@ namespace CsvTools
         {
           // we defiantly have an extension with the name
           var inspectionResult = await fileNameSetting.DeserializeFileAsync<InspectionResult>().ConfigureAwait(false);
-          try { Logger.Information("Configuration read from setting file {filename}", fileNameSetting.GetShortDisplayFileName(40)); } catch { }
+          progress.Report($"Configuration read from setting file {fileNameSetting.GetShortDisplayFileName(40)}");
           return inspectionResult;
         }
         catch (Exception e)
         {
-          try { Logger.Warning(e, "Could not parse setting file {filename}", fileNameSetting.GetShortDisplayFileName(40)); } catch { }
+          progress.Report($"Could not parse setting file {fileNameSetting.GetShortDisplayFileName(40)}");
         }
       }
 
@@ -371,7 +355,7 @@ namespace CsvTools
         var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
         if (!(setting is null))
         {
-          try { Logger.Information("Data in zip {filename}", setting.IdentifierInContainer); } catch { }
+          progress.Report($"Data in zip {setting.IdentifierInContainer}");
           return setting;
         }
 
@@ -386,19 +370,21 @@ namespace CsvTools
         try
         {
           var settingFs = await ManifestData.ReadManifestFileSystem(fileName2).ConfigureAwait(false);
-          try { Logger.Information("Data in {filename}", settingFs.FileName); } catch { }
+          progress.Report($"Data in {settingFs.FileName}");
           return settingFs;
         }
         catch (FileNotFoundException e2)
         {
-          try { Logger.Information(e2, "Trying to read manifest"); } catch { }
+          progress.Report($"Trying to read manifest: {e2.Message}");
         }
+        catch { }
+
 
       // Determine from file
       return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage,
         guessEscapePrefix, guessDelimiter,
         guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-        defaultInspectionResult, fillGuessSettings, privateKey, cancellationToken).ConfigureAwait(false);
+        defaultInspectionResult, fillGuessSettings, privateKey, progress).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -431,12 +417,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
     /// <param name="encoding">The encoding.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
     public static async Task<bool> InspectIsJsonReadableAsync(
       this Stream stream,
       Encoding encoding,
-      CancellationToken cancellationToken)
+       IProgressWithCancellation progress)
     {
       stream.Seek(0, SeekOrigin.Begin);
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
@@ -447,16 +433,16 @@ namespace CsvTools
       jsonTextReader.CloseInput = false;
       try
       {
-        if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        if (await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
         {
           // ReSharper disable once MergeIntoLogicalPattern
           if (jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
                                                                 || jsonTextReader.TokenType
                                                                 == JsonToken.StartConstructor)
           {
-            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            try { Logger.Information("Detected Json file"); } catch { }
+            await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+            await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+            progress.Report("Detected Json file");
             return true;
           }
         }
@@ -487,7 +473,7 @@ namespace CsvTools
     /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
     /// <param name="probableDelimiter">Give this delimiter a higher score, commonly derived from file extension</param>
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     public static async Task UpdateInspectionResultAsync(this Stream stream,
       InspectionResult inspectionResult,
       bool guessJson,
@@ -501,7 +487,7 @@ namespace CsvTools
       bool guessCommentLine,
       char probableDelimiter,
       IReadOnlyCollection<char> disallowedDelimiter,
-      CancellationToken cancellationToken)
+      IProgressWithCancellation progress)
     {
       if (stream is null)
         throw new ArgumentNullException(nameof(stream));
@@ -532,38 +518,38 @@ CommentLine
        */
       if (guessCodePage)
       {
-        cancellationToken.ThrowIfCancellationRequested();
+        progress.CancellationToken.ThrowIfCancellationRequested();
 
         stream.Seek(0, SeekOrigin.Begin);
-        try { Logger.Information("Checking Code Page"); } catch { }
-        var (codePage, bom) = await stream.InspectCodePageAsync(cancellationToken).ConfigureAwait(false);
+        progress.Report("Checking Code Page");
+        var (codePage, bom) = await stream.InspectCodePageAsync(progress.CancellationToken).ConfigureAwait(false);
+        progress.Report($"Detected encoding by BOM: {EncodingHelper.GetEncodingName(codePage, bom)}");
         inspectionResult.CodePageId = codePage;
         inspectionResult.ByteOrderMark = bom;
       }
 
       if (guessJson)
       {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Checking XML format"); } catch { }
+        progress.CancellationToken.ThrowIfCancellationRequested();
+        progress.Report("Checking XML format");
         inspectionResult.IsXml = await stream
           .InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
 
-
         if (inspectionResult.IsXml)
         {
-          try { Logger.Information("Detected XML file, no further checks done"); } catch { }
+          progress.Report("Detected XML file, no further checks done");
           return;
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-        try { Logger.Information("Checking Json format"); } catch { }
+        progress.CancellationToken.ThrowIfCancellationRequested();
+        progress.Report("Checking Json format");
         inspectionResult.IsJson = await stream
-          .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), cancellationToken)
+          .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), progress)
           .ConfigureAwait(false);
 
         if (inspectionResult.IsJson)
         {
-          try { Logger.Information("Detected Json file, no further checks done"); } catch { }
+          progress.Report("Detected Json file, no further checks done");
           return;
         }
       }
@@ -583,26 +569,35 @@ CommentLine
         // --- Comment Line ---
         if (guessCommentLine)
         {
-          cancellationToken.ThrowIfCancellationRequested();
-          try { Logger.Information("Checking comment line"); } catch { }
+          progress.CancellationToken.ThrowIfCancellationRequested();
+          progress.Report("Checking comment line");
           using var textReader = await stream
-              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
               .ConfigureAwait(false);
-          inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(cancellationToken)
+          inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(progress.CancellationToken)
               .ConfigureAwait(false);
+          if (!string.IsNullOrEmpty(inspectionResult.CommentLine))
+            progress.Report($"Comment Line: {inspectionResult.CommentLine}");
+          else
+            progress.Report("No Comment Line");
         }
 
         // --- Escape Prefix ---
         var newPrefix = inspectionResult.EscapePrefix;
         if (guessEscapePrefix)
         {
-          try { Logger.Information("Checking Escape Prefix"); } catch { }
+          progress.Report("Checking Escape Prefix");
           using var textReader = await stream
-              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
               .ConfigureAwait(false);
           newPrefix = await textReader.InspectEscapePrefixAsync(
-              inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken)
+              inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, progress.CancellationToken)
               .ConfigureAwait(false);
+
+          if (newPrefix != char.MinValue)
+            progress.Report($"Escape : {newPrefix}");
+          else
+            progress.Report("No Escape found");
         }
 
         // --- Delimiter / Qualifier / NewLine ---
@@ -613,17 +608,23 @@ CommentLine
         if (guessQualifier || guessDelimiter || guessNewLine)
         {
           using var textReader = await stream
-              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken)
+              .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
               .ConfigureAwait(false);
 
           // Qualifier
           if (guessQualifier)
           {
-            cancellationToken.ThrowIfCancellationRequested();
-            try { Logger.Information("Checking Qualifier"); } catch { }
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Qualifier");
             var qualifierResult = textReader.InspectQualifier(
                 inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
-                m_QualifiersToTest, cancellationToken);
+                m_QualifiersToTest, progress.CancellationToken);
+
+            if (qualifierResult.QuoteChar != char.MinValue)
+              progress.Report($"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}");
+            else
+              progress.Report("No Qualifier found");
+
             changedFieldQualifier = inspectionResult.FieldQualifier != qualifierResult.QuoteChar;
             inspectionResult.FieldQualifier = qualifierResult.QuoteChar;
             inspectionResult.ContextSensitiveQualifier =
@@ -632,18 +633,30 @@ CommentLine
 
             if (inspectionResult.DuplicateQualifierToEscape)
               newPrefix = char.MinValue;
+
+
           }
 
           // Delimiter
           if (guessDelimiter)
           {
-            cancellationToken.ThrowIfCancellationRequested();
-            try { Logger.Information("Checking Column Delimiter"); } catch { }
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Column Delimiter");
             var delimiterResult = await textReader.InspectDelimiterAsync(
                 inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter,
-                cancellationToken).ConfigureAwait(false);
+                progress.CancellationToken).ConfigureAwait(false);
+
             if (delimiterResult.MagicKeyword)
+            {
+              progress.Report($"Delimiter from 'sep=' in first line: {delimiterResult.Delimiter}");
               inspectionResult.SkipRows++;
+              progress.Report("Skipping line");
+            }
+
+            else if (!delimiterResult.IsDetected)
+              progress.Report($"Not a delimited file, assuming {delimiterResult.Delimiter.Text()}");
+            else
+              progress.Report($"Column Delimiter:  {delimiterResult.Delimiter.Text()}");
 
             changedDelimiter = inspectionResult.FieldDelimiter != delimiterResult.Delimiter;
             inspectionResult.FieldDelimiter = delimiterResult.Delimiter;
@@ -653,12 +666,14 @@ CommentLine
           // NewLine
           if (guessNewLine)
           {
-            cancellationToken.ThrowIfCancellationRequested();
-            try { Logger.Information("Checking Record Delimiter"); } catch { }
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Record Delimiter");
 
             stream.Seek(0, SeekOrigin.Begin);
             inspectionResult.NewLine = textReader.InspectRecordDelimiter(
-                inspectionResult.FieldQualifier, cancellationToken);
+                inspectionResult.FieldQualifier, progress.CancellationToken);
+
+            progress.Report($"Record Delimiter: {inspectionResult.NewLine.Description()}");
           }
         }
 
@@ -671,14 +686,15 @@ CommentLine
         // --- StartRow Recheck ---
         if (guessStartRow)
         {
-          cancellationToken.ThrowIfCancellationRequested();
-          try { Logger.Information("Checking Start line"); } catch { }
+          progress.CancellationToken.ThrowIfCancellationRequested();
+          progress.Report("Checking Start line");
 
-          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, cancellationToken)
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
               .ConfigureAwait(false);
           var newSkipRows = textReader.InspectStartRow(
               inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
-              inspectionResult.CommentLine, cancellationToken);
+              inspectionResult.CommentLine, progress.CancellationToken);
+          progress.Report($"Start Row: {newSkipRows}");
           changedSkipRows = inspectionResult.SkipRows != newSkipRows;
           inspectionResult.SkipRows = newSkipRows;
         }
@@ -697,9 +713,9 @@ CommentLine
     /// Read a CsfFile to check wither the settings are fine
     /// </summary>
     /// <param name="csvFile"></param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
     /// <returns></returns>
-    public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
+    public static async Task InspectReadCsvAsync(this ICsvFile csvFile, IProgressWithCancellation progress)
     {
       var det = await csvFile.FileName.GetInspectionResultFromFileAsync(
         identifierInContainer: csvFile.IdentifierInContainer,
@@ -723,7 +739,8 @@ CommentLine
           CommentLine = csvFile.CommentLine
         },
         fillGuessSettings: new FillGuessSettings(false),
-        pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key, cancellationToken: cancellationToken).ConfigureAwait(false);
+        pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key,
+        progress: progress).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
       csvFile.EscapePrefixChar = det.EscapePrefix;

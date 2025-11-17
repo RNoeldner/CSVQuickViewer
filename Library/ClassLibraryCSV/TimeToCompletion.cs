@@ -1,183 +1,226 @@
-﻿/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
-using System;
-using System.Collections.Generic;
-
+﻿using System;
+using System.Diagnostics;
 
 namespace CsvTools
 {
   /// <summary>
-  ///   Calculates the "Estimated Time of Completion" based on a rolling average of progress over time.
-  ///   This is not thread safe, each thread should have its own TimeToCompletion.
-  ///   Based on velocity of last 5 seconds the remaining time is calculated, the Percentage is based on real values though
+  ///   Extremely lightweight time-to-completion estimator using a fixed-size
+  ///   circular buffer and high-resolution monotonic timestamps (<see cref="Stopwatch"/>).
+  ///
+  ///   This implementation:
+  ///   <list type="bullet">
+  ///     <item><description>avoids all allocations during runtime (zero-alloc)</description></item>
+  ///     <item><description>runs in O(1) time for each update</description></item>
+  ///     <item><description>uses a fixed memory footprint</description></item>
+  ///     <item><description>produces smooth, stable estimates based on recent velocity</description></item>
+  ///     <item><description>is not thread-safe; callers must synchronize externally</description></item>
+  ///   </list>
   /// </summary>
   public sealed class TimeToCompletion
   {
     /// <summary>
-    /// Maximum TimeSpan
+    ///   Maximum displayed timespan or fallback when no estimate is possible.
     /// </summary>
     public static readonly TimeSpan Max = TimeSpan.FromDays(2);
-    private readonly TimeSpan m_MaximumAge;
-    private readonly byte m_MinimumData;
-    private readonly Queue<ValueOverTime> m_Queue;
-    private ValueOverTime m_LastItem;
+
+    // Fixed circular buffer configuration
+    private readonly int m_BufferSize;
+    private readonly TimeSpan m_MaxAge;
+
+    // Circular buffer storage for values and timestamps (Stopwatch ticks)
+    private readonly long[] m_Values;
+    private readonly long[] m_Timestamps;
+
+    // Next index to write / current length
+    private int m_Index;
+    private int m_Count;
+
+    // Target and last value
     private long m_TargetValue;
+    private long m_LastValue;
+
+    // Stopwatch frequency → ticks per second
+    private readonly long m_TicksPerSecond = Stopwatch.Frequency;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="TimeToCompletion" /> class.
+    ///   Creates a high-performance progress estimator.
     /// </summary>
-    /// <param name="targetValue">The target value / maximum that would match 100%</param>
-    /// <param name="minimumData">The number of entries to keep no matter how old the entry is.</param>
-    /// <param name="storedSeconds">The number of seconds to remember for estimation purpose.</param>
-    public TimeToCompletion(long targetValue = -1, byte minimumData = 10, double storedSeconds = 15.0)
+    /// <param name="targetValue">
+    ///   The final value representing 100%. Must be ≥ 1.
+    /// </param>
+    /// <param name="bufferSize">
+    ///   Maximum number of samples stored in the rolling history.
+    ///   (32 is recommended for low jitter and minimal memory usage.)
+    /// </param>
+    /// <param name="historySeconds">
+    ///   Maximum age (in seconds) of samples used for velocity estimation.
+    /// </param>
+    public TimeToCompletion(long targetValue = 1, int bufferSize = 32, double historySeconds = 15.0)
     {
-      m_MinimumData = minimumData;
-      m_MaximumAge = TimeSpan.FromSeconds(storedSeconds);
-      m_Queue = new Queue<ValueOverTime>();
-      TargetValue = targetValue;
+      m_TargetValue = Math.Max(1, targetValue);
+      m_BufferSize = bufferSize;
+      m_MaxAge = TimeSpan.FromSeconds(historySeconds);
+
+      // Allocate fixed-size circular buffers
+      m_Values = new long[bufferSize];
+      m_Timestamps = new long[bufferSize];
     }
 
     /// <summary>
-    ///   Gets the estimated time remaining to complete
+    ///   Gets the computed remaining time. Defaults to <see cref="Max"/> if no
+    ///   meaningful estimate can be made.
     /// </summary>
-    /// <value>The estimated time remaining.</value>
     public TimeSpan EstimatedTimeRemaining { get; private set; } = Max;
 
-    
     /// <summary>
-    ///   Displays the remaining timespan in a human-readable format
+    ///   Human-readable string of remaining time (or empty if not applicable).
     /// </summary>
-    public string EstimatedTimeRemainingDisplay => DisplayTimespan(EstimatedTimeRemaining);
+    public string EstimatedTimeRemainingDisplay =>
+      DisplayTimespan(EstimatedTimeRemaining);
 
     /// <summary>
-    ///   Gets the estimated time remaining display with a leading separator (if needed).
+    ///   Returns the estimated remaining time prefixed with " - ", or empty when
+    ///   no estimate is available (for UI display convenience).
     /// </summary>
-    /// <value>The estimated time remaining display separator.</value>
-    public string EstimatedTimeRemainingDisplaySeparator
-    {
-      get
-      {
-        if (EstimatedTimeRemaining >= Max)
-          return string.Empty;
-        return " - " + EstimatedTimeRemainingDisplay;
-      }
-    }
+    public string EstimatedTimeRemainingDisplaySeparator =>
+      EstimatedTimeRemaining >= Max ? string.Empty : " - " + EstimatedTimeRemainingDisplay;
 
     /// <summary>
-    ///   Gets the current percentage based on the really reported values
+    ///   Current percentage (0–100) based purely on the last reported value,
+    ///   not the velocity estimate.
     /// </summary>
-    /// <value>Percent (usually between 0 and 1)</value>
     public double Percent { get; private set; }
 
     /// <summary>
-    ///   Gets the estimated percentage assuming a steady progress
-    /// </summary>
-    /// <value>Percent (usually between 0 and 1)</value>
-    private double EstimatedPercent { get; set; }
-
-    /// <summary>
-    ///   Gets the estimated percentage as Text 
+    ///   Formatted percentage suitable for UI display.
     /// </summary>
     public string PercentDisplay => Percent < 10 ? $"{Percent:F1}%" : $"{Percent:F0}%";
 
     /// <summary>
-    ///   Gets the estimated percentage as Text 
+    ///   Gets or sets the target (100% completion) value.
+    ///   Values less than 1 are normalized to 1.
     /// </summary>
-    //public string EstimatedPercentDisplay => EstimatedPercent < 10 ? $"{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
-
-    /// <summary>
-    ///   Gets or sets the target value / maximum that would match 100%.
-    /// </summary>
-    /// <value>The target value.</value>
     public long TargetValue
     {
       get => m_TargetValue;
       set
       {
-        m_TargetValue = value > 1 ? value : 1;
-        UpdateEstimates();
-      }
-    }
-
-    private void UpdateEstimates()
-    {
-      // Make sure we have at least to entries to estimate
-      if (m_Queue.Count < 2)
-      {
-        EstimatedTimeRemaining = Max;
-      }
-      else
-      {
-        // remove items from queue if not needed
-        var expireBefore = DateTime.UtcNow - m_MaximumAge;
-        var firstItem = m_Queue.Peek();
-        while (m_Queue.Count > m_MinimumData && firstItem.DateTime < expireBefore)
-          firstItem = m_Queue.Dequeue();
-
-        // Percentage based on reported value
-        Percent = Math.Round((double) m_LastItem.Value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
-
-        // calculate the velocity based on first and last value
-        var velocityBySecond = (m_LastItem.Value - firstItem.Value) / (m_LastItem.DateTime - firstItem.DateTime).TotalSeconds;
-        // estimate current value based on last value and velocity
-        var estimatedCurrentValue = m_LastItem.Value + (velocityBySecond * (DateTime.UtcNow - m_LastItem.DateTime).TotalSeconds);
-        // assume estimate remaining time on assumed remaining values and velocity
-        var finishedInSec = (m_TargetValue - estimatedCurrentValue) / velocityBySecond;
-
-        // Percentage based on estimated value
-        EstimatedPercent = Math.Round(estimatedCurrentValue / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
-
-        // Calculate the estimated finished time
-        EstimatedTimeRemaining = ((finishedInSec > .9) && (finishedInSec < Max.TotalSeconds)) ? TimeSpan.FromSeconds(finishedInSec) : Max;
+        m_TargetValue = Math.Max(1, value);
+        Recalculate();
       }
     }
 
     /// <summary>
-    ///   Gets or sets the current value in the process
+    ///   Gets or updates the current progress value.
+    ///   Each update records a new sample and triggers recalculation.
     /// </summary>
-    /// <value>The value.</value>
     public long Value
     {
+      get => m_LastValue;
       set
       {
-        if (value < 0 || m_LastItem.Value == value || value > m_TargetValue)
+        // Reject regressions, duplicates, or invalid values
+        if (value <= m_LastValue || value > m_TargetValue)
           return;
 
-        // Something strange happening we are going backwards, assume we are counting from the
-        // beginning again (possibly reuse of the object)
-        if (value < m_LastItem.Value)
-          m_Queue.Clear();
-
-        var timeSineLastLog = (DateTime.UtcNow  - m_LastItem.DateTime);
-        m_LastItem.DateTime = DateTime.UtcNow;
-        m_LastItem.Value = value;
-
-        // Do not queue very rapidly changing values so queue does not get too large
-        // we want to sick with roughly 1/2 second
-        if (m_Queue.Count < 2 ||  timeSineLastLog.TotalSeconds >= .5)
-          m_Queue.Enqueue(m_LastItem);
-        UpdateEstimates();
+        m_LastValue = value;
+        AddSample(value);
+        Recalculate();
       }
-      get => m_LastItem.Value;
+    }
+
+    // ——————————————————————————————————————————————
+    //         Internal mechanics: circular buffer
+    // ——————————————————————————————————————————————
+
+    /// <summary>
+    ///   Inserts a new value/timestamp sample into the circular history buffer.
+    /// </summary>
+    private void AddSample(long value)
+    {
+      long now = Stopwatch.GetTimestamp();
+
+      m_Values[m_Index] = value;
+      m_Timestamps[m_Index] = now;
+
+      // Advance cursor
+      m_Index = (m_Index + 1) % m_BufferSize;
+
+      // Increase count until the buffer is full
+      if (m_Count < m_BufferSize)
+        m_Count++;
     }
 
     /// <summary>
-    ///   Displays the timespan in a human-readable format
+    ///   Recalculates velocity, percentage, and estimated remaining time using
+    ///   only the newest and oldest valid samples inside <see cref="m_MaxAge"/>.
     /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="cut2Sec">If true any value shorter than 2 seconds will be empty</param>
-    /// <returns></returns>
+    private void Recalculate()
+    {
+      if (m_Count < 2)
+      {
+        EstimatedTimeRemaining = Max;
+        Percent = (double) m_LastValue / m_TargetValue * 100.0;
+        return;
+      }
+
+      var now = Stopwatch.GetTimestamp();
+      var maxAgeTicks = (long) (m_MaxAge.TotalSeconds * m_TicksPerSecond);
+
+      // Latest sample index (just behind the write position)
+      var newest = (m_Index - 1 + m_BufferSize) % m_BufferSize;
+      var newestValue = m_Values[newest];
+      var newestTime = m_Timestamps[newest];
+
+      // Walk backward to find the oldest sample within the allowed age
+      var oldest = newest;
+      for (var i = 1; i < m_Count; i++)
+      {
+        var idx = (newest - i + m_BufferSize) % m_BufferSize;
+        var age = newestTime - m_Timestamps[idx];
+
+        // Stop once we exceed the max age threshold
+        if (age > maxAgeTicks)
+          break;
+
+        oldest = idx;
+      }
+
+      var firstValue = m_Values[oldest];
+      var firstTime = m_Timestamps[oldest];
+
+      var deltaValue = newestValue - firstValue;
+      var deltaTicks = newestTime - firstTime;
+
+      // Not enough movement → no meaningful velocity
+      if (deltaValue <= 0 || deltaTicks <= 0)
+      {
+        EstimatedTimeRemaining = Max;
+        Percent = (double) m_LastValue / m_TargetValue * 100.0;
+        return;
+      }
+
+      // High-precision velocity (units per second)
+      double velocity =
+        deltaValue / (deltaTicks / (double) m_TicksPerSecond);
+
+      // Estimate time left
+      double remainingSeconds =
+        (m_TargetValue - newestValue) / velocity;
+
+      Percent = (double) newestValue / m_TargetValue * 100.0;
+
+      // Valid result?
+      EstimatedTimeRemaining =
+        (remainingSeconds > 0 && remainingSeconds < Max.TotalSeconds)
+          ? TimeSpan.FromSeconds(remainingSeconds)
+          : Max;
+    }
+
+    /// <summary>
+    ///   Converts a <see cref="TimeSpan"/> into a readable UI-friendly string.
+    ///   Short times (&lt; 2 sec) are suppressed unless explicitly requested.
+    /// </summary>
     public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
     {
       if (value == Max || (cut2Sec && value.TotalSeconds < 2) || value.TotalDays > 2)
@@ -189,12 +232,6 @@ namespace CsvTools
       if (value.TotalHours < 1)
         return $"{value:m\\:ss} min";
       return value.TotalHours < 24 ? $"{value:h\\:mm} hrs" : $"{value.TotalDays:F1} days";
-    }
-
-    private struct ValueOverTime
-    {
-      public DateTime DateTime;
-      public long Value;
     }
   }
 }

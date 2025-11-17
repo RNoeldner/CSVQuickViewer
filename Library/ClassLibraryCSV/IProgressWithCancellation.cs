@@ -23,7 +23,7 @@ namespace CsvTools
   /// <list type="bullet">
   ///   <item><description>Progress reporting via <see cref="IProgress{T}"/> using <see cref="ProgressInfo"/>.</description></item>
   ///   <item><description>Cancellation support through an associated <see cref="CancellationToken"/>.</description></item>
-  ///   <item><description>Optional resource management when combined with <see cref="IDisposable"/> implementations.</description></item>
+  ///   <item><description>Passing on report information to Logger</description></item>
   /// </list>
   ///
   /// Typical use cases include UI-bound progress displays and long-running operations

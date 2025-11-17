@@ -226,8 +226,6 @@ namespace CsvTools
               }
         }
       }
-
-      Logger.Information($"Start Row: {retValue}");
       return retValue;
     }
   }

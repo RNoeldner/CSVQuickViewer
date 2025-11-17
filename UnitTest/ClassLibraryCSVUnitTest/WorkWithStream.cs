@@ -35,7 +35,7 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(new SourceAccess(stream, FileTypeEnum.Stream));
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false, true,
-       '\0', Array.Empty<char>(), UnitTestStatic.Token);
+       '\0', Array.Empty<char>(), UnitTestStatic.TesterProgress);
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
@@ -45,11 +45,10 @@ namespace CsvTools.Tests
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
-        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
-          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
+        var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
+          new ColumnCollection(), false, true, "null", UnitTestStatic.TesterProgress);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
-        Assert.AreEqual(6, info.Count, "Information Lines");
       }
 
       impStream.Seek(0, SeekOrigin.Begin);
@@ -68,12 +67,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     { 
-      // Can not use Stream but must use Imporooved stream for gzip, otherwise Seek(0, SeekOrigin.Begin); will fail
+      // Can not use Stream but must use Improved stream for gzip, otherwise Seek(0, SeekOrigin.Begin); will fail
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")));
       
       var result = new InspectionResult();
       await impStream.UpdateInspectionResultAsync(result, false, true, true, true, true, true, true, false,
-       false, '\0', Array.Empty<char>(), UnitTestStatic.Token);
+       false, '\0', Array.Empty<char>(), UnitTestStatic.TesterProgress);
 
       impStream.Seek(0, SeekOrigin.Begin);
       ICollection<Column> determinedColumns;
@@ -84,11 +83,9 @@ namespace CsvTools.Tests
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
-        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
-          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);        
+        var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
+          new ColumnCollection(), false, true, "null", UnitTestStatic.TesterProgress);        
         Assert.AreEqual(6, columns.Count(), "6 Columns: ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang");
-        Assert.AreEqual(6, info.Count, "6 Information Lines");
-
         determinedColumns = columns.ToList();
       }
 

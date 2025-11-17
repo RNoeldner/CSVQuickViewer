@@ -37,27 +37,27 @@ namespace CsvTools.Tests
       var res1 = new InspectionResult { FileName = "MultipleDelimiter.txt" };
       await stream.UpdateInspectionResultAsync(res1, false, false, false, false, false, false, false,
         false, false, ',',
-        new List<char>(), UnitTestStatic.Token);
+        new List<char>(), UnitTestStatic.TesterProgress);
       stream.Seek(0, SeekOrigin.Begin);
       await stream.UpdateInspectionResultAsync(res1, true, false, false, false, false, false, false,
         false, false, '\t',
-        new List<char>(), UnitTestStatic.Token);
+        new List<char>(), UnitTestStatic.TesterProgress);
       stream.Seek(0, SeekOrigin.Begin);
       await stream.UpdateInspectionResultAsync(res1, false, false, true, false, false, false, false,
         false, false, '|',
-        new List<char>(), UnitTestStatic.Token);
+        new List<char>(), UnitTestStatic.TesterProgress);
       stream.Seek(0, SeekOrigin.Begin);
       await stream.UpdateInspectionResultAsync(res1, false, false, false, false, false, true, true,
         false, false, 'y',
-        new List<char>(), UnitTestStatic.Token);
+        new List<char>(), UnitTestStatic.TesterProgress);
       stream.Seek(0, SeekOrigin.Begin);
       await stream.UpdateInspectionResultAsync(res1, false, false, false, false, false, false, false,
         true, false, '\0',
-        new List<char>(), UnitTestStatic.Token);
+        new List<char>(), UnitTestStatic.TesterProgress);
       stream.Seek(0, SeekOrigin.Begin);
       await stream.UpdateInspectionResultAsync(res1, false, true, true, true, false, true, false,
         false, false, '\0',
-        new List<char>(new[] { ':' }), UnitTestStatic.Token);
+        new List<char>(new[] { ':' }), UnitTestStatic.TesterProgress);
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
       var inspectionResult = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt")
         .InspectFileAsync(false, true, true,
           true, true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(),
-          string.Empty, UnitTestStatic.Token);
+          string.Empty, UnitTestStatic.TesterProgress);
 
       Assert.IsNotNull(inspectionResult);
       Assert.AreEqual('|', inspectionResult.FieldDelimiter);
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
     {
       var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").InspectFileAsync(false, true, true, true,
         true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty,
-        UnitTestStatic.Token);
+        UnitTestStatic.TesterProgress);
 
       Assert.IsNotNull(tuple);
       Assert.AreEqual('|', tuple.FieldDelimiter);
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
         .GetInspectionResultFromFileAsync(string.Empty, true, true,
           true, true, true, true, true,
           true, true, new InspectionResult(), new FillGuessSettings(false),
-          string.Empty, UnitTestStatic.Token);
+          string.Empty, UnitTestStatic.TesterProgress);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
       Assert.AreEqual(RecordDelimiterTypeEnum.Crlf, det.NewLine);
     }
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
     {
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").InspectFileAsync(true, true, true, true,
         true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty,
-        UnitTestStatic.Token);
+        UnitTestStatic.TesterProgress);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
@@ -278,7 +278,7 @@ namespace CsvTools.Tests
     public async Task GuessJsonFileAsync()
     {
       using var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Jason1.json")));
-      Assert.IsTrue(await stream.InspectIsJsonReadableAsync(Encoding.UTF8, UnitTestStatic.Token));
+      Assert.IsTrue(await stream.InspectIsJsonReadableAsync(Encoding.UTF8, UnitTestStatic.TesterProgress));
     }
 
     [TestMethod]
@@ -287,7 +287,7 @@ namespace CsvTools.Tests
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").InspectFileAsync(true, true, true, true, true, true,
         true,
         false, true,
-        FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty, UnitTestStatic.Token);
+        FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty, UnitTestStatic.TesterProgress);
       Assert.IsNotNull(result);
       Assert.IsTrue(result.HasFieldHeader);
       Assert.AreEqual(1200, result.CodePageId);
@@ -504,7 +504,7 @@ namespace CsvTools.Tests
     {
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
         .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-          new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.Token);
+          new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.TesterProgress);
       Assert.AreEqual(0, det.SkipRows);
       Assert.AreEqual(',', det.FieldDelimiter);
       Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
@@ -515,7 +515,7 @@ namespace CsvTools.Tests
     {
       var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt")
         .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-          new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.Token);
+          new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.TesterProgress);
       Assert.AreEqual(0, det.SkipRows);
     }
 
@@ -526,7 +526,7 @@ namespace CsvTools.Tests
 
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
         .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-          new InspectionResult(), fgs, string.Empty, UnitTestStatic.Token);
+          new InspectionResult(), fgs, string.Empty, UnitTestStatic.TesterProgress);
       Assert.AreEqual(1200, det.CodePageId);
       Assert.AreEqual(',', det.FieldDelimiter);
 
@@ -535,7 +535,7 @@ namespace CsvTools.Tests
       {
         await fileName.GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true,
           true, new InspectionResult(), fgs,
-          string.Empty, UnitTestStatic.Token);
+          string.Empty, UnitTestStatic.TesterProgress);
       }
     }
 

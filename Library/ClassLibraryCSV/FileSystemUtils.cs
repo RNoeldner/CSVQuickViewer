@@ -296,7 +296,7 @@ namespace CsvTools
       if (test.Length > 0)
         return test;
 
-      var parts = SplitPath(fileName);      
+      var parts = SplitPath(fileName);
       return GetRelativeFolder(parts.DirectoryName, basePath) + parts.FileName;
     }
 
@@ -755,14 +755,20 @@ namespace CsvTools
       path = path.RemovePrefix();
 
       // Convert relative paths to absolute
-      if (!Path.IsPathRooted(path))
-        path = Path.GetFullPath(path);
+      try
+      {
+        if (path.IndexOf(Path.DirectorySeparatorChar) !=-1 && !Path.IsPathRooted(path))
+          path = Path.GetFullPath(path);
+      }
+      catch
+      {
+        // Ignore GetFullPath might fail due to invalid char
+      }
+      var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
 
-      // Use built-in methods for reliability
-      var directory = Path.GetDirectoryName(path) ?? string.Empty;
-      var fileName = Path.GetFileName(path) ?? string.Empty;
-
-      return new SplitResult(directory, fileName);
+      return lastIndex != -1
+      ? new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1))
+      : new SplitResult(string.Empty, path);
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

@@ -14,13 +14,14 @@
 using System;
 using System.Diagnostics;
 
+
 namespace CsvTools
 {
   /// <inheritdoc cref="IProgressTime" />
   [DebuggerStepThrough]
-  public sealed class ProgressTime : Progress<ProgressInfo>, IProgressTime
+  public class ProgressTime : IProgressTime
   {
-    /// <inheritdoc cref="IProgressTime.Maximum" />
+    /// <inheritdoc />
     public long Maximum
     {
       get => TimeToCompletion.TargetValue;
@@ -29,12 +30,18 @@ namespace CsvTools
 
     /// <inheritdoc />
     public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
-    
+
     /// <inheritdoc />
-    public void Report(ProgressInfo  args)
+    public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
+
+    /// <inheritdoc />
+    public void Report(ProgressInfo args)
     {
-      TimeToCompletion.Value = args.Value;
-      OnReport(args);
+      if (TimeToCompletion.Value != args.Value)
+      {
+        TimeToCompletion.Value = args.Value;
+        ProgressChanged?.Invoke((args, TimeToCompletion));
+      }
     }
   }
 }

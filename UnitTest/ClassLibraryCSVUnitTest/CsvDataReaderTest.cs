@@ -1877,7 +1877,7 @@ namespace CsvTools.Tests
 
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
-        false, false, false, null, UnitTestStatic.Token);
+        false, false, false, UnitTestStatic.TesterProgress);
       Assert.AreEqual(5, dt.Rows.Count);
     }
 
@@ -1904,7 +1904,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
-        false, false, true, null, UnitTestStatic.Token);
+        false, false, true, UnitTestStatic.TesterProgress);
       Assert.AreEqual(5, dt.Rows.Count);
     }
 

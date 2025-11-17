@@ -37,9 +37,9 @@ namespace CsvTools.Tests
       cvsSetting.FileName = UnitTestStatic.GetTestPath("AllFormats.txt");
       cvsSetting.FieldDelimiterChar = '\t';
 
-      var res = 
-        await cvsSetting.FillGuessColumnFormatReaderAsync(true, true, new FillGuessSettings(), UnitTestStatic.Token);
-      Assert.AreEqual(10, res.Item2.Count);
+      var res =
+        await cvsSetting.FillGuessColumnFormatReaderAsync(true, true, new FillGuessSettings(), UnitTestStatic.TesterProgress);
+      Assert.AreEqual(10, res.Count);
     }
 
     [TestMethod()]
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       }
     }
 
- 
+
 
     [TestMethod]
     public async Task GetSampleValuesAsync()
@@ -150,8 +150,8 @@ namespace CsvTools.Tests
         identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
       {
         await reader.OpenAsync(CancellationToken.None);
-        var (information, columns) = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
-        new CsvTools.ColumnCollection(), false, true, "<NULL>", CancellationToken.None);
+        var columns = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
+        new CsvTools.ColumnCollection(), false, true, "<NULL>", UnitTestStatic.TesterProgress);
       }
     }
 
@@ -166,8 +166,8 @@ namespace CsvTools.Tests
         detectPercentage: true, detectBoolean: true, detectGuid: true,
         ignoreIdColumns: true);
 
-      var (information, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.Token);
+      var columns = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
+        new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.TesterProgress);
       /*
         "int (Integer)"
         "DateTime (Date Time (MM/dd/yyyy))"
@@ -179,18 +179,16 @@ namespace CsvTools.Tests
         "#Line (Integer)"
        */
       Assert.AreEqual(8, columns.Count(), "Recognized columns");
-      Assert.AreEqual(9, information.Count, "Information Lines");
 
       // with Text columns
-      var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
-      Assert.AreEqual(11, columns2.Count(), "Recognized columns 2");      
-      Assert.AreEqual(11, information2.Count, "Information Lines 2");
+      var columns2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
+        new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.TesterProgress);
+      Assert.AreEqual(11, columns2.Count(), "Recognized columns 2");
     }
 
 
 
-  
+
 
 
     [TestMethod, Timeout(2000)]

@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     {
       using var test = new DataTableWrapper(m_DataTable);
       var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
-        false, false, false, null, UnitTestStatic.Token);
+        false, false, false, UnitTestStatic.TesterProgress);
       Assert.AreEqual(m_DataTable.Rows.Count, dt.Rows.Count);
       Assert.AreEqual(m_DataTable.Columns.Count, dt.Columns.Count);
     }
