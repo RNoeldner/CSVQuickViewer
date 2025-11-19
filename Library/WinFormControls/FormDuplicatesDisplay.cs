@@ -96,7 +96,7 @@ namespace CsvTools
 
       detailControl.CancellationToken = m_CancellationTokenSource.Token;
       detailControl.DataTable = m_DataTable;
-      detailControl.RefreshDisplay(FilterTypeEnum.All, m_CancellationTokenSource.Token);
+      detailControl.RefreshDisplay(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
     }
 
     private void Work(string dataColumnName, bool ignoreNull)

@@ -79,7 +79,7 @@ namespace CsvTools.Tests
     {
       var (dt, _, warn) = GetDataTable(2000);
       var test = new FilterDataTable(dt);
-      test.Filter(0, FilterTypeEnum.ShowWarning, UnitTestStatic.Token);
+      test.Filter(0, RowFilterTypeEnum.ShowWarning, UnitTestStatic.Token);
       Assert.AreEqual(warn, test.FilterTable!.Rows.Count);
     }
 
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
     {
       var (dt, err, _) = GetDataTable(2000);
       var test = new FilterDataTable(dt);
-      test.Filter(0, FilterTypeEnum.ShowErrors, UnitTestStatic.Token);
+      test.Filter(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
       Assert.AreEqual(err, test.FilterTable!.Rows.Count);
     }
 
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
     {
       var (dt, err, warn) = GetDataTable(2000);
       var test = new FilterDataTable(dt);
-      var res = test.Filter(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+      var res = test.Filter(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.AreEqual(err + warn, res.Rows.Count);
     }
 
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     {
       var (dt, _, _) = GetDataTable(2000);
       var test = new FilterDataTable(dt);
-      var res = test.Filter(0, FilterTypeEnum.All, UnitTestStatic.Token);
+      var res = test.Filter(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
       Assert.AreEqual(dt.Rows.Count, res.Rows.Count);
     }
 
@@ -115,7 +115,7 @@ namespace CsvTools.Tests
     {
       var (dt, err, warn) = GetDataTable(2000);
       var test = new FilterDataTable(dt);
-      var res = test.Filter(0, FilterTypeEnum.None, UnitTestStatic.Token);
+      var res = test.Filter(0, RowFilterTypeEnum.None, UnitTestStatic.Token);
       Assert.AreEqual(dt.Rows.Count - err - warn, res.Rows.Count);
     }
 
@@ -126,7 +126,7 @@ namespace CsvTools.Tests
       using var test = new FilterDataTable(dt);
       test.Cancel();
       // No effect but no error either
-      test.StartFilterAsync(0, FilterTypeEnum.ShowErrors, UnitTestStatic.Token);
+      test.StartFilterAsync(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
       while (!test.Filtering)
       {
       }
@@ -141,10 +141,10 @@ namespace CsvTools.Tests
       var (dt, _, _) = GetDataTable(10);
       using var test = new FilterDataTable(dt);
       test.UniqueFieldName = new[] { "ColID" };
-      await test.StartFilterAsync(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+      await test.StartFilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsFalse(test.Filtering);
       // A unique column should be displayed so its part of the Error columns 
-      Assert.IsTrue(test.GetColumns(FilterTypeEnum.ShowErrors).Any(x => x == "ColID"), "Result does not contain ColID");
+      Assert.IsTrue(test.GetColumns(RowFilterTypeEnum.ShowErrors).Any(x => x == "ColID"), "Result does not contain ColID");
     }
 
     [TestMethod]
@@ -152,15 +152,15 @@ namespace CsvTools.Tests
     {
       var (dt, _, _)= GetDataTable(100);
       var test = new FilterDataTable(dt);
-      test.Filter(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+      test.Filter(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
 
       // not a good test, but its known how many columns will have errors
-      Assert.AreEqual(4, test.GetColumns(FilterTypeEnum.All).Count);
-      Assert.IsTrue(test.GetColumns(FilterTypeEnum.None).Any(x => x == "ColID"), "Result does not contain ColID");
+      Assert.AreEqual(4, test.GetColumns(RowFilterTypeEnum.All).Count);
+      Assert.IsTrue(test.GetColumns(RowFilterTypeEnum.None).Any(x => x == "ColID"), "Result does not contain ColID");
 
-      Assert.AreEqual(3, test.GetColumns(FilterTypeEnum.ErrorsAndWarning).Count, "ErrorsAndWarning");
-      Assert.AreEqual(3, test.GetColumns(FilterTypeEnum.ShowWarning).Count, "Warning");
-      Assert.AreEqual(3, test.GetColumns(FilterTypeEnum.ShowErrors).Count, "Errors");
+      Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ErrorsAndWarning).Count, "ErrorsAndWarning");
+      Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ShowWarning).Count, "Warning");
+      Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ShowErrors).Count, "Errors");
     }
 
 

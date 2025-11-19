@@ -69,7 +69,7 @@ namespace CsvTools
     /// <summary>
     /// The type of Filter
     /// </summary>
-    private FilterTypeEnum FilterType { get; set; } = FilterTypeEnum.All;
+    private RowFilterTypeEnum FilterType { get; set; } = RowFilterTypeEnum.All;
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -89,14 +89,14 @@ namespace CsvTools
     /// <summary>
     ///   Gets the columns that do match the filter.
     /// </summary>
-    public IReadOnlyCollection<string> GetColumns(FilterTypeEnum filterType)
+    public IReadOnlyCollection<string> GetColumns(RowFilterTypeEnum filterType)
     {
       var result = new HashSet<string>(
         filterType switch
         {
-          FilterTypeEnum.None =>
+          RowFilterTypeEnum.None =>
             m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToList(),
-          FilterTypeEnum.All =>
+          RowFilterTypeEnum.All =>
             m_CacheColumns.Select(x => x.Key.ColumnName).ToList(),
           _ =>
             m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToList(),
@@ -130,12 +130,12 @@ namespace CsvTools
     /// <param name="limit">Number of maximum records</param>
     /// <param name="newFilterType">The Filter Type</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public DataTable Filter(int limit, FilterTypeEnum newFilterType, in CancellationToken cancellationToken)
+    public DataTable Filter(int limit, RowFilterTypeEnum newFilterType, in CancellationToken cancellationToken)
     {
       if (limit < 1)
         limit = int.MaxValue;
 
-      if (newFilterType == FilterTypeEnum.All)
+      if (newFilterType == RowFilterTypeEnum.All)
         return m_SourceTable;
 
       if (newFilterType == FilterType && FilterTable != null && FilterTable.Rows.Count <= limit)
@@ -155,30 +155,30 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           var row = m_SourceTable.Rows[counter];
-          if (newFilterType.HasFlag(FilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
+          if (newFilterType.HasFlag(RowFilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
             continue;
 
-          var rowIssues = FilterTypeEnum.None;
+          var rowIssues = RowFilterTypeEnum.None;
           if (row.RowError.Length != 0)
           {
             if (row.RowError.IsWarningMessage())
-              rowIssues |= FilterTypeEnum.ShowWarning;
+              rowIssues |= RowFilterTypeEnum.ShowWarning;
             else
-              rowIssues |= FilterTypeEnum.ShowErrors;
+              rowIssues |= RowFilterTypeEnum.ShowErrors;
           }
 
           foreach (var col in row.GetColumnsInError())
           {
             m_CacheColumns[col] = false;
             if (row.GetColumnError(col).IsWarningMessage())
-              rowIssues |= FilterTypeEnum.ShowWarning;
+              rowIssues |= RowFilterTypeEnum.ShowWarning;
             else
-              rowIssues |= FilterTypeEnum.ShowErrors;
+              rowIssues |= RowFilterTypeEnum.ShowErrors;
           }
 
-          if ((rowIssues == FilterTypeEnum.None && newFilterType == FilterTypeEnum.None) ||
-              (rowIssues.HasFlag(FilterTypeEnum.ShowWarning) && newFilterType.HasFlag(FilterTypeEnum.ShowWarning)) ||
-              (rowIssues.HasFlag(FilterTypeEnum.ShowErrors) && newFilterType.HasFlag(FilterTypeEnum.ShowErrors)))
+          if ((rowIssues == RowFilterTypeEnum.None && newFilterType == RowFilterTypeEnum.None) ||
+              (rowIssues.HasFlag(RowFilterTypeEnum.ShowWarning) && newFilterType.HasFlag(RowFilterTypeEnum.ShowWarning)) ||
+              (rowIssues.HasFlag(RowFilterTypeEnum.ShowErrors) && newFilterType.HasFlag(RowFilterTypeEnum.ShowErrors)))
           {
             // Import Row copies the data and the errors information
             FilterTable.ImportRow(row);
@@ -208,7 +208,7 @@ namespace CsvTools
     /// <param name="type">The Filter Type</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public Task StartFilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
+    public Task StartFilterAsync(int limit, RowFilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
         Cancel();

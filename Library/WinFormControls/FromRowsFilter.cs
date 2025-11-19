@@ -16,8 +16,7 @@
 namespace CsvTools
 {
   using System;
-  using System.Collections.Generic;
-  using System.Globalization;
+    using System.Globalization;
   using System.Linq;
   using System.Text;
   using System.Threading;
@@ -29,7 +28,7 @@ namespace CsvTools
   public sealed partial class FromRowsFilter : ResizeForm
   {
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
-    private readonly ICollection<object> m_Values;
+    private readonly object[] m_Values;
     private readonly int m_MaxCluster;
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -39,7 +38,7 @@ namespace CsvTools
     /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
     /// <param name="columnValues">The data in the column</param>
     /// <param name="maxCluster">Maximum number of clusters to show</param>
-    public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, in ICollection<object> columnValues,
+    public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, object[] columnValues,
       int maxCluster)
     {
       m_DataGridViewColumnFilter =
@@ -269,11 +268,8 @@ namespace CsvTools
       frm.Report(new ProgressInfo("Building clusters", 1));
       try
       {
-        var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(
-          m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0,
-          frm,
-          frm.CancellationToken);
+        var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
+          m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
         if (result == BuildValueClustersResult.ListFilled)
         {
           FilterItems("");

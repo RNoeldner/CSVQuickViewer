@@ -656,7 +656,7 @@ namespace CsvTools
             detailControl.CancellationToken = m_CancellationTokenSource.Token;
             detailControl.ShowInfoButtons = false;
             
-            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, FilterTypeEnum.All, formProgress, AddWarning);
+            await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
           }
 
           var keepVisible = new List<string>();

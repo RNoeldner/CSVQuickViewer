@@ -20,7 +20,7 @@ namespace CsvTools
   /// Filter Types supported by DataGrid
   /// </summary>
   [Flags]
-  public enum FilterTypeEnum
+  public enum RowFilterTypeEnum
   {
     /// <summary>
     /// Display rows that have no error nor warning

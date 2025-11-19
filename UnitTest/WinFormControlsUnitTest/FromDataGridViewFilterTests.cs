@@ -35,7 +35,7 @@ namespace CsvTools.Tests
       for (var i = 0; i < 500; i++)
         data.Add(random.Next(0, 5000));
 
-      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(int), "ID"), data, 10), 0.5, null);
+      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(int), "ID"), data.ToArray(), 10), 0.5, null);
     }
 
     [TestMethod()]
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
 
       //using var dt = UnitTestStaticData.RandomDataTable(20);
       using var dt = UnitTestStaticData.GetDataTable(100, false, false,true, false, out var _, out var _);
-      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(string), "Text"), data, 20), .5, null);
+      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(string), "Text"), data.ToArray(), 20), .5, null);
     }
 
     [TestMethod()]
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       for (var i = 0; i < 25; i++)
         data.Add(new DateTime(random.Next(1900, 2030), random.Next(1, 12), 1).AddDays(random.Next(1, 31)));
 
-      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(DateTime), "DateTime"), data, 40), .5, null);
+      UnitTestStaticForms.ShowForm(() => new FromRowsFilter(new ColumnFilterLogic(typeof(DateTime), "DateTime"), data.ToArray(), 40), .5, null);
     }
   }
 }

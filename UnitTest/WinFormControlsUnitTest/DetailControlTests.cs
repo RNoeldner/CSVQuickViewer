@@ -31,7 +31,7 @@ namespace CsvTools.Tests
       UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
       {
         ctrl.DataTable = dt;
-        ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
         await ctrl.SearchTextAsync("212");
       });
     }
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
       UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, ctrl =>
       {
         ctrl.DataTable = dt;
-        ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
         ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
       });
     }
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       dc.Show();
       dc.DataTable = dt;
 
-      dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ namespace CsvTools.Tests
       dc.HtmlStyle = HtmlStyle.Default;
       dc.Show();
       dc.DataTable = dt;
-      dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
       dc.Sort("ID", ListSortDirection.Ascending);
     }
   }

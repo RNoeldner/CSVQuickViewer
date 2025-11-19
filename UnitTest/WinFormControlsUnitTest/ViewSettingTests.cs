@@ -80,7 +80,7 @@ namespace CsvTools.Tests
         {
           dc.HtmlStyle = HtmlStyle.Default;
           dc.DataTable = dt;
-          dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
+          dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
           dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
           var text = dc.GetViewStatus();
 

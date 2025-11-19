@@ -70,7 +70,7 @@ namespace CsvTools
     /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
     /// </remarks>
     public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
-      FilterTypeEnum filterType, IProgressWithCancellation progress,
+      RowFilterTypeEnum filterType, IProgressWithCancellation progress,
       EventHandler<WarningEventArgs>? addWarning)
     {
       try
@@ -638,9 +638,9 @@ namespace CsvTools
     /// <summary>
     ///   Filters the columns.
     /// </summary>
-    private void FilterColumns(FilterTypeEnum filterType)
+    private void FilterColumns(RowFilterTypeEnum filterType)
     {
-      if (filterType == FilterTypeEnum.All || filterType == FilterTypeEnum.None)
+      if (filterType == RowFilterTypeEnum.All || filterType == RowFilterTypeEnum.None)
       {
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
         {
@@ -695,7 +695,7 @@ namespace CsvTools
     /// <summary>
     ///   Sets the data source.
     /// </summary>
-    public void RefreshDisplay(FilterTypeEnum filterType, CancellationToken cancellationToken)
+    public void RefreshDisplay(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
     {
       var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = FilteredDataGridView.SortOrder;
@@ -727,10 +727,10 @@ namespace CsvTools
 
         var newIndex = filterType switch
         {
-          FilterTypeEnum.ErrorsAndWarning => 1,
-          FilterTypeEnum.ShowErrors => 2,
-          FilterTypeEnum.ShowWarning => 3,
-          FilterTypeEnum.None => 4,
+          RowFilterTypeEnum.ErrorsAndWarning => 1,
+          RowFilterTypeEnum.ShowErrors => 2,
+          RowFilterTypeEnum.ShowWarning => 3,
+          RowFilterTypeEnum.None => 4,
           _ => 0
         };
         if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex)
@@ -790,17 +790,17 @@ namespace CsvTools
 
     public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
 
-    private FilterTypeEnum GetCurrentFilter()
+    private RowFilterTypeEnum GetCurrentFilter()
     {
       int index = 0;
       this.SafeInvoke(() => index = m_ToolStripComboBoxFilterType.SelectedIndex);
       if (index == 1)
-        return FilterTypeEnum.ErrorsAndWarning;
+        return RowFilterTypeEnum.ErrorsAndWarning;
       if (index == 2)
-        return FilterTypeEnum.ShowErrors;
+        return RowFilterTypeEnum.ShowErrors;
       if (index == 3)
-        return FilterTypeEnum.ShowWarning;
-      return index == 4 ? FilterTypeEnum.None : FilterTypeEnum.All;
+        return RowFilterTypeEnum.ShowWarning;
+      return index == 4 ? RowFilterTypeEnum.None : RowFilterTypeEnum.All;
     }
 
     private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
@@ -916,7 +916,7 @@ namespace CsvTools
       }
       catch (InvalidOperationException ex)
       {
-        Debug.WriteLine("Issue updating UI: {ex.Message}");
+        Debug.WriteLine($"Issue updating UI: {ex.Message}");
         // ignore error in regard to cross thread issues, SafeBeginInvoke should have handled
         // this though
       }
