@@ -25,31 +25,55 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace CsvTools
 {
   /// <summary>
-  ///   A better DataGridView allowing to filter and have a nice Copy and Paste
+  /// An enhanced <see cref="DataGridView"/> providing:
+  /// <list type="bullet">
+  ///   <item>Interactive column filtering</item>
+  ///   <item>Automatic column sizing based on content</item>
+  ///   <item>Highlighting and multi-line text support</item>
+  ///   <item>Large-text expansion via button cells</item>
+  ///   <item>Improved copy/paste behavior</item>
+  /// </list>
+  /// This control is intended for viewing CSV or structured tabular data
+  /// with high usability and custom formatting options.
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
     private static int m_DefRowHeight = -1;
     private readonly Image m_ImgFilterIndicator;
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
     private BindingSource? m_BindingSource;
-
+    private bool m_Disposed;
     private IFileSetting? m_FileSetting;
     private int m_ShowButtonAtLength = 1000;
     private int m_MenuItemColumnIndex;
 
+    /// <summary>
+    /// Indicates whether data has been fully loaded into the control.
+    /// Used to suppress expensive UI updates during initialization.
+    /// </summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Bindable(false)]
     [Browsable(false)]
     public bool DataLoaded { get; set; } = true;
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
+    public CancellationToken CancellationToken
+    {
+      get;
+      set;
+    } = CancellationToken.None;
+
+    /// <summary>
+    /// Applies font changes to all relevant DataGridView style sections so
+    /// the control visually remains consistent when the base font changes.
+    /// </summary>
     private void PassOnFontChanges(object? sender, EventArgs e)
     {
       this.SafeInvoke(() =>
@@ -61,19 +85,24 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
+    /// Formats <see cref="DateTime"/> cell values using the current culture's 
+    /// display rules. Intended for uniform date/time presentation.
     /// </summary>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
     private static void CellFormatDate(object? sender, DataGridViewCellFormattingEventArgs e)
     {
-      if (!(e.Value is DateTime cellValue))
+      if (e.Value is not DateTime cellValue)
         return;
 
       e.Value = StringConversion.DisplayDateTime(cellValue, CultureInfo.CurrentCulture);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FilteredDataGridView"/> class.
+    /// Sets up event handlers, context menus, and default styles.
+    /// </summary>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public FilteredDataGridView()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -107,7 +136,7 @@ namespace CsvTools
 
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-      FontChanged += (o, e) =>
+      FontChanged += (_, _) =>
       {
         AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         SetRowHeight();
@@ -130,6 +159,12 @@ namespace CsvTools
     public string CurrentFilter =>
       (m_BindingSource != null ? m_BindingSource?.Filter : DataView?.RowFilter) ?? string.Empty;
 
+
+    /// <summary>
+    /// Defines the minimum text length at which a string column switches from
+    /// a standard text cell to a button cell. Clicking the button opens a
+    /// dedicated text viewer/editor.
+    /// </summary>
     [Bindable(true)]
     [Browsable(true)]
     [DefaultValue(500)]
@@ -145,15 +180,11 @@ namespace CsvTools
         GenerateDataGridViewColumn();
       }
     }
-
     /// <summary>
-    ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
+    /// Provides a wrapper around <see cref="DataGridView.DataSource"/> to
+    /// ensure that filtering, column generation and DataView handling are
+    /// kept in sync whenever the underlying data source changes.
     /// </summary>
-    /// <returns>The object that contains data for the <see cref="DataGridView" /> to display.</returns>
-    /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the event or the handler has set the <see cref="Exception" /> property to
-    ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
-    /// </exception>
     public new object? DataSource
     {
       get => base.DataSource;
@@ -202,9 +233,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the frozen columns.
+    /// Freezes a given number of columns from the left.  
+    /// Previously frozen columns are reset before applying the new setting.
     /// </summary>
-    /// <value>The frozen columns.</value>
     public int FrozenColumns
     {
       set
@@ -222,9 +253,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the text that should be highlighted
+    /// Text that should be visually highlighted in cell painting.  
+    /// Highlighting is performed by <see cref="HighlightCellPainting"/>.
     /// </summary>
-    /// <value>The highlight text.</value>
     public string HighlightText { get; set; } = string.Empty;
 
     /// <summary>
@@ -250,7 +281,9 @@ namespace CsvTools
     public string GetFilterExpression(int exclude) => m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
 
     /// <summary>
-    ///   Applies the filters.
+    /// Rebuilds and applies the active filter expression derived from all
+    /// <see cref="ColumnFilterLogic"/> instances.  
+    /// Raises <see cref="DataViewChanged"/> when the resulting view changes.
     /// </summary>
     public void ApplyFilters() =>
       this.RunWithHourglass(() =>
@@ -288,16 +321,16 @@ namespace CsvTools
         filter.SetFilter(CurrentCell.Value);
         ApplyFilters();
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        Debug.WriteLine(ex);
       }
     }
 
     /// <summary>
-    ///   Hides empty columns in the Data Grid
+    /// Hides columns that contain no non-null data.  
+    /// Returns <c>true</c> if any column visibility changed.
     /// </summary>
-    /// <returns><c>true</c> if column visibility has changed</returns>
     public bool HideEmptyColumns()
     {
       if (Columns.Count == 0 || DataView is null)
@@ -317,6 +350,10 @@ namespace CsvTools
       return hasChanges;
     }
 
+    /// <summary>
+    /// Applies column hiding logic and recalculates row height,  
+    /// then notifies listeners via <see cref="DataViewChanged"/>.
+    /// </summary>
     public void RefreshUI()
     {
       try
@@ -468,18 +505,23 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+      if (m_Disposed)
+        return;
       if (disposing)
       {
+        // Unsubscribe from static event
+        SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+
         components?.Dispose();
         m_ImgFilterIndicator.Dispose();
-        m_CancellationTokenSource.Dispose();
       }
+      m_Disposed = true;
 
       base.Dispose(disposing);
     }
 
     private static int Measure(IDeviceContext grap, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
-      Func<object, (string Text, bool Stop)> checkValue, CancellationToken token)
+      Func<object, (string Text, bool Stop)> checkValue)
     {
       var max = Math.Min(
         TextRenderer.MeasureText(grap, col.ColumnName, font).Width,
@@ -490,8 +532,6 @@ namespace CsvTools
       {
         if (max >= maxWidth)
           return maxWidth;
-        if (token.IsCancellationRequested)
-          break;
         var check = checkValue(dataRow[col]);
         if (check.Stop)
           break;
@@ -511,42 +551,36 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Determine a default column with based on the data type and the values in provided
+    /// Determines an optimal display width for a column by sampling data,
+    /// respecting maximum width limits and early termination thresholds for
+    /// performance on large datasets.
     /// </summary>
-    /// <param name="col"></param>
-    /// <param name="rowCollection"></param>
-    /// <param name="cancellationToken">The cancellationToken to monitor for cancellation requests. The default value is <see cref="CancellationToken.None"/>.</param>
-    /// <returns>A number for DataGridViewColumn.With</returns>
-    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection, CancellationToken cancellationToken)
+    private int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
     {
       using var graph = CreateGraphics();
 
-      if (col.DataType == typeof(Guid))
-        return Math.Max(TextRenderer.MeasureText(graph, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
-          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width);
-
-      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long) ||
-          col.DataType == typeof(decimal))
-        return Math.Max(TextRenderer.MeasureText(graph, "626727278.00", Font).Width,
-          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width);
-
-      if (col.DataType == typeof(DateTime))
-        return Measure(graph, Font, Width / 2, col, rowCollection,
-          value => (
-            (value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty,
-            false), cancellationToken);
-
-      if (col.DataType == typeof(string))
-        return Measure(graph, Font, Width / 2, col, rowCollection,
-          value =>
-          {
-            var txt = value?.ToString() ?? string.Empty;
-            return (txt, txt.Length > m_ShowButtonAtLength);
-          }, cancellationToken);
-
-      return Math.Min(Width / 2,
-        Math.Max(TextRenderer.MeasureText(graph, "dummy", Font).Width,
-          TextRenderer.MeasureText(graph, col.ColumnName, Font).Width));
+      return col.DataType switch
+      {
+        var t when t == typeof(Guid) => Math.Max(TextRenderer.MeasureText(graph, "4B3D8135-5EA3-4AFC-A912-A768BDB4795E", Font).Width,
+                                                 TextRenderer.MeasureText(graph, col.ColumnName, Font).Width),
+        var t when t == typeof(int) ||
+                t == typeof(long) ||
+                t == typeof(decimal) ||
+                t == typeof(bool) => Math.Max(TextRenderer.MeasureText(graph, "626727278.00", Font).Width,
+                                               TextRenderer.MeasureText(graph, col.ColumnName, Font).Width),
+        var t when t == typeof(DateTime) => Measure(graph, Font, Width / 2, col, rowCollection,
+            value => (
+              (value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty,
+              CancellationToken.IsCancellationRequested)),
+        var t when t == typeof(string) =>
+          Measure(graph, Font, Width / 2, col, rowCollection,
+            value =>
+            {
+              var txt = value?.ToString() ?? string.Empty;
+              return (txt, CancellationToken.IsCancellationRequested || txt.Length > m_ShowButtonAtLength);
+            }),
+        _ => Math.Min(Width / 2, Math.Max(TextRenderer.MeasureText(graph, "dummy", Font).Width, TextRenderer.MeasureText(graph, col.ColumnName, Font).Width))
+      };
     }
 
     public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
@@ -561,7 +595,7 @@ namespace CsvTools
           {
             if (newColumn.DataPropertyName == col.ColumnName)
             {
-              newColumn.Width = GetColumnWith(col, DataView!.Table.Rows, m_CancellationTokenSource.Token) + 5;
+              newColumn.Width = GetColumnWith(col, DataView!.Table.Rows) + 5;
               break;
             }
           }
@@ -697,7 +731,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Generates the data grid view column.
+    /// Rebuilds all DataGridView columns based on the current DataView,  
+    /// determining wrap behavior, button-cell conversion and width 
+    /// calculation. Existing column widths are preserved where possible.
     /// </summary>
     private void GenerateDataGridViewColumn()
     {
@@ -723,7 +759,7 @@ namespace CsvTools
         foreach (DataRow row in DataView.Table.Rows)
         {
           var text = row[col].ToString();
-          if (string.IsNullOrEmpty(text))
+          if (string.IsNullOrWhiteSpace(text))
             continue;
           if (m_ShowButtonAtLength >0 && text.Length > m_ShowButtonAtLength)
           {
@@ -755,7 +791,7 @@ namespace CsvTools
         newColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
         newColumn.Width =
           oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
-          GetColumnWith(col, DataView.Table.Rows, m_CancellationTokenSource.Token);
+          GetColumnWith(col, DataView.Table.Rows);
         var colIndex = Columns.Add(newColumn);
         // remove filter in case it does not match
         if (m_FilterLogic.TryGetValue(colIndex, out var filter))
@@ -792,12 +828,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Does all cell painting, doing highlighting
+    /// Handles custom cell painting including:
+    /// <list type="bullet">
+    ///   <item>Drawing filter indicator icons in column headers</item>
+    ///   <item>Highlighting occurrences of <see cref="HighlightText"/></item>
+    ///   <item>Delegating default rendering where appropriate</item>
+    /// </list>
     /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">
-    ///   The <see cref="DataGridViewCellPaintingEventArgs" /> instance containing the event data.
-    /// </param>
     private void HighlightCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
       try
@@ -1119,7 +1156,7 @@ namespace CsvTools
       try
       {
         var html = new DataGridViewCopyPaste(HtmlStyle);
-        html.SelectedDataIntoClipboard(this, addErrorInfo, cutLength, m_CancellationTokenSource.Token);
+        html.SelectedDataIntoClipboard(this, addErrorInfo, cutLength, CancellationToken);
       }
       catch (Exception ex)
       {
@@ -1205,25 +1242,6 @@ namespace CsvTools
       }
     }
 
-    //private void ToolStripMenuItemLoadCol_Click(object? sender, EventArgs e)
-    //{
-    //  if (m_FileSetting is null)
-    //    return;
-
-    //  try
-    //  {
-    //    var fileName = WindowsAPICodePackWrapper.Open(
-    //      m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
-    //      "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
-    //    if (fileName != null)
-    //      ReStoreViewSetting(fileName);
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    FindForm()?.ShowError(ex);
-    //  }
-
-    //}
 
     /// <summary>
     /// Get an Array of ColumnSetting serialized as Json Text
@@ -1265,8 +1283,6 @@ namespace CsvTools
       Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
 
     private void ToolStripMenuItemSortRemove_Click(object? sender, EventArgs e) => DataView!.Sort = string.Empty;
-
-
 
   }
 }

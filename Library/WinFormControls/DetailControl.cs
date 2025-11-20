@@ -37,7 +37,7 @@ namespace CsvTools
     private CancellationTokenSource? m_SearchCancellation;
 
     private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
-    private CancellationToken m_CancellationToken = CancellationToken.None;
+
     private DataTable m_DataTable = new DataTable();
     private FilterDataTable m_FilterDataTable = new FilterDataTable(new DataTable());
     private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
@@ -101,13 +101,15 @@ namespace CsvTools
     {
       InitializeComponent();
       m_SteppedDataTableLoader = new SteppedDataTableLoader();
-      m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
-      m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
-      m_ToolStripItems.Add(m_ToolStripButtonDuplicates);
-      m_ToolStripItems.Add(m_ToolStripButtonHierarchy);
-      m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
-      m_ToolStripItems.Add(m_ToolStripButtonSource);
-      m_ToolStripItems.Add(m_ToolStripButtonStore);
+      foreach (var item in new ToolStripItem[] {m_ToolStripComboBoxFilterType,
+            m_ToolStripButtonUniqueValues,
+            m_ToolStripButtonDuplicates,
+            m_ToolStripButtonHierarchy,
+            m_ToolStripButtonColumnLength,
+            m_ToolStripButtonSource,
+            m_ToolStripButtonStore
+           })
+        m_ToolStripItems.Add(item);
     }
 
     //public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
@@ -227,10 +229,8 @@ namespace CsvTools
 
     public CancellationToken CancellationToken
     {
-      set
-      {
-        m_CancellationToken = value;
-      }
+      private get => FilteredDataGridView.CancellationToken;
+      set => FilteredDataGridView.CancellationToken = value;
     }
 
     /// <summary>
@@ -421,14 +421,12 @@ namespace CsvTools
       m_SearchCancellation = new CancellationTokenSource();
 
       m_FoundCells.Clear();
-      FilteredDataGridView.HighlightText = string.Empty;
+      // Set the highlight text
+      FilteredDataGridView.HighlightText = searchText;
       m_Search.Results = 0;
 
       if (string.IsNullOrWhiteSpace(searchText))
         return;
-
-      // Set the highlight text
-      this.SafeBeginInvoke(() => { FilteredDataGridView.HighlightText = searchText; });
 
       try
       {
@@ -442,7 +440,6 @@ namespace CsvTools
 
             foreach (DataGridViewRow row in FilteredDataGridView.Rows)
             {
-              m_SearchCancellation.Token.ThrowIfCancellationRequested();
               try
               {
                 var cell = row.Cells[col.Index];
@@ -451,7 +448,7 @@ namespace CsvTools
                 {
                   m_FoundCells.Add(cell);
                   if (m_FoundCells.Count > 999)
-                    break;
+                    break; // stop processing
                 }
               }
               catch
@@ -485,11 +482,19 @@ namespace CsvTools
     }
 
     private bool CancelMissingData()
-      => FilteredDataGridView.Columns.Count <= 0 || (!EndOfFile &&
-                                                     MessageBox.Show(
-                                                       "Some data is not yet loaded from file.\nOnly already processed data will be used.",
-                                                       "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
-                                                       MessageBoxDefaultButton.Button1, 3) == DialogResult.Cancel);
+    {
+      if (FilteredDataGridView.Columns.Count <= 0)
+        return true;
+
+      if (EndOfFile)
+        return false;
+
+      var result = MessageBox.Show(
+        "Some data is not yet loaded from file.\nOnly already processed data will be used.",
+        "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
+        MessageBoxDefaultButton.Button1, 3);
+      return result == DialogResult.Cancel;
+    }
 
     /// <summary>
     ///   Handles the Click event of the buttonTableSchema control.
@@ -758,7 +763,7 @@ namespace CsvTools
               .OrderBy(col => col.DisplayIndex)
               .Select(col => col.DataPropertyName).ToArray()));
 
-        await WriteFileAsync.Invoke(m_CancellationToken, reader);
+        await WriteFileAsync.Invoke(CancellationToken, reader);
       }, ParentForm);
 
       //try
@@ -794,18 +799,19 @@ namespace CsvTools
     {
       int index = 0;
       this.SafeInvoke(() => index = m_ToolStripComboBoxFilterType.SelectedIndex);
-      if (index == 1)
-        return RowFilterTypeEnum.ErrorsAndWarning;
-      if (index == 2)
-        return RowFilterTypeEnum.ShowErrors;
-      if (index == 3)
-        return RowFilterTypeEnum.ShowWarning;
-      return index == 4 ? RowFilterTypeEnum.None : RowFilterTypeEnum.All;
+      return index switch
+      {
+        1 => RowFilterTypeEnum.ErrorsAndWarning,
+        2 => RowFilterTypeEnum.ShowErrors,
+        3 => RowFilterTypeEnum.ShowWarning,
+        4 => RowFilterTypeEnum.None,
+        _ => RowFilterTypeEnum.All
+      };
     }
 
     private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      RefreshDisplay(GetCurrentFilter(), m_CancellationToken);
+      RefreshDisplay(GetCurrentFilter(), CancellationToken);
     }
 
     public bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
@@ -816,7 +822,7 @@ namespace CsvTools
       OnSearchClear(this, EventArgs.Empty);
 
       var timeSpan = backgroundLoad ? TimeSpan.MaxValue : TimeSpan.FromSeconds(5);
-      IProgressWithCancellation progress = backgroundLoad ? new ProgressCancellation(m_CancellationToken) : new FormProgress("Load more...", m_CancellationToken); ;
+      IProgressWithCancellation progress = backgroundLoad ? new ProgressCancellation(CancellationToken) : new FormProgress("Load more...", CancellationToken); ;
       try
       {
         m_ToolStripButtonLoadRemaining.Enabled = false;
@@ -945,7 +951,7 @@ namespace CsvTools
 
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       {
-        await DisplaySourceAsync.Invoke(m_CancellationToken);
+        await DisplaySourceAsync.Invoke(CancellationToken);
       }, ParentForm);
     }
 

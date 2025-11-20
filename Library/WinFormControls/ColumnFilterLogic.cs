@@ -269,6 +269,7 @@ namespace CsvTools
     /// </summary>
     public void ApplyFilter()
     {
+      m_ValueText = m_ValueText.Trim(); 
       m_FilterExpressionOperator = BuildFilterExpressionOperator();
       m_FilterExpressionValue = BuildFilterExpressionValues();
 
@@ -355,6 +356,7 @@ namespace CsvTools
     /// <returns>A SQL Condition to be used on DataTable</returns>
     private string BuildFilterExpressionOperator()
     {
+     
       switch (m_Operator)
       {
         case cOperatorIsNull:
@@ -368,7 +370,8 @@ namespace CsvTools
         case cOperatorIsNotNull:
           return $"NOT {m_DataPropertyNameEscape} IS NULL";
       }
-
+      // Making sure end up with "col LIKE '% %'"
+      m_ValueText = m_ValueText.Trim();
       if (string.IsNullOrEmpty(m_ValueText) && (m_Operator == cOperatorContains || m_Operator == cOperatorLonger || m_Operator == cOperatorShorter|| m_Operator == cOperatorBegins || m_Operator == cOperatorEnds))
       {
         return string.Empty;
