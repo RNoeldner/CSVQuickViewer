@@ -13,31 +13,30 @@
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CsvTools.Tests
-{
-  [TestClass]
-  public class LoggerTextBoxTests
-  {
-    [TestMethod]
-    public void ClearTest()
-    {
-      using (var test = new LoggerDisplay())
-      {
-        test.Clear();
-      }
-    }
+namespace CsvTools.Tests;
 
-    [TestMethod]
-    public void LoggerTextBoxTest()
+[TestClass]
+public class LoggerTextBoxTests
+{
+  [TestMethod]
+  public void ClearTest()
+  {
+    using (var test = new LoggerDisplay())
     {
-      using (var unused = new LoggerDisplay())
-      {
-        Logger.Debug("Debug");
-        Logger.Debug("Debug – NewInformation");
-        Logger.Information("Info");
-        Logger.Warning("Warning");
-        Logger.Error("Error");
-      }
+      test.Clear();
+    }
+  }
+
+  [TestMethod]
+  public void LoggerTextBoxTest()
+  {
+    using (var unused = new LoggerDisplay())
+    {
+      Logger.Debug("Debug");
+      Logger.Debug("Debug – NewInformation");
+      Logger.Information("Info");
+      Logger.Warning("Warning");
+      Logger.Error("Error");
     }
   }
 }

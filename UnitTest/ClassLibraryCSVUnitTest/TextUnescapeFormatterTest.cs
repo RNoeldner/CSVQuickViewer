@@ -13,35 +13,34 @@
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class TextUnescapeFormatterTest
 {
-  [TestClass]
-  public class TextUnescapeFormatterTest
+  [TestMethod]
+  public void UnescapeText()
   {
-    [TestMethod]
-    public void UnescapeText()
-    {
-      Assert.AreEqual("This is a test", TextUnescapeFormatter.Unescape("This is a test"));
-      Assert.AreEqual("This is \a test", TextUnescapeFormatter.Unescape("This is \\a test"));
-      Assert.AreEqual("This is \t test", TextUnescapeFormatter.Unescape("This is \\t test"));
-      Assert.AreEqual("This is \n test\r", TextUnescapeFormatter.Unescape("This is \\n test\\r"));      
-    }
+    Assert.AreEqual("This is a test", TextUnescapeFormatter.Unescape("This is a test"));
+    Assert.AreEqual("This is \a test", TextUnescapeFormatter.Unescape("This is \\a test"));
+    Assert.AreEqual("This is \t test", TextUnescapeFormatter.Unescape("This is \\t test"));
+    Assert.AreEqual("This is \n test\r", TextUnescapeFormatter.Unescape("This is \\n test\\r"));      
+  }
 
-    [TestMethod]
-    public void UnescapeTextNumbers()
-    {
-      Assert.AreEqual("Unicode \ud835b", TextUnescapeFormatter.Unescape("Unicode \\ud835b"));
-      Assert.AreEqual("Unicode \ud835", TextUnescapeFormatter.Unescape("Unicode \\ud835"));
-      Assert.AreEqual("Unicode \udcd9", TextUnescapeFormatter.Unescape("Unicode \\udcd9"));
-      Assert.AreEqual("\udcd9 Yeah", TextUnescapeFormatter.Unescape("\\udcd9 Yeah"));
-    }
+  [TestMethod]
+  public void UnescapeTextNumbers()
+  {
+    Assert.AreEqual("Unicode \ud835b", TextUnescapeFormatter.Unescape("Unicode \\ud835b"));
+    Assert.AreEqual("Unicode \ud835", TextUnescapeFormatter.Unescape("Unicode \\ud835"));
+    Assert.AreEqual("Unicode \udcd9", TextUnescapeFormatter.Unescape("Unicode \\udcd9"));
+    Assert.AreEqual("\udcd9 Yeah", TextUnescapeFormatter.Unescape("\\udcd9 Yeah"));
+  }
 
-    [TestMethod]
-    public void UnescapeTextNumbers2()
-    {
-      Assert.AreEqual("Unicode \x0020", TextUnescapeFormatter.Unescape("Unicode \\x0020"));
-      Assert.AreEqual("Unicode \x020", TextUnescapeFormatter.Unescape("Unicode \\x020"));
-      Assert.AreEqual("\x20", TextUnescapeFormatter.Unescape("\\x20"));
-    }
+  [TestMethod]
+  public void UnescapeTextNumbers2()
+  {
+    Assert.AreEqual("Unicode \x0020", TextUnescapeFormatter.Unescape("Unicode \\x0020"));
+    Assert.AreEqual("Unicode \x020", TextUnescapeFormatter.Unescape("Unicode \\x020"));
+    Assert.AreEqual("\x20", TextUnescapeFormatter.Unescape("\\x20"));
   }
 }

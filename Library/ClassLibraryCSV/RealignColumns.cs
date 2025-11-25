@@ -17,251 +17,250 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
+///   column lead to more than the expected columns This is archived by looking at known good rows
+///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
+///   are long text or all empty there is no way to say which column is not aligned.
+/// </summary>
+public sealed class ReAlignColumns
 {
-  /// <summary>
-  ///   Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
-  ///   column lead to more than the expected columns This is archived by looking at known good rows
-  ///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
-  ///   are long text or all empty there is no way to say which column is not aligned.
-  /// </summary>
-  public sealed class ReAlignColumns
-  {
-    private const int cMaxGoodRows = 40;
+  private const int cMaxGoodRows = 40;
 #if NET6_0_OR_GREATER
-    private static readonly Random Random = Random.Shared;
+  private static readonly Random Random = Random.Shared;
 #else
     private static readonly Random Random = new Random(Environment.TickCount);
 #endif
 
-    private static readonly HashSet<string> BoolVals = new HashSet<string>(
+  private static readonly HashSet<string> BoolVals = new HashSet<string>(
     new[] { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" },
     StringComparer.OrdinalIgnoreCase);
 
-    private static readonly HashSet<char> DigitsSet = new("0123456789");
-    private static readonly HashSet<char> DecimalCharsSet = new(".,-+ 0123456789");
-    private static readonly HashSet<char> DateTimeCharsSet = new(":/\\.-T 0123456789");
+  private static readonly HashSet<char> DigitsSet = new("0123456789");
+  private static readonly HashSet<char> DecimalCharsSet = new(".,-+ 0123456789");
+  private static readonly HashSet<char> DateTimeCharsSet = new(":/\\.-T 0123456789");
 
-    private readonly int m_ExpectedColumns;
+  private readonly int m_ExpectedColumns;
 
-    private readonly List<string[]> m_GoodRows = new List<string[]>(cMaxGoodRows);
+  private readonly List<string[]> m_GoodRows = new List<string[]>(cMaxGoodRows);
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ReAlignColumns"/> class.
-    /// </summary>
-    /// <param name="expectedColumns">The expected columns.</param>
-    public ReAlignColumns(int expectedColumns) => m_ExpectedColumns = expectedColumns;
+  /// <summary>
+  /// Initializes a new instance of the <see cref="ReAlignColumns"/> class.
+  /// </summary>
+  /// <param name="expectedColumns">The expected columns.</param>
+  public ReAlignColumns(int expectedColumns) => m_ExpectedColumns = expectedColumns;
 
-    /// <summary>
-    ///   Adds a new row assuming the data is well aligned
-    /// </summary>
-    /// <param name="newRow">Array with the columns of that row</param>
-    public void AddRow(string[] newRow)
+  /// <summary>
+  ///   Adds a new row assuming the data is well aligned
+  /// </summary>
+  /// <param name="newRow">Array with the columns of that row</param>
+  public void AddRow(string[] newRow)
+  {
+    if (newRow is null) throw new ArgumentNullException(nameof(newRow));
+    if (newRow.Length != m_ExpectedColumns)
+      return;
+
+    for (int i = 0; i < newRow.Length; i++)
+      newRow[i] = newRow[i]?.Trim() ?? string.Empty;
+
+    if (m_GoodRows.Count < cMaxGoodRows)
+      m_GoodRows.Add(newRow);
+    else
+      // Store the row in our list at some random location
+      m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
+  }
+
+  /// <summary>
+  ///   Tries to condense (combine two columns into one) in a way that makes sense.
+  /// </summary>
+  /// <param name="row">Array with the columns of that row</param>
+  /// <param name="handleWarning">Action to be called to store a warning</param>
+  /// <param name="rawText">The raw text of the file before splitting it into columns</param>
+  /// <returns>A new list of columns</returns>
+  public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, in string rawText)
+  {
+    if (row is null) throw new ArgumentNullException(nameof(row));
+    if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
+
+    if (m_GoodRows.Count < 3)
     {
-      if (newRow is null) throw new ArgumentNullException(nameof(newRow));
-      if (newRow.Length != m_ExpectedColumns)
-        return;
-
-      for (int i = 0; i < newRow.Length; i++)
-        newRow[i] = newRow[i]?.Trim() ?? string.Empty;
-
-      if (m_GoodRows.Count < cMaxGoodRows)
-        m_GoodRows.Add(newRow);
-      else
-        // Store the row in our list at some random location
-        m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
+      handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
+      return row;
     }
 
-    /// <summary>
-    ///   Tries to condense (combine two columns into one) in a way that makes sense.
-    /// </summary>
-    /// <param name="row">Array with the columns of that row</param>
-    /// <param name="handleWarning">Action to be called to store a warning</param>
-    /// <param name="rawText">The raw text of the file before splitting it into columns</param>
-    /// <returns>A new list of columns</returns>
-    public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, in string rawText)
+    // List is easier to handle than an array
+    var columns = new List<string>(row.Count);
+    for (int i = 0; i < row.Count; i++)
+      columns.Add(row[i]?.Trim() ?? string.Empty);
+
+    if (row.Count >= m_ExpectedColumns * 2 - 1)
     {
-      if (row is null) throw new ArgumentNullException(nameof(row));
-      if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
-
-      if (m_GoodRows.Count < 3)
+      // take the columns as is...
+      while (columns.Count > m_ExpectedColumns) columns.RemoveAt(m_ExpectedColumns);
+      handleWarning.Invoke(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
+    }
+    else
+    {
+      for (var colIndex = 0; colIndex < columns.Count; colIndex++)
+        columns[colIndex] ??= string.Empty;
+      //Get the Options for all good rows
+      var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
+      for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
+        otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
+      var col = 0;
+      // Step 1: try combining
+      while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
       {
-        handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
-        return row;
-      }
 
-      // List is easier to handle than an array
-      var columns = new List<string>(row.Count);
-      for (int i = 0; i < row.Count; i++)
-        columns.Add(row[i]?.Trim() ?? string.Empty);
-
-      if (row.Count >= m_ExpectedColumns * 2 - 1)
-      {
-        // take the columns as is...
-        while (columns.Count > m_ExpectedColumns) columns.RemoveAt(m_ExpectedColumns);
-        handleWarning.Invoke(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
-      }
-      else
-      {
-        for (var colIndex = 0; colIndex < columns.Count; colIndex++)
-          columns[colIndex] ??= string.Empty;
-        //Get the Options for all good rows
-        var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
-        for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
-          otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
-        var col = 0;
-        // Step 1: try combining
-        while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
-        {
-
-          if (col + 1 < columns.Count &&
+        if (col + 1 < columns.Count &&
             string.IsNullOrEmpty(columns[col]) &&
             !otherColumns[col].HasFlag(ColumnOption.Empty) &&
             GetColumnOption(columns[col + 1]) == otherColumns[col])
-          {
-            handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
-            columns.RemoveAt(col);
-            continue;
-          }
+        {
+          handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
+          columns.RemoveAt(col);
+          continue;
+        }
 
-          if (otherColumns[col] != ColumnOption.None && col > 0)
+        if (otherColumns[col] != ColumnOption.None && col > 0)
+        {
+          var thisCol = GetColumnOption(columns[col]);
+          // assume we have to remove this columns
+          if (!thisCol.HasFlag(otherColumns[col])
+              || thisCol == ColumnOption.None && thisCol == otherColumns[col - 1])
           {
-            var thisCol = GetColumnOption(columns[col]);
-            // assume we have to remove this columns
-            if (!thisCol.HasFlag(otherColumns[col])
-                || thisCol == ColumnOption.None && thisCol == otherColumns[col - 1])
+            var fromRaw = false;
+            if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length > 0 && columns[col].Length > 0)
             {
-              var fromRaw = false;
-              if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length > 0 && columns[col].Length > 0)
+              var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
+              if (pos1 != -1)
               {
-                var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
-                if (pos1 != -1)
+                var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
+                if (pos2 != -1)
                 {
-                  var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
-                  if (pos2 != -1)
-                  {
-                    fromRaw = true;
-                    columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
-                  }
+                  fromRaw = true;
+                  columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
                 }
               }
-
-
-              if (!fromRaw)
-              {
-                if (string.IsNullOrEmpty((columns[col - 1])))
-                  columns[col - 1] = columns[col];
-                else
-                  columns[col - 1] += columns[col];
-              }
-              columns.RemoveAt(col);
-              col--;
-              handleWarning.Invoke(
-                col,
-                "Extra information from in next column has been appended, assuming the data was misaligned.");
             }
+
+
+            if (!fromRaw)
+            {
+              if (string.IsNullOrEmpty((columns[col - 1])))
+                columns[col - 1] = columns[col];
+              else
+                columns[col - 1] += columns[col];
+            }
+            columns.RemoveAt(col);
+            col--;
+            handleWarning.Invoke(
+              col,
+              "Extra information from in next column has been appended, assuming the data was misaligned.");
           }
-
-          col++;
         }
+
+        col++;
       }
-      return (columns.Count == row.Count && row.Count == m_ExpectedColumns)
-          ? row : columns.ToArray();
     }
+    return (columns.Count == row.Count && row.Count == m_ExpectedColumns)
+      ? row : columns.ToArray();
+  }
 
-    /// <summary>
-    ///   Looking at the text sets certain flags
-    /// </summary>
-    /// <param name="text">The column information, best is trimmed</param>
-    /// <returns>The appropriate column options</returns>
-    private static ColumnOption GetColumnOption(string? text)
+  /// <summary>
+  ///   Looking at the text sets certain flags
+  /// </summary>
+  /// <param name="text">The column information, best is trimmed</param>
+  /// <returns>The appropriate column options</returns>
+  private static ColumnOption GetColumnOption(string? text)
+  {
+    if (text is null || text.Length == 0)
+      return ColumnOption.Empty;
+
+    var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars
+              | ColumnOption.NoSpace;
+
+    // compare the text as whole
+    if (BoolVals.Contains(text))
+      all |= ColumnOption.Boolean;
+
+    if (text.Length <= 30)
+      all |= ColumnOption.ShortText;
+    if (text.Length <= 10)
+      all |= ColumnOption.VeryShortText;
+
+    // check individual character
+    foreach (var c in text)
     {
-      if (text is null || text.Length == 0)
-        return ColumnOption.Empty;
+      if (all.HasFlag(ColumnOption.NumbersOnly) &&  !DigitsSet.Contains(c))
+        all &= ~ColumnOption.NumbersOnly;
+      if (all.HasFlag(ColumnOption.DecimalChars) && !DecimalCharsSet.Contains(c))
+        all &= ~ColumnOption.DecimalChars;
+      if (all.HasFlag(ColumnOption.DateTimeChars) && !DateTimeCharsSet.Contains(c))
+        all &= ~ColumnOption.DateTimeChars;
+      if (all.HasFlag(ColumnOption.NoSpace) && char.IsWhiteSpace(c))
+        all &= ~ColumnOption.NoSpace;
 
-      var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars
-                | ColumnOption.NoSpace;
-
-      // compare the text as whole
-      if (BoolVals.Contains(text))
-        all |= ColumnOption.Boolean;
-
-      if (text.Length <= 30)
-        all |= ColumnOption.ShortText;
-      if (text.Length <= 10)
-        all |= ColumnOption.VeryShortText;
-
-      // check individual character
-      foreach (var c in text)
-      {
-        if (all.HasFlag(ColumnOption.NumbersOnly) &&  !DigitsSet.Contains(c))
-          all &= ~ColumnOption.NumbersOnly;
-        if (all.HasFlag(ColumnOption.DecimalChars) && !DecimalCharsSet.Contains(c))
-          all &= ~ColumnOption.DecimalChars;
-        if (all.HasFlag(ColumnOption.DateTimeChars) && !DateTimeCharsSet.Contains(c))
-          all &= ~ColumnOption.DateTimeChars;
-        if (all.HasFlag(ColumnOption.NoSpace) && char.IsWhiteSpace(c))
-          all &= ~ColumnOption.NoSpace;
-
-        // early shortcut
-        if (all == ColumnOption.None)
-          return ColumnOption.None;
-      }
-
-      return all;
+      // early shortcut
+      if (all == ColumnOption.None)
+        return ColumnOption.None;
     }
 
-    /// <summary>
-    ///   Get the combined option over all rows
-    /// </summary>
-    /// <param name="colNum">The Column Number in the array</param>
-    /// <param name="rows">All rows to look at</param>
-    private static ColumnOption GetColumnOptionAllRows(in int colNum, in ICollection<string[]> rows)
+    return all;
+  }
+
+  /// <summary>
+  ///   Get the combined option over all rows
+  /// </summary>
+  /// <param name="colNum">The Column Number in the array</param>
+  /// <param name="rows">All rows to look at</param>
+  private static ColumnOption GetColumnOptionAllRows(in int colNum, in ICollection<string[]> rows)
+  {
+    var overall = ColumnOption.Empty;
+    foreach (var row in rows)
     {
-      var overall = ColumnOption.Empty;
-      foreach (var row in rows)
-      {
-        if (row.Length <= colNum) continue;
-        var oneColOption = GetColumnOption(row[colNum]);
-        if (oneColOption == ColumnOption.Empty)
-          continue;
+      if (row.Length <= colNum) continue;
+      var oneColOption = GetColumnOption(row[colNum]);
+      if (oneColOption == ColumnOption.Empty)
+        continue;
 
-        if (overall == ColumnOption.Empty)
-          overall = oneColOption;
-        else
-          overall &= oneColOption;
+      if (overall == ColumnOption.Empty)
+        overall = oneColOption;
+      else
+        overall &= oneColOption;
 
-        if (overall == ColumnOption.None)
-          break;
-      }
-
-      return overall;
+      if (overall == ColumnOption.None)
+        break;
     }
 
-    /// <summary>
-    ///   A regular number like 2772 would be NumbersOnly | DecimalChars | DateTimeChars | NoSpace |
-    ///   ShortText | VeryShortText
-    /// </summary>
-    [Flags]
-    private enum ColumnOption
-    {
-      None = 0,
+    return overall;
+  }
 
-      Empty = 1,
+  /// <summary>
+  ///   A regular number like 2772 would be NumbersOnly | DecimalChars | DateTimeChars | NoSpace |
+  ///   ShortText | VeryShortText
+  /// </summary>
+  [Flags]
+  private enum ColumnOption
+  {
+    None = 0,
 
-      NumbersOnly = 1 << 1, // Only 0-9
+    Empty = 1,
 
-      DecimalChars = 1 << 2, // Only . ,  + - and numbers
+    NumbersOnly = 1 << 1, // Only 0-9
 
-      DateTimeChars = 1 << 3, // Only / \ - . : T (space)
+    DecimalChars = 1 << 2, // Only . ,  + - and numbers
 
-      NoSpace = 1 << 4, // Does not contain spaces
+    DateTimeChars = 1 << 3, // Only / \ - . : T (space)
 
-      ShortText = 1 << 5, // Length < 40
+    NoSpace = 1 << 4, // Does not contain spaces
 
-      VeryShortText = 1 << 6, // Length < 10
+    ShortText = 1 << 5, // Length < 40
 
-      Boolean = 1 << 7
-    }
+    VeryShortText = 1 << 6, // Length < 10
+
+    Boolean = 1 << 7
   }
 }

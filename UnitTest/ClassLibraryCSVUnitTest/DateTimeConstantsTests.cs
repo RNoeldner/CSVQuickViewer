@@ -16,23 +16,22 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass()]
+public class DateTimeConstantsTests
 {
-  [TestClass()]
-  public class DateTimeConstantsTests
+  [TestMethod]
+  public void GeneralCultureInfoTest()
   {
-    [TestMethod]
-    public void GeneralCultureInfoTest()
-    {
-      var german = new CultureInfo("de-DE");
-      // make sure the DateFormat does show 
-      Assert.AreEqual("dd.MM.yyyy", german.DateTimeFormat.ShortDatePattern);
-      Assert.AreEqual("MM/dd/yyyy", CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern);
+    var german = new CultureInfo("de-DE");
+    // make sure the DateFormat does show 
+    Assert.AreEqual("dd.MM.yyyy", german.DateTimeFormat.ShortDatePattern);
+    Assert.AreEqual("MM/dd/yyyy", CultureInfo.InvariantCulture.DateTimeFormat.ShortDatePattern);
 
-      CultureInfo.CurrentCulture = german;
-      Assert.IsTrue(DateTimeConstants.CommonDateTimeFormats(string.Empty).Any(x => x == "dd/MM/yyyy"));
-
-    }
+    CultureInfo.CurrentCulture = german;
+    Assert.IsTrue(DateTimeConstants.CommonDateTimeFormats(string.Empty).Any(x => x == "dd/MM/yyyy"));
 
   }
+
 }

@@ -15,63 +15,62 @@
 
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Collection of Columns
+/// </summary>
+public sealed class ColumnCollection : UniqueObservableCollection<Column>
 {
   /// <summary>
-  ///   Collection of Columns
+  ///   Adds the <see cref="Column" /> 
   /// </summary>
-  public sealed class ColumnCollection : UniqueObservableCollection<Column>
+  /// <remarks>If the column name already exist it does nothing</remarks>
+  /// <param name="column">The column format.</param>
+  public new void Add(Column column)
   {
-    /// <summary>
-    ///   Adds the <see cref="Column" /> 
-    /// </summary>
-    /// <remarks>If the column name already exist it does nothing</remarks>
-    /// <param name="column">The column format.</param>
-    public new void Add(Column column)
-    {
-      // Store ImmutableColumns only since Immutable column is not ICloneable Add will not create a copy.
-      if (column is null ||string.IsNullOrEmpty(column.Name))
-        throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
+    // Store ImmutableColumns only since Immutable column is not ICloneable Add will not create a copy.
+    if (column is null ||string.IsNullOrEmpty(column.Name))
+      throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
-      base.Add(column);
-    }
-
-    /// <summary>
-    ///   Replaces an existing column of the same name, if it does not exist it adds the column
-    /// </summary>
-    /// <param name="column"></param>
-    public void Replace(Column column)
-    {
-      if (column is null)
-        throw new ArgumentNullException(nameof(column));
-
-      var index = IndexOf(column);
-      if (index != -1)
-      {
-        Items.RemoveAt(index);
-        Items.Insert(index, column);
-        OnCollectionChanged(
-          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
-            .NotifyCollectionChangedAction.Reset));
-      }
-      else
-      {
-        Add(column);
-      }
-    }
-
-    /// <summary>
-    /// Gets the specified column by its name.
-    /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
-    public Column? GetByName(string? columnName)
-    {
-      if (columnName is null || columnName.Length == 0)
-        return null;
-      var index = GetIndexByIdentifier(columnName.IdentifierHash());
-      return index == -1 ? null : Items[index];
-    }
-
+    base.Add(column);
   }
+
+  /// <summary>
+  ///   Replaces an existing column of the same name, if it does not exist it adds the column
+  /// </summary>
+  /// <param name="column"></param>
+  public void Replace(Column column)
+  {
+    if (column is null)
+      throw new ArgumentNullException(nameof(column));
+
+    var index = IndexOf(column);
+    if (index != -1)
+    {
+      Items.RemoveAt(index);
+      Items.Insert(index, column);
+      OnCollectionChanged(
+        new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
+          .NotifyCollectionChangedAction.Reset));
+    }
+    else
+    {
+      Add(column);
+    }
+  }
+
+  /// <summary>
+  /// Gets the specified column by its name.
+  /// </summary>
+  /// <param name="columnName">Name of the column.</param>
+  /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
+  public Column? GetByName(string? columnName)
+  {
+    if (columnName is null || columnName.Length == 0)
+      return null;
+    var index = GetIndexByIdentifier(columnName.IdentifierHash());
+    return index == -1 ? null : Items[index];
+  }
+
 }

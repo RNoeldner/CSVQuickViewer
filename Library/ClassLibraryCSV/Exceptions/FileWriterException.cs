@@ -13,21 +13,20 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc />
+public sealed class FileWriterException : ApplicationException
 {
   /// <inheritdoc />
-  public sealed class FileWriterException : ApplicationException
+  public FileWriterException(string message)
+    : base(message)
   {
-    /// <inheritdoc />
-    public FileWriterException(string message)
-      : base(message)
-    {
-    }
+  }
 
-    /// <inheritdoc />
-    public FileWriterException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
+  /// <inheritdoc />
+  public FileWriterException(string message, Exception inner)
+    : base(message, inner)
+  {
   }
 }

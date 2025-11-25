@@ -16,286 +16,285 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Static class to deal with sample conversion detection, dealing with text to determine if a sample format can be used
+/// </summary>
+public static class CheckTexts
 {
   /// <summary>
-  ///   Static class to deal with sample conversion detection, dealing with text to determine if a sample format can be used
+  ///   Attempts to parse a collection of text values as dates using the specified format,
+  ///   returning information about which values matched or failed.
   /// </summary>
-  public static class CheckTexts
+  /// <param name="samples">The sample values to be checked.</param>
+  /// <param name="dateFormatPattern">The expected short date format pattern.</param>
+  /// <param name="dateSep">The date separator character.</param>
+  /// <param name="timeSep">The time separator character.</param>
+  /// <param name="culture">The culture used for parsing (important for named days or months).</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
+  public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
+    ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
+    in CultureInfo culture, CancellationToken cancellationToken)
   {
-    /// <summary>
-    ///   Attempts to parse a collection of text values as dates using the specified format,
-    ///   returning information about which values matched or failed.
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="dateFormatPattern">The expected short date format pattern.</param>
-    /// <param name="dateSep">The date separator character.</param>
-    /// <param name="timeSep">The time separator character.</param>
-    /// <param name="culture">The culture used for parsing (important for named days or months).</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
-    public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-                                        ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
-                                        in CultureInfo culture, CancellationToken cancellationToken)
-    {
-      var result = new CheckResult();
-      if (samples.Count == 0)
-        return result;
-
-      var allParsed = true;
-      var counter = 0;
-      var positiveMatches = 0;
-      var thresholdPossible = Math.Max(1, Math.Min(5, samples.Count));
-
-      foreach (var sample in samples)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-
-        counter++;
-        var parsedDate = sample.Span.StringToDateTimeExact(dateFormatPattern, dateSep, timeSep, culture);
-        if (!parsedDate.HasValue)
-        {
-          allParsed = false;
-          result.AddNonMatch(sample.Span.ToString());
-
-          // If the first few are invalid, stop early
-          if (counter >= 5)
-            break;
-        }
-        else
-        {
-          positiveMatches++;
-
-          // Mark as possible match if threshold reached
-          if (!result.PossibleMatch && positiveMatches >= thresholdPossible)
-          {
-            result.PossibleMatch = true;
-            result.ValueFormatPossibleMatch = new ValueFormat(
-              DataTypeEnum.DateTime,
-              dateFormatPattern.ToString(),
-              dateSep.ToString(),
-              timeSep.ToString());
-          }
-        }
-      }
-
-      if (allParsed)
-      {
-        result.FoundValueFormat = new ValueFormat(
-          DataTypeEnum.DateTime,
-          dateFormatPattern.ToString(),
-          dateSep.ToString(),
-          timeSep.ToString());
-      }
-
+    var result = new CheckResult();
+    if (samples.Count == 0)
       return result;
-    }
 
+    var allParsed = true;
+    var counter = 0;
+    var positiveMatches = 0;
+    var thresholdPossible = Math.Max(1, Math.Min(5, samples.Count));
 
-    /// <summary>
-    ///   Checks whether all sample values are valid GUIDs.
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>
-    ///   <c>true</c> if all non-empty values can be interpreted as <see cref="Guid"/>; 
-    ///   <c>false</c> otherwise.
-    /// </returns>
-    public static bool CheckGuid(this IEnumerable<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
+    foreach (var sample in samples)
     {
-      var hasSamples = false;
+      if (cancellationToken.IsCancellationRequested)
+        break;
 
-      foreach (var sample in samples)
+      counter++;
+      var parsedDate = sample.Span.StringToDateTimeExact(dateFormatPattern, dateSep, timeSep, culture);
+      if (!parsedDate.HasValue)
       {
-        if (cancellationToken.IsCancellationRequested)
+        allParsed = false;
+        result.AddNonMatch(sample.Span.ToString());
+
+        // If the first few are invalid, stop early
+        if (counter >= 5)
           break;
-
-        hasSamples = true;
-
-        var parsed = sample.Span.StringToGuid();
-        if (!parsed.HasValue)
-          return false;
       }
-
-      return hasSamples;
-    }
-
-
-    /// <summary>
-    ///   Checks if the sample values are numbers (integer or numeric)
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="decimalSep">The decimal separator.</param>
-    /// <param name="thousandSep">The thousand separator.</param>
-    /// <param name="allowPercentage">Allows Percentages</param>
-    /// <param name="allowStartingZero">if set to <c>true</c> numbers with leading zeros will still be parsed, if <c>false</c> these numbers will not be seen as
-    /// numbers</param>
-    /// <param name="removeCurrencySymbols">if set to <c>true</c> common currency symbols are removed.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
-    public static CheckResult CheckNumber(this IReadOnlyCollection<ReadOnlyMemory<char>> samples, char decimalSep,
-                                          char thousandSep, bool allowPercentage, bool allowStartingZero,
-                                          bool removeCurrencySymbols, CancellationToken cancellationToken)
-    {
-      var result = new CheckResult();
-      if (samples.Count == 0)
-        return result;
-      var allParsed = true;
-      var assumeInteger = true;
-
-      foreach (var sample in samples)
+      else
       {
-        if (cancellationToken.IsCancellationRequested)
-          break;
+        positiveMatches++;
 
-        var ret = sample.Span.StringToDecimal(decimalSep, thousandSep, allowPercentage,
-          removeCurrencySymbols);
-        // Any number with leading 0 should NOT be treated as numeric this is to avoid problems with
-        // 0002 etc.        
-        if (!ret.HasValue || (!allowStartingZero && (sample.Span.Length > 1 && sample.Span[0] == '0') && Math.Floor(ret.Value) != 0))
+        // Mark as possible match if threshold reached
+        if (!result.PossibleMatch && positiveMatches >= thresholdPossible)
         {
-          allParsed = false;
-          result.AddNonMatch(sample.ToString());
-          // try to get some positive matches, in case the first record is invalid
-          if (result.ExampleNonMatch.Count > 2)
-            break;
-        }
-        else
-        {
-          // if the sample contains the decimal separator or is too large to be an integer, it's not
-          // an integer
-          if (sample.Span.IndexOf(decimalSep) != -1)
-            assumeInteger = false;
-          else
-            assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue
-                            && ret.Value >= int.MinValue;
-          if (result.PossibleMatch) continue;
           result.PossibleMatch = true;
           result.ValueFormatPossibleMatch = new ValueFormat(
-            assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
-            groupSeparator: thousandSep.ToStringHandle0(),
-            decimalSeparator: decimalSep.ToStringHandle0());
+            DataTypeEnum.DateTime,
+            dateFormatPattern.ToString(),
+            dateSep.ToString(),
+            timeSep.ToString());
         }
       }
+    }
 
-      if (allParsed)
-        result.FoundValueFormat = new ValueFormat(
+    if (allParsed)
+    {
+      result.FoundValueFormat = new ValueFormat(
+        DataTypeEnum.DateTime,
+        dateFormatPattern.ToString(),
+        dateSep.ToString(),
+        timeSep.ToString());
+    }
+
+    return result;
+  }
+
+
+  /// <summary>
+  ///   Checks whether all sample values are valid GUIDs.
+  /// </summary>
+  /// <param name="samples">The sample values to be checked.</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>
+  ///   <c>true</c> if all non-empty values can be interpreted as <see cref="Guid"/>; 
+  ///   <c>false</c> otherwise.
+  /// </returns>
+  public static bool CheckGuid(this IEnumerable<ReadOnlyMemory<char>> samples, CancellationToken cancellationToken)
+  {
+    var hasSamples = false;
+
+    foreach (var sample in samples)
+    {
+      if (cancellationToken.IsCancellationRequested)
+        break;
+
+      hasSamples = true;
+
+      var parsed = sample.Span.StringToGuid();
+      if (!parsed.HasValue)
+        return false;
+    }
+
+    return hasSamples;
+  }
+
+
+  /// <summary>
+  ///   Checks if the sample values are numbers (integer or numeric)
+  /// </summary>
+  /// <param name="samples">The sample values to be checked.</param>
+  /// <param name="decimalSep">The decimal separator.</param>
+  /// <param name="thousandSep">The thousand separator.</param>
+  /// <param name="allowPercentage">Allows Percentages</param>
+  /// <param name="allowStartingZero">if set to <c>true</c> numbers with leading zeros will still be parsed, if <c>false</c> these numbers will not be seen as
+  /// numbers</param>
+  /// <param name="removeCurrencySymbols">if set to <c>true</c> common currency symbols are removed.</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
+  public static CheckResult CheckNumber(this IReadOnlyCollection<ReadOnlyMemory<char>> samples, char decimalSep,
+    char thousandSep, bool allowPercentage, bool allowStartingZero,
+    bool removeCurrencySymbols, CancellationToken cancellationToken)
+  {
+    var result = new CheckResult();
+    if (samples.Count == 0)
+      return result;
+    var allParsed = true;
+    var assumeInteger = true;
+
+    foreach (var sample in samples)
+    {
+      if (cancellationToken.IsCancellationRequested)
+        break;
+
+      var ret = sample.Span.StringToDecimal(decimalSep, thousandSep, allowPercentage,
+        removeCurrencySymbols);
+      // Any number with leading 0 should NOT be treated as numeric this is to avoid problems with
+      // 0002 etc.        
+      if (!ret.HasValue || (!allowStartingZero && (sample.Span.Length > 1 && sample.Span[0] == '0') && Math.Floor(ret.Value) != 0))
+      {
+        allParsed = false;
+        result.AddNonMatch(sample.ToString());
+        // try to get some positive matches, in case the first record is invalid
+        if (result.ExampleNonMatch.Count > 2)
+          break;
+      }
+      else
+      {
+        // if the sample contains the decimal separator or is too large to be an integer, it's not
+        // an integer
+        if (sample.Span.IndexOf(decimalSep) != -1)
+          assumeInteger = false;
+        else
+          assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue
+                          && ret.Value >= int.MinValue;
+        if (result.PossibleMatch) continue;
+        result.PossibleMatch = true;
+        result.ValueFormatPossibleMatch = new ValueFormat(
           assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
           groupSeparator: thousandSep.ToStringHandle0(),
           decimalSeparator: decimalSep.ToStringHandle0());
-      return result;
+      }
     }
 
-    /// <summary>
-    ///   Checks if the sample values can be interpreted as serial dates.
-    ///   Returns a CheckResult indicating the success or possible matches.
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="isCloseToNow">
-    ///   If true, only numbers that produce dates within ~80 years past to 20 years future relative to today are considered valid.    
-    /// </param>    
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
-    public static CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow, CancellationToken cancellationToken)
+    if (allParsed)
+      result.FoundValueFormat = new ValueFormat(
+        assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
+        groupSeparator: thousandSep.ToStringHandle0(),
+        decimalSeparator: decimalSep.ToStringHandle0());
+    return result;
+  }
+
+  /// <summary>
+  ///   Checks if the sample values can be interpreted as serial dates.
+  ///   Returns a CheckResult indicating the success or possible matches.
+  /// </summary>
+  /// <param name="samples">The sample values to be checked.</param>
+  /// <param name="isCloseToNow">
+  ///   If true, only numbers that produce dates within ~80 years past to 20 years future relative to today are considered valid.    
+  /// </param>    
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
+  public static CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow, CancellationToken cancellationToken)
+  {
+    var result = new CheckResult();
+
+    var allParsed = true;
+    var positiveMatches = 0;
+    var invalid = 0;
+
+    var now = DateTime.UtcNow;
+    var minDate = now.AddYears(-80);
+    var maxDate = now.AddYears(20);
+
+    foreach (var sample in samples)
     {
-      var result = new CheckResult();
+      if (cancellationToken.IsCancellationRequested)
+        break;
 
-      var allParsed = true;
-      var positiveMatches = 0;
-      var invalid = 0;
+      var parsed = sample.Span.SerialStringToDateTime();
 
-      var now = DateTime.UtcNow;
-      var minDate = now.AddYears(-80);
-      var maxDate = now.AddYears(20);
-
-      foreach (var sample in samples)
+      if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
       {
-        if (cancellationToken.IsCancellationRequested)
+        allParsed = false;
+        invalid++;
+        if (result.ExampleNonMatch.Count < 5)
+          result.AddNonMatch(sample.Span.ToString());
+
+        if (invalid > 3 && positiveMatches == 0)
           break;
-
-        var parsed = sample.Span.SerialStringToDateTime();
-
-        if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
-        {
-          allParsed = false;
-          invalid++;
-          if (result.ExampleNonMatch.Count < 5)
-            result.AddNonMatch(sample.Span.ToString());
-
-          if (invalid > 3 && positiveMatches == 0)
-            break;
-          continue;
-        }
-
-        positiveMatches++;
-        if (positiveMatches > 5 && !result.PossibleMatch)
-        {
-          result.PossibleMatch = true;
-          result.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
-        }
+        continue;
       }
 
-      if (allParsed && positiveMatches > 0)
-        result.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
-
-      return result;
+      positiveMatches++;
+      if (positiveMatches > 5 && !result.PossibleMatch)
+      {
+        result.PossibleMatch = true;
+        result.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
+      }
     }
 
+    if (allParsed && positiveMatches > 0)
+      result.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
 
-    /// <summary>
-    ///   Analyzes sample text values to detect indications that the content
-    ///   may be HTML-encoded or contain C-style escaped characters.
-    /// </summary>
-    /// <param name="samples">The text samples to analyze.</param>
-    /// <param name="minRequiredSamples">The minimum number of matches required to decide on a non-string type.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>
-    /// Returns one of the following:
-    /// <list type="bullet">
-    /// <item><description><see cref="DataTypeEnum.TextToHtml"/> if HTML-like content (e.g. &lt;br&gt; or &lt;![CDATA[) is detected.</description></item>
-    /// <item><description><see cref="DataTypeEnum.TextUnescape"/> if C-style escape sequences (e.g. \n, \t, \u) are detected.</description></item>
-    /// <item><description><see cref="DataTypeEnum.String"/> if no strong indication for encoding or escaping is found.</description></item>
-    /// </list>
-    /// </returns>
-    internal static DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples, CancellationToken cancellationToken)
+    return result;
+  }
+
+
+  /// <summary>
+  ///   Analyzes sample text values to detect indications that the content
+  ///   may be HTML-encoded or contain C-style escaped characters.
+  /// </summary>
+  /// <param name="samples">The text samples to analyze.</param>
+  /// <param name="minRequiredSamples">The minimum number of matches required to decide on a non-string type.</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>
+  /// Returns one of the following:
+  /// <list type="bullet">
+  /// <item><description><see cref="DataTypeEnum.TextToHtml"/> if HTML-like content (e.g. &lt;br&gt; or &lt;![CDATA[) is detected.</description></item>
+  /// <item><description><see cref="DataTypeEnum.TextUnescape"/> if C-style escape sequences (e.g. \n, \t, \u) are detected.</description></item>
+  /// <item><description><see cref="DataTypeEnum.String"/> if no strong indication for encoding or escaping is found.</description></item>
+  /// </list>
+  /// </returns>
+  internal static DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples, CancellationToken cancellationToken)
+  {
+    const StringComparison OrdinalIgnoreCase = StringComparison.OrdinalIgnoreCase;
+    const StringComparison Ordinal = StringComparison.Ordinal;
+
+    ReadOnlySpan<char> brSpan = "<br>".AsSpan();
+    ReadOnlySpan<char> cdataSpan = "<![CDATA[".AsSpan();
+    ReadOnlySpan<string> escapeSequences = new[] { "\\r", "\\n", "\\t", "\\u", "\\x" };
+
+    int foundHtml = 0, foundUnescaped = 0;
+
+    foreach (var text in samples)
     {
-      const StringComparison OrdinalIgnoreCase = StringComparison.OrdinalIgnoreCase;
-      const StringComparison Ordinal = StringComparison.Ordinal;
+      if (cancellationToken.IsCancellationRequested)
+        break;
 
-      ReadOnlySpan<char> brSpan = "<br>".AsSpan();
-      ReadOnlySpan<char> cdataSpan = "<![CDATA[".AsSpan();
-      ReadOnlySpan<string> escapeSequences = new[] { "\\r", "\\n", "\\t", "\\u", "\\x" };
+      var span = text.Span;
 
-      int foundHtml = 0, foundUnescaped = 0;
-
-      foreach (var text in samples)
+      // HTML-like indicators
+      if (span.IndexOf(brSpan, OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, OrdinalIgnoreCase))
       {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-
-        var span = text.Span;
-
-        // HTML-like indicators
-        if (span.IndexOf(brSpan, OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, OrdinalIgnoreCase))
-        {
-          if (++foundHtml > minRequiredSamples)
-            return DataTypeEnum.TextToHtml;
-        }
-
-        // C-style escape sequences
-        foreach (var esc in escapeSequences)
-        {
-          if (span.IndexOf(esc.AsSpan(), Ordinal) != -1)
-          {
-            if (++foundUnescaped > minRequiredSamples)
-              return DataTypeEnum.TextUnescape;
-            break;
-          }
-        }
+        if (++foundHtml > minRequiredSamples)
+          return DataTypeEnum.TextToHtml;
       }
 
-      return DataTypeEnum.String;
+      // C-style escape sequences
+      foreach (var esc in escapeSequences)
+      {
+        if (span.IndexOf(esc.AsSpan(), Ordinal) != -1)
+        {
+          if (++foundUnescaped > minRequiredSamples)
+            return DataTypeEnum.TextUnescape;
+          break;
+        }
+      }
     }
+
+    return DataTypeEnum.String;
   }
 }

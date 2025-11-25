@@ -11,16 +11,15 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Interface for XML file settings
+/// </summary>
+public interface IXmlFile : IFileSettingPhysicalFile
 {
   /// <summary>
-  /// Interface for XML file settings
+  ///   Template for a single data row, with fixed text and placeholders for the values
   /// </summary>
-  public interface IXmlFile : IFileSettingPhysicalFile
-  {
-    /// <summary>
-    ///   Template for a single data row, with fixed text and placeholders for the values
-    /// </summary>
-    string Row { get; set; }
-  }
+  string Row { get; set; }
 }

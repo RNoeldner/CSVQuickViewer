@@ -16,121 +16,121 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc cref="DisposableBase" />
+public sealed class SteppedDataTableLoader : DisposableBase
 {
-  /// <inheritdoc cref="DisposableBase" />
-  public sealed class SteppedDataTableLoader : DisposableBase
+  private DataReaderWrapper? m_DataReaderWrapper;
+
+  /// <summary>
+  /// The number of columns supported, if more columns are found its assumed there is something wrong
+  /// Without this check the DataGrid will run into issues
+  /// </summary>
+  private const int cMaxColumns = 2048;
+
+  /// <summary>
+  ///   Determine if the data Reader is at the end of the file
+  /// </summary>
+  /// <returns>True if you can read; otherwise, false.</returns>
+  public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
+
+  /// <summary>
+  /// Starts the load of data from a file setting into the data table from m_GetDataTable
+  /// </summary>
+  /// <param name="fileSetting">The file setting.</param>
+  /// <param name="durationInitial">The duration for the initial load</param>
+  /// <param name="progress">Process display to pass on progress information</param>
+  /// <param name="addWarning">Add warnings.</param>    
+  /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
+  public async Task<DataTable> StartAsync(
+    IFileSetting fileSetting,
+    TimeSpan durationInitial,
+    IProgressWithCancellation progress,
+    EventHandler<WarningEventArgs>? addWarning)
   {
-    private DataReaderWrapper? m_DataReaderWrapper;
+    progress.Report("Starting to load data");
+    //m_Id = fileSetting.ID;
+    var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
+    if (fileReader is null)
+      throw new FileReaderException($"Could not get reader for {fileSetting}");
 
-    /// <summary>
-    /// The number of columns supported, if more columns are found its assumed there is something wrong
-    /// Without this check the DataGrid will run into issues
-    /// </summary>
-    private const int cMaxColumns = 2048;
-
-    /// <summary>
-    ///   Determine if the data Reader is at the end of the file
-    /// </summary>
-    /// <returns>True if you can read; otherwise, false.</returns>
-    public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
-
-    /// <summary>
-    /// Starts the load of data from a file setting into the data table from m_GetDataTable
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="durationInitial">The duration for the initial load</param>
-    /// <param name="progress">Process display to pass on progress information</param>
-    /// <param name="addWarning">Add warnings.</param>    
-    /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
-    public async Task<DataTable> StartAsync(
-      IFileSetting fileSetting,
-      TimeSpan durationInitial,
-      IProgressWithCancellation progress,
-      EventHandler<WarningEventArgs>? addWarning)
+    try
     {
-      progress.Report("Starting to load data");
-      //m_Id = fileSetting.ID;
-      var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
-      if (fileReader is null)
-        throw new FileReaderException($"Could not get reader for {fileSetting}");
+      progress.Report("Opening reader");
+      fileReader.ReportProgress = progress;
+      if (addWarning != null)
+        fileReader.Warning += addWarning;
 
-      try
-      {
-        progress.Report("Opening reader");
-        fileReader.ReportProgress = progress;
-        if (addWarning != null)
-          fileReader.Warning += addWarning;
+      await fileReader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
 
-        await fileReader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
+      if (fileReader.FieldCount > cMaxColumns)
+        throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
 
-        if (fileReader.FieldCount > cMaxColumns)
-          throw new FileReaderException($"The amount of columns {fileReader.FieldCount:N0} is very high, assuming misconfiguration of reader {fileSetting.GetDisplay()}");
+      // Stop reporting progress to the outside, we do that in the DataReaderWrapper
+      fileReader.ReportProgress = new Progress<ProgressInfo>();
 
-        // Stop reporting progress to the outside, we do that in the DataReaderWrapper
-        fileReader.ReportProgress = new Progress<ProgressInfo>();
+      m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
+        fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
 
-        m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.DisplayStartLineNo,
-          fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo, false, fileSetting.RecordLimit);
-
-        return await GetNextBatch(durationInitial, progress).ConfigureAwait(false);
-      }
-      catch (Exception ex) when (ex is not FileReaderException)
-      {
-        throw new FileReaderException($"Error initializing reader for {fileSetting.GetDisplay()}", ex);
-      }
+      return await GetNextBatch(durationInitial, progress).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// Loads the next batch of data from a file setting into the data table from Wrapper
-    /// </summary>
-    /// <param name="progress">Process display to pass on progress information</param>
-    /// <param name="duration">For maximum duration for the read process</param>        
-    public async Task<DataTable> GetNextBatch(TimeSpan duration, IProgressWithCancellation progress)
+    catch (Exception ex) when (ex is not FileReaderException)
     {
-      if (m_DataReaderWrapper is null)
-        return new DataTable();
+      throw new FileReaderException($"Error initializing reader for {fileSetting.GetDisplay()}", ex);
+    }
+  }
 
-      try
-      {
-        m_DataReaderWrapper.ReportProgress = progress;
-        progress.Report("Getting batch");
+  /// <summary>
+  /// Loads the next batch of data from a file setting into the data table from Wrapper
+  /// </summary>
+  /// <param name="progress">Process display to pass on progress information</param>
+  /// <param name="duration">For maximum duration for the read process</param>        
+  public async Task<DataTable> GetNextBatch(TimeSpan duration, IProgressWithCancellation progress)
+  {
+    if (m_DataReaderWrapper is null)
+      return new DataTable();
 
-        var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress)
-            .ConfigureAwait(false);
+    try
+    {
+      m_DataReaderWrapper.ReportProgress = progress;
+      progress.Report("Getting batch");
 
-        if (m_DataReaderWrapper.EndOfFile)
+      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress)
+        .ConfigureAwait(false);
+
+      if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await DisposeAsync().ConfigureAwait(false);
 #else
-          Dispose();
+        Dispose();
 #endif
-        return dt;
-      }
-      catch (OperationCanceledException)
-      {
-        throw; // Let cancellation propagate
-      }
-      catch (Exception ex)
-      {
-        throw new FileReaderException("Error reading next batch of data", ex);
-      }
+      return dt;
     }
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    catch (OperationCanceledException)
     {
-      if (!disposing) return;
-
-      try
-      {
-        m_DataReaderWrapper?.Dispose();
-      }
-      finally
-      {
-        m_DataReaderWrapper = null;
-      }
+      throw; // Let cancellation propagate
     }
+    catch (Exception ex)
+    {
+      throw new FileReaderException("Error reading next batch of data", ex);
+    }
+  }
+
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+    if (!disposing) return;
+
+    try
+    {
+      m_DataReaderWrapper?.Dispose();
+    }
+    finally
+    {
+      m_DataReaderWrapper = null;
+    }
+  }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <inheritdoc />
@@ -149,5 +149,4 @@ namespace CsvTools
       }
     }
 #endif
-  }
 }

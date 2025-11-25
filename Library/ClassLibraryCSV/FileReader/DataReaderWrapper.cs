@@ -21,416 +21,410 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc cref="CsvTools.IFileReader" />
+/// <summary>
+///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
+/// </summary>
+/// <remarks>
+///   Allow any IDataReader to be used as IFileReader
+/// </remarks>
+public class DataReaderWrapper : DbDataReader, IFileReader
 {
-  /// <inheritdoc cref="CsvTools.IFileReader" />
   /// <summary>
-  ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
+  /// Data Reader, that might be reset by overriding class <see cref="DataTableWrapper"/>
   /// </summary>
-  /// <remarks>
-  ///   Allow any IDataReader to be used as IFileReader
-  /// </remarks>
-  public class DataReaderWrapper : DbDataReader, IFileReader
+  protected IDataReader DataReader;
+  private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
+  private readonly IFileReader? m_FileReader;
+  private readonly ReaderMapping m_ReaderMapping;
+  private readonly long m_RecordLimit;
+
+  /// <summary>
+  ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
+  ///   Start and End Line or Record number in needed and handles the return of these artificial fields in GetValue
+  /// </summary>
+  /// <param name="reader">Regular framework IDataReader</param>
+  /// <param name="startLine">Add artificial field Start Line</param>
+  /// <param name="endLine">Add artificial field End Line</param>
+  /// <param name="recNum">Add artificial field Records Number</param>
+  /// <param name="errorField">Add artificial field Error</param>
+  /// <param name="recordLimit">Maximum number of records to read</param>
+  public DataReaderWrapper(in IDataReader reader,
+    bool startLine = false, bool endLine = false,
+    bool recNum = false, bool errorField = false, long recordLimit = -1)
   {
-    /// <summary>
-    /// Data Reader, that might be reset by overriding class <see cref="DataTableWrapper"/>
-    /// </summary>
-    protected IDataReader DataReader;
-    private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
-    private readonly IFileReader? m_FileReader;
-    private readonly ReaderMapping m_ReaderMapping;
-    private readonly long m_RecordLimit;
-
-    /// <summary>
-    ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
-    ///   Start and End Line or Record number in needed and handles the return of these artificial fields in GetValue
-    /// </summary>
-    /// <param name="reader">Regular framework IDataReader</param>
-    /// <param name="startLine">Add artificial field Start Line</param>
-    /// <param name="endLine">Add artificial field End Line</param>
-    /// <param name="recNum">Add artificial field Records Number</param>
-    /// <param name="errorField">Add artificial field Error</param>
-    /// <param name="recordLimit">Maximum number of records to read</param>
-    public DataReaderWrapper(in IDataReader reader,
-      bool startLine = false, bool endLine = false,
-      bool recNum = false, bool errorField = false, long recordLimit = -1)
+    DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
+    m_FileReader = reader as IFileReader;
+    if (reader.IsClosed)
+      throw new InvalidOperationException("Reader can not be closed");
+    RowErrorInformation = string.Empty;
+    m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+    var sourceColumns = new List<Column>();
+    for (var col = 0; col < reader.FieldCount; col++)
     {
-      DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
-      m_FileReader = reader as IFileReader;
-      if (reader.IsClosed)
-        throw new InvalidOperationException("Reader can not be closed");
-      RowErrorInformation = string.Empty;
-      m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-      var sourceColumns = new List<Column>();
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        var column = (m_FileReader != null)
-          ? m_FileReader.GetColumn(col)
-          : new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col);
-        sourceColumns.Add(column);
-      }
-
-      m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
-
-      if (m_FileReader != null)
-        m_FileReader.Warning += HandleSourceWarning;
+      var column = (m_FileReader != null)
+        ? m_FileReader.GetColumn(col)
+        : new Column(reader.GetName(col), new ValueFormat(reader.GetFieldType(col).GetDataType()), col);
+      sourceColumns.Add(column);
     }
 
-    /// <inheritdoc />
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
+    m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
 
-    /// <inheritdoc />
-    public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
+    if (m_FileReader != null)
+      m_FileReader.Warning += HandleSourceWarning;
+  }
 
-    /// <inheritdoc />
-    public event EventHandler? ReadFinished;
+  /// <inheritdoc />
+  public event EventHandler<RetryEventArgs>? OnAskRetry;
 
-    /// <inheritdoc />
-    public event EventHandler<WarningEventArgs>? Warning;
+  /// <inheritdoc />
+  public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
 
-    /// <inheritdoc />
-    public override int Depth => FieldCount;
+  /// <inheritdoc />
+  public event EventHandler? ReadFinished;
 
-    /// <inheritdoc />
-    public void HandleReadFinished() =>  ReadFinished?.SafeInvoke(this);
+  /// <inheritdoc />
+  public event EventHandler<WarningEventArgs>? Warning;
+
+  /// <inheritdoc />
+  public override int Depth => FieldCount;
+
+  /// <inheritdoc />
+  public void HandleReadFinished() =>  ReadFinished?.SafeInvoke(this);
     
-    /// <inheritdoc />
-    public long EndLineNumber => m_FileReader?.EndLineNumber ?? RecordNumber;
+  /// <inheritdoc />
+  public long EndLineNumber => m_FileReader?.EndLineNumber ?? RecordNumber;
 
-    /// <inheritdoc />
-    public virtual bool EndOfFile => RecordNumber > m_RecordLimit ||
-                                     (m_FileReader?.EndOfFile ?? DataReader.IsClosed);
+  /// <inheritdoc />
+  public virtual bool EndOfFile => RecordNumber > m_RecordLimit ||
+                                   (m_FileReader?.EndOfFile ?? DataReader.IsClosed);
 
-    /// <inheritdoc />
-    public override int FieldCount => m_ReaderMapping.ResultingColumns.Count;
+  /// <inheritdoc />
+  public override int FieldCount => m_ReaderMapping.ResultingColumns.Count;
 
-    /// <inheritdoc />
-    public override bool HasRows => !DataReader.IsClosed;
+  /// <inheritdoc />
+  public override bool HasRows => !DataReader.IsClosed;
 
-    /// <inheritdoc />
-    public override bool IsClosed => DataReader.IsClosed;
+  /// <inheritdoc />
+  public override bool IsClosed => DataReader.IsClosed;
 
-    /// <summary>
-    /// Get the number of rows with errors (at least one row is missing)
-    /// </summary>
-    public long NumberRowError { get; private set; }
+  /// <summary>
+  /// Get the number of rows with errors (at least one row is missing)
+  /// </summary>
+  private long NumberRowError { get; set; }
 
-    /// <summary>
-    /// Get the number of rows with issues
-    /// </summary>
-    public long NumberRowWarnings { get; private set; }
+  /// <summary>
+  /// Get the number of rows with issues
+  /// </summary>
+  public long NumberRowWarnings { get; private set; }
 
-    /// <inheritdoc />
-    public Func<Task>? OnOpenAsync { get; set; }
+  /// <inheritdoc />
+  public Func<Task>? OnOpenAsync { get; set; }
 
-    /// <inheritdoc />
-    public virtual int Percent => m_FileReader?.Percent ??
-                                  ((m_RecordLimit < long.MaxValue)
-                                    ? ((double) RecordNumber / m_RecordLimit * 100).ToInt()
-                                    : 50);
+  /// <inheritdoc />
+  public virtual int Percent => m_FileReader?.Percent ??
+                                ((m_RecordLimit < long.MaxValue)
+                                  ? ((double) RecordNumber / m_RecordLimit * 100).ToInt()
+                                  : 50);
 
-    /// <inheritdoc />
-    public long RecordNumber { get; private set; }
+  /// <inheritdoc />
+  public long RecordNumber { get; private set; }
 
-    /// <inheritdoc />
-    public override int RecordsAffected => RecordNumber.ToInt();
+  /// <inheritdoc />
+  public override int RecordsAffected => RecordNumber.ToInt();
 
-    /// <inheritdoc />
-    public IProgress<ProgressInfo> ReportProgress
+  /// <inheritdoc />
+  public IProgress<ProgressInfo> ReportProgress
+  {
+    set
     {
-      set
-      {
-        if (m_FileReader != null)
-          m_FileReader.ReportProgress = value;
-      }
+      if (m_FileReader != null)
+        m_FileReader.ReportProgress = value;
     }
+  }
 
-    /// <summary>
-    /// Gets the error information for the row, this could be filled by an error column or by a reader raising warnings
-    /// </summary>
-    public string RowErrorInformation { get; private set; }
+  /// <summary>
+  /// Gets the error information for the row, this could be filled by an error column or by a reader raising warnings
+  /// </summary>
+  public string RowErrorInformation { get; private set; }
 
-    /// <inheritdoc />
-    public long StartLineNumber => m_FileReader?.StartLineNumber ?? RecordNumber;
+  /// <inheritdoc />
+  public long StartLineNumber => m_FileReader?.StartLineNumber ?? RecordNumber;
 
-    /// <inheritdoc />
-    public virtual bool SupportsReset => m_FileReader?.SupportsReset ?? false;
+  /// <inheritdoc />
+  public virtual bool SupportsReset => m_FileReader?.SupportsReset ?? false;
 
-    /// <inheritdoc />
-    public override object this[int ordinal] => GetValue(ordinal);
+  /// <inheritdoc />
+  public override object this[int ordinal] => GetValue(ordinal);
 
-    /// <inheritdoc />
-    public override object this[string name] => GetValue(GetOrdinal(name));
+  /// <inheritdoc />
+  public override object this[string name] => GetValue(GetOrdinal(name));
 
-    /// <inheritdoc />
-    public override void Close() => DataReader.Close();
+  /// <inheritdoc />
+  public override void Close() => DataReader.Close();
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <inheritdoc />
-    public override Task CloseAsync()
-    {
-      if (DataReader is DbDataReader dbDataReader)
-        return dbDataReader.CloseAsync();
-      else
-        DataReader.Close();
-      return Task.CompletedTask;
-    }
+  /// <inheritdoc />
+  public override Task CloseAsync()
+  {
+    if (DataReader is DbDataReader dbDataReader)
+      return dbDataReader.CloseAsync();
+    else
+      DataReader.Close();
+    return Task.CompletedTask;
+  }
 #endif
 
-    /// <inheritdoc />
-    public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override byte GetByte(int ordinal) => DataReader.GetByte(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override byte GetByte(int ordinal) => DataReader.GetByte(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
-      DataReader.GetBytes(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
+  /// <inheritdoc />
+  public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
+    DataReader.GetBytes(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    /// <inheritdoc />
-    public override char GetChar(int ordinal) => DataReader.GetChar(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override char GetChar(int ordinal) => DataReader.GetChar(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
-      DataReader.GetChars(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
+  /// <inheritdoc />
+  public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
+    DataReader.GetChars(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    /// <inheritdoc />
-    public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
+  /// <inheritdoc />
+  public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
 
-    /// <inheritdoc />
-    public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
+  /// <inheritdoc />
+  public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
-    /// <inheritdoc />
-    public override DateTime GetDateTime(int ordinal) =>
-      DataReader.GetDateTime(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override DateTime GetDateTime(int ordinal) =>
+    DataReader.GetDateTime(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override double GetDouble(int ordinal) => DataReader.GetDouble(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override double GetDouble(int ordinal) => DataReader.GetDouble(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
+  /// <inheritdoc />
+  public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
 
-    /// <inheritdoc />
-    public override Type GetFieldType(int ordinal) =>
-      m_ReaderMapping.ResultingColumns[ordinal].ValueFormat.DataType.GetNetType();
+  /// <inheritdoc />
+  public override Type GetFieldType(int ordinal) =>
+    m_ReaderMapping.ResultingColumns[ordinal].ValueFormat.DataType.GetNetType();
 
-    /// <inheritdoc />
-    public override float GetFloat(int ordinal) => DataReader.GetFloat(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override float GetFloat(int ordinal) => DataReader.GetFloat(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override Guid GetGuid(int ordinal) => DataReader.GetGuid(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override Guid GetGuid(int ordinal) => DataReader.GetGuid(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override int GetInt32(int ordinal) => DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
+  /// <inheritdoc />
+  public override int GetInt32(int ordinal) => DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
 
-    /// <inheritdoc />
-    public override long GetInt64(int ordinal)
-    {
-      // if mapped use the underlying reader
-      if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
-        return DataReader.GetInt64(mapped);
-      if (ordinal == m_ReaderMapping.ColNumStartLine)
-        return StartLineNumber;
-      if (ordinal == m_ReaderMapping.ColNumEndLine)
-        return EndLineNumber;
-      if (ordinal == m_ReaderMapping.ColNumRecNum)
-        return RecordNumber;
-      throw new IndexOutOfRangeException($"Column {ordinal} not found");
-    }
+  /// <inheritdoc />
+  public override long GetInt64(int ordinal)
+  {
+    // if mapped use the underlying reader
+    if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
+      return DataReader.GetInt64(mapped);
+    if (ordinal == m_ReaderMapping.ColNumStartLine)
+      return StartLineNumber;
+    if (ordinal == m_ReaderMapping.ColNumEndLine)
+      return EndLineNumber;
+    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : throw new IndexOutOfRangeException($"Column {ordinal} not found");
+  }
 
-    /// <inheritdoc />
-    public override string GetName(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].Name;
+  /// <inheritdoc />
+  public override string GetName(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].Name;
 
-    /// <inheritdoc />
-    public override int GetOrdinal(string name)
-    {
-      if (string.IsNullOrEmpty(name))
-        return -1;
-      var count = 0;
-      foreach (var column in m_ReaderMapping.ResultingColumns)
-      {
-        if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
-          return count;
-        count++;
-      }
-
+  /// <inheritdoc />
+  public override int GetOrdinal(string name)
+  {
+    if (string.IsNullOrEmpty(name))
       return -1;
+    var count = 0;
+    foreach (var column in m_ReaderMapping.ResultingColumns)
+    {
+      if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+        return count;
+      count++;
     }
 
-    /// <inheritdoc />
-    public override DataTable GetSchemaTable()
+    return -1;
+  }
+
+  /// <inheritdoc />
+  public override DataTable GetSchemaTable()
+  {
+    var dataTable = ReaderConstants.GetEmptySchemaTable();
+    var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
+
+    for (var col = 0; col < FieldCount; col++)
     {
-      var dataTable = ReaderConstants.GetEmptySchemaTable();
-      var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
-
-      for (var col = 0; col < FieldCount; col++)
-      {
-        var column = m_ReaderMapping.ResultingColumns[col];
-        schemaRow[1] = column.Name; // ResultingColumns name
-        schemaRow[4] = column.Name; // ResultingColumns name         
-        schemaRow[5] = col; // ResultingColumns ordinal
-        schemaRow[7] = column.ValueFormat.DataType.GetNetType();
-        dataTable.Rows.Add(schemaRow);
-      }
-
-      return dataTable;
+      var column = m_ReaderMapping.ResultingColumns[col];
+      schemaRow[1] = column.Name; // ResultingColumns name
+      schemaRow[4] = column.Name; // ResultingColumns name         
+      schemaRow[5] = col; // ResultingColumns ordinal
+      schemaRow[7] = column.ValueFormat.DataType.GetNetType();
+      dataTable.Rows.Add(schemaRow);
     }
 
-    /// <inheritdoc />
-    // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-    public override string GetString(int ordinal)
-      => (ordinal == m_ReaderMapping.ColNumErrorField)
-        ? RowErrorInformation
-        : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
+    return dataTable;
+  }
 
-    /// <inheritdoc />
-    public override object GetValue(int ordinal)
-    {
-      if (ordinal == m_ReaderMapping.ColNumErrorField)
-        return RowErrorInformation;
+  /// <inheritdoc />
+  // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+  public override string GetString(int ordinal)
+    => (ordinal == m_ReaderMapping.ColNumErrorField)
+      ? RowErrorInformation
+      : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
 
-      // if mapped use the underlying reader
-      if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
-        return DataReader.GetValue(mapped);
+  /// <inheritdoc />
+  public override object GetValue(int ordinal)
+  {
+    if (ordinal == m_ReaderMapping.ColNumErrorField)
+      return RowErrorInformation;
 
-      if (ordinal == m_ReaderMapping.ColNumStartLine)
-        return StartLineNumber;
-      if (ordinal == m_ReaderMapping.ColNumEndLine)
-        return EndLineNumber;
-      if (ordinal == m_ReaderMapping.ColNumRecNum)
-        return RecordNumber;
+    // if mapped use the underlying reader
+    if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
+      return DataReader.GetValue(mapped);
 
-      throw new IndexOutOfRangeException($"Column {ordinal} not found");
-    }
+    if (ordinal == m_ReaderMapping.ColNumStartLine)
+      return StartLineNumber;
+    if (ordinal == m_ReaderMapping.ColNumEndLine)
+      return EndLineNumber;
+    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : throw new IndexOutOfRangeException($"Column {ordinal} not found");
+  }
 
-    /// <inheritdoc />
-    public override int GetValues(object[] values)
-    {
-      if (values is null) throw new ArgumentNullException(nameof(values));
+  /// <inheritdoc />
+  public override int GetValues(object[] values)
+  {
+    if (values is null) throw new ArgumentNullException(nameof(values));
 
-      var maxFld = values.Length;
-      if (maxFld > FieldCount) maxFld = FieldCount;
+    var maxFld = values.Length;
+    if (maxFld > FieldCount) maxFld = FieldCount;
 
-      for (var col = 0; col < maxFld; col++)
-        values[col] = GetValue(m_ReaderMapping.ResultToSource(col));
+    for (var col = 0; col < maxFld; col++)
+      values[col] = GetValue(m_ReaderMapping.ResultToSource(col));
 
-      return maxFld;
-    }
+    return maxFld;
+  }
 
-    /// <inheritdoc />
-    public override bool IsDBNull(int ordinal)
-    {
-      if (ordinal == m_ReaderMapping.ColNumStartLine || ordinal == m_ReaderMapping.ColNumEndLine ||
-          ordinal == m_ReaderMapping.ColNumRecNum)
-        return false;
-      if (ordinal == m_ReaderMapping.ColNumErrorField)
-        return RowErrorInformation.Length == 0;
-      return DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
-    }
-
-    /// <inheritdoc cref="IFileReader" />
-    public override bool NextResult() => false;
-
-    /// <inheritdoc />
-    [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
-    public Task OpenAsync(CancellationToken token)
-    {
-      if (m_FileReader != null) return m_FileReader.OpenAsync(token);
-      OnOpenAsync?.Invoke();
-      ResetPositionToFirstDataRow();        
-      OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
-        
-      return Task.CompletedTask;
-
-    }
-
-    /// <inheritdoc cref="IFileReader" />
-    public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
-
-
-    /// <inheritdoc cref="IFileReader" />
-    public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
-    {
-      if (cancellationToken.IsCancellationRequested || EndOfFile)
-        return false;
-
-      if (DataReader is DbDataReader dbDataReader
-            ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
-            : DataReader.Read())
-      {
-        RecordNumber++;
-
-        if (m_ReaderMapping.ColNumErrorFieldSource != -1)
-          RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
-            ? string.Empty
-            : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
-        else
-        {
-          RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
-            i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
-          m_ColumnErrorDictionary.Clear();
-        }
-
-        if (RowErrorInformation.Length <= 0) return true;
-        if (RowErrorInformation.IsWarningMessage())
-          NumberRowWarnings++;
-        else
-          NumberRowError++;
-        return true;
-      }
-
-      HandleReadFinished();
+  /// <inheritdoc />
+  public override bool IsDBNull(int ordinal)
+  {
+    if (ordinal == m_ReaderMapping.ColNumStartLine || ordinal == m_ReaderMapping.ColNumEndLine ||
+        ordinal == m_ReaderMapping.ColNumRecNum)
       return false;
-    }
+    if (ordinal == m_ReaderMapping.ColNumErrorField)
+      return RowErrorInformation.Length == 0;
+    return DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
+  }
 
-    /// <inheritdoc />
-    public virtual void ResetPositionToFirstDataRow()
-    {
-      m_FileReader?.ResetPositionToFirstDataRow();
-      m_ColumnErrorDictionary.Clear();
-      RowErrorInformation = string.Empty;
-      RecordNumber = 0;
-      NumberRowWarnings = 0;
-    }
+  /// <inheritdoc cref="IFileReader" />
+  public override bool NextResult() => false;
 
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+  /// <inheritdoc />
+  [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
+  public Task OpenAsync(CancellationToken token)
+  {
+    if (m_FileReader != null) return m_FileReader.OpenAsync(token);
+    OnOpenAsync?.Invoke();
+    ResetPositionToFirstDataRow();        
+    OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
+        
+    return Task.CompletedTask;
+
+  }
+
+  /// <inheritdoc cref="IFileReader" />
+  public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+
+  /// <inheritdoc cref="IFileReader" />
+  public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
+  {
+    if (cancellationToken.IsCancellationRequested || EndOfFile)
+      return false;
+
+    if (DataReader is DbDataReader dbDataReader
+          ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
+          : DataReader.Read())
     {
-      if (disposing && m_FileReader!=null)
+      RecordNumber++;
+
+      if (m_ReaderMapping.ColNumErrorFieldSource != -1)
+        RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
+          ? string.Empty
+          : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
+      else
       {
-        m_FileReader.Warning -= HandleSourceWarning;
-        m_FileReader.Dispose();
+        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
+          i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
+        m_ColumnErrorDictionary.Clear();
       }
 
-      base.Dispose(disposing);
+      if (RowErrorInformation.Length <= 0) return true;
+      if (RowErrorInformation.IsWarningMessage())
+        NumberRowWarnings++;
+      else
+        NumberRowError++;
+      return true;
     }
 
-    /// <summary>
-    /// Handles the warnings raised in the source and adds them to the corresponding columns if so to will be added to RowErrorInformation for the record
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="WarningEventArgs"/> instance containing the event data.</param>
-    private void HandleSourceWarning(object? sender, WarningEventArgs e)
+    HandleReadFinished();
+    return false;
+  }
+
+  /// <inheritdoc />
+  public virtual void ResetPositionToFirstDataRow()
+  {
+    m_FileReader?.ResetPositionToFirstDataRow();
+    m_ColumnErrorDictionary.Clear();
+    RowErrorInformation = string.Empty;
+    RecordNumber = 0;
+    NumberRowWarnings = 0;
+  }
+
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+    if (disposing && m_FileReader!=null)
     {
-      if (e.ColumnNumber < 0)
-      {
-        m_ColumnErrorDictionary.Add(-1, e.Message);
-        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));
-      }
-      else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
-      {
-        m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
-        Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));        
-      }
+      m_FileReader.Warning -= HandleSourceWarning;
+      m_FileReader.Dispose();
+    }
+
+    base.Dispose(disposing);
+  }
+
+  /// <summary>
+  /// Handles the warnings raised in the source and adds them to the corresponding columns if so to will be added to RowErrorInformation for the record
+  /// </summary>
+  /// <param name="sender">The sender.</param>
+  /// <param name="e">The <see cref="WarningEventArgs"/> instance containing the event data.</param>
+  private void HandleSourceWarning(object? sender, WarningEventArgs e)
+  {
+    if (e.ColumnNumber < 0)
+    {
+      m_ColumnErrorDictionary.Add(-1, e.Message);
+      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));
+    }
+    else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
+    {
+      m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
+      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));        
     }
   }
 }

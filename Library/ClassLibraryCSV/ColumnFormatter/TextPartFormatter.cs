@@ -15,40 +15,38 @@
 
 using System;
 
+namespace CsvTools;
 
-namespace CsvTools
+/// <inheritdoc />
+public sealed class TextPartFormatter : BaseColumnFormatter
 {
-  /// <inheritdoc />
-  public sealed class TextPartFormatter : BaseColumnFormatter
+  private readonly int m_Part;
+  private readonly char m_PartSplitter;
+  private readonly bool m_PartToEnd;
+
+  /// <summary>
+  /// Constructor
+  /// </summary>
+  /// <param name="part">Part number to pick</param>
+  /// <param name="partSplitter">Splitter to take a text apart with</param>
+  /// <param name="partToEnd">if <c>true</c> start at that part but take all till the end</param>
+  public TextPartFormatter(int part, char partSplitter, bool partToEnd)
   {
-    private readonly int m_Part;
-    private readonly char m_PartSplitter;
-    private readonly bool m_PartToEnd;
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    /// <param name="part">Part number to pick</param>
-    /// <param name="partSplitter">Splitter to take a text apart with</param>
-    /// <param name="partToEnd">if <c>true</c> start at that part but take all till the end</param>
-    public TextPartFormatter(int part, char partSplitter, bool partToEnd)
-    {
-      m_Part = part;
-      m_PartSplitter = partSplitter;
-      m_PartToEnd = partToEnd;
-    }
-
-    /// <inheritdoc/>
-    public override string FormatInputText(string inputString, Action<string>? handleWarning)
-    {
-      var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
-      if (RaiseWarning && output.IsEmpty)
-        handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
-      return output.ToString();
-    }
-
-    /// <inheritdoc/>
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    => inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+    m_Part = part;
+    m_PartSplitter = partSplitter;
+    m_PartToEnd = partToEnd;
   }
+
+  /// <inheritdoc/>
+  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  {
+    var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+    if (RaiseWarning && output.IsEmpty)
+      handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
+    return output.ToString();
+  }
+
+  /// <inheritdoc/>
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+    => inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
 }

@@ -11,21 +11,20 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Setting for writing Json files
+/// </summary>
+public interface IJsonFile : IFileSettingPhysicalFile
 {
   /// <summary>
-  /// Setting for writing Json files
+  ///   Template for a single data row, with fixed text and placeholders for the values
   /// </summary>
-  public interface IJsonFile : IFileSettingPhysicalFile
-  {
-    /// <summary>
-    ///   Template for a single data row, with fixed text and placeholders for the values
-    /// </summary>
-    string Row { get; set; }
+  string Row { get; set; }
 
-    /// <summary>
-    ///   If values is empty or null generate it as null instead of producing an empty string
-    /// </summary>
-    bool EmptyAsNull { get; set; }
-  }
+  /// <summary>
+  ///   If values is empty or null generate it as null instead of producing an empty string
+  /// </summary>
+  bool EmptyAsNull { get; set; }
 }

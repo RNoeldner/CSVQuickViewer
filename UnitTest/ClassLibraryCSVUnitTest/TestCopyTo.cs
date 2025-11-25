@@ -16,28 +16,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class TestCopyTo
 {
-  [TestClass]
-  public class TestCopyTo
-  {
-    private static IEnumerable<Type> GetAllICloneable(string startsWith) =>
-      AppDomain.CurrentDomain.GetAssemblies()
-        .Where(a => a?.FullName !=null && a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
-        .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
-        .Where(t1 => t1.t.IsClass && !t1.t.IsAbstract)
-        .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new { t1, i })
-        .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable))
-        .Select(t1 => t1.t1.t);
+  private static IEnumerable<Type> GetAllICloneable(string startsWith) =>
+    AppDomain.CurrentDomain.GetAssemblies()
+      .Where(a => a?.FullName !=null && a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
+      .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
+      .Where(t1 => t1.t.IsClass && !t1.t.IsAbstract)
+      .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new { t1, i })
+      .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable))
+      .Select(t1 => t1.t1.t);
 
 
 
-    [TestMethod]
-    public void RunCopyTo() => UnitTestStatic.RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
+  [TestMethod]
+  public void RunCopyTo() => UnitTestStatic.RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
 
-    /*
-       [TestMethod]
-       public void TestSingleClass() => RunCopyTo(new[] { typeof(Column) });
-    */
-  }
+  /*
+     [TestMethod]
+     public void TestSingleClass() => RunCopyTo(new[] { typeof(Column) });
+  */
 }

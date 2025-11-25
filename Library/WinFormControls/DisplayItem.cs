@@ -11,12 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-namespace CsvTools
-{
-  /// <summary>
-  /// Represents a displayable item, typically used for ComboBox or ListBox data binding.
-  /// </summary>
-  /// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
+namespace CsvTools;
+/// <summary>
+/// Represents a displayable item, typically used for ComboBox or ListBox data binding.
+/// </summary>
+/// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
 #if NETFRAMEWORK
   public sealed class DisplayItem<T>
   {
@@ -47,13 +46,12 @@ namespace CsvTools
     public override string ToString() => Display ?? string.Empty;
   }
 #else
-  /// <summary>
-  /// Represents a displayable item, typically used for ComboBox or ListBox data binding.
-  /// </summary>
-  /// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
-  public sealed record class DisplayItem<T>(T ID, string Display)
-  {
-    public override string ToString() => Display ?? string.Empty;
-  }
-#endif
+/// <summary>
+/// Represents a displayable item, typically used for ComboBox or ListBox data binding.
+/// </summary>
+/// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
+public sealed record class DisplayItem<T>(T ID, string Display)
+{
+  public override string ToString() => Display ?? string.Empty;
 }
+#endif

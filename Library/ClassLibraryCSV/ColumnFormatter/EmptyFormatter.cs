@@ -15,23 +15,21 @@
 
 using System;
 
+namespace CsvTools;
 
-namespace CsvTools
-{ 
+/// <summary>
+/// Formatted that does nothing
+/// </summary>
+public sealed class EmptyFormatter : BaseColumnFormatter
+{
   /// <summary>
-  /// Formatted that does nothing
+  /// Static instance
   /// </summary>
-  public sealed class EmptyFormatter : BaseColumnFormatter
-  {
-    /// <summary>
-    /// Static instance
-    /// </summary>
-    public static readonly EmptyFormatter Instance = new EmptyFormatter();
+  public static readonly EmptyFormatter Instance = new EmptyFormatter();
 
-    /// <inheritdoc/>
-    public override string FormatInputText(string inputString, Action<string>? handleWarning) => inputString;
+  /// <inheritdoc/>
+  public override string FormatInputText(string inputString, Action<string>? handleWarning) => inputString;
 
-    /// <inheritdoc/>
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString) => inputString;
-  }
+  /// <inheritdoc/>
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString) => inputString;
 }

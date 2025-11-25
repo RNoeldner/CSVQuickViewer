@@ -12,16 +12,15 @@
  *
  */
 
-namespace CsvTools
-{
+namespace CsvTools;
+
+/// <summary>
+/// Stream that shows Percentage
+/// </summary>
+public interface IImprovedStream 
+{    
   /// <summary>
-  /// Stream that shows Percentage
+  /// Percentage of read source as decimal between 0.0 and 1.0
   /// </summary>
-  public interface IImprovedStream 
-  {    
-    /// <summary>
-    /// Percentage of read source as decimal between 0.0 and 1.0
-    /// </summary>
-    double Percentage { get; }
-  }
+  double Percentage { get; }
 }

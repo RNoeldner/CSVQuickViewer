@@ -17,54 +17,53 @@ using System;
 using System.Runtime.InteropServices;
 using TimeZoneConverter;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Implementation of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Inara or Windows TimeZone
+/// </summary>
+public static class StandardTimeZoneAdjust 
 {
   /// <summary>
-  /// Implementation of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Inara or Windows TimeZone
+  /// Representation for current system timezone
   /// </summary>
-  public static class StandardTimeZoneAdjust 
-  {
-    /// <summary>
-    /// Representation for current system timezone
-    /// </summary>
-    public const string cIdLocal = "(local)";
+  public const string cIdLocal = "(local)";
 
-    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+  private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
-    private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
-    {
-      if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
-        return TimeZoneInfo.Local;
-      return IsWindows
-        ? TimeZoneInfo.FindSystemTimeZoneById(
-          TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
-        : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
-          ? inaraSrc
-          : timeZone);
-    }
+  private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
+  {
+    if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
+      return TimeZoneInfo.Local;
+    return IsWindows
+      ? TimeZoneInfo.FindSystemTimeZoneById(
+        TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
+      : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
+        ? inaraSrc
+        : timeZone);
+  }
 
-    /// <summary>
-    /// Apply timezone conversion
-    /// </summary>
-    /// <param name="input">Source dateTime</param>
-    /// <param name="srcTimeZone">Source TimeZone</param>
-    /// <param name="destTimeZone">Destination TimeZone</param>
-    /// <param name="handleWarning">Action to be called if a warning is raised</param>
-    public static DateTime ChangeTimeZone(in DateTime input, string srcTimeZone, string destTimeZone,
-      Action<string>? handleWarning)
+  /// <summary>
+  /// Apply timezone conversion
+  /// </summary>
+  /// <param name="input">Source dateTime</param>
+  /// <param name="srcTimeZone">Source TimeZone</param>
+  /// <param name="destTimeZone">Destination TimeZone</param>
+  /// <param name="handleWarning">Action to be called if a warning is raised</param>
+  public static DateTime ChangeTimeZone(in DateTime input, string srcTimeZone, string destTimeZone,
+    Action<string>? handleWarning)
+  {
+    if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
+        destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))
+      return input;
+    try
     {
-      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-          destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))
-        return input;
-      try
-      {
-        return TimeZoneInfo.ConvertTime(input, FindTimeZoneInfo(srcTimeZone), FindTimeZoneInfo(destTimeZone));
-      }
-      catch (ArgumentException ex)
-      {
-        handleWarning?.Invoke(ex.Message);
-        return input;
-      }
+      return TimeZoneInfo.ConvertTime(input, FindTimeZoneInfo(srcTimeZone), FindTimeZoneInfo(destTimeZone));
+    }
+    catch (ArgumentException ex)
+    {
+      handleWarning?.Invoke(ex.Message);
+      return input;
     }
   }
 }

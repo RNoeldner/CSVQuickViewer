@@ -16,37 +16,36 @@
 using System;
 using System.Data;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+/// </summary>
+public class TextToHtmlFormatter : BaseColumnFormatter
 {
   /// <summary>
-  /// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+  /// Static instance of the formatter
   /// </summary>
-  public class TextToHtmlFormatter : BaseColumnFormatter
+  public static readonly TextToHtmlFormatter Instance = new TextToHtmlFormatter();
+
+  /// <inheritdoc/>
+  public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
   {
-    /// <summary>
-    /// Static instance of the formatter
-    /// </summary>
-    public static readonly TextToHtmlFormatter Instance = new TextToHtmlFormatter();
-
-    /// <inheritdoc/>
-    public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
-    {
-      if (dataObject is null)
-        return string.Empty;
-      return HtmlStyle.HtmlEncodeShort(dataObject.ToString()) ?? string.Empty;
-    }
-
-    /// <inheritdoc/>
-    public override string FormatInputText(string inputString, Action<string>? handleWarning)
-    {
-      var output = HtmlStyle.TextToHtmlEncode(inputString);
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"HTML encoding removed from {inputString}");
-      return output;
-    }
-
-    /// <inheritdoc/>
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-      => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();    
+    if (dataObject is null)
+      return string.Empty;
+    return HtmlStyle.HtmlEncodeShort(dataObject.ToString()) ?? string.Empty;
   }
+
+  /// <inheritdoc/>
+  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  {
+    var output = HtmlStyle.TextToHtmlEncode(inputString);
+    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+      handleWarning?.Invoke($"HTML encoding removed from {inputString}");
+    return output;
+  }
+
+  /// <inheritdoc/>
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+    => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();    
 }

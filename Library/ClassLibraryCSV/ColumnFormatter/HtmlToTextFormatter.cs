@@ -16,35 +16,34 @@
 using System;
 using System.Data;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+/// </summary>
+public class HtmlToTextFormatter : BaseColumnFormatter
 {
   /// <summary>
-  /// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+  /// Static instance of the formatter
   /// </summary>
-  public class HtmlToTextFormatter : BaseColumnFormatter
+  public static readonly HtmlToTextFormatter Instance = new HtmlToTextFormatter();
+
+  /// <inheritdoc/>
+  public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
   {
-    /// <summary>
-    /// Static instance of the formatter
-    /// </summary>
-    public static readonly HtmlToTextFormatter Instance = new HtmlToTextFormatter();
-
-    /// <inheritdoc/>
-    public override string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
-    {
-      return dataObject is null ? string.Empty : HtmlStyle.HtmlDecode(dataObject.ToString() ?? string.Empty);
-    }
-
-    /// <inheritdoc/>
-    public override string FormatInputText(string inputString, Action<string>? handleWarning)
-    {
-      var output = HtmlStyle.HtmlDecode(inputString);
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"HTML decoding from {inputString}");
-      return output;
-    }
-
-    /// <inheritdoc/>
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-      => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();
+    return dataObject is null ? string.Empty : HtmlStyle.HtmlDecode(dataObject.ToString() ?? string.Empty);
   }
+
+  /// <inheritdoc/>
+  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  {
+    var output = HtmlStyle.HtmlDecode(inputString);
+    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+      handleWarning?.Invoke($"HTML decoding from {inputString}");
+    return output;
+  }
+
+  /// <inheritdoc/>
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+    => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();
 }

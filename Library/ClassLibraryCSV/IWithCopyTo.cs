@@ -14,18 +14,17 @@
 
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Interface to show that a calls supports copy to, along with Equals and Clone
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface IWithCopyTo<T> : IEquatable<T>, ICloneable
 {
   /// <summary>
-  ///   Interface to show that a calls supports copy to, along with Equals and Clone
+  ///   Copy all properties from one instance to another instance
   /// </summary>
-  /// <typeparam name="T"></typeparam>
-  public interface IWithCopyTo<T> : IEquatable<T>, ICloneable
-  {
-    /// <summary>
-    ///   Copy all properties from one instance to another instance
-    /// </summary>
-    /// <param name="other">Another instance class of the same type</param>
-    void CopyTo(T other);
-  }
+  /// <param name="other">Another instance class of the same type</param>
+  void CopyTo(T other);
 }

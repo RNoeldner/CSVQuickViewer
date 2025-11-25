@@ -14,37 +14,36 @@
 using System;
 using System.Threading;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+public class MockProgress : Progress<ProgressInfo>
 {
-  public class MockProgress : Progress<ProgressInfo>
+  private bool m_Disposed;
+  private bool m_Visible = true;
+  public string Text = string.Empty;
+
+  public CancellationToken CancellationToken => UnitTestStatic.Token;
+
+  public virtual void Dispose()
   {
-    private bool m_Disposed;
-    private bool m_Visible = true;
-    public string Text = string.Empty;
-
-    public CancellationToken CancellationToken => UnitTestStatic.Token;
-
-    public virtual void Dispose()
+    if (!m_Disposed)
     {
-      if (!m_Disposed)
-      {
-        m_Visible = true;
-        m_Disposed = true;
-      }
-    }
-
-    public void Cancel()
-    {
-    }
-
-    public event EventHandler? ProgressStopEvent;
-
-    public void Close()
-    {
-      m_Visible = !m_Visible;
+      m_Visible = true;
       m_Disposed = true;
-      ProgressStopEvent?.Invoke(this, EventArgs.Empty);
     }
-
   }
+
+  public void Cancel()
+  {
+  }
+
+  public event EventHandler? ProgressStopEvent;
+
+  public void Close()
+  {
+    m_Visible = !m_Visible;
+    m_Disposed = true;
+    ProgressStopEvent?.Invoke(this, EventArgs.Empty);
+  }
+
 }

@@ -13,15 +13,14 @@
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class UnitTestInitialize
 {
-  [TestClass]
-  public class UnitTestInitialize
+  [AssemblyInitialize]
+  public static void AssemblyInitialize(TestContext context)
   {
-    [AssemblyInitialize]
-    public static void AssemblyInitialize(TestContext context)
-    {
-      Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
-    }
+    Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
   }
 }

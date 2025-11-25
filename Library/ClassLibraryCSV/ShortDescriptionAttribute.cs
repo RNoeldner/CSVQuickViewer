@@ -13,21 +13,20 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Attributes for enums to have a shorter description
+/// </summary>
+[AttributeUsage(AttributeTargets.All)]
+public class ShortDescriptionAttribute : Attribute
 {
+    
   /// <summary>
-  /// Attributes for enums to have a shorter description
+  /// Short description
   /// </summary>
-  [AttributeUsage(AttributeTargets.All)]
-  public class ShortDescriptionAttribute : Attribute
-  {
+  public string ShortDescription { get;  }
     
-    /// <summary>
-    /// Short description
-    /// </summary>
-    public string ShortDescription { get;  }
-    
-    /// <inheritdoc />
-    public ShortDescriptionAttribute(string value) => ShortDescription = value;
-  }
+  /// <inheritdoc />
+  public ShortDescriptionAttribute(string value) => ShortDescription = value;
 }

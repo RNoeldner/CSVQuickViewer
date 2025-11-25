@@ -15,33 +15,32 @@ using System;
 using System.Diagnostics;
 
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc cref="IProgressTime" />
+[DebuggerStepThrough]
+public class ProgressTime : IProgressTime
 {
-  /// <inheritdoc cref="IProgressTime" />
-  [DebuggerStepThrough]
-  public class ProgressTime : IProgressTime
+  /// <inheritdoc />
+  public long Maximum
   {
-    /// <inheritdoc />
-    public long Maximum
+    get => TimeToCompletion.TargetValue;
+    set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
+  }
+
+  /// <inheritdoc />
+  public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
+
+  /// <inheritdoc />
+  public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
+
+  /// <inheritdoc />
+  public void Report(ProgressInfo args)
+  {
+    if (TimeToCompletion.Value != args.Value)
     {
-      get => TimeToCompletion.TargetValue;
-      set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
-    }
-
-    /// <inheritdoc />
-    public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
-
-    /// <inheritdoc />
-    public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
-
-    /// <inheritdoc />
-    public void Report(ProgressInfo args)
-    {
-      if (TimeToCompletion.Value != args.Value)
-      {
-        TimeToCompletion.Value = args.Value;
-        ProgressChanged?.Invoke((args, TimeToCompletion));
-      }
+      TimeToCompletion.Value = args.Value;
+      ProgressChanged?.Invoke((args, TimeToCompletion));
     }
   }
 }

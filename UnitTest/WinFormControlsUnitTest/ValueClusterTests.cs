@@ -25,54 +25,53 @@ using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 *
 */
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class ValueClusterTests
 {
-  [TestClass]
-  public class ValueClusterTests
+  [TestMethod]
+  public void ValueClusterCtor()
   {
-    [TestMethod]
-    public void ValueClusterCtor()
-    {
-      var tst1 = new ValueCluster("text", "SQl", 0, "text", null, false);
-      Assert.AreEqual("text", tst1.Display);
-      Assert.AreEqual(0, tst1.Count);
+    var tst1 = new ValueCluster("text", "SQl", 0, "text", null, false);
+    Assert.AreEqual("text", tst1.Display);
+    Assert.AreEqual(0, tst1.Count);
 
-      var tst2 = new ValueCluster("dis", "cond", 10, "dis", null, false);
-      Assert.AreEqual("dis", tst2.Display);
-      Assert.AreEqual(10, tst2.Count);
+    var tst2 = new ValueCluster("dis", "cond", 10, "dis", null, false);
+    Assert.AreEqual("dis", tst2.Display);
+    Assert.AreEqual(10, tst2.Count);
 
-      tst2.Active = true;
-      Assert.IsTrue(tst2.Active);
+    tst2.Active = true;
+    Assert.IsTrue(tst2.Active);
 
-      tst2.Active = false;
-      Assert.IsFalse(tst2.Active);
-    }
+    tst2.Active = false;
+    Assert.IsFalse(tst2.Active);
+  }
 
 
-    [TestMethod]
-    public void EqualsTest()
-    {
-      var src = new ValueCluster("dis", "cond", 10, "cond", null, false);
-      var dest = new ValueCluster("dis", "cond2", 10, "cond", null, false);
-      Assert.IsFalse(src.Equals(dest));
-      Assert.IsTrue(src.Equals(src));
-      Assert.IsTrue(src.Equals((object) src));
-    }
+  [TestMethod]
+  public void EqualsTest()
+  {
+    var src = new ValueCluster("dis", "cond", 10, "cond", null, false);
+    var dest = new ValueCluster("dis", "cond2", 10, "cond", null, false);
+    Assert.IsFalse(src.Equals(dest));
+    Assert.IsTrue(src.Equals(src));
+    Assert.IsTrue(src.Equals((object) src));
+  }
 
-    [TestMethod]
-    public void ToStringTest()
-    {
-      var disp = new ValueCluster("dis2", "cond", 20, "cond", null, false).ToString();
-      Assert.AreEqual("dis2 20 items", disp);
-    }
+  [TestMethod]
+  public void ToStringTest()
+  {
+    var disp = new ValueCluster("dis2", "cond", 20, "cond", null, false).ToString();
+    Assert.AreEqual("dis2 20 items", disp);
+  }
 
 
-    [TestMethod]
-    public void GetHashCodeTest()
-    {
-      var disp1 = new ValueCluster("dis2", "cond", 20, "cond", null, true);
-      var disp2 = new ValueCluster("dis2", "cond", 20, "cond2", "dummy", true);
-      Assert.AreEqual(disp1.GetHashCode(), disp2.GetHashCode());
-    }
+  [TestMethod]
+  public void GetHashCodeTest()
+  {
+    var disp1 = new ValueCluster("dis2", "cond", 20, "cond", null, true);
+    var disp2 = new ValueCluster("dis2", "cond", 20, "cond2", "dummy", true);
+    Assert.AreEqual(disp1.GetHashCode(), disp2.GetHashCode());
   }
 }

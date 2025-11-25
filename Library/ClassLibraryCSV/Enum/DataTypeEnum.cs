@@ -14,115 +14,114 @@
 
 using System.ComponentModel;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Enumeration of the supported data types.
+/// </summary>
+public enum DataTypeEnum
 {
   /// <summary>
-  ///   Enumeration of the supported data types.
+  ///   A 32-bit integer.
   /// </summary>
-  public enum DataTypeEnum
-  {
-    /// <summary>
-    ///   A 32-bit integer.
-    /// </summary>
-    [Description("Integer")]
-    Integer = 0,
+  [Description("Integer")]
+  Integer = 0,
 
-    /// <summary>
-    ///   A decimal value (28–29 significant digits), typically used for precise monetary values.
-    /// </summary>
-    [Description("Money (High Precision)")]
-    [ShortDescription("Numeric")]
-    Numeric = 1,
+  /// <summary>
+  ///   A decimal value (28–29 significant digits), typically used for precise monetary values.
+  /// </summary>
+  [Description("Money (High Precision)")]
+  [ShortDescription("Numeric")]
+  Numeric = 1,
 
-    /// <summary>
-    ///   A double-precision floating point value (15–16 significant digits), used for scientific or large-range calculations.
-    /// </summary>
-    [Description("Floating Point (High Range)")]
-    [ShortDescription("Double")]
-    Double = 2,
+  /// <summary>
+  ///   A double-precision floating point value (15–16 significant digits), used for scientific or large-range calculations.
+  /// </summary>
+  [Description("Floating Point (High Range)")]
+  [ShortDescription("Double")]
+  Double = 2,
 
-    /// <summary>
-    ///   A date or time value.
-    /// </summary>
-    [Description("Date Time")]
-    DateTime = 3,
+  /// <summary>
+  ///   A date or time value.
+  /// </summary>
+  [Description("Date Time")]
+  DateTime = 3,
 
-    /// <summary>
-    ///   A boolean value.
-    /// </summary>
-    [Description("Boolean")]
-    Boolean = 4,
+  /// <summary>
+  ///   A boolean value.
+  /// </summary>
+  [Description("Boolean")]
+  Boolean = 4,
 
-    /// <summary>
-    ///   A system GUID or UUID.
-    /// </summary>
-    [Description("GUID / UUID")]
-    [ShortDescription("GUID")]
-    Guid = 5,
+  /// <summary>
+  ///   A system GUID or UUID.
+  /// </summary>
+  [Description("GUID / UUID")]
+  [ShortDescription("GUID")]
+  Guid = 5,
 
-    // ------------------------
-    // Text and transformation types
-    // ------------------------
+  // ------------------------
+  // Text and transformation types
+  // ------------------------
 
-    /// <summary>
-    ///   Plain text or string value.
-    /// </summary>
-    [Description("Text")]
-    String = 10,
+  /// <summary>
+  ///   Plain text or string value.
+  /// </summary>
+  [Description("Text")]
+  String = 10,
 
-    /// <summary>
-    ///   Encodes text for HTML output, preserving line breaks (minimal HTML encoding).
-    /// </summary>
-    [Description("Encode HTML (Linefeed only)")]
-    [ShortDescription("HTML Min")]
-    TextToHtml = 11,
+  /// <summary>
+  ///   Encodes text for HTML output, preserving line breaks (minimal HTML encoding).
+  /// </summary>
+  [Description("Encode HTML (Linefeed only)")]
+  [ShortDescription("HTML Min")]
+  TextToHtml = 11,
 
-    /// <summary>
-    ///   Fully encodes text for HTML output (e.g., '&lt;' → '&amp;lt;').
-    /// </summary>
-    [Description("Encode HTML ('<' → '&lt;')")]
-    [ShortDescription("HTML")]
-    TextToHtmlFull = 12,
+  /// <summary>
+  ///   Fully encodes text for HTML output (e.g., '&lt;' → '&amp;lt;').
+  /// </summary>
+  [Description("Encode HTML ('<' → '&lt;')")]
+  [ShortDescription("HTML")]
+  TextToHtmlFull = 12,
 
-    /// <summary>
-    ///   A substring extracted by a specified splitter.
-    /// </summary>
-    [Description("Text Part")]
-    TextPart = 13,
+  /// <summary>
+  ///   A substring extracted by a specified splitter.
+  /// </summary>
+  [Description("Text Part")]
+  TextPart = 13,
 
-    /// <summary>
-    ///   Converts escaped sequences (e.g. '\n', '\r') to their literal characters.
-    /// </summary>
-    [Description(@"Unescaped Text (\r → ␍)")]
-    [ShortDescription("Unescaped Text")]
-    TextUnescape = 14,
+  /// <summary>
+  ///   Converts escaped sequences (e.g. '\n', '\r') to their literal characters.
+  /// </summary>
+  [Description(@"Unescaped Text (\r → ␍)")]
+  [ShortDescription("Unescaped Text")]
+  TextUnescape = 14,
 
-    /// <summary>
-    ///   Binary data stored in a file; the text value refers to the file path.
-    /// </summary>
-    [Description("Binary (File Reference)")]
-    [ShortDescription("Binary")]
-    Binary = 15,
+  /// <summary>
+  ///   Binary data stored in a file; the text value refers to the file path.
+  /// </summary>
+  [Description("Binary (File Reference)")]
+  [ShortDescription("Binary")]
+  Binary = 15,
 
 #if !QUICK
-    /// <summary>
-    ///   Converts Markdown text to HTML.
-    /// </summary>
-    [Description("Markdown to HTML")]
-    Markdown2Html = 16,
+  /// <summary>
+  ///   Converts Markdown text to HTML.
+  /// </summary>
+  [Description("Markdown to HTML")]
+  Markdown2Html = 16,
 #endif
 
-    /// <summary>
-    ///   Performs a regular expression replacement on the text.
-    /// </summary>
-    [Description("Text Replace")]
-    TextReplace = 17,
+  /// <summary>
+  ///   Performs a regular expression replacement on the text.
+  /// </summary>
+  [Description("Text Replace")]
+  TextReplace = 17,
 
-    /// <summary>
-    ///   Decodes HTML entities to plain text.
-    /// </summary>
-    [Description("Decode HTML")]
-    [ShortDescription("HTML Read")]
-    HtmlToText = 18,
-  }
+  /// <summary>
+  ///   Decodes HTML entities to plain text.
+  /// </summary>
+  [Description("Decode HTML")]
+  [ShortDescription("HTML Read")]
+  HtmlToText = 18,
 }

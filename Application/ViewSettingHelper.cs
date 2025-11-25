@@ -14,42 +14,41 @@
 using System;
 using System.Threading.Tasks;
 
-namespace CsvTools
+namespace CsvTools;
+
+public static class ViewSettingHelper
 {
-  public static class ViewSettingHelper
+  private static readonly string
+    SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+
+  private static readonly string SettingPath = SettingFolder + "\\Setting.json";
+
+  /// <summary>
+  /// Load the ViewSettings in the fileSystem
+  /// </summary>
+  public static async Task<ViewSettings> LoadViewSettingsAsync()
   {
-    private static readonly string
-      SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
-
-    private static readonly string SettingPath = SettingFolder + "\\Setting.json";
-
-    /// <summary>
-    /// Load the ViewSettings in the fileSystem
-    /// </summary>
-    public static async Task<ViewSettings> LoadViewSettingsAsync()
+    try
     {
-      try
-      {
-        return await SettingPath.DeserializeFileAsync<ViewSettings>();
-      }
-      catch (Exception ex)
-      {
-        try { Logger.Error(ex, "Loading ViewSettings {path}", SettingPath); } catch { }
+      return await SettingPath.DeserializeFileAsync<ViewSettings>();
+    }
+    catch (Exception ex)
+    {
+      try { Logger.Error(ex, "Loading ViewSettings {path}", SettingPath); } catch { }
 
-      }
-
-      return new ViewSettings();
     }
 
-    /// <summary>
-    /// Store the ViewSettings in the fileSystem
-    /// </summary>
-    public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
-    {
-      if (!FileSystemUtils.DirectoryExists(SettingFolder))
-        FileSystemUtils.CreateDirectory(SettingFolder);
+    return new ViewSettings();
+  }
 
-      await viewSettings.SerializeAsync(SettingPath, null, false);
-    }
+  /// <summary>
+  /// Store the ViewSettings in the fileSystem
+  /// </summary>
+  public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
+  {
+    if (!FileSystemUtils.DirectoryExists(SettingFolder))
+      FileSystemUtils.CreateDirectory(SettingFolder);
+
+    await viewSettings.SerializeAsync(SettingPath, null, false);
   }
 }

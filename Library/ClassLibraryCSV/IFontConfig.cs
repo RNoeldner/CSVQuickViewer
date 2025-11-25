@@ -15,47 +15,46 @@
 using System.ComponentModel;
 
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// IFontConfig interface defines font configuration properties.
+/// </summary>
+public interface IFontConfig : INotifyPropertyChanged
 {
   /// <summary>
-  /// IFontConfig interface defines font configuration properties.
+  /// Gets the font name could be Segoe UI
   /// </summary>
-  public interface IFontConfig : INotifyPropertyChanged
-  {
-    /// <summary>
-    /// Gets the font name could be Segoe UI
-    /// </summary>
-    string Font { get; }
-
-    /// <summary>
-    /// Gets the font size, usual values are 8.25F
-    /// </summary>
-    float FontSize { get; }
-  }
+  string Font { get; }
 
   /// <summary>
-  /// FontConfig class implements IFontConfig interface to provide concrete font configuration.
+  /// Gets the font size, usual values are 8.25F
   /// </summary>
-  public class FontConfig : ObservableObject, IFontConfig
+  float FontSize { get; }
+}
+
+/// <summary>
+/// FontConfig class implements IFontConfig interface to provide concrete font configuration.
+/// </summary>
+public class FontConfig : ObservableObject, IFontConfig
+{
+  private readonly string m_Font;
+  private readonly float m_FontSize;
+
+  /// <summary>
+  /// Initializes a new instance of the <see cref="FontConfig"/> class.
+  /// </summary>
+  /// <param name="font">The font name.</param>
+  /// <param name="fontSize">Size of the font.</param>
+  public FontConfig(string? font = null, float? fontSize = null)
   {
-    private readonly string m_Font;
-    private readonly float m_FontSize;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FontConfig"/> class.
-    /// </summary>
-    /// <param name="font">The font name.</param>
-    /// <param name="fontSize">Size of the font.</param>
-    public FontConfig(string? font = null, float? fontSize = null)
-    {
-      m_Font=font ?? "Segoe UI";
-      m_FontSize=fontSize ?? 8.25F;
-    }
-
-    /// <inheritdoc/>
-    public string Font => m_Font;
-
-    /// <inheritdoc/>
-    public float FontSize => m_FontSize;
+    m_Font=font ?? "Segoe UI";
+    m_FontSize=fontSize ?? 8.25F;
   }
+
+  /// <inheritdoc/>
+  public string Font => m_Font;
+
+  /// <inheritdoc/>
+  public float FontSize => m_FontSize;
 }

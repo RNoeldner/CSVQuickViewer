@@ -23,517 +23,516 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Helper class
+/// </summary>
+public static class Extensions
 {
-  /// <summary>
-  ///   Helper class
-  /// </summary>
-  public static class Extensions
+  public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+  public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
   {
-    public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    Form? parentFrm = null;
 
-    public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
+    if (ctrl != null)
     {
-      Form? parentFrm = null;
-
-      if (ctrl != null)
-      {
-        parentFrm = ctrl.FindForm();
-        if (parentFrm !=null)
-          newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
-      }
-      if (dialog)
-        return newForm.ShowDialog(parentFrm);
-      newForm.Show(parentFrm);
-      return DialogResult.None;
+      parentFrm = ctrl.FindForm();
+      if (parentFrm !=null)
+        newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
     }
+    if (dialog)
+      return newForm.ShowDialog(parentFrm);
+    newForm.Show(parentFrm);
+    return DialogResult.None;
+  }
 
-    public static void OpenDefaultApplication(string pathOrUrl)
+  public static void OpenDefaultApplication(string pathOrUrl)
+  {
+    if (!string.IsNullOrEmpty(pathOrUrl))
     {
-      if (!string.IsNullOrEmpty(pathOrUrl))
-      {
-        try
-        {
-          Process.Start(pathOrUrl);
-        }
-        catch
-        {
-          // hack because of this: https://github.com/dotnet/corefx/issues/10361
-          if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-          {
-            pathOrUrl = pathOrUrl.Replace("&", "^&");
-            Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
-          }
-          else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-          {
-            Process.Start("open", pathOrUrl);
-          }
-          else
-            throw;
-        }
-      }
-    }
-
-    /// <summary>
-    ///   Handles a CTRL-A select all in the form.
-    /// </summary>
-    /// <param name="frm">The calling form</param>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-    public static void CtrlA(this Form frm, object? sender, KeyEventArgs e)
-    {
-      if (!e.Control || e.KeyCode != Keys.A)
-        return;
-      var tb = sender as TextBox;
-      if (sender == frm)
-        tb = frm.ActiveControl as TextBox;
-
-      if (tb != null)
-      {
-        tb.SelectAll();
-        return;
-      }
-
-      var lv = sender as ListView;
-      if (sender == frm)
-        lv = frm.ActiveControl as ListView;
-
-      if (lv is null || !lv.MultiSelect)
-        return;
-      foreach (ListViewItem item in lv.Items)
-        item.Selected = true;
-    }
-
-    /// <summary>
-    ///   Gets the process display.
-    /// </summary>
-    /// <param name="fileSetting">The setting.</param>
-    /// <param name="owner">
-    ///   The owner form, in case the owner is minimized or closed this progress will do the same
-    /// </param>
-    /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A process display, if the stetting want a process</returns>
-    public static FormProgress GetProgress(
-      this IFileSetting fileSetting,
-      Form? owner,
-      bool withLogger,
-      in CancellationToken cancellationToken)
-    {
-      var formProgress = new FormProgress(fileSetting.GetDisplay(), cancellationToken);
-      formProgress.Show(owner);
-
-      return formProgress;
-    }
-
-    public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
-
-    public static void InvokeWithHourglass(this Action action)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
       try
       {
-        action.Invoke();
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
-
-    public static async Task InvokeWithHourglassAsync(this Func<Task> action)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        // this should not use ConfigureAwait(false);
-        await action.Invoke().ConfigureAwait(true);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
-
-    public static void LoadWindowState(
-      this Form form,
-      WindowState? windowPosition,
-      Action<int>? setCustomValue1 = null,
-      Action<string>? setCustomValue2 = null)
-    {
-      if (windowPosition is null || windowPosition.Width == 0 || windowPosition.Height == 0)
-        return;
-      if (form.IsDisposed)
-        return;
-      try
-      {
-        if (!form.Visible)
-          form.Show();
-
-        form.StartPosition = FormStartPosition.Manual;
-
-        var screen = Screen.FromRectangle(
-          new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
-        var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
-        var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
-        var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
-        var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
-
-        form.DesktopBounds = new Rectangle(left, top, width, height);
-        form.WindowState = windowPosition.State;
-        if (windowPosition.CustomInt != int.MinValue)
-          setCustomValue1?.Invoke(windowPosition.CustomInt);
-        if (!string.IsNullOrEmpty(windowPosition.CustomText))
-          setCustomValue2?.Invoke(windowPosition.CustomText);
-
-        ProcessUIElements();
+        Process.Start(pathOrUrl);
       }
       catch
       {
-        //Ignore
+        // hack because of this: https://github.com/dotnet/corefx/issues/10361
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+          pathOrUrl = pathOrUrl.Replace("&", "^&");
+          Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+          Process.Start("open", pathOrUrl);
+        }
+        else
+          throw;
       }
+    }
+  }
 
+  /// <summary>
+  ///   Handles a CTRL-A select all in the form.
+  /// </summary>
+  /// <param name="frm">The calling form</param>
+  /// <param name="sender">The sender.</param>
+  /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
+  public static void CtrlA(this Form frm, object? sender, KeyEventArgs e)
+  {
+    if (!e.Control || e.KeyCode != Keys.A)
+      return;
+    var tb = sender as TextBox;
+    if (sender == frm)
+      tb = frm.ActiveControl as TextBox;
+
+    if (tb != null)
+    {
+      tb.SelectAll();
+      return;
     }
 
-    /// <summary>
-    ///   Handles UI elements while waiting on something
-    /// </summary>
-    /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
-    public static void ProcessUIElements(int milliseconds = 0)
+    var lv = sender as ListView;
+    if (sender == frm)
+      lv = frm.ActiveControl as ListView;
+
+    if (lv is null || !lv.MultiSelect)
+      return;
+    foreach (ListViewItem item in lv.Items)
+      item.Selected = true;
+  }
+
+  /// <summary>
+  ///   Gets the process display.
+  /// </summary>
+  /// <param name="fileSetting">The setting.</param>
+  /// <param name="owner">
+  ///   The owner form, in case the owner is minimized or closed this progress will do the same
+  /// </param>
+  /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A process display, if the stetting want a process</returns>
+  public static FormProgress GetProgress(
+    this IFileSetting fileSetting,
+    Form? owner,
+    bool withLogger,
+    in CancellationToken cancellationToken)
+  {
+    var formProgress = new FormProgress(fileSetting.GetDisplay(), cancellationToken);
+    formProgress.Show(owner);
+
+    return formProgress;
+  }
+
+  public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
+    .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+
+  public static void InvokeWithHourglass(this Action action)
+  {
+    if (action is null)
+      throw new ArgumentNullException(nameof(action));
+    var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+    Cursor.Current = Cursors.WaitCursor;
+    try
     {
-      try
-      {
+      action.Invoke();
+    }
+    finally
+    {
+      Cursor.Current = oldCursor;
+    }
+  }
+
+  public static async Task InvokeWithHourglassAsync(this Func<Task> action)
+  {
+    if (action is null)
+      throw new ArgumentNullException(nameof(action));
+    var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+    Cursor.Current = Cursors.WaitCursor;
+    try
+    {
+      // this should not use ConfigureAwait(false);
+      await action.Invoke().ConfigureAwait(true);
+    }
+    finally
+    {
+      Cursor.Current = oldCursor;
+    }
+  }
+
+  public static void LoadWindowState(
+    this Form form,
+    WindowState? windowPosition,
+    Action<int>? setCustomValue1 = null,
+    Action<string>? setCustomValue2 = null)
+  {
+    if (windowPosition is null || windowPosition.Width == 0 || windowPosition.Height == 0)
+      return;
+    if (form.IsDisposed)
+      return;
+    try
+    {
+      if (!form.Visible)
+        form.Show();
+
+      form.StartPosition = FormStartPosition.Manual;
+
+      var screen = Screen.FromRectangle(
+        new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
+      var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
+      var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
+      var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
+      var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
+
+      form.DesktopBounds = new Rectangle(left, top, width, height);
+      form.WindowState = windowPosition.State;
+      if (windowPosition.CustomInt != int.MinValue)
+        setCustomValue1?.Invoke(windowPosition.CustomInt);
+      if (!string.IsNullOrEmpty(windowPosition.CustomText))
+        setCustomValue2?.Invoke(windowPosition.CustomText);
+
+      ProcessUIElements();
+    }
+    catch
+    {
+      //Ignore
+    }
+
+  }
+
+  /// <summary>
+  ///   Handles UI elements while waiting on something
+  /// </summary>
+  /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
+  public static void ProcessUIElements(int milliseconds = 0)
+  {
+    try
+    {
 #if wpf
       Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                                           new Action(delegate { }));
 #else
-        Application.DoEvents();
-        if (milliseconds > 10)
-          Thread.Sleep(milliseconds);
+      Application.DoEvents();
+      if (milliseconds > 10)
+        Thread.Sleep(milliseconds);
 #endif
-      }
-      catch (Exception)
-      {
-        // ignore
-      }
     }
-
-    public static void RunStaThread(Action action, int timeoutMilliseconds = 20000)
+    catch (Exception)
     {
-      if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-        action.Invoke();
+      // ignore
+    }
+  }
+
+  public static void RunStaThread(Action action, int timeoutMilliseconds = 20000)
+  {
+    if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+      action.Invoke();
+    else
+    {
+      var thread = new Thread(action.Invoke)
+      {
+        IsBackground = true
+      };
+      thread.SetApartmentState(ApartmentState.STA);
+      thread.Start();
+      if (timeoutMilliseconds > 0)
+        thread.Join(timeoutMilliseconds);
       else
+        thread.Join();
+    }
+  }
+
+  public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
+  {
+    if (item is null)
+      throw new ArgumentNullException(nameof(item));
+    if (action is null)
+      throw new ArgumentNullException(nameof(action));
+    try
+    {
+      item.Enabled = false;
+      action.InvokeWithHourglass();
+    }
+    catch (ObjectDisposedException)
+    {
+      // ignore
+    }
+    catch (Exception ex)
+    {
+      frm?.ShowError(ex);
+    }
+    finally
+    {
+      item.Enabled = true;
+    }
+  }
+
+  public static void RunWithHourglass(this Control control, Action action)
+  {
+    if (control is null)
+      throw new ArgumentNullException(nameof(control));
+    if (action is null)
+      throw new ArgumentNullException(nameof(action));
+    try
+    {
+      control.Enabled = false;
+      action.InvokeWithHourglass();
+    }
+    catch (ObjectDisposedException)
+    {
+      // ignore
+    }
+    catch (Exception ex)
+    {
+      if (!(control is Form frm))
+        frm = control.FindForm();
+      frm.ShowError(ex);
+    }
+    finally
+    {
+      control.Enabled = true;
+    }
+  }
+
+  public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
+  {
+    if (item is null)
+      throw new ArgumentNullException(nameof(item));
+    var disabled = false;
+    try
+    {
+      if (frm!= null)
       {
-        var thread = new Thread(action.Invoke)
+        frm.SafeInvoke(() =>
         {
-          IsBackground = true
-        };
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        if (timeoutMilliseconds > 0)
-          thread.Join(timeoutMilliseconds);
-        else
-          thread.Join();
+          item.Enabled = false;
+          disabled = true;
+        });
       }
-    }
-
-    public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
-    {
-      if (item is null)
-        throw new ArgumentNullException(nameof(item));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        item.Enabled = false;
-        action.InvokeWithHourglass();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        item.Enabled = true;
-      }
-    }
-
-    public static void RunWithHourglass(this Control control, Action action)
-    {
-      if (control is null)
-        throw new ArgumentNullException(nameof(control));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        control.Enabled = false;
-        action.InvokeWithHourglass();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        if (!(control is Form frm))
-          frm = control.FindForm();
-        frm.ShowError(ex);
-      }
-      finally
-      {
-        control.Enabled = true;
-      }
-    }
-
-    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
-    {
-      if (item is null)
-        throw new ArgumentNullException(nameof(item));
-      var disabled = false;
-      try
-      {
-        if (frm!= null)
+      else
+        try
         {
-          frm.SafeInvoke(() =>
-          {
-            item.Enabled = false;
-            disabled = true;
-          });
+          item.Enabled = false;
+          disabled = true;
         }
+        catch (Exception)
+        {
+          // ignored
+        }
+
+      // this should not use ConfigureAwait(false);
+      await action.InvokeWithHourglassAsync();
+    }
+    catch (ObjectDisposedException)
+    {
+      // ignore
+    }
+    catch (Exception ex)
+    {
+      frm?.ShowError(ex);
+    }
+    finally
+    {
+      if (disabled)
+      {
+        if (frm != null)
+          frm.SafeInvoke(() => item.Enabled = true);
         else
           try
           {
-            item.Enabled = false;
-            disabled = true;
+            item.Enabled = true;
           }
           catch (Exception)
           {
             // ignored
           }
-
-        // this should not use ConfigureAwait(false);
-        await action.InvokeWithHourglassAsync();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        if (disabled)
-        {
-          if (frm != null)
-            frm.SafeInvoke(() => item.Enabled = true);
-          else
-            try
-            {
-              item.Enabled = true;
-            }
-            catch (Exception)
-            {
-              // ignored
-            }
-        }
       }
     }
+  }
 
-    /// <summary>
-    /// Disabled the control wile an async process is execution, handled mouse pointer and error handling
-    /// </summary>
-    /// <param name="control"></param>
-    /// <param name="action"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>        
-    public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
+  /// <summary>
+  /// Disabled the control wile an async process is execution, handled mouse pointer and error handling
+  /// </summary>
+  /// <param name="control"></param>
+  /// <param name="action"></param>
+  /// <returns></returns>
+  /// <exception cref="ArgumentNullException"></exception>        
+  public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
+  {
+    if (control is null)
+      throw new ArgumentNullException(nameof(control));
+    if (action is null)
+      throw new ArgumentNullException(nameof(action));
+    try
     {
-      if (control is null)
-        throw new ArgumentNullException(nameof(control));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        control.SafeInvoke(() => control.Enabled = false);
-        // this should not use ConfigureAwait(false);
-        await action.InvokeWithHourglassAsync();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        var frm = control.FindForm();
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        control.SafeInvoke(() => control.Enabled = true);
-      }
+      control.SafeInvoke(() => control.Enabled = false);
+      // this should not use ConfigureAwait(false);
+      await action.InvokeWithHourglassAsync();
     }
-
-    /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
-    /// </summary>
-    /// <param name="uiElement">Type of the Object that will get the extension</param>
-    /// <param name="action">A delegate for the action</param>
-    public static void SafeBeginInvoke(this Control uiElement, Action action)
+    catch (ObjectDisposedException)
     {
-      if (uiElement.IsDisposed)
+      // ignore
+    }
+    catch (Exception ex)
+    {
+      var frm = control.FindForm();
+      frm?.ShowError(ex);
+    }
+    finally
+    {
+      control.SafeInvoke(() => control.Enabled = true);
+    }
+  }
+
+  /// <summary>
+  ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+  /// </summary>
+  /// <param name="uiElement">Type of the Object that will get the extension</param>
+  /// <param name="action">A delegate for the action</param>
+  public static void SafeBeginInvoke(this Control uiElement, Action action)
+  {
+    if (uiElement.IsDisposed)
+      return;
+
+    try
+    {
+      if (uiElement.InvokeRequired)
+      {
+        uiElement.BeginInvoke(action);
         return;
-
-      try
-      {
-        if (uiElement.InvokeRequired)
-        {
-          uiElement.BeginInvoke(action);
-          return;
-        }
       }
+    }
+    catch
+    {
+      // sometimes there is an error accessing InvokeRequired
+      // if so ignore it and try to preform the action anyway.
+    }
+
+    action();
+  }
+
+  /// <summary>
+  /// Executes an action on the UI thread safely and synchronously.
+  /// If called from the UI thread, executes immediately.
+  /// </summary>
+  /// <param name="uiElement">The control on which to invoke the action.</param>
+  /// <param name="action">The action to execute.</param>
+  public static void SafeInvoke(this Control uiElement, Action action)
+  {
+    if (uiElement.IsDisposed)
+      return;
+
+    // Ensure control handle is created (lazy creation)
+    if (!uiElement.IsHandleCreated)
+      try { _ = uiElement.Handle; }
       catch
       {
-        // sometimes there is an error accessing InvokeRequired
-        // if so ignore it and try to preform the action anyway.
-      }
-
-      action();
-    }
-
-    /// <summary>
-    /// Executes an action on the UI thread safely and synchronously.
-    /// If called from the UI thread, executes immediately.
-    /// </summary>
-    /// <param name="uiElement">The control on which to invoke the action.</param>
-    /// <param name="action">The action to execute.</param>
-    public static void SafeInvoke(this Control uiElement, Action action)
-    {
-      if (uiElement.IsDisposed)
+        // Any exception while checking handle => skip
         return;
+      }
+    SafeInvokeNoHandleNeeded(uiElement, action);
 
-      // Ensure control handle is created (lazy creation)
-      if (!uiElement.IsHandleCreated)
-        try { _ = uiElement.Handle; }
-        catch
-        {
-          // Any exception while checking handle => skip
-          return;
-        }
-      SafeInvokeNoHandleNeeded(uiElement, action);
+    ProcessUIElements();
+  }
 
-      ProcessUIElements();
-    }
-
-    /// <summary>
-    /// Executes an action on the UI thread safely and synchronously.
-    /// Assumes the control handle is already created (no handle check).
-    /// </summary>
-    /// <param name="uiElement">The control on which to invoke the action.</param>
-    /// <param name="action">The action to execute.</param>
-    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
+  /// <summary>
+  /// Executes an action on the UI thread safely and synchronously.
+  /// Assumes the control handle is already created (no handle check).
+  /// </summary>
+  /// <param name="uiElement">The control on which to invoke the action.</param>
+  /// <param name="action">The action to execute.</param>
+  public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
+  {
+    if (uiElement.IsDisposed)
+      return;
+    try
     {
-      if (uiElement.IsDisposed)
-        return;
-      try
+      if (uiElement.InvokeRequired)
       {
-        if (uiElement.InvokeRequired)
-        {
-          // Synchronous invoke on UI thread
-          uiElement.Invoke(action);
-        }
-        else
-        {
-          // Already on UI thread
-          action();
-        }
+        // Synchronous invoke on UI thread
+        uiElement.Invoke(action);
       }
-      catch (ObjectDisposedException)
+      else
       {
-        // Control disposed mid-invoke, safely ignore
-      }
-      catch (InvalidOperationException) when (!uiElement.IsHandleCreated || uiElement.IsDisposed)
-      {
-        // Control handle invalid or disposed
+        // Already on UI thread
+        action();
       }
     }
-
-    public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-      => RunStaThread(() =>
-      {
-        Clipboard.Clear();
-        Clipboard.SetDataObject(dataObject, false, 5, 200);
-      }, timeoutMilliseconds);
-
-    public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
-
-    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null)
-      where T : Enum
+    catch (ObjectDisposedException)
     {
-      cbo.SuspendLayout();
+      // Control disposed mid-invoke, safely ignore
+    }
+    catch (InvalidOperationException) when (!uiElement.IsHandleCreated || uiElement.IsDisposed)
+    {
+      // Control handle invalid or disposed
+    }
+  }
 
-      cbo.DisplayMember = nameof(DisplayItem<T>.Display);
-      cbo.ValueMember = nameof(DisplayItem<T>.ID);
+  public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
+    => RunStaThread(() =>
+    {
+      Clipboard.Clear();
+      Clipboard.SetDataObject(dataObject, false, 5, 200);
+    }, timeoutMilliseconds);
 
-      cbo.DataSource = Enum.GetValues(typeof(T))
-                           .Cast<T>()
-                           .Where(item => doNotShow is null || !doNotShow.Contains(item))
-                           .Select(item => new DisplayItem<T>(item, item.Display()))
-                           .ToList();
-      cbo.SelectedValue = currentValue;
-      cbo.ResumeLayout();
+  public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
+
+  public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null)
+    where T : Enum
+  {
+    cbo.SuspendLayout();
+
+    cbo.DisplayMember = nameof(DisplayItem<T>.Display);
+    cbo.ValueMember = nameof(DisplayItem<T>.ID);
+
+    cbo.DataSource = Enum.GetValues(typeof(T))
+      .Cast<T>()
+      .Where(item => doNotShow is null || !doNotShow.Contains(item))
+      .Select(item => new DisplayItem<T>(item, item.Display()))
+      .ToList();
+    cbo.SelectedValue = currentValue;
+    cbo.ResumeLayout();
+  }
+
+  /// <summary>
+  ///   Show error information to a user, and logs the message
+  /// </summary>
+  /// <param name="from">The current Form</param>
+  /// <param name="ex">the Exception</param>
+  /// <param name="additionalTitle">Title Bar information</param>
+  /// <param name="timeout">Timeout in Seconds</param>
+  public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
+  {
+    Cursor.Current = Cursors.Default;
+
+    MessageBox.Show(
+      ex.ExceptionMessages(),
+      string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
+      MessageBoxButtons.OK,
+      MessageBoxIcon.Warning,
+      timeout: timeout);
+  }
+
+  public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
+    string customText = "")
+  {
+    var windowPosition = form.DesktopBounds;
+    var windowState = form.WindowState;
+
+    // Get the original WindowPosition in case of maximize or minimize
+    if (windowState != FormWindowState.Normal)
+    {
+      var oldVis = form.Visible;
+      form.Visible = false;
+      form.WindowState = FormWindowState.Normal;
+      windowPosition = form.DesktopBounds;
+      form.WindowState = windowState;
+      form.Visible = oldVis;
     }
 
-    /// <summary>
-    ///   Show error information to a user, and logs the message
-    /// </summary>
-    /// <param name="from">The current Form</param>
-    /// <param name="ex">the Exception</param>
-    /// <param name="additionalTitle">Title Bar information</param>
-    /// <param name="timeout">Timeout in Seconds</param>
-    public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
-    {
-      Cursor.Current = Cursors.Default;
-
-      MessageBox.Show(
-        ex.ExceptionMessages(),
-        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Warning,
-        timeout: timeout);
-    }
-
-    public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
-      string customText = "")
-    {
-      var windowPosition = form.DesktopBounds;
-      var windowState = form.WindowState;
-
-      // Get the original WindowPosition in case of maximize or minimize
-      if (windowState != FormWindowState.Normal)
-      {
-        var oldVis = form.Visible;
-        form.Visible = false;
-        form.WindowState = FormWindowState.Normal;
-        windowPosition = form.DesktopBounds;
-        form.WindowState = windowState;
-        form.Visible = oldVis;
-      }
-
-      return new WindowState(windowPosition.Left, windowPosition.Top, windowPosition.Height, windowPosition.Width,
-        windowState, customInt, customText);
-    }
+    return new WindowState(windowPosition.Left, windowPosition.Top, windowPosition.Height, windowPosition.Width,
+      windowState, customInt, customText);
   }
 }

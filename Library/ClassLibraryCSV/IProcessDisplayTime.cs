@@ -13,37 +13,36 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Represents a progress reporter that tracks a value, supports a defined maximum,
+///   and provides estimated time-to-completion based on observed progress velocity.
+/// </summary>
+public interface IProgressTime : IProgress<ProgressInfo>
 {
   /// <summary>
-  ///   Represents a progress reporter that tracks a value, supports a defined maximum,
-  ///   and provides estimated time-to-completion based on observed progress velocity.
+  ///   Gets or sets the maximum expected value for the progress reporter.
+  ///   This value represents 100% completion.
   /// </summary>
-  public interface IProgressTime : IProgress<ProgressInfo>
-  {
-    /// <summary>
-    ///   Gets or sets the maximum expected value for the progress reporter.
-    ///   This value represents 100% completion.
-    /// </summary>
-    /// <value>
-    ///   The maximum progress value. Must be greater than zero.
-    /// </value>
-    long Maximum { get; set; }
+  /// <value>
+  ///   The maximum progress value. Must be greater than zero.
+  /// </value>
+  long Maximum { get; set; }
 
-    /// <summary>
-    ///   Provides time-to-completion estimation based on the current value,
-    ///   the maximum, and the observed velocity of progress.
-    /// </summary>
-    /// <value>
-    ///   The <see cref="TimeToCompletion"/> instance that calculates remaining time.
-    /// </value>
-    TimeToCompletion TimeToCompletion { get; }
+  /// <summary>
+  ///   Provides time-to-completion estimation based on the current value,
+  ///   the maximum, and the observed velocity of progress.
+  /// </summary>
+  /// <value>
+  ///   The <see cref="TimeToCompletion"/> instance that calculates remaining time.
+  /// </value>
+  TimeToCompletion TimeToCompletion { get; }
 
-    /// <summary>
-    ///   Occurs whenever a new progress value is reported.
-    ///   Subscribers can use this event to update UI or trigger other actions.
-    /// </summary>
-    /// <summary>Raised for each reported progress value.</summary>
-    public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
-  }
+  /// <summary>
+  ///   Occurs whenever a new progress value is reported.
+  ///   Subscribers can use this event to update UI or trigger other actions.
+  /// </summary>
+  /// <summary>Raised for each reported progress value.</summary>
+  public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
 }

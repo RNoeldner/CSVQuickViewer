@@ -18,45 +18,44 @@ using System;
 using System.Threading;
 
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc />
+public class ViewerFileReaderWriterFactory : ClassLibraryCsvFileReaderWriterFactory
 {
+  /// <summary>Initializes a new instance of the <see cref="ViewerFileReaderWriterFactory" /> class.</summary>
   /// <inheritdoc />
-  public class ViewerFileReaderWriterFactory : ClassLibraryCsvFileReaderWriterFactory
+  public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) :
+    base(timeZoneAdjust, fillGuessSettings)
   {
-    /// <summary>Initializes a new instance of the <see cref="ViewerFileReaderWriterFactory" /> class.</summary>
-    /// <inheritdoc />
-    public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) :
-      base(timeZoneAdjust, fillGuessSettings)
-    {
-    }
+  }
 
-    /// <inheritdoc />
-    public override IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
+  /// <inheritdoc />
+  public override IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
+  {
+    if (setting is CsvFileDummy csv)
     {
-      if (setting is CsvFileDummy csv)
-      {
-        if (csv.IsJson)
-          return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
-            csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
-            FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
-        if (csv.IsXml)
-          return new XmlFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
-            csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
-            FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
+      if (csv.IsJson)
+        return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
+          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
+      if (csv.IsXml)
+        return new XmlFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
+          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
 
-        return new CsvFileReader(fileName: csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
-          csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar,
-          csv.EscapePrefixChar,
-          csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
-          csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
-          csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
-          csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
-          csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
-          csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, TimeZoneAdjust,
-          TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
-      }
-      else
-        return base.GetFileReader(setting, cancellationToken);
+      return new CsvFileReader(fileName: csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
+        csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar,
+        csv.EscapePrefixChar,
+        csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
+        csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
+        csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
+        csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
+        csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
+        csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, TimeZoneAdjust,
+        TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
     }
+    else
+      return base.GetFileReader(setting, cancellationToken);
   }
 }

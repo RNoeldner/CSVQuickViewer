@@ -16,40 +16,39 @@
 using System;
 using System.Data;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Interface for a read and write formatter
+/// </summary>
+public interface IColumnFormatter
 {
   /// <summary>
-  /// Interface for a read and write formatter
+  /// If <c>true</c> warning are raised with handle Warning
   /// </summary>
-  public interface IColumnFormatter
-  {
-    /// <summary>
-    /// If <c>true</c> warning are raised with handle Warning
-    /// </summary>
-    bool RaiseWarning { get; set; }
+  bool RaiseWarning { get; set; }
 
-    /// <summary>
-    /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
-    /// </summary>
-    /// <param name="inputString">The input text that need to be processed</param>
-    /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
-    /// <returns>The formatted text</returns>
-    string FormatInputText(string inputString, Action<string>? handleWarning);
+  /// <summary>
+  /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+  /// </summary>
+  /// <param name="inputString">The input text that need to be processed</param>
+  /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
+  /// <returns>The formatted text</returns>
+  string FormatInputText(string inputString, Action<string>? handleWarning);
 
-    /// <summary>
-    /// Format the text while reading, unlike in the string implementation this is built for speed, no warning will be raised.
-    /// </summary>
-    /// <param name="inputString">The input span that need to be processed</param>    
-    /// <returns>The formatted text span </returns>
-    ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
+  /// <summary>
+  /// Format the text while reading, unlike in the string implementation this is built for speed, no warning will be raised.
+  /// </summary>
+  /// <param name="inputString">The input span that need to be processed</param>    
+  /// <returns>The formatted text span </returns>
+  ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
 
-    /// <summary>
-    /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
-    /// </summary>
-    /// <param name="dataObject">The data to be processed</param>
-    /// <param name="dataRow">All values for the current row to support placeholders, to handle placeholders etc.</param>
-    /// <param name="handleWarning"></param>
-    /// <returns>An awaitable task with the text a text representation</returns>
-    string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning);
-  }
+  /// <summary>
+  /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+  /// </summary>
+  /// <param name="dataObject">The data to be processed</param>
+  /// <param name="dataRow">All values for the current row to support placeholders, to handle placeholders etc.</param>
+  /// <param name="handleWarning"></param>
+  /// <returns>An awaitable task with the text a text representation</returns>
+  string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning);
 }

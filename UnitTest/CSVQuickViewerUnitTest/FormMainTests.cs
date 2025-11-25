@@ -16,51 +16,50 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public sealed class FormMainTests
 {
-  [TestClass]
-  public sealed class FormMainTests
+  [TestMethod]
+  [Timeout(6000)]
+  public void ProgramMainNoArguments()
+  { 
+    var ct = CancellationTokenSource.CreateLinkedTokenSource( UnitTestStatic.Token);      
+    var mainT = new Task(()=> Extensions.RunStaThread(() => Program.Main(Array.Empty<string>()),0), ct.Token);
+    mainT.Start();
+    UnitTestStaticForms.WaitSomeTime(2, ct.Token);
+    ct.Cancel();
+  }
+
+
+  [TestMethod, Timeout(8000)]
+  public void FormMain_LoadCsvFileAsync_CSV()
   {
-    [TestMethod]
-    [Timeout(6000)]
-    public void ProgramMainNoArguments()
-    { 
-      var ct = CancellationTokenSource.CreateLinkedTokenSource( UnitTestStatic.Token);      
-      var mainT = new Task(()=> Extensions.RunStaThread(() => Program.Main(Array.Empty<string>()),0), ct.Token);
-      mainT.Start();
-      UnitTestStaticForms.WaitSomeTime(2, ct.Token);
-      ct.Cancel();
-    }
+    var fileToLoad = UnitTestStatic.GetTestPath("BasicCSV.txt.gz");
+    Assert.IsTrue(FileSystemUtils.FileExists(fileToLoad), "Source files exists");
+    UnitTestStaticForms.ShowFormAsync(
+      () => new FormMain(new ViewSettings { DisplayRecordNo = true, MenuDown = true }),
+      async frm =>
+      {
+        await frm.LoadCsvOrZipFileAsync(fileToLoad);
+        Assert.IsNotNull(frm.DataTable);
+        Assert.AreEqual(7, frm.DataTable.Rows.Count);
+      });
+  }
 
-
-    [TestMethod, Timeout(8000)]
-    public void FormMain_LoadCsvFileAsync_CSV()
+  [TestMethod]
+  [Timeout(2000)]
+  public void FormMain_LoadCsvFileAsync_AllFormatsPipe()
+  {
+    var fileToLoad = UnitTestStatic.GetTestPath("AllFormatsPipe.txt");
+    Assert.IsTrue(FileSystemUtils.FileExists(fileToLoad), "Source files exists");
+    UnitTestStaticForms.ShowFormAsync(() => new FormMain(new ViewSettings()), async frm =>
     {
-      var fileToLoad = UnitTestStatic.GetTestPath("BasicCSV.txt.gz");
-      Assert.IsTrue(FileSystemUtils.FileExists(fileToLoad), "Source files exists");
-      UnitTestStaticForms.ShowFormAsync(
-        () => new FormMain(new ViewSettings { DisplayRecordNo = true, MenuDown = true }),
-        async frm =>
-        {
-          await frm.LoadCsvOrZipFileAsync(fileToLoad);
-          Assert.IsNotNull(frm.DataTable);
-          Assert.AreEqual(7, frm.DataTable.Rows.Count);
-        });
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void FormMain_LoadCsvFileAsync_AllFormatsPipe()
-    {
-      var fileToLoad = UnitTestStatic.GetTestPath("AllFormatsPipe.txt");
-      Assert.IsTrue(FileSystemUtils.FileExists(fileToLoad), "Source files exists");
-      UnitTestStaticForms.ShowFormAsync(() => new FormMain(new ViewSettings()), async frm =>
-        {
-          await frm.LoadCsvOrZipFileAsync(fileToLoad);
-          Assert.IsNotNull(frm.DataTable);
-          // 45 records, one of the lines has a linefeed
-          Assert.IsTrue(frm.DataTable.Rows.Count >= 40);
-        });
-    }
+      await frm.LoadCsvOrZipFileAsync(fileToLoad);
+      Assert.IsNotNull(frm.DataTable);
+      // 45 records, one of the lines has a linefeed
+      Assert.IsTrue(frm.DataTable.Rows.Count >= 40);
+    });
   }
 }

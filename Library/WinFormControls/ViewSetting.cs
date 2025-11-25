@@ -21,113 +21,112 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace CsvTools
+namespace CsvTools;
+
+public static class ViewSetting
 {
-  public static class ViewSetting
+  public static void ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
+    IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
   {
-    public static void ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
-      IDictionary<int, ColumnFilterLogic> columnFilters, Action<DataGridViewColumn, ListSortDirection>? doSort)
+    try
     {
-      try
+      var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text) ?? throw new InvalidOperationException();
+      var displayIndex = 0;
+      foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
       {
-        var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text) ?? throw new InvalidOperationException();
-        var displayIndex = 0;
-        foreach (var storedColumn in (vst).OrderBy(x => x.DisplayIndex))
+        var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x =>
+          x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
+        if (col == null)
+          continue;
+
+        if (col.Visible != storedColumn.Visible)
+          col.Visible = storedColumn.Visible;
+
+        if (col.Visible)
         {
-          var col = columns.OfType<DataGridViewColumn>().FirstOrDefault(x =>
-            x.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase));
-          if (col == null)
-            continue;
-
-          if (col.Visible != storedColumn.Visible)
-            col.Visible = storedColumn.Visible;
-
-          if (col.Visible)
-          {
-            col.Width = storedColumn.Width;
-            if (storedColumn.Sort == 1)
-              doSort?.Invoke(col, ListSortDirection.Ascending);
-            if (storedColumn.Sort == 2)
-              doSort?.Invoke(col, ListSortDirection.Descending);
-          }
-
-          col.DisplayIndex = displayIndex++;
-
-          var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
-
-          foreach (var cluster in storedColumn.ValueFilters)
-            columnFilters[col.Index].ValueClusterCollection
-              .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
-          if (storedColumn.ValueFilters.Count == 0)
-          {
-            columnFilters[col.Index].Operator = storedColumn.Operator;
-            columnFilters[col.Index].ValueText = storedColumn.ValueText;
-            columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
-          }
-
-          columnFilters[col.Index] = newColumnFilterLogic;
-          break;
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex);
-      }
-    }
-
-    public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns,
-      IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn, SortOrder sortOrder)
-    {
-      try
-      {
-        var vst = columns.OfType<DataGridViewColumn>().Select(col => new ColumnSetting(col.DataPropertyName,
-          col.Visible, col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
-        var colIndex = 0;
-        foreach (var columnFilter in columnFilters)
-        {
-          if (columnFilter is null)
-            continue;
-          if (columnFilter.Active)
-          {
-            var hadValueFiler = false;
-            foreach (var value in columnFilter.ValueClusterCollection.Where(x =>
-                       !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
-            {
-              vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
-              hadValueFiler = true;
-            }
-
-            if (!hadValueFiler)
-            {
-              vst[colIndex].Operator = columnFilter.Operator;
-              vst[colIndex].ValueText = columnFilter.ValueText;
-              vst[colIndex].ValueDate = columnFilter.ValueDateTime;
-            }
-          }
-
-          colIndex++;
+          col.Width = storedColumn.Width;
+          if (storedColumn.Sort == 1)
+            doSort?.Invoke(col, ListSortDirection.Ascending);
+          if (storedColumn.Sort == 2)
+            doSort?.Invoke(col, ListSortDirection.Descending);
         }
 
-        return vst;
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex);
-        return null;
-      }
-    }
+        col.DisplayIndex = displayIndex++;
 
-    /// <summary>
-    /// Get an Array of ColumnSetting serialized as Json Text
-    /// </summary>
-    public static string StoreViewSetting(DataGridViewColumnCollection columns,
-      IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn,
-      SortOrder sortOrder)
-    {
-      var res = GetViewSetting(columns, columnFilters, sortedColumn, sortOrder);
-      if (res is null)
-        return string.Empty;
-      return JsonConvert.SerializeObject(res, Formatting.None);
+        var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
+
+        foreach (var cluster in storedColumn.ValueFilters)
+          columnFilters[col.Index].ValueClusterCollection
+            .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
+        if (storedColumn.ValueFilters.Count == 0)
+        {
+          columnFilters[col.Index].Operator = storedColumn.Operator;
+          columnFilters[col.Index].ValueText = storedColumn.ValueText;
+          columnFilters[col.Index].ValueDateTime = storedColumn.ValueDate;
+        }
+
+        columnFilters[col.Index] = newColumnFilterLogic;
+        break;
+      }
     }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex);
+    }
+  }
+
+  public static ICollection<ColumnSetting>? GetViewSetting(DataGridViewColumnCollection columns,
+    IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn, SortOrder sortOrder)
+  {
+    try
+    {
+      var vst = columns.OfType<DataGridViewColumn>().Select(col => new ColumnSetting(col.DataPropertyName,
+        col.Visible, col == sortedColumn ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+      var colIndex = 0;
+      foreach (var columnFilter in columnFilters)
+      {
+        if (columnFilter is null)
+          continue;
+        if (columnFilter.Active)
+        {
+          var hadValueFiler = false;
+          foreach (var value in columnFilter.ValueClusterCollection.Where(x =>
+                     !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
+          {
+            vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
+            hadValueFiler = true;
+          }
+
+          if (!hadValueFiler)
+          {
+            vst[colIndex].Operator = columnFilter.Operator;
+            vst[colIndex].ValueText = columnFilter.ValueText;
+            vst[colIndex].ValueDate = columnFilter.ValueDateTime;
+          }
+        }
+
+        colIndex++;
+      }
+
+      return vst;
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex);
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Get an Array of ColumnSetting serialized as Json Text
+  /// </summary>
+  public static string StoreViewSetting(DataGridViewColumnCollection columns,
+    IEnumerable<ColumnFilterLogic> columnFilters, DataGridViewColumn? sortedColumn,
+    SortOrder sortOrder)
+  {
+    var res = GetViewSetting(columns, columnFilters, sortedColumn, sortOrder);
+    if (res is null)
+      return string.Empty;
+    return JsonConvert.SerializeObject(res, Formatting.None);
   }
 }

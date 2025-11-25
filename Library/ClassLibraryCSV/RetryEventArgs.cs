@@ -13,34 +13,33 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Event Args for Retry Questions
+/// </summary>
+/// <seealso cref="System.EventArgs" />
+public sealed class RetryEventArgs : EventArgs
 {
   /// <summary>
-  /// Event Args for Retry Questions
+  /// Initializes a new instance of the <see cref="RetryEventArgs"/> class.
   /// </summary>
-  /// <seealso cref="System.EventArgs" />
-  public sealed class RetryEventArgs : EventArgs
-  {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RetryEventArgs"/> class.
-    /// </summary>
-    /// <param name="ex">The ex.</param>
-    public RetryEventArgs(Exception ex) => Exception = ex;
+  /// <param name="ex">The ex.</param>
+  public RetryEventArgs(Exception ex) => Exception = ex;
 
-    /// <summary>
-    /// Gets the exception.
-    /// </summary>
-    /// <value>
-    /// The exception.
-    /// </value>
-    public Exception Exception { get; }
+  /// <summary>
+  /// Gets the exception.
+  /// </summary>
+  /// <value>
+  /// The exception.
+  /// </value>
+  public Exception Exception { get; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="RetryEventArgs"/> is retry.
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if it should try and retry; otherwise, <c>false</c>.
-    /// </value>
-    public bool Retry { get; set; }
-  }
+  /// <summary>
+  /// Gets or sets a value indicating whether this <see cref="RetryEventArgs"/> is retry.
+  /// </summary>
+  /// <value>
+  ///   <c>true</c> if it should try and retry; otherwise, <c>false</c>.
+  /// </value>
+  public bool Retry { get; set; }
 }

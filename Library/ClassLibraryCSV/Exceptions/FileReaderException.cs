@@ -13,21 +13,20 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc />
+public class FileReaderException : ApplicationException
 {
   /// <inheritdoc />
-  public class FileReaderException : ApplicationException
+  public FileReaderException(string message)
+    : base(message)
   {
-    /// <inheritdoc />
-    public FileReaderException(string message)
-      : base(message)
-    {
-    }
+  }
 
-    /// <inheritdoc />
-    public FileReaderException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
+  /// <inheritdoc />
+  public FileReaderException(string message, Exception inner)
+    : base(message, inner)
+  {
   }
 }

@@ -17,95 +17,94 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Formatter to handle c# escaped text like \t or \r
+/// </summary>
+public class TextUnescapeFormatter : BaseColumnFormatter
 {
   /// <summary>
-  /// Formatter to handle c# escaped text like \t or \r
+  /// Static instance of the formatter
   /// </summary>
-  public class TextUnescapeFormatter : BaseColumnFormatter
+  public static readonly TextUnescapeFormatter Instance = new TextUnescapeFormatter();
+
+  private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
   {
-    /// <summary>
-    /// Static instance of the formatter
-    /// </summary>
-    public static readonly TextUnescapeFormatter Instance = new TextUnescapeFormatter();
-
-    private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
+    var hex = new StringBuilder();
+    var pos = startPos + 2;
+    // up to 4 byte escape 
+    while (pos < startPos + 6 && pos < text.Length)
     {
-      var hex = new StringBuilder();
-      var pos = startPos + 2;
-      // up to 4 byte escape 
-      while (pos < startPos + 6 && pos < text.Length)
-      {
-        if ((text[pos] >= '0' && text[pos] <= '9')
-            || (text[pos] >= 'A' && text[pos] <= 'F')
-            || (text[pos] >= 'a' && text[pos] <= 'f'))
-          hex.Append(text[pos]);
-        else
-          break;
-        pos++;
-      }
-
-      if (hex.Length > 0)
-        // get the hex number         
-        if (int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue))
-          return new Tuple<int, int>(pos, charValue);
-
-      return new Tuple<int, int>(-1, -1);
+      if ((text[pos] >= '0' && text[pos] <= '9')
+          || (text[pos] >= 'A' && text[pos] <= 'F')
+          || (text[pos] >= 'a' && text[pos] <= 'f'))
+        hex.Append(text[pos]);
+      else
+        break;
+      pos++;
     }
 
-    /// <summary>
-    ///   Replace c escaped text to verbatim text similar to RegEx UnEscape
-    /// </summary>
-    /// <param name="text">The text possibly containing c escaped text.</param>    
-    public static string Unescape(string text)
-    {
-      if (text is null) throw new ArgumentNullException(nameof(text));
-      if (text.IndexOf('\\') == -1)
-        return text;
+    if (hex.Length > 0)
+      // get the hex number         
+      if (int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue))
+        return new Tuple<int, int>(pos, charValue);
 
-      var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v")
-        .Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
-
-      var posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
-      while (posEncoded != -1)
-      {
-        var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
-        if (pos != -1)
-        {
-          retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
-          posEncoded -= 2;
-        }
-
-        posEncoded = retValue.IndexOf("\\u", posEncoded + 2, StringComparison.Ordinal);
-      }
-
-      posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
-      while (posEncoded != -1)
-      {
-        var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
-        if (pos != -1)
-        {
-          retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
-          posEncoded -= 2;
-        }
-
-        posEncoded = retValue.IndexOf("\\x", posEncoded + 2, StringComparison.Ordinal);
-      }
-
-      return retValue;
-    }
-
-    /// <inheritdoc />
-    public override string FormatInputText(string inputString, Action<string>? handleWarning)
-    {
-      var output = Unescape(inputString);
-      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke("Unescaped text");
-      return output;
-    }
-
-    /// <inheritdoc />
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-      => inputString.IndexOf('\\') == -1 ? inputString : Unescape(inputString.ToString()).AsSpan();
+    return new Tuple<int, int>(-1, -1);
   }
+
+  /// <summary>
+  ///   Replace c escaped text to verbatim text similar to RegEx UnEscape
+  /// </summary>
+  /// <param name="text">The text possibly containing c escaped text.</param>    
+  public static string Unescape(string text)
+  {
+    if (text is null) throw new ArgumentNullException(nameof(text));
+    if (text.IndexOf('\\') == -1)
+      return text;
+
+    var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v")
+      .Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
+
+    var posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
+    while (posEncoded != -1)
+    {
+      var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
+      if (pos != -1)
+      {
+        retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
+        posEncoded -= 2;
+      }
+
+      posEncoded = retValue.IndexOf("\\u", posEncoded + 2, StringComparison.Ordinal);
+    }
+
+    posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
+    while (posEncoded != -1)
+    {
+      var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
+      if (pos != -1)
+      {
+        retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
+        posEncoded -= 2;
+      }
+
+      posEncoded = retValue.IndexOf("\\x", posEncoded + 2, StringComparison.Ordinal);
+    }
+
+    return retValue;
+  }
+
+  /// <inheritdoc />
+  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  {
+    var output = Unescape(inputString);
+    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+      handleWarning?.Invoke("Unescaped text");
+    return output;
+  }
+
+  /// <inheritdoc />
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+    => inputString.IndexOf('\\') == -1 ? inputString : Unescape(inputString.ToString()).AsSpan();
 }

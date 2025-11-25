@@ -13,23 +13,22 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Raised if the conversion of types of or time zone conversion has issues
+/// </summary>
+/// <seealso cref="System.ApplicationException" />
+public sealed class ConversionException : ApplicationException
 {
-  /// <summary>
-  /// Raised if the conversion of types of or time zone conversion has issues
-  /// </summary>
-  /// <seealso cref="System.ApplicationException" />
-  public sealed class ConversionException : ApplicationException
+  /// <inheritdoc />
+  public ConversionException(string message)
+    : base(message)
   {
-    /// <inheritdoc />
-    public ConversionException(string message)
-      : base(message)
-    {
-    }
-    /// <inheritdoc />
-    public ConversionException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
+  }
+  /// <inheritdoc />
+  public ConversionException(string message, Exception inner)
+    : base(message, inner)
+  {
   }
 }

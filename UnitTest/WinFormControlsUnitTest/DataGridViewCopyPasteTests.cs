@@ -16,134 +16,133 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class DataGridViewCopyPasteTests
 {
-  [TestClass]
-  public class DataGridViewCopyPasteTests
+
+  [TestMethod]
+  [Timeout(2000)]
+  public void SelectedDataIntoClipboardAllTest()
   {
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void SelectedDataIntoClipboardAllTest()
+    Extensions.RunStaThread(() =>
     {
-      Extensions.RunStaThread(() =>
+      using var dgv = new DataGridView();
+      dgv.AutoGenerateColumns = true;
+      using var dt = UnitTestStaticData.GetDataTable();
+      dgv.DataSource = dt;
+      using var frm = new Form();
+      frm.Controls.Add(dgv);
+      frm.Show();
+      dgv.SelectAll();
+      var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
+      cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
+    });
+  }
+
+  [TestMethod]
+  [Timeout(2000)]
+  public void CopySelectedRowsIntoClipboard()
+  {
+    Extensions.RunStaThread(() =>
+    {
+      using var dgv = new DataGridView();
+      dgv.AutoGenerateColumns = true;
+      using var dt = UnitTestStaticData.GetDataTable();
+      dgv.DataSource = dt;
+      using var frm = new Form();
+      frm.Controls.Add(dgv);
+      frm.Show();
+      dgv.Rows[1].Selected = true;
+      dgv.Rows[2].Selected = true;
+      dgv.Rows[3].Selected = true;
+      Clipboard.Clear();
+      try
       {
-        using var dgv = new DataGridView();
-        dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStaticData.GetDataTable();
-        dgv.DataSource = dt;
-        using var frm = new Form();
-        frm.Controls.Add(dgv);
-        frm.Show();
-        dgv.SelectAll();
         var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
-        cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
-      });
-    }
+        cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestStatic.Token);
 
-    [TestMethod]
-    [Timeout(2000)]
-    public void CopySelectedRowsIntoClipboard()
-    {
-      Extensions.RunStaThread(() =>
+        var dataObject = Clipboard.GetDataObject();
+        Assert.IsNotNull(dataObject);
+        Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
+        Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+      }
+      catch (ExternalException)
       {
-        using var dgv = new DataGridView();
+        Assert.Inconclusive("ExternalException while copying data to Clipboard");
+      }
+    });
+  }
+
+  [TestMethod]
+  [Timeout(2000)]
+  public void CopySelectedColumnsIntoClipboard()
+  {
+    Extensions.RunStaThread(() =>
+    {
+      using (var dgv = new DataGridView())
+      {
         dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStaticData.GetDataTable();
-        dgv.DataSource = dt;
-        using var frm = new Form();
-        frm.Controls.Add(dgv);
-        frm.Show();
-        dgv.Rows[1].Selected = true;
-        dgv.Rows[2].Selected = true;
-        dgv.Rows[3].Selected = true;
-        Clipboard.Clear();
-        try
+        using (var dt = UnitTestStaticData.GetDataTable())
         {
-          var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
-          cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestStatic.Token);
-
-          var dataObject = Clipboard.GetDataObject();
-          Assert.IsNotNull(dataObject);
-          Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
-          Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
-        }
-        catch (ExternalException)
-        {
-          Assert.Inconclusive("ExternalException while copying data to Clipboard");
-        }
-      });
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void CopySelectedColumnsIntoClipboard()
-    {
-      Extensions.RunStaThread(() =>
-      {
-        using (var dgv = new DataGridView())
-        {
-          dgv.AutoGenerateColumns = true;
-          using (var dt = UnitTestStaticData.GetDataTable())
+          dgv.DataSource = dt;
+          using (var frm = new Form())
           {
-            dgv.DataSource = dt;
-            using (var frm = new Form())
+            frm.Controls.Add(dgv);
+            frm.Show();
+            dgv.Columns[1].Selected = true;
+            dgv.Columns[2].Selected = true;
+            try
             {
-              frm.Controls.Add(dgv);
-              frm.Show();
-              dgv.Columns[1].Selected = true;
-              dgv.Columns[2].Selected = true;
-              try
-              {
-                Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
-                cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
-                var dataObject = Clipboard.GetDataObject();
-                Assert.IsNotNull(dataObject);
-                Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
-              }
-              catch (ExternalException e)
-              {
-                Console.WriteLine(e);
-                Assert.Inconclusive(e.Message);
-              }
+              Clipboard.Clear();
+              var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
+              cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
+              var dataObject = Clipboard.GetDataObject();
+              Assert.IsNotNull(dataObject);
+              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            }
+            catch (ExternalException e)
+            {
+              Console.WriteLine(e);
+              Assert.Inconclusive(e.Message);
             }
           }
         }
-      });
-    }
+      }
+    });
+  }
 
-    [TestMethod]
-    [Timeout(2000)]
-    public void SelectedDataIntoClipboardTest()
+  [TestMethod]
+  [Timeout(2000)]
+  public void SelectedDataIntoClipboardTest()
+  {
+    Extensions.RunStaThread(() =>
     {
-      Extensions.RunStaThread(() =>
+      using var dgv = new DataGridView();
+      dgv.AutoGenerateColumns = true;
+      using var dt = UnitTestStaticData.GetDataTable();
+      dgv.DataSource = dt;
+      using var frm = new Form();
+      frm.Controls.Add(dgv);
+      frm.Show();
+      try
       {
-        using var dgv = new DataGridView();
-        dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStaticData.GetDataTable();
-        dgv.DataSource = dt;
-        using var frm = new Form();
-        frm.Controls.Add(dgv);
-        frm.Show();
-        try
-        {
-          Clipboard.Clear();
-          var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
-          cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
-          var dataObject = Clipboard.GetDataObject();
-          Assert.IsNotNull(dataObject);
-          Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
-        }
-        catch (ExternalException)
-        {
-          Assert.Inconclusive("Exception thrown but this can happen");
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail($"Wrong exception {ex.Message}");
-        }
-      });
-    }
+        Clipboard.Clear();
+        var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
+        cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
+        var dataObject = Clipboard.GetDataObject();
+        Assert.IsNotNull(dataObject);
+        Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+      }
+      catch (ExternalException)
+      {
+        Assert.Inconclusive("Exception thrown but this can happen");
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong exception {ex.Message}");
+      }
+    });
   }
 }

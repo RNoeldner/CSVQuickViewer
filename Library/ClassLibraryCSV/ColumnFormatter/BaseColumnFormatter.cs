@@ -15,24 +15,23 @@
 using System;
 using System.Data;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Base class for all ColumnFormatters
+/// </summary>
+public abstract class BaseColumnFormatter : IColumnFormatter
 {
-  /// <summary>
-  /// Base class for all ColumnFormatters
-  /// </summary>
-  public abstract class BaseColumnFormatter : IColumnFormatter
-  {
-    /// <inheritdoc/>
-    public abstract string FormatInputText(string inputString, Action<string>? handleWarning);
+  /// <inheritdoc/>
+  public abstract string FormatInputText(string inputString, Action<string>? handleWarning);
 
-    /// <inheritdoc/>
-    public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
+  /// <inheritdoc/>
+  public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
 
-    /// <inheritdoc/>
-    public virtual string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
-      => dataObject?.ToString() ?? string.Empty;    
+  /// <inheritdoc/>
+  public virtual string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
+    => dataObject?.ToString() ?? string.Empty;
 
-    /// <inheritdoc/>
-    public bool RaiseWarning { get; set; } = true;
-  }
+  /// <inheritdoc/>
+  public bool RaiseWarning { get; set; } = true;
 }

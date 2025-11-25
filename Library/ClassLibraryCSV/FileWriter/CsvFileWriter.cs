@@ -21,301 +21,300 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc cref="IFileWriter" />
+/// <summary>
+///   A Class to write CSV Files
+/// </summary>
+public sealed class CsvFileWriter : BaseFileWriter
 {
-  /// <inheritdoc cref="IFileWriter" />
+  private readonly bool m_ByteOrderMark;
+  private readonly int m_CodePageId;
+  private readonly bool m_ColumnHeader;
+  private readonly char m_FieldDelimiter;
+  private readonly char m_FieldQualifier;
+  private readonly bool m_IsFixedLength;
+  private readonly bool m_HasEscapePrefix;
+  private readonly string m_FieldDelimiterEscaped;
+  private readonly string m_FieldQualifierEscaped;
+  private readonly string m_NewLine;
+  private readonly string m_NewLinePlaceholder;
+  private readonly string m_DelimiterPlaceholder;
+  private readonly string m_QualifierPlaceholder;
+  private readonly bool m_QualifyAlways;
+  private readonly char[] m_QualifyCharArray;
+  private readonly bool m_QualifyOnlyIfNeeded;
+
   /// <summary>
-  ///   A Class to write CSV Files
+  ///   Constructor for a delimited Text / fixed length text writer
   /// </summary>
-  public sealed class CsvFileWriter : BaseFileWriter
+  /// <param name="fullPath">Fully qualified path of the file to write</param>
+  /// <param name="hasFieldHeader">Determine if a header row should be created</param>
+  /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
+  /// <param name="codePageId">The Code Page for encoding of characters</param>
+  /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
+  /// <param name="columnDefinition">Individual definitions of columns and formats</param>
+  /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
+  /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
+  /// <param name="footer">Footer to be written after all rows are written</param>
+  /// <param name="header">Header to be written before data and/or Header is written</param>
+  /// <param name="fileSettingDisplay">Info text for logging and process report</param>
+  /// <param name="newLine"><see cref="RecordDelimiterTypeEnum"/> written after each record</param>
+  /// <param name="fieldDelimiterChar">The delimiter to separate columns, if empty the text will be written as fixed length</param>
+  /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
+  /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
+  /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
+  /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the delimiter this text will be written</param>
+  /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the qualifier this text will be written</param>
+  /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
+  /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
+  /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
+  /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
+  /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
+  /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
+  public CsvFileWriter(
+    string fullPath,
+    bool hasFieldHeader = true,
+    in ValueFormat? valueFormat = null,
+    int codePageId = 65001,
+    bool byteOrderMark = true,
+    in IEnumerable<Column>? columnDefinition = null,
+    string? identifierInContainer = "",
+    string? header = "",
+    string? footer = "",
+    string fileSettingDisplay = "",
+    in RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
+    char fieldDelimiterChar = ',',
+    char fieldQualifierChar = '"',
+    char escapePrefixChar = '\0',
+    string newLinePlaceholder = "",
+    string delimiterPlaceholder = "",
+    string qualifierPlaceholder = "",
+    bool qualifyAlways = false,
+    bool qualifyOnlyIfNeeded = true,
+    bool fixedLength = false,
+    in TimeZoneChangeDelegate? timeZoneAdjust = null,
+    string sourceTimeZone = "",
+    string publicKey = "",
+    bool unencrypted = false
+  )
+    : base(
+      fullPath,
+      valueFormat, identifierInContainer,
+      footer, header, columnDefinition,
+      fileSettingDisplay, timeZoneAdjust,
+      sourceTimeZone, publicKey, unencrypted)
   {
-    private readonly bool m_ByteOrderMark;
-    private readonly int m_CodePageId;
-    private readonly bool m_ColumnHeader;
-    private readonly char m_FieldDelimiter;
-    private readonly char m_FieldQualifier;
-    private readonly bool m_IsFixedLength;
-    private readonly bool m_HasEscapePrefix;
-    private readonly string m_FieldDelimiterEscaped;
-    private readonly string m_FieldQualifierEscaped;
-    private readonly string m_NewLine;
-    private readonly string m_NewLinePlaceholder;
-    private readonly string m_DelimiterPlaceholder;
-    private readonly string m_QualifierPlaceholder;
-    private readonly bool m_QualifyAlways;
-    private readonly char[] m_QualifyCharArray;
-    private readonly bool m_QualifyOnlyIfNeeded;
+    m_CodePageId = codePageId;
+    m_ColumnHeader = hasFieldHeader;
+    m_ByteOrderMark = byteOrderMark;
+    m_FieldQualifier =  fieldQualifierChar;
+    m_FieldQualifierEscaped =  new string(m_FieldQualifier, 2);
 
-    /// <summary>
-    ///   Constructor for a delimited Text / fixed length text writer
-    /// </summary>
-    /// <param name="fullPath">Fully qualified path of the file to write</param>
-    /// <param name="hasFieldHeader">Determine if a header row should be created</param>
-    /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
-    /// <param name="codePageId">The Code Page for encoding of characters</param>
-    /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
-    /// <param name="columnDefinition">Individual definitions of columns and formats</param>
-    /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
-    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
-    /// <param name="footer">Footer to be written after all rows are written</param>
-    /// <param name="header">Header to be written before data and/or Header is written</param>
-    /// <param name="fileSettingDisplay">Info text for logging and process report</param>
-    /// <param name="newLine"><see cref="RecordDelimiterTypeEnum"/> written after each record</param>
-    /// <param name="fieldDelimiterChar">The delimiter to separate columns, if empty the text will be written as fixed length</param>
-    /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
-    /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
-    /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
-    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the delimiter this text will be written</param>
-    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the qualifier this text will be written</param>
-    /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
-    /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
-    /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
-    /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
-    /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
-    /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-    public CsvFileWriter(
-      string fullPath,
-      bool hasFieldHeader = true,
-      in ValueFormat? valueFormat = null,
-      int codePageId = 65001,
-      bool byteOrderMark = true,
-      in IEnumerable<Column>? columnDefinition = null,
-      string? identifierInContainer = "",
-      string? header = "",
-      string? footer = "",
-      string fileSettingDisplay = "",
-      in RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
-      char fieldDelimiterChar = ',',
-      char fieldQualifierChar = '"',
-      char escapePrefixChar = '\0',
-      string newLinePlaceholder = "",
-      string delimiterPlaceholder = "",
-      string qualifierPlaceholder = "",
-      bool qualifyAlways = false,
-      bool qualifyOnlyIfNeeded = true,
-      bool fixedLength = false,
-      in TimeZoneChangeDelegate? timeZoneAdjust = null,
-      string sourceTimeZone = "",
-      string publicKey = "",
-      bool unencrypted = false
-    )
-      : base(
-        fullPath,
-        valueFormat, identifierInContainer,
-        footer, header, columnDefinition,
-        fileSettingDisplay, timeZoneAdjust,
-        sourceTimeZone, publicKey, unencrypted)
+    m_FieldDelimiter = fieldDelimiterChar;
+    m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
+
+    m_HasEscapePrefix = escapePrefixChar != char.MinValue;
+    if (m_HasEscapePrefix)
     {
-      m_CodePageId = codePageId;
-      m_ColumnHeader = hasFieldHeader;
-      m_ByteOrderMark = byteOrderMark;
-      m_FieldQualifier =  fieldQualifierChar;
-      m_FieldQualifierEscaped =  new string(m_FieldQualifier, 2);
-
-      m_FieldDelimiter = fieldDelimiterChar;
-      m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
-
-      m_HasEscapePrefix = escapePrefixChar != char.MinValue;
-      if (m_HasEscapePrefix)
-      {
-        m_FieldQualifierEscaped = $"{escapePrefixChar}{m_FieldQualifier}";
-        m_FieldDelimiterEscaped = $"{escapePrefixChar}{m_FieldDelimiter}";
-      }
-
-      m_QualifyAlways = qualifyAlways && !qualifyOnlyIfNeeded;
-      m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
-
-      m_NewLine = newLine.NewLineString();
-      Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text());
-      m_IsFixedLength  = fixedLength;
-
-      m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
-      m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
-      m_QualifierPlaceholder = qualifierPlaceholder.HandleLongText();
-
-      // check the validity of placeholders
-      var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-      if (m_DelimiterPlaceholder.IndexOfAny(illegal)!=-1)
-        throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
-
-      if (m_QualifierPlaceholder.IndexOfAny(illegal)!=-1)
-        throw new ArgumentException($"{nameof(qualifierPlaceholder)} invalid characters in  '{m_QualifierPlaceholder}'");
-
-      if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
-        throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
-
-      var qualifyList = new List<char>(4);
-
-      // need quoting in case of new line that is not handled by placeholder
-      if (string.IsNullOrEmpty(m_NewLinePlaceholder))
-      {
-        qualifyList.Add((char) 0x0a);
-        qualifyList.Add((char) 0x0d);
-      }
-
-      // need quoting in case of a not escaped delimiter
-      if (!m_HasEscapePrefix)
-      {
-        qualifyList.Add(m_FieldQualifier);
-        qualifyList.Add(m_FieldDelimiter);
-      }
-
-
-      m_QualifyCharArray = qualifyList.ToArray();
+      m_FieldQualifierEscaped = $"{escapePrefixChar}{m_FieldQualifier}";
+      m_FieldDelimiterEscaped = $"{escapePrefixChar}{m_FieldDelimiter}";
     }
 
-    /// <inheritdoc cref="IFileWriter"/>
-    public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+    m_QualifyAlways = qualifyAlways && !qualifyOnlyIfNeeded;
+    m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
+
+    m_NewLine = newLine.NewLineString();
+    Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text());
+    m_IsFixedLength  = fixedLength;
+
+    m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
+    m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
+    m_QualifierPlaceholder = qualifierPlaceholder.HandleLongText();
+
+    // check the validity of placeholders
+    var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
+    if (m_DelimiterPlaceholder.IndexOfAny(illegal)!=-1)
+      throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
+
+    if (m_QualifierPlaceholder.IndexOfAny(illegal)!=-1)
+      throw new ArgumentException($"{nameof(qualifierPlaceholder)} invalid characters in  '{m_QualifierPlaceholder}'");
+
+    if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
+      throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
+
+    var qualifyList = new List<char>(4);
+
+    // need quoting in case of new line that is not handled by placeholder
+    if (string.IsNullOrEmpty(m_NewLinePlaceholder))
     {
-      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      qualifyList.Add((char) 0x0a);
+      qualifyList.Add((char) 0x0d);
+    }
 
-      if (columns.Count == 0)
-        throw new FileWriterException("No columns defined to be written.");
+    // need quoting in case of a not escaped delimiter
+    if (!m_HasEscapePrefix)
+    {
+      qualifyList.Add(m_FieldQualifier);
+      qualifyList.Add(m_FieldDelimiter);
+    }
 
-      HandleWriteStart();
+
+    m_QualifyCharArray = qualifyList.ToArray();
+  }
+
+  /// <inheritdoc cref="IFileWriter"/>
+  public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+  {
+    var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+
+    if (columns.Count == 0)
+      throw new FileWriterException("No columns defined to be written.");
+
+    HandleWriteStart();
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
-      using var writer =
-        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
+    using var writer =
+      new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
 
-      var sb = new StringBuilder();
-      if (!string.IsNullOrEmpty(Header))
-      {
-        sb.Append(Header);
-        if (!Header.EndsWith(m_NewLine, StringComparison.Ordinal))
-          sb.Append(m_NewLine);
-      }
-
-      var lastCol = columns.Last();
-
-      if (m_ColumnHeader)
-      {
-        foreach (var columnInfo in columns)
-        {
-          sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength));
-          if (!m_IsFixedLength && columnInfo != lastCol)
-            sb.Append(m_FieldDelimiter);
-        }
+    var sb = new StringBuilder();
+    if (!string.IsNullOrEmpty(Header))
+    {
+      sb.Append(Header);
+      if (!Header.EndsWith(m_NewLine, StringComparison.Ordinal))
         sb.Append(m_NewLine);
-      }
+    }
 
-      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-             && !cancellationToken.IsCancellationRequested)
+    var lastCol = columns.Last();
+
+    if (m_ColumnHeader)
+    {
+      foreach (var columnInfo in columns)
       {
-        if (sb.Length > 32768)
-        {
-          ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
-          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-          sb.Length = 0;
-        }
-
-        var emptyColumns = 0;
-
-        var row = new StringBuilder();
-        foreach (var columnInfo in columns)
-        {
-          // Number of columns might be higher than number of reader columns
-          var col = reader.GetValue(columnInfo.ColumnOrdinal);
-          if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
-            emptyColumns++;
-          else
-          {
-            row.Append(HandleText(TextEncodeField(col, columnInfo, reader),
-              columnInfo.FieldLength,
-              msg => HandleWarning(columnInfo.Name, msg)));
-          }
-          if (m_FieldDelimiter != char.MinValue && columnInfo != lastCol)
-            row.Append(m_FieldDelimiter);
-        }
-
-        if (emptyColumns == columns.Count()) break;
-        NextRecord();
-        sb.Append(row);
-        sb.Append(m_NewLine);
+        sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength));
+        if (!m_IsFixedLength && columnInfo != lastCol)
+          sb.Append(m_FieldDelimiter);
       }
+      sb.Append(m_NewLine);
+    }
 
-      var footer = Footer();
-      if (!string.IsNullOrEmpty(footer))
+    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
+           && !cancellationToken.IsCancellationRequested)
+    {
+      if (sb.Length > 32768)
       {
-        sb.Append(footer);
-        if (!footer.EndsWith(m_NewLine, StringComparison.Ordinal))
-          sb.Append(m_NewLine);
-      }
-
-      // remove the very last newline
-      if (sb.Length > m_NewLine.Length)
-      {
-        sb.Length -= m_NewLine.Length;
-        // and store the possibly remaining data
+        ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+        sb.Length = 0;
       }
+
+      var emptyColumns = 0;
+
+      var row = new StringBuilder();
+      foreach (var columnInfo in columns)
+      {
+        // Number of columns might be higher than number of reader columns
+        var col = reader.GetValue(columnInfo.ColumnOrdinal);
+        if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
+          emptyColumns++;
+        else
+        {
+          row.Append(HandleText(TextEncodeField(col, columnInfo, reader),
+            columnInfo.FieldLength,
+            msg => HandleWarning(columnInfo.Name, msg)));
+        }
+        if (m_FieldDelimiter != char.MinValue && columnInfo != lastCol)
+          row.Append(m_FieldDelimiter);
+      }
+
+      if (emptyColumns == columns.Count()) break;
+      NextRecord();
+      sb.Append(row);
+      sb.Append(m_NewLine);
+    }
+
+    var footer = Footer();
+    if (!string.IsNullOrEmpty(footer))
+    {
+      sb.Append(footer);
+      if (!footer.EndsWith(m_NewLine, StringComparison.Ordinal))
+        sb.Append(m_NewLine);
+    }
+
+    // remove the very last newline
+    if (sb.Length > m_NewLine.Length)
+    {
+      sb.Length -= m_NewLine.Length;
+      // and store the possibly remaining data
+      await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+    }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
 #else
-      await writer.FlushAsync().ConfigureAwait(false);
+    await writer.FlushAsync().ConfigureAwait(false);
 #endif
-    }
+  }
 
-    /// <summary>
-    /// Handled escaping, placeholders and qualifying 
-    /// </summary>
-    /// <param name="text">The text to be written</param>    
-    /// <param name="fieldLength">The length for fixedLength</param>    
-    /// <param name="handleWarning">Action to perform if text is cut off for fixed length</param>
-    /// <returns></returns>
-    /// <exception cref="FileWriterException"></exception>
-    private string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
+  /// <summary>
+  /// Handled escaping, placeholders and qualifying 
+  /// </summary>
+  /// <param name="text">The text to be written</param>    
+  /// <param name="fieldLength">The length for fixedLength</param>    
+  /// <param name="handleWarning">Action to perform if text is cut off for fixed length</param>
+  /// <returns></returns>
+  /// <exception cref="FileWriterException"></exception>
+  private string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
+  {
+    if (m_IsFixedLength && fieldLength == 0)
+      throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
+
+    // New line of any kind will be replaced with the placeholder if set
+    if (m_NewLinePlaceholder.Length > 0)
+      text = text.HandleCrlfCombinations(m_NewLinePlaceholder);
+
+    // Delimiter  e.G. ; replaced with the placeholder or escaped 
+    if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
+      text = text.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
+    else if (m_HasEscapePrefix)
+      text = text.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
+
+    // Qualifier e.G. " replaced with the placeholder if set
+    if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
+      text = text.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
+
+    if (m_IsFixedLength)
     {
-      if (m_IsFixedLength && fieldLength == 0)
-        throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
-
-      // New line of any kind will be replaced with the placeholder if set
-      if (m_NewLinePlaceholder.Length > 0)
-        text = text.HandleCrlfCombinations(m_NewLinePlaceholder);
-
-      // Delimiter  e.G. ; replaced with the placeholder or escaped 
-      if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
-        text = text.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
-      else if (m_HasEscapePrefix)
-        text = text.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
-
-      // Qualifier e.G. " replaced with the placeholder if set
-      if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
-        text = text.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
-
-      if (m_IsFixedLength)
-      {
-        if (text.Length <= fieldLength || fieldLength <= 0)
-          return text.PadRight(fieldLength, ' ');
-        handleWarning?.Invoke($"Text with length of {text.Length} has been cut off after {fieldLength} character");
-        return text.Substring(0, fieldLength);
-      }
-
-      /* Old method:
-      var qualifyThis = m_QualifyAlways;
-      if (!qualifyThis)
-      {
-        if (m_QualifyOnlyIfNeeded)
-          // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
-          // the Qualifier or a whitespace that is lost otherwise
-          qualifyThis = displayAs.IndexOfAny(m_QualifyCharArray) > -1 || displayAs[0].Equals(m_FieldQualifier) ||
-                        displayAs[0].Equals(' ');
-        else
-          // quality any text or date etc that containing a Qualify Char
-          qualifyThis = columnInfo.ValueFormat.DataType == DataTypeEnum.String ||
-                        columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml ||
-                        displayAs.IndexOfAny(m_QualifyCharArray) > -1;
-      }
-      */
-
-      // Determine if we need to qualify
-      var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && text.Length>0 && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
-
-      return qualifyThis
-        ? $"{m_FieldQualifier}{text.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
-        : text;
+      if (text.Length <= fieldLength || fieldLength <= 0)
+        return text.PadRight(fieldLength, ' ');
+      handleWarning?.Invoke($"Text with length of {text.Length} has been cut off after {fieldLength} character");
+      return text.Substring(0, fieldLength);
     }
+
+    /* Old method:
+    var qualifyThis = m_QualifyAlways;
+    if (!qualifyThis)
+    {
+      if (m_QualifyOnlyIfNeeded)
+        // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
+        // the Qualifier or a whitespace that is lost otherwise
+        qualifyThis = displayAs.IndexOfAny(m_QualifyCharArray) > -1 || displayAs[0].Equals(m_FieldQualifier) ||
+                      displayAs[0].Equals(' ');
+      else
+        // quality any text or date etc that containing a Qualify Char
+        qualifyThis = columnInfo.ValueFormat.DataType == DataTypeEnum.String ||
+                      columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml ||
+                      displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+    }
+    */
+
+    // Determine if we need to qualify
+    var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && text.Length>0 && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
+
+    return qualifyThis
+      ? $"{m_FieldQualifier}{text.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
+      : text;
   }
 }

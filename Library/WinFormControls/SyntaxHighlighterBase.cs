@@ -13,32 +13,31 @@
  */
 using System.Drawing;
 
-namespace CsvTools
+namespace CsvTools;
+
+public abstract class SyntaxHighlighterBase : FastColoredTextBoxNS.SyntaxHighlighter
 {
-  public abstract class SyntaxHighlighterBase : FastColoredTextBoxNS.SyntaxHighlighter
-  {
 #pragma warning disable CA1416
-    protected readonly FastColoredTextBoxNS.TextStyle SkipStyle = new FastColoredTextBoxNS.TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
+  protected readonly FastColoredTextBoxNS.TextStyle SkipStyle = new FastColoredTextBoxNS.TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
 #pragma warning restore CA1416
 
-    public SyntaxHighlighterBase(in FastColoredTextBoxNS.FastColoredTextBox currentTb) : base(currentTb)
-    {
-    }
+  public SyntaxHighlighterBase(in FastColoredTextBoxNS.FastColoredTextBox currentTb) : base(currentTb)
+  {
+  }
 
-    public abstract void Highlight(FastColoredTextBoxNS.Range range);
+  public abstract void Highlight(FastColoredTextBoxNS.Range range);
 
-    public void SkipRows(int skipRows)
-    {
-      if (skipRows <= 0) return;
-      var range = new FastColoredTextBoxNS.Range(currentTb, 0, 0, 0, skipRows);
-      range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
-      range.SetStyle(SkipStyle);
-    }
+  public void SkipRows(int skipRows)
+  {
+    if (skipRows <= 0) return;
+    var range = new FastColoredTextBoxNS.Range(currentTb, 0, 0, 0, skipRows);
+    range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+    range.SetStyle(SkipStyle);
+  }
 
-    public virtual void Comment(FastColoredTextBoxNS.Range range)
-    {
-      range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
-      range.SetStyle(GrayStyle);
-    }
+  public virtual void Comment(FastColoredTextBoxNS.Range range)
+  {
+    range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+    range.SetStyle(GrayStyle);
   }
 }

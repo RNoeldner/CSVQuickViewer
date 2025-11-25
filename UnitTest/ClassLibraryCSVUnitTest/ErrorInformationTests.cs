@@ -31,168 +31,167 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class ErrorInformationTests : DisposableBase
 {
-  [TestClass]
-  public class ErrorInformationTests : DisposableBase
+  private readonly DataTable m_DataTable = new DataTable();
+
+  protected override void Dispose(bool disposing)
   {
-    private readonly DataTable m_DataTable = new DataTable();
-
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-        m_DataTable.Dispose();
-    }
+    if (disposing)
+      m_DataTable.Dispose();
+  }
 
 
-    [TestInitialize]
-    public void Init()
-    {
-      m_DataTable.Clear();
-      m_DataTable.Columns.Clear();
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "ID", AutoIncrement = true });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld1" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld2" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld3" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld4" });
-    }
+  [TestInitialize]
+  public void Init()
+  {
+    m_DataTable.Clear();
+    m_DataTable.Columns.Clear();
+    m_DataTable.Columns.Add(new DataColumn { ColumnName = "ID", AutoIncrement = true });
+    m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld1" });
+    m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld2" });
+    m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld3" });
+    m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld4" });
+  }
 
-    [TestMethod]
-    public void GetErrorInformationTest()
-    {
-      var row = m_DataTable.NewRow();
-      Assert.AreEqual(string.Empty, row.GetErrorInformation());
-      row.RowError = "RowError";
-      Assert.AreEqual("[] RowError", row.GetErrorInformation());
-    }
+  [TestMethod]
+  public void GetErrorInformationTest()
+  {
+    var row = m_DataTable.NewRow();
+    Assert.AreEqual(string.Empty, row.GetErrorInformation());
+    row.RowError = "RowError";
+    Assert.AreEqual("[] RowError", row.GetErrorInformation());
+  }
 
-    [TestMethod]
-    public void ReadErrorInformationTestSetErrorInformation()
-    {
-      // After incorporating the class for Errors in columns into RowErrorCollection,
-      // this test make less sense, there is no need to test Dictionary
-      // It now mainly tests ReadErrorInformation */
-      var columnErrors = new Dictionary<int, string>();
+  [TestMethod]
+  public void ReadErrorInformationTestSetErrorInformation()
+  {
+    // After incorporating the class for Errors in columns into RowErrorCollection,
+    // this test make less sense, there is no need to test Dictionary
+    // It now mainly tests ReadErrorInformation */
+    var columnErrors = new Dictionary<int, string>();
 
-      var colNames = new List<string>();
-      foreach (DataColumn col in m_DataTable.Columns)
-        colNames.Add(col.ColumnName);
+    var colNames = new List<string>();
+    foreach (DataColumn col in m_DataTable.Columns)
+      colNames.Add(col.ColumnName);
 
-      Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty)));
+    Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty)));
 
-      columnErrors.Add(-1, "Error on Row");
-      columnErrors.Add(0, "Error on Column".AddWarningId());
-      columnErrors.Add(1, "Error on ColumnA");     
-      columnErrors.Add(2, "Warning on ColumnB".AddWarningId());
+    columnErrors.Add(-1, "Error on Row");
+    columnErrors.Add(0, "Error on Column".AddWarningId());
+    columnErrors.Add(1, "Error on ColumnA");     
+    columnErrors.Add(2, "Warning on ColumnB".AddWarningId());
       
-      var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty);
-      Assert.IsNotNull(errorInfo);
+    var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty);
+    Assert.IsNotNull(errorInfo);
 
-      var row = m_DataTable.NewRow();
-      row.SetErrorInformation(errorInfo);
-      Assert.AreEqual("Error on Row", row.RowError);
-      Assert.AreEqual("Error on Column", row.GetColumnError(0).WithoutWarningId());
-      Assert.AreEqual("Error on ColumnA", row.GetColumnError(1));
-      Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
+    var row = m_DataTable.NewRow();
+    row.SetErrorInformation(errorInfo);
+    Assert.AreEqual("Error on Row", row.RowError);
+    Assert.AreEqual("Error on Column", row.GetColumnError(0).WithoutWarningId());
+    Assert.AreEqual("Error on ColumnA", row.GetColumnError(1));
+    Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
-      var res = errorInfo.GetErrorsAndWarnings();
-      Assert.AreEqual(2, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
-      Assert.AreEqual(2, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
-    }
+    var res = errorInfo.GetErrorsAndWarnings();
+    Assert.AreEqual(2, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
+    Assert.AreEqual(2, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
+  }
 
-    [TestMethod]
-    public void CombineColumnAndErrorTest() =>
-      Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError("Col1", "Error"));
+  [TestMethod]
+  public void CombineColumnAndErrorTest() =>
+    Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError("Col1", "Error"));
 
-    [TestMethod]
-    public void ReadErrorInformationFromDataRow()
+  [TestMethod]
+  public void ReadErrorInformationFromDataRow()
 
-    {
-      var dr = m_DataTable.NewRow();
+  {
+    var dr = m_DataTable.NewRow();
 
-      dr[0] = 1;
-      dr[1] = 2;
-      dr[2] = 3;
+    dr[0] = 1;
+    dr[1] = 2;
+    dr[2] = 3;
 
-      Assert.AreEqual(string.Empty, dr.GetErrorInformation());
-      dr.RowError = "Test";
-      Assert.AreEqual("[] Test", dr.GetErrorInformation());
-      dr.SetColumnError(1, "Hello");
-      Assert.IsTrue(dr.GetErrorInformation().Contains(dr.RowError));
-      Assert.IsTrue(dr.GetErrorInformation().Contains(dr.GetColumnError(1)));
-    }
+    Assert.AreEqual(string.Empty, dr.GetErrorInformation());
+    dr.RowError = "Test";
+    Assert.AreEqual("[] Test", dr.GetErrorInformation());
+    dr.SetColumnError(1, "Hello");
+    Assert.IsTrue(dr.GetErrorInformation().Contains(dr.RowError));
+    Assert.IsTrue(dr.GetErrorInformation().Contains(dr.GetColumnError(1)));
+  }
 
-    [TestMethod]
-    public void WriteErrorInformationToDataRowColAndRow()
-    {
-      var dr = m_DataTable.NewRow();
-      dr[0] = 1;
-      dr[1] = 2;
-      dr[2] = 3;
-      dr.SetColumnError(1, "ColumnError");
-      dr.RowError = "RowError";
+  [TestMethod]
+  public void WriteErrorInformationToDataRowColAndRow()
+  {
+    var dr = m_DataTable.NewRow();
+    dr[0] = 1;
+    dr[1] = 2;
+    dr[2] = 3;
+    dr.SetColumnError(1, "ColumnError");
+    dr.RowError = "RowError";
 
-      var dr2 = m_DataTable.NewRow();
+    var dr2 = m_DataTable.NewRow();
 
-      dr2.SetErrorInformation(dr.GetErrorInformation());
-      Assert.AreEqual(dr.RowError, dr2.RowError);
-      Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0), "Col0");
-      Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1), "Col1");
-      Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2), "Col2");
-    }
+    dr2.SetErrorInformation(dr.GetErrorInformation());
+    Assert.AreEqual(dr.RowError, dr2.RowError);
+    Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0), "Col0");
+    Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1), "Col1");
+    Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2), "Col2");
+  }
 
-    [TestMethod]
-    public void WriteErrorInformationToDataRowColOnly()
-    {
-      var dr = m_DataTable.NewRow();
-      dr[0] = 1;
-      dr[1] = 2;
-      dr[2] = 3;
-      dr.SetColumnError(1, "Hello");
+  [TestMethod]
+  public void WriteErrorInformationToDataRowColOnly()
+  {
+    var dr = m_DataTable.NewRow();
+    dr[0] = 1;
+    dr[1] = 2;
+    dr[2] = 3;
+    dr.SetColumnError(1, "Hello");
 
-      var dr2 = m_DataTable.NewRow();
+    var dr2 = m_DataTable.NewRow();
 
-      dr2.SetErrorInformation(dr.GetErrorInformation());
-      Assert.AreEqual(dr.RowError, dr2.RowError);
-      Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0), "Col0");
-      Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1), "Col1");
-      Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2), "Col2");
-    }
+    dr2.SetErrorInformation(dr.GetErrorInformation());
+    Assert.AreEqual(dr.RowError, dr2.RowError);
+    Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0), "Col0");
+    Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1), "Col1");
+    Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2), "Col2");
+  }
 
-    [TestMethod]
-    public void WriteErrorInformationToDataRowRowOnly()
-    {
-      var dr = m_DataTable.NewRow();
-      dr[0] = 1;
-      dr[1] = 2;
-      dr[2] = 3;
-      dr.RowError = "Test";
+  [TestMethod]
+  public void WriteErrorInformationToDataRowRowOnly()
+  {
+    var dr = m_DataTable.NewRow();
+    dr[0] = 1;
+    dr[1] = 2;
+    dr[2] = 3;
+    dr.RowError = "Test";
 
-      var dr2 = m_DataTable.NewRow();
+    var dr2 = m_DataTable.NewRow();
 
-      dr2.SetErrorInformation(dr.GetErrorInformation());
-      Assert.AreEqual(dr.RowError, dr2.RowError);
-      Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0));
-      Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1));
-      Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2));
-    }
+    dr2.SetErrorInformation(dr.GetErrorInformation());
+    Assert.AreEqual(dr.RowError, dr2.RowError);
+    Assert.AreEqual(dr.GetColumnError(0), dr2.GetColumnError(0));
+    Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1));
+    Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2));
+  }
 
-    [TestMethod()]
-    public void IsErrorMessageTest()
-    {
-      Assert.IsTrue("Test".IsErrorMessage());
-      Assert.IsFalse("Test".AddWarningId().IsErrorMessage());
-    }
+  [TestMethod()]
+  public void IsErrorMessageTest()
+  {
+    Assert.IsTrue("Test".IsErrorMessage());
+    Assert.IsFalse("Test".AddWarningId().IsErrorMessage());
+  }
 
-    [TestMethod()]
-    public void AddMessageTest()
-    {
-      var warning = "Test2".AddWarningId();
-      Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
-      Assert.AreEqual("Test2", "Test2".AddMessage("Test2"));
-      Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
-      Assert.AreEqual($"Test\n{warning}", "Test".AddMessage(warning));
+  [TestMethod()]
+  public void AddMessageTest()
+  {
+    var warning = "Test2".AddWarningId();
+    Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
+    Assert.AreEqual("Test2", "Test2".AddMessage("Test2"));
+    Assert.AreEqual("Test2\nTest", "Test".AddMessage("Test2"));
+    Assert.AreEqual($"Test\n{warning}", "Test".AddMessage(warning));
 
-    }
   }
 }

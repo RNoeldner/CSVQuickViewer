@@ -17,40 +17,39 @@ using System;
 using System.Threading.Tasks;
 #endif
 
-namespace CsvTools
-{
-  /// <inheritdoc />
+namespace CsvTools;
 
-  public abstract class DisposableBase : IDisposable
+/// <inheritdoc />
+public abstract class DisposableBase : IDisposable
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
+{
+  /// <summary>
+  ///   Stop the Dispose() method execution in case of it being called more than once.
+  /// </summary>
+  private bool m_DisposedValue;
+
+  /// <summary>
+  ///   Releases unmanaged and - optionally - managed resources.
+  /// </summary>
+  /// <param name="disposing">
+  ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+  ///   unmanaged resources.
+  /// </param>
+  protected abstract void Dispose(bool disposing);
+
+  /// <inheritdoc />
+  public void Dispose()
   {
-    /// <summary>
-    ///   Stop the Dispose() method execution in case of it being called more than once.
-    /// </summary>
-    private bool m_DisposedValue;
+    if (!m_DisposedValue)
+      Dispose(true);
+    m_DisposedValue = true;
+    GC.SuppressFinalize(this);
+  }
 
-    /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources.
-    /// </summary>
-    /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
-    /// </param>
-    protected abstract void Dispose(bool disposing);
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-      if (!m_DisposedValue)
-        Dispose(true);
-      m_DisposedValue = true;
-      GC.SuppressFinalize(this);
-    }
-
-    /// <inheritdoc />
-    ~DisposableBase() => Dispose(false);
+  /// <inheritdoc />
+  ~DisposableBase() => Dispose(false);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <inheritdoc />
@@ -60,5 +59,4 @@ namespace CsvTools
       return default;
     }
 #endif
-  }
 }

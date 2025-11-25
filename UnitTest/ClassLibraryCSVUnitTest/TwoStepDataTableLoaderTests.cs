@@ -16,47 +16,46 @@ using System;
 using System.Threading.Tasks;
 
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass()]
+public class TwoStepDataTableLoaderTests
 {
-  [TestClass()]
-  public class TwoStepDataTableLoaderTests
+
+  [TestMethod()]
+  public async Task StartAsyncTestAsyncNoWarning()
   {
+    bool warningCalled = false;
 
-    [TestMethod()]
-    public async Task StartAsyncTestAsyncNoWarning()
+    // ReSharper disable once UseAwaitUsing
+    using var tsde = new SteppedDataTableLoader();
+    var csv = new CsvFileDummy
     {
-      bool warningCalled = false;
+      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+      FieldDelimiterChar = ',',
+      CommentLine = "#"
+    };
 
-      // ReSharper disable once UseAwaitUsing
-      using var tsde = new SteppedDataTableLoader();
-      var csv = new CsvFileDummy
-      {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FieldDelimiterChar = ',',
-        CommentLine = "#"
-      };
+    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
+    Assert.IsFalse(warningCalled);
+    Assert.AreEqual(7, myDataTable.Columns.Count());
+  }
 
-      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
-      Assert.IsFalse(warningCalled);
-      Assert.AreEqual(7, myDataTable.Columns.Count());
-    }
+  [TestMethod()]
+  public async Task StartAsyncTestAsyncWarning()
+  {
+    bool warningCalled = false;
 
-    [TestMethod()]
-    public async Task StartAsyncTestAsyncWarning()
+    // ReSharper disable once UseAwaitUsing
+    using var tsde = new SteppedDataTableLoader();
+    var csv = new CsvFileDummy
     {
-      bool warningCalled = false;
+      FileName = UnitTestStatic.GetTestPath("TextQualifiers.txt"),
+      WarnQuotesInQuotes = true
+    };
 
-      // ReSharper disable once UseAwaitUsing
-      using var tsde = new SteppedDataTableLoader();
-      var csv = new CsvFileDummy
-      {
-        FileName = UnitTestStatic.GetTestPath("TextQualifiers.txt"),
-        WarnQuotesInQuotes = true
-      };
-
-      var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
-      Assert.IsTrue(warningCalled);
-      Assert.AreEqual(7, myDataTable.Columns.Count());
-    }
+    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
+    Assert.IsTrue(warningCalled);
+    Assert.AreEqual(7, myDataTable.Columns.Count());
   }
 }

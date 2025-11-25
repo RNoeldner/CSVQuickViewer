@@ -13,34 +13,33 @@
  */
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Event Arguments for the Search
+/// </summary>
+public sealed class SearchEventArgs : EventArgs
 {
   /// <summary>
-  ///   Event Arguments for the Search
+  ///   Initializes a new instance of the <see cref="SearchEventArgs" /> class.
   /// </summary>
-  public sealed class SearchEventArgs : EventArgs
+  /// <param name="searchText">Text to search</param>
+  /// <param name="result">Number of the result to focus</param>
+  public SearchEventArgs(string searchText, int result = 1)
   {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="SearchEventArgs" /> class.
-    /// </summary>
-    /// <param name="searchText">Text to search</param>
-    /// <param name="result">Number of the result to focus</param>
-    public SearchEventArgs(string searchText, int result = 1)
-    {
-      SearchText = searchText;
-      Result = result;
-    }
-
-    /// <summary>
-    ///   Gets or sets the result to be shown
-    /// </summary>
-    /// <value>The result.</value>
-    public int Result { get; }
-
-    /// <summary>
-    ///   Gets or sets the search text.
-    /// </summary>
-    /// <value>The search text.</value>
-    public string SearchText { get; }
+    SearchText = searchText;
+    Result = result;
   }
+
+  /// <summary>
+  ///   Gets or sets the result to be shown
+  /// </summary>
+  /// <value>The result.</value>
+  public int Result { get; }
+
+  /// <summary>
+  ///   Gets or sets the search text.
+  /// </summary>
+  /// <value>The search text.</value>
+  public string SearchText { get; }
 }

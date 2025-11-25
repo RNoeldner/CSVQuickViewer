@@ -15,98 +15,97 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #pragma warning disable CS0618
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class FillGuessSettingsTests
 {
-  [TestClass]
-  public class FillGuessSettingsTests
+  [TestMethod]
+  public void CloneTest()
   {
-    [TestMethod]
-    public void CloneTest()
+    var a = new FillGuessSettings
     {
-      var a = new FillGuessSettings
-      {
-        CheckedRecords = 10,
-        DetectNumbers = true,
-        DetectPercentage = true,
-        DetectBoolean = true,
-        DetectDateTime = true,
-        DetectGuid = true,
-        FalseValue = "Never",
-        TrueValue = "Always",
-        IgnoreIdColumns = false,
-        MinSamples = 5,
-        SampleValues = 5,
-        SerialDateTime = true
-      };
-      var b = a.Clone();
-      Assert.AreNotSame(b, a);
-      a.CheckAllPropertiesEqual(b);
-    }
+      CheckedRecords = 10,
+      DetectNumbers = true,
+      DetectPercentage = true,
+      DetectBoolean = true,
+      DetectDateTime = true,
+      DetectGuid = true,
+      FalseValue = "Never",
+      TrueValue = "Always",
+      IgnoreIdColumns = false,
+      MinSamples = 5,
+      SampleValues = 5,
+      SerialDateTime = true
+    };
+    var b = a.Clone();
+    Assert.AreNotSame(b, a);
+    a.CheckAllPropertiesEqual(b);
+  }
 
-    [TestMethod]
-    public void CopyToTest()
+  [TestMethod]
+  public void CopyToTest()
+  {
+    var a = new FillGuessSettings
     {
-      var a = new FillGuessSettings
-      {
-        CheckedRecords = 10,
+      CheckedRecords = 10,
         
-        DetectNumbers = true,
-        DetectPercentage = true,
-        DetectBoolean = true,
-        DetectDateTime = true,
-        DetectGuid = true,
-        FalseValue = "Never",
-        TrueValue = "Always",
-        IgnoreIdColumns = false,
-        MinSamples = 5,
-        SampleValues = 5,
-        SerialDateTime = true
-      };
+      DetectNumbers = true,
+      DetectPercentage = true,
+      DetectBoolean = true,
+      DetectDateTime = true,
+      DetectGuid = true,
+      FalseValue = "Never",
+      TrueValue = "Always",
+      IgnoreIdColumns = false,
+      MinSamples = 5,
+      SampleValues = 5,
+      SerialDateTime = true
+    };
 
-      var b = new FillGuessSettings
-      {
-        CheckedRecords = 11,
-        DetectNumbers = !a.DetectNumbers,
-        DetectPercentage = !a.DetectPercentage,
-        DetectBoolean = !a.DetectBoolean,
-        DetectDateTime = !a.DetectDateTime,
-        DetectGuid = !a.DetectGuid,
-        FalseValue = "false",
-        TrueValue = "true",
-        IgnoreIdColumns = !a.IgnoreIdColumns,
-        MinSamples = a.MinSamples + 1,
-        SampleValues = a.SampleValues + 2,
-        SerialDateTime = false
-      };
-
-      a.CopyTo(b);
-      Assert.AreNotSame(b, a);
-      a.CheckAllPropertiesEqual(b);
-    }
-
-    [TestMethod]
-    public void NotifyPropertyChangedTest()
+    var b = new FillGuessSettings
     {
-      var a = new FillGuessSettings
-      {
-        CheckedRecords = 10,
-        DetectNumbers = true,
-        DetectPercentage = true,
-        DetectBoolean = true,
-        DetectDateTime = true,
-        DetectGuid = true,
-        FalseValue = "Never",
-        TrueValue = "Always",
-        IgnoreIdColumns = false,
-        MinSamples = 5,
-        SampleValues = 5,
-        SerialDateTime = true
-      };
-      var fired = false;
-      a.PropertyChanged += delegate { fired = true; };
-      Assert.IsFalse(fired);
-      a.CheckedRecords = 11;
-      Assert.IsTrue(fired);
-    }
+      CheckedRecords = 11,
+      DetectNumbers = !a.DetectNumbers,
+      DetectPercentage = !a.DetectPercentage,
+      DetectBoolean = !a.DetectBoolean,
+      DetectDateTime = !a.DetectDateTime,
+      DetectGuid = !a.DetectGuid,
+      FalseValue = "false",
+      TrueValue = "true",
+      IgnoreIdColumns = !a.IgnoreIdColumns,
+      MinSamples = a.MinSamples + 1,
+      SampleValues = a.SampleValues + 2,
+      SerialDateTime = false
+    };
+
+    a.CopyTo(b);
+    Assert.AreNotSame(b, a);
+    a.CheckAllPropertiesEqual(b);
+  }
+
+  [TestMethod]
+  public void NotifyPropertyChangedTest()
+  {
+    var a = new FillGuessSettings
+    {
+      CheckedRecords = 10,
+      DetectNumbers = true,
+      DetectPercentage = true,
+      DetectBoolean = true,
+      DetectDateTime = true,
+      DetectGuid = true,
+      FalseValue = "Never",
+      TrueValue = "Always",
+      IgnoreIdColumns = false,
+      MinSamples = 5,
+      SampleValues = 5,
+      SerialDateTime = true
+    };
+    var fired = false;
+    a.PropertyChanged += delegate { fired = true; };
+    Assert.IsFalse(fired);
+    a.CheckedRecords = 11;
+    Assert.IsTrue(fired);
   }
 }

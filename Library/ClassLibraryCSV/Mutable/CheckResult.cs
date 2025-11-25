@@ -17,60 +17,59 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
+/// </summary>
+public sealed class CheckResult
 {
-  /// <summary>
-  ///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
-  /// </summary>
-  public sealed class CheckResult
-  {
-    private readonly ICollection<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  private readonly ICollection<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     
-    /// <summary>
-    /// List  of examples illustrating why something does not match
-    /// </summary>
-    public IReadOnlyCollection<ReadOnlyMemory<char>> ExampleNonMatch => m_ExampleNonMatch.Select(x=> x.AsMemory()).ToArray();
+  /// <summary>
+  /// List  of examples illustrating why something does not match
+  /// </summary>
+  public IReadOnlyCollection<ReadOnlyMemory<char>> ExampleNonMatch => m_ExampleNonMatch.Select(x=> x.AsMemory()).ToArray();
 
-    /// <summary>
-    ///   The found value format
-    /// </summary>
-    public ValueFormat? FoundValueFormat;
+  /// <summary>
+  ///   The found value format
+  /// </summary>
+  public ValueFormat? FoundValueFormat;
 
-    /// <summary>
-    ///   The positive matches before an invalid value was found
-    /// </summary>
-    public bool PossibleMatch;
+  /// <summary>
+  ///   The positive matches before an invalid value was found
+  /// </summary>
+  public bool PossibleMatch;
 
-    /// <summary>
-    ///   The value format for a possible match
-    /// </summary>
-    public ValueFormat? ValueFormatPossibleMatch;
+  /// <summary>
+  ///   The value format for a possible match
+  /// </summary>
+  public ValueFormat? ValueFormatPossibleMatch;
 
-    /// <summary>
-    /// Add value to the list of non matches
-    /// </summary>
-    /// <param name="value"></param>
-    public void AddNonMatch(string value)
-    {
-      if (!string.IsNullOrEmpty(value))
-        m_ExampleNonMatch.Add(value);
-    }
+  /// <summary>
+  /// Add value to the list of non matches
+  /// </summary>
+  /// <param name="value"></param>
+  public void AddNonMatch(string value)
+  {
+    if (!string.IsNullOrEmpty(value))
+      m_ExampleNonMatch.Add(value);
+  }
 
-    /// <summary>
-    ///   Combines a Sub check to an overall check
-    /// </summary>
-    /// <param name="subResult">The sub result.</param>
-    public void KeepBestPossibleMatch(in CheckResult subResult)
-    {
-      if (!subResult.PossibleMatch || subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count)
-        return;
-      m_ExampleNonMatch.Clear();
-      PossibleMatch = true;
-      ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
+  /// <summary>
+  ///   Combines a Sub check to an overall check
+  /// </summary>
+  /// <param name="subResult">The sub result.</param>
+  public void KeepBestPossibleMatch(in CheckResult subResult)
+  {
+    if (!subResult.PossibleMatch || subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count)
+      return;
+    m_ExampleNonMatch.Clear();
+    PossibleMatch = true;
+    ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
-      foreach (var ex in subResult.ExampleNonMatch)
-        if (!ex.IsEmpty)
-          m_ExampleNonMatch.Add(ex.Span.ToString());
-    }
+    foreach (var ex in subResult.ExampleNonMatch)
+      if (!ex.IsEmpty)
+        m_ExampleNonMatch.Add(ex.Span.ToString());
   }
 }

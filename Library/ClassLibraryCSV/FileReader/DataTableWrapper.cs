@@ -16,73 +16,70 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc />
+/// <summary>
+///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
+/// </summary>
+/// <remarks>Some functionality for progress reporting are not implemented</remarks>
+public sealed class DataTableWrapper : DataReaderWrapper
 {
-  /// <inheritdoc />
+  private readonly bool m_AddErrorField;
   /// <summary>
-  ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
+  /// Initializes a new instance of the <see cref="DataTableWrapper"/> class.
   /// </summary>
-  /// <remarks>Some functionality for progress reporting are not implemented</remarks>
-  public sealed class DataTableWrapper : DataReaderWrapper
+  /// <param name="dataTable">The data table.</param>
+  /// <param name="addStartLine">if set to <c>true</c> [add start line].</param>
+  /// <param name="addEndLine">if set to <c>true</c> [add end line].</param>
+  /// <param name="addRecNum">if set to <c>true</c> [add record number].</param>
+  /// <param name="addErrorField">if set to <c>true</c> [add error field].</param>
+  public DataTableWrapper(in DataTable dataTable,
+    bool addStartLine = false, bool addEndLine = false,
+    bool addRecNum = false, bool addErrorField = false)
+    : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField, dataTable.Rows.Count)
   {
-    private readonly bool m_AddErrorField;
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DataTableWrapper"/> class.
-    /// </summary>
-    /// <param name="dataTable">The data table.</param>
-    /// <param name="addStartLine">if set to <c>true</c> [add start line].</param>
-    /// <param name="addEndLine">if set to <c>true</c> [add end line].</param>
-    /// <param name="addRecNum">if set to <c>true</c> [add record number].</param>
-    /// <param name="addErrorField">if set to <c>true</c> [add error field].</param>
-    public DataTableWrapper(in DataTable dataTable,
-      bool addStartLine = false, bool addEndLine = false,
-      bool addRecNum = false, bool addErrorField = false)
-      : base(dataTable.CreateDataReader(), addStartLine, addEndLine, addRecNum, addErrorField, dataTable.Rows.Count)
-    {
-      DataTable = dataTable;
-      m_AddErrorField = addErrorField;
-    }
+    DataTable = dataTable;
+    m_AddErrorField = addErrorField;
+  }
 
-    /// <summary>
-    /// Gets the data table that stores the data, only used for shortcuts
-    /// </summary>
-    /// <value>
-    /// The data table.
-    /// </value>
-    internal DataTable DataTable { get; }
+  /// <summary>
+  /// Gets the data table that stores the data, only used for shortcuts
+  /// </summary>
+  /// <value>
+  /// The data table.
+  /// </value>
+  internal DataTable DataTable { get; }
 
-    /// <inheritdoc />
-    public override int RecordsAffected => DataTable.Rows.Count;
+  /// <inheritdoc />
+  public override int RecordsAffected => DataTable.Rows.Count;
 
-    /// <inheritdoc />
-    public override bool SupportsReset => true;
+  /// <inheritdoc />
+  public override bool SupportsReset => true;
 
-    /// <inheritdoc />
-    public override object GetValue(int ordinal)
-    {
-      var src = base.GetValue(ordinal);
-      // in case of the error column add the information that stored in columns and row errors
-      if (m_AddErrorField && GetColumn(ordinal).Name == ReaderConstants.cErrorField)
-      {
-        var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
-        var dbRowError = row.GetErrorInformation();
-        if (dbRowError.Length > 0)
-          src = IsDBNull(ordinal) ? dbRowError : src.ToString()!.AddMessage(dbRowError);
-      }
-      return src;
-    }
+  /// <inheritdoc />
+  public override object GetValue(int ordinal)
+  {
+    var src = base.GetValue(ordinal);
+    // in case of the error column add the information that stored in columns and row errors
+    if (!m_AddErrorField || GetColumn(ordinal).Name != ReaderConstants.cErrorField) return src;
+    var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
+    var dbRowError = row.GetErrorInformation();
+    if (dbRowError.Length > 0)
+      src = IsDBNull(ordinal) ? dbRowError : src.ToString()!.AddMessage(dbRowError);
+    return src;
+  }
 
-    /// <inheritdoc cref="IFileReader" />
-    [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
-    // ReSharper disable once UnusedParameter.Global
-    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
+  /// <inheritdoc cref="IFileReader" />
+  [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
+  // ReSharper disable once UnusedParameter.Global
+  public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
-    /// <inheritdoc />
-    public override void ResetPositionToFirstDataRow()
-    {
-      Close();
-      base.ResetPositionToFirstDataRow();
-      DataReader = DataTable.CreateDataReader();
-    }
+  /// <inheritdoc />
+  public override void ResetPositionToFirstDataRow()
+  {
+    Close();
+    base.ResetPositionToFirstDataRow();
+    DataReader = DataTable.CreateDataReader();
   }
 }

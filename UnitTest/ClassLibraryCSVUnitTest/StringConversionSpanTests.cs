@@ -16,11 +16,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass()]
+public class StringConversionSpanTests
 {
-  [TestClass()]
-  public class StringConversionSpanTests
-  {
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [TestMethod]
@@ -63,29 +63,28 @@ namespace CsvTools.Tests
     }
 #endif
 
-    [TestMethod]
-    [Timeout(500)]
-    public void StringToBooleanSpanTest()
-    {
+  [TestMethod]
+  [Timeout(500)]
+  public void StringToBooleanSpanTest()
+  {
 #pragma warning disable CS8629 
-      Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
-      Assert.IsTrue("*".AsSpan().StringToBoolean("*".AsSpan(), "?".AsSpan()).Value);
-      Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
-      Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty.AsSpan(), ReadOnlySpan<char>.Empty));
-      Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).Value);
+    Assert.IsTrue("*".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
+    Assert.IsTrue("*".AsSpan().StringToBoolean("*".AsSpan(), "?".AsSpan()).Value);
+    Assert.IsFalse("?".AsSpan().StringToBoolean("True;*;".AsSpan(), "?".AsSpan()).Value);
+    Assert.IsNull("*".AsSpan().StringToBoolean(string.Empty.AsSpan(), ReadOnlySpan<char>.Empty));
+    Assert.IsTrue("True".AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).Value);
 #pragma warning restore CS8629 
-    }
-
-    [TestMethod]
-    [Timeout(500)]
-    public void StringToTextPartTest()
-    {
-      Assert.AreEqual("Part2;Part3;Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 2, true).ToString());
-      Assert.AreEqual("Part3;Part4;", "Part1;Part2;Part3;Part4;".AsSpan().StringToTextPart(';', 3, true).ToString());
-      Assert.AreEqual("Part1", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 1, false).ToString());
-      Assert.AreEqual("", "Part1;;Part3;Part4".AsSpan().StringToTextPart(';', 2, false).ToString());
-      Assert.AreEqual("Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 4, false).ToString());
-    }
-
   }
+
+  [TestMethod]
+  [Timeout(500)]
+  public void StringToTextPartTest()
+  {
+    Assert.AreEqual("Part2;Part3;Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 2, true).ToString());
+    Assert.AreEqual("Part3;Part4;", "Part1;Part2;Part3;Part4;".AsSpan().StringToTextPart(';', 3, true).ToString());
+    Assert.AreEqual("Part1", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 1, false).ToString());
+    Assert.AreEqual("", "Part1;;Part3;Part4".AsSpan().StringToTextPart(';', 2, false).ToString());
+    Assert.AreEqual("Part4", "Part1;Part2;Part3;Part4".AsSpan().StringToTextPart(';', 4, false).ToString());
+  }
+
 }

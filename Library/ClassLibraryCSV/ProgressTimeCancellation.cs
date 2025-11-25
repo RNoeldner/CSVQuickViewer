@@ -15,24 +15,22 @@ using System.Diagnostics;
 using System.Threading;
 
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc cref="ProgressTime" />
+/// <inheritdoc cref="IProgressWithCancellation" />
+[DebuggerStepThrough]
+public sealed class ProgressTimeCancellation : ProgressTime, IProgressWithCancellation
 {
+  /// <inheritdoc />
+  public CancellationToken CancellationToken { get; }
 
-  /// <inheritdoc cref="ProgressTime" />
-  /// <inheritdoc cref="IProgressWithCancellation" />
-  [DebuggerStepThrough]
-  public sealed class ProgressTimeCancellation : ProgressTime, IProgressWithCancellation
+  /// <summary>
+  /// Initializes a new instance of the class.
+  /// </summary>
+  /// <param name="cancellationToken">The cancellation token to expose.</param>
+  public ProgressTimeCancellation(CancellationToken cancellationToken)
   {
-    /// <inheritdoc />
-    public CancellationToken CancellationToken { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the class.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token to expose.</param>
-    public ProgressTimeCancellation(CancellationToken cancellationToken)
-    {
-      CancellationToken = cancellationToken;
-    }
+    CancellationToken = cancellationToken;
   }
 }

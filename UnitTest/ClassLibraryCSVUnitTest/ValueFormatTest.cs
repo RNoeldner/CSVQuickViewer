@@ -17,45 +17,44 @@ using System;
 // ReSharper disable ArrangeObjectCreationWhenTypeEvident
 #pragma warning disable IDE0090
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class ValueFormatTest
 {
-  [TestClass]
-  public class ValueFormatTest
-  {
     
-    [TestMethod]
-    public void GetFormatDescriptionTest()
+  [TestMethod]
+  public void GetFormatDescriptionTest()
 
-    {
-      var vf = ValueFormat.Empty;
-      Assert.AreEqual(string.Empty, vf.GetFormatDescription());
+  {
+    var vf = ValueFormat.Empty;
+    Assert.AreEqual(string.Empty, vf.GetFormatDescription());
 
-      var vf2 = new ValueFormat(DataTypeEnum.TextPart, part: 4);
-      Assert.AreNotEqual(string.Empty, vf2.GetFormatDescription());
+    var vf2 = new ValueFormat(DataTypeEnum.TextPart, part: 4);
+    Assert.AreNotEqual(string.Empty, vf2.GetFormatDescription());
 
-      var vf3 = new ValueFormat(DataTypeEnum.Integer, numberFormat: "000");
-      Assert.AreEqual(string.Empty, vf3.GetFormatDescription());
+    var vf3 = new ValueFormat(DataTypeEnum.Integer, numberFormat: "000");
+    Assert.AreEqual(string.Empty, vf3.GetFormatDescription());
 
-      var vf4 = new ValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
-      Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());
+    var vf4 = new ValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
+    Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());
 
-      var a = new ValueFormat(dataType: DataTypeEnum.String);
-      Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
+    var a = new ValueFormat(dataType: DataTypeEnum.String);
+    Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
 
-      var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
-      Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormat.Empty.DateFormat));
-    }
-
-
-    [TestMethod]
-    public void GetTypeAndFormatDescriptionTest()
-    {
-      var a = new ValueFormat(dataType: DataTypeEnum.String);
-      Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
-      Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
-      Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
-    }
-
+    var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
+    Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormat.Empty.DateFormat));
   }
+
+
+  [TestMethod]
+  public void GetTypeAndFormatDescriptionTest()
+  {
+    var a = new ValueFormat(dataType: DataTypeEnum.String);
+    Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
+    var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
+    Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
+    Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
+  }
+
 }

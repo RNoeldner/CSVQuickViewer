@@ -18,45 +18,44 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Represents a dynamic data record
+/// </summary>
+public class DynamicDataRecord : DynamicObject
 {
+  private readonly DictionaryIgnoreCase<object> m_Properties;
+
   /// <summary>
-  /// Represents a dynamic data record
+  /// Initializes a new instance of the <see cref="DynamicDataRecord"/> class.
   /// </summary>
-  public class DynamicDataRecord : DynamicObject
+  /// <param name="dataRecord">The data record.</param>
+  public DynamicDataRecord(in IDataRecord dataRecord)
   {
-    private readonly DictionaryIgnoreCase<object> m_Properties;
+    m_Properties = new DictionaryIgnoreCase<object>(dataRecord.FieldCount);
+    for (var i = 0; i < dataRecord.FieldCount; i++)
+      m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
+  }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DynamicDataRecord"/> class.
-    /// </summary>
-    /// <param name="dataRecord">The data record.</param>
-    public DynamicDataRecord(in IDataRecord dataRecord)
+
+  /// <inheritdoc/>
+  public override bool TryGetMember(GetMemberBinder binder, out object? result) =>
+    m_Properties.TryGetValue(binder.Name, out result);
+
+
+  /// <inheritdoc/>
+  public override bool TrySetMember(SetMemberBinder binder, object? value)
+  {
+    try
     {
-      m_Properties = new DictionaryIgnoreCase<object>(dataRecord.FieldCount);
-      for (var i = 0; i < dataRecord.FieldCount; i++)
-        m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
+      if (value != null)
+        m_Properties[binder.Name] = value;
+      return true;
     }
-
-
-    /// <inheritdoc/>
-    public override bool TryGetMember(GetMemberBinder binder, out object? result) =>
-      m_Properties.TryGetValue(binder.Name, out result);
-
-
-    /// <inheritdoc/>
-    public override bool TrySetMember(SetMemberBinder binder, object? value)
+    catch (Exception)
     {
-      try
-      {
-        if (value != null)
-          m_Properties[binder.Name] = value;
-        return true;
-      }
-      catch (Exception)
-      {
-        return false;
-      }
+      return false;
     }
   }
 }

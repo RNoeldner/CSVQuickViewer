@@ -17,70 +17,69 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+[SuppressMessage("ReSharper", "UseAwaitUsing")]
+public class RowErrorCollectionTests
 {
-  [TestClass]
-  [SuppressMessage("ReSharper", "UseAwaitUsing")]
-  public class RowErrorCollectionTests
+  [TestMethod]
+  public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection());
+
+
+  [TestMethod]
+  public void Add()
   {
-    [TestMethod]
-    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection());
+    // Arrange
+    var testRowErrorCol = new RowErrorCollection();
 
-
-    [TestMethod]
-    public void Add()
+    // Act & Assert
+    foreach (var data in new[]       {
+               new { Row = 1, Column = 1, Message = "Message1" },
+               new { Row = 2, Column = 1, Message = "Message1" },
+               new { Row = 3, Column = 1, Message = "Message1" },
+               new { Row = 4, Column = 1, Message = "Message1" },
+               new { Row = 5, Column = 1, Message = "Message1" } })
     {
-      // Arrange
-      var testRowErrorCol = new RowErrorCollection();
-
-      // Act & Assert
-      foreach (var data in new[]       {
-        new { Row = 1, Column = 1, Message = "Message1" },
-        new { Row = 2, Column = 1, Message = "Message1" },
-        new { Row = 3, Column = 1, Message = "Message1" },
-        new { Row = 4, Column = 1, Message = "Message1" },
-        new { Row = 5, Column = 1, Message = "Message1" } })
-      {
-        testRowErrorCol.Add(this, new WarningEventArgs(data.Row, data.Column, data.Message, 100 + data.Row, 100 + data.Row, "ColName"));
-        Assert.AreEqual(data.Row, testRowErrorCol.CountRows, $"After adding row {data.Row}, CountRows should be {data.Row}");
-      }
-
-      // Add a second message to an existing row/column
-      testRowErrorCol.Add(this, new WarningEventArgs(5, 1, "Message2", 104, 104, "ColName"));
-
-      // Assert row count did not increase
-      Assert.AreEqual(5, testRowErrorCol.CountRows, "CountRows should not increase when adding a new message to an existing row/column");
-
-      // Assert the message was appended correctly
-      testRowErrorCol.TryGetValue(5, out var messagesforRow);
-      StringAssert.Contains(messagesforRow[1], "Message1");
-      StringAssert.Contains(messagesforRow[1], "Message2");
+      testRowErrorCol.Add(this, new WarningEventArgs(data.Row, data.Column, data.Message, 100 + data.Row, 100 + data.Row, "ColName"));
+      Assert.AreEqual(data.Row, testRowErrorCol.CountRows, $"After adding row {data.Row}, CountRows should be {data.Row}");
     }
 
-    [TestMethod]
-    public void Clear()
-    {
-      var coll = new RowErrorCollection();
-      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.AreEqual(1, coll.CountRows);
-      coll.Clear();
-      Assert.AreEqual(0, coll.CountRows);
-    }
+    // Add a second message to an existing row/column
+    testRowErrorCol.Add(this, new WarningEventArgs(5, 1, "Message2", 104, 104, "ColName"));
 
-    [TestMethod]
-    public void TryGetValue()
-    {
-      var coll = new RowErrorCollection();
-      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.IsTrue(coll.TryGetValue(1, out _));
-    }
+    // Assert row count did not increase
+    Assert.AreEqual(5, testRowErrorCol.CountRows, "CountRows should not increase when adding a new message to an existing row/column");
 
-    [TestMethod]
-    public void DisplayByRecordNumber()
-    {
-      var coll = new RowErrorCollection();
-      coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
-      Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
-    }
+    // Assert the message was appended correctly
+    testRowErrorCol.TryGetValue(5, out var messagesforRow);
+    StringAssert.Contains(messagesforRow[1], "Message1");
+    StringAssert.Contains(messagesforRow[1], "Message2");
+  }
+
+  [TestMethod]
+  public void Clear()
+  {
+    var coll = new RowErrorCollection();
+    coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+    Assert.AreEqual(1, coll.CountRows);
+    coll.Clear();
+    Assert.AreEqual(0, coll.CountRows);
+  }
+
+  [TestMethod]
+  public void TryGetValue()
+  {
+    var coll = new RowErrorCollection();
+    coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+    Assert.IsTrue(coll.TryGetValue(1, out _));
+  }
+
+  [TestMethod]
+  public void DisplayByRecordNumber()
+  {
+    var coll = new RowErrorCollection();
+    coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
+    Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
   }
 }

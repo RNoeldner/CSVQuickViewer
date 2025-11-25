@@ -14,136 +14,135 @@
 using System;
 using System.Globalization;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Static class that stores the length of named date parts for the current culture  and English
+/// </summary>
+public record struct DateTimeFormatLength
 {
-  /// <summary>
-  ///   Static class that stores the length of named date parts for the current culture  and English
-  /// </summary>
-  public record struct DateTimeFormatLength
+  static DateTimeFormatLength()
   {
-    static DateTimeFormatLength()
+    MaxDesignator = 2;
+    MaxDayLong = int.MinValue;
+    MaxDayMid = int.MinValue;
+    MaxMonthLong = int.MinValue;
+    MaxMonthMid = int.MinValue;
+
+    MinDesignator = 2;
+    MinDayLong = int.MaxValue;
+    MinDayMid = int.MaxValue;
+    MinMonthLong = int.MaxValue;
+    MinMonthMid = int.MaxValue;
+
+    for (var weekday = 0; weekday < 7; weekday++)
     {
-      MaxDesignator = 2;
-      MaxDayLong = int.MinValue;
-      MaxDayMid = int.MinValue;
-      MaxMonthLong = int.MinValue;
-      MaxMonthMid = int.MinValue;
+      var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+      var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+      if (currentCulture.Length < MinDayLong)
+        MinDayLong = currentCulture.Length;
+      if (invariantCulture.Length < MinDayLong)
+        MinDayLong = invariantCulture.Length;
+      if (currentCulture.Length > MaxDayLong)
+        MaxDayLong = currentCulture.Length;
+      if (invariantCulture.Length > MaxDayLong)
+        MaxDayLong = invariantCulture.Length;
 
-      MinDesignator = 2;
-      MinDayLong = int.MaxValue;
-      MinDayMid = int.MaxValue;
-      MinMonthLong = int.MaxValue;
-      MinMonthMid = int.MaxValue;
-
-      for (var weekday = 0; weekday < 7; weekday++)
-      {
-        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        if (currentCulture.Length < MinDayLong)
-          MinDayLong = currentCulture.Length;
-        if (invariantCulture.Length < MinDayLong)
-          MinDayLong = invariantCulture.Length;
-        if (currentCulture.Length > MaxDayLong)
-          MaxDayLong = currentCulture.Length;
-        if (invariantCulture.Length > MaxDayLong)
-          MaxDayLong = invariantCulture.Length;
-
-        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        if (currentCulture.Length < MinDayMid)
-          MinDayMid = currentCulture.Length;
-        if (invariantCulture.Length < MinDayMid)
-          MinDayMid = invariantCulture.Length;
-        if (currentCulture.Length > MaxDayMid)
-          MaxDayMid = currentCulture.Length;
-        if (invariantCulture.Length > MaxDayMid)
-          MaxDayMid = invariantCulture.Length;
-      }
-
-      for (var month = 0; month < 12; month++)
-      {
-        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        if (currentCulture.Length < MinMonthLong)
-          MinMonthLong = currentCulture.Length;
-        if (invariantCulture.Length < MinMonthLong)
-          MinMonthLong = invariantCulture.Length;
-        if (currentCulture.Length > MaxMonthLong)
-          MaxMonthLong = currentCulture.Length;
-        if (invariantCulture.Length > MaxMonthLong)
-          MaxMonthLong = invariantCulture.Length;
-
-        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        if (currentCulture.Length < MinMonthMid)
-          MinMonthMid = currentCulture.Length;
-        if (invariantCulture.Length < MinMonthMid)
-          MinMonthMid = invariantCulture.Length;
-        if (currentCulture.Length > MaxMonthMid)
-          MaxMonthMid = currentCulture.Length;
-        if (invariantCulture.Length > MaxMonthMid)
-          MaxMonthMid = invariantCulture.Length;
-      }
-
-      if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > MaxDesignator)
-        MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-      if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > MaxDesignator)
-        MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
-
-      if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length < MinDesignator)
-        MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-      if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length < MinDesignator)
-        MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
+      currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+      invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+      if (currentCulture.Length < MinDayMid)
+        MinDayMid = currentCulture.Length;
+      if (invariantCulture.Length < MinDayMid)
+        MinDayMid = invariantCulture.Length;
+      if (currentCulture.Length > MaxDayMid)
+        MaxDayMid = currentCulture.Length;
+      if (invariantCulture.Length > MaxDayMid)
+        MaxDayMid = invariantCulture.Length;
     }
 
-    /// <summary>
-    /// Maximum length in the current culture or international culture  for dddd
-    /// </summary>
-    public static int MaxDayLong { get; }
+    for (var month = 0; month < 12; month++)
+    {
+      var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+      var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+      if (currentCulture.Length < MinMonthLong)
+        MinMonthLong = currentCulture.Length;
+      if (invariantCulture.Length < MinMonthLong)
+        MinMonthLong = invariantCulture.Length;
+      if (currentCulture.Length > MaxMonthLong)
+        MaxMonthLong = currentCulture.Length;
+      if (invariantCulture.Length > MaxMonthLong)
+        MaxMonthLong = invariantCulture.Length;
 
-    /// <summary>
-    /// Maximum length in the current culture or international culture  for ddd
-    /// </summary>
-    public static int MaxDayMid { get; }
+      currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+      invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+      if (currentCulture.Length < MinMonthMid)
+        MinMonthMid = currentCulture.Length;
+      if (invariantCulture.Length < MinMonthMid)
+        MinMonthMid = invariantCulture.Length;
+      if (currentCulture.Length > MaxMonthMid)
+        MaxMonthMid = currentCulture.Length;
+      if (invariantCulture.Length > MaxMonthMid)
+        MaxMonthMid = invariantCulture.Length;
+    }
 
-    /// <summary>
-    /// Maximum length for AM PM designators
-    /// </summary>
-    public static int MaxDesignator { get; }
+    if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > MaxDesignator)
+      MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+    if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > MaxDesignator)
+      MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
 
-    /// <summary>
-    /// Maximum length in the current culture or international culture  for MMMM
-    /// </summary>
-    public static int MaxMonthLong { get; }
-
-    /// <summary>
-    /// Maximum length in the current culture or international culture  for MMM
-    /// </summary>
-    public static int MaxMonthMid { get; }
-
-    /// <summary>
-    /// Minimum length in the current culture or international culture  for dddd
-    /// </summary>
-    public static int MinDayLong { get; }
-
-    /// <summary>
-    /// Minimum length in the current culture or international culture  for ddd
-    /// </summary>
-    public static int MinDayMid { get; }
-
-    /// <summary>
-    /// Minimum length for AM PM designators
-    /// </summary>
-    public static int MinDesignator { get; }
-
-    /// <summary>
-    /// Minimum length in the current culture or international culture  for MMMM
-    /// </summary>
-    public static int MinMonthLong { get; }
-
-    /// <summary>
-    /// Minimum length in the current culture or international culture  for MMM
-    /// </summary>
-    public static int MinMonthMid { get; }
+    if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length < MinDesignator)
+      MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+    if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length < MinDesignator)
+      MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
   }
+
+  /// <summary>
+  /// Maximum length in the current culture or international culture  for dddd
+  /// </summary>
+  public static int MaxDayLong { get; }
+
+  /// <summary>
+  /// Maximum length in the current culture or international culture  for ddd
+  /// </summary>
+  public static int MaxDayMid { get; }
+
+  /// <summary>
+  /// Maximum length for AM PM designators
+  /// </summary>
+  public static int MaxDesignator { get; }
+
+  /// <summary>
+  /// Maximum length in the current culture or international culture  for MMMM
+  /// </summary>
+  public static int MaxMonthLong { get; }
+
+  /// <summary>
+  /// Maximum length in the current culture or international culture  for MMM
+  /// </summary>
+  public static int MaxMonthMid { get; }
+
+  /// <summary>
+  /// Minimum length in the current culture or international culture  for dddd
+  /// </summary>
+  public static int MinDayLong { get; }
+
+  /// <summary>
+  /// Minimum length in the current culture or international culture  for ddd
+  /// </summary>
+  public static int MinDayMid { get; }
+
+  /// <summary>
+  /// Minimum length for AM PM designators
+  /// </summary>
+  public static int MinDesignator { get; }
+
+  /// <summary>
+  /// Minimum length in the current culture or international culture  for MMMM
+  /// </summary>
+  public static int MinMonthLong { get; }
+
+  /// <summary>
+  /// Minimum length in the current culture or international culture  for MMM
+  /// </summary>
+  public static int MinMonthMid { get; }
 }

@@ -14,27 +14,26 @@
 
 using System.Threading;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Factory to create <see cref="IFileReader"/>  or <see cref="IFileWriter"/> 
+/// </summary>
+public interface IFileReaderWriterFactory
 {
   /// <summary>
-  /// Factory to create <see cref="IFileReader"/>  or <see cref="IFileWriter"/> 
+  ///  Get an instance of a <see cref="IFileReader"/> based on the passed in IFileSetting
   /// </summary>
-  public interface IFileReaderWriterFactory
-  {
-    /// <summary>
-    ///  Get an instance of a <see cref="IFileReader"/> based on the passed in IFileSetting
-    /// </summary>
-    /// <param name="fileSetting">The setting for the reader</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="IFileReader"/> capable to import data</returns>
-    IFileReader GetFileReader(IFileSetting fileSetting, CancellationToken cancellationToken);
+  /// <param name="fileSetting">The setting for the reader</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="IFileReader"/> capable to import data</returns>
+  IFileReader GetFileReader(IFileSetting fileSetting, CancellationToken cancellationToken);
 
-    /// <summary>
-    ///  Get an instance of a <see cref="IFileWriter"/> based on the passed in IFileSetting
-    /// </summary>
-    /// <param name="fileSetting">The setting for the writer</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="IFileWriter"/> capable to export data</returns>
-    IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken);
-  }
+  /// <summary>
+  ///  Get an instance of a <see cref="IFileWriter"/> based on the passed in IFileSetting
+  /// </summary>
+  /// <param name="fileSetting">The setting for the writer</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="IFileWriter"/> capable to export data</returns>
+  IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken);
 }

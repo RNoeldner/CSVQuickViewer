@@ -16,90 +16,89 @@
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Central point for logging ILogger needs to be set once
+/// </summary>
+public static class Logger
 {
   /// <summary>
-  ///   Central point for logging ILogger needs to be set once
+  /// Gets or sets the logger instance.
   /// </summary>
-  public static class Logger
+  public static ILogger? LoggerInstance
   {
-    /// <summary>
-    /// Gets or sets the logger instance.
-    /// </summary>
-    public static ILogger? LoggerInstance
-    {
-      get;
-      set;
-    }
-
-    /// <summary>
-    /// Logs a debug level message.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    /// <param name="args">The arguments.</param>
-    public static void Debug(string? message, params object[] args)
-    {
-      if (message is null || message.Length == 0)
-        return;
-      LoggerInstance?.LogDebug(message, args);
-    }
-
-    /// <summary>
-    /// Logs a error level message.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Error(string? message, params object[] args)
-    {
-      if (message is null || message.Length == 0)
-        return;
-      LoggerInstance?.LogError(message, args);
-    }
-
-
-    /// <summary>Logs a message on error level.</summary>
-    /// <param name="exception">Exception that need to be documented</param>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Error(in Exception exception, string? message = null, params object[] args) =>
-      LoggerInstance?.LogError(exception, message ?? exception.ExceptionMessages(2), args);
-
-    /// <summary>Logs a message on information level.</summary>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Information(string? message, params object[] args)
-    {
-      if (message is null || message.Length == 0)
-        return;
-      LoggerInstance?.LogInformation(message, args);
-    }
-
-    /// <summary>Logs a message on information level.</summary>
-    /// <param name="exception">Exception that need to be documented</param>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Information(in Exception exception, string? message, params object[] args)
-    {
-      if (message is null || message.Length == 0)
-        return;
-      LoggerInstance?.LogInformation(exception, message, args);
-    }
-
-    /// <summary>Logs a warning level message.</summary>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Warning(string? message, params object[] args)
-    {
-      if (message is null || message.Length == 0)
-        return;
-      LoggerInstance?.LogWarning(message, args);
-    }
-
-    /// <summary>Logs a warning level message.</summary>
-    /// <param name="exception">Exception that need to be documented</param>
-    /// <param name="message">The message.</param>
-    /// <param name="args">Message arguments.</param>
-    public static void Warning(in Exception exception, string? message, params object[] args) =>
-      LoggerInstance?.LogWarning(exception, message ?? string.Empty, args);
+    get;
+    set;
   }
+
+  /// <summary>
+  /// Logs a debug level message.
+  /// </summary>
+  /// <param name="message">The message.</param>
+  /// <param name="args">The arguments.</param>
+  public static void Debug(string? message, params object[] args)
+  {
+    if (message is null || message.Length == 0)
+      return;
+    LoggerInstance?.LogDebug(message, args);
+  }
+
+  /// <summary>
+  /// Logs a error level message.
+  /// </summary>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Error(string? message, params object[] args)
+  {
+    if (message is null || message.Length == 0)
+      return;
+    LoggerInstance?.LogError(message, args);
+  }
+
+
+  /// <summary>Logs a message on error level.</summary>
+  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Error(in Exception exception, string? message = null, params object[] args) =>
+    LoggerInstance?.LogError(exception, message ?? exception.ExceptionMessages(2), args);
+
+  /// <summary>Logs a message on information level.</summary>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Information(string? message, params object[] args)
+  {
+    if (message is null || message.Length == 0)
+      return;
+    LoggerInstance?.LogInformation(message, args);
+  }
+
+  /// <summary>Logs a message on information level.</summary>
+  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Information(in Exception exception, string? message, params object[] args)
+  {
+    if (message is null || message.Length == 0)
+      return;
+    LoggerInstance?.LogInformation(exception, message, args);
+  }
+
+  /// <summary>Logs a warning level message.</summary>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Warning(string? message, params object[] args)
+  {
+    if (message is null || message.Length == 0)
+      return;
+    LoggerInstance?.LogWarning(message, args);
+  }
+
+  /// <summary>Logs a warning level message.</summary>
+  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="message">The message.</param>
+  /// <param name="args">Message arguments.</param>
+  public static void Warning(in Exception exception, string? message, params object[] args) =>
+    LoggerInstance?.LogWarning(exception, message ?? string.Empty, args);
 }

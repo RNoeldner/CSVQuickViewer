@@ -16,298 +16,296 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass()]
+public class ClassLibraryCsvExtensionMethodsTests
 {
 
-  [TestClass()]
-  public class ClassLibraryCsvExtensionMethodsTests
+  [TestMethod]
+  public void Move()
   {
+    var items = new List<int>(new[] { 0, 1, 2, 3, 4, 5 });
 
-    [TestMethod]
-    public void Move()
-    {
-      var items = new List<int>(new[] { 0, 1, 2, 3, 4, 5 });
+    items.Move(1, 2);
+    Assert.AreEqual(0, items[0]);
+    Assert.AreEqual(2, items[1]);
+    Assert.AreEqual(1, items[2]);
+    Assert.AreEqual(3, items[3]);
 
-      items.Move(1, 2);
-      Assert.AreEqual(0, items[0]);
-      Assert.AreEqual(2, items[1]);
-      Assert.AreEqual(1, items[2]);
-      Assert.AreEqual(3, items[3]);
+    items.Move(2, 1);
+    Assert.AreEqual(0, items[0]);
+    Assert.AreEqual(1, items[1]);
+    Assert.AreEqual(2, items[2]);
+    Assert.AreEqual(3, items[3]);
 
-      items.Move(2, 1);
-      Assert.AreEqual(0, items[0]);
-      Assert.AreEqual(1, items[1]);
-      Assert.AreEqual(2, items[2]);
-      Assert.AreEqual(3, items[3]);
+    items.Move(0, 1);
+    Assert.AreEqual(1, items[0]);
+    Assert.AreEqual(0, items[1]);
 
-      items.Move(0, 1);
-      Assert.AreEqual(1, items[0]);
-      Assert.AreEqual(0, items[1]);
-
-      items.Move(5, 4);
-      Assert.AreEqual(4, items[5]);
-      Assert.AreEqual(5, items[4]);
-    }
+    items.Move(5, 4);
+    Assert.AreEqual(4, items[5]);
+    Assert.AreEqual(5, items[4]);
+  }
 
 
-    [TestMethod()]
-    public void JsonIndented()
-    {
-      var csv = new CsvFileDummy();
-      csv.ColumnCollection.Add(new Column("Test"));
+  [TestMethod()]
+  public void JsonIndented()
+  {
+    var csv = new CsvFileDummy();
+    csv.ColumnCollection.Add(new Column("Test"));
 
-      var res = csv.SerializeIndentedJson();
-      Assert.IsTrue(res.Contains("  "));
-    }
+    var res = csv.SerializeIndentedJson();
+    Assert.IsTrue(res.Contains("  "));
+  }
 
-    [TestMethod()]
-    public void AssumeDeflateTest()
-    {
-      Assert.IsFalse("test.gzip".AssumeDeflate());
-      Assert.IsFalse("test.pgp".AssumeDeflate());
-      Assert.IsFalse("test.gz".AssumeDeflate());
-      Assert.IsTrue("test.cmp".AssumeDeflate());
-      Assert.IsTrue("test.dfl".AssumeDeflate());
-    }
+  [TestMethod()]
+  public void AssumeDeflateTest()
+  {
+    Assert.IsFalse("test.gzip".AssumeDeflate());
+    Assert.IsFalse("test.pgp".AssumeDeflate());
+    Assert.IsFalse("test.gz".AssumeDeflate());
+    Assert.IsTrue("test.cmp".AssumeDeflate());
+    Assert.IsTrue("test.dfl".AssumeDeflate());
+  }
 
-    [TestMethod()]
-    public void AssumeGZipTest()
-    {
-      Assert.IsTrue("test.gzip".AssumeGZip());
-      Assert.IsFalse("test.pgp".AssumeGZip());
-      Assert.IsTrue("test.gz".AssumeGZip());
-      Assert.IsTrue("test.GZ".AssumeGZip());
-      Assert.IsFalse("test.cmp".AssumeGZip());
-      Assert.IsFalse("test.dfl".AssumeGZip());
-    }
+  [TestMethod()]
+  public void AssumeGZipTest()
+  {
+    Assert.IsTrue("test.gzip".AssumeGZip());
+    Assert.IsFalse("test.pgp".AssumeGZip());
+    Assert.IsTrue("test.gz".AssumeGZip());
+    Assert.IsTrue("test.GZ".AssumeGZip());
+    Assert.IsFalse("test.cmp".AssumeGZip());
+    Assert.IsFalse("test.dfl".AssumeGZip());
+  }
 
-    [TestMethod()]
-    public void AssumePgpTest()
-    {
-      Assert.IsTrue("test.pgp".AssumePgp());
-      Assert.IsTrue("test.GPG".AssumePgp());
-      Assert.IsFalse("test.gz".AssumePgp());
-    }
+  [TestMethod()]
+  public void AssumePgpTest()
+  {
+    Assert.IsTrue("test.pgp".AssumePgp());
+    Assert.IsTrue("test.GPG".AssumePgp());
+    Assert.IsFalse("test.gz".AssumePgp());
+  }
 
-    [TestMethod()]
-    public void AssumeZipTest()
-    {
-      Assert.IsTrue("test.zip".AssumeZip());
-      Assert.IsTrue("test.Zip".AssumeZip());
-      Assert.IsFalse("test.gz".AssumeZip());
-    }
+  [TestMethod()]
+  public void AssumeZipTest()
+  {
+    Assert.IsTrue("test.zip".AssumeZip());
+    Assert.IsTrue("test.Zip".AssumeZip());
+    Assert.IsFalse("test.gz".AssumeZip());
+  }
 
-    [TestMethod()]
-    public void CollectionCopyTest()
-    {
-      var list1 = new List<string>();
-      var list2 = new List<string>();
-      list2.Add("Hello");
-      list1.CollectionCopy(list2);
-      Assert.AreEqual(0, list2.Count);
+  [TestMethod()]
+  public void CollectionCopyTest()
+  {
+    var list1 = new List<string>();
+    var list2 = new List<string>();
+    list2.Add("Hello");
+    list1.CollectionCopy(list2);
+    Assert.AreEqual(0, list2.Count);
 
-      list1.Add("Hello");
-      list1.Add("World");
-      list1.CollectionCopy(list2);
-      Assert.AreEqual(2, list2.Count);
-    }
+    list1.Add("Hello");
+    list1.Add("World");
+    list1.CollectionCopy(list2);
+    Assert.AreEqual(2, list2.Count);
+  }
 
-    [TestMethod()]
-    public void CollectionCopyStructTest()
-    {
-    }
+  [TestMethod()]
+  public void CollectionCopyStructTest()
+  {
+  }
 
-    [TestMethod()]
-    public void CountTest()
-    {
-      var list = new List<int> { 1, 2, 3 };
-      Assert.AreEqual(2, list.Where(x => x < 3).Count());
-      Assert.AreEqual(3, list.Count());
-    }
+  [TestMethod()]
+  public void CountTest()
+  {
+    var list = new List<int> { 1, 2, 3 };
+    Assert.AreEqual(2, list.Where(x => x < 3).Count());
+    Assert.AreEqual(3, list.Count());
+  }
 
-    [TestMethod()]
-    public void DataTypeDisplayTest()
-    {
-      Assert.AreEqual("Text", DataTypeEnum.String.Description());
-      Assert.AreEqual("Date Time", DataTypeEnum.DateTime.Description());
-      foreach (DataTypeEnum type in Enum.GetValues(typeof(DataTypeEnum)))
-        Assert.IsNotNull(type.Description());
-    }
+  [TestMethod()]
+  public void DataTypeDisplayTest()
+  {
+    Assert.AreEqual("Text", DataTypeEnum.String.Description());
+    Assert.AreEqual("Date Time", DataTypeEnum.DateTime.Description());
+    foreach (DataTypeEnum type in Enum.GetValues(typeof(DataTypeEnum)))
+      Assert.IsNotNull(type.Description());
+  }
 
-    [TestMethod()]
-    public void DescriptionTest()
-    {
-      foreach (RecordDelimiterTypeEnum type in Enum.GetValues(typeof(RecordDelimiterTypeEnum)))
-        Assert.IsNotNull(type.Description());
-    }
+  [TestMethod()]
+  public void DescriptionTest()
+  {
+    foreach (RecordDelimiterTypeEnum type in Enum.GetValues(typeof(RecordDelimiterTypeEnum)))
+      Assert.IsNotNull(type.Description());
+  }
 
-    [TestMethod()]
-    public void ExceptionMessagesTest()
-    {
-      var ex = new ArgumentException("name1");
-      var ex1 = new ArgumentException("name2", ex);
-      var res = ex1.ExceptionMessages();
-      Assert.IsTrue(res.Contains("name1"));
-      Assert.IsTrue(res.Contains("name2"));
-    }
+  [TestMethod()]
+  public void ExceptionMessagesTest()
+  {
+    var ex = new ArgumentException("name1");
+    var ex1 = new ArgumentException("name2", ex);
+    var res = ex1.ExceptionMessages();
+    Assert.IsTrue(res.Contains("name1"));
+    Assert.IsTrue(res.Contains("name2"));
+  }
 
-    [TestMethod()]
-    public void GetDataTypeTest()
-    {
-      Assert.AreEqual(DataTypeEnum.Integer, typeof(int).GetDataType());
-      Assert.AreEqual(DataTypeEnum.Integer, typeof(long).GetDataType());
-      Assert.AreEqual(DataTypeEnum.String, typeof(string).GetDataType());
-      Assert.AreEqual(DataTypeEnum.Guid, typeof(Guid).GetDataType());
-      Assert.AreEqual(DataTypeEnum.DateTime, typeof(DateTime).GetDataType());
-      Assert.AreEqual(DataTypeEnum.DateTime, typeof(TimeSpan).GetDataType());
-      Assert.AreEqual(DataTypeEnum.Boolean, typeof(bool).GetDataType());
-    }
-
-
-    [TestMethod()]
-    public void GetIdFromFileNameTest()
-    {
-    }
-
-    [TestMethod()]
-    public void GetNetTypeTest()
-    {
-    }
-
-    [TestMethod()]
-    public void GetRealColumnsTest()
-    {
-    }
-
-    [TestMethod()]
-    public void GetRealDataColumnsTest()
-    {
-    }
-
-    [TestMethod()]
-    public void InnerExceptionMessagesTest()
-    {
-    }
-
-    [TestMethod()]
-    public void NewLineStringTest()
-    {
-    }
+  [TestMethod()]
+  public void GetDataTypeTest()
+  {
+    Assert.AreEqual(DataTypeEnum.Integer, typeof(int).GetDataType());
+    Assert.AreEqual(DataTypeEnum.Integer, typeof(long).GetDataType());
+    Assert.AreEqual(DataTypeEnum.String, typeof(string).GetDataType());
+    Assert.AreEqual(DataTypeEnum.Guid, typeof(Guid).GetDataType());
+    Assert.AreEqual(DataTypeEnum.DateTime, typeof(DateTime).GetDataType());
+    Assert.AreEqual(DataTypeEnum.DateTime, typeof(TimeSpan).GetDataType());
+    Assert.AreEqual(DataTypeEnum.Boolean, typeof(bool).GetDataType());
+  }
 
 
-    [TestMethod()]
-    public void PlaceholderReplaceTest()
-    {
-    }
+  [TestMethod()]
+  public void GetIdFromFileNameTest()
+  {
+  }
 
-    [TestMethod()]
-    public void PlaceholderReplaceFormatTest()
-    {
-    }
+  [TestMethod()]
+  public void GetNetTypeTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ReplaceCaseInsensitiveTest()
-    {
-    }
+  [TestMethod()]
+  public void GetRealColumnsTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ReplaceCaseInsensitiveTest1()
-    {
-    }
+  [TestMethod()]
+  public void GetRealDataColumnsTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ReplaceDefaultsTest()
-    {
-    }
+  [TestMethod()]
+  public void InnerExceptionMessagesTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ReplacePlaceholderWithPropertyValuesTest()
-    {
-    }
+  [TestMethod()]
+  public void NewLineStringTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ReplacePlaceholderWithTextTest()
-    {
-    }
 
-    [TestMethod()]
-    public void SetMaximumTest()
-    {
-    }
+  [TestMethod()]
+  public void PlaceholderReplaceTest()
+  {
+  }
 
-    [TestMethod()]
-    public void SourceExceptionMessageTest()
-    {
-    }
+  [TestMethod()]
+  public void PlaceholderReplaceFormatTest()
+  {
+  }
 
-    [TestMethod()]
-    public void StringToCharTest()
-    {
-    }
+  [TestMethod()]
+  public void ReplaceCaseInsensitiveTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToIntTest()
-    {
-    }
+  [TestMethod()]
+  public void ReplaceCaseInsensitiveTest1()
+  {
+  }
 
-    [TestMethod()]
-    public void ToIntTest1()
-    {
-    }
+  [TestMethod()]
+  public void ReplaceDefaultsTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToIntTest2()
-    {
-    }
+  [TestMethod()]
+  public void ReplacePlaceholderWithPropertyValuesTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToIntTest3()
-    {
-    }
+  [TestMethod()]
+  public void ReplacePlaceholderWithTextTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToInt64Test()
-    {
-    }
+  [TestMethod()]
+  public void SetMaximumTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToInt64Test1()
-    {
-    }
+  [TestMethod()]
+  public void SourceExceptionMessageTest()
+  {
+  }
 
-    [TestMethod()]
-    public void ToStringHandle0Test()
-    {
-    }
+  [TestMethod()]
+  public void StringToCharTest()
+  {
+  }
 
-    [TestMethod()]
-    public void WriteAsyncTest()
-    {
-    }
+  [TestMethod()]
+  public void ToIntTest()
+  {
+  }
 
-    [TestMethod()]
-    public void WrittenPunctuationTest()
-    {
-    }
+  [TestMethod()]
+  public void ToIntTest1()
+  {
+  }
 
-    [TestMethod()]
-    public void WrittenPunctuationToCharTest()
-    {
-    }
+  [TestMethod()]
+  public void ToIntTest2()
+  {
+  }
 
-    [TestMethod()]
-    public void CollectionEqualTest()
-    {
-    }
+  [TestMethod()]
+  public void ToIntTest3()
+  {
+  }
 
-    [TestMethod()]
-    public void CollectionEqualWithOrderTest()
-    {
-    }
+  [TestMethod()]
+  public void ToInt64Test()
+  {
+  }
 
-    [TestMethod()]
-    public void CollectionHashCodeTest()
-    {
-    }
+  [TestMethod()]
+  public void ToInt64Test1()
+  {
+  }
+
+  [TestMethod()]
+  public void ToStringHandle0Test()
+  {
+  }
+
+  [TestMethod()]
+  public void WriteAsyncTest()
+  {
+  }
+
+  [TestMethod()]
+  public void WrittenPunctuationTest()
+  {
+  }
+
+  [TestMethod()]
+  public void WrittenPunctuationToCharTest()
+  {
+  }
+
+  [TestMethod()]
+  public void CollectionEqualTest()
+  {
+  }
+
+  [TestMethod()]
+  public void CollectionEqualWithOrderTest()
+  {
+  }
+
+  [TestMethod()]
+  public void CollectionHashCodeTest()
+  {
   }
 }

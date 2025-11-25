@@ -11,34 +11,33 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-namespace CsvTools
+namespace CsvTools;
+
+using System.ComponentModel;
+using System.Windows.Forms;
+
+/// <summary>
+///   Class to edit FillGuessSettings
+/// </summary>
+public partial class FillGuessSettingEdit : UserControl
 {
-  using System.ComponentModel;
-  using System.Windows.Forms;
-
   /// <summary>
-  ///   Class to edit FillGuessSettings
+  ///   Initializes a new instance of the <see cref="FillGuessSettingEdit" /> class.
   /// </summary>
-  public partial class FillGuessSettingEdit : UserControl
-  {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FillGuessSettingEdit" /> class.
-    /// </summary>
-    public FillGuessSettingEdit() =>
-      InitializeComponent();
+  public FillGuessSettingEdit() =>
+    InitializeComponent();
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [Bindable(false)]
-    [Browsable(false)]
-    public FillGuessSettings FillGuessSettings
+  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  [Bindable(false)]
+  [Browsable(false)]
+  public FillGuessSettings FillGuessSettings
+  {
+    set
     {
-      set
-      {
-        fillGuessSettingsBindingSource.DataSource = value;
-        if (!value.Enabled)
-          radioButtonDisabled.Checked = true;
-      }
+      fillGuessSettingsBindingSource.DataSource = value;
+      if (!value.Enabled)
+        radioButtonDisabled.Checked = true;
     }
   }
 }

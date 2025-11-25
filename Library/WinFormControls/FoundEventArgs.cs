@@ -13,35 +13,34 @@
  */
 #nullable enable
 
-namespace CsvTools
+namespace CsvTools;
+
+using System;
+using System.Windows.Forms;
+
+/// <summary>
+///   Event Arguments for Finding a text in a DataGridView
+/// </summary>
+public sealed class FoundEventArgs : EventArgs
 {
-  using System;
-  using System.Windows.Forms;
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.
+  /// </summary>
+  /// <param name="index">The index.</param>
+  /// <param name="cell">The cell.</param>
+  public FoundEventArgs(in int index, in DataGridViewCell cell)
+  {
+    Index = index;
+    Cell = cell;
+  }
 
   /// <summary>
-  ///   Event Arguments for Finding a text in a DataGridView
+  ///   The cell
   /// </summary>
-  public sealed class FoundEventArgs : EventArgs
-  {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="cell">The cell.</param>
-    public FoundEventArgs(in int index, in DataGridViewCell cell)
-    {
-      Index = index;
-      Cell = cell;
-    }
+  public readonly DataGridViewCell Cell;
 
-    /// <summary>
-    ///   The cell
-    /// </summary>
-    public readonly DataGridViewCell Cell;
-
-    /// <summary>
-    ///   The index
-    /// </summary>
-    public readonly int Index;
-  }
+  /// <summary>
+  ///   The index
+  /// </summary>
+  public readonly int Index;
 }

@@ -13,85 +13,84 @@
  */
 #nullable enable
 
-namespace CsvTools
+namespace CsvTools;
+
+using System.Drawing;
+using System.Windows.Forms;
+
+/// <summary>
+///   CheckedListBox that can live in a ToolStrip
+/// </summary>
+public class ToolStripCheckedListBox : ToolStripControlHost
 {
-  using System.Drawing;
-  using System.Windows.Forms;
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="ToolStripCheckedListBox" /> class.
+  /// </summary>
+  public ToolStripCheckedListBox()
+    : base(
+      new CheckedListBox
+      {
+        BorderStyle = BorderStyle.FixedSingle,
+        MultiColumn = true,
+        CheckOnClick = true,
+        SelectionMode = SelectionMode.One,
+        ThreeDCheckBoxes = true,
+        ColumnWidth = 300,
+        MaximumSize = new Size(600, 600),
+        BackColor = SystemColors.Window
+      })
+  {
+  }
 
   /// <summary>
-  ///   CheckedListBox that can live in a ToolStrip
+  ///   Tell the world that an item was checked
   /// </summary>
-  public class ToolStripCheckedListBox : ToolStripControlHost
+  public event ItemCheckEventHandler? ItemCheck;
+
+  /// <summary>
+  ///   Gets the checked ListBox.
+  /// </summary>
+  /// <value>The checked ListBox.</value>
+  public CheckedListBox CheckedListBoxControl
   {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ToolStripCheckedListBox" /> class.
-    /// </summary>
-    public ToolStripCheckedListBox()
-      : base(
-        new CheckedListBox
-        {
-          BorderStyle = BorderStyle.FixedSingle,
-          MultiColumn = true,
-          CheckOnClick = true,
-          SelectionMode = SelectionMode.One,
-          ThreeDCheckBoxes = true,
-          ColumnWidth = 300,
-          MaximumSize = new Size(600, 600),
-          BackColor = SystemColors.Window
-        })
+    get
     {
+      return (CheckedListBox) Control;
     }
-
-    /// <summary>
-    ///   Tell the world that an item was checked
-    /// </summary>
-    public event ItemCheckEventHandler? ItemCheck;
-
-    /// <summary>
-    ///   Gets the checked ListBox.
-    /// </summary>
-    /// <value>The checked ListBox.</value>
-    public CheckedListBox CheckedListBoxControl
-    {
-      get
-      {
-        return (CheckedListBox) Control;
-      }
-    }
-
-    /// <summary>
-    ///   Gets the items shown in the checked list box
-    /// </summary>
-    public CheckedListBox.ObjectCollection Items => CheckedListBoxControl.Items;
-
-    /// <summary>
-    ///   Listen for events on the underlying control
-    /// </summary>
-    /// <param name="control"></param>
-    protected override void OnSubscribeControlEvents(Control? control)
-    {
-      base.OnSubscribeControlEvents(control);
-      if (control is CheckedListBox checkedListBoxControl)
-        checkedListBoxControl.ItemCheck += OnItemCheck;
-    }
-
-    /// <summary>
-    ///   Stop listening for events on the underlying control
-    /// </summary>
-    /// <param name="control"></param>
-    protected override void OnUnsubscribeControlEvents(Control? control)
-    {
-      base.OnUnsubscribeControlEvents(control);
-      
-      if (control is CheckedListBox checkedListBoxControl)
-        checkedListBoxControl.ItemCheck -= OnItemCheck;
-    }
-
-    /// <summary>
-    ///   Trigger the ItemCheck event
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnItemCheck(object? sender, ItemCheckEventArgs e) => ItemCheck?.Invoke(this, e);
   }
+
+  /// <summary>
+  ///   Gets the items shown in the checked list box
+  /// </summary>
+  public CheckedListBox.ObjectCollection Items => CheckedListBoxControl.Items;
+
+  /// <summary>
+  ///   Listen for events on the underlying control
+  /// </summary>
+  /// <param name="control"></param>
+  protected override void OnSubscribeControlEvents(Control? control)
+  {
+    base.OnSubscribeControlEvents(control);
+    if (control is CheckedListBox checkedListBoxControl)
+      checkedListBoxControl.ItemCheck += OnItemCheck;
+  }
+
+  /// <summary>
+  ///   Stop listening for events on the underlying control
+  /// </summary>
+  /// <param name="control"></param>
+  protected override void OnUnsubscribeControlEvents(Control? control)
+  {
+    base.OnUnsubscribeControlEvents(control);
+      
+    if (control is CheckedListBox checkedListBoxControl)
+      checkedListBoxControl.ItemCheck -= OnItemCheck;
+  }
+
+  /// <summary>
+  ///   Trigger the ItemCheck event
+  /// </summary>
+  /// <param name="sender"></param>
+  /// <param name="e"></param>
+  private void OnItemCheck(object? sender, ItemCheckEventArgs e) => ItemCheck?.Invoke(this, e);
 }

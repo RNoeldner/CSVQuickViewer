@@ -13,28 +13,27 @@
 using System;
 using System.Threading;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+/// Provides a progress-reporting interface that exposes a <see cref="CancellationToken"/>.
+/// </summary>
+/// <remarks>
+/// This interface unifies:
+/// <list type="bullet">
+///   <item><description>Progress reporting via <see cref="IProgress{T}"/> using <see cref="ProgressInfo"/>.</description></item>
+///   <item><description>Cancellation support through an associated <see cref="CancellationToken"/>.</description></item>
+///   <item><description>Passing on report information to Logger</description></item>
+/// </list>
+///
+/// Typical use cases include UI-bound progress displays and long-running operations
+/// that should support cooperative cancellation.
+/// </remarks>
+public interface IProgressWithCancellation : IProgress<ProgressInfo>
 {
   /// <summary>
-  /// Provides a progress-reporting interface that exposes a <see cref="CancellationToken"/>.
+  /// Gets the cancellation token associated with the progress operation.
+  /// Implementations should respect this token to allow cooperative cancellation.
   /// </summary>
-  /// <remarks>
-  /// This interface unifies:
-  /// <list type="bullet">
-  ///   <item><description>Progress reporting via <see cref="IProgress{T}"/> using <see cref="ProgressInfo"/>.</description></item>
-  ///   <item><description>Cancellation support through an associated <see cref="CancellationToken"/>.</description></item>
-  ///   <item><description>Passing on report information to Logger</description></item>
-  /// </list>
-  ///
-  /// Typical use cases include UI-bound progress displays and long-running operations
-  /// that should support cooperative cancellation.
-  /// </remarks>
-  public interface IProgressWithCancellation : IProgress<ProgressInfo>
-  {
-    /// <summary>
-    /// Gets the cancellation token associated with the progress operation.
-    /// Implementations should respect this token to allow cooperative cancellation.
-    /// </summary>
-    public CancellationToken CancellationToken { get; }
-  }
+  public CancellationToken CancellationToken { get; }
 }

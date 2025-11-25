@@ -16,158 +16,157 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace CsvTools.Tests
+namespace CsvTools.Tests;
+
+[TestClass]
+public class FormProgressTests
 {
-  [TestClass]
-  public class FormProgressTests
+  [TestMethod]
+  [Timeout(1000)]
+  public void FormProcessCancel()
   {
-    [TestMethod]
-    [Timeout(1000)]
-    public void FormProcessCancel()
+    using var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token);
+    formProgress.ShowInTaskbar = true;
+    formProgress.Show();
+    UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
+  }
+
+  [TestMethod]
+  [Timeout(20000)]
+  [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
+  public void FormProgressLogger()
+  {
+    // Log
+    using (var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token))
     {
-      using var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token);
-      formProgress.ShowInTaskbar = true;
+      formProgress.ShowInTaskbar = false;
       formProgress.Show();
-      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
-    }
+      formProgress.Maximum = 100;
+      var sentTime = new TimeSpan(0);
+      formProgress.ProgressChanged = (param) => sentTime = formProgress.TimeToCompletion.EstimatedTimeRemaining;
 
-    [TestMethod]
-    [Timeout(20000)]
-    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void FormProgressLogger()
-    {
-      // Log
-      using (var formProgress = new FormProgress("Test Logger", UnitTestStatic.Token))
+      var end = 50;
+      var step = 5;
+      var wait = .1;
+      for (var c = 0; c < end && !formProgress.CancellationToken.IsCancellationRequested; c += step)
       {
-        formProgress.ShowInTaskbar = false;
-        formProgress.Show();
-        formProgress.Maximum = 100;
-        var sentTime = new TimeSpan(0);
-        formProgress.ProgressChanged = (param) => sentTime = formProgress.TimeToCompletion.EstimatedTimeRemaining;
-
-        var end = 50;
-        var step = 5;
-        var wait = .1;
-        for (var c = 0; c < end && !formProgress.CancellationToken.IsCancellationRequested; c += step)
-        {
-          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStaticForms.WaitSomeTime(wait, UnitTestStatic.Token);
-        }
-
-        // Left should be roughly .1 * 50 = 5 seconds  
-        Assert.IsTrue(
-          (wait * (end / step)) - .5 < sentTime.TotalSeconds && sentTime.TotalSeconds < (wait * (end / step)) + .5,
-          $"Estimated time should be roughly {wait * (end / step)}s but is {sentTime.TotalSeconds}");
-        formProgress.Close();
-      }
-    }
-
-
-    [TestMethod]
-    [Timeout(20000)]
-    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void FormProgressMarquee()
-    {
-
-      // marquee
-      using (var formProgress = new FormProgress("Test Marquee", UnitTestStatic.Token))
-      {
-        formProgress.ShowInTaskbar = false;
-        formProgress.Show();
-        formProgress.Maximum = 0;
-        for (var c = 0; c < 100 && !formProgress.CancellationToken.IsCancellationRequested; c += 5)
-        {
-          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
-        }
-
-        formProgress.Close();
+        formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+        UnitTestStaticForms.WaitSomeTime(wait, UnitTestStatic.Token);
       }
 
-      // NoLog
-      using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
-      {
-        formProgress.ShowInTaskbar = false;
-        formProgress.Show();
-        formProgress.Maximum = 100;
-        for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
-        {
-          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
-        }
-      }
-    }
-
-
-    [TestMethod]
-    [Timeout(20000)]
-    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void FormProgressNoLog()
-    {
-
-      // NoLog
-      using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
-      {
-        formProgress.ShowInTaskbar = false;
-        formProgress.Show();
-        formProgress.Maximum = 100;
-        for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
-        {
-          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
-        }
-
-        formProgress.Close();
-      }
-    }
-    [TestMethod]
-    [Timeout(2000)]
-    public void FormprogressTest()
-    {
-      using var formProgress = new FormProgress();
-      Assert.IsNotNull(formProgress);
-    }
-
-    [TestMethod]
-    [Timeout(1000)]
-    public void FormprogressTest1()
-    {
-      using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", tokenSrc.Token);
-      Assert.AreEqual("Title", formProgress.Text);
-      Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
-      tokenSrc.Cancel();
-      Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
-    }
-
-    [TestMethod]
-    [Timeout(1000)]
-    public void CancelTest()
-    {
-      using var tokenSrc = new CancellationTokenSource();
-      using var formProgress = new FormProgress("Title", tokenSrc.Token);
-      Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+      // Left should be roughly .1 * 50 = 5 seconds  
+      Assert.IsTrue(
+        (wait * (end / step)) - .5 < sentTime.TotalSeconds && sentTime.TotalSeconds < (wait * (end / step)) + .5,
+        $"Estimated time should be roughly {wait * (end / step)}s but is {sentTime.TotalSeconds}");
       formProgress.Close();
-      Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
-      Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
     }
+  }
 
 
-    [TestMethod]
-    [Timeout(2000)]
-    public void SetProcessTest2()
+  [TestMethod]
+  [Timeout(20000)]
+  [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
+  public void FormProgressMarquee()
+  {
+
+    // marquee
+    using (var formProgress = new FormProgress("Test Marquee", UnitTestStatic.Token))
     {
-      using var formProgress = new FormProgress();
-      formProgress.Maximum = 80;
-
+      formProgress.ShowInTaskbar = false;
       formProgress.Show();
-      long called = 10;
+      formProgress.Maximum = 0;
+      for (var c = 0; c < 100 && !formProgress.CancellationToken.IsCancellationRequested; c += 5)
+      {
+        formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+        UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
+      }
 
-      formProgress.ProgressChanged = (p) => { called = p.Item1.Value; };
-
-      formProgress.Report(new ProgressInfo("Help", 20));
-
-      Assert.AreEqual(20, called);
+      formProgress.Close();
     }
+
+    // NoLog
+    using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
+    {
+      formProgress.ShowInTaskbar = false;
+      formProgress.Show();
+      formProgress.Maximum = 100;
+      for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
+      {
+        formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+        UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
+      }
+    }
+  }
+
+
+  [TestMethod]
+  [Timeout(20000)]
+  [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
+  public void FormProgressNoLog()
+  {
+
+    // NoLog
+    using (var formProgress = new FormProgress("Test", UnitTestStatic.Token))
+    {
+      formProgress.ShowInTaskbar = false;
+      formProgress.Show();
+      formProgress.Maximum = 100;
+      for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
+      {
+        formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+        UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
+      }
+
+      formProgress.Close();
+    }
+  }
+  [TestMethod]
+  [Timeout(2000)]
+  public void FormprogressTest()
+  {
+    using var formProgress = new FormProgress();
+    Assert.IsNotNull(formProgress);
+  }
+
+  [TestMethod]
+  [Timeout(1000)]
+  public void FormprogressTest1()
+  {
+    using var tokenSrc = new CancellationTokenSource();
+    using var formProgress = new FormProgress("Title", tokenSrc.Token);
+    Assert.AreEqual("Title", formProgress.Text);
+    Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+    tokenSrc.Cancel();
+    Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
+  }
+
+  [TestMethod]
+  [Timeout(1000)]
+  public void CancelTest()
+  {
+    using var tokenSrc = new CancellationTokenSource();
+    using var formProgress = new FormProgress("Title", tokenSrc.Token);
+    Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+    formProgress.Close();
+    Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
+    Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
+  }
+
+
+  [TestMethod]
+  [Timeout(2000)]
+  public void SetProcessTest2()
+  {
+    using var formProgress = new FormProgress();
+    formProgress.Maximum = 80;
+
+    formProgress.Show();
+    long called = 10;
+
+    formProgress.ProgressChanged = (p) => { called = p.Item1.Value; };
+
+    formProgress.Report(new ProgressInfo("Help", 20));
+
+    Assert.AreEqual(20, called);
   }
 }

@@ -13,45 +13,44 @@
  */
 using System;
 using System.IO;
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   This class implements a lightweight Dependency injection without a framework It uses a
+///   static delegate function to give the ability to overload the default functionality by
+///   implementations not know to this library
+/// </summary>
+// ReSharper disable once InconsistentNaming
+public static class FunctionalDI
 {
   /// <summary>
-  ///   This class implements a lightweight Dependency injection without a framework It uses a
-  ///   static delegate function to give the ability to overload the default functionality by
-  ///   implementations not know to this library
+  /// Function that will return encryption related information for a file, this is not used in the Csv Viewer
   /// </summary>
-  // ReSharper disable once InconsistentNaming
-  public static class FunctionalDI
-  {
-    /// <summary>
-    /// Function that will return encryption related information for a file, this is not used in the Csv Viewer
-    /// </summary>
-    public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile =
-      _ => (string.Empty, string.Empty, string.Empty);
+  public static Func<string, (string passphrase, string keyFile, string key)> GetKeyAndPassphraseForFile =
+    _ => (string.Empty, string.Empty, string.Empty);
 
-    /// <summary>
-    /// Function that will return an open stream for SourceAccess
-    /// </summary>
-    public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
+  /// <summary>
+  /// Function that will return an open stream for SourceAccess
+  /// </summary>
+  public static Func<SourceAccess, Stream> GetStream = str => new ImprovedStream(str);
 
-    /// <summary>
-    /// Function that will return the proper instance for ColumnFormatters
-    /// </summary>
-    public static Func<ValueFormat, IColumnFormatter> GetColumnFormatter = valueFormat =>
+  /// <summary>
+  /// Function that will return the proper instance for ColumnFormatters
+  /// </summary>
+  public static Func<ValueFormat, IColumnFormatter> GetColumnFormatter = valueFormat =>
     valueFormat.DataType switch
-      {
-        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
-        DataTypeEnum.TextToHtml => HtmlToTextFormatter.Instance,
-        DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
-        DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
-        DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
-        DataTypeEnum.HtmlToText => HtmlToTextFormatter.Instance,
-        _ => EmptyFormatter.Instance
-      };
+    {
+      DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
+      DataTypeEnum.TextToHtml => HtmlToTextFormatter.Instance,
+      DataTypeEnum.TextToHtmlFull => TextToHtmlFullFormatter.Instance,
+      DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
+      DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
+      DataTypeEnum.HtmlToText => HtmlToTextFormatter.Instance,
+      _ => EmptyFormatter.Instance
+    };
 
-    /// <summary>
-    /// IFileReaderWriterFactory for GetFileReader and GetFileWriter
-    /// </summary>
-    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; } = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings());
-  }
+  /// <summary>
+  /// IFileReaderWriterFactory for GetFileReader and GetFileWriter
+  /// </summary>
+  public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; } = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings());
 }

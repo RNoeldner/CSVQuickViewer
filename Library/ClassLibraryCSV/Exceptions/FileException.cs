@@ -13,24 +13,23 @@
  */
 using System;
 
-namespace CsvTools
-{
-  /// <summary>
-  /// Exception raised in case the application has issues with a physical file
-  /// </summary>
-  /// <seealso cref="System.ApplicationException" />
-  public sealed class FileException : ApplicationException
-  {
-    /// <inheritdoc />
-    public FileException(string message)
-      : base(message)
-    {
-    }
+namespace CsvTools;
 
-    /// <inheritdoc />
-    public FileException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
+/// <summary>
+/// Exception raised in case the application has issues with a physical file
+/// </summary>
+/// <seealso cref="System.ApplicationException" />
+public sealed class FileException : ApplicationException
+{
+  /// <inheritdoc />
+  public FileException(string message)
+    : base(message)
+  {
+  }
+
+  /// <inheritdoc />
+  public FileException(string message, Exception inner)
+    : base(message, inner)
+  {
   }
 }

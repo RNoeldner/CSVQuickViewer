@@ -16,48 +16,47 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <inheritdoc />
+public sealed class TextReplaceFormatter : BaseColumnFormatter
 {
+  private readonly string m_Replacement = string.Empty;
+  private readonly Regex? m_Regex;
+
   /// <inheritdoc />
-  public sealed class TextReplaceFormatter : BaseColumnFormatter
+  public TextReplaceFormatter(string searchPattern, string replace)
   {
-    private readonly string m_Replacement = string.Empty;
-    private readonly Regex? m_Regex;
+    if (string.IsNullOrWhiteSpace(searchPattern))
+      return;
+    m_Regex = new Regex(searchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    m_Replacement = replace;
+  }
 
-    /// <inheritdoc />
-    public TextReplaceFormatter(string searchPattern, string replace)
+  /// <inheritdoc/>
+  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  {
+    if (m_Regex?.IsMatch(inputString) ?? false)
     {
-      if (string.IsNullOrWhiteSpace(searchPattern))
-        return;
-      m_Regex = new Regex(searchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-      m_Replacement = replace;
+      var output = m_Regex.Replace(inputString, m_Replacement);
+      if (RaiseWarning && !output.Equals(inputString))
+        handleWarning?.Invoke("Text Replace");
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+      return output ?? string.Empty;
     }
 
-    /// <inheritdoc/>
-    public override string FormatInputText(string inputString, Action<string>? handleWarning)
-    {
-      if (m_Regex?.IsMatch(inputString) ?? false)
-      {
-        var output = m_Regex.Replace(inputString, m_Replacement);
-        if (RaiseWarning && !output.Equals(inputString))
-          handleWarning?.Invoke("Text Replace");
-        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        return output ?? string.Empty;
-      }
+    return inputString;
+  }
 
-      return inputString;
+  /// <inheritdoc />
+  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
+  {
+    if (m_Regex?.IsMatch(inputString.ToString()) ?? false)
+    {
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+      return m_Regex.Replace(inputString.ToString(), m_Replacement).AsSpan();
     }
 
-    /// <inheritdoc />
-    public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    {
-      if (m_Regex?.IsMatch(inputString.ToString()) ?? false)
-      {
-        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-        return m_Regex.Replace(inputString.ToString(), m_Replacement).AsSpan();
-      }
-
-      return inputString;
-    }
+    return inputString;
   }
 }
