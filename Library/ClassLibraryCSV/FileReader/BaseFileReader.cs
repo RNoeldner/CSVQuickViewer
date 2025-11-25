@@ -42,7 +42,7 @@ namespace CsvTools
     ///   An array of column
     /// </summary>
     public Column[] Column = [];
-    private readonly Dictionary<string, int> m_ColumnIndexMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
 
     /// <summary>
     /// The time zone to convert the read data to, assuming the source time zone is part of the data

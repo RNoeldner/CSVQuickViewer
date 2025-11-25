@@ -22,7 +22,7 @@ namespace CsvTools
   /// <remarks>
   /// Enumerating the dictionary in MatchingForLength is still not fully thread-safe if another thread adds entries concurrently. 
   /// </remarks>
-  public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
+  public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeFormatInformation>
   {
     /// <summary>
     ///   A lookup for minimum and maximum length by format description

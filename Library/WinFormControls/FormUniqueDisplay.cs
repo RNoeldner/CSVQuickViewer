@@ -134,8 +134,8 @@ namespace CsvTools
 
         this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 
-        var dictIdToRow = new Dictionary<string, int>(StringComparer.Ordinal);
-        var dictIdToCount = new Dictionary<string, int>(StringComparer.Ordinal);
+        var dictIdToRow = new DictionaryIgnoreCase<int>();
+        var dictIdToCount = new DictionaryIgnoreCase<int>();
 
         using var formProgress =
           new FormProgress($"Processing {dataColumnName}", m_CancellationTokenSource.Token)

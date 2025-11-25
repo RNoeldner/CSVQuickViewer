@@ -211,7 +211,7 @@ namespace CsvTools
 
     private static IDictionary<string, string> ReadNode(XmlNode? check)
     {
-      var columns = new Dictionary<string, string>();
+      var columns = new DictionaryIgnoreCase<string>();
       if (check == null) 
         return columns;
       if (check.ChildNodes.Count>0)

@@ -738,7 +738,7 @@ namespace CsvTools
     private void GenerateDataGridViewColumn()
     {
       // close and remove all pop ups
-      var oldWith = new Dictionary<string, int>();
+      var oldWith = new DictionaryIgnoreCase<int>();
       foreach (DataGridViewColumn column in Columns)
         if (!oldWith.ContainsKey(column.DataPropertyName))
           oldWith.Add(column.DataPropertyName, column.Width);

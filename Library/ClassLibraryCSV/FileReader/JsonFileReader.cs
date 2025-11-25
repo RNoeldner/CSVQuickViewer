@@ -143,14 +143,13 @@ namespace CsvTools
         var line = await GetNextRecordAsync(token).ConfigureAwait(false);
 
         // get column names for some time
-        var colNames = new Dictionary<string, DataTypeEnum>();
+        var colNames = new DictionaryIgnoreCase<DataTypeEnum>();
         var stopwatch = Stopwatch.StartNew();
         // read additional rows to see if we have some extra columns
         while (line.Count != 0)
         {
           foreach (var keyValue in line)
-            if (!colNames.ContainsKey(keyValue.Key))
-              colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataTypeEnum.String);
+            colNames[keyValue.Key]= keyValue.Value?.GetType().GetDataType() ?? DataTypeEnum.String;
 
           if (stopwatch.ElapsedMilliseconds > 1000)
             break;
@@ -235,8 +234,8 @@ namespace CsvTools
         throw new FileReaderOpenException();
       try
       {
-        var headers = new Dictionary<string, bool>();
-        var keyValuePairs = new Dictionary<string, object?>();
+        var headers = new DictionaryIgnoreCase<bool>();
+        var keyValuePairs = new DictionaryIgnoreCase<object?>();
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)

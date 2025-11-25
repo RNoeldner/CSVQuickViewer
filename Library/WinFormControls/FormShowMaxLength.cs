@@ -146,9 +146,9 @@ namespace CsvTools
         var dataColumnOrder = dataTable.Columns.Add("Order", typeof(int));
         dataColumnNo.AllowDBNull = true;
 
-        var maxLength = new Dictionary<string, int>();
-        var colIndex = new Dictionary<string, int>();
-        var checkCols = new Dictionary<string, int>();
+        var maxLength = new DictionaryIgnoreCase<int>();
+        var colIndex = new DictionaryIgnoreCase<int>();
+        var checkCols = new DictionaryIgnoreCase<int>();
 
         foreach (var col in m_DataTable.GetRealColumns())
         {

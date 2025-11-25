@@ -49,7 +49,8 @@ namespace CsvTools
           NullValueHandling = NullValueHandling.Ignore,
           ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
           DateFormatHandling = DateFormatHandling.IsoDateFormat,
-          DateTimeZoneHandling = DateTimeZoneHandling.Utc
+          DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+          Converters = { new StringDictionaryConverter<string>() }
         };
         setting.Converters.Add(new StringEnumConverter());
         return setting;

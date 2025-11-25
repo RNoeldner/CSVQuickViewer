@@ -710,7 +710,7 @@ namespace CsvTools
     {
       if (template.IndexOf('{') == -1)
         return template;
-      var placeholder = new Dictionary<string, string>();
+      var placeholder = new DictionaryIgnoreCase<string>();
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
       // ReSharper disable once RedundantEnumerableCastCall
@@ -750,7 +750,7 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      var placeholder = new Dictionary<string, string>();
+      var placeholder = new DictionaryIgnoreCase<string>();
       var index = 0;
       // ReSharper disable once RedundantEnumerableCastCall
       foreach (var value in BracesRegEx.Matches(template).OfType<Match>().Select(x => x.Value))

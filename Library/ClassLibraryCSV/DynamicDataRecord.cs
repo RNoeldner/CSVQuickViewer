@@ -25,7 +25,7 @@ namespace CsvTools
   /// </summary>
   public class DynamicDataRecord : DynamicObject
   {
-    private readonly Dictionary<string, object> m_Properties;
+    private readonly DictionaryIgnoreCase<object> m_Properties;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DynamicDataRecord"/> class.
@@ -33,7 +33,7 @@ namespace CsvTools
     /// <param name="dataRecord">The data record.</param>
     public DynamicDataRecord(in IDataRecord dataRecord)
     {
-      m_Properties = new Dictionary<string, object>(dataRecord.FieldCount);
+      m_Properties = new DictionaryIgnoreCase<object>(dataRecord.FieldCount);
       for (var i = 0; i < dataRecord.FieldCount; i++)
         m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
     }

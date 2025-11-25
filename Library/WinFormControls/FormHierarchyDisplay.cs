@@ -184,7 +184,7 @@ namespace CsvTools
       DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
 
       // Using a dictionary here to speed up lookups
-      var treeDataDictionary = new Dictionary<string, TreeData>();
+      var treeDataDictionary = new DictionaryIgnoreCase<TreeData>();
       var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent");
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);

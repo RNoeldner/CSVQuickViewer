@@ -118,7 +118,7 @@ namespace CsvTools
       try
       {
         var duplicateList = new List<int>();
-        var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var dictIDToRow = new DictionaryIgnoreCase< int>();
         var dictFirstIDStored = new HashSet<int>();
         var dataColumnID = m_DataTable.Columns[dataColumnName];
         if (dataColumnID==null)
