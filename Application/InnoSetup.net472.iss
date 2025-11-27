@@ -1,20 +1,20 @@
 #define MyAppTitle "Csv Quick Viewer"
 #define MyAppName "CsvQuickViewer"
-#define MyOutputDir "..\..\Application\bin\Release\net8.0-windows\"
-#define MyAppVersion GetFileVersion(MyOutputDir + "\" +  MyAppName + ".exe")
-
+#define MyOutputDir ".\bin\Release\net472"
+#define MyAppVersion (FileExists(MyOutputDir + "\\" +  MyAppName + ".exe") ? GetVersionNumbersString(MyOutputDir + "\\" +  MyAppName + ".exe") : "1.0.0.0")
 
 [Setup]
 AppVersion={#MyAppVersion}
-OutputBaseFilename={#MyAppName}Installer.Net8
+OutputBaseFilename={#MyAppName}Installer.Net472
 DefaultDirName={localappdata}\{#MyAppName}
 AppName={#MyAppName}
-OutputDir=..
+OutputDir=..\Setup
+CloseApplications=yes
 PrivilegesRequiredOverridesAllowed=dialog
 PrivilegesRequired=lowest
-DisableDirPage=no    
+DisableDirPage=no
 DisableProgramGroupPage=yes
-SetupIconFile=..\..\Application\csv_text.ico
+SetupIconFile=csv_text.ico
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a Desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
@@ -22,8 +22,8 @@ Name: "startmenuicon"; Description: "Create a Start Menu shortcut"; GroupDescrip
 Name: "registerext"; Description: "Associate .EIHconf files with {#MyAppTitle}"; GroupDescription: "Optional actions:"
 
 [Files]
-Source: "{#MyOutputDir}CSV*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-Source: "{#MyOutputDir}*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "{#MyOutputDir}\CSV*.*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "{#MyOutputDir}\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Registry]
 ; --- Delimited Text Values  ---
@@ -55,49 +55,35 @@ Filename: "{app}\{#MyAppName}.exe"; Description: "{cm:LaunchProgram,{#MyAppTitle
 Type: dirifempty; Name: "{userappdata}\{#MyAppName}"
 Type: dirifempty; Name: "{app}"
 
+
 [Code]
-function IsDotNet8Installed(): Boolean;
+function IsDotNet472Installed(): Boolean;
 var
-  ResultCode: Integer;
-  TempFile: string;
-  Lines: TStringList;
-  i: Integer;
+  ReleaseValue: Cardinal;
 begin
-  WizardForm.StatusLabel.Caption := 'Checking for .NET 8 runtime...';
-  WizardForm.Update;
+   WizardForm.StatusLabel.Caption := 'Checking for .NET Framework 4.7.2 runtime...';
+  WizardForm.Update; 
   Result := False;
-  TempFile := ExpandConstant('{tmp}\dotnet.txt');
-  if Exec('cmd.exe', '/C dotnet --list-runtimes > "' + TempFile + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if RegQueryDWordValue(HKLM64, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Release', ReleaseValue) then
   begin
-    Lines := TStringList.Create;
-    try
-      Lines.LoadFromFile(TempFile);
-      for i := 0 to Lines.Count-1 do
-        if Pos('Microsoft.NETCore.App 8.', Lines[i]) > 0 then
-        begin
-          Result := True;
-          Break;
-        end;
-    finally
-      Lines.Free;
-    end;
+    if ReleaseValue >= 461808 then
+      Result := True;
   end;
   
    if Result then
-    WizardForm.StatusLabel.Caption := '.NET 8 runtime detected.'
+    WizardForm.StatusLabel.Caption := '.NET Framework 4.7.2 runtime detected.'
   else
-    WizardForm.StatusLabel.Caption := '.NET 8 runtime NOT found!';
-    
-  WizardForm.Update;
+    WizardForm.StatusLabel.Caption := '.NET Framework 4.7.2 runtime NOT found!';
 end;
+
 
 procedure InitializeWizard();
 begin
-  if not IsDotNet8Installed() then
+  if not IsDotNet472Installed() then
   begin
-     MsgBox('.NET 8 runtime is not installed. The application will likely not run.' + #13#10 +
-       'It might run on a later version, but this is not guaranteed.' + #13#10 +
-       'Please download .NET Desktop Runtime 8 from https://dotnet.microsoft.com/download/dotnet/8.0',
+     MsgBox('.NET Framework 4.7.2  runtime is not installed. The application will likely not run.' + #13#10 +
+       'There is an additional installed for .NET 8' + #13#10 +
+       'Or download it from https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472',
            mbError, MB_OK);
      WizardForm.Close;
     // Abort();  // Stop the installer immediately

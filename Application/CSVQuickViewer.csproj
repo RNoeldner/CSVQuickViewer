@@ -1,137 +1,118 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <UseWindowsForms>true</UseWindowsForms>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <ApplicationIcon>csv_text.ico</ApplicationIcon>
-    <Authors>Raphael Nöldner</Authors>
-    <PackageIcon>Picture.png</PackageIcon>
-    <SignAssembly>True</SignAssembly>
-    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<UseWindowsForms>true</UseWindowsForms>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ApplicationIcon>csv_text.ico</ApplicationIcon>
+		<Authors>Raphael Nöldner</Authors>
+		<PackageIcon>Picture.png</PackageIcon>
+		<SignAssembly>True</SignAssembly>
+		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <RootNamespace>CsvTools</RootNamespace>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-    <Configurations>Debug;Release</Configurations>
-    
-    <RepositoryType>git</RepositoryType>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <IsPublishable>True</IsPublishable>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-    <PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
-    <PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
-    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
-    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
-    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>    
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>    
-    <AnalysisLevel>6.0-recommended</AnalysisLevel>    
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup> 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
-    <NoWarn>1701;1702;CA1416</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
-    <DebugType>none</DebugType>
-    <WarningLevel>5</WarningLevel>
-    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
-    <NoWarn>1701;1702;CA1416</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
-    <NoWarn>1701;1702;CA1416</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <WarningLevel>5</WarningLevel>
-    <DefineConstants>$(DefineConstants);CsvQuickViewer</DefineConstants>
-    <NoWarn>1701;1702;CA1416</NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="FileAssiciation.cs" />
-    <Compile Remove="FileSettingPhysicalFile.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="App.config" />
-    <None Remove="CSVQuickViewer.csproj.DotSettings" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FCTB" Version="2.16.24" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-    <PackageReference Include="Serilog" Version="4.3.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="TimeZoneConverter" Version="7.2.0" />
-    <PackageReference Include="UTF.Unknown" Version="2.6.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="LICENSE">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Picture.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="README.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
-    <ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="LoggerDisplay.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<RootNamespace>CsvTools</RootNamespace>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<Configurations>Debug;Release</Configurations>
+		<RepositoryType>git</RepositoryType>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<IsPublishable>False</IsPublishable>
+		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
+		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
+		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+		<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+		<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+		<UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+		<AnalysisLevel>6.0-recommended</AnalysisLevel>
+	</PropertyGroup>
+	<PropertyGroup>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<DefineConstants>TRACE;Windows;CsvQuickViewer</DefineConstants>
+		<WarningLevel>5</WarningLevel>
+		<NoWarn>1701;1702;CA1416</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="FileAssiciation.cs" />
+		<Compile Remove="FileSettingPhysicalFile.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="App.config" />
+		<None Remove="CSVQuickViewer.csproj.DotSettings" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="InnoSetup.net472.iss" />
+		<Content Include="InnoSetup.Net8.iss" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="FCTB" Version="2.16.24" />
+		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+		<PackageReference Include="Serilog" Version="4.3.0" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="SharpZipLib" Version="1.4.2" />
+		<PackageReference Include="TimeZoneConverter" Version="7.2.0" />
+		<PackageReference Include="UTF.Unknown" Version="2.6.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
+		<Reference Include="System" />
+		<Reference Include="System.ComponentModel.Composition" />
+		<Reference Include="System.Data" />
+		<Reference Include="System.Deployment" />
+		<Reference Include="System.Drawing" />
+		<Reference Include="System.IO.Compression.FileSystem" />
+		<Reference Include="System.Numerics" />
+		<Reference Include="System.Windows.Forms" />
+		<Reference Include="System.Xml" />
+		<Reference Include="System.Xml.Linq" />
+		<Reference Include="WindowsBase" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="LICENSE">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Picture.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="README.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Resources\" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
+		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="LoggerDisplay.cs">
+			<SubType>UserControl</SubType>
+		</Compile>
+	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release'">
+		<Exec Command="IF EXIST &quot;$(ProjectDir)..\Setup&quot;  (&#xD;&#xA;RMDIR /S /Q &quot;$(ProjectDir)..\Setup&quot;&#xA;)&#xD;&#xA;MKDIR &quot;$(ProjectDir)..\Setup&quot;&#xA;&#xD;&#xA;IF DEFINED INNO_SETUP_PATH (&#xD;&#xA;    SET ISCC=&quot;%25INNO_SETUP_PATH%25\ISCC.exe&quot;&#xD;&#xA;) ELSE (&#xD;&#xA;    IF EXIST &quot;C:\Program Files (x86)\Inno Setup 6\ISCC.exe&quot; (&#xD;&#xA;        SET ISCC=&quot;C:\Program Files (x86)\Inno Setup 6\ISCC.exe&quot;&#xD;&#xA;    ) ELSE (&#xD;&#xA;        ECHO Fehler: Inno Setup ISCC.exe nicht gefunden!&#xD;&#xA;        EXIT /B 1&#xD;&#xA;    )&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;%25ISCC%25 &quot;$(ProjectDir)InnoSetup.net472.iss&quot;&#xD;&#xA;%25ISCC%25 &quot;$(ProjectDir)InnoSetup.Net8.iss&quot;&#xD;&#xA;&#xD;&#xA;powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)\bin\Release\net472\*' -DestinationPath '$(ProjectDir)..\Setup\CSVQuickViewerPortable.Net472.zip' -Force &gt; $null&quot;&#xD;&#xA;powershell -Command &quot;Compress-Archive -Path '$(ProjectDir)\bin\Release\net8.0-windows\*' -DestinationPath '$(ProjectDir)..\Setup\CSVQuickViewerPortable.Net8.zip' -Force &gt; $null&quot;" />
+	</Target>
 </Project>
