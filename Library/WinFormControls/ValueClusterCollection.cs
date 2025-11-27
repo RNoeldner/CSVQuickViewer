@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CsvTools;
 
@@ -103,10 +102,10 @@ public sealed class ValueClusterCollection : List<ValueCluster>
           type == DataTypeEnum.Guid ||
           type == DataTypeEnum.Boolean)
       {
-        (var countNull, var typedValues)  = MakeTypedValues(values, Convert.ToString, progress.CancellationToken);
+        (var countNull, var unsortedList)  = MakeTypedValues(values, Convert.ToString, progress.CancellationToken);
         AddValueClusterNull(escapedName, countNull);
 
-        return this.BuildValueClustersString(typedValues, escapedName, maxNumber, maxSeconds, progress) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+        return this.BuildValueClustersString(unsortedList, escapedName, maxNumber, maxSeconds, progress) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
       //----------------------------------------------------------------------
@@ -114,11 +113,11 @@ public sealed class ValueClusterCollection : List<ValueCluster>
       //----------------------------------------------------------------------
       if (type == DataTypeEnum.DateTime)
       {
-        (var countNull, var typedValues)  =MakeTypedValues(values, Convert.ToDateTime, progress.CancellationToken);
+        (var countNull, var unsortedList)  =MakeTypedValues(values, Convert.ToDateTime, progress.CancellationToken);
         AddValueClusterNull(escapedName, countNull);
         return (even
-          ? this.BuildValueClustersDateEven(typedValues, escapedName, maxNumber, maxSeconds, progress)
-          : this.BuildValueClustersDate(typedValues, escapedName, maxNumber, combine, maxSeconds, progress))
+          ? this.BuildValueClustersDateEven(unsortedList, escapedName, maxNumber, maxSeconds, progress)
+          : this.BuildValueClustersDate(unsortedList, escapedName, maxNumber, combine, maxSeconds, progress))
           ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -127,11 +126,11 @@ public sealed class ValueClusterCollection : List<ValueCluster>
       //----------------------------------------------------------------------
       if (type == DataTypeEnum.Integer)
       {
-        (var countNull, var typedValues)  = MakeTypedValues(values, Convert.ToInt64, progress.CancellationToken);
+        (var countNull, var unsortedList)  = MakeTypedValues(values, Convert.ToInt64, progress.CancellationToken);
         AddValueClusterNull(escapedName, countNull);
         return (even
-          ? this.BuildValueClustersLongEven(typedValues, escapedName, maxNumber, maxSeconds, progress)
-          : this.BuildValueClustersLong(typedValues, escapedName, maxNumber, combine, maxSeconds, progress))
+          ? this.BuildValueClustersLongEven(unsortedList, escapedName, maxNumber, maxSeconds, progress)
+          : this.BuildValueClustersLong(unsortedList, escapedName, maxNumber, combine, maxSeconds, progress))
           ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -140,11 +139,11 @@ public sealed class ValueClusterCollection : List<ValueCluster>
       //----------------------------------------------------------------------
       if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
       {
-        (var countNull, var typedValues)  = MakeTypedValues(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress.CancellationToken);
+        (var countNull, var unsortedList)  = MakeTypedValues(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress.CancellationToken);
         AddValueClusterNull(escapedName, countNull);
         return (even
-          ? this.BuildValueClustersNumericEven(typedValues, escapedName, maxNumber, maxSeconds, progress)
-          : this.BuildValueClustersNumeric(typedValues, escapedName, maxNumber, combine, maxSeconds, progress))
+          ? this.BuildValueClustersNumericEven(unsortedList, escapedName, maxNumber, maxSeconds, progress)
+          : this.BuildValueClustersNumeric(unsortedList, escapedName, maxNumber, combine, maxSeconds, progress))
           ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -205,14 +204,14 @@ public sealed class ValueClusterCollection : List<ValueCluster>
   /// </summary>
   /// <typeparam name="T"></typeparam>
   /// <param name="values">The objects to convert.</param>
-  /// <param name="typedValues">The list to receive the typed results.</param>
+  /// <param name="unsortedList">The list to receive the typed results.</param>
   /// <param name="convert">Conversion delegate.</param>
   /// <param name="progress">Progress/cancellation handler.</param>
   /// <returns>Number of NULL or unconvertible values.</returns>
-  private static (int nullCount, List<T> typedValues) MakeTypedValues<T>(object[] values, Func<object, T> convert, CancellationToken cancellationToken)
+  private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T> convert, CancellationToken cancellationToken)
   {
     var total = values.Length;
-    var typedValues = new List<T>(total);
+    var unsortedList = new List<T>(total);
     var nullCount = 0;
 
     int counter = 0;
@@ -231,11 +230,11 @@ public sealed class ValueClusterCollection : List<ValueCluster>
         if (value is null)
           nullCount++;
         else
-          typedValues.Add(value);
+          unsortedList.Add(value);
       }
     }
 
-    return (nullCount, typedValues);
+    return (nullCount, unsortedList);
   }
 
   /// <summary>

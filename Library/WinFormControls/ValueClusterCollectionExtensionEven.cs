@@ -97,6 +97,9 @@ namespace CsvTools
       Func<T, string> getStatementLast, double maxSeconds, IProgressWithCancellation progress)
       where T : struct, IComparable<T>
     {
+      if (values.Count == 0)
+        return false;
+
       var counter = new SortedDictionary<T, int>();
       var stopwatch = Stopwatch.StartNew();
       foreach (var number in values)

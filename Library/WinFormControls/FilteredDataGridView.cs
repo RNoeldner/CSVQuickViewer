@@ -1106,7 +1106,7 @@ public partial class FilteredDataGridView : DataGridView
       var filter = GetColumnFilter(m_MenuItemColumnIndex);
       var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
       var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
-      using var filterPopup = new FromRowsFilter(filter, data, 50);
+      using var filterPopup = new FromRowsFilter(filter, data, 25);
       if (filterPopup.ShowDialog() == DialogResult.OK)
       {
         ApplyFilters();

@@ -41,7 +41,7 @@ namespace CsvTools
 
       values.Sort(StringComparer.OrdinalIgnoreCase);
 
-      int[] clusterLengths = { 1, 3, 5, 10 };
+      int[] clusterLengths = { 1, 2, 4, 8, 12 };
 
       // Prepare cluster-prefix collections
       var clusters = clusterLengths.ToDictionary(
@@ -52,15 +52,16 @@ namespace CsvTools
 
       // Pre-compute once: minimal/maximal usable prefix length
       int maxLength = 0;
+      int maxPossible = clusterLengths.Max();
       for (int i = 0; i < values.Count; i++)
       {
         var len = values[i]?.Length ?? 0;
         if (len > maxLength)
         {
           maxLength = len;
-          if (maxLength >= 10)
+          if (maxLength >= maxPossible)
           {
-            maxLength = 10;
+            maxLength = maxPossible;
             break;
           }
         }

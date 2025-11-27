@@ -29,7 +29,7 @@ public sealed partial class FromRowsFilter : ResizeForm
 {
   private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
   private readonly object[] m_Values;
-  private readonly int m_MaxCluster;
+  private readonly int m_MaxGroups;
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
   /// <summary>
@@ -37,14 +37,14 @@ public sealed partial class FromRowsFilter : ResizeForm
   /// </summary>
   /// <param name="dataGridViewColumnFilter">The data grid view column.</param>
   /// <param name="columnValues">The data in the column</param>
-  /// <param name="maxCluster">Maximum number of clusters to show</param>
+  /// <param name="maxGroups">Maximum number of groups to show</param>
   public FromRowsFilter(in ColumnFilterLogic dataGridViewColumnFilter, object[] columnValues,
-    int maxCluster)
+    int maxGroups)
   {
     m_DataGridViewColumnFilter =
       dataGridViewColumnFilter ?? throw new ArgumentNullException(nameof(dataGridViewColumnFilter));
     m_Values = columnValues;
-    m_MaxCluster = maxCluster;
+    m_MaxGroups = maxGroups;
     InitializeComponent();
 
     Text = $"Filter : {m_DataGridViewColumnFilter.DataPropertyName}";
@@ -269,7 +269,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     try
     {
       var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-        m_DataGridViewColumnFilter.Active, m_MaxCluster, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
+        m_DataGridViewColumnFilter.Active, m_MaxGroups, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
       if (result == BuildValueClustersResult.ListFilled)
       {
         FilterItems("");

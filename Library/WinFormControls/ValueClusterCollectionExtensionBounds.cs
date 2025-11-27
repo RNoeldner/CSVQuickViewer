@@ -58,12 +58,12 @@ namespace CsvTools
       {
         // Use Fractional filter but only if we have a small range
         factor = 0.1d;
-        startValues=clusterFractions.OrderBy(x => x).ToList();
+        startValues=clusterFractions.ToList();
       }
       else if (clusterOne.Count < max || endValue <= startValue)
       {
         factor = 1;
-        startValues=clusterOne.OrderBy(x => x).ToList();
+        startValues=clusterOne.ToList();
       }
       else
       {
@@ -355,13 +355,13 @@ namespace CsvTools
     => progress.Report(new ProgressInfo(
         "Combining values into groups with evenly spaced boundaries, resulting in groups that may contain different numbers of rows.",
         (long) (ValueClusterCollection.cPercentTyped * ValueClusterCollection.cProgressMax)));
-    
+
     /// <summary>
     /// Processes sorted start values to build clusters, calling delegate functions for display, SQL formatting, and counting.
     /// </summary>
     private static void ProcessBuckets<T>(
         ValueClusterCollection valueClusterCollection,
-        List<T> startValues,
+        List<T> sortedValues,
         Func<T, T> nextEnd,
         Func<T, T, string> getDisplay,
         Func<T, T, string> getStatement,
@@ -372,24 +372,24 @@ namespace CsvTools
       var stopwatch = Stopwatch.StartNew();
       if (desiredSize<1)
         desiredSize=1;
-      if (startValues.Count==0)
+      if (sortedValues.Count==0)
         throw new ArgumentOutOfRangeException("Need start values");
-      var endValue = startValues[startValues.Count-1];
+      var endValue = sortedValues.Last();
       var next = nextEnd(endValue);
       // Add start value entry in case teh very last value is not part of the list
       if (next.CompareTo(endValue) <= 0)
         throw new InvalidOperationException("nextEnd must produce strictly increasing values.");
       else
-        startValues.Add(next);
+        sortedValues.Add(next);
 
       var percent = ValueClusterCollection.cPercentTyped*2;
       if (percent>1)
         throw new InvalidOperationException("Progress percent exceeded 100%.");
-      var step = (1-percent) / startValues.Count;
+      var step = (1-percent) / sortedValues.Count;
 
-      for (var i = 0; i<startValues.Count; i++)
+      for (var i = 0; i<sortedValues.Count; i++)
       {
-        var start = startValues[i];
+        var start = sortedValues[i];
         if (stopwatch.Elapsed.TotalSeconds > maxRemainingSeconds)
           throw new TimeoutException("Building groups took too long.");
         progress.CancellationToken.ThrowIfCancellationRequested();
@@ -412,9 +412,9 @@ namespace CsvTools
           continue;
 
         // Increase bucket size if below desired size
-        if (count < desiredSize && i + 1 < startValues.Count)
+        if (count < desiredSize && i + 1 < sortedValues.Count)
         {
-          end = nextEnd(startValues[++i]);
+          end = nextEnd(sortedValues[++i]);
           goto RetryNewEnd;
         }
 
