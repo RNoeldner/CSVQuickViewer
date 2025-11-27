@@ -141,7 +141,7 @@ namespace CsvTools
         bucketCount -= keyValue.Value;
         // In case there is a cluster that is overlapping do not add a cluster
         if (!hasPrevious || !valueClusterCollection.HasEnclosingCluster(minValue, keyValue.Key))
-          valueClusterCollection.AddUnique(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key),
+          valueClusterCollection.Add(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key),
             bucketCount, minValue, keyValue.Key));
 
         minValue = keyValue.Key;
@@ -153,7 +153,7 @@ namespace CsvTools
 
       // Make one last bucket for the rest
       if (!hasPrevious || !valueClusterCollection.Any(x => x.End == null || x.End is T se && se.CompareTo(minValue) >= 0))
-        valueClusterCollection.AddUnique(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
+        valueClusterCollection.Add(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
 
       return true;
     }

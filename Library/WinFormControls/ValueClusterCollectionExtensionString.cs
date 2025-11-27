@@ -125,10 +125,8 @@ namespace CsvTools
           int count = CountBlock(values, dv);
           if (count > 0)
           {
-            valueClusters.AddUnique(
-                new ValueCluster(dv,
-                    $"({escapedName} = '{dv.SqlQuote()}')",
-                    count, dv));
+            valueClusters.Add(
+              new ValueCluster(dv, $"({escapedName} = '{dv.SqlQuote()}')", count, null));
           }
         }
 
@@ -167,10 +165,8 @@ namespace CsvTools
             percent += step;
             // Switch from Lke Statement to SUBSTRING for better performance
             // and issues with special characters like % and _
-            valueClusters.AddUnique(
-              new ValueCluster($"{prefix}…",
-                  $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')",
-                  count, prefix));
+            valueClusters.Add(
+              new ValueCluster($"{prefix}…", $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')", count, null, null));
           }
           // If we have 90% do not add more clusters
           if (filtered>values.Count*.9)
@@ -203,10 +199,8 @@ namespace CsvTools
         int count = CountCharRange(values, block.From, block.To);
         if (count > 0)
         {
-          valueClusters.AddUnique(
-              new ValueCluster(block.Display,
-                  SqlSubstringRange(escapedName, block.From, block.To),
-                  count, block.From, block.To));
+          valueClusters.Add(
+              new ValueCluster(block.Display, SqlSubstringRange(escapedName, block.From, block.To), count, null, null));
         }
 
         countChar += count;
@@ -219,9 +213,8 @@ namespace CsvTools
           (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
 
       if (countS > 0)
-        valueClusters.AddUnique(
-            new ValueCluster("Control characters",
-                $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
+        valueClusters.Add(
+            new ValueCluster("Control characters", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null));
 
       // Punctuation and symbols
       var countP = CountPredicate(values, x =>
@@ -236,13 +229,13 @@ namespace CsvTools
 
       if (countP > 0)
       {
-        valueClusters.AddUnique(
+        valueClusters.Add(
             new ValueCluster("Punctuation & Marks & Braces",
                 $"({SqlSubstringRange(escapedName, ' ', '/')} " +
                 $"OR {SqlSubstringRange(escapedName, ':', '@')} " +
                 $"OR {SqlSubstringRange(escapedName, '[', '`')} " +
                 $"OR {SqlSubstringRange(escapedName, '{', '~')})",
-                countP, ' '));
+                countP, null, null));
       }
 
       return true;

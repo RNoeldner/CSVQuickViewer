@@ -19,19 +19,20 @@ namespace CsvTools;
 
 /// <summary>
 ///   A representation for a group / cluster of records
+///   TODO: Check if we should make it generic over T for Start/End
 /// </summary>
 public sealed class ValueCluster : IEquatable<ValueCluster>
 {
   /// <summary>
-  ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
+  /// Initializes a new instance of the <see cref="ValueCluster"/> class.
   /// </summary>
-  /// <param name="display">The text displayed for the value.</param>
-  /// <param name="condition">the sql condition to be applied</param>
-  /// <param name="count">Number of records that do have this value</param>
-  /// <param name="start"></param>
-  /// <param name="end"></param>
-  /// <param name="active">Flag indicating if the filter for the value is active</param>
-  public ValueCluster(string display, string condition, int count, object? start, object? end = null,
+  /// <param name="display">The text displayed for the value in the UI or reports.</param>
+  /// <param name="condition">The SQL condition to be applied for filtering this value.</param>
+  /// <param name="count">The number of records that have this value.</param>
+  /// <param name="start">The lower bound of the cluster range. Should be set if HasEnclosingCluster is used non string types</param>
+  /// <param name="end">The upper bound of the cluster range. Can be <c>null</c> if unbounded.</param>
+  /// <param name="active">Flag indicating if the filter for this value is currently active. Default is <c>false</c>.</param>
+  public ValueCluster(string display, string condition, int count, object? start = null, object? end = null,
     bool active = false)
   {
     Display = display;

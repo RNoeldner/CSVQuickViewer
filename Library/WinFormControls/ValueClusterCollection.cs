@@ -33,7 +33,7 @@ public sealed class ValueClusterCollection : List<ValueCluster>
   public const double cPercentTyped = .25;
   public const long cProgressMax = 10000;
 
-  public ValueCluster LastCluster = new("Dummy", string.Empty, int.MaxValue, null);
+  public ValueCluster LastCluster = new("Dummy", string.Empty, 0, null);
 
   /// <summary>
   ///   Gets the active keyValue cluster.
@@ -83,7 +83,12 @@ public sealed class ValueClusterCollection : List<ValueCluster>
       maxNumber = 200;
 
     if (keepActive)
-      ClearNotActive();
+    {
+      var keep = GetActiveValueCluster().ToArray();
+      Clear();
+      foreach (var item in keep)
+        Add(item);
+    }
     else
       Clear();
 
@@ -135,11 +140,11 @@ public sealed class ValueClusterCollection : List<ValueCluster>
       }
 
       //----------------------------------------------------------------------
-      // NUMERIC / DOUBLE
+      // NUMERIC / DOUBLE Using 2 decimal places for grouping
       //----------------------------------------------------------------------
       if (type == DataTypeEnum.Numeric || type == DataTypeEnum.Double)
       {
-        (var countNull, var unsortedList)  = MakeTypedValues(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 1000d) / 1000d, progress.CancellationToken);
+        (var countNull, var unsortedList)  = MakeTypedValues(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 100d) / 100d, progress.CancellationToken);
         AddValueClusterNull(escapedName, countNull);
         return (even
           ? this.BuildValueClustersNumericEven(unsortedList, escapedName, maxNumber, maxSeconds, progress)
@@ -189,10 +194,7 @@ public sealed class ValueClusterCollection : List<ValueCluster>
         continue; // cluster starts after our range
 
       // Null or unbounded cluster covers everything
-      if (cluster.End is null)
-        return true;
-
-      if (cluster.End is T end && end.CompareTo(maxValue) >= 0)
+      if (cluster.End is null || (cluster.End is T end && end.CompareTo(maxValue) >= 0))
         return true;
     }
 
@@ -243,75 +245,20 @@ public sealed class ValueClusterCollection : List<ValueCluster>
   /// Prevents duplicate clusters based on display text.
   /// </summary>
   /// <param name="item">The cluster to add.</param>
-  public void AddUnique(in ValueCluster item)
+  /// <note>Not sure if we need this...</note>
+  public new void Add(ValueCluster item)
   {
     if (item.Count <= 0) return;
     foreach (var existing in this)
       if (existing.Display.Equals(item.Display, StringComparison.OrdinalIgnoreCase))
         return;
-    Add(item);
-  }
-
-  /// <summary>
-  /// Creates and adds a <see cref="ValueCluster"/> for a range of <see cref="DateTime"/> values.
-  /// If a previous cluster has too few values, it merges it with the current range to meet the desired size.
-  /// The display format is adjusted based on the <see cref="DateTimeRange"/> type (Hours, Days, Month, Years).
-  /// </summary>
-  /// <param name="escapedName">The column or field name used in SQL-style statements.</param>
-  /// <param name="from">Start of the date/time range (inclusive).</param>
-  /// <param name="to">End of the date/time range (exclusive).</param>
-  /// <param name="values">Collection of <see cref="DateTime"/> values to count for the cluster.</param>
-  /// <param name="displayType">Specifies how the range should be displayed (Hours, Days, Month, Years).</param>
-  /// <param name="desiredSize">Minimum desired count of values in a cluster; smaller clusters may be merged.</param>
-  public void AddValueClusterDateTime(string escapedName, DateTime from, DateTime to,
-    IEnumerable<DateTime> values, byte displayType, int desiredSize = int.MaxValue)
-  {
-    if (HasEnclosingCluster(from, to))
-      return;
-    var count = values.Count(x => x >= from && x < to);
-    if (count <= 0)
-      return;
-    // Combine buckets if the last and the current do not have many values
-    if (LastCluster.Count + count < desiredSize && LastCluster.Start is DateTime lastFrom)
-    {
-      from = lastFrom;
-      count += LastCluster.Count;
-
-      // remove the last cluster it will be included with this new one
-      Remove(LastCluster);
-    }
-
-    LastCluster = new ValueCluster(displayType switch
-    {
-      0 => $"{from:t} to {to:t}",
-      //  "on dd/MM/yyyy" for a single day, or "dd/MM/yyyy to dd/MM/yyyy" for multiple days
-      1 => to == from.AddDays(1) ? $"on {from:d}" : $"{from:d} to {to:d}",
-      // "in MMM yyyy" for a single month, or "MMM yyyy to MMM yyyy" for multiple months
-      2 => to == from.AddMonths(1) ? $"in {from:Y}" : $"{from:Y} to {to:Y}",
-      // "in yyyy" for a single year, or "yyyy to yyyy" for multiple years
-      3 => to == from.AddYears(1) ? $"in {from:yyyy}" : $"{from:yyyy} to {to:yyyy}",
-      _ => string.Empty
-    }, string.Format(CultureInfo.InvariantCulture,
-      "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, from, to), count, from, to);
-    AddUnique(LastCluster);
+    base.Add(item);
   }
 
   private void AddValueClusterNull(string escapedName, int count)
   {
     if (count <= 0 || this.Any(x => x.Start is null))
       return;
-    AddUnique(new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count,
-      null));
-  }
-
-  /// <summary>
-  /// Removes all not active Cluster 
-  /// </summary>
-  private void ClearNotActive()
-  {
-    var keep = GetActiveValueCluster().ToArray();
-    Clear();
-    foreach (var item in keep)
-      Add(item);
+    Add(new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count, null));
   }
 }
