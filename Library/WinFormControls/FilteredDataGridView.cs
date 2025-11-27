@@ -43,6 +43,7 @@ public partial class FilteredDataGridView : DataGridView
 {
   private static int m_DefRowHeight = -1;
   private readonly Image m_ImgFilterIndicator;
+  // Keep track of the Filters per column (index)
   private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
   private BindingSource? m_BindingSource;
   private bool m_Disposed;
@@ -278,7 +279,8 @@ public partial class FilteredDataGridView : DataGridView
   /// </summary>
   /// <param name="exclude">The column index</param>
   /// <returns>The filter statement</returns>
-  public string GetFilterExpression(int exclude) => m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
+  public string GetFilterExpression(int exclude) =>
+    m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
 
   /// <summary>
   /// Rebuilds and applies the active filter expression derived from all
@@ -317,7 +319,6 @@ public partial class FilteredDataGridView : DataGridView
       if (CurrentCell is null)
         return;
       var filter = m_FilterLogic[m_MenuItemColumnIndex];
-      if (filter is null) return;
       filter.SetFilter(CurrentCell.Value);
       ApplyFilters();
     }
@@ -400,8 +401,8 @@ public partial class FilteredDataGridView : DataGridView
     {
       var colFirstNoFrozen =
         (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-          where !col.Frozen
-          select col.DisplayIndex).FirstOrDefault();
+         where !col.Frozen
+         select col.DisplayIndex).FirstOrDefault();
       Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
     }
 
@@ -456,7 +457,7 @@ public partial class FilteredDataGridView : DataGridView
     {
       m_MenuItemColumnIndex = columnIndex;
       if (mouseButtons == MouseButtons.Right && columnIndex > -1)
-        toolStripMenuItemRemoveOne.Enabled =  GetColumnFilter(columnIndex).Active;
+        toolStripMenuItemRemoveOne.Enabled =  m_FilterLogic[columnIndex].Active;
 
       if (mouseButtons == MouseButtons.Right && rowIndex == -1)
       {
@@ -746,6 +747,7 @@ public partial class FilteredDataGridView : DataGridView
 
     // remove all columns
     Columns.Clear();
+    m_FilterLogic.Clear();
 
     // if we do not have a BoundDataView exit now
     if (DataView is null || DataView.Table is null)
@@ -792,27 +794,13 @@ public partial class FilteredDataGridView : DataGridView
       newColumn.Width =
         oldWith.TryGetValue(newColumn.DataPropertyName, out var value) ? value :
           GetColumnWith(col, DataView.Table.Rows);
+      // The Index does not change when moving or hiding columns DisplayIndex does though.
       var colIndex = Columns.Add(newColumn);
-      // remove filter in case it does not match
-      if (m_FilterLogic.TryGetValue(colIndex, out var filter))
-      {
-        if (filter.DataPropertyName != col.ColumnName && filter.DataType != newColumn.ValueType.GetDataType())
-          m_FilterLogic.Remove(colIndex);
-      }
+      m_FilterLogic[colIndex]= new ColumnFilterLogic(col.DataType, col.ColumnName);
     }
   }
 
-  public ColumnFilterLogic GetColumnFilter(int columnIndex)
-  {
-    if (m_FilterLogic.TryGetValue(columnIndex, out var filter))
-      return filter;
-    else
-    {
-      var filterNew = new ColumnFilterLogic(Columns[columnIndex].ValueType, Columns[columnIndex].DataPropertyName);
-      m_FilterLogic.Add(columnIndex, filterNew);
-      return filterNew;
-    }
-  }
+  public ColumnFilterLogic GetColumnFilter(int columnIndex) => m_FilterLogic[columnIndex];
 
   /// <summary>
   ///   Gets the column format.
@@ -842,7 +830,7 @@ public partial class FilteredDataGridView : DataGridView
       if (e.Graphics == null)
         return;
 
-      if (e.RowIndex== -1 &&  e.ColumnIndex >= 0 && GetColumnFilter(e.ColumnIndex).Active)
+      if (e.RowIndex== -1 &&  e.ColumnIndex >= 0 && m_FilterLogic[e.ColumnIndex].Active)
       {
         e.Handled = true;
         e.PaintBackground(e.CellBounds, true);
@@ -1103,7 +1091,7 @@ public partial class FilteredDataGridView : DataGridView
 
     this.RunWithHourglass(() =>
     {
-      var filter = GetColumnFilter(m_MenuItemColumnIndex);
+      var filter = m_FilterLogic[m_MenuItemColumnIndex];
       var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
       var data = DataView?.Table?.Select(filterExpression).Select(x => x[m_MenuItemColumnIndex]).ToArray() ?? Array.Empty<DataRow>();
       using var filterPopup = new FromRowsFilter(filter, data, 22);
@@ -1194,7 +1182,7 @@ public partial class FilteredDataGridView : DataGridView
   {
     try
     {
-      var filterLogic = GetColumnFilter(m_MenuItemColumnIndex);
+      var filterLogic = m_FilterLogic[m_MenuItemColumnIndex];
       if (!filterLogic.Active)
         return;
 
@@ -1259,8 +1247,6 @@ public partial class FilteredDataGridView : DataGridView
       }
     );
   }
-
-
 
   /// <summary>
   ///   Handles the Click event of the toolStripMenuItemSortAscending control.

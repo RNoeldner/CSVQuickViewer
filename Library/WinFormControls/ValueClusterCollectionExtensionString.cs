@@ -142,30 +142,39 @@ namespace CsvTools
       {
         progress.Report("Building groups based on common beginnings…");
 
-        var bestCluster = allowedLengths
+        // Get Suiting Groups 
+        var allClusters = allowedLengths
             .OrderByDescending(l => l)
-            .Where(x => clusters[x].Count >= 1 && clusters[x].Count < max)
-            .Select(x => clusters[x])
-            .First();
+            .Where(x => clusters[x].Count >= 1 && clusters[x].Count < max);
 
-        int prefixLength = bestCluster.First().Length;
+        var counterEntries = 0;
+        foreach (var clusterLength in allClusters)
+          counterEntries += clusters[clusterLength].Count;
 
-        var step = (1.0 - ValueClusterCollection.cPercentTyped) / clusters[1].Count;
-
-        foreach (var prefix in bestCluster)
+        var step = (1.0 - ValueClusterCollection.cPercentTyped) / counterEntries;
+        var filtered = 0;
+        foreach (var prefixLength in allClusters)
         {
-          progress.Report(new ProgressInfo(
-              $"Building common beginning '{prefix}…'",
-              (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
+          var bestCluster = clusters[prefixLength];
+          foreach (var prefix in bestCluster)
+          {
+            progress.Report(new ProgressInfo(
+                $"Building common beginning '{prefix}…'",
+                (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
 
-          int count = CountPrefixBlock(values, prefix.AsSpan(), prefixLength);
-          percent += step;
-          // Switch from Lke Statement to SUBSTRING for better performance
-          // and issues with special characters like % and _
-          valueClusters.AddUnique(
-            new ValueCluster($"{prefix}…",
-                $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')",
-                count, prefix));
+            int count = CountPrefixBlock(values, prefix.AsSpan(), prefixLength);
+            filtered+=count;
+            percent += step;
+            // Switch from Lke Statement to SUBSTRING for better performance
+            // and issues with special characters like % and _
+            valueClusters.AddUnique(
+              new ValueCluster($"{prefix}…",
+                  $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')",
+                  count, prefix));
+          }
+          // If we have 90% do not add more clusters
+          if (filtered>values.Count*.9)
+            break;
         }
 
         return true;
@@ -180,7 +189,7 @@ namespace CsvTools
         ("F to K", 'F', 'K'),
         ("L to R", 'L', 'R'),
         ("S to Z", 'S', 'Z'),
-        ("numbers", '0', '9'),
+        ("Numbers", '0', '9'),
       };
 
       var step2 = (1.0 - ValueClusterCollection.cPercentTyped) / (charRanges.Length + 3);
@@ -190,7 +199,7 @@ namespace CsvTools
       {
         percent += step2;
         progress.Report(new ProgressInfo($"Grouping values for {block.Display}",
-            (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
+            (long) Math.Round(percent* ValueClusterCollection.cProgressMax)));
         int count = CountCharRange(values, block.From, block.To);
         if (count > 0)
         {
@@ -206,19 +215,19 @@ namespace CsvTools
       // Special characters (< 32)
       var countS = CountPredicate(values, x => x[0] < 32);
       percent += step2;
-      progress.Report(new ProgressInfo("Grouping values for special characters",
+      progress.Report(new ProgressInfo("Grouping values for control characters",
           (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
 
       if (countS > 0)
         valueClusters.AddUnique(
-            new ValueCluster("Special",
+            new ValueCluster("Control characters",
                 $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null));
 
       // Punctuation and symbols
       var countP = CountPredicate(values, x =>
              (x[0] >= ' ' && x[0] <= '/')
           || (x[0] >= ':' && x[0] <= '@')
-          || (x[0] >= '[' && x[0] <= '`')
+          || (x[0] >= ' ' && x[0] <= '`')
           || (x[0] >= '{' && x[0] <= '~'));
 
       percent += step2;
@@ -235,16 +244,6 @@ namespace CsvTools
                 $"OR {SqlSubstringRange(escapedName, '{', '~')})",
                 countP, ' '));
       }
-
-      // Remaining values
-      var countR = values.Count - countS - countP - countChar;
-      progress.Report(new ProgressInfo("Grouping remaining values…",
-          ValueClusterCollection.cProgressMax));
-
-      if (countR > 0)
-        valueClusters.AddUnique(
-            new ValueCluster("Other",
-                $"(SUBSTRING({escapedName},1,1) > '~')", countR, '~'));
 
       return true;
 
@@ -329,9 +328,7 @@ namespace CsvTools
         return c;
       }
 
-      static string SqlSubstringRange(string escapedName, char from, char to)
-          => $"(SUBSTRING({escapedName},1,1) >= '{from}' AND SUBSTRING({escapedName},1,1) <= '{to}')";
+      static string SqlSubstringRange(string escapedName, char from, char to) => $"(SUBSTRING({escapedName},1,1) >= '{from}' AND SUBSTRING({escapedName},1,1) <= '{to}')";
     }
-
   }
 }
