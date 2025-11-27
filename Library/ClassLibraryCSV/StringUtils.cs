@@ -570,7 +570,7 @@ public static class StringUtils
         case '*':
         case '[':
         case ']':
-          returnVal.Append('[' + c + ']');
+          returnVal.Append($"[{c}]");
           break;
 
         case '\'':

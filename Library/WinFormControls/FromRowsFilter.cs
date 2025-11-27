@@ -265,7 +265,7 @@ public sealed partial class FromRowsFilter : ResizeForm
       Maximum=100
     };
     frm.Show();
-    frm.Report(new ProgressInfo("Building clusters", 1));
+    frm.Report(new ProgressInfo("Building groups", 1));
     try
     {
       var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
