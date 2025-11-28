@@ -126,7 +126,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   }
 
   /// <inheritdoc cref="ICollection{T}"/>
-  public new void RemoveAt(int index)
+  public new virtual void RemoveAt(int index)
   {
     var item = Items[index];
     // ReSharper disable once SuspiciousTypeConversion.Global

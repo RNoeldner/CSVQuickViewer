@@ -57,7 +57,7 @@ public static class ViewSetting
 
         foreach (var cluster in storedColumn.ValueFilters)
           columnFilters[col.Index].ValueClusterCollection
-            .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null, true));
+            .Add(new ValueCluster(cluster.Display, cluster.SQLCondition, 0, null, null));
         if (storedColumn.ValueFilters.Count == 0)
         {
           columnFilters[col.Index].Operator = storedColumn.Operator;
@@ -90,8 +90,8 @@ public static class ViewSetting
         if (columnFilter.Active)
         {
           var hadValueFiler = false;
-          foreach (var value in columnFilter.ValueClusterCollection.Where(x =>
-                     !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
+          foreach (var value in columnFilter.ActiveValueClusterCollection.Where(x =>
+                     !string.IsNullOrEmpty(x.SQLCondition)))
           {
             vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
             hadValueFiler = true;

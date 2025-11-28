@@ -15,6 +15,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
@@ -94,6 +95,28 @@ public class ColumnFilterLogicTests
     var control = new ColumnFilterLogic(typeof(double), "Column1");
     control.SetFilter(2);
     //   Assert.AreEqual("[Column1] = 2", control.BuildSqlCommand(control.ValueText));
+  }
+
+
+
+  [TestMethod]
+  [Timeout(1000)]
+  public void GetActiveValueClusterTest()
+  {
+    var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "Column1");
+    var items = new List<ValueCluster> {
+        new ValueCluster("Test1", "[Column1] >= #2020-01-01# AND [Column1] < #2020-01-02#", 10),
+        new ValueCluster("Test2", "[Column1] >= #2021-01-01# AND [Column1] < #2021-01-02#", 20),
+        new ValueCluster("Test3", "[Column1] >= #2022-01-01# AND [Column1] < #2022-01-02#", 30),
+        new ValueCluster("Test4", "[Column1] >= #2023-01-01# AND [Column1] < #2023-01-02#", 40),
+    };
+    columnFilterLogic.ValueClusterCollection.AddRange(items);
+    Assert.AreEqual(4, columnFilterLogic.ValueClusterCollection.Count);
+    Assert.AreEqual(0, columnFilterLogic.ActiveValueClusterCollection.Count);
+    columnFilterLogic.SetActiveStatus(items[1], true);
+    Assert.AreEqual(3, columnFilterLogic.ValueClusterCollection.Count);
+    Assert.AreEqual(1, columnFilterLogic.ActiveValueClusterCollection.Count);
+
   }
 
   [TestMethod]
@@ -217,11 +240,11 @@ public class ColumnFilterLogicTests
 
     using var data = UnitTestStaticData.GetDataTable(200);
     using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
-    columnFilterLogic.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.Integer, data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), "d", true, 20,false, false, 5.0, UnitTestStatic.TesterProgress);
+    columnFilterLogic.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.Integer, data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), "d", 20,false, false, 5.0, UnitTestStatic.TesterProgress);
     var i = 0;
     foreach (var cluster in columnFilterLogic.ValueClusterCollection)
     {
-      cluster.Active = true;
+      columnFilterLogic.SetActiveStatus(cluster, true);
       if (i++ > 2) break;
     }
 

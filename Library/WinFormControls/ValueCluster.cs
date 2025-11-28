@@ -32,27 +32,13 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// <param name="start">The lower bound of the cluster range. Should be set if HasEnclosingCluster is used non string types</param>
   /// <param name="end">The upper bound of the cluster range. Can be <c>null</c> if unbounded.</param>
   /// <param name="active">Flag indicating if the filter for this value is currently active. Default is <c>false</c>.</param>
-  public ValueCluster(string display, string condition, int count, object? start = null, object? end = null,
-    bool active = false)
+  public ValueCluster(string display, string condition, int count, object? start = null, object? end = null)
   {
     Display = display;
     SQLCondition = condition;
     Count = count;
     Start = start;
     End = end;
-
-    // These values might change later
-    Active = active;
-  }
-
-  /// <summary>
-  ///   Gets or sets a value indicating whether this <see cref="ValueCluster" /> is active.
-  /// </summary>
-  /// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
-  public bool Active
-  {
-    get;
-    set;
   }
 
   /// <summary>
@@ -61,7 +47,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// <value>The count.</value>
   public int Count
   {
-    get; set;
+    get;
   }
 
   /// <summary>
@@ -100,8 +86,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
       return false;
 
     return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
-           && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
-           && Count == other.Count && Active == other.Active;
+           && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase);
   }
 
   /// <summary>
@@ -124,9 +109,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   {
     unchecked
     {
-      var hashCode = Display.GetHashCode();
-      hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());
-      return hashCode;
+      return (Display.GetHashCode() * 397) ^ (SQLCondition.GetHashCode()); ;
     }
   }
 

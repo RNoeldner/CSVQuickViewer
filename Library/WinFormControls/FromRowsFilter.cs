@@ -70,16 +70,15 @@ public sealed partial class FromRowsFilter : ResizeForm
 
   private void FilterItems(string filter)
   {
-    var filtered = m_DataGridViewColumnFilter.ValueClusterCollection.Where(x =>
-        x.Active || string.IsNullOrEmpty(filter) ||
-        x.Display.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1)
+    var filtered = m_DataGridViewColumnFilter.ActiveValueClusterCollection.Where(x =>
+        string.IsNullOrEmpty(filter) || x.Display.IndexOf(filter, StringComparison.OrdinalIgnoreCase) != -1)
       .ToArray();
     listViewCluster.BeginUpdate();
     listViewCluster.Items.Clear();
     foreach (var item in filtered)
     {
       var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0"), }));
-      lvItem.Checked = item.Active;
+      lvItem.Checked = true;
     }
 
     foreach (var item in m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => !filtered.Contains(x)))
@@ -124,7 +123,7 @@ public sealed partial class FromRowsFilter : ResizeForm
       foreach (ListViewItem sel in listViewCluster.Items)
       {
         var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => x.Display == sel.Text);
-        vc.Active = sel.Checked;
+        m_DataGridViewColumnFilter.SetActiveStatus(vc, sel.Checked);
       }
 
       m_DataGridViewColumnFilter.ApplyFilter();
@@ -268,8 +267,9 @@ public sealed partial class FromRowsFilter : ResizeForm
     frm.Report(new ProgressInfo("Building groups", 1));
     try
     {
+      // in case m_DataGridViewColumnFilter.Active the active clustered are not shown
       var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-        m_DataGridViewColumnFilter.Active, m_MaxGroups, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
+        m_MaxGroups, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
       if (result == BuildValueClustersResult.ListFilled)
       {
         FilterItems("");

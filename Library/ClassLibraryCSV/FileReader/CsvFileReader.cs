@@ -497,7 +497,7 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   public override async Task OpenAsync(CancellationToken token)
   {
-    await BeforeOpenAsync($"Opening delimited file \"{FullPath.GetShortDisplayFileName()}\"")
+    await BeforeOpenAsync($"Opening file \"{FullPath.GetShortDisplayFileName()}\"")
       .ConfigureAwait(false);
     try
     {
@@ -1439,9 +1439,6 @@ public class CsvFileReader : BaseFileReader
     RecordNumber = 0;
     m_EndOfLine = false;
     EndOfFile = false;
-
-    // Report process to start aragin
-    HandleShowProgress("Reset to start of file", 0);
   }
 
 

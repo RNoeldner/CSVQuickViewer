@@ -36,13 +36,6 @@ public sealed class ValueClusterCollection : List<ValueCluster>
   public ValueCluster LastCluster = new("Dummy", string.Empty, 0, null);
 
   /// <summary>
-  ///   Gets the active keyValue cluster.
-  /// </summary>
-  /// <returns></returns>
-  public IEnumerable<ValueCluster> GetActiveValueCluster() =>
-    this.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
-
-  /// <summary>
   /// Rebuilds the value clusters for the specified data type.
   /// This operation clears any existing clusters and constructs
   /// a new cluster set based on the supplied values and clustering rules.
@@ -74,23 +67,13 @@ public sealed class ValueClusterCollection : List<ValueCluster>
   /// and associated metadata.
   /// </returns>
   public BuildValueClustersResult ReBuildValueClusters(DataTypeEnum type, object[] values,
-    string escapedName, bool keepActive, int maxNumber, bool combine, bool even, double maxSeconds, IProgressWithCancellation progress)
+    string escapedName, int maxNumber, bool combine, bool even, double maxSeconds, IProgressWithCancellation progress)
   {
     if (values is null)
       throw new ArgumentNullException(nameof(values));
 
     if (maxNumber < 1 || maxNumber > 200)
       maxNumber = 200;
-
-    if (keepActive)
-    {
-      var keep = GetActiveValueCluster().ToArray();
-      Clear();
-      foreach (var item in keep)
-        Add(item);
-    }
-    else
-      Clear();
 
     // For guid it does not make much sense to build clusters, any other type has a limit of 100k, It's just too slow otherwise
     if (values.Length > 50000 && type == DataTypeEnum.Guid)

@@ -49,10 +49,10 @@ public static class SerializedFilesLib
         NullValueHandling = NullValueHandling.Ignore,
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
         DateFormatHandling = DateFormatHandling.IsoDateFormat,
-        DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-        Converters = { new StringDictionaryConverter<string>() }
+        DateTimeZoneHandling = DateTimeZoneHandling.Utc
       };
       setting.Converters.Add(new StringEnumConverter());
+      // setting.Converters.Add(new StringDictionaryConverter<string>());
       return setting;
     });
 

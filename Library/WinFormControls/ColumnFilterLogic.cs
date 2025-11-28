@@ -189,7 +189,7 @@ public sealed class ColumnFilterLogic : ObservableObject
       return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
     }
   }
-    
+
   /// <summary>
   ///   Gets or sets the operator, setting the operator will build the filter
   /// </summary>
@@ -235,6 +235,23 @@ public sealed class ColumnFilterLogic : ObservableObject
   }
 
   public readonly ValueClusterCollection ValueClusterCollection;
+  public readonly ValueClusterCollection ActiveValueClusterCollection;
+
+  public void SetActiveStatus(ValueCluster cluster, bool active)
+  {
+    if (active)
+      MoveItem(cluster, ValueClusterCollection, ActiveValueClusterCollection);
+    else
+      MoveItem(cluster, ActiveValueClusterCollection, ValueClusterCollection);
+
+    BuildFilterExpressionValues();
+
+    static void MoveItem(ValueCluster cluster, ValueClusterCollection source, ValueClusterCollection target)
+    {
+      if (source.Remove(cluster) && !target.Contains(cluster))
+        target.Add(cluster);
+    }
+  }
 
   public static string[] GetOperators(DataTypeEnum columnDataType)
   {
@@ -269,7 +286,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// </summary>
   public void ApplyFilter()
   {
-    m_ValueText = m_ValueText.Trim(); 
+    m_ValueText = m_ValueText.Trim();
     m_FilterExpressionOperator = BuildFilterExpressionOperator();
     m_FilterExpressionValue = BuildFilterExpressionValues();
 
@@ -282,8 +299,13 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <param name="value">The typed value</param>
   public void SetFilter(in object value)
   {
-    foreach (var cluster in ValueClusterCollection.GetActiveValueCluster())
-      cluster.Active = false;
+    // move all active values back to the available list
+    for (int i = ActiveValueClusterCollection.Count - 1; i >= 0; i--)
+    {
+      var cluster = ActiveValueClusterCollection[i];
+      ValueClusterCollection.Add(cluster);
+      ActiveValueClusterCollection.RemoveAt(i);
+    }
 
     if (string.IsNullOrEmpty(Convert.ToString(value)))
     {
@@ -356,7 +378,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <returns>A SQL Condition to be used on DataTable</returns>
   private string BuildFilterExpressionOperator()
   {
-     
+
     switch (m_Operator)
     {
       case cOperatorIsNull:
@@ -459,7 +481,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   {
     var sql = new StringBuilder();
     var counter = 0;
-    foreach (var value in ValueClusterCollection.GetActiveValueCluster())
+    foreach (var value in ActiveValueClusterCollection)
     {
       if (counter > 0)
         sql.Append(" OR ");
