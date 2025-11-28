@@ -1320,7 +1320,7 @@ Line "Test"", "22",23,"  24"
   {
     var setting = new CsvFileDummy() { HasFieldHeader = true, FieldDelimiterChar = '\t', };
     // columns from the file
-    new ColumnCollection().AddRangeNoClone(
+    new ColumnCollection().AddRange(
       new Column[]
       {
         new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"),

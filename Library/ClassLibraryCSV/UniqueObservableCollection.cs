@@ -21,17 +21,52 @@ using System.Linq;
 namespace CsvTools;
 
 /// <summary>
-///   Observable collection with unique items
+/// An observable collection that ensures all items are unique by <see cref="ICollectionIdentity.CollectionIdentifier"/>.
+/// Supports automatic wiring of <see cref="INotifyPropertyChanged"/> events for items in the collection.
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">Type of items in the collection, must implement <see cref="ICollectionIdentity"/>.</typeparam>
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity
+public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity, INotifyPropertyChanged
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 {
+
   /// <summary>
-  ///   Event to be raised on Collection Level if properties of an item in the collection changes
+  /// Event raised when a property of any item in the collection changes (assuming the element .
   /// </summary>
   public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
+
+  /// <summary>
+  /// Rewires all items in the collection to the <see cref="CollectionItemPropertyChanged"/> event.
+  /// Useful after deserialization or bulk modifications.
+  /// </summary>
+  public virtual void WireEvents()
+  {
+    if (CollectionItemPropertyChanged == null)
+      return;
+    foreach (var item in Items)
+    {
+      UnwireItemEvents(item);
+      WireItemEvents(item);
+    }
+  }
+
+  /// <summary>
+  /// Wires property changed events for an item.
+  /// </summary>
+  private void WireItemEvents(T item)
+  {
+    if (CollectionItemPropertyChanged != null)
+      item.PropertyChanged += CollectionItemPropertyChanged;
+  }
+
+  /// <summary>
+  /// Unwires property changed events for an item.
+  /// </summary>
+  private void UnwireItemEvents(T item)
+  {
+    if (CollectionItemPropertyChanged != null)
+      item.PropertyChanged -= CollectionItemPropertyChanged;
+  }
 
   /// <summary>
   ///   Adds the specified item to the collection and makes sure the item is not already present,
@@ -48,55 +83,24 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   {
     if (IndexOf(item)!=-1)
       return;
-
-    // Set Property changed Event Handlers if possible
-    // ReSharper disable once SuspiciousTypeConversion.Global
-    if (item is INotifyPropertyChanged notifyPropertyChanged)
-    {
-      if (CollectionItemPropertyChanged != null)
-        notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
-    }
-
+    WireItemEvents(item);
     base.Add(item);
   }
 
   /// <summary>
-  ///   Adds the specified item to the collection and makes sure the item is not already present
-  ///   by changing the name in a way it is unique, if the item does support <see
-  ///   cref="INotifyPropertyChanged" /> will be
-  ///   registered to pass the event to the implementing class
+  /// Adds an item and ensures the key property is unique.
   /// </summary>
-  /// <param name="item">The item to add</param>
-  /// <param name="propertyName">
-  ///   Name of the property that needs to be adjusted to make the item unique
-  /// </param>
-  /// <remarks>
-  ///   In case the item is clone able <see cref="ICloneable" /> a value copy will be made. In
-  ///   this case any change to the passed in item would not be reflected in the collection
-  /// </remarks>
-  /// <returns>
-  ///   <see langword="true" /> if it was added, otherwise the item was not added to the collection
-  /// </returns>
-  public void AddMakeUnique(T item, string propertyName)
+  public void AddMakeUnique(T item)
   {
-    if (IndexOf(item)!=-1)
-    {
-      var property = typeof(T).GetProperty(propertyName);
-      if (property is null)
-        throw new ArgumentException($"The property {propertyName} not found");
-      if (property.PropertyType != typeof(string))
-        throw new ArgumentException($"The property {propertyName} must be a string value");
+    if (IndexOf(item) != -1)
+      return;
 
-      // now make the name unique
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the null ability of reference types.
-#pragma warning disable CS8604 // Possible null reference argument.
-      property.SetValue(item, Items.Select(prev => property.GetValue(prev) as string).ToList().MakeUniqueInCollection(property.GetValue(item) as string));
-#pragma warning restore CS8604 // Possible null reference argument.
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the null ability of reference types.
-    }
+    var existingKeys = Items.Select(x => x.GetUniqueKey()).Where(k => k != null).ToList();
+    var uniqueKey = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
+
+    item.SetUniqueKey(uniqueKey);
     Add(item);
   }
-
 
   /// <inheritdoc cref="ObservableCollection{T}" />
   public new void Insert(int index, T item)
@@ -129,12 +133,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   public new virtual void RemoveAt(int index)
   {
     var item = Items[index];
-    // ReSharper disable once SuspiciousTypeConversion.Global
-    if (item is INotifyPropertyChanged notifyPropertyChanged)
-    {
-      if (CollectionItemPropertyChanged != null)
-        notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
-    }
+    UnwireItemEvents(item);
     base.RemoveAt(index);
   }
 
@@ -142,7 +141,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   ///   A slightly faster method to add a number of items in one go, if the item is clone able a copy is made
   /// </summary>
   /// <param name="items">Some items to add</param>
-  public void AddRange(IEnumerable<T> items)
+  public void AddRangeClone(IEnumerable<T> items)
   {
     using var enumerator = items.GetEnumerator();
     while (enumerator.MoveNext())
@@ -158,7 +157,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   ///   A slightly faster method to add a number of items in one go, the collection gets a reference to the passed in values
   /// </summary>
   /// <param name="items">Some items to add</param>
-  public void AddRangeNoClone(IEnumerable<T> items)
+  public void AddRange(IEnumerable<T> items)
   {
     using var enumerator = items.GetEnumerator();
     while (enumerator.MoveNext())

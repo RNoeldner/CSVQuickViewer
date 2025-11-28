@@ -37,7 +37,7 @@ public class DataReaderWrapperTests
       FieldDelimiterChar = '\t',
     };
     // columns from the file
-    m_Setting.ColumnCollection.AddRangeNoClone(
+    m_Setting.ColumnCollection.AddRange(
       new Column[]
       {
         new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),

@@ -288,7 +288,7 @@ public static class Extensions
     {
       if (!(control is Form frm))
         frm = control.FindForm();
-      frm.ShowError(ex);
+      frm?.ShowError(ex);
     }
     finally
     {
@@ -358,7 +358,7 @@ public static class Extensions
   /// <param name="control"></param>
   /// <param name="action"></param>
   /// <returns></returns>
-  /// <exception cref="ArgumentNullException"></exception>        
+  /// <exception cref="ArgumentNullException"></exception>
   public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
   {
     if (control is null)

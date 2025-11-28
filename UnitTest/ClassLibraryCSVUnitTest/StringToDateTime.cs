@@ -264,7 +264,7 @@ public class StringToDateTimeTest
     var strMonth = string.Format(CultureInfo.InvariantCulture, "{0:00}", dateValue.Month);
     var strDay = string.Format(CultureInfo.InvariantCulture, "{0:00}", dateValue.Day);
     shortDateFormat = shortDateFormat.ToUpperInvariant();
-    // Replace longer placeholders
+    // Overwrite longer placeholders
     return shortDateFormat.Replace(@"YYYY", strYear)
       .Replace(@"MM", strMonth)
       .Replace(@"DD", strDay)

@@ -349,9 +349,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
 
     WriteSetting.DisplayStartLineNo = fileSetting.DisplayStartLineNo;
     WriteSetting.DisplayRecordNo = fileSetting.DisplayRecordNo;
-
-    WriteSetting.ColumnCollection.Clear();
-    WriteSetting.ColumnCollection.AddRange(fileSetting.ColumnCollection);
+    WriteSetting.ColumnCollection.Overwrite(fileSetting.ColumnCollection);
 
     // Fix No Qualifier
     if (WriteSetting.FieldQualifierChar == 0)

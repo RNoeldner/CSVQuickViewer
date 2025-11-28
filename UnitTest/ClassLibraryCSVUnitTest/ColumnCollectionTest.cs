@@ -83,7 +83,7 @@ public class ColumnCollectionTest
   {
     var test1 = new ColumnCollection { new Column("Test1"), new Column("Test2"), new Column("Test3") };
     var test2 = new ColumnCollection();
-    test2.AddRangeNoClone(test1);
+    test2.AddRange(test1);
 
     Assert.IsTrue(test2.Equals(test1));
   }

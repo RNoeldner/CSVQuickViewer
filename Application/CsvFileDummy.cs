@@ -266,8 +266,7 @@ public sealed class CsvFileDummy : ICsvFile
     target.DisplayEndLineNo = DisplayEndLineNo;
     target.DisplayRecordNo = DisplayRecordNo;
     target.DisplayStartLineNo = DisplayStartLineNo;
-    target.ColumnCollection.Clear();
-    target.ColumnCollection.AddRange(ColumnCollection);
+    target.ColumnCollection.Overwrite(ColumnCollection);
     target.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
     target.Footer = Footer;
     target.HasFieldHeader = HasFieldHeader;

@@ -25,4 +25,15 @@ public interface ICollectionIdentity
   /// <returns>HashCode of the identifying properties</returns>
   /// <remarks>In case a required property is not set, this should raise an error</remarks>
   public int CollectionIdentifier { get; }
+
+
+  /// <summary>
+  /// Returns the string key used for uniqueness in collections.
+  /// </summary>
+  string GetUniqueKey();
+
+  /// <summary>
+  /// Optionally allows updating the key if needed.
+  /// </summary>
+  void SetUniqueKey(string key);
 }

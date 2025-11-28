@@ -1,76 +1,136 @@
-﻿/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
-#nullable enable
-
+﻿#nullable enable
 using System;
+using System.Collections.Generic;
 
 namespace CsvTools;
 
 /// <summary>
-///   Collection of Columns
+///   Represents a strongly controlled collection of <see cref="Column"/> objects.
+///   All modifications that add or remove columns trigger the <see cref="ObservableList{T}.CollectionChanged"/> event.
+///   Internally backed by a <see cref="List{T}"/>.
 /// </summary>
-public sealed class ColumnCollection : UniqueObservableCollection<Column>
+public sealed class ColumnCollection : ObservableList<Column>
 {
-  /// <summary>
-  ///   Adds the <see cref="Column" /> 
-  /// </summary>
-  /// <remarks>If the column name already exist it does nothing</remarks>
-  /// <param name="column">The column format.</param>
-  public new void Add(Column column)
-  {
-    // Store ImmutableColumns only since Immutable column is not ICloneable Add will not create a copy.
-    if (column is null ||string.IsNullOrEmpty(column.Name))
-      throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
+  /// <summary>
+  ///   Gets or sets the column at the specified index.
+  ///   Assigning a column via the indexer does not trigger <see cref="ObservableList{T}.CollectionChanged"/>.
+  /// </summary>
+  /// <param name="index">The zero-based index of the column to get or set.</param>
+  /// <returns>The column at the specified index.</returns>
+  /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is out of range.</exception>
+  /// <exception cref="ArgumentException">Thrown if the assigned <see cref="Column"/> is invalid.</exception>
+  public new Column this[int index]
+  {
+    get => base[index];
+    set
+    {
+      Validate(value);
+      base[index] = value;
+    }
+  }
+
+  /// <inheritdoc/>
+  public override void Add(Column column)
+  {
+    Validate(column);
     base.Add(column);
   }
 
-  /// <summary>
-  ///   Replaces an existing column of the same name, if it does not exist it adds the column
-  /// </summary>
-  /// <param name="column"></param>
-  public void Replace(Column column)
+  /// <inheritdoc/>
+  public override void AddRange(IEnumerable<Column> columns)
   {
-    if (column is null)
-      throw new ArgumentNullException(nameof(column));
+    if (columns is null)
+      throw new ArgumentNullException(nameof(columns));
 
-    var index = IndexOf(column);
-    if (index != -1)
-    {
-      Items.RemoveAt(index);
-      Items.Insert(index, column);
-      OnCollectionChanged(
-        new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
-          .NotifyCollectionChangedAction.Reset));
-    }
-    else
-    {
-      Add(column);
-    }
+    // We have multiple enumerations
+    // Materialize only if not a collection already 
+    var list = columns as ICollection<Column> ?? new List<Column>(columns);
+
+    foreach (var column in list)
+      Validate(column);
+
+    base.AddRange(list);
   }
 
   /// <summary>
-  /// Gets the specified column by its name.
+  ///   Retrieves a column from the collection by its name, using a case-insensitive comparison.
   /// </summary>
-  /// <param name="columnName">Name of the column.</param>
-  /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
+  /// <param name="columnName">The name of the column to retrieve. Can be <c>null</c> or empty.</param>
+  /// <returns>
+  ///   The <see cref="Column"/> with the specified name, or <c>null</c> if no matching column is found
+  ///   or if <paramref name="columnName"/> is <c>null</c> or empty.
+  /// </returns>
   public Column? GetByName(string? columnName)
   {
-    if (columnName is null || columnName.Length == 0)
+    if (string.IsNullOrEmpty(columnName))
       return null;
-    var index = GetIndexByIdentifier(columnName.IdentifierHash());
-    return index == -1 ? null : Items[index];
+
+    for (int i = 0; i < Count; i++)
+    {
+      if (string.Equals(base[i].Name, columnName, StringComparison.OrdinalIgnoreCase))
+        return base[i];
+    }
+
+    return null;
   }
 
+  /// <inheritdoc/>
+  public override void Insert(int index, Column column)
+  {
+    Validate(column);
+    base.Insert(index, column);
+  }
+  /// <inheritdoc/>
+  public override void InsertRange(int index, IEnumerable<Column> columns)
+  {
+    if (columns is null)
+      throw new ArgumentNullException(nameof(columns));
+
+    // We have multiple enumerations
+    // Materialize only if not a collection already 
+    var list = columns as ICollection<Column> ?? new List<Column>(columns);
+
+    foreach (var column in list)
+      Validate(column);
+
+    base.InsertRange(index, list);
+  }
+  /// <summary>
+  ///   Replaces an existing column with the same name, or adds it if no match is found.
+  /// </summary>
+  /// <param name="column">The column to replace or add. Must not be <c>null</c> and must have a valid <see cref="Column.Name"/>.</param>
+  /// <remarks>
+  ///   The replacement is based on the column's <see cref="Column.Name"/>, 
+  ///   ensuring predictable behavior independent of reference equality.
+  ///   Triggers <see cref="ObservableList{T}.CollectionChanged"/> after a modification.
+  /// </remarks>
+  public void Replace(Column column)
+  {
+    Validate(column);
+
+    for (int i = 0; i < base.Count; i++)
+    {
+      if (string.Equals(base[i].Name, column.Name, StringComparison.OrdinalIgnoreCase))
+      {
+        base[i] = column;
+        OnCollectionChanged();
+        return;
+      }
+    }
+    Add(column);
+  }
+
+  /// <summary>
+  ///   Validates that a column is not <c>null</c> and has a non-empty <see cref="Column.Name"/>.
+  /// </summary>
+  /// <param name="column">The column to validate.</param>
+  /// <exception cref="ArgumentException">
+  ///   Thrown if <paramref name="column"/> is <c>null</c> or its <see cref="Column.Name"/> is <c>null</c> or empty.
+  /// </exception>
+  private static void Validate(Column column)
+  {
+    if (column is null || string.IsNullOrEmpty(column.Name))
+      throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
+  }
 }

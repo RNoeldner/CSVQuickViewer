@@ -284,13 +284,13 @@ public sealed record ValueFormat
   public bool PartToEnd { get; }
 
   /// <summary>
-  ///   Replace for Regex Replace
+  ///   Overwrite for Regex Overwrite
   /// </summary>
   [DefaultValue("")]
   public string RegexReplacement { get; }
 
   /// <summary>
-  ///   Search Pattern for Regex Replace
+  ///   Search Pattern for Regex Overwrite
   /// </summary>  
   [DefaultValue("")]
   public string RegexSearchPattern { get; }

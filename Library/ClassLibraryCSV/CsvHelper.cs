@@ -149,7 +149,7 @@ public static class CsvHelper
         fillGuessSettings, columnCollectionInput: null,
         addTextColumns: false, checkDoubleToBeInteger: true, treatTextAsNull: string.Empty,
         progress).ConfigureAwait(false);
-      inspectionResult.Columns.AddRangeNoClone(b);
+      inspectionResult.Columns.AddRange(b);
     }
 
     return inspectionResult;

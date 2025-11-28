@@ -54,7 +54,7 @@ public class TextUnescapeFormatter : BaseColumnFormatter
   }
 
   /// <summary>
-  ///   Replace c escaped text to verbatim text similar to RegEx UnEscape
+  ///   Overwrite c escaped text to verbatim text similar to RegEx UnEscape
   /// </summary>
   /// <param name="text">The text possibly containing c escaped text.</param>    
   public static string Unescape(string text)

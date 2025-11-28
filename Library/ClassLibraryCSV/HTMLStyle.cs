@@ -350,7 +350,7 @@ public sealed class HtmlStyle
   }
 
   /// <summary>
-  ///   Replace special characters from an HTML text
+  ///   Overwrite special characters from an HTML text
   /// </summary>
   /// <param name="text">The text possibly containing HTML codes.</param>
   /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>

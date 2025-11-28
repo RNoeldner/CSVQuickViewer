@@ -369,7 +369,7 @@ public sealed partial class FormMain : ResizeForm
         IsXml = detection.IsXml
       };
 
-      m_FileSetting.ColumnCollection.AddRangeNoClone(detection.Columns);
+      m_FileSetting.ColumnCollection.AddRange(detection.Columns);
       m_FileSetting.ColumnFile = detection.ColumnFile;
 
 #if SupportPGP
@@ -719,7 +719,7 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private async void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+  private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
   {
     m_ShouldReloadData = true;
     await CheckPossibleChange();
@@ -872,13 +872,10 @@ public sealed partial class FormMain : ResizeForm
     if (m_FileSetting is null)
       return;
     this.SafeInvoke(() => ToolStripButtonAsText(asText));
-    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-    m_FileSetting.ColumnCollection.Clear();
-    m_FileSetting.ColumnCollection.AddRange(asText
+    m_FileSetting.ColumnCollection.Overwrite(asText
       ? columns.Select(col =>
         new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
       : columns);
-    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
   }
 
   private async void ToggleDisplayAsText(object? sender, EventArgs e)

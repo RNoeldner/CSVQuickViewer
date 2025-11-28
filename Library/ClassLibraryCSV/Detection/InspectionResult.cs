@@ -142,9 +142,8 @@ public sealed class InspectionResult
     fileSetting.CodePageId = CodePageId;
     fileSetting.ByteOrderMark = ByteOrderMark;
     fileSetting.IdentifierInContainer = IdentifierInContainer;
-    fileSetting.HasFieldHeader = HasFieldHeader;
-    fileSetting.ColumnCollection.Clear();
-    fileSetting.ColumnCollection.AddRange(Columns);
+    fileSetting.HasFieldHeader = HasFieldHeader;    
+    fileSetting.ColumnCollection.Overwrite(Columns);
     if (fileSetting is ICsvFile csvFile)
     {
       csvFile.CommentLine = CommentLine;

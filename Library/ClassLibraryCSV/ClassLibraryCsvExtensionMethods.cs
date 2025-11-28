@@ -304,7 +304,7 @@ public static class ClassLibraryCsvExtensionMethods
     const string month = "(0[1-9]|1[012])"; // 01-12
     const string day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
-    // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
+    // Overwrite Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
     fileName = Regex.Replace(
       fileName,
       "(" + dateSep + year + dateSep + month + dateSep + day + ")|(" + dateSep + month + dateSep + day + dateSep
@@ -312,7 +312,7 @@ public static class ClassLibraryCsvExtensionMethods
       string.Empty,
       RegexOptions.Singleline);
 
-    // Replace Times 3_53_34_AM
+    // Overwrite Times 3_53_34_AM
     fileName = Regex.Replace(
       fileName,
       dateSep + hour + timeSep + minSec + timeSep + minSec + "?" + amPm,
@@ -513,7 +513,7 @@ public static class ClassLibraryCsvExtensionMethods
   }
 
   /// <summary>
-  /// Replace placeholder in  the text
+  /// Overwrite placeholder in  the text
   /// </summary>
   /// <param name="input">The input text with possible placeholders.</param>
   /// <param name="placeholder">The identifiers of the placeholder.</param>
@@ -698,7 +698,7 @@ public static class ClassLibraryCsvExtensionMethods
 
 
   /// <summary>
-  ///   Replace placeholder in a template with value of property
+  ///   Overwrite placeholder in a template with value of property
   /// </summary>
   /// <param name="template">The template with placeholder in {}, e.G. ID:{ID}</param>
   /// <param name="obj">The object that is used to look at the properties</param>
@@ -734,7 +734,7 @@ public static class ClassLibraryCsvExtensionMethods
   }
 
   /// <summary>
-  ///   Replace placeholder in a template with the text provide in the parameters the order of the
+  ///   Overwrite placeholder in a template with the text provide in the parameters the order of the
   ///   placeholders is important not their contend
   /// </summary>
   /// <param name="template">The template with placeholder in {}, e.G. ID:{ID}</param>

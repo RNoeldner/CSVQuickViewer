@@ -34,7 +34,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageReference Include="MSTest" Version="4.0.2" />
 		<PackageReference Include="MSTest.TestAdapter" Version="4.0.2" />

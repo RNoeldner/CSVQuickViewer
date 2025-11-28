@@ -24,7 +24,7 @@ namespace CsvTools;
 ///   Column information like name, Type, Format etc.
 /// </summary>
 [DebuggerDisplay("Column {Name}")]
-public record Column : ICollectionIdentity
+public record Column 
 {
   /// <summary>
   /// Default Format for Time is 24 hrs clock with seconds

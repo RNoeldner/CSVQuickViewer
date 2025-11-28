@@ -13,6 +13,7 @@
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CsvTools.Tests;
@@ -20,10 +21,15 @@ namespace CsvTools.Tests;
 [TestClass()]
 public class UniqueObservableCollectionTests
 {
-  public class TestObject : ICollectionIdentity, ICloneable
+  public class TestObject : ObservableObject, ICollectionIdentity
   {
-    public int ID { get; set; }
-    public string Name { get; set; } = string.Empty;
+    private int iD;
+    private string name = string.Empty;
+
+    public int ID { get => iD; set => SetProperty(ref iD, value); }
+
+    public string Name { get => name; set => SetProperty(ref name, value); }
+
     public bool Cloned { get; set; } = false;
 
     public TestObject(int id)
@@ -35,21 +41,24 @@ public class UniqueObservableCollectionTests
     {
       Name= name;
     }
+
     public int CollectionIdentifier => ID.GetHashCode() + Name.GetHashCode();
 
     public object Clone() => new TestObject(Name) { ID = ID, Cloned = true };
+    public string GetUniqueKey() => Name.ToString();
+    public void SetUniqueKey(string key) => Name= key;
   }
+
 
   [TestMethod()]
   public void AddMakeUniqueTest()
   {
     var collection = new UniqueObservableCollection<TestObject>();
-    collection.AddMakeUnique(new TestObject("FC"), nameof(TestObject.Name));
+    collection.AddMakeUnique(new TestObject("FC"));
     Assert.AreEqual(1, collection.Count);
-    collection.AddMakeUnique(new TestObject("FC"), nameof(TestObject.Name));
+    collection.AddMakeUnique(new TestObject("FC"));
     Assert.AreEqual(2, collection.Count);
   }
-
   [TestMethod()]
   public void InsertTest()
   {
@@ -65,12 +74,27 @@ public class UniqueObservableCollectionTests
     Assert.AreEqual(10, collection[2].ID);
   }
 
+  [TestMethod()]
+  public void ChnageCalled()
+  {
+    var collection = new UniqueObservableCollection<TestObject>();
+    bool chnageCalled = false;
+    collection.CollectionItemPropertyChanged += (s, e) => { chnageCalled = true; };
+
+    var item = new TestObject("Tset1");
+
+    collection.Add(item);
+    collection.Add(new TestObject(11));
+    item.Name= "Test1";
+    Assert.IsTrue(chnageCalled);
+  }
+
 
   [TestMethod()]
   public void AddRangeTest()
   {
     var collection = new UniqueObservableCollection<TestObject>();
-    collection.AddRange(new[] { new TestObject(10), new TestObject(11), new TestObject(12) });
+    collection.AddRangeClone(new[] { new TestObject(10), new TestObject(11), new TestObject(12) });
     Assert.IsTrue(collection.First().Cloned);
   }
 
@@ -78,7 +102,7 @@ public class UniqueObservableCollectionTests
   public void AddRangeNoCloneTest()
   {
     var collection = new UniqueObservableCollection<TestObject>();
-    collection.AddRangeNoClone(new[] { new TestObject(10), new TestObject(11), new TestObject(12) });
+    collection.AddRange(new[] { new TestObject(10), new TestObject(11), new TestObject(12) });
     Assert.IsFalse(collection.First().Cloned);
   }
 

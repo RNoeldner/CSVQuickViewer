@@ -53,7 +53,7 @@ public class CsvFileWriterTests
       FieldDelimiterChar = '\t',
     };
     // columns from the file
-    setting.ColumnCollection.AddRangeNoClone(
+    setting.ColumnCollection.AddRange(
       new Column[]
       {
         new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
@@ -126,7 +126,7 @@ public class CsvFileWriterTests
       FieldDelimiterChar = '\t',
     };
     // columns from the file
-    setting.ColumnCollection.AddRangeNoClone(
+    setting.ColumnCollection.AddRange(
       new Column[]
       {
         new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),

@@ -240,7 +240,7 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  /// Replace absolute special folder paths in a fileName with placeholders.
+  /// Overwrite absolute special folder paths in a fileName with placeholders.
   /// Example: C:\Users\Raphael\test.txt → %UserProfile%\test.txt
   /// </summary>
   public static string UseSpecialFolders(this string fileName)
