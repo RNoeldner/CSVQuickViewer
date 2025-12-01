@@ -25,9 +25,7 @@ namespace CsvTools;
 /// Supports automatic wiring of <see cref="INotifyPropertyChanged"/> events for items in the collection.
 /// </summary>
 /// <typeparam name="T">Type of items in the collection, must implement <see cref="ICollectionIdentity"/>.</typeparam>
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity, INotifyPropertyChanged
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 {
 
   /// <summary>
@@ -87,38 +85,52 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
     base.Add(item);
   }
 
+  private void MakeUnique(T item)
+  {
+    // Check if we have this identifier already
+    if (IndexOf(item) != -1)
+    {
+      var existingKeys = Items.Select(x => x.GetUniqueKey()).Where(k => k != null).ToList();
+      var uniqueKey = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
+      item.SetUniqueKey(uniqueKey);
+    }
+  }
+
   /// <summary>
   /// Adds an item and ensures the key property is unique.
   /// </summary>
   public void AddMakeUnique(T item)
   {
-    if (IndexOf(item) != -1)
-      return;
-
-    var existingKeys = Items.Select(x => x.GetUniqueKey()).Where(k => k != null).ToList();
-    var uniqueKey = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
-
-    item.SetUniqueKey(uniqueKey);
+    MakeUnique(item);
     Add(item);
+  }
+
+  /*
+  /// <summary>
+  /// Inserts the specified item at the given index in the collection, 
+  /// ensuring that its unique key does not collide with any existing item.
+  /// If necessary, the item's key will be modified to make it unique.
+  /// </summary>
+  /// <param name="index">The zero-based index at which the item should be inserted.</param>
+  /// <param name="item">The item to insert into the collection.</param>
+  public new void InsertMakeUnique(int index, T item)
+  {
+    MakeUnique(item);
+    Insert(index, item);
   }
 
   /// <inheritdoc cref="ObservableCollection{T}" />
   public new void Insert(int index, T item)
   {
-    // ReSharper disable once SuspiciousTypeConversion.Global
-    if (item is ICloneable src)
-      item = (T) src.Clone();
-    if (IndexOf(item)!=-1)
-      return;
-    // ReSharper disable once SuspiciousTypeConversion.Global
-    if (item is INotifyPropertyChanged notifyPropertyChanged)
-    {
-      if (CollectionItemPropertyChanged != null)
-        notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
-
-    }
+    if (IndexOf(item) != -1)
+      throw new InvalidOperationException(
+       $"The collection already contains an element with the unique key '{item.GetUniqueKey()}'."
+     );
+    UnwireItemEvents(item);
+    WireItemEvents(item);
     base.Insert(index, item);
   }
+  */
 
   /// <inheritdoc cref="ICollection{T}" />
   public new void Remove(T item)
@@ -135,22 +147,6 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
     var item = Items[index];
     UnwireItemEvents(item);
     base.RemoveAt(index);
-  }
-
-  /// <summary>
-  ///   A slightly faster method to add a number of items in one go, if the item is clone able a copy is made
-  /// </summary>
-  /// <param name="items">Some items to add</param>
-  public void AddRangeClone(IEnumerable<T> items)
-  {
-    using var enumerator = items.GetEnumerator();
-    while (enumerator.MoveNext())
-      if (enumerator.Current != null)
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (enumerator.Current is ICloneable item)
-          Add((T) item.Clone());
-        else
-          Add(enumerator.Current);
   }
 
   /// <summary>
@@ -195,7 +191,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
 
   /// <inheritdoc cref="IList{T}" />
   public new int IndexOf(T search)
-    => GetIndexByIdentifier(search.CollectionIdentifier);
+    => GetIndexByIdentifier(search.GetUniqueKey().IdentifierHash());
 
   /// <summary>
   ///   Gets the index of a collection item by the CollectionIdentifier
@@ -205,7 +201,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   protected int GetIndexByIdentifier(int searchId)
   {
     for (var index = 0; index < Items.Count; index++)
-      if (Items[index].CollectionIdentifier == searchId)
+      if (Items[index].GetUniqueKey().IdentifierHash() == searchId)
         return index;
     return -1;
   }

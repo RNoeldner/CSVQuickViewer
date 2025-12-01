@@ -122,13 +122,25 @@ public static class ClassLibraryCsvExtensionMethods
     fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>
-  ///   Copies all elements from one collection to the other
+  /// Replaces the contents of the target collection with cloned copies of all
+  /// elements from the source sequence.
   /// </summary>
-  /// <typeparam name="T">the type</typeparam>
-  /// <param name="self">The collection.</param>
-  /// <param name="other">The other collection.</param>
+  /// <typeparam name="T">
+  /// The element type, which must implement <see cref="ICloneable"/>.
+  /// </typeparam>
+  /// <param name="self">The source sequence containing the items to be cloned.</param>
+  /// <param name="other">
+  /// The target collection whose existing elements will be removed and replaced
+  /// with cloned instances of the elements from <paramref name="self"/>.
+  /// If <paramref name="other"/> is <c>null</c>, the method performs no action.
+  /// </param>
+  /// <remarks>
+  /// Each element is cloned via <see cref="ICloneable.Clone"/>, ensuring that
+  /// the target collection receives independent copies of the source items.
+  /// The cast to <typeparamref name="T"/> is safe due to the generic constraint.
+  /// </remarks>
   [DebuggerStepThrough]
-  public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T>? other)
+  public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other)
     where T : ICloneable
   {
     if (other is null) return;
@@ -146,7 +158,7 @@ public static class ClassLibraryCsvExtensionMethods
   public static List<T> Clone<T>(this IReadOnlyCollection<T> self) where T : ICloneable
   {
     var result = new List<T>(self.Count);
-    self.CollectionCopy(result);
+    self.CollectionCopyClone(result);
     return result;
   }
 

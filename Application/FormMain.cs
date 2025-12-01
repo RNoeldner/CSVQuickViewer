@@ -433,7 +433,10 @@ public sealed partial class FormMain : ResizeForm
   private void AttachPropertyChanged()
   {
     if (m_FileSetting != null)
+    {
+      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
       m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+    }
 
     try
     {
@@ -523,7 +526,6 @@ public sealed partial class FormMain : ResizeForm
     m_SettingsChangedTimerChange.Stop();
 
     if (m_FileSetting is null) return;
-    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
 
     try
     {
@@ -826,10 +828,7 @@ public sealed partial class FormMain : ResizeForm
         m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != editSetting.ContextSensitiveQualifier;
         m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != editSetting.DuplicateQualifierToEscape;
 
-
-        m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
         editSetting.CopyTo(m_FileSetting);
-        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
       }
       // Set Setting
       else

@@ -19,7 +19,7 @@ namespace CsvTools;
 public interface ICollectionIdentity
 {
   /// <summary>
-  ///   Identifier in collections, similar to a hashcode based on a properties that should be
+  ///   Identifier in collections, an int based on a properties that should be
   ///   unique in a collection
   /// </summary>
   /// <returns>HashCode of the identifying properties</returns>

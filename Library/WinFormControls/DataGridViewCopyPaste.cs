@@ -290,7 +290,7 @@ public sealed class DataGridViewCopyPaste
     var buffer = new StringBuilder();
     var dataObject = new DataObject();
 
-    // If there are multiple cells Add a header and a neat HTML table
+    // If there are multiple cells AddOrUpdate a header and a neat HTML table
     var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
 
     var leftCol = int.MaxValue;

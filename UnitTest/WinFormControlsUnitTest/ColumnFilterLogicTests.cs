@@ -240,9 +240,9 @@ public class ColumnFilterLogicTests
 
     using var data = UnitTestStaticData.GetDataTable(200);
     using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
-    columnFilterLogic.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.Integer, data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), "d", 20,false, false, 5.0, UnitTestStatic.TesterProgress);
+    columnFilterLogic.ReBuildValueClusters(data.Rows.OfType<DataRow>().Select(x => x[1]).ToArray(), 20, false, false, 5.0, UnitTestStatic.TesterProgress);
     var i = 0;
-    foreach (var cluster in columnFilterLogic.ValueClusterCollection)
+    foreach (var cluster in columnFilterLogic.ValueClusterCollection.ToList())
     {
       columnFilterLogic.SetActiveStatus(cluster, true);
       if (i++ > 2) break;

@@ -96,7 +96,7 @@ public static class UnitTestStaticData
     // 9 ID
     dr[++colIndex] = recordNumber;
 
-    // Add Errors and Warnings to Columns and Rows
+    // AddOrUpdate Errors and Warnings to Columns and Rows
     var rand = UnitTestStatic.Random.Next(0, 100);
     int warnings = 0;
     int errors = 0;
@@ -115,7 +115,7 @@ public static class UnitTestStaticData
         errors++;
       }
 
-      // Add a possible second error in the same column
+      // AddOrUpdate a possible second error in the same column
       rand = UnitTestStatic.Random.Next(-2, 3);
       if (rand == 1)
       {

@@ -102,12 +102,12 @@ public class ClassLibraryCsvExtensionMethodsTests
     var list1 = new List<string>();
     var list2 = new List<string>();
     list2.Add("Hello");
-    list1.CollectionCopy(list2);
+    list1.CollectionCopyClone(list2);
     Assert.AreEqual(0, list2.Count);
 
     list1.Add("Hello");
     list1.Add("World");
-    list1.CollectionCopy(list2);
+    list1.CollectionCopyClone(list2);
     Assert.AreEqual(2, list2.Count);
   }
 

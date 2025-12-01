@@ -21,7 +21,11 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public static class ValueClusterCollectionExtensionEven
+
+  /// <summary>
+  /// Provides extension methods to build groups of numeric, long, date and string values
+  /// </summary>
+  public static partial class ValueClustersExtension
   {
     /// <summary>
     /// Builds evenly distributed clusters of <see cref="DateTime"/> values from the provided list. 
@@ -34,10 +38,10 @@ namespace CsvTools
     /// <param name="maxSeconds">Maximum duration in seconds for a single cluster before splitting.</param>
     /// <param name="progress">Progress tracker with cancellation support.</param>
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated clusters and related metadata.</returns>
-    public static bool BuildValueClustersDateEven(this ValueClusterCollection valueClusterCollection, List<DateTime> values, string escapedName,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersDateEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
     {
-      return BuildValueClustersEven(valueClusterCollection, values, values.Count / max,
+      return BuildValueClustersEven(values, Convert.ToDateTime, values.Length / max,
         number => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
         (minValue, maxValue) => $"{minValue:d} to {maxValue:d}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture,
@@ -57,17 +61,16 @@ namespace CsvTools
     /// <param name="maxSeconds">Maximum time span in seconds for each cluster.</param>
     /// <param name="progress">Progress tracker that also supports cancellation.</param>
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated clusters.</returns>
-    public static bool BuildValueClustersNumericEven(this ValueClusterCollection valueClusterCollection, List<double> values, string escapedName,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersNumericEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
     {
-      return BuildValueClustersEven(valueClusterCollection, values, values.Count / max, number => Math.Floor(number * 10d) / 10d,
+      return BuildValueClustersEven(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 100d) / 100d, values.Length / max, number => Math.Floor(number * 10d) / 10d,
         (minValue, maxValue) => $"{minValue:F1} to {maxValue:F1}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})",
           escapedName, minValue, maxValue),
         minValue => $">= {minValue:F1}",
         minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue), maxSeconds, progress);
     }
-
 
     /// <summary>
     /// Builds evenly distributed clusters from a list of <see cref="long"/> values. 
@@ -80,10 +83,10 @@ namespace CsvTools
     /// <param name="maxSeconds">Maximum time span in seconds for each cluster.</param>
     /// <param name="progress">Progress tracker that also supports cancellation.</param>
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated evenly distributed clusters.</returns>
-    public static bool BuildValueClustersLongEven(this ValueClusterCollection valueClusterCollection, List<long> values, string escapedName,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersLongEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
     {
-      return BuildValueClustersEven(valueClusterCollection, values, values.Count / max, number => number,
+      return BuildValueClustersEven(values, Convert.ToInt64, values.Length / max, number => number,
         (minValue, maxValue) => $"{minValue:F0} to {maxValue:F0}",
         (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName,
           minValue, maxValue),
@@ -92,70 +95,110 @@ namespace CsvTools
     }
 
 
-    private static bool BuildValueClustersEven<T>(ValueClusterCollection valueClusterCollection, List<T> values, int bucketSize,
-      Func<T, T> round, Func<T, T, string> getDisplay, Func<T, T, string> getStatement, Func<T, string> getDisplayLast,
-      Func<T, string> getStatementLast, double maxSeconds, IProgressWithCancellation progress)
-      where T : struct, IComparable<T>
+    private static (int nullCount, List<ValueCluster> clusters) BuildValueClustersEven<T>(
+     object[] objects,
+     Func<object, T> convert,
+     int bucketSize,
+     Func<T, T> round,
+     Func<T, T, string> getDisplay,
+     Func<T, T, string> getStatement,
+     Func<T, string> getDisplayLast,
+     Func<T, string> getStatementLast,
+     double maxSeconds,
+     IProgressWithCancellation progress)
+     where T : struct, IComparable<T>
     {
-      if (values.Count == 0)
-        return false;
-
-      var counter = new SortedDictionary<T, int>();
       var stopwatch = Stopwatch.StartNew();
-      foreach (var number in values)
-      {
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Preparing overview took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+      (int nullCount, var values) = MakeTypedValues(objects, convert, progress);
 
-        var rounded = round(number);
+      var clusters = new List<ValueCluster>();
+      if (values.Count == 0)
+        return (nullCount, clusters);
+
+      values.Sort();
+
+      progress.Report(
+        new ProgressInfo(
+          "Combining values into groups that contain approximately the same number of records, resulting in variable boundary widths.",
+          (long) (cTypedProgress * cMaxProgress))
+      );
+
+      // Count occurrences per rounded value
+      var counter = new Dictionary<T, int>();
+
+      foreach (var v in values)
+      {
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
+
+        var r = round(v);
+
 #if NETFRAMEWORK
-        if (counter.ContainsKey(rounded))
-          counter[rounded]++;
+        if (counter.ContainsKey(r))
+          counter[r]++;
         else
-          counter.Add(rounded, 1);
+          counter.Add(r, 1);
 #else
-        if (!counter.TryAdd(rounded, 1))
-          counter[rounded]++;
+        if (!counter.TryAdd(r, 1))
+            counter[r]++;
 #endif
       }
 
       if (counter.Count == 0)
-        return false;
-      var minValue = counter.First().Key;
-      var bucketCount = 0;
-      var hasPrevious = valueClusterCollection.Any(x => x.Start is T);
-      var percent = ValueClusterCollection.cPercentTyped *2;
-      var step = (1.0 - percent) / counter.Count;
-      foreach (var keyValue in counter)
+        return (nullCount, clusters);
+
+      // IMPORTANT: ordered iteration
+      var orderedKeys = counter.Keys.OrderBy(k => k).ToList();
+
+      int accumulated = 0;
+      T start = orderedKeys[0];
+
+      double percent = cTypedProgress * 2;
+      double step = (1.0 - percent) / orderedKeys.Count;
+
+      for (int i = 0; i < orderedKeys.Count; i++)
       {
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Building groups took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        var key = orderedKeys[i];
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
 
-        bucketCount += keyValue.Value;
-        // progress keyValue.Key next bucket
-        if (bucketCount <= bucketSize)
+        int count = counter[key];
+        if (accumulated + count < bucketSize)
+        {
+          accumulated += count;
+          percent += step;
           continue;
-        // excluding the last value
-        bucketCount -= keyValue.Value;
-        // In case there is a cluster that is overlapping do not add a cluster
-        if (!hasPrevious || !valueClusterCollection.HasEnclosingCluster(minValue, keyValue.Key))
-          valueClusterCollection.Add(new ValueCluster(getDisplay(minValue, keyValue.Key), getStatement(minValue, keyValue.Key),
-            bucketCount, minValue, keyValue.Key));
+        }
 
-        minValue = keyValue.Key;
-        // start with last value bucket size
-        bucketCount = keyValue.Value;
+        // Close bucket
+        clusters.Add(
+            new ValueCluster(
+                getDisplay(start, key),
+                getStatement(start, key),
+                accumulated + count,
+                start,
+                key
+        ));
+
         percent += step;
-        progress.Report(new ProgressInfo($"Adding ordered {counter.Count:N0} values", (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
+        progress.Report(
+          new ProgressInfo($"Adding group ending at {key}", (long) Math.Round(percent * cMaxProgress)));
+
+        // Start new bucket AFTER this key
+        start = key;
+        accumulated = 0;
       }
 
-      // Make one last bucket for the rest
-      if (!hasPrevious || !valueClusterCollection.Any(x => x.End == null || x.End is T se && se.CompareTo(minValue) >= 0))
-        valueClusterCollection.Add(new ValueCluster(getDisplayLast(minValue), getStatementLast(minValue), bucketCount, minValue));
+      // Final bucket (if anything remains)
+      if (accumulated > 0)
+      {
+        clusters.Add(
+            new ValueCluster(
+                getDisplayLast(start),
+                getStatementLast(start),
+                accumulated,
+                start));
+      }
 
-      return true;
+      return (nullCount, clusters);
     }
   }
 }

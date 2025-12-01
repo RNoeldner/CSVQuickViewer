@@ -141,10 +141,39 @@ namespace CsvTools
         OnCollectionChanged();
       }
     }
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="other">The object to compare with the current object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object? other)
+    {
+      if (!(other is ICollection<T> coll))
+        return false;
+      return Equals(coll);
+    }
+
+    /// <summary>
+    ///   Determines whether the other collection is equal to the current collection.
+    /// </summary>
+    /// <param name="other">the collection</param>
+    /// <returns>
+    ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public bool Equals(IEnumerable<T> other)
+    {
+      return this.CollectionEqualWithOrder(other);
+    }
 
     /// <summary>
     ///   Raises the <see cref="CollectionChanged"/> event to notify subscribers that the collection has changed.
     /// </summary>
     protected void OnCollectionChanged() => CollectionChanged?.Invoke(this, EventArgs.Empty);
+
+    public override int GetHashCode() => this.CollectionHashCode();
   }
 }

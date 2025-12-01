@@ -11,7 +11,6 @@ namespace CsvTools;
 /// </summary>
 public sealed class ColumnCollection : ObservableList<Column>
 {
-
   /// <summary>
   ///   Gets or sets the column at the specified index.
   ///   Assigning a column via the indexer does not trigger <see cref="ObservableList{T}.CollectionChanged"/>.
@@ -34,6 +33,14 @@ public sealed class ColumnCollection : ObservableList<Column>
   public override void Add(Column column)
   {
     Validate(column);
+    InternalAdd(column);
+  }
+
+  private void InternalAdd(Column column)
+  {
+    var existing = GetByName(column.Name);
+    if (existing!=null)
+      base.Remove(existing);
     base.Add(column);
   }
 
@@ -47,9 +54,15 @@ public sealed class ColumnCollection : ObservableList<Column>
     // Materialize only if not a collection already 
     var list = columns as ICollection<Column> ?? new List<Column>(columns);
 
+    var replace = new List<Column>();
     foreach (var column in list)
+    {
       Validate(column);
-
+      var existing = GetByName(column.Name);
+      if (existing!=null)
+        replace.Add(existing);
+    }
+    base.RemoveRange(replace);
     base.AddRange(list);
   }
 
@@ -81,6 +94,7 @@ public sealed class ColumnCollection : ObservableList<Column>
     Validate(column);
     base.Insert(index, column);
   }
+
   /// <inheritdoc/>
   public override void InsertRange(int index, IEnumerable<Column> columns)
   {
@@ -96,6 +110,7 @@ public sealed class ColumnCollection : ObservableList<Column>
 
     base.InsertRange(index, list);
   }
+
   /// <summary>
   ///   Replaces an existing column with the same name, or adds it if no match is found.
   /// </summary>

@@ -268,8 +268,8 @@ public sealed partial class FromRowsFilter : ResizeForm
     try
     {
       // in case m_DataGridViewColumnFilter.Active the active clustered are not shown
-      var result = m_DataGridViewColumnFilter.ValueClusterCollection.ReBuildValueClusters(m_DataGridViewColumnFilter.DataType, m_Values, m_DataGridViewColumnFilter.DataPropertyNameEscaped,
-        m_MaxGroups, radioButtonCombine.Checked, radioButtonEven.Checked, 5.0, frm);
+      var result = m_DataGridViewColumnFilter.ReBuildValueClusters(m_Values, m_MaxGroups, radioButtonCombine.Checked,
+        radioButtonEven.Checked, 5.0, frm);
       if (result == BuildValueClustersResult.ListFilled)
       {
         FilterItems("");

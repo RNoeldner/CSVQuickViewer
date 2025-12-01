@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 /// <summary>
@@ -93,7 +94,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   private const string cOperatorSmallerEqual = "<=";
 
   /// <summary>
-  ///   Flag indicating if the whole filter is active
+  ///   Flag indicating if the whole filter is oldActive
   /// </summary>
   private bool m_Active;
 
@@ -119,27 +120,210 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// </summary>
   /// <param name="columnDataType">Type of the column data.</param>
   /// <param name="dataPropertyName">Name of the data property.</param>
-  public ColumnFilterLogic(in Type columnDataType, string dataPropertyName)
+  public ColumnFilterLogic(Type columnDataType, string dataPropertyName)
   {
     if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
     if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
 
-    m_DataPropertyNameEscape = string.Empty;
-    m_DataPropertyName = string.Empty;
     DataPropertyName = dataPropertyName;
     DataType = columnDataType.GetDataType();
     if (DataType == DataTypeEnum.Double)
       DataType = DataTypeEnum.Numeric;
-
-    ValueClusterCollection = new ValueClusterCollection();
   }
 
+  /// <summary>
+  /// Rebuilds the value clusters for the specified data type.
+  /// This operation clears any existing clusters and constructs
+  /// a new cluster set based on the supplied values and clustering rules.
+  /// </summary>
+  /// <param name="values">The collection of raw values from which clusters are derived.</param>
+  /// <param name="keepActive">
+  /// If true, retains existing cluster activation states where possible; 
+  /// otherwise, all clusters are rebuilt without preserving previous state.
+  /// </param>
+  /// <param name="maxNumber">The upper bound on the number of clusters to generate.</param>
+  /// <param name="combine">
+  /// Indicates whether small or low-density clusters should be merged to meet 
+  /// the maximum cluster count or to improve distribution.
+  /// </param>
+  /// <param name="even">
+  /// If true, attempts to distribute values evenly across clusters; 
+  /// otherwise, natural groupings are preserved.
+  /// </param>
+  /// <param name="maxSeconds">
+  /// The maximum allowed processing time. The method stops early if this limit is reached.
+  /// </param>
+  /// <param name="progress">
+  /// Provides progress updates and allows cancellation during cluster rebuilding.
+  /// </param>
+  /// <returns>
+  /// A <see cref="BuildValueClustersResult"/> containing the newly generated clusters 
+  /// and associated metadata.
+  /// </returns>
+  public BuildValueClustersResult ReBuildValueClusters(object[] values, int maxNumber,
+    bool combine, bool even, double maxSeconds, IProgressWithCancellation progress)
+  {
+    if (values is null)
+      throw new ArgumentNullException(nameof(values));
+
+    if (maxNumber < 1 || maxNumber > 200)
+      maxNumber = 200;
+
+    // For guid it does not make much sense to build clusters, any other type has a limit of 100k, It's just too slow otherwise
+    if (values.Length > 50000 && DataType == DataTypeEnum.Guid)
+      return BuildValueClustersResult.TooManyValues;
+
+    try
+    {
+      //----------------------------------------------------------------------
+      // STRING / GUID / BOOLEAN
+      //----------------------------------------------------------------------
+      if (DataType == DataTypeEnum.String ||
+          DataType == DataTypeEnum.Guid ||
+          DataType == DataTypeEnum.Boolean)
+      {
+        ValueClusterCollection.Clear();
+
+        (var countNull, var newGroups) = values.BuildValueClustersString(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress);
+        AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+        foreach (var newGroup in newGroups)
+          AddOrUpdate(newGroup);
+        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+      }
+
+      //----------------------------------------------------------------------
+      // DATE
+      //----------------------------------------------------------------------
+      if (DataType == DataTypeEnum.DateTime)
+      {
+
+        ValueClusterCollection.Clear();
+
+        (var countNull, var newGroups) = even ? values.BuildValueClustersDateEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersDate(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
+        AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+
+        foreach (var newGroup in newGroups)
+        {
+          if (!HasEnclosingCluster((DateTime) newGroup.Start, (DateTime) newGroup.End))
+            AddOrUpdate(newGroup);
+        }
+        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+      }
+
+      //----------------------------------------------------------------------
+      // INTEGER
+      //----------------------------------------------------------------------
+      if (DataType == DataTypeEnum.Integer)
+      {
+        ValueClusterCollection.Clear();
+
+        (var countNull, var newGroups) = even ? values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersLong(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
+        AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+
+        foreach (var newGroup in newGroups)
+        {
+          if (!HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End))
+            AddOrUpdate(newGroup);
+        }
+        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+      }
+
+      //----------------------------------------------------------------------
+      // NUMERIC / DOUBLE Using 2 decimal places for grouping
+      //----------------------------------------------------------------------
+      if (DataType == DataTypeEnum.Numeric || DataType == DataTypeEnum.Double)
+      {
+        ValueClusterCollection.Clear();
+
+        (var countNull, var newGroups) = even ? values.BuildValueClustersNumericEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersNumeric(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
+        AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+        foreach (var newGroup in newGroups)
+        {
+          if (!HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End))
+            AddOrUpdate(newGroup);
+        }
+        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+      }
+
+      return BuildValueClustersResult.WrongType;
+    }
+    // this makes it backward compatible
+    catch (TimeoutException toe)
+    {
+      progress.Report(toe.Message);
+      return BuildValueClustersResult.TooManyValues;
+    }
+    catch (OperationCanceledException tce)
+    {
+      progress.Report(tce.Message);
+      return BuildValueClustersResult.TooManyValues;
+    }
+    catch (Exception ex)
+    {
+      progress.Report(ex.Message);
+      return BuildValueClustersResult.Error;
+    }
+  }
+
+
+
+  /// <summary>
+  /// Adds a <see cref="ValueCluster"/> to the collection if it has a positive count
+  /// and there is no existing cluster with the same display value (case-insensitive).
+  /// Prevents duplicate clusters based on display text.
+  /// </summary>
+  /// <param name="item">The cluster to add.</param>
+  /// <note>Not sure if we need this...</note>
+  public new void AddOrUpdate(ValueCluster item)
+  {
+    var oldActive = ActiveValueClusterCollection.FirstOrDefault(x => x.Display.Equals(item.Display));
+    if (oldActive != null)
+    {
+      ActiveValueClusterCollection.Remove(oldActive);
+      if (item.Count>0)
+        ActiveValueClusterCollection.Add(item);
+    }
+    else if (item.Count>0)
+      ValueClusterCollection.Add(item);
+  }
+
+  public void AddValueClusterNull(string escapedName, int count) =>
+    AddOrUpdate(new ValueCluster(OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count));
+
+  /// <summary>
+  /// Determines whether any cluster in the collection fully encloses the specified range.
+  /// </summary>
+  /// <typeparam name="T">A value type that implements <see cref="IComparable{T}"/>.</typeparam>
+  /// <param name="minValue">The start of the range to check.</param>
+  /// <param name="maxValue">The end of the range to check.</param>
+  /// 
+  /// <returns>
+  /// <c>true</c> if at least one cluster starts at or before <paramref name="minValue"/> 
+  /// and ends at or after <paramref name="maxValue"/> (or is unbounded); otherwise, <c>false</c>.
+  /// </returns>
+  public bool HasEnclosingCluster<T>(T minValue, T maxValue) where T : struct, IComparable<T>
+  {
+    foreach (var cluster in ActiveValueClusterCollection)
+    {
+      if (!(cluster.Start is T start))
+        continue;
+
+      if (start.CompareTo(minValue) > 0)
+        continue; // cluster starts after our range
+
+      // Null or unbounded cluster covers everything
+      if (cluster.End is null || (cluster.End is T end && end.CompareTo(maxValue) >= 0))
+        return true;
+    }
+
+    return false;
+  }
   public static string OperatorIsNull => cOperatorIsNull;
 
   /// <summary>
-  ///   Gets a value indicating whether this <see cref="ColumnFilterLogic" /> is active.
+  ///   Gets a value indicating whether this <see cref="ColumnFilterLogic" /> is oldActive.
   /// </summary>
-  /// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
+  /// <value><c>true</c> if oldActive; otherwise, <c>false</c>.</value>
   public bool Active
   {
     get => m_Active;
@@ -185,7 +369,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   {
     get
     {
-      // if a Value filer is active ignore Operator filer
+      // if a Value filer is oldActive ignore Operator filer
       return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
     }
   }
@@ -234,8 +418,8 @@ public sealed class ColumnFilterLogic : ObservableObject
     }
   }
 
-  public readonly ValueClusterCollection ValueClusterCollection;
-  public readonly ValueClusterCollection ActiveValueClusterCollection;
+  public readonly List<ValueCluster> ValueClusterCollection = new List<ValueCluster>();
+  public readonly List<ValueCluster> ActiveValueClusterCollection = new List<ValueCluster>();
 
   public void SetActiveStatus(ValueCluster cluster, bool active)
   {
@@ -246,7 +430,7 @@ public sealed class ColumnFilterLogic : ObservableObject
 
     BuildFilterExpressionValues();
 
-    static void MoveItem(ValueCluster cluster, ValueClusterCollection source, ValueClusterCollection target)
+    static void MoveItem(ValueCluster cluster, List<ValueCluster> source, List<ValueCluster> target)
     {
       if (source.Remove(cluster) && !target.Contains(cluster))
         target.Add(cluster);
@@ -299,7 +483,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <param name="value">The typed value</param>
   public void SetFilter(in object value)
   {
-    // move all active values back to the available list
+    // move all oldActive values back to the available list
     for (int i = ActiveValueClusterCollection.Count - 1; i >= 0; i--)
     {
       var cluster = ActiveValueClusterCollection[i];
@@ -481,6 +665,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   {
     var sql = new StringBuilder();
     var counter = 0;
+
     foreach (var value in ActiveValueClusterCollection)
     {
       if (counter > 0)

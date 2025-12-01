@@ -238,19 +238,44 @@ public static class UnitTestStatic
   }
 
 
-  public static string GetRandomText(int length)
+  public static string GetRandomText(int length, bool addNonLatin = true)
   {
     // Space is in there a few times, so we get more spaces
     var chars = " abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !§$%&/()=?+*#,.-;:_ "
       .ToCharArray();
+    var nonLatin = "ÀÁÂÄÃÅÆÇÈÉÊË" +
+"àáâäãåæçèéêë" +
+"ΑΒΔΕ" +
+"αβδε" +
+"АБДЕЭЄ" +
+"абдеэє" +
+"ΦΚ" +
+"φκ" +
+"ФКХ" +
+"фкх" +
+"ŁÑŃŔŘÖ" +
+"łñńŕřö" +
+"ΛΡ" +
+"λρ" +
+"ЛР" +
+"лр" +
+"ŠŚẞŤÜÛÚŸŽŻ" +
+"šśßťüûúÿžż" +
+"СЗЖ" +
+"сзж"; 
     var data = new byte[length];
     using var rnd = RandomNumberGenerator.Create();
     rnd.GetBytes(data, 0, length);
 
     var result = new StringBuilder(length);
     foreach (var b in data)
-      result.Append(chars[b % chars.Length]);
-    return result.ToString();
+    {
+      if (addNonLatin && Random.NextDouble() > .9)
+        result.Append(nonLatin[b % nonLatin.Length]);
+      else
+        result.Append(chars[b % chars.Length]);
+    }
+    return result.ToString().Trim();
   }
 
   public static string GetTestPath(string fileName) =>

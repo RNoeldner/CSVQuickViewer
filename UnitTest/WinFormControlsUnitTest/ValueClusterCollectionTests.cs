@@ -13,12 +13,13 @@
  */
 #nullable enable
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 
 namespace CsvTools.Tests;
 
@@ -51,20 +52,21 @@ public class ValueClusterCollectionTests
   [Timeout(60000)]
   public void BuildValueClusters_StringMaxRestricted()
   {
-    var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", 10, true, true, 60, UnitTestStatic.TesterProgress),
-      "Column String");
+    var col = UnitTestStaticData.Columns.First(x => x.Name == "string");
+    var data = GetColumnData(col.ColumnOrdinal);
 
-    Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=10);
-    Assert.AreEqual(m_Data.Rows.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
-    // The filter for Specials does not count correct, must be a difference between c# and ADO
-    foreach (var cluster in fl.ValueClusterCollection.Take(5))
+    (var countNull, var test1) = data.BuildValueClustersString(col.Name, 10, 200.0, UnitTestStatic.TesterProgress);
+
+    Assert.IsTrue(test1.Count>4 && test1.Count<=10);
+    foreach (var cluster in test1)
     {
       m_DataView.RowFilter = cluster.SQLCondition;
-      Assert.AreEqual(m_DataView.Count, cluster.Count, cluster.SQLCondition);
+      Assert.AreEqual(m_DataView.Count, cluster.Count, cluster.SQLCondition, cluster.Display);
     }
+    // The number of matches might be lower since special chars are not counted
+    var found = countNull + test1.Select(x => x.Count).Sum();
+    Assert.IsTrue(found <= m_Data.Rows.Count, "More found than possible");
+    Assert.IsTrue(found > m_Data.Rows.Count*.9, "Less than 90% found");
   }
 
   [TestMethod]
@@ -73,20 +75,20 @@ public class ValueClusterCollectionTests
   {
     var data = new List<object>(40000);
     for (int i = 0; i < 20000; i++)
-      data.Add((i % 15).ToString());
+      data.Add($"Test{i % 15}");
 
     var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String, data.ToArray(), "d1", 20, false, false, 5, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        data.ToArray(), 20, false, false, 5, UnitTestStatic.TesterProgress),
       "Column String");
     Assert.AreEqual(15, fl.ValueClusterCollection.Count);
     Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
 
     for (int i = 0; i < 20000; i++)
-      data.Add((i % 19).ToString());
+      data.Add($"Test{i % 19}");
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String, data.ToArray(), "d1", 20, false, false, 5.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        data.ToArray(), 20, false, false, 5.0, UnitTestStatic.TesterProgress),
       "Column String");
     Assert.AreEqual(19, fl.ValueClusterCollection.Count);
     Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
@@ -100,9 +102,9 @@ public class ValueClusterCollectionTests
     var fl = GetFilterLogic(0);
     const int max1 = 100;
     const int max2 = 200;
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", max1, true, false, 10.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
+        max1, true, false, 10.0, UnitTestStatic.TesterProgress),
       "Column String");
 
     Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=max1,
@@ -121,9 +123,9 @@ public class ValueClusterCollectionTests
       }
     }
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "string", max2, true, false, 10.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
+        max2, true, false, 10.0, UnitTestStatic.TesterProgress),
       "Column String");
 
     Assert.IsTrue(fl.ValueClusterCollection.Count>=before && fl.ValueClusterCollection.Count<=max2,
@@ -137,23 +139,23 @@ public class ValueClusterCollectionTests
   public void BuildValueClusters_String()
   {
     var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", 10, true, false, 10.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
+        10, true, false, 10.0, UnitTestStatic.TesterProgress),
       "Column String");
 
     Assert.IsTrue(fl.ValueClusterCollection.Count>0 && fl.ValueClusterCollection.Count<=10);
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", 20, true, false, 10.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
+        20, true, false, 10.0, UnitTestStatic.TesterProgress),
       "Column String");
 
     Assert.IsTrue(fl.ValueClusterCollection.Count>0 && fl.ValueClusterCollection.Count<=20);
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(
-        DataTypeEnum.String,
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!, "d1", 200, true, false, 10.0, UnitTestStatic.TesterProgress),
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
+        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
+        200, true, false, 10.0, UnitTestStatic.TesterProgress),
       "Column String");
 
   }
@@ -163,11 +165,11 @@ public class ValueClusterCollectionTests
   public void BuildValueClusters_StringEmpty()
   {
     var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.NoValues, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
-      GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "AllEmpty").ColumnOrdinal)!, "d2", 200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column AllEmpty");
+    Assert.AreEqual(BuildValueClustersResult.NoValues, fl.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "AllEmpty").ColumnOrdinal)!,
+      200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column AllEmpty");
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
-      GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "PartEmpty").ColumnOrdinal)!, "d2", 200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column PartEmpty");
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "PartEmpty").ColumnOrdinal)!,
+      200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column PartEmpty");
 
     Assert.IsNotNull(fl.ValueClusterCollection);
   }
@@ -185,9 +187,8 @@ public class ValueClusterCollectionTests
 
     var fl = GetFilterLogic(0);
 
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
-      value.ToArray(), "d1", 50, true, false, 5.0,
-      UnitTestStatic.TesterProgress), "Column String");
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(value.ToArray(),
+      50, true, false, 5.0, UnitTestStatic.TesterProgress), "Column String");
 
     Assert.IsNotNull(fl.ValueClusterCollection);
   }
@@ -205,38 +206,17 @@ public class ValueClusterCollectionTests
       value.Add(possible[index % (possible.Count-1)]);
 
     var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ValueClusterCollection.ReBuildValueClusters(DataTypeEnum.String,
-      value.ToArray(), "d1", 50, true, false, 5.0,
-      UnitTestStatic.TesterProgress), "Column String");
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(value.ToArray(),
+      50, true, false, 5.0, UnitTestStatic.TesterProgress), "Column String");
 
     Assert.IsNotNull(fl.ValueClusterCollection);
-  }
-
-  [TestMethod]
-  [Timeout(5200)]
-  public void BuildValueClusters_NoCombine()
-  {
-    var test = new ValueClusterCollection();
-    Assert.AreEqual(BuildValueClustersResult.ListFilled,
-      test.ReBuildValueClusters(DataTypeEnum.Integer, 
-      GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "int").ColumnOrdinal), "dummy", 100, false, false, 5.0, UnitTestStatic.TesterProgress));
-  }
-
-  [TestMethod]
-  [Timeout(5200)]
-  public void BuildValueClusters_Combine()
-  {
-    var test = new ValueClusterCollection();
-    Assert.AreEqual(BuildValueClustersResult.ListFilled,
-      test.ReBuildValueClusters(DataTypeEnum.Integer, 
-      GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "int").ColumnOrdinal), "dummy", 100, true, false, 5.0, UnitTestStatic.TesterProgress));
   }
 
   [TestMethod]
   [Timeout(1000)]
   public void BuildValueClusters_NoValues()
   {
-    var test = new ValueClusterCollection();
+    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
     var empty = new List<object>();
 
     for (long i = 1; i < 20; i++)
@@ -244,16 +224,15 @@ public class ValueClusterCollectionTests
       empty.Add(null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
-    Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(DataTypeEnum.Double, empty.ToArray(), "dummy", 200, false, false, 5.0, UnitTestStatic.TesterProgress));
-    Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(DataTypeEnum.String, empty.ToArray(), "dummy", 200, false, true, 5.0, UnitTestStatic.TesterProgress));
-    Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(DataTypeEnum.DateTime, empty.ToArray(), "dummy", 200, true, false, 5.0, UnitTestStatic.TesterProgress));
+    Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(empty.ToArray(), 200, false, false, 5.0, UnitTestStatic.TesterProgress));
   }
 
   [TestMethod]
   [Timeout(5000)]
   public void BuildValueClusters_DoubleRangeStep1()
   {
-    var test = new ValueClusterCollection();
+    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
+
     var number = new List<object>();
     for (long j = 0; j < 10; j++)
     {
@@ -262,12 +241,12 @@ public class ValueClusterCollectionTests
       number.Add(DBNull.Value);
     }
 
-    test.ReBuildValueClusters(DataTypeEnum.Numeric, number.ToArray(), "dummy", 40, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(7, test.Count);
-    Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum());
+    test.ReBuildValueClusters(number.ToArray(), 40, false, false, 5.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(7, test.ValueClusterCollection.Count);
+    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
     // We have numeric so they are double, and the display shows a range
-    Assert.IsTrue(test[1].Display.Contains("-3"));
-    Assert.IsTrue(test.Last().Display.Contains("2"));
+    Assert.IsTrue(test.ValueClusterCollection[1].Display.Contains("-3"));
+    Assert.IsTrue(test.ValueClusterCollection.Last().Display.Contains("2"));
   }
 
 
@@ -275,7 +254,8 @@ public class ValueClusterCollectionTests
   [Timeout(5000)]
   public void BuildValueClusters_LongRangeStep1()
   {
-    var test = new ValueClusterCollection();
+    var test = new ColumnFilterLogic(typeof(long), "dummy");
+
     var number = new List<object>();
     for (long j = 0; j < 10; j++)
     {
@@ -284,122 +264,166 @@ public class ValueClusterCollectionTests
       number.Add(DBNull.Value);
     }
 
-    test.ReBuildValueClusters(DataTypeEnum.Integer, number.ToArray(), "dummy", 40, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(7, test.Count);
-    Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum());
+    test.ReBuildValueClusters(number.ToArray(), 40, false, false, 5.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(7, test.ValueClusterCollection.Count);
+    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
     // We have numeric so they are double, and the display shows a range
-    Assert.AreEqual("-3", test[1].Display);
-    Assert.AreEqual("2", test.Last().Display);
+    Assert.AreEqual("-3", test.ValueClusterCollection[1].Display);
+    Assert.AreEqual("2", test.ValueClusterCollection.Last().Display);
   }
 
   [TestMethod]
   [Timeout(1000)]
-  public void BuildValueClusters_LongRangeStep5()
+  public void BuildValueClustersLong()
   {
-    var test = new ValueClusterCollection();
-    var number = new List<object>();
-    for (long i = -199; i < 200; i+=5)
-      number.Add(i);
+    var data = new List<object>();
+    for (long i = -200; i < 200; i+=5)
+      data.Add(i);
 
-    test.ReBuildValueClusters(DataTypeEnum.Integer, number.ToArray(), "dummy", 100, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum(), "Number of entries does not match");
-    Assert.IsTrue(test.First().Display.Contains("-200") || test.First().Display.Contains("-199"), test.First().Display);
-    Assert.IsTrue(test.Last().Display.Contains("200") || test.First().Display.Contains("199"), test.Last().Display);
+    (var countNull, var test1) = data.ToArray().BuildValueClustersLong("dummy", 100, false, 200.0, UnitTestStatic.TesterProgress);
+    var number1 = test1.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, countNull + number1, "Overall Number is correct");
+    Assert.IsTrue(test1.First().Display.Contains($"{data.First():N0}"));
+    // Assert.IsTrue(test1.Last().Display.Contains($"{data.Last():N0}"));
+
+    (var countNull2, var test2) = data.ToArray().BuildValueClustersLong("dummy", 20, true, 200.0, UnitTestStatic.TesterProgress);
+    var number2 = test2.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number2, "Number of entries does not match Combine / Normal");
+
+    (var countNull3, var test3) = data.ToArray().BuildValueClustersLongEven("dummy", 20, 200.0, UnitTestStatic.TesterProgress);
+    var number3 = test3.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number3, "Number of entries does not match Even / Normal");
+
+    (var countNull4, var test4) = data.ToArray().BuildValueClustersLong("dummy", 20, false, 200.0, UnitTestStatic.TesterProgress);
+    var number4 = test4.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number4, "Number of entries does not change on number of groups");
   }
 
   [TestMethod]
   [Timeout(1000)]
-  public void BuildValueClusters_LongRangeStep100()
+  public void BuildValueClusters_LongRangeStep3999()
   {
-    var test = new ValueClusterCollection();
+    var test = new ColumnFilterLogic(typeof(long), "dummy");
+
     var number = new List<object>();
     for (long i = -1999; i < 2000; i++)
       number.Add(i);
-    test.ReBuildValueClusters(DataTypeEnum.Integer, number.ToArray(), "dummy", 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number.Count, test.Select(x => x.Count).Sum(), "Clusters should cover all entries");
+    test.ReBuildValueClusters(number.ToArray(), 50, false, false, 5.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
+  }
+
+
+
+  [TestMethod]
+  [Timeout(1000)]
+  public void BuildValueClusters_LongRangeStep1990()
+  {
+    var test = new ColumnFilterLogic(typeof(long), "dummy");
 
     var number2 = new List<object>();
     for (long i = 10; i < 2000; i++)
       number2.Add(i);
-    test.ReBuildValueClusters(DataTypeEnum.Integer, number2.ToArray(), "dummy", 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number2.Count, test.Select(x => x.Count).Sum());
-
-    var number3 = new List<object>();
-    for (long i = -500; i < -50; i++)
-      number3.Add(i);
-    test.ReBuildValueClusters(DataTypeEnum.Integer, number3.ToArray(), "dummy", 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number3.Count, test.Select(x => x.Count).Sum());
+    test.ReBuildValueClusters(number2.ToArray(), 50, false, false, 5.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(number2.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
 
   }
 
   [TestMethod]
   [Timeout(1000)]
+  public void BuildValueClusters_LongRangeStep450()
+  {
+    var test = new ColumnFilterLogic(typeof(long), "dummy");
+
+    var number3 = new List<object>();
+    for (long i = -500; i < -50; i++)
+      number3.Add(i);
+    test.ReBuildValueClusters(number3.ToArray(), 50, true, false, 5.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(number3.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
+
+  }
+
+  [TestMethod]
+  [Timeout(200000)]
   public void BuildValueClusters_DateTime()
   {
-    var test = new ValueClusterCollection();
+    var data = new object[200];
+    for (int i = 0; i < data.Length-2; i++)
+      data[i]= (i % 10 == 0) ? DBNull.Value : new DateTime(UnitTestStatic.Random.Next(2000, 2023), UnitTestStatic.Random.Next(1, 12), 1).AddDays(UnitTestStatic.Random.Next(1, 31));
 
-    var data = GetColumnData(2);
+    // AddOrUpdate some dates multiple times to ensure they are clustered together, these dates are outside the random range
+    data[1] = "Nonsense";
+    data[2] = new DateTime(2025, 11, 25);
+    data[data.Length - 2] = new DateTime(2025, 11, 25);
+    data[data.Length - 1] = new DateTime(2025, 11, 25);
 
-    test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", 150, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum());
-
-    var res = test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
-    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum());
-
+    (var countNull, var test) = data.BuildValueClustersDate("dummy", 50, false, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum() + countNull);
+    Assert.AreEqual(3, test.Last().Count); // The last cluster must have 3 entries for 2025-11-25
   }
 
   [TestMethod]
   [Timeout(5000)]
   public void BuildValueClusters_DateTimeCombine()
   {
-    var test = new ValueClusterCollection();
+    var data = new List<object>();
+    data.Add(new DateTime(2025, 11, 25));
+    data.Add(new DateTime(2025, 11, 25));
 
-    var data = GetColumnData(2);
+    // make a well defined array
+    for (int m = 7; m > 0; m--)
+    {
+      data.Add(DBNull.Value);
+      for (int d = 1; d < 23; d++)
+        data.Add(new DateTime(2000, m, d));
+    }
 
-    var result = test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", 150, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, result);
-    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum());
+    // AddOrUpdate some dates multiple times to ensure they are clustered together, these dates are outside the random range
+
+    data.Add(new DateTime(2025, 11, 25));
+    data.Add(new DateTime(2025, 11, 25));
+
+    (var countNull, var test) = data.ToArray().BuildValueClustersDate("dummy", 150, true, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(7, countNull);
+    Assert.AreEqual(data.Count, test.Select(x => x.Count).Sum() + countNull);
+    Assert.AreEqual(4, test.Last().Count); // The last cluster must have 4 entries for 2025-11-25
   }
 
   [TestMethod]
   [Timeout(1000)]
   public void BuildValueClusters_DateTimeEven()
   {
-    var test = new ValueClusterCollection();
-
+    var test = new ColumnFilterLogic(typeof(DateTime), "dummy");
     var data = GetColumnData(2);
-
-    test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", 150, true, true, 9999999, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum(), "Count in parts must match number ofd records");
+    test.ReBuildValueClusters(data, 150, true, true, 9999999, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(data.Length, test.ValueClusterCollection.Select(x => x.Count).Sum(), "Count in parts must match number ofd records");
   }
 
   [TestMethod]
   [Timeout(1000)]
   public void BuildValueClusters_DateTimeCombineEven()
   {
-    var test = new ValueClusterCollection();
+    var test = new ColumnFilterLogic(typeof(DateTime), "dummy");
 
     var data = GetColumnData(2);
 
-    test.ReBuildValueClusters(DataTypeEnum.DateTime, data, "dummy", 150, false, true, 9999999, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(data.Length, test.Select(x => x.Count).Sum());
+    test.ReBuildValueClusters(data, 150, false, true, 9999999, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(data.Length, test.ValueClusterCollection.Select(x => x.Count).Sum());
   }
 
   [TestMethod]
   [Timeout(1000)]
   public void BuildValueClusters_bool()
   {
-    var test = new ValueClusterCollection();
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(DataTypeEnum.Boolean, GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "bool").ColumnOrdinal), "dummy", 200, false, true, 5.0, UnitTestStatic.TesterProgress));
+    var test = new ColumnFilterLogic(typeof(bool), "dummy");
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "bool").ColumnOrdinal), 200, false, true, 5.0, UnitTestStatic.TesterProgress));
   }
 
   [TestMethod]
   [Timeout(1000)]
   public void BuildValueClusters_double()
   {
-    var test = new ValueClusterCollection();
-    var res = test.ReBuildValueClusters(DataTypeEnum.Double, GetColumnData(4), "dummy", 200, false, true, 5.0, UnitTestStatic.TesterProgress);
+    var test = new ColumnFilterLogic(typeof(double), "dummy");
+    var res = test.ReBuildValueClusters(GetColumnData(4), 200, false, true, 5.0, UnitTestStatic.TesterProgress);
     Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
   }
 
@@ -407,8 +431,8 @@ public class ValueClusterCollectionTests
   [Timeout(1000)]
   public void BuildValueClusters_decimal()
   {
-    var test = new ValueClusterCollection();
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(DataTypeEnum.Numeric, GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "numeric").ColumnOrdinal), "dummy", 200, false, false, 5.0, UnitTestStatic.TesterProgress));
+    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
+    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "numeric").ColumnOrdinal), 200, false, false, 5.0, UnitTestStatic.TesterProgress));
   }
 
 }

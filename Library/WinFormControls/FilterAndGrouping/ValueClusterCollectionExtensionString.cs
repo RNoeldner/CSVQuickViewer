@@ -19,28 +19,30 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public static class ValueClusterCollectionExtensionString
+  /// <summary>
+  /// Provides extension methods to build groups of numeric, long, date and string values
+  /// </summary>
+  public static partial class ValueClustersExtension
   {
     delegate bool SpanPredicate(ReadOnlySpan<char> span);
 
-    public static bool BuildValueClustersString(
-    this ValueClusterCollection valueClusters,
-    List<string> values,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersString(
+    this object[] objects,
     string escapedName,
     int max,
     double maxSeconds,
     IProgressWithCancellation progress)
     {
-      if (values.Count == 0)
-        return false;
-
-      // values are guaranteed to be sorted
       var stopwatch = Stopwatch.StartNew();
-      progress.Report(new ProgressInfo("Preparing value overview…",
-          (long) (ValueClusterCollection.cPercentTyped * ValueClusterCollection.cProgressMax)));
+      (int nullCount, var values) = MakeTypedValues(objects, Convert.ToString, progress);
 
+      var valueClusters = new List<ValueCluster>();
+      if (values.Count == 0)
+        return (nullCount, valueClusters);
       values.Sort(StringComparer.OrdinalIgnoreCase);
 
+      progress.Report(new ProgressInfo("Preparing value overview…",
+          (long) (cTypedProgress * cMaxProgress)));
       int[] clusterLengths = { 1, 2, 4, 8, 12 };
 
       // Prepare cluster-prefix collections
@@ -73,12 +75,7 @@ namespace CsvTools
       // -----------------------------
       foreach (var text in values)
       {
-        if (text == null)
-          continue;
-
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Preparing overview took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
 
         if (clusters[1].Count > max)
           break;
@@ -104,9 +101,9 @@ namespace CsvTools
       }
 
       if (clusterIndividual.Count == 0)
-        return false;
+        return (nullCount, valueClusters);
 
-      var percent = ValueClusterCollection.cPercentTyped;
+      var percent = cTypedProgress;
 
       // ------------------------------------------------------
       // CASE 1: Only a few distinct values → exact clustering
@@ -122,7 +119,7 @@ namespace CsvTools
             throw new TimeoutException("Building groups took too long.");
           progress.CancellationToken.ThrowIfCancellationRequested();
 
-          int count = CountBlock(values, dv);
+          int count = CountBlockFullText(values, dv);
           if (count > 0)
           {
             valueClusters.Add(
@@ -130,7 +127,7 @@ namespace CsvTools
           }
         }
 
-        return true;
+        return (nullCount, valueClusters);
       }
 
       // ------------------------------------------------------
@@ -149,7 +146,7 @@ namespace CsvTools
         foreach (var clusterLength in allClusters)
           counterEntries += clusters[clusterLength].Count;
 
-        var step = (1.0 - ValueClusterCollection.cPercentTyped) / counterEntries;
+        var step = (1.0 - cTypedProgress) / counterEntries;
         var filtered = 0;
         foreach (var prefixLength in allClusters)
         {
@@ -158,12 +155,12 @@ namespace CsvTools
           {
             progress.Report(new ProgressInfo(
                 $"Building common beginning '{prefix}…'",
-                (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
+                (long) Math.Round(percent * cMaxProgress)));
 
             int count = CountPrefixBlock(values, prefix.AsSpan(), prefixLength);
             filtered+=count;
             percent += step;
-            // Switch from Lke Statement to SUBSTRING for better performance
+            // Switch fromIncluding Lke Statement toIncluding SUBSTRING for better performance
             // and issues with special characters like % and _
             valueClusters.Add(
               new ValueCluster($"{prefix}…", $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')", count, null, null));
@@ -173,89 +170,95 @@ namespace CsvTools
             break;
         }
 
-        return true;
+        return (nullCount, valueClusters);
       }
 
       // ------------------------------------------------------
-      // CASE 3: fallback to character ranges
+      // CASE 3: fallback toIncluding character ranges
       // ------------------------------------------------------
-      var charRanges = new (string Display, char From, char To)[]
+      var charRanges = new (string Display, char From, char To, char[] nonLatin)[]
       {
-        ("A to E", 'A', 'E'),
-        ("F to K", 'F', 'K'),
-        ("L to R", 'L', 'R'),
-        ("S to Z", 'S', 'Z'),
-        ("Numbers", '0', '9'),
+        ("A to E", 'A', 'E', new [] { 'À','Á','Â','Ä','Ã','Å','Æ','Ç','È','É','Ê','Ë', 'Α','Β','Δ','Ε', 'А','Б','Д','Е','Э','Є'}),
+        ("F to K", 'F', 'K', new [] { 'Φ','Κ', 'Ф','К','Х'}),
+        ("L to R", 'L', 'R', new [] { 'Ł','Ñ','Ń','Ŕ','Ř','Ö', 'Λ','Ρ', 'Л','Р'}),
+        ("S to Z", 'S', 'Z', new[] { 'Š', 'Ś', 'ẞ', 'Ť', 'Ü', 'Û', 'Ú', 'Ÿ', 'Ž', 'Ż', 'С', 'З', 'Ж'}),
+        ("Numbers", '0', '9', Array.Empty<char>()),
       };
 
-      var step2 = (1.0 - ValueClusterCollection.cPercentTyped) / (charRanges.Length + 3);
-
-      int countChar = 0;
+      var step2 = (1.0 - cTypedProgress) / (charRanges.Length + 1);
       foreach (var block in charRanges)
       {
         percent += step2;
         progress.Report(new ProgressInfo($"Grouping values for {block.Display}",
-            (long) Math.Round(percent* ValueClusterCollection.cProgressMax)));
-        int count = CountCharRange(values, block.From, block.To);
+            (long) Math.Round(percent* cMaxProgress)));
+        (int count, var nonLatin) = CountCharRange(values, block.From, block.To, block.nonLatin);
         if (count > 0)
         {
+          var sb = new System.Text.StringBuilder("(", 60);
+          sb.Append($"SUBSTRING({escapedName},1,1) >= '{block.From}' AND SUBSTRING({escapedName},1,1) <= '{block.To}' OR ");
+          foreach (var c in nonLatin)
+            sb.Append($"SUBSTRING({escapedName},1,1) = '{c}' OR ");
+          sb.Length-= 4; // remove last OR
+          sb.Append(')');
           valueClusters.Add(
-              new ValueCluster(block.Display, SqlSubstringRange(escapedName, block.From, block.To), count, null, null));
+              new ValueCluster(block.Display, sb.ToString(), count, null, null));
         }
 
-        countChar += count;
       }
-
-      // Special characters (< 32)
-      var countS = CountPredicate(values, x => x[0] < 32);
-      percent += step2;
-      progress.Report(new ProgressInfo("Grouping values for control characters",
-          (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
-
-      if (countS > 0)
-        valueClusters.Add(
-            new ValueCluster("Control characters", $"(SUBSTRING({escapedName},1,1) < ' ')", countS, null, null));
-
-      // Punctuation and symbols
-      var countP = CountPredicate(values, x =>
-             (x[0] >= ' ' && x[0] <= '/')
-          || (x[0] >= ':' && x[0] <= '@')
-          || (x[0] >= ' ' && x[0] <= '`')
-          || (x[0] >= '{' && x[0] <= '~'));
 
       percent += step2;
       progress.Report(new ProgressInfo("Grouping values for punctuation and symbols",
-          (long) Math.Round(percent * ValueClusterCollection.cProgressMax)));
-
-      if (countP > 0)
+          (long) Math.Round(percent * cMaxProgress)));
+      char[] extraSymbols = new char[] { '§', '€', '$', '£', '¥', '₩', '₽' };
+      var foundChar = new HashSet<char>();
+      var countP = 0;
+      foreach (var x in values)
       {
-        valueClusters.Add(
-            new ValueCluster("Punctuation & Marks & Braces",
-                $"({SqlSubstringRange(escapedName, ' ', '/')} " +
-                $"OR {SqlSubstringRange(escapedName, ':', '@')} " +
-                $"OR {SqlSubstringRange(escapedName, '[', '`')} " +
-                $"OR {SqlSubstringRange(escapedName, '{', '~')})",
-                countP, null, null));
+        var c = x[0];
+        if (char.IsPunctuation(c) || char.IsSymbol(c) || extraSymbols.Contains(c))
+        {
+          {
+            foundChar.Add(c);
+            countP++;
+          }
+        }
       }
+      if (countP> 0)
+      {
+        var stringBuilder = new System.Text.StringBuilder("(");
+        foreach (var x in foundChar)
+        {
+          stringBuilder.Append($"SUBSTRING({escapedName},1,1) = '");
+          stringBuilder.Append(x == '\'' ? "''" : x.ToString());
+          stringBuilder.Append("' OR ");
+        }
+        stringBuilder.Length -= 4; // remove last OR
+        stringBuilder.Append(')');
 
-      return true;
+        valueClusters.Add(
+            new ValueCluster("Punctuation & Marks & Braces", stringBuilder.ToString(), countP, null, null));
+      }
+      return (nullCount, valueClusters);
 
 
       // ------------------------------------------------------
       // Helper functions (sorting aware)
       // ------------------------------------------------------
 
-      static int CountBlock(List<string> sorted, string text)
+      static int CountBlockFullText(List<string> sorted, string text)
       {
+        // BinarySearch does not guarantee returning the first matching element, in case there are many its one of them
         int idx = sorted.BinarySearch(text, StringComparer.OrdinalIgnoreCase);
         if (idx < 0) return 0;
 
         int count = 1;
+        // Look backwards
         int i = idx - 1;
         while (i >= 0 && StringComparer.OrdinalIgnoreCase.Equals(sorted[i], text))
         {
           count++; i--;
         }
+        // Look forwards
         i = idx + 1;
         while (i < sorted.Count && StringComparer.OrdinalIgnoreCase.Equals(sorted[i], text))
         {
@@ -295,33 +298,43 @@ namespace CsvTools
         return count;
       }
 
-      static int CountCharRange(List<string> sorted, char from, char to)
+      static (int count, HashSet<char> foundNonLatin) CountCharRange(List<string> sorted, char fromIncluding, char toIncluding, char[] nonLatin)
       {
         int count = 0;
+        var minChar = fromIncluding;
+        var maxChar = toIncluding;
+        for (int i = 0; i < nonLatin.Length; i++)
+        {
+          if (nonLatin[i]<minChar)
+            minChar = nonLatin[i];
+          if (nonLatin[i]>maxChar)
+            maxChar = nonLatin[i];
+        }
+        var foundNonLatin = new HashSet<char>();
         foreach (var v in sorted)
         {
           char c = char.ToUpperInvariant(v[0]);
-          if (c < from)
+          if (c < minChar)
             continue;          // too early in alphabet → skip
 
-          if (c > to)
+          if (c > maxChar)
             break;             // sorted → no further matches possible
 
-          count++;
+          if (c >= fromIncluding && c <= toIncluding)
+          {
+            count++;
+            continue;
+          }
+
+          if (nonLatin.Contains(c))
+          {
+            count++;
+            foundNonLatin.Add(c);
+          }
         }
-        return count;
+        return (count, foundNonLatin);
       }
 
-      static int CountPredicate(List<string> sorted, Func<string, bool> pred)
-      {
-        int c = 0;
-        foreach (var v in sorted)
-          if (pred(v))
-            c++;
-        return c;
-      }
-
-      static string SqlSubstringRange(string escapedName, char from, char to) => $"(SUBSTRING({escapedName},1,1) >= '{from}' AND SUBSTRING({escapedName},1,1) <= '{to}')";
     }
   }
 }

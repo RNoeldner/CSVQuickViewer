@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace CsvTools
@@ -23,27 +24,34 @@ namespace CsvTools
   /// Provides extension methods to build clusters of numeric, long, and date values
   /// with bounds based on value distribution.
   /// </summary>
-  public static class ValueClusterCollectionExtensionBounds
+  public static partial class ValueClustersExtension
   {
     /// <summary>
     /// Builds clusters from a list of double values. Clusters are based on value distribution
     /// and may combine small clusters depending on the 'combine' parameter.
     /// </summary>
-    public static bool BuildValueClustersNumeric(this ValueClusterCollection valueClusterCollection, List<double> values, string escapedName,
+    public static (int countNull, List<ValueCluster> clusters) BuildValueClustersNumeric(this object[] objects, string escapedName,
           int max, bool combine, double maxSeconds, IProgressWithCancellation progress)
     {
+      var stopwatch = Stopwatch.StartNew();
+      (int nullCount, var values) = MakeTypedValues(objects, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 100d) / 100d, progress);
+
+      var valueClusterCollection = new List<ValueCluster>();
+      if (values.Count == 0)
+        return (nullCount, valueClusterCollection);
+
+      values.Sort();
+      ReportStart(progress);
+
       // Get the distinct values and their counts
       var clusterFractions = new HashSet<double>();
       var clusterOne = new HashSet<double>();
-      var stopwatch = Stopwatch.StartNew();
-      if (values.Count == 0)
-        return false;
-      values.Sort();
+      
+
       foreach (var value in values)
       {
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Preparing overview took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
+
         if (clusterFractions.Count <= 10)
           clusterFractions.Add(Math.Floor(value * 10d) / 10d);
         if (clusterOne.Count <= max)
@@ -89,30 +97,18 @@ namespace CsvTools
             .ToList();
       }
 
-      // Use binary search, assuming values is sorted
-      int startIndex = 0;
-      Func<double, double, int> count = (start, end) =>
-      {
-        int endIndex = startIndex;
-        while (endIndex < values.Count && values[endIndex] < end)
-          endIndex++;
-        int bucketCount = endIndex - startIndex;
-        startIndex = endIndex; // advance for next bucket
-        return bucketCount;
-      };
-
       // Delegate to ProcessBuckets
-      ProcessBuckets(valueClusterCollection,
+      ProcessBuckets(values,
+          valueClusterCollection,
           startValues,
           startValue => startValue + factor,
           (startValue, endValue) => factor<1 ? $"[{startValue:F1} to {endValue:F1})" : $"[{startValue:N0} to {endValue:N0})",
           (startValue, endValue) => $"({escapedName} >= {startValue} AND {escapedName} < {endValue})",
-          count,
            combine ? Math.Max(5, values.Count * 3 / (max * 2)) : 1,
           maxSeconds- stopwatch.Elapsed.TotalSeconds,
           progress
       );
-      return true;
+      return (nullCount, valueClusterCollection);
     }
 
 
@@ -120,33 +116,33 @@ namespace CsvTools
     /// Builds clusters from a list of long values.
     /// Uses dynamic or fixed factor depending on value range and max cluster size.
     /// </summary>
-    public static bool BuildValueClustersLong(
-     this ValueClusterCollection valueClusterCollection,
-     List<long> values,
+    public static (int countNull, List<ValueCluster> clusters) BuildValueClustersLong(
+     this object[] objects,
      string escapedName,
      int max,
      bool combine,
      double maxSeconds,
      IProgressWithCancellation progress)
     {
-      ReportStart(progress);
-      if (values.Count == 0) return false;
-      // Get the distinct values and their counts
-      var clusterOne = new HashSet<long>();
       var stopwatch = Stopwatch.StartNew();
+      (int nullCount, var values) = MakeTypedValues(objects, Convert.ToInt64, progress);
+      var valueClusterCollection = new List<ValueCluster>();
+      if (values.Count == 0)
+        return (nullCount, valueClusterCollection);
+      ReportStart(progress);
       values.Sort();
 
+      // Get the distinct values and their counts
+      var clusterOne = new HashSet<long>();
       foreach (var value in values)
       {
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Preparing overview took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
         if (clusterOne.Count <= max)
           clusterOne.Add(value);
       }
 
       if (clusterOne.Count == 0)
-        return false;
+        return (nullCount, valueClusterCollection);
 
       // Use Integer filter
       long factor;
@@ -190,58 +186,48 @@ namespace CsvTools
       Func<long, long, int> count =
           factor == 1 ? (startValue, _) => values.Count(s => s == startValue)
           : (startValue, endValue) => values.Count(s => s >= startValue && s < endValue);
-      int startIndex = 0;
-      Func<long, long, int> countOptimized = (start, end) =>
-      {
-        int endIndex = startIndex;
 
-        // Advance endIndex until values[endIndex] >= end
-        while (endIndex < values.Count && values[endIndex] < end)
-          endIndex++;
-
-        int bucketCount = endIndex - startIndex;
-        startIndex = endIndex; // advance for next bucket
-        return bucketCount;
-      };
 
       // Delegate to ProcessBuckets
-      ProcessBuckets(valueClusterCollection,
+      ProcessBuckets(values,
+          valueClusterCollection,
           startValues,
           startValue => startValue + factor,
           getDisplay,
           formatSQL,
-          countOptimized,
           combine ? Math.Max(5, values.Count * 3 / (max * 2)) : 1,
           maxSeconds- stopwatch.Elapsed.TotalSeconds,
           progress
       );
 
-      return true;
+      return (nullCount, valueClusterCollection);
     }
 
     /// <summary>
     /// Builds clusters from a list of DateTime values.
     /// Clusters can be hourly, daily, monthly, yearly, or by decades depending on data.
     /// </summary>
-    public static bool BuildValueClustersDate(
-        this ValueClusterCollection valueClusterCollection,
-        List<DateTime> values, string escapedName,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersDate(
+      this object[] objects, string escapedName,
         int max, bool combine, double maxSeconds, IProgressWithCancellation progress)
     {
-      ReportStart(progress);
-      if (values.Count == 0) return false;
       var stopwatch = Stopwatch.StartNew();
+      (int nullCount, var values) = MakeTypedValues(objects, Convert.ToDateTime, progress);
+
+      var valueClusterCollection = new List<ValueCluster>();
+      if (values.Count == 0)
+        return (nullCount, valueClusterCollection);
+      ReportStart(progress);
+      values.Sort();
+
       var clusterHour = new HashSet<DateTime>();
       var clusterDay = new HashSet<DateTime>();
       var clusterMonth = new HashSet<DateTime>();
       var clusterYear = new HashSet<DateTime>();
       var clusterDecade = new HashSet<DateTime>();
-      values.Sort();
       foreach (var value in values)
       {
-        if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
-          throw new TimeoutException("Preparing overview took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
         if (clusterHour.Count<max)
           clusterHour.Add(new DateTime(value.Year, value.Month, value.Day, value.Hour, (value.Minute / 15) * 15, 0));
 
@@ -263,32 +249,16 @@ namespace CsvTools
       var desiredSize = combine ? Math.Max(5, values.Count * 3 / (max * 2)) : 1;
       Func<DateTime, DateTime, string> formatSQL =
           (startValue, endValue) => $"({escapedName} >= #{startValue:MM/dd/yyyy HH:mm}# AND {escapedName} < #{endValue:MM/dd/yyyy HH:mm}#)";
-      Func<DateTime, DateTime, int> count =
-          (startValue, endValue) => values.Count(v => v.Date >= startValue && v.Date< endValue);
-
-      int startIndex = 0;
-      Func<DateTime, DateTime, int> countOptimized = (start, end) =>
-      {
-        int endIndex = startIndex;
-
-        // Advance endIndex until values[endIndex] >= end
-        while (endIndex < values.Count && values[endIndex] < end)
-          endIndex++;
-
-        int bucketCount = endIndex - startIndex;
-        startIndex = endIndex; // advance for next bucket
-        return bucketCount;
-      };
 
       // Hourly
       if (clusterDay.Count == 1 && clusterHour.Count<max)
       {
-        ProcessBuckets(valueClusterCollection,
+        ProcessBuckets(values,
+            valueClusterCollection,
             clusterHour.OrderBy(x => x).ToList(),
             startValue => startValue.AddMinutes(15),
             (startValue, endValue) => $"{startValue} to {endValue}",
             formatSQL,
-            countOptimized,
             desiredSize,
             maxSeconds- stopwatch.Elapsed.TotalSeconds,
             progress
@@ -297,12 +267,12 @@ namespace CsvTools
       // Daily
       else if (clusterDay.Count < max)
       {
-        ProcessBuckets(valueClusterCollection,
+        ProcessBuckets(values,
+            valueClusterCollection,
             clusterDay.OrderBy(x => x).ToList(),
             startValue => startValue.AddDays(1),
             (startValue, endValue) => startValue.Date.AddDays(1) == endValue.Date ? $"on {startValue:d}" : $"Days {startValue:d} to {endValue:d}",
             formatSQL,
-            countOptimized,
             desiredSize,
             maxSeconds- stopwatch.Elapsed.TotalSeconds,
             progress);
@@ -310,12 +280,12 @@ namespace CsvTools
       // Monthly
       else if (clusterMonth.Count < max)
       {
-        ProcessBuckets(valueClusterCollection,
+        ProcessBuckets(values,
+            valueClusterCollection,
             clusterMonth.OrderBy(x => x).ToList(),
             startValue => startValue.AddMonths(1),
             (startValue, endValue) => startValue.Year == endValue.Year && startValue.Month+1 == endValue.Month ? $"in {startValue:MMM yyyy}" : $"{startValue:MMM yyyy} to {endValue:MMM yyyy}",
             formatSQL,
-            countOptimized,
             desiredSize,
             maxSeconds- stopwatch.Elapsed.TotalSeconds,
             progress);
@@ -323,12 +293,12 @@ namespace CsvTools
       else if (clusterYear.Count < max)
       {
         // Yearly
-        ProcessBuckets(valueClusterCollection,
+        ProcessBuckets(values,
+          valueClusterCollection,
           clusterYear.OrderBy(x => x).ToList(),
           startValue => startValue.AddYears(1),
           (startValue, endValue) => startValue.Year+1 == endValue.Year ? $"in {startValue.Year}" : $"{startValue.Year} to {endValue.Year}",
           formatSQL,
-          countOptimized,
           desiredSize,
           maxSeconds- stopwatch.Elapsed.TotalSeconds,
           progress);
@@ -336,17 +306,17 @@ namespace CsvTools
       else
       {
         // Decades
-        ProcessBuckets(valueClusterCollection,
+        ProcessBuckets(values,
+          valueClusterCollection,
           clusterDecade.OrderBy(x => x).ToList(),
           startValue => startValue.AddYears(10),
           (startValue, endValue) => $"{startValue.Year} to {endValue.Year}",
           formatSQL,
-          countOptimized,
           desiredSize,
           maxSeconds- stopwatch.Elapsed.TotalSeconds,
           progress);
       }
-      return true;
+      return (nullCount, valueClusterCollection);
     }
     /// <summary>
     /// Reports initial progress message when starting cluster creation.
@@ -354,82 +324,101 @@ namespace CsvTools
     private static void ReportStart(IProgress<ProgressInfo> progress)
     => progress.Report(new ProgressInfo(
         "Combining values into groups with evenly spaced boundaries, resulting in groups that may contain different numbers of rows.",
-        (long) (ValueClusterCollection.cPercentTyped * ValueClusterCollection.cProgressMax)));
+        (long) (cTypedProgress * cMaxProgress)));
 
     /// <summary>
     /// Processes sorted start values to build clusters, calling delegate functions for display, SQL formatting, and counting.
     /// </summary>
     private static void ProcessBuckets<T>(
-        ValueClusterCollection valueClusterCollection,
-        List<T> sortedValues,
+        List<T> allSortedValues,
+        List<ValueCluster> valueClusterCollection,
+        List<T> sortedStartValues,
         Func<T, T> nextEnd,
         Func<T, T, string> getDisplay,
         Func<T, T, string> getStatement,
-        Func<T, T, int> getCount,
         int desiredSize, double maxRemainingSeconds,
         IProgressWithCancellation progress) where T : struct, IComparable<T>
     {
       var stopwatch = Stopwatch.StartNew();
       if (desiredSize<1)
         desiredSize=1;
-      if (sortedValues.Count==0)
+      if (sortedStartValues.Count==0)
         throw new ArgumentOutOfRangeException("Need start values");
-      var endValue = sortedValues.Last();
+      var endValue = sortedStartValues.Last();
       var next = nextEnd(endValue);
-      // Add start value entry in case teh very last value is not part of the list
+      // AddOrUpdate start value entry in case teh very last value is not part of the list
       if (next.CompareTo(endValue) <= 0)
         throw new InvalidOperationException("nextEnd must produce strictly increasing values.");
       else
-        sortedValues.Add(next);
+        sortedStartValues.Add(next);
 
-      var percent = ValueClusterCollection.cPercentTyped*2;
+      var percent = cTypedProgress*2;
       if (percent>1)
         throw new InvalidOperationException("Progress percent exceeded 100%.");
-      var step = (1-percent) / sortedValues.Count;
+      var step = (1-percent) / sortedStartValues.Count;
 
-      for (var i = 0; i<sortedValues.Count; i++)
+      for (var i = 0; i<sortedStartValues.Count; i++)
       {
-        var start = sortedValues[i];
-        if (stopwatch.Elapsed.TotalSeconds > maxRemainingSeconds)
-          throw new TimeoutException("Building groups took too long.");
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        var start = sortedStartValues[i];
+        CheckTimeout(stopwatch, maxRemainingSeconds, progress.CancellationToken);
 
         // Determine bucket end
         var end = nextEnd(start);
         RetryNewEnd:
         percent += step;
         var info = getDisplay(start, end);
-        var progressNum = (long) Math.Round(percent * ValueClusterCollection.cProgressMax);
-        // progress.Report(new ProgressInfo($"Checking group {info}", progressNum));
+        var progressNum = (long) Math.Round(percent * cMaxProgress);
 
-        // Skip if already clustered
-        if (valueClusterCollection.HasEnclosingCluster(start, end))
-          continue;
-
-        // Count items in this bucket (time intensive)
-        var count = getCount(start, end);
+        // Count items in this bucket (time intensive)        
+        var count = CountOptimized(allSortedValues, start, end);
         if (count ==0)
           continue;
 
         // Increase bucket size if below desired size
-        if (count < desiredSize && i + 1 < sortedValues.Count)
+        if (count < desiredSize)
         {
-          end = nextEnd(sortedValues[++i]);
-          goto RetryNewEnd;
+          i++;
+          if (i  < sortedStartValues.Count)
+          {
+            end = nextEnd(sortedStartValues[i]);
+            goto RetryNewEnd;
+          }
         }
 
         // Create and add cluster
-        valueClusterCollection.LastCluster = new ValueCluster(
+        valueClusterCollection.Add(new ValueCluster(
             info,
             getStatement(start, end),
             count,
             start,
-            end);
-
-        valueClusterCollection.Add(valueClusterCollection.LastCluster);
+            end));
 
         // Progress reporting
         progress.Report(new ProgressInfo($"Adding group {info}", progressNum));
+
+        static int LowerBound<T>(List<T> list, T value) where T : IComparable<T>
+        {
+          int left = 0;
+          int right = list.Count;
+
+          while (left < right)
+          {
+            int mid = (left + right) / 2;
+            if (list[mid].CompareTo(value) < 0)
+              left = mid + 1;
+            else
+              right = mid;
+          }
+          return left;
+        }
+
+        static int CountOptimized<T>(List<T> list, T start, T end) where T : IComparable<T>
+        {
+          int startIndex = LowerBound(list, start); // first index where value >= start
+          int endIndex = LowerBound(list, end);   // first index where value >= end
+
+          return Math.Max(0, endIndex - startIndex);
+        }
       }
     }
   }
