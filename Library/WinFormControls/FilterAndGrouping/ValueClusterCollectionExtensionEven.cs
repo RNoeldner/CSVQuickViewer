@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 
 namespace CsvTools
@@ -40,16 +39,7 @@ namespace CsvTools
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated clusters and related metadata.</returns>
     public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersDateEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
-    {
-      return BuildValueClustersEven(values, Convert.ToDateTime, values.Length / max,
-        number => new DateTime(number.Year, number.Month, number.Day, number.Hour, number.Minute, 0),
-        (minValue, maxValue) => $"{minValue:d} to {maxValue:d}",
-        (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture,
-          "({0} >= #{1:MM/dd/yyyy HH:mm}# AND {0} < #{2:MM/dd/yyyy HH:mm}#)", escapedName, minValue, maxValue),
-        minValue => $"after {minValue:d}",
-        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= #{1:MM/dd/yyyy HH:mm}#)", escapedName,
-          minValue), maxSeconds, progress);
-    }
+    => BuildValueClustersEven(values, new ClusterResolutionStrategyDateTime(), values.Length / max, escapedName, maxSeconds, progress);
 
     /// <summary>
     /// Builds evenly distributed clusters from a list of <see cref="double"/> values.
@@ -63,14 +53,7 @@ namespace CsvTools
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated clusters.</returns>
     public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersNumericEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
-    {
-      return BuildValueClustersEven(values, obj => Math.Floor(Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 100d) / 100d, values.Length / max, number => Math.Floor(number * 10d) / 10d,
-        (minValue, maxValue) => $"{minValue:F1} to {maxValue:F1}",
-        (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1} AND {0} < {2:F1})",
-          escapedName, minValue, maxValue),
-        minValue => $">= {minValue:F1}",
-        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= {1:F1})", escapedName, minValue), maxSeconds, progress);
-    }
+    => BuildValueClustersEven(values, new ClusterResolutionStrategyDouble(), values.Length / max, escapedName, maxSeconds, progress);
 
     /// <summary>
     /// Builds evenly distributed clusters from a list of <see cref="long"/> values. 
@@ -85,31 +68,19 @@ namespace CsvTools
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated evenly distributed clusters.</returns>
     public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersLongEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
-    {
-      return BuildValueClustersEven(values, Convert.ToInt64, values.Length / max, number => number,
-        (minValue, maxValue) => $"{minValue:F0} to {maxValue:F0}",
-        (minValue, maxValue) => string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", escapedName,
-          minValue, maxValue),
-        minValue => $">= {minValue:F0}",
-        minValue => string.Format(CultureInfo.InvariantCulture, "({0} >= {1})", escapedName, minValue), maxSeconds, progress);
-    }
-
+    => BuildValueClustersEven(values, new ClusterResolutionStrategyLong(), values.Length / max, escapedName, maxSeconds, progress);
 
     private static (int nullCount, List<ValueCluster> clusters) BuildValueClustersEven<T>(
      object[] objects,
-     Func<object, T> convert,
+     IClusterResolutionStrategy<T> strategy,
      int bucketSize,
-     Func<T, T> round,
-     Func<T, T, string> getDisplay,
-     Func<T, T, string> getStatement,
-     Func<T, string> getDisplayLast,
-     Func<T, string> getStatementLast,
+     string escapedName,
      double maxSeconds,
      IProgressWithCancellation progress)
      where T : struct, IComparable<T>
     {
       var stopwatch = Stopwatch.StartNew();
-      (int nullCount, var values) = MakeTypedValues(objects, convert, progress);
+      (int nullCount, var values) = MakeTypedValues(objects, strategy.Convert, progress);
 
       var clusters = new List<ValueCluster>();
       if (values.Count == 0)
@@ -130,7 +101,7 @@ namespace CsvTools
       {
         CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
 
-        var r = round(v);
+        var r = strategy.Round(v);
 
 #if NETFRAMEWORK
         if (counter.ContainsKey(r))
@@ -171,8 +142,8 @@ namespace CsvTools
         // Close bucket
         clusters.Add(
             new ValueCluster(
-                getDisplay(start, key),
-                getStatement(start, key),
+                strategy.FormatDisplay(start, key),
+                 strategy.FormatSql(escapedName, start, key),
                 accumulated + count,
                 start,
                 key
@@ -192,10 +163,10 @@ namespace CsvTools
       {
         clusters.Add(
             new ValueCluster(
-                getDisplayLast(start),
-                getStatementLast(start),
-                accumulated,
-                start));
+              strategy.FormatDisplay(start, null),
+              strategy.FormatSql(escapedName, start, null),
+              accumulated,
+              start));
       }
 
       return (nullCount, clusters);
