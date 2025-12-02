@@ -106,7 +106,7 @@ namespace CsvTools
           counter.Add(r, 1);
 #else
         if (!counter.TryAdd(r, 1))
-            counter[r]++;
+          counter[r]++;
 #endif
       }
 

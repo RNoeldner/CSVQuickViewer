@@ -24,7 +24,14 @@ namespace CsvTools
   /// </summary>
   public static partial class ValueClustersExtension
   {
-    delegate bool SpanPredicate(ReadOnlySpan<char> span);
+    private static readonly (string Display, char From, char To, char[] NonLatin)[] CharacterBlocks =
+    {
+        ("A to E", 'A', 'E', new [] { 'À','Á','Â','Ä','Ã','Å','Æ','Ç','È','É','Ê','Ë', 'Α','Β','Δ','Ε', 'А','Б','Д','Е','Э','Є'}),
+        ("F to K", 'F', 'K', new [] { 'Φ','Κ', 'Ф','К','Х'}),
+        ("L to R", 'L', 'R', new [] { 'Ł','Ñ','Ń','Ŕ','Ř','Ö', 'Λ','Ρ', 'Л','Р'}),
+        ("S to Z", 'S', 'Z', new[] { 'Š', 'Ś', 'ẞ', 'Ť', 'Ü', 'Û', 'Ú', 'Ÿ', 'Ž', 'Ż', 'С', 'З', 'Ж'}),
+        ("Numbers", '0', '9', Array.Empty<char>()),
+      };
 
     public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersString(
     this object[] objects,
@@ -41,9 +48,8 @@ namespace CsvTools
         return (nullCount, valueClusters);
       values.Sort(StringComparer.OrdinalIgnoreCase);
 
-      progress.Report(new ProgressInfo("Preparing value overview…",
-          (long) (cTypedProgress * cMaxProgress)));
-      int[] clusterLengths = { 1, 2, 3, 4, 5, 6 };
+      progress.Report(new ProgressInfo("Preparing value overview…", (long) (cTypedProgress * cMaxProgress)));
+      int[] clusterLengths = { 1, 2, 3, 4, 5, 8, 12 };
 
       // Prepare cluster-prefix collections
       var clusters = clusterLengths.ToDictionary(
@@ -90,11 +96,12 @@ namespace CsvTools
 
           if (clusters[length].Count < max)
           {
-            if (length == 1)
-              clusters[length].Add(char.ToUpperInvariant(text[0]).ToString());
-            else
-              clusters[length].Add(text.Substring(0, 1).ToUpperInvariant() +
-                  text.Substring(1, length - 1).ToLowerInvariant());
+            var span = text.AsSpan();
+            var prefix = string.Concat(
+                char.ToUpperInvariant(span[0]),
+                span.Slice(1, length - 1).ToString().ToLowerInvariant()
+            );
+            clusters[length].Add(prefix);
           }
 
         }
@@ -126,8 +133,8 @@ namespace CsvTools
               new ValueCluster(dv, $"({escapedName} = '{dv.SqlQuote()}')", count));
           }
         }
-
-        return (nullCount, valueClusters);
+        if (valueClusters.Count>0)
+          return (nullCount, valueClusters);
       }
 
       // ------------------------------------------------------
@@ -153,9 +160,7 @@ namespace CsvTools
           var bestCluster = clusters[prefixLength];
           foreach (var prefix in bestCluster)
           {
-            progress.Report(new ProgressInfo(
-                $"Building common beginning '{prefix}…'",
-                (long) Math.Round(percent * cMaxProgress)));
+            Report($"Building common beginning '{prefix}…'");
 
             int count = CountPrefixBlock(values, prefix.AsSpan(), prefixLength);
             filtered+=count;
@@ -163,35 +168,26 @@ namespace CsvTools
             // Switch fromIncluding Lke Statement toIncluding SUBSTRING for better performance
             // and issues with special characters like % and _
             valueClusters.Add(
-              new ValueCluster($"{prefix}…", $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')", count, null, null));
+              new ValueCluster($"{prefix}…", $"(SUBSTRING({escapedName},1,{prefix.Length}) = '{prefix}')", count));
           }
           // If we have 90% do not add more clusters
           if (filtered>values.Count*.9)
             break;
         }
 
+        FallbackToLengthClusters();
         return (nullCount, valueClusters);
       }
 
       // ------------------------------------------------------
       // CASE 3: fallback toIncluding character ranges
       // ------------------------------------------------------
-      var charRanges = new (string Display, char From, char To, char[] nonLatin)[]
-      {
-        ("A to E", 'A', 'E', new [] { 'À','Á','Â','Ä','Ã','Å','Æ','Ç','È','É','Ê','Ë', 'Α','Β','Δ','Ε', 'А','Б','Д','Е','Э','Є'}),
-        ("F to K", 'F', 'K', new [] { 'Φ','Κ', 'Ф','К','Х'}),
-        ("L to R", 'L', 'R', new [] { 'Ł','Ñ','Ń','Ŕ','Ř','Ö', 'Λ','Ρ', 'Л','Р'}),
-        ("S to Z", 'S', 'Z', new[] { 'Š', 'Ś', 'ẞ', 'Ť', 'Ü', 'Û', 'Ú', 'Ÿ', 'Ž', 'Ż', 'С', 'З', 'Ж'}),
-        ("Numbers", '0', '9', Array.Empty<char>()),
-      };
-
-      var step2 = (1.0 - cTypedProgress) / (charRanges.Length + 1);
-      foreach (var block in charRanges)
+      var step2 = (1.0 - cTypedProgress) / (CharacterBlocks.Length + 1);
+      foreach (var block in CharacterBlocks)
       {
         percent += step2;
-        progress.Report(new ProgressInfo($"Grouping values for {block.Display}",
-            (long) Math.Round(percent* cMaxProgress)));
-        (int count, var nonLatin) = CountCharRange(values, block.From, block.To, block.nonLatin);
+        Report($"Grouping values for {block.Display}");
+        (int count, var nonLatin) = CountCharRange(values, block.From, block.To, block.NonLatin);
         if (count > 0)
         {
           var sb = new System.Text.StringBuilder("(", 60);
@@ -201,15 +197,13 @@ namespace CsvTools
           sb.Length-= 4; // remove last OR
           sb.Append(')');
           valueClusters.Add(
-              new ValueCluster(block.Display, sb.ToString(), count, null, null));
+              new ValueCluster(block.Display, sb.ToString(), count));
         }
-
       }
 
       percent += step2;
-      progress.Report(new ProgressInfo("Grouping values for punctuation and symbols",
-          (long) Math.Round(percent * cMaxProgress)));
-      char[] extraSymbols = new char[] { '§', '€', '$', '£', '¥', '₩', '₽' };
+      Report("Grouping values for punctuation and symbols");
+      var extraSymbols = new HashSet<char> { '§', '€', '$', '£', '¥', '₩', '₽' };
       var foundChar = new HashSet<char>();
       var countP = 0;
       foreach (var x in values)
@@ -236,14 +230,74 @@ namespace CsvTools
         stringBuilder.Append(')');
 
         valueClusters.Add(
-            new ValueCluster("Punctuation & Marks & Braces", stringBuilder.ToString(), countP, null, null));
+            new ValueCluster("Punctuation & Marks & Braces", stringBuilder.ToString(), countP));
       }
+      FallbackToLengthClusters();
       return (nullCount, valueClusters);
 
 
       // ------------------------------------------------------
       // Helper functions (sorting aware)
       // ------------------------------------------------------
+      void Report(string msg) => progress.Report(new ProgressInfo(msg, (long) (percent * cMaxProgress)));
+
+      void FallbackToLengthClusters()
+      {
+        if (valueClusters.Count < 2 && values.Count > 2)
+        {
+          var groups = values.GroupBy(s => s.Length).OrderBy(g => g.Key).ToList();
+          // In case we wo not get a suitable number of groups do nothing
+          // TODO: possibly combine length in groups of length like 1-4, 5-10, more than 10 
+          if (groups.Count==1 || groups.Count > 10)
+            return;
+          Report("Grouping did not create meaningful distinctions; adding length-based groups…");
+          // Merge very small groups into their neighbors
+          const int minGroupSize = 3; // tune as needed
+          var merged = new List<(int Key, List<string> Items)>();
+
+          foreach (var g in groups)
+          {
+            var items = g.ToList();
+            if (items.Count < minGroupSize)
+            {
+              // try merge with previous
+              if (merged.Count > 0 && merged[merged.Count - 1].Key < g.Key)
+              {
+                var prev = merged[merged.Count - 1];
+                var combined = prev.Items.Concat(items).ToList();
+
+                // Keep the key of the larger contributor (simple heuristic)
+                int newLen = prev.Items.Count >= items.Count ? prev.Key : g.Key;
+
+                // Replace the previous entry
+                merged[merged.Count - 1] = (newLen, combined);
+              }
+              else
+              {
+                // no previous group to merge into, just add it
+                merged.Add((g.Key, items));
+              }
+            }
+            else
+            {
+              merged.Add((g.Key, items));
+            }
+          }
+
+          // Build ValueCluster list using safe SQL
+          foreach (var entry in merged)
+          {
+            int len = entry.Key;
+            int count = entry.Items.Count;
+
+            // NOTE: adjust LEN -> LENGTH if your SQL dialect requires it
+            var sql = $"(LEN({escapedName}) = {len})";
+
+            valueClusters.Add(new ValueCluster($"Length {len}", sql, count)
+            );
+          }
+        }
+      }
 
       static int CountBlockFullText(List<string> sorted, string text)
       {
