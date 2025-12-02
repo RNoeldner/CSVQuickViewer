@@ -43,7 +43,7 @@ namespace CsvTools
     /// Builds clusters from a list of double values. Clusters are based on value distribution
     /// and may combine small clusters depending on the 'combine' parameter.
     /// </summary>
-    public static (int countNull, List<ValueCluster> clusters) BuildValueClustersNumeric(this object[] objects, string escapedName,
+    public static (int countNull, List<ValueCluster> clusters) BuildValueClustersDouble(this object[] objects, string escapedName,
           int max, bool combine, double maxSeconds, IProgressWithCancellation progress)
     {
       var strategy = new ClusterResolutionStrategyDouble();

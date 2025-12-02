@@ -11,9 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using System;
-
 #nullable enable
+using System;
 
 namespace CsvTools;
 
@@ -31,14 +30,18 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// <param name="count">The number of records that have this value.</param>
   /// <param name="start">The lower bound of the cluster range. Should be set if HasEnclosingCluster is used non string types</param>
   /// <param name="end">The upper bound of the cluster range. Can be <c>null</c> if unbounded.</param>
-  /// <param name="active">Flag indicating if the filter for this value is currently active. Default is <c>false</c>.</param>
-  public ValueCluster(string display, string condition, int count, object? start = null, object? end = null)
+  public ValueCluster(string display, string condition, int count, object start, object end)
   {
     Display = display;
     SQLCondition = condition;
     Count = count;
     Start = start;
     End = end;
+  }
+
+  public ValueCluster(string display, string condition, int count)
+     : this(display, condition, count, string.Empty, string.Empty)
+  {
   }
 
   /// <summary>
@@ -59,7 +62,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
     get;
   }
 
-  public object? End { get; }
+  public object End { get; }
 
   /// <summary>
   ///   Gets or sets the SQL condition to get a list of the records
@@ -70,7 +73,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
     get;
   }
 
-  public object? Start { get; }
+  public object Start { get; }
 
   /// <summary>
   ///   Indicates whether the current object is equal to another object of the same type.
@@ -97,19 +100,14 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
   ///   <see langword="false" />.
   /// </returns>
-  public override bool Equals(object? obj)
-  {
-    if (obj is null)
-      return false;
-
-    return obj is ValueCluster typed && GetHashCode() == typed.GetHashCode();
-  }
+  public override bool Equals(object? obj) => Equals(obj as ValueCluster);
 
   public override int GetHashCode()
   {
     unchecked
     {
-      return (Display.GetHashCode() * 397) ^ (SQLCondition.GetHashCode()); ;
+      return (StringComparer.OrdinalIgnoreCase.GetHashCode(Display) * 397) ^
+             StringComparer.OrdinalIgnoreCase.GetHashCode(SQLCondition);
     }
   }
 
@@ -117,5 +115,5 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   ///   Return a string representation of this cluster
   /// </summary>
   /// <returns></returns>
-  public override string ToString() => $"{Display} {Count:N0} {(Count == 1 ? "item" : "items")}";
+  public override string ToString() => $"{Display} ({Count:N0} {(Count == 1 ? "item" : "items")})";
 }

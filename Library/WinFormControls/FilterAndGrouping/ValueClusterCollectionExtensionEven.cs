@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,7 +50,7 @@ namespace CsvTools
     /// <param name="maxSeconds">Maximum time span in seconds for each cluster.</param>
     /// <param name="progress">Progress tracker that also supports cancellation.</param>
     /// <returns>A <see cref="BuildValueClustersResult"/> containing the generated clusters.</returns>
-    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersNumericEven(this object[] values, string escapedName,
+    public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersDoubleEven(this object[] values, string escapedName,
       int max, double maxSeconds, IProgressWithCancellation progress)
     => BuildValueClustersEven(values, new ClusterResolutionStrategyDouble(), values.Length / max, escapedName, maxSeconds, progress);
 
@@ -81,12 +80,10 @@ namespace CsvTools
     {
       var stopwatch = Stopwatch.StartNew();
       (int nullCount, var values) = MakeTypedValues(objects, strategy.Convert, progress);
-
-      var clusters = new List<ValueCluster>();
       if (values.Count == 0)
-        return (nullCount, clusters);
-
+        return (nullCount, new List<ValueCluster>());
       values.Sort();
+
 
       progress.Report(
         new ProgressInfo(
@@ -100,7 +97,6 @@ namespace CsvTools
       foreach (var v in values)
       {
         CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
-
         var r = strategy.Round(v);
 
 #if NETFRAMEWORK
@@ -114,62 +110,52 @@ namespace CsvTools
 #endif
       }
 
+      var clusters = new List<ValueCluster>();
       if (counter.Count == 0)
         return (nullCount, clusters);
 
       // IMPORTANT: ordered iteration
       var orderedKeys = counter.Keys.OrderBy(k => k).ToList();
 
-      int accumulated = 0;
-      T start = orderedKeys[0];
-
-      double percent = cTypedProgress * 2;
-      double step = (1.0 - percent) / orderedKeys.Count;
-
-      for (int i = 0; i < orderedKeys.Count; i++)
+      var accumulated = 0;
+      var percent = cTypedProgress * 2;
+      var step = (1.0 - percent) / orderedKeys.Count;
+      var start = orderedKeys[0];
+      var bucketStart = orderedKeys[0];
+      var end = orderedKeys[0];
+      for (var i = 0; i < orderedKeys.Count; i++)
       {
-        var key = orderedKeys[i];
-        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
-
-        int count = counter[key];
+        // Number of entries for the start key 
+        var count = counter[orderedKeys[i]];
         if (accumulated + count < bucketSize)
         {
           accumulated += count;
           percent += step;
           continue;
         }
+        CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
+        end = i+1<orderedKeys.Count ?
+            orderedKeys[i+1] :
+            MaxValue<T>();
 
-        // Close bucket
-        clusters.Add(
-            new ValueCluster(
-                strategy.FormatDisplay(start, key),
-                 strategy.FormatSql(escapedName, start, key),
-                accumulated + count,
-                start,
-                key
-        ));
-
-        percent += step;
-        progress.Report(
-          new ProgressInfo($"Adding group ending at {key}", (long) Math.Round(percent * cMaxProgress)));
-
-        // Start new bucket AFTER this key
-        start = key;
-        accumulated = 0;
+        AddCluster(accumulated +  count);
+        start = end;
       }
 
       // Final bucket (if anything remains)
       if (accumulated > 0)
-      {
-        clusters.Add(
-            new ValueCluster(
-              strategy.FormatDisplay(start, null),
-              strategy.FormatSql(escapedName, start, null),
-              accumulated,
-              start));
-      }
+        AddCluster(accumulated);
 
       return (nullCount, clusters);
+
+      void AddCluster(int numRecs)
+      {
+        string display = strategy.FormatDisplay(start, end);
+        clusters.Add(new ValueCluster(display, strategy.FormatSql(escapedName, start, end), numRecs, start, end));
+        percent += step;
+        progress.Report(new ProgressInfo($"Adding group {display} with {numRecs} entries", (long) Math.Round(percent * cMaxProgress)));
+        accumulated =0;
+      }
     }
   }
 }

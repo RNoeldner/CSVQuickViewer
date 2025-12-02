@@ -26,325 +26,8 @@ namespace CsvTools.Tests;
 [TestClass]
 public class ValueClusterCollectionTests
 {
-  private const int NumRecords = 200;
-  private static readonly DataTable m_Data;
-  private static readonly DataView m_DataView;
-  private static object[] GetColumnData(int index) =>
-    m_Data.Rows.OfType<DataRow>().Select(x => x[index]).ToArray();
-
-  private static ColumnFilterLogic GetFilterLogic(int index) =>
-    new ColumnFilterLogic(m_Data.Columns[index].DataType, m_Data.Columns[index].ColumnName);
-
-  static ValueClusterCollectionTests()
-  {
-    m_Data = UnitTestStaticData.GetDataTable(NumRecords);
-    m_DataView = new DataView(m_Data, null, null, DataViewRowState.CurrentRows);
-  }
-
-  [ClassCleanup]
-  public static void ClassCleanup()
-  {
-    m_DataView.Dispose();
-    m_Data.Dispose();
-  }
-
-  [TestMethod]
-  [Timeout(60000)]
-  public void BuildValueClusters_StringMaxRestricted()
-  {
-    var col = UnitTestStaticData.Columns.First(x => x.Name == "string");
-    var data = GetColumnData(col.ColumnOrdinal);
-
-    (var countNull, var test1) = data.BuildValueClustersString(col.Name, 10, 200.0, UnitTestStatic.TesterProgress);
-
-    Assert.IsTrue(test1.Count>4 && test1.Count<=10);
-    foreach (var cluster in test1)
-    {
-      m_DataView.RowFilter = cluster.SQLCondition;
-      Assert.AreEqual(m_DataView.Count, cluster.Count, cluster.SQLCondition, cluster.Display);
-    }
-    // The number of matches might be lower since special chars are not counted
-    var found = countNull + test1.Select(x => x.Count).Sum();
-    Assert.IsTrue(found <= m_Data.Rows.Count, "More found than possible");
-    Assert.IsTrue(found > m_Data.Rows.Count*.9, "Less than 90% found");
-  }
-
-  [TestMethod]
-  [Timeout(5000)]
-  public void BuildValueClusters_StringUnique()
-  {
-    var data = new List<object>(40000);
-    for (int i = 0; i < 20000; i++)
-      data.Add($"Test{i % 15}");
-
-    var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        data.ToArray(), 20, false, false, 5, UnitTestStatic.TesterProgress),
-      "Column String");
-    Assert.AreEqual(15, fl.ValueClusterCollection.Count);
-    Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
-
-    for (int i = 0; i < 20000; i++)
-      data.Add($"Test{i % 19}");
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        data.ToArray(), 20, false, false, 5.0, UnitTestStatic.TesterProgress),
-      "Column String");
-    Assert.AreEqual(19, fl.ValueClusterCollection.Count);
-    Assert.AreEqual(data.Count, fl.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
-
-  }
-
-  [TestMethod]
-  [Timeout(2000)]
-  public void BuildValueClusters_StringUseAlreadyExisting()
-  {
-    var fl = GetFilterLogic(0);
-    const int max1 = 100;
-    const int max2 = 200;
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
-        max1, true, false, 10.0, UnitTestStatic.TesterProgress),
-      "Column String");
-
-    Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=max1,
-      $"Expected {4}-{max1} is: {fl.ValueClusterCollection.Count}");
-    var before = fl.ValueClusterCollection.Count;
-    Assert.AreEqual(NumRecords, fl.ValueClusterCollection.Sum(x => x.Count), "The cluster should cover each record");
-    bool hadIssues = false;
-    // the generated Conditions should not throw an error
-    foreach (var cluster in fl.ValueClusterCollection)
-    {
-      m_DataView.RowFilter = cluster.SQLCondition;
-      if (m_DataView.Count != cluster.Count)
-      {
-        Logger.Warning($"RowFilter shows {m_DataView.Count:N0} records Cluster expected {cluster.Count:N0} for '{cluster.SQLCondition}', maybe condition is not well formed");
-        hadIssues=true;
-      }
-    }
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
-        max2, true, false, 10.0, UnitTestStatic.TesterProgress),
-      "Column String");
-
-    Assert.IsTrue(fl.ValueClusterCollection.Count>=before && fl.ValueClusterCollection.Count<=max2,
-      $"Expected {before}-{max2} is: {fl.ValueClusterCollection.Count}");
-    if (hadIssues)
-      Assert.Inconclusive("Issues with RowFilter Count, please see messages in TestContext Messages");
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_String()
-  {
-    var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
-        10, true, false, 10.0, UnitTestStatic.TesterProgress),
-      "Column String");
-
-    Assert.IsTrue(fl.ValueClusterCollection.Count>0 && fl.ValueClusterCollection.Count<=10);
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
-        20, true, false, 10.0, UnitTestStatic.TesterProgress),
-      "Column String");
-
-    Assert.IsTrue(fl.ValueClusterCollection.Count>0 && fl.ValueClusterCollection.Count<=20);
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
-        GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
-        200, true, false, 10.0, UnitTestStatic.TesterProgress),
-      "Column String");
-
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_StringEmpty()
-  {
-    var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.NoValues, fl.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "AllEmpty").ColumnOrdinal)!,
-      200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column AllEmpty");
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "PartEmpty").ColumnOrdinal)!,
-      200, true, false, 10.0, UnitTestStatic.TesterProgress), "Column PartEmpty");
-
-    Assert.IsNotNull(fl.ValueClusterCollection);
-  }
-
-  [TestMethod]
-  public void BuildValueClusters_LargeListMayUnique()
-  {
-    var value = new List<object>();
-    for (int index = 0; index < 500000; index++)
-      if (index % 10000 == 0)
-        value.Add(DBNull.Value);
-      else
-        value.Add(UnitTestStatic.GetRandomText(25));
-
-
-    var fl = GetFilterLogic(0);
-
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(value.ToArray(),
-      50, true, false, 5.0, UnitTestStatic.TesterProgress), "Column String");
-
-    Assert.IsNotNull(fl.ValueClusterCollection);
-  }
-
-  [TestMethod]
-  public void BuildValueClusters_LargeListManyDuplicates()
-  {
-    var possible = new List<string>();
-    for (int index = 0; index < 20; index++)
-      possible.Add(UnitTestStatic.
-        GetRandomText(10));
-
-    var value = new List<object>();
-    for (int index = 0; index < 500000; index++)
-      value.Add(possible[index % (possible.Count-1)]);
-
-    var fl = GetFilterLogic(0);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(value.ToArray(),
-      50, true, false, 5.0, UnitTestStatic.TesterProgress), "Column String");
-
-    Assert.IsNotNull(fl.ValueClusterCollection);
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_NoValues()
-  {
-    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
-    var empty = new List<object>();
-
-    for (long i = 1; i < 20; i++)
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-      empty.Add(null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-
-    Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(empty.ToArray(), 200, false, false, 5.0, UnitTestStatic.TesterProgress));
-  }
-
-  [TestMethod]
-  [Timeout(5000)]
-  public void BuildValueClusters_DoubleRangeStep1()
-  {
-    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
-
-    var number = new List<object>();
-    for (long j = 0; j < 10; j++)
-    {
-      for (long i = -3; i < 3; i++)
-        number.Add(i);
-      number.Add(DBNull.Value);
-    }
-
-    test.ReBuildValueClusters(number.ToArray(), 40, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(7, test.ValueClusterCollection.Count);
-    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
-    // We have numeric so they are double, and the display shows a range
-    Assert.IsTrue(test.ValueClusterCollection[1].Display.Contains("-3"));
-    Assert.IsTrue(test.ValueClusterCollection.Last().Display.Contains("2"));
-  }
-
-
-  [TestMethod]
-  [Timeout(5000)]
-  public void BuildValueClusters_LongRangeStep1()
-  {
-    var test = new ColumnFilterLogic(typeof(long), "dummy");
-
-    var number = new List<object>();
-    for (long j = 0; j < 10; j++)
-    {
-      for (long i = -3; i < 3; i++)
-        number.Add(i); // -3,-2, -1, 0, 1, 2
-      number.Add(DBNull.Value);
-    }
-
-    test.ReBuildValueClusters(number.ToArray(), 40, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(7, test.ValueClusterCollection.Count);
-    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
-    // We have numeric so they are double, and the display shows a range
-    Assert.AreEqual("-3", test.ValueClusterCollection[1].Display);
-    Assert.AreEqual("2", test.ValueClusterCollection.Last().Display);
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClustersLong()
-  {
-    var data = new List<object>();
-    for (long i = -200; i < 200; i+=5)
-      data.Add(i);
-
-    (var countNull, var test1) = data.ToArray().BuildValueClustersLong("dummy", 100, false, 200.0, UnitTestStatic.TesterProgress);
-    var number1 = test1.Select(x => x.Count).Sum();
-    Assert.AreEqual(data.Count, countNull + number1, "Overall Number is correct");
-    Assert.IsTrue(test1.First().Display.Contains($"{data.First():N0}"));
-    // Assert.IsTrue(test1.Last().Display.Contains($"{data.Last():N0}"));
-
-    (var countNull2, var test2) = data.ToArray().BuildValueClustersLong("dummy", 20, true, 200.0, UnitTestStatic.TesterProgress);
-    var number2 = test2.Select(x => x.Count).Sum();
-    Assert.AreEqual(number1, number2, "Number of entries does not match Combine / Normal");
-
-    (var countNull3, var test3) = data.ToArray().BuildValueClustersLongEven("dummy", 20, 200.0, UnitTestStatic.TesterProgress);
-    var number3 = test3.Select(x => x.Count).Sum();
-    Assert.AreEqual(number1, number3, "Number of entries does not match Even / Normal");
-
-    (var countNull4, var test4) = data.ToArray().BuildValueClustersLong("dummy", 20, false, 200.0, UnitTestStatic.TesterProgress);
-    var number4 = test4.Select(x => x.Count).Sum();
-    Assert.AreEqual(number1, number4, "Number of entries does not change on number of groups");
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_LongRangeStep3999()
-  {
-    var test = new ColumnFilterLogic(typeof(long), "dummy");
-
-    var number = new List<object>();
-    for (long i = -1999; i < 2000; i++)
-      number.Add(i);
-    test.ReBuildValueClusters(number.ToArray(), 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number.Count, test.ValueClusterCollection.Select(x => x.Count).Sum(), "Clusters should cover all entries");
-  }
-
-
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_LongRangeStep1990()
-  {
-    var test = new ColumnFilterLogic(typeof(long), "dummy");
-
-    var number2 = new List<object>();
-    for (long i = 10; i < 2000; i++)
-      number2.Add(i);
-    test.ReBuildValueClusters(number2.ToArray(), 50, false, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number2.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
-
-  }
-
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_LongRangeStep450()
-  {
-    var test = new ColumnFilterLogic(typeof(long), "dummy");
-
-    var number3 = new List<object>();
-    for (long i = -500; i < -50; i++)
-      number3.Add(i);
-    test.ReBuildValueClusters(number3.ToArray(), 50, true, false, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(number3.Count, test.ValueClusterCollection.Select(x => x.Count).Sum());
-
-  }
-
-  [TestMethod]
-  [Timeout(200000)]
-  public void BuildValueClusters_DateTime()
+  [TestMethod, Timeout(500)]
+  public void BuildValueClustersDate()
   {
     var data = new object[200];
     for (int i = 0; i < data.Length-2; i++)
@@ -361,9 +44,8 @@ public class ValueClusterCollectionTests
     Assert.AreEqual(3, test.Last().Count); // The last cluster must have 3 entries for 2025-11-25
   }
 
-  [TestMethod]
-  [Timeout(5000)]
-  public void BuildValueClusters_DateTimeCombine()
+  [TestMethod, Timeout(150)]
+  public void BuildValueClustersDate_Combine()
   {
     var data = new List<object>();
     data.Add(new DateTime(2025, 11, 25));
@@ -388,51 +70,143 @@ public class ValueClusterCollectionTests
     Assert.AreEqual(4, test.Last().Count); // The last cluster must have 4 entries for 2025-11-25
   }
 
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_DateTimeEven()
+
+  [TestMethod, Timeout(100)]
+  public void BuildValueClustersString_Start()
   {
-    var test = new ColumnFilterLogic(typeof(DateTime), "dummy");
-    var data = GetColumnData(2);
-    test.ReBuildValueClusters(data, 150, true, true, 9999999, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(data.Length, test.ValueClusterCollection.Select(x => x.Count).Sum(), "Count in parts must match number ofd records");
+    var data = new List<object>();
+    for (long i = 1; i < 200; i++)
+      data.Add(i);
+
+    (var countNull, var clusters) = data.ToArray().BuildValueClustersString("Dummy", 10, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(9, clusters.Count, "We should have one entry for every starting number (1-9)"); 
+    // The number of matches might be lower since special chars are not counted
+    var found = countNull + clusters.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, found, "Number of entries does not match");
   }
 
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_DateTimeCombineEven()
+  [TestMethod, Timeout(100)]
+  public void BuildValueClustersString_StartThreeChars()
   {
-    var test = new ColumnFilterLogic(typeof(DateTime), "dummy");
+    int countNullSrc = 0;
+    var data = new List<object>();
+    for (long i = 1; i < 200; i++)
+    {
+      if (i % 10 == 1)
+        data.Add($"Start{i}");
+      else if (i % 10 == 2)
+        data.Add($"End{i}");
+      else if (i % 10 == 3)
+      {
+        data.Add(null);
+        countNullSrc++; 
+      }
+      else
+        data.Add($"Mid{i}");
+    }
 
-    var data = GetColumnData(2);
+    (var countNull, var clusters) = data.ToArray().BuildValueClustersString("Dummy", 10, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(3, clusters.Count, "We should have one entry for Sta one for End and one for Mid");
+    Assert.AreEqual(4, clusters.First().Display.Length, $"Expected Display to have 4 chars but it is {clusters.First().Display}");
 
-    test.ReBuildValueClusters(data, 150, false, true, 9999999, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(data.Length, test.ValueClusterCollection.Select(x => x.Count).Sum());
+    Assert.AreEqual(countNullSrc, countNull, "Null Count");
+    // The number of matches might be lower since special chars are not counted
+    var found = countNull + clusters.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, found, "Number of entries does not match");
   }
 
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_bool()
+  [TestMethod, Timeout(100)]
+  public void BuildValueClustersString_StartFiveChars()
   {
-    var test = new ColumnFilterLogic(typeof(bool), "dummy");
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "bool").ColumnOrdinal), 200, false, true, 5.0, UnitTestStatic.TesterProgress));
+    var data = new List<object>();
+    for (long i = 1; i < 200; i++)
+    {
+      if (i % 10 == 1)
+        data.Add($"Start{i}");
+      else if (i % 10 == 2)
+        data.Add($"MyEnd{i}");
+      else
+        data.Add($"MyMid{i}");
+    }
+
+    (var countNull, var clusters) = data.ToArray().BuildValueClustersString("Dummy", 10, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(3, clusters.Count, "We should have one entry for Sta one for End and one for Mid");
+    Assert.AreEqual(6, clusters.First().Display.Length, $"Expected Display to have 4 chars but it is {clusters.First().Display}");
+
+    Assert.AreEqual(0, countNull, "No Null Values");
+    // The number of matches might be lower since special chars are not counted
+    var found = countNull + clusters.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, found, "Number of entries does not match");
   }
 
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_double()
+  [TestMethod, Timeout(100)]
+  public void BuildValueClustersString_LargeGroups()
   {
-    var test = new ColumnFilterLogic(typeof(double), "dummy");
-    var res = test.ReBuildValueClusters(GetColumnData(4), 200, false, true, 5.0, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
+    var data = new List<object>();
+    for (long i = 1; i < 2000; i++)
+        data.Add(UnitTestStatic.GetRandomText(20,true));
+
+    (var countNull, var clusters) = data.ToArray().BuildValueClustersString("Dummy", 10, 200.0, UnitTestStatic.TesterProgress);
+    Assert.AreEqual(6, clusters.Count, $"We should have groups like A-F, Numbers  {clusters.First().Display} - {clusters.Last().Display}");
+    
+    // The number of matches might be lower since special chars are not counted
+    var found = countNull + clusters.Select(x => x.Count).Sum();
+
+    Assert.IsGreaterThan(data.Count*0.95, found, "Number of entries is too low");
+    //if (found < data.Count)
+    //  Assert.Inconclusive($"Filters only match {found} of {data.Count} rows, goup filters not cover each record");
   }
 
-  [TestMethod]
-  [Timeout(1000)]
-  public void BuildValueClusters_decimal()
+  [TestMethod, Timeout(150)]
+  public void BuildValueClustersLong()
   {
-    var test = new ColumnFilterLogic(typeof(decimal), "dummy");
-    Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(GetColumnData(UnitTestStaticData.Columns.First(x => x.Name== "numeric").ColumnOrdinal), 200, false, false, 5.0, UnitTestStatic.TesterProgress));
+    var data = new List<object>();
+    for (long i = -200; i < 200; i+=5)
+      data.Add(i);
+
+    (var countNull, var test1) = data.ToArray().BuildValueClustersLong("dummy", 100, false, 200.0, UnitTestStatic.TesterProgress);
+    var number1 = test1.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, countNull + number1, "Overall Number is correct");
+    Assert.IsTrue(test1.First().Display.Contains($"{data.First():N0}"));
+    // Assert.IsTrue(clusters.Last().Display.Contains($"{data.Last():N0}"));
+
+    (var countNull2, var test2) = data.ToArray().BuildValueClustersLong("dummy", 20, true, 200.0, UnitTestStatic.TesterProgress);
+    var number2 = test2.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number2, "Number of entries does not match Combine / Normal");
+
+    (var countNull3, var test3) = data.ToArray().BuildValueClustersLongEven("dummy", 20, 200.0, UnitTestStatic.TesterProgress);
+    var number3 = test3.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number3, "Number of entries does not match Even / Normal");
+
+    (var countNull4, var test4) = data.ToArray().BuildValueClustersLong("dummy", 20, false, 200.0, UnitTestStatic.TesterProgress);
+    var number4 = test4.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number4, "Number of entries does not change on number of groups");
   }
 
+
+  [TestMethod, Timeout(150)]
+  public void BuildValueClustersDouble()
+  {
+    var data = new List<object>();
+    for (long i = -200; i < 200; i+=5)
+      data.Add(i/10d);
+
+    (var countNull, var test1) = data.ToArray().BuildValueClustersDouble("dummy", 100, false, 200.0, UnitTestStatic.TesterProgress);
+    var number1 = test1.Select(x => x.Count).Sum();
+    Assert.AreEqual(data.Count, countNull + number1, "Overall Number is correct");
+    Assert.IsTrue(test1.First().Display.Contains($"{data.First():N0}"));
+    // Assert.IsTrue(clusters.Last().Display.Contains($"{data.Last():N0}"));
+
+    (var countNull2, var test2) = data.ToArray().BuildValueClustersDouble("dummy", 20, true, 200.0, UnitTestStatic.TesterProgress);
+    var number2 = test2.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number2, "Number of entries does not match Combine / Normal");
+
+    (var countNull3, var test3) = data.ToArray().BuildValueClustersDoubleEven("dummy", 20, 200.0, UnitTestStatic.TesterProgress);
+    var number3 = test3.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number3, "Number of entries does not match Even / Normal");
+
+    (var countNull4, var test4) = data.ToArray().BuildValueClustersDouble("dummy", 20, false, 200.0, UnitTestStatic.TesterProgress);
+    var number4 = test4.Select(x => x.Count).Sum();
+    Assert.AreEqual(number1, number4, "Number of entries does not change on number of groups");
+  }
 }

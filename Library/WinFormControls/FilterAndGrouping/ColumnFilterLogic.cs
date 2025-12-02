@@ -217,7 +217,9 @@ public sealed class ColumnFilterLogic : ObservableObject
       {
         ValueClusterCollection.Clear();
 
-        (var countNull, var newGroups) = even ? values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersLong(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
+        (var countNull, var newGroups) = even ? 
+            values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
+            values.BuildValueClustersLong(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
 
         foreach (var newGroup in newGroups)
@@ -235,11 +237,14 @@ public sealed class ColumnFilterLogic : ObservableObject
       {
         ValueClusterCollection.Clear();
 
-        (var countNull, var newGroups) = even ? values.BuildValueClustersNumericEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersNumeric(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
+        (var countNull, var newGroups) = even ? 
+            values.BuildValueClustersDoubleEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
+            values.BuildValueClustersDouble(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+
         foreach (var newGroup in newGroups)
         {
-          if (!HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End))
+          if (!HasEnclosingCluster((double) newGroup.Start, (double) newGroup.End))
             AddOrUpdate(newGroup);
         }
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
@@ -303,21 +308,19 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// </returns>
   public bool HasEnclosingCluster<T>(T minValue, T maxValue) where T : struct, IComparable<T>
   {
-    foreach (var cluster in ActiveValueClusterCollection)
+    // For performance reason avoid Linq
+    for (int i = 0; i < ActiveValueClusterCollection.Count; i++)
     {
-      if (!(cluster.Start is T start))
-        continue;
+      var cluster = ActiveValueClusterCollection[i];
+      var start = (T) cluster.Start;
+      var end = (T) cluster.End;
 
-      if (start.CompareTo(minValue) > 0)
-        continue; // cluster starts after our range
-
-      // Null or unbounded cluster covers everything
-      if (cluster.End is null || (cluster.End is T end && end.CompareTo(maxValue) >= 0))
+      if (start.CompareTo(minValue) <= 0 && end.CompareTo(maxValue) >= 0)
         return true;
     }
-
     return false;
   }
+
   public static string OperatorIsNull => cOperatorIsNull;
 
   /// <summary>

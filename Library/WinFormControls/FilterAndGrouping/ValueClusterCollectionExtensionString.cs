@@ -43,7 +43,7 @@ namespace CsvTools
 
       progress.Report(new ProgressInfo("Preparing value overview…",
           (long) (cTypedProgress * cMaxProgress)));
-      int[] clusterLengths = { 1, 2, 4, 8, 12 };
+      int[] clusterLengths = { 1, 2, 3, 4, 5, 6 };
 
       // Prepare cluster-prefix collections
       var clusters = clusterLengths.ToDictionary(
@@ -123,7 +123,7 @@ namespace CsvTools
           if (count > 0)
           {
             valueClusters.Add(
-              new ValueCluster(dv, $"({escapedName} = '{dv.SqlQuote()}')", count, null));
+              new ValueCluster(dv, $"({escapedName} = '{dv.SqlQuote()}')", count));
           }
         }
 

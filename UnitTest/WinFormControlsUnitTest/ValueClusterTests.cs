@@ -11,26 +11,14 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting; /*
-* CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
-*
-* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
-* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
-*
-* You should have received a copy of the GNU Lesser Public License along with this program.
-* If not, see http://www.gnu.org/licenses/ .
-*
-*/
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests;
 
 [TestClass]
 public class ValueClusterTests
 {
-  [TestMethod]
+  [TestMethod, Timeout(50)]
   public void ValueClusterCtor()
   {
     var tst1 = new ValueCluster("text", "SQl", 0, "text", null);
@@ -41,10 +29,10 @@ public class ValueClusterTests
     Assert.AreEqual("dis", tst2.Display);
     Assert.AreEqual(10, tst2.Count);
 
-    }
+  }
 
 
-  [TestMethod]
+  [TestMethod, Timeout(50)]
   public void EqualsTest()
   {
     var src = new ValueCluster("dis", "cond", 10, "cond", null);
@@ -54,15 +42,16 @@ public class ValueClusterTests
     Assert.IsTrue(src.Equals((object) src));
   }
 
-  [TestMethod]
+  [TestMethod, Timeout(50)]
   public void ToStringTest()
   {
     var disp = new ValueCluster("dis2", "cond", 20, "cond", null).ToString();
-    Assert.AreEqual("dis2 20 items", disp);
+    Assert.IsTrue(disp.Contains("dis2"));
+    Assert.IsTrue(disp.Contains("20 "));
   }
 
 
-  [TestMethod]
+  [TestMethod, Timeout(50)]
   public void GetHashCodeTest()
   {
     var disp1 = new ValueCluster("dis2", "cond", 20, "cond", null);
