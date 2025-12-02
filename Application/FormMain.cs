@@ -827,8 +827,10 @@ public sealed partial class FormMain : ResizeForm
         m_ShouldReloadData |= m_FileSetting.CommentLine != editSetting.CommentLine;
         m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != editSetting.ContextSensitiveQualifier;
         m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != editSetting.DuplicateQualifierToEscape;
-
+        
+        m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
         editSetting.CopyTo(m_FileSetting);
+        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
       }
       // Set Setting
       else
