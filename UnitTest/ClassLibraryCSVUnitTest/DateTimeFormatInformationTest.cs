@@ -36,35 +36,40 @@ public class DateTimeFormatInformationTest
     return l;
   }
 
-  private DateTimeFormatInformation CheckDate(string format)
+  private DateTimeFormatInformation CheckDateMinMaxCorrect(string format)
   {
-    var dtm = new DateTimeFormatInformation(format);
-    var l = GetSamples(format);
+    var info = new DateTimeFormatInformation(format);
+    var samples = GetSamples(format);
 
-    var minLength = int.MaxValue;
-    var maxLength = int.MinValue;
+    int minLen = int.MaxValue;
+    int maxLen = int.MinValue;
 
-    foreach (var text in l)
+    foreach (var sample in samples)
     {
-      if (text.Length < minLength)
+      int len = sample.Length;
+
+      if (len < minLen)
       {
-        minLength = text.Length;
-        Assert.IsTrue(dtm.MinLength <= minLength, $"Minimum is {minLength} for {format}\nExample {text}");
+        minLen = len;
+        Assert.IsTrue(info.MinLength <= minLen,
+            $"Unexpected minimum length {minLen} for format '{format}'.\nSample: {sample}");
       }
-      if (text.Length > maxLength)
+
+      if (len > maxLen)
       {
-        maxLength = text.Length;
-        Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minimum is {maxLength} for {format}\nExample {text}");
+        maxLen = len;
+        Assert.IsTrue(info.MaxLength >= maxLen,
+            $"Unexpected maximum length {maxLen} for format '{format}'.\nSample: {sample}");
       }
     }
 
-    return dtm;
+    return info;
   }
 
   [TestMethod]
   public void DateTimeFormatInformationCheck1()
   {
-    var dtm = CheckDate("yyyy/MM/ddTHH:mm:sszzz");
+    var dtm = CheckDateMinMaxCorrect("yyyy/MM/ddTHH:mm:sszzz");
 
     Assert.AreEqual(25, dtm.MinLength);
     Assert.AreEqual(25, dtm.MaxLength);
@@ -73,7 +78,7 @@ public class DateTimeFormatInformationTest
   [TestMethod]
   public void DateTimeFormatInformationCheck2()
   {
-    var dtm = CheckDate("yyyy/MM/dd");
+    var dtm = CheckDateMinMaxCorrect("yyyy/MM/dd");
 
     Assert.AreEqual(10, dtm.MinLength);
     Assert.AreEqual(10, dtm.MaxLength);
@@ -82,7 +87,7 @@ public class DateTimeFormatInformationTest
   [TestMethod]
   public void DateTimeFormatInformationCheck3()
   {
-    var dtm = CheckDate("yyyy/M/d");
+    var dtm = CheckDateMinMaxCorrect("yyyy/M/d");
 
     Assert.AreEqual(8, dtm.MinLength);
     Assert.AreEqual(10, dtm.MaxLength);
@@ -91,7 +96,7 @@ public class DateTimeFormatInformationTest
   [TestMethod]
   public void DateTimeFormatInformationCheck4()
   {
-    var dtm = CheckDate("yyyy/M/dTHH:mm:ss");
+    var dtm = CheckDateMinMaxCorrect("yyyy/M/dTHH:mm:ss");
 
     Assert.AreEqual(17, dtm.MinLength);
     Assert.AreEqual(19, dtm.MaxLength);
@@ -100,7 +105,7 @@ public class DateTimeFormatInformationTest
   [TestMethod]
   public void DateTimeFormatInformationCheck5()
   {
-    var dtm = CheckDate("yyyy/M/dTH:m:s");
+    var dtm = CheckDateMinMaxCorrect("yyyy/M/dTH:m:s");
 
     Assert.AreEqual(14, dtm.MinLength);
     Assert.AreEqual(19, dtm.MaxLength);

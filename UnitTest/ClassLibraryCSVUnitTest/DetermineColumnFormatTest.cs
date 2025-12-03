@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+using Microsoft.SqlServer.Server;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,9 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -153,6 +156,131 @@ public class DetermineColumnFormatTest
       var columns = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
         new CsvTools.ColumnCollection(), false, true, "<NULL>", UnitTestStatic.TesterProgress);
     }
+  }
+
+
+  [DataTestMethod]
+  [DoNotParallelize]
+  [DataRow("en-US")]
+  [DataRow("de-DE")]
+  [DataRow("fr-FR")]
+  [DataRow("en-GB")]  
+  [DataRow("InvariantCulture")]
+  [DataRow("CurrentCulture")]
+  public async Task FillGuessColumnFormatReaderAsyncReader_DateFormat(string cultureName)
+  {
+    var culture = cultureName switch
+    {
+      "CurrentCulture" => CultureInfo.CurrentCulture,
+      "InvariantCulture" => CultureInfo.InvariantCulture,
+      _ => new CultureInfo(cultureName),
+    };
+
+    var fillGuessSettings = new FillGuessSettings(enabled: true, detectNumbers: false, detectDateTime: true,
+      detectPercentage: false, detectBoolean: false, detectGuid: false,
+      ignoreIdColumns: false);
+
+    var testFile = UnitTestStatic.GetTestPath($"DateFormats_{culture.Name}.txt");
+    if (System.IO.File.Exists(testFile))
+      System.IO.File.Delete(testFile);
+
+    var originalCulture = CultureInfo.CurrentCulture;
+    var originalUICulture = CultureInfo.CurrentUICulture;
+
+    try
+    {
+      CultureInfo.CurrentCulture = culture;
+      CultureInfo.CurrentUICulture = culture;
+
+      // Need to forget the StandardDateTimeFormats  they need to be rebuilt when culture changes
+      StaticCollections.StandardDateTimeFormats.Clear();
+
+      //TODO: check why "ddd, d MMM yyyy HH:mm" does not work for de and fr
+
+      foreach (var format in new[] { "yyyy/MM/dd HH:mm:ss.FFFF", "yyyyMMdd'T'HH:mm:ss.fff'Z'", "MM/dd/yyyy", "M/d/yyyy", "yyyyMMdd HH:mm:ss", "MM/dd/yyyy HH:mm:ss",
+       "M/d/yyyy h:mm tt", "M/d/yyyy h:mm:ss tt", "dd/MM/yyyy HH:mm:ss", "yyyy/MM/dd"})
+      {
+        var test = new DateTimeFormatInformation(format);
+        if (format.Contains("tt") &&
+           (string.IsNullOrEmpty(culture.DateTimeFormat.AMDesignator) || string.IsNullOrEmpty(culture.DateTimeFormat.PMDesignator)))
+        {
+          continue;
+        }
+
+        // ------------------------------------------------------
+        // 1. Generate the test file content
+        // ------------------------------------------------------
+        var start = new DateTime(2020, 01, 01, 00, 00, 00, DateTimeKind.Utc);
+        var sb = new StringBuilder();
+        sb.AppendLine("SampleDate");
+
+        // Add some specific dates so M - MM and d- dd can be distinguished and we have clear identifier for day and month
+        sb.AppendLine(new DateTime(1980, 6, 6, 9, 0, 0, DateTimeKind.Utc).ToString(format, culture));
+        sb.AppendLine(new DateTime(1995, 10, 1, 9, 0, 0, DateTimeKind.Utc).ToString(format, culture));
+        sb.AppendLine(new DateTime(1995, 1, 25, 9, 0, 0, DateTimeKind.Utc).ToString(format, culture));
+
+        for (int i = 0; i < 100; i++)
+        {
+          // Add random days and random time of day
+          var dt = start.AddDays(UnitTestStatic.Random.Next(0, 1000)).AddMilliseconds(UnitTestStatic.Random.Next(1000, 86400000));
+          // Use the exact user-specified format; do not alter its casing.
+          sb.AppendLine(dt.ToString(format, culture));
+        }
+
+        // Write to disk
+        System.IO.File.WriteAllText(testFile, sb.ToString(), Encoding.UTF8);
+
+        var expectedFormat = format.Replace("'", "");
+
+        // ------------------------------------------------------
+        // 2. Expected normalized format (strip literal quotes and trailing Z)
+        // ------------------------------------------------------
+        if (expectedFormat.EndsWith("Z"))
+          expectedFormat = expectedFormat.Substring(0, expectedFormat.Length - 1);
+
+
+        // ------------------------------------------------------
+        // 3. Read and detect the format using CsvFileReader
+        // ------------------------------------------------------
+        using (var reader = new CsvTools.CsvFileReader(testFile, Encoding.UTF8.CodePage, 0, true,
+                 Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
+                 '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
+                 "", true, false, false, true, true, false, true, true, true, true, false,
+                 treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
+                 identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
+        {
+          await reader.OpenAsync(CancellationToken.None);
+
+          
+
+          // Analyze the column formats
+          var columns = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
+            Array.Empty<Column>(), false, true, "<NULL>", UnitTestStatic.TesterProgress);
+
+          
+
+          // ------------------------------------------------------
+          // 4. Assertions
+          // ------------------------------------------------------
+          Assert.AreEqual(1, columns.Count, $"\nFormat {format} not recognized for '{culture.DisplayName}'");
+          var testCol = columns.First();
+
+          Assert.AreEqual(expectedFormat, testCol.ValueFormat.DateFormat, $"\nFormat mismatch for '{culture.DisplayName}'");
+
+          if (format.EndsWith("Z"))
+            Assert.AreEqual("UTC", testCol.TimeZonePart, $"\nTimeZone not set for '{format}' '{culture.DisplayName}'");
+        }
+      }
+    }
+    finally
+    {
+      // Ensure the file is removed even if a test iteration fails
+      if (System.IO.File.Exists(testFile))
+        System.IO.File.Delete(testFile);
+      CultureInfo.CurrentCulture = originalCulture;
+      CultureInfo.CurrentUICulture = originalUICulture;
+    }
+
   }
 
 

@@ -21,14 +21,14 @@ namespace CsvTools;
 public record struct DateTimeFormatInformation
 {
   /// <summary>
-  /// The maximum length, assuming the longest names are used.
-  /// </summary>
-  public int MaxLength { get; }
-
-  /// <summary>
   /// The minimum length, assuming the shortest names are used.
   /// </summary>
   public int MinLength { get; }
+
+  /// <summary>
+  /// The maximum length, assuming the longest names are used.
+  /// </summary>
+  public int MaxLength { get; }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="DateTimeFormatInformation" /> struct.
@@ -80,6 +80,7 @@ public record struct DateTimeFormatInformation
     SetMinMaxAndRemove("MM", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);
     SetMinMaxAndRemove("M", 1, 2, ref formatSpecifier, ref minLength, ref maxLength);
 
+    SetMinMaxAndRemove(".F", 0, 2, ref formatSpecifier, ref minLength, ref maxLength);
     SetMinMaxAndRemove("F", 0, 1, ref formatSpecifier, ref minLength, ref maxLength);
 
     SetMinMaxAndRemove("ss", 2, 2, ref formatSpecifier, ref minLength, ref maxLength);

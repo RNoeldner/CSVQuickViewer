@@ -17,11 +17,12 @@
 #  tt for AM / PM
 #  m for minute
 #  s for second
-#  f for pats of seconds
+#  f for parts of seconds
+#  F for parts of seconds (ending 0 or .0 removed)
 #  \ escape
 #  
 # Keeping preferred more specific format at top
-# M/d/yyyy is a superset of MM/dd/yyyy 
+# Dez 2025 removed all format with timezones z
 #
 dddd, MMMM dd, yyyy, hh:mm:ss tt
 dddd, MMMM dd, yyyy hh:mm:ss tt
@@ -68,8 +69,6 @@ dddd, dd MMMM, yyyy h:mm tt
 dddd, dd. MMMM yyyy h:mm tt
 yyyy,MMMM dd, dddd hh:mm tt
 yyyy,MMMM dd, dddd HH:mm:ss
-yyyy/MM/ddTHH:mm:ss.FFFFFFF
-yyyy/MM/ddTHH:mm:ss.FFFFFFFz
 dd MMMM yyyy dddd hh:mm tt
 dd MMMM yyyy dddd HH:mm:ss
 ddd d MMM yyyy hh:mm:ss tt
@@ -113,8 +112,6 @@ dddd, d MMMM yyyy h:mm tt
 dddd, dd MMMM, yyyy HH:mm
 dddd, dd. MMMM yyyy HH:mm
 dddd,MMMM dd,yyyy h:mm tt
-yyyy/MM/ddTHH:mm:ss,FFFz
-yyyy/MM/ddTHH:mm:ss.FFFz
 d MMMM, yyyy hh:mm:ss tt
 d. MMMM yyyy hh:mm:ss tt
 dd MMM yyyy ddd hh:mm tt
@@ -140,9 +137,8 @@ dddd, dd MMMM yyyy HH:mm
 dddd, dd MMMM, yyyy H:mm
 dddd, dd. MMMM yyyy H:mm
 yyyy,MMMM dd, dddd HH:mm
-yyyy/MM/dd HH:mm:ss,FFFF
-yyyy/MM/dd HH:mm:ss.FFFF
-yyyy/MM/ddTHH:mm:sszz00
+yyyy/MM/dd HH:mm:ss.ffff
+yyyy/MM/dd HH:mm:ss.fff
 d MMM, yyyy hh:mm:ss tt
 d MMMM yyyy hh:mm:ss tt
 d. MMM yyyy hh:mm:ss tt
@@ -166,13 +162,9 @@ dddd, d. MMMM yyyy H:mm
 dddd, dd MMMM yyyy H:mm
 dddd,MMMM dd,yyyy HH:mm
 yyyy,MMMM dd, dddd H:mm
-yyyy/MM/ddTHH:mm:ss zzz
-yyyy/MM/dd HH:mm:ss zzz
 MM/dd/yyyy hh:mm:ss tt
 dd/MM/yyyy hh:mm:ss tt
 yyyy/MM/dd hh:mm:ss tt
-yyyy/MM/ddTHH:mm:sszzz
-yyyy/MM/dd HH:mm:sszzz
 MMMM/dd/yy hh:mm:ss tt
 d MMM yyyy hh:mm:ss tt
 dd MMMM yyyy dddd H:mm
@@ -191,11 +183,13 @@ dddd d MMMM yyyy HH:mm
 dddd dd MMMM yyyy H:mm
 dddd, d MMMM yyyy H:mm
 dddd,MMMM dd,yyyy H:mm
+yyyyMMddTHH:mm:ss.ffff
+yyyy/MM/dd HH:mm:ss.FFFF
+yyyy/MM/ddTHH:mm:ss.FFFF
 MM/dd/yyyy h:mm:ss tt
 dd/MM/yyyy h:mm:ss tt
 yyyy/MM/dd h:mm:ss tt
-yyyy/MM/ddTHH:mm:sszz
-yyyyMMddTHH:mm:ss.FFFF
+yyyyMMddTHH:mm:ss.fff
 MMM/dd/yy hh:mm:ss tt
 d MMMM, yyyy hh:mm tt
 d MMMM, yyyy HH:mm:ss
@@ -244,7 +238,6 @@ ddd d MMM yyyy HH:mm
 ddd dd MMM yyyy H:mm
 ddd, d MMM yyyy H:mm
 ddd,MMM dd,yyyy H:mm
-yyyy/MM/ddTHH:mm:ssz
 M/d/yyyy h:mm:ss tt
 MM/dd/yy h:mm:ss tt
 MM/dd/yyyy HH:mm:ss
@@ -253,9 +246,7 @@ d/M/yyyy h:mm:ss tt
 dd/MM/yy h:mm:ss tt
 dd/MM/yyyy HH:mm:ss
 dd/MM/yyyy hh:mm tt
-yyyy/MM/dd HH:mm:ss
 yyyy/MM/dd hh:mm tt
-yyyy/MM/ddTHH:mm:ss
 MMMM/dd/yy hh:mm tt
 MMMM/dd/yy HH:mm:ss
 d MMM yyyy hh:mm tt
@@ -293,7 +284,6 @@ dddd, d MMMM, yyyy
 dddd, d. MMMM yyyy
 dddd, dd MMMM yyyy
 yyyy,MMMM dd, dddd
-yyyy/MM/ddTHH:mmz
 M/d/yy h:mm:ss tt
 M/d/yyyy HH:mm:ss
 M/d/yyyy hh:mm tt

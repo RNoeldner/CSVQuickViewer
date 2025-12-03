@@ -87,7 +87,7 @@ public static class StaticCollections
   /// <summary>
   ///   The possible length of a date for a given format
   /// </summary>
-  internal static readonly DateTimeFormatCollection StandardDateTimeFormats =
+  public static readonly DateTimeFormatCollection StandardDateTimeFormats =
     new DateTimeFormatCollection("DateTimeFormats.txt");
 
   [SuppressMessage("ReSharper", "StringLiteralTypo")]

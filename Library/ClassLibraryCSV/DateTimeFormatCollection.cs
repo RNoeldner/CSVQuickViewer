@@ -22,7 +22,7 @@ namespace CsvTools;
 /// <remarks>
 /// Enumerating the dictionary in MatchingForLength is still not fully thread-safe if another thread adds entries concurrently. 
 /// </remarks>
-public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeFormatInformation>
+public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
 {
   /// <summary>
   ///   A lookup for minimum and maximum length by format description
@@ -54,17 +54,15 @@ public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeForm
     if (TryGetValue(dateFormat, out var lengthMinMax))
       return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
 
-
     lengthMinMax = AddInternal(dateFormat);
 
     return actualLength >= lengthMinMax.MinLength && actualLength <= lengthMinMax.MaxLength;
   }
-
+ 
   private void EnsureLoaded()
   {
     if (Count != 0)
       return;
-
 
     using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
     while (!reader.EndOfStream)
@@ -79,22 +77,28 @@ public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeForm
     AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
     AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
     AddInternal(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
-
   }
 
   /// <summary>
-  /// Returns all date format strings in the collection whose minimum and maximum lengths
-  /// encompass the specified <paramref name="length"/>.
+  /// Retrieves all date format strings whose defined length range fully
+  /// contains the specified <paramref name="minLength"/> and <paramref name="maxLength"/> values.
   /// </summary>
-  /// <param name="length">The length of the string to match against date formats.</param>
+  /// <param name="minLength">
+  /// The minimum length of the input to compare against the format's supported range.
+  /// </param>
+  /// <param name="maxLength">
+  /// The maximum length of the input to compare against the format's supported range.
+  /// </param>
   /// <returns>
-  /// An <see cref="IEnumerable{String}"/> containing all matching date format strings.
+  /// A read-only collection of format strings whose length constraints include
+  /// the given range.
   /// </returns>
   /// <remarks>
-  /// The collection is lazy-loaded on first access. Enumeration is **not fully thread-safe** 
-  /// if other threads add new entries concurrently.
+  /// The underlying collection is loaded lazily upon first access.
+  /// Enumeration is safe as long as no other thread modifies the collection
+  /// concurrently; concurrent additions or removals are not supported.
   /// </remarks>
-  public IReadOnlyCollection<string> MatchingForLength(int length)
+  public IReadOnlyCollection<string> MatchingForLength(int minLength, int maxLength)
   {
     EnsureLoaded();
 
@@ -102,7 +106,7 @@ public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeForm
     List<string> matches = new();
     foreach (var kvp in this)
     {
-      if (length >= kvp.Value.MinLength && length <= kvp.Value.MaxLength)
+      if (minLength >= kvp.Value.MinLength && maxLength <= kvp.Value.MaxLength)
         matches.Add(kvp.Key);
     }
     return matches;
@@ -118,8 +122,8 @@ public sealed class DateTimeFormatCollection : DictionaryIgnoreCase<DateTimeForm
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     TryAdd(entry, dtinfo);
 #else
-      if (!ContainsKey(entry))
-        Add(entry, new DateTimeFormatInformation(entry));
+    if (!ContainsKey(entry))
+      Add(entry, new DateTimeFormatInformation(entry));
 #endif
     return dtinfo;
   }

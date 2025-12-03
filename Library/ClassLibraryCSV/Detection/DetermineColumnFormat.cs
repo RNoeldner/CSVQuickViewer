@@ -128,10 +128,10 @@ public static class DetermineColumnFormat
     columnCollectionInput ??= Array.Empty<Column>();
 
     if (!fillGuessSettings.Enabled || fillGuessSettings is
-        {
-          DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
-          DetectPercentage: false, SerialDateTime: false
-        })
+      {
+        DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
+        DetectPercentage: false, SerialDateTime: false
+      })
       return [.. columnCollectionInput];
 
     if (fileReader.FieldCount == 0)
@@ -185,7 +185,7 @@ public static class DetermineColumnFormat
       if (isKnownType)
       {
         progress.Report($"{column.Name} - Existing Type : {column.ValueFormat.GetTypeAndFormatDescription()}");
-          
+
         continue;
       }
 
@@ -358,6 +358,34 @@ public static class DetermineColumnFormat
         var colIndexSetting = columnCollection.IndexOf(readerColumn);
         if (colIndexSetting == -1) continue;
         var columnFormat = columnCollection[colIndexSetting].ValueFormat;
+        // Add fixed TimeZone for DateTime ending with z for Zulu / UTC time
+        if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+        {
+          var endsWithZ = true;
+          foreach (var sample in sampleList[colIndex].Values.Take(20))
+          {
+            char last = sample.Span[sample.Length - 1];
+            if (last != 'z' && last != 'Z')
+            {
+              endsWithZ = false;
+              break;
+            }
+          }
+          // Mark it as UTC time zone
+          if (endsWithZ)
+          {
+            columnCollection.Replace(
+            new Column(
+              columnCollection[colIndexSetting].Name,
+              columnCollection[colIndexSetting].ValueFormat,
+              columnCollection[colIndexSetting].ColumnOrdinal,
+              columnCollection[colIndexSetting].Ignore,
+              columnCollection[colIndexSetting].Convert,
+              columnCollection[colIndexSetting].DestinationName,
+              columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
+              "UTC"));
+          }
+        }
 
         // Possibly add Time Zone
         if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
@@ -732,10 +760,18 @@ public static class DetermineColumnFormat
       throw new ArgumentNullException(nameof(samples));
 
     var checkResult = new CheckResult();
-
-    var length = samples.Aggregate<ReadOnlyMemory<char>, long>(0, (current, sample) => current + sample.Length);
-    var commonLength = (int) (length / samples.Count);
-
+    int maxLength = int.MinValue;
+    int minLength = int.MaxValue;
+    foreach (var sample in samples)
+    {
+      var span = sample.Span;
+      int len = span.Length;
+      // Ignore trailing 'Z'/'z'
+      if (len > 0 && (span[len-1] == 'Z' || span[len-1] == 'z'))
+        len--;
+      maxLength = Math.Max(maxLength, len);
+      minLength = Math.Min(minLength, len);
+    }
 
     // loop through the samples and filter out date separators that are not part of any sample
     var possibleDateSeparators = new List<char>();
@@ -750,8 +786,7 @@ public static class DetermineColumnFormat
       best = kv.Value;
       possibleDateSeparators.Add(kv.Key);
     }
-
-    foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(commonLength))
+    foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(minLength, maxLength))
     {
       if (cancellationToken.IsCancellationRequested)
         return checkResult;
@@ -763,7 +798,6 @@ public static class DetermineColumnFormat
           var res = samples.CheckDate(fmt.AsSpan(), sep, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
-
           checkResult.KeepBestPossibleMatch(res);
         }
       }
@@ -817,24 +851,24 @@ public static class DetermineColumnFormat
 
     foreach (var thousandSep in possibleGrouping)
       // Try Numbers: Int and Decimal
-    foreach (var decimalSep in possibleDecimal)
-    {
-      if (cancellationToken.IsCancellationRequested)
-        return checkResult;
-      if (decimalSep.Equals(thousandSep))
-        continue;
-      var res = samples.CheckNumber(
-        decimalSep,
-        thousandSep,
-        guessPercentage,
-        allowStartingZero,
-        removeCurrencySymbols,
-        cancellationToken);
-      if (res.FoundValueFormat != null)
-        return res;
+      foreach (var decimalSep in possibleDecimal)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          return checkResult;
+        if (decimalSep.Equals(thousandSep))
+          continue;
+        var res = samples.CheckNumber(
+          decimalSep,
+          thousandSep,
+          guessPercentage,
+          allowStartingZero,
+          removeCurrencySymbols,
+          cancellationToken);
+        if (res.FoundValueFormat != null)
+          return res;
 
-      checkResult.KeepBestPossibleMatch(res);
-    }
+        checkResult.KeepBestPossibleMatch(res);
+      }
 
     return checkResult;
   }
@@ -1045,7 +1079,7 @@ public static class DetermineColumnFormat
 #if NET6_0_OR_GREATER
       var random = Random.Shared;
 #else
-        var random = new Random(Environment.TickCount);
+      var random = new Random(Environment.TickCount);
 #endif
       var valueList = new List<ReadOnlyMemory<char>>();
       foreach (var item in items)
@@ -1089,10 +1123,10 @@ public static class DetermineColumnFormat
 
     // Check if we are supposed to check something
     if (!fillGuessSettings.Enabled || fillGuessSettings is
-        {
-          DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
-          DetectPercentage: false, SerialDateTime: false
-        })
+      {
+        DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
+        DetectPercentage: false, SerialDateTime: false
+      })
       return fileSetting.ColumnCollection;
 
     // in case there is no delimiter, but it's a delimited file, do nothing
@@ -1102,7 +1136,7 @@ public static class DetermineColumnFormat
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     await
 #endif
-      using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken);
+    using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken);
     return await FillGuessColumnFormatReaderAsyncReader(
       fileReader,
       fillGuessSettings,

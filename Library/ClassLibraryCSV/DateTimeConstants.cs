@@ -43,7 +43,7 @@ public static class DateTimeConstants
         .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator.FromText(), '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
       CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern
         .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator.FromText(), '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
-      "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.FFF"
+      "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.fff"
     };
 
     m_CommonDateTimeFormats = new HashSet<string>(StringComparer.Ordinal)
@@ -62,9 +62,9 @@ public static class DateTimeConstants
       "d/MM/yyyy",
       "yyyy/MM/dd",
       "yyyy/MM/ddTHH:mm:ss",
-      "yyyy/MM/dd HH:mm:ss.FFF",
+      "yyyy/MM/dd HH:mm:ss.fff",
       "yyyyMMdd",
-      "yyyyMMddTHH:mm:ss.FFF",
+      "yyyyMMddTHH:mm:ss.fff",
     };
     foreach (var format in m_CommonTimeFormats)
       m_CommonDateTimeFormats.Add(format);
