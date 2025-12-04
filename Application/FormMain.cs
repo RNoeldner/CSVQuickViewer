@@ -365,6 +365,7 @@ public sealed partial class FormMain : ResizeForm
         NoDelimitedFile = detection.NoDelimitedFile,
         IdentifierInContainer = detection.IdentifierInContainer,
         SkipRows = detection.SkipRows,
+        SkipRowsAfterHeader = detection.SkipRowsAfterHeader,
         IsJson = detection.IsJson,
         IsXml = detection.IsXml
       };
@@ -804,6 +805,7 @@ public sealed partial class FormMain : ResizeForm
         m_ShouldReloadData |= m_FileSetting.NumWarnings != editSetting.NumWarnings;
         m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != editSetting.SkipEmptyLines;
         m_ShouldReloadData |= m_FileSetting.SkipRows != editSetting.SkipRows;
+        m_ShouldReloadData |= m_FileSetting.SkipRowsAfterHeader != editSetting.SkipRowsAfterHeader;
         m_ShouldReloadData |= m_FileSetting.TreatLfAsSpace != editSetting.TreatLfAsSpace;
         m_ShouldReloadData |= m_FileSetting.TreatNBSPAsSpace != editSetting.TreatNBSPAsSpace;
         m_ShouldReloadData |= m_FileSetting.TreatTextAsNull != editSetting.TreatTextAsNull;

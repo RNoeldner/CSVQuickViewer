@@ -152,6 +152,7 @@ public sealed record ManifestData
     {
       FileName =  fileName,
       SkipRows = 0,
+      SkipRowsAfterHeader = 0,
       CodePageId= Encoding.UTF8.CodePage,
       ByteOrderMark= false,
       IdentifierInContainer = identifierInContainer,
