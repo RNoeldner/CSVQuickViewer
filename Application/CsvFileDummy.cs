@@ -244,6 +244,9 @@ public sealed class CsvFileDummy : ICsvFile
   [DefaultValue(0)] public int SkipRows { get; set; }
 
   /// <inheritdoc />
+  [DefaultValue(0)] public int SkipRowsAfterHeader { get; set; }
+
+  /// <inheritdoc />
   [DefaultValue(false)] public bool TreatNBSPAsSpace { get; set; }
 
   /// <inheritdoc />
@@ -276,6 +279,7 @@ public sealed class CsvFileDummy : ICsvFile
     target.SkipDuplicateHeader = SkipDuplicateHeader;
     target.SkipEmptyLines = SkipEmptyLines;
     target.SkipRows = SkipRows;
+    target.SkipRowsAfterHeader = SkipRowsAfterHeader;
     target.TreatNBSPAsSpace = TreatNBSPAsSpace;
     target.TreatTextAsNull = TreatTextAsNull;
     target.Trim = Trim;

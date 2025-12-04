@@ -38,11 +38,11 @@ public class WorkWithStream
       '\0', Array.Empty<char>(), UnitTestStatic.TesterProgress);
     impStream.Seek(0, SeekOrigin.Begin);
 
-    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-             new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-             result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-             string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-             StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, 0, result.HasFieldHeader,
+new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -53,11 +53,11 @@ public class WorkWithStream
 
     impStream.Seek(0, SeekOrigin.Begin);
 
-    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-             determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-             result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-             string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-             StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, 0, result.HasFieldHeader,
+determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, reader.FieldCount);
@@ -76,11 +76,11 @@ public class WorkWithStream
 
     impStream.Seek(0, SeekOrigin.Begin);
     ICollection<Column> determinedColumns;
-    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-             new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-             result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-             string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-             StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, 0, result.HasFieldHeader,
+new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -91,11 +91,11 @@ public class WorkWithStream
 
     impStream.Seek(0, SeekOrigin.Begin);
 
-    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-             determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-             result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-             string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-             StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+    using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, 0, result.HasFieldHeader,
+determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, reader.FieldCount);

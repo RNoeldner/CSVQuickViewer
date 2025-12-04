@@ -139,7 +139,7 @@ public class FormHierarchyDisplayTest
   {
     using var dataTable = UnitTestStaticData.GetDataTable(60);
     // load the csvFile FileWithHierarchy
-    using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), fieldDelimiterChar:'\t');
+    using var csvDataReader = new CsvFileReader(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), fieldDelimiterChar: '\t', skipRowsAfterHeader: 0);
     await csvDataReader.OpenAsync(UnitTestStatic.TesterProgress.CancellationToken);
 
     var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), true,

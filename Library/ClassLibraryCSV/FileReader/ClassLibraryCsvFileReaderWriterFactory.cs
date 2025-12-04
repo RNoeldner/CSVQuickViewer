@@ -53,21 +53,27 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   {
     return setting switch
     {
-      IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim, json.TreatTextAsNull, json.TreatNBSPAsSpace, TimeZoneAdjust,
-        LocalTimeZone, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
+      IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim,
+                                           json.TreatTextAsNull, json.TreatNBSPAsSpace, TimeZoneAdjust, LocalTimeZone,
+                                           FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
 
-      IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit, xml.Trim, xml.TreatTextAsNull, xml.TreatNBSPAsSpace, TimeZoneAdjust,
-        LocalTimeZone, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
+      IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit, xml.Trim,
+                                        xml.TreatTextAsNull, xml.TreatNBSPAsSpace, TimeZoneAdjust, LocalTimeZone,
+                                        FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
 
-      ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
-        csv.ColumnCollection, csv.TrimmingOption, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
-        csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier, csv.CommentLine, csv.NumWarnings,
-        csv.DuplicateQualifierToEscape, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
-        csv.QualifierPlaceholder, csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
-        csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes,
-        csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
-        csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, TimeZoneAdjust,
-        LocalTimeZone, FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
+      ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.SkipRowsAfterHeader,
+                                        csv.HasFieldHeader, csv.ColumnCollection, csv.TrimmingOption,
+                                        csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
+                                        csv.RecordLimit, csv.AllowRowCombining, csv.ContextSensitiveQualifier,
+                                        csv.CommentLine, csv.NumWarnings, csv.DuplicateQualifierToEscape,
+                                        csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder,
+                                        csv.SkipDuplicateHeader, csv.TreatLfAsSpace, csv.TreatUnknownCharacterAsSpace,
+                                        csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed,
+                                        csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter,
+                                        csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
+                                        csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer,
+                                        TimeZoneAdjust, LocalTimeZone, FillGuessSettings.DetectPercentage,
+                                        FillGuessSettings.RemoveCurrencySymbols),
 
       _ => throw new FileReaderException($"Reader for {setting} not found")
 

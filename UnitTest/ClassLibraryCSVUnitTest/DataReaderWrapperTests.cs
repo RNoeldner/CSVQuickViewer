@@ -153,15 +153,15 @@ public class DataReaderWrapperTests
   private static CsvFileReader GetReader(ICsvFile setting)
   {
     return new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-      setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
-      setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-      setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
-      setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
-      setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-      setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
-      setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
-      setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+      setting.SkipRowsAfterHeader, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
+setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
+setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
+setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
+setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
+setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
+setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
   }
 
   [TestMethod()]

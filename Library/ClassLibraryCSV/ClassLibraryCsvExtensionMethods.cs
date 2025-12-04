@@ -29,16 +29,17 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools;
 
-/// <summary>Delegate for a routine that will handle time zone conversion</summary>
-/// <param name="input">The input date / Time</param>
-/// <param name="srcTimeZone">The source time zone.</param>
-/// <param name="destTimeZone">The destination time zone.</param>
-/// <param name="handleWarning">An action to be called when a warning should be passed on, e.G. time zone is not known</param>
-/// <returns>
-///   Converted date / time
-/// </returns>
-public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string srcTimeZone, string destTimeZone,
-  Action<string>? handleWarning);
+/// <summary>
+/// Delegate for a routine that handles time zone conversion.
+/// </summary>
+/// <param name="input">The input <see cref="DateTime"/> value to be converted.</param>
+/// <param name="sourceTimeZone">The source time zone identifier.</param>
+/// <param name="destinationTimeZone">The target time zone identifier.</param>
+/// <param name="handleWarning">
+/// Optional action invoked to report warnings (e.g., unknown or invalid time zones).
+/// </param>
+/// <returns>The converted <see cref="DateTime"/> value in the target time zone.</returns>
+public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string sourceTimeZone, string destinationTimeZone, Action<string>? handleWarning);
 
 /// <summary>
 ///   Class with extensions used in the class Library
@@ -614,30 +615,30 @@ public static class ClassLibraryCsvExtensionMethods
     // Function is available since .NET8
     return original.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
 #else
-      var inc = original.Length / pattern.Length * (replacement.Length - pattern.Length);
-      var chars = new char[original.Length + Math.Max(0, inc)];
+    var inc = original.Length / pattern.Length * (replacement.Length - pattern.Length);
+    var chars = new char[original.Length + Math.Max(0, inc)];
 
-      var count = 0;
-      var positionLast = 0;
-      int positionNew;
+    var count = 0;
+    var positionLast = 0;
+    int positionNew;
 
-      while ((positionNew = original.IndexOf(pattern, positionLast, StringComparison.OrdinalIgnoreCase)) != -1)
-      {
-        for (var i = positionLast; i < positionNew; ++i)
-          chars[count++] = original[i];
-        foreach (var t in replacement)
-          chars[count++] = t;
-
-        positionLast = positionNew + pattern.Length;
-      }
-
-      if (positionLast == 0)
-        return original;
-
-      for (var i = positionLast; i < original.Length; ++i)
+    while ((positionNew = original.IndexOf(pattern, positionLast, StringComparison.OrdinalIgnoreCase)) != -1)
+    {
+      for (var i = positionLast; i < positionNew; ++i)
         chars[count++] = original[i];
+      foreach (var t in replacement)
+        chars[count++] = t;
 
-      return new string(chars, 0, count);
+      positionLast = positionNew + pattern.Length;
+    }
+
+    if (positionLast == 0)
+      return original;
+
+    for (var i = positionLast; i < original.Length; ++i)
+      chars[count++] = original[i];
+
+    return new string(chars, 0, count);
 #endif
   }
 

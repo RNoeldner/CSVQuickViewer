@@ -94,8 +94,15 @@ public interface IFileSetting : IWithCopyTo<IFileSetting>
   /// <summary>
   ///   Gets or sets the values of rows that should be ignored in the beginning, e.G. for information not related  to the data
   /// </summary>
-  /// <value>The skip rows.</value>
   int SkipRows { get; set; }
+
+  /// <summary>
+  ///   Number of rows to skip immediately after the header row.  
+  ///   In most text-based files, comment lines are automatically ignored and empty lines are skipped. 
+  ///   For Excel or similar sources where comments are not supported, skipping rows often achieved by adjusting the starting range.  
+  ///   This parameter is typically used when the rows after the header contain descriptive information, units, or other metadata about the columns.
+  /// </Summary>
+  int SkipRowsAfterHeader { get; set; }
 
   /// <summary>
   ///   Gets or sets a value indicating whether to treat NBSP as space.

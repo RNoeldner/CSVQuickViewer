@@ -29,15 +29,15 @@ public class PagedFileReaderTest
     const int numRec = 1065;
     // 1065 / 17
     using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-             65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
-             '"', char.MinValue, 0, false,
-             false, "", 0,
-             true, "", "",
-             "", true, false,
-             true, false, false,
-             false, false, false, false,
-             false, false, "",
-             true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+             65001, 0, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+'"', char.MinValue, 0, false,
+false, "", 0,
+true, "", "",
+"", true, false,
+true, false, false,
+false, false, false, false,
+false, false, "",
+true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -57,15 +57,15 @@ public class PagedFileReaderTest
     const int pageSize = 20;
     // 1065 / 17
     using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-             65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
-             '"', char.MinValue, 0, false,
-             false, "", 0,
-             true, "", "",
-             "", true, false,
-             true, false, false,
-             false, false, false, false,
-             false, false, "",
-             true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+             65001, 0, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+'"', char.MinValue, 0, false,
+false, "", 0,
+true, "", "",
+"", true, false,
+true, false, false,
+false, false, false, false,
+false, false, "",
+true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -85,15 +85,15 @@ public class PagedFileReaderTest
     const int pageSize = 33;
     // 1065 / 17
     using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-             65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
-             '"', char.MinValue, 0, false,
-             false, "", 0,
-             true, "", "",
-             "", true, false,
-             true, false, false,
-             false, false, false, false,
-             false, false, "",
-             true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+             65001, 0, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+'"', char.MinValue, 0, false,
+false, "", 0,
+true, "", "",
+"", true, false,
+true, false, false,
+false, false, false, false,
+false, false, "",
+true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -110,15 +110,15 @@ public class PagedFileReaderTest
   public async Task PagedFileReaderOpen()
   {
     using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-             65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
-             '"', char.MinValue, 0, false,
-             false, "", 0,
-             true, "", "",
-             "", true, false,
-             true, false, false,
-             false, false, false, false,
-             false, false, "",
-             true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, true))
+             65001, 0, 0, true, null, TrimmingOptionEnum.Unquoted, '\t',
+'"', char.MinValue, 0, false,
+false, "", 0,
+true, "", "",
+"", true, false,
+true, false, false,
+false, false, false, false,
+false, false, "",
+true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, true))
     {
       var test = new PagedFileReader(reader, 20);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);

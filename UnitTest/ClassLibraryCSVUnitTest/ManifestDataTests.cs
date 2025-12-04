@@ -55,18 +55,18 @@ public class ManifestDataTests
     Assert.AreEqual(19, setting.ColumnCollection.Count());
 #pragma warning restore CS8602
     using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-      setting.HasFieldHeader, setting.ColumnCollection,
-      setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-      setting.RecordLimit, setting.AllowRowCombining,
-      setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+      0, setting.HasFieldHeader, setting.ColumnCollection,
+setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
+setting.RecordLimit, setting.AllowRowCombining,
+setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
       setting.NewLinePlaceholder,
-      setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
       setting.TreatUnknownCharacterAsSpace,
-      setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-      setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
+setting.WarnQuotes, setting.WarnUnknownCharacter,
+setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
       setting.ConsecutiveEmptyRows,
-      setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
+setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("object_id", reader.GetColumn(0).Name);
 #pragma warning disable CS0618
@@ -90,18 +90,18 @@ public class ManifestDataTests
     Assert.AreEqual(3, setting.ColumnCollection.Count());
 #pragma warning restore 8602
     using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-      setting.HasFieldHeader, setting.ColumnCollection,
-      setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-      setting.RecordLimit, setting.AllowRowCombining,
-      setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+      0, setting.HasFieldHeader, setting.ColumnCollection,
+setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
+setting.RecordLimit, setting.AllowRowCombining,
+setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
       setting.NewLinePlaceholder,
-      setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
       setting.TreatUnknownCharacterAsSpace,
-      setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-      setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
+setting.WarnQuotes, setting.WarnUnknownCharacter,
+setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
       setting.ConsecutiveEmptyRows,
-      setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
+setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
 #pragma warning disable CS0618

@@ -145,12 +145,12 @@ public class DetermineColumnFormatTest
     var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
       detectPercentage: true, detectBoolean: true, detectGuid: true,
       ignoreIdColumns: true);
-    using (var reader = new CsvTools.CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
-             Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
-             '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
-             "", true, false, false, true, true, false, true, true, true, true, false,
-             treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-             identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
+    using (var reader = new CsvTools.CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, 0, true,
+Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
+'\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
+"", true, false, false, true, true, false, true, true, true, true, false,
+treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
+identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
     {
       await reader.OpenAsync(CancellationToken.None);
       var columns = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
@@ -243,12 +243,12 @@ public class DetermineColumnFormatTest
         // ------------------------------------------------------
         // 3. Read and detect the format using CsvFileReader
         // ------------------------------------------------------
-        using (var reader = new CsvTools.CsvFileReader(testFile, Encoding.UTF8.CodePage, 0, true,
-                 Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
-                 '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
-                 "", true, false, false, true, true, false, true, true, true, true, false,
-                 treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-                 identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, returnedTimeZone: TimeZoneInfo.Local.Id, true, true))
+        using (var reader = new CsvTools.CsvFileReader(testFile, Encoding.UTF8.CodePage, 0, 0, true,
+Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
+'\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
+"", true, false, false, true, true, false, true, true, true, true, false,
+treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
+identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
         {
           await reader.OpenAsync(CancellationToken.None);
 

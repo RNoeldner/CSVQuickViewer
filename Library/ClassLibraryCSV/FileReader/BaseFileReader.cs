@@ -106,9 +106,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="recordLimit">Number of records that should be read</param>
   /// <param name="timeZoneAdjust">Class to modify date time for time zones</param>
   /// <param name="returnedTimeZone">
-  ///   Name of the time zone datetime values that have a source time zone should be converted toTim
+  ///   Name of the time zone datetime values that have a source time zone should be converted to
   /// </param>
-  /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
+  /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become 0.267</param>
   /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
   protected BaseFileReader(string fileName,
     in IEnumerable<Column>? columnDefinition,

@@ -552,20 +552,20 @@ public class CsvHelperTest
     };
 
     using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("LateStartRow.txt"), test.CodePageId,
-      test.SkipRows, test.HasFieldHeader,
-      test.ColumnCollection, test.TrimmingOption,
+      test.SkipRows, 0, test.HasFieldHeader,
+test.ColumnCollection, test.TrimmingOption,
       test.FieldDelimiterChar,
-      test.FieldQualifierChar, test.EscapePrefixChar, test.RecordLimit, test.AllowRowCombining,
-      test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
+test.FieldQualifierChar, test.EscapePrefixChar, test.RecordLimit, test.AllowRowCombining,
+test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
       test.DuplicateQualifierToEscape,
-      test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader,
+test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader,
       test.TreatLfAsSpace,
-      test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
-      test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter,
+test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
+test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter,
       test.WarnEmptyTailingColumns,
-      test.TreatNBSPAsSpace, test.TreatTextAsNull,
-      test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer,
-      StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
+test.TreatNBSPAsSpace, test.TreatTextAsNull,
+test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer,
+StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("RecordNumber", reader.GetName(0));
     await reader.ReadAsync(UnitTestStatic.Token);

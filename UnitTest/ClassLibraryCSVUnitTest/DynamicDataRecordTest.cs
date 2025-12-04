@@ -24,15 +24,15 @@ public class DynamicDataRecordTest
   {
     TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
     using (var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"),
-             65001, 0, true, null, TrimmingOptionEnum.Unquoted, '\t','"'
+             65001, 0, 0, true, null, TrimmingOptionEnum.Unquoted, '\t', '"'
              , char.MinValue, 0, false,
-             false, "", 0,
-             true, "", "",
-             "", true, false,
-             true, false, false,
-             false, false, false, false,
-             false, false, "",
-             true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+false, "", 0,
+true, "", "",
+"", true, false,
+true, false, false,
+false, false, false, false,
+false, false, "",
+true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       await reader.ReadAsync();

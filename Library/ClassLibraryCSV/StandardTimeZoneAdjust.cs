@@ -44,21 +44,26 @@ public static class StandardTimeZoneAdjust
   }
 
   /// <summary>
-  /// Apply timezone conversion
+  /// Converts a <see cref="DateTime"/> from a source time zone to a destination time zone.
   /// </summary>
-  /// <param name="input">Source dateTime</param>
-  /// <param name="srcTimeZone">Source TimeZone</param>
-  /// <param name="destTimeZone">Destination TimeZone</param>
-  /// <param name="handleWarning">Action to be called if a warning is raised</param>
-  public static DateTime ChangeTimeZone(in DateTime input, string srcTimeZone, string destTimeZone,
+  /// <param name="input">The source <see cref="DateTime"/> value.</param>
+  /// <param name="sourceTimeZone">The identifier of the source time zone.</param>
+  /// <param name="destinationTimeZone">The identifier of the target time zone.</param>
+  /// <param name="handleWarning">
+  /// Optional action invoked when a warning occurs, for example if a time zone is not recognized.
+  /// </param>
+  /// <returns>
+  /// The <see cref="DateTime"/> converted to the destination time zone, or the original value if conversion fails.
+  /// </returns>
+  public static DateTime ChangeTimeZone(in DateTime input, string sourceTimeZone, string destinationTimeZone,
     Action<string>? handleWarning)
   {
-    if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-        destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))
+    if (string.IsNullOrEmpty(sourceTimeZone) || string.IsNullOrEmpty(destinationTimeZone) ||
+        destinationTimeZone.Equals(sourceTimeZone, StringComparison.OrdinalIgnoreCase))
       return input;
     try
     {
-      return TimeZoneInfo.ConvertTime(input, FindTimeZoneInfo(srcTimeZone), FindTimeZoneInfo(destTimeZone));
+      return TimeZoneInfo.ConvertTime(input, FindTimeZoneInfo(sourceTimeZone), FindTimeZoneInfo(destinationTimeZone));
     }
     catch (ArgumentException ex)
     {
