@@ -773,29 +773,42 @@ public static class DetermineColumnFormat
       minLength = Math.Min(minLength, len);
     }
 
-    // loop through the samples and filter out date separators that are not part of any sample
+    int maxCount = 0;
     var possibleDateSeparators = new List<char>();
-    int best = int.MinValue;
-    foreach (var kv in StaticCollections.DateSeparatorChars.ToDictionary(sep => sep, sep =>
-               samples.Count(entry => entry.Span.IndexOf(sep) != -1)).OrderByDescending(x => x.Value))
+
+    foreach (char sep in StaticCollections.DateSeparatorChars)
     {
-      // only take the separators that have been found, and then only takes the ones for the most rows
-      if (kv.Value < best)
-        break;
-      // in case of a tie, take multiple
-      best = kv.Value;
-      possibleDateSeparators.Add(kv.Key);
+      if (sep==' ') 
+        continue;
+      // Count how many samples contain this separator
+      int count = samples.Count(s => s.Span.IndexOf(sep) >= 0);
+      if (count==0) 
+          continue; // ignore separators not present in any sample
+      if (count > maxCount)
+      {
+        // Found a better candidate: reset the list
+        maxCount = count;
+        possibleDateSeparators.Clear();
+        possibleDateSeparators.Add(sep);
+      }
+      else if (count == maxCount)
+      {
+        // Tie: keep multiple separators
+        possibleDateSeparators.Add(sep);
+      }
     }
+    
     foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(minLength, maxLength))
     {
       if (cancellationToken.IsCancellationRequested)
         return checkResult;
+      var format = fmt.AsSpan();
 
-      if (fmt.IndexOf('/') != -1)
+      if (format.IndexOf('/') != -1)
       {
         foreach (var sep in possibleDateSeparators)
         {
-          var res = samples.CheckDate(fmt.AsSpan(), sep, ':', CultureInfo.CurrentCulture, cancellationToken);
+          var res = samples.CheckDate(format, sep, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
           checkResult.KeepBestPossibleMatch(res);
@@ -804,10 +817,9 @@ public static class DetermineColumnFormat
       else
       {
         // we have no date separator in the format no need to test different separators
-        var res = samples.CheckDate(fmt.AsSpan(), char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
+        var res = samples.CheckDate(format, char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
-
         checkResult.KeepBestPossibleMatch(res);
       }
     }

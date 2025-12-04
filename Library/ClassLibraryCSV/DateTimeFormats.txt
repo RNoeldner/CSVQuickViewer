@@ -112,6 +112,9 @@ dddd, d MMMM yyyy h:mm tt
 dddd, dd MMMM, yyyy HH:mm
 dddd, dd. MMMM yyyy HH:mm
 dddd,MMMM dd,yyyy h:mm tt
+yyyy/MM/ddTHH:mm:ss.ffff
+yyyy/MM/dd HH:mm:ss.FFFF
+yyyy/MM/ddTHH:mm:ss.FFFF
 d MMMM, yyyy hh:mm:ss tt
 d. MMMM yyyy hh:mm:ss tt
 dd MMM yyyy ddd hh:mm tt
@@ -184,8 +187,6 @@ dddd dd MMMM yyyy H:mm
 dddd, d MMMM yyyy H:mm
 dddd,MMMM dd,yyyy H:mm
 yyyyMMddTHH:mm:ss.ffff
-yyyy/MM/dd HH:mm:ss.FFFF
-yyyy/MM/ddTHH:mm:ss.FFFF
 MM/dd/yyyy h:mm:ss tt
 dd/MM/yyyy h:mm:ss tt
 yyyy/MM/dd h:mm:ss tt

@@ -46,11 +46,6 @@ public static class CheckTexts
     var counter = 0;
     var positiveMatches = 0;
     var thresholdPossible = Math.Max(1, Math.Min(5, samples.Count));
-
-    bool needToCheckLength = dateFormatPattern.IndexOf('F') != -1
-        || (dateFormatPattern.IndexOf('M') != -1 && !dateFormatPattern.Contains("MM".AsSpan(), StringComparison.Ordinal))
-        || (dateFormatPattern.IndexOf('d') != -1 && !dateFormatPattern.Contains("DD".AsSpan(), StringComparison.Ordinal))
-        || (dateFormatPattern.IndexOf('H') != -1 && !dateFormatPattern.Contains("HH".AsSpan(), StringComparison.Ordinal));
     foreach (var sample in samples)
     {
       // in case the sample ends in z remove that.
@@ -66,7 +61,7 @@ public static class CheckTexts
       counter++;
       var parsedDate = span.StringToDateTimeExact(dateFormatPattern, dateSep, timeSep, culture);
       // Reformat the found date with the format because StringToDateTimeExact would still parse 06/12/2025 even with d/M/yyyy
-      if (!parsedDate.HasValue || (needToCheckLength && (span.Length  != parsedDate.Value.ToString(dateFormatPattern.ToString(), culture).Length)))
+      if (!parsedDate.HasValue)
       {
         allParsed = false;
         result.AddNonMatch(span.ToString());

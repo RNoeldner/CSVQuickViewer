@@ -13,6 +13,7 @@
  */
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace CsvTools;
 
@@ -102,14 +103,22 @@ public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormat
   {
     EnsureLoaded();
 
-    // Make sure adding to collection while enumerating does not cause issues.
-    List<string> matches = new();
+    var priorityMatches = new List<string>();
+    var fallbackMatches = new List<string>();
+
     foreach (var kvp in this)
     {
-      if (minLength >= kvp.Value.MinLength && maxLength <= kvp.Value.MaxLength)
-        matches.Add(kvp.Key);
+      if (kvp.Value.MinLength <= minLength && kvp.Value.MaxLength >= maxLength)
+      {
+        if (minLength == maxLength && kvp.Value.MinLength == kvp.Value.MaxLength)
+          priorityMatches.Add(kvp.Key);
+        else
+          fallbackMatches.Add(kvp.Key);
+      }
+      
     }
-    return matches;
+    priorityMatches.AddRange(fallbackMatches);
+    return priorityMatches;
   }
 
   /// <summary>
