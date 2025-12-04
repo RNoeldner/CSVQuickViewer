@@ -101,7 +101,7 @@ public interface IFileSetting : IWithCopyTo<IFileSetting>
   ///   In most text-based files, comment lines are automatically ignored and empty lines are skipped. 
   ///   For Excel or similar sources where comments are not supported, skipping rows often achieved by adjusting the starting range.  
   ///   This parameter is typically used when the rows after the header contain descriptive information, units, or other metadata about the columns.
-  /// </Summary>
+  /// </summary>
   int SkipRowsAfterHeader { get; set; }
 
   /// <summary>

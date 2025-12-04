@@ -29,278 +29,262 @@
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FindSkipRows));
-      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      this.textBoxComment = new System.Windows.Forms.TextBox();
-      this.bindingSourceCsvFile = new System.Windows.Forms.BindingSource(this.components);
-      this.label2 = new System.Windows.Forms.Label();
-      this.m_LabelQuote = new System.Windows.Forms.Label();
-      this.labelDelimiter = new System.Windows.Forms.Label();
-      this.textBoxDelimiter = new CsvTools.PunctuationTextBox();
-      this.label5 = new System.Windows.Forms.Label();
-      this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
-      this.m_TextBoxQuote = new CsvTools.PunctuationTextBox();
-      this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
-      this.labelEscape = new System.Windows.Forms.Label();
-      this.textBoxEscape = new CsvTools.PunctuationTextBox();
-      this.buttonSkipLine = new System.Windows.Forms.Button();
-      this.tableLayoutPanel1.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
-      this.SuspendLayout();
+      components = new System.ComponentModel.Container();
+      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FindSkipRows));
+      tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+      textBoxComment = new System.Windows.Forms.TextBox();
+      bindingSourceCsvFile = new System.Windows.Forms.BindingSource(components);
+      label2 = new System.Windows.Forms.Label();
+      m_LabelQuote = new System.Windows.Forms.Label();
+      labelDelimiter = new System.Windows.Forms.Label();
+      textBoxDelimiter = new PunctuationTextBox();
+      label5 = new System.Windows.Forms.Label();
+      textBox = new FastColoredTextBoxNS.FastColoredTextBox();
+      m_TextBoxQuote = new PunctuationTextBox();
+      numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
+      labelEscape = new System.Windows.Forms.Label();
+      textBoxEscape = new PunctuationTextBox();
+      buttonSkipLine = new System.Windows.Forms.Button();
+      tableLayoutPanel1.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceCsvFile).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) textBox).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).BeginInit();
+      SuspendLayout();
       // 
       // tableLayoutPanel1
       // 
-      this.tableLayoutPanel1.ColumnCount = 6;
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 262F));
-      this.tableLayoutPanel1.Controls.Add(this.textBoxComment, 3, 1);
-      this.tableLayoutPanel1.Controls.Add(this.label2, 2, 1);
-      this.tableLayoutPanel1.Controls.Add(this.m_LabelQuote, 0, 1);
-      this.tableLayoutPanel1.Controls.Add(this.labelDelimiter, 2, 0);
-      this.tableLayoutPanel1.Controls.Add(this.textBoxDelimiter, 3, 0);
-      this.tableLayoutPanel1.Controls.Add(this.label5, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.textBox, 0, 2);
-      this.tableLayoutPanel1.Controls.Add(this.m_TextBoxQuote, 1, 1);
-      this.tableLayoutPanel1.Controls.Add(this.numericUpDownSkipRows, 1, 0);
-      this.tableLayoutPanel1.Controls.Add(this.labelEscape, 4, 0);
-      this.tableLayoutPanel1.Controls.Add(this.textBoxEscape, 5, 0);
-      this.tableLayoutPanel1.Controls.Add(this.buttonSkipLine, 5, 1);
-      this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 3;
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(616, 551);
-      this.tableLayoutPanel1.TabIndex = 0;
+      tableLayoutPanel1.ColumnCount = 6;
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 262F));
+      tableLayoutPanel1.Controls.Add(textBoxComment, 3, 1);
+      tableLayoutPanel1.Controls.Add(label2, 2, 1);
+      tableLayoutPanel1.Controls.Add(m_LabelQuote, 0, 1);
+      tableLayoutPanel1.Controls.Add(labelDelimiter, 2, 0);
+      tableLayoutPanel1.Controls.Add(textBoxDelimiter, 3, 0);
+      tableLayoutPanel1.Controls.Add(label5, 0, 0);
+      tableLayoutPanel1.Controls.Add(textBox, 0, 2);
+      tableLayoutPanel1.Controls.Add(m_TextBoxQuote, 1, 1);
+      tableLayoutPanel1.Controls.Add(numericUpDownSkipRows, 1, 0);
+      tableLayoutPanel1.Controls.Add(labelEscape, 4, 0);
+      tableLayoutPanel1.Controls.Add(textBoxEscape, 5, 0);
+      tableLayoutPanel1.Controls.Add(buttonSkipLine, 5, 1);
+      tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+      tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      tableLayoutPanel1.Name = "tableLayoutPanel1";
+      tableLayoutPanel1.RowCount = 3;
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      tableLayoutPanel1.Size = new System.Drawing.Size(616, 551);
+      tableLayoutPanel1.TabIndex = 0;
       // 
       // textBoxComment
       // 
-      this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "CommentLine", true));
-      this.textBoxComment.Location = new System.Drawing.Point(236, 31);
-      this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxComment.Name = "textBoxComment";
-      this.textBoxComment.Size = new System.Drawing.Size(67, 20);
-      this.textBoxComment.TabIndex = 131;
-      this.textBoxComment.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
+      textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceCsvFile, "CommentLine", true));
+      textBoxComment.Location = new System.Drawing.Point(236, 31);
+      textBoxComment.Margin = new System.Windows.Forms.Padding(2);
+      textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxComment.Name = "textBoxComment";
+      textBoxComment.Size = new System.Drawing.Size(67, 20);
+      textBoxComment.TabIndex = 131;
+      textBoxComment.TextChanged += DifferentSyntaxHighlighter;
       // 
       // bindingSourceCsvFile
       // 
-      this.bindingSourceCsvFile.AllowNew = false;
-      this.bindingSourceCsvFile.DataSource = typeof(CsvTools.ICsvFile);
+      bindingSourceCsvFile.AllowNew = false;
+      bindingSourceCsvFile.DataSource = typeof(ICsvFile);
       // 
       // label2
       // 
-      this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(154, 35);
-      this.label2.Margin = new System.Windows.Forms.Padding(3);
-      this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(77, 13);
-      this.label2.TabIndex = 130;
-      this.label2.Text = "Line Comment:";
+      label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label2.AutoSize = true;
+      label2.Location = new System.Drawing.Point(154, 35);
+      label2.Margin = new System.Windows.Forms.Padding(3);
+      label2.Name = "label2";
+      label2.Size = new System.Drawing.Size(77, 13);
+      label2.TabIndex = 130;
+      label2.Text = "Line Comment:";
       // 
       // m_LabelQuote
       // 
-      this.m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_LabelQuote.AutoSize = true;
-      this.m_LabelQuote.Location = new System.Drawing.Point(12, 35);
-      this.m_LabelQuote.Margin = new System.Windows.Forms.Padding(3);
-      this.m_LabelQuote.Name = "m_LabelQuote";
-      this.m_LabelQuote.Size = new System.Drawing.Size(72, 13);
-      this.m_LabelQuote.TabIndex = 127;
-      this.m_LabelQuote.Text = "Text Qualifier:";
+      m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      m_LabelQuote.AutoSize = true;
+      m_LabelQuote.Location = new System.Drawing.Point(12, 35);
+      m_LabelQuote.Margin = new System.Windows.Forms.Padding(3);
+      m_LabelQuote.Name = "m_LabelQuote";
+      m_LabelQuote.Size = new System.Drawing.Size(72, 13);
+      m_LabelQuote.TabIndex = 127;
+      m_LabelQuote.Text = "Text Qualifier:";
       // 
       // labelDelimiter
       // 
-      this.labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelDelimiter.AutoSize = true;
-      this.labelDelimiter.Location = new System.Drawing.Point(181, 6);
-      this.labelDelimiter.Margin = new System.Windows.Forms.Padding(3);
-      this.labelDelimiter.Name = "labelDelimiter";
-      this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
-      this.labelDelimiter.TabIndex = 124;
-      this.labelDelimiter.Text = "Delimiter:";
+      labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDelimiter.AutoSize = true;
+      labelDelimiter.Location = new System.Drawing.Point(181, 6);
+      labelDelimiter.Margin = new System.Windows.Forms.Padding(3);
+      labelDelimiter.Name = "labelDelimiter";
+      labelDelimiter.Size = new System.Drawing.Size(50, 13);
+      labelDelimiter.TabIndex = 124;
+      labelDelimiter.Text = "Delimiter:";
       // 
       // textBoxDelimiter
       // 
-      this.textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "Tab",
-            ",",
-            ";",
-            "،",
-            "؛",
-            "|",
-            "¦",
-            "￤",
-            "*",
-            "`",
-            "US",
-            "RS",
-            "GS",
-            "FS"});
-      this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldDelimiterChar", true));
-      this.textBoxDelimiter.Location = new System.Drawing.Point(236, 3);
-      this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxDelimiter.Name = "textBoxDelimiter";
-      this.textBoxDelimiter.Size = new System.Drawing.Size(67, 20);
-      this.textBoxDelimiter.TabIndex = 123;
-      this.textBoxDelimiter.Type = CsvTools.PunctuationTextBox.PunctuationType.Delimiter;
-      this.textBoxDelimiter.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
+      textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
+      textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceCsvFile, "FieldDelimiterChar", true));
+      textBoxDelimiter.Location = new System.Drawing.Point(236, 3);
+      textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
+      textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxDelimiter.Name = "textBoxDelimiter";
+      textBoxDelimiter.Size = new System.Drawing.Size(67, 20);
+      textBoxDelimiter.TabIndex = 123;
+      textBoxDelimiter.Type = PunctuationTextBox.PunctuationType.Delimiter;
+      textBoxDelimiter.TextChanged += DifferentSyntaxHighlighter;
       // 
       // label5
       // 
-      this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.label5.AutoSize = true;
-      this.label5.Location = new System.Drawing.Point(3, 6);
-      this.label5.Margin = new System.Windows.Forms.Padding(3);
-      this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(81, 13);
-      this.label5.TabIndex = 121;
-      this.label5.Text = "Skip First Lines:";
+      label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label5.AutoSize = true;
+      label5.Location = new System.Drawing.Point(3, 6);
+      label5.Margin = new System.Windows.Forms.Padding(3);
+      label5.Name = "label5";
+      label5.Size = new System.Drawing.Size(81, 13);
+      label5.TabIndex = 121;
+      label5.Text = "Skip First Lines:";
       // 
       // textBox
       // 
-      this.textBox.AllowDrop = false;
-      this.textBox.AutoCompleteBracketsList = new char[] {
-        '(',
-        ')',
-        '{',
-        '}',
-        '[',
-        ']',
-        '\"',
-        '\"',
-        '\'',
-        '\''};
-      this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-      this.textBox.AutoSize = true;
-      this.textBox.BackBrush = null;
-      this.textBox.CaretColor = System.Drawing.Color.Silver;
-      this.textBox.CharHeight = 14;
-      this.textBox.CharWidth = 8;
-      this.tableLayoutPanel1.SetColumnSpan(this.textBox, 6);
-      this.textBox.CommentPrefix = "--";
-      this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.textBox.DelayedEventsInterval = 50;
-      this.textBox.DelayedTextChangedInterval = 50;
-      this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.IsReplaceMode = false;
-      this.textBox.Location = new System.Drawing.Point(2, 59);
-      this.textBox.Margin = new System.Windows.Forms.Padding(2);
-      this.textBox.Name = "textBox";
-      this.textBox.Paddings = new System.Windows.Forms.Padding(0);
-      this.textBox.ReadOnly = true;
-      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.Size = new System.Drawing.Size(615, 490);
-      this.textBox.TabIndex = 126;
-      this.textBox.WordWrap = true;
-      this.textBox.Zoom = 100;
-      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
+      textBox.AllowDrop = false;
+      textBox.AutoCompleteBracketsList = new char[]
+  {
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+  };
+      textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+      textBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+      textBox.AutoSize = true;
+      textBox.BackBrush = null;
+      textBox.CaretColor = System.Drawing.Color.Silver;
+      textBox.CharHeight = 14;
+      textBox.CharWidth = 8;
+      tableLayoutPanel1.SetColumnSpan(textBox, 6);
+      textBox.CommentPrefix = "--";
+      textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+      textBox.DelayedEventsInterval = 50;
+      textBox.DelayedTextChangedInterval = 50;
+      textBox.DisabledColor = System.Drawing.Color.FromArgb(  100,   180,   180,   180);
+      textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
+      textBox.IsReplaceMode = false;
+      textBox.Location = new System.Drawing.Point(2, 59);
+      textBox.Margin = new System.Windows.Forms.Padding(2);
+      textBox.Name = "textBox";
+      textBox.Paddings = new System.Windows.Forms.Padding(0);
+      textBox.ReadOnly = true;
+      textBox.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);
+      textBox.ServiceColors = (FastColoredTextBoxNS.ServiceColors) resources.GetObject("textBox.ServiceColors");
+      textBox.Size = new System.Drawing.Size(615, 490);
+      textBox.TabIndex = 126;
+      textBox.WordWrap = true;
+      textBox.Zoom = 100;
+      textBox.VisibleRangeChangedDelayed += TextBox_VisibleRangeChangedDelayed;
       // 
       // m_TextBoxQuote
       // 
-      this.m_TextBoxQuote.AutoCompleteCustomSource.AddRange(new string[] {
-            "\\",
-            "/",
-            "?"});
-      this.m_TextBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.m_TextBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "FieldQualifierChar", true));
-      this.m_TextBoxQuote.Location = new System.Drawing.Point(90, 28);
-      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.m_TextBoxQuote.Name = "m_TextBoxQuote";
-      this.m_TextBoxQuote.Size = new System.Drawing.Size(58, 20);
-      this.m_TextBoxQuote.TabIndex = 129;
-      this.m_TextBoxQuote.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
-      this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
+      m_TextBoxQuote.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      m_TextBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      m_TextBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceCsvFile, "FieldQualifierChar", true));
+      m_TextBoxQuote.Location = new System.Drawing.Point(90, 28);
+      m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      m_TextBoxQuote.Name = "m_TextBoxQuote";
+      m_TextBoxQuote.Size = new System.Drawing.Size(58, 20);
+      m_TextBoxQuote.TabIndex = 129;
+      m_TextBoxQuote.Type = PunctuationTextBox.PunctuationType.Escape;
+      m_TextBoxQuote.TextChanged += DifferentSyntaxHighlighter;
       // 
       // numericUpDownSkipRows
       // 
-      this.numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceCsvFile, "SkipRows", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.numericUpDownSkipRows.Location = new System.Drawing.Point(90, 3);
-      this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
-      this.numericUpDownSkipRows.Size = new System.Drawing.Size(58, 20);
-      this.numericUpDownSkipRows.TabIndex = 132;
-      this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.NumericUpDownSkipRows_ValueChanged);
+      numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceCsvFile, "SkipRows", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      numericUpDownSkipRows.Location = new System.Drawing.Point(90, 3);
+      numericUpDownSkipRows.Name = "numericUpDownSkipRows";
+      numericUpDownSkipRows.Size = new System.Drawing.Size(58, 20);
+      numericUpDownSkipRows.TabIndex = 132;
+      numericUpDownSkipRows.ValueChanged += NumericUpDownSkipRows_ValueChanged;
       // 
       // labelEscape
       // 
-      this.labelEscape.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelEscape.AutoSize = true;
-      this.labelEscape.Location = new System.Drawing.Point(308, 6);
-      this.labelEscape.Margin = new System.Windows.Forms.Padding(3);
-      this.labelEscape.Name = "labelEscape";
-      this.labelEscape.Size = new System.Drawing.Size(46, 13);
-      this.labelEscape.TabIndex = 124;
-      this.labelEscape.Text = "Escape:";
+      labelEscape.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelEscape.AutoSize = true;
+      labelEscape.Location = new System.Drawing.Point(308, 6);
+      labelEscape.Margin = new System.Windows.Forms.Padding(3);
+      labelEscape.Name = "labelEscape";
+      labelEscape.Size = new System.Drawing.Size(46, 13);
+      labelEscape.TabIndex = 124;
+      labelEscape.Text = "Escape:";
       // 
       // textBoxEscape
       // 
-      this.textBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxEscape.AutoCompleteCustomSource.AddRange(new string[] {
-            "\\",
-            "/",
-            "?"});
-      this.textBoxEscape.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      this.textBoxEscape.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.bindingSourceCsvFile, "EscapePrefixChar", true));
-      this.textBoxEscape.Location = new System.Drawing.Point(359, 3);
-      this.textBoxEscape.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxEscape.MinimumSize = new System.Drawing.Size(46, 4);
-      this.textBoxEscape.Name = "textBoxEscape";
-      this.textBoxEscape.Size = new System.Drawing.Size(67, 20);
-      this.textBoxEscape.TabIndex = 123;
-      this.textBoxEscape.Type = CsvTools.PunctuationTextBox.PunctuationType.Escape;
-      this.textBoxEscape.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
+      textBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      textBoxEscape.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      textBoxEscape.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      textBoxEscape.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      textBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Character", bindingSourceCsvFile, "EscapePrefixChar", true));
+      textBoxEscape.Location = new System.Drawing.Point(359, 3);
+      textBoxEscape.Margin = new System.Windows.Forms.Padding(2);
+      textBoxEscape.MinimumSize = new System.Drawing.Size(46, 4);
+      textBoxEscape.Name = "textBoxEscape";
+      textBoxEscape.Size = new System.Drawing.Size(67, 20);
+      textBoxEscape.TabIndex = 123;
+      textBoxEscape.Type = PunctuationTextBox.PunctuationType.Escape;
+      textBoxEscape.TextChanged += DifferentSyntaxHighlighter;
       // 
       // buttonSkipLine
       // 
-      this.buttonSkipLine.AutoSize = true;
-      this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonSkipLine.Location = new System.Drawing.Point(360, 29);
-      this.buttonSkipLine.Name = "buttonSkipLine";
-      this.buttonSkipLine.Size = new System.Drawing.Size(97, 25);
-      this.buttonSkipLine.TabIndex = 125;
-      this.buttonSkipLine.Text = "Guess Start Row";
-      this.buttonSkipLine.UseVisualStyleBackColor = true;
-      this.buttonSkipLine.Click += new System.EventHandler(this.ButtonSkipLine_Click);
+      buttonSkipLine.AutoSize = true;
+      buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonSkipLine.Location = new System.Drawing.Point(360, 29);
+      buttonSkipLine.Name = "buttonSkipLine";
+      buttonSkipLine.Size = new System.Drawing.Size(97, 25);
+      buttonSkipLine.TabIndex = 125;
+      buttonSkipLine.Text = "Guess Start Row";
+      buttonSkipLine.UseVisualStyleBackColor = true;
+      buttonSkipLine.Click += ButtonSkipLine_Click;
       // 
       // FindSkipRows
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(616, 551);
-      this.Controls.Add(this.tableLayoutPanel1);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Name = "FindSkipRows";
-      this.ShowIcon = false;
-      this.ShowInTaskbar = false;
-      this.Text = "Skip Rows Interactive";
-      this.Load += new System.EventHandler(this.FindSkipRows_Load);
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
-      this.ResumeLayout(false);
+      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      ClientSize = new System.Drawing.Size(616, 551);
+      Controls.Add(tableLayoutPanel1);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      Name = "FindSkipRows";
+      ShowIcon = false;
+      ShowInTaskbar = false;
+      Text = "Skip Rows Interactive";
+      Load += FindSkipRows_Load;
+      tableLayoutPanel1.ResumeLayout(false);
+      tableLayoutPanel1.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize) bindingSourceCsvFile).EndInit();
+      ((System.ComponentModel.ISupportInitialize) textBox).EndInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).EndInit();
+      ResumeLayout(false);
 
     }
 

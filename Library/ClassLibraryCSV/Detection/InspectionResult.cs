@@ -25,38 +25,43 @@ public sealed class InspectionResult
   /// <summary>Number of rows to skip</summary>
   [DefaultValue(0)] public int SkipRows { get; set; }
 
+  /// <summary>
+  /// Number of rows to skip after the header
+  /// </summary>
+  [DefaultValue(0)] public int SkipRowsAfterHeader { get; set; }
+
   /// <summary>.NET CodePage ID</summary>
   [DefaultValue(65001)] public int CodePageId { get; set; } = 65001;
-    
+
   /// <summary>Does encoding use BOM</summary>
   [DefaultValue(false)] public bool ByteOrderMark { get; set; }
-    
+
   /// <summary>Identifier in container like zip</summary>
   [DefaultValue("")] public string IdentifierInContainer { get; set; } = string.Empty;
-    
+
   /// <summary>Prefix for lines to be ignored</summary>
   [DefaultValue("#")] public string CommentLine { get; set; } = "#";
-    
+
   /// <summary>Prefix for Escaping linefeed or qualifier</summary>
   [DefaultValue('\\')] public char EscapePrefix { get; set; } = '\\';
-    
+
   /// <summary>Delimiter between two columns</summary>
   [DefaultValue(',')] public char FieldDelimiter { get; set; } = ',';
-    
+
   /// <summary>Qualifier of a columns to allow linefeed or delimiter</summary>
   [DefaultValue('"')] public char FieldQualifier { get; set; } = '"';
-    
+
   /// <summary>Context-sensitive quoting looks at eh surrounding area to determine if this is really a quote</summary>
   [DefaultValue(false)] public bool ContextSensitiveQualifier { get; set; }
-    
+
   /// <summary>In case a quote is part of a quoted column, the quote should be repeated</summary>
   [DefaultValue(true)] public bool DuplicateQualifierToEscape { get; set; } = true;
-    
+
   /// <summary>Does the file have a header row</summary>
   [DefaultValue(true)] public bool HasFieldHeader { get; set; } = true;
-    
+
   /// <summary>Record Separator</summary>
-  [DefaultValue(RecordDelimiterTypeEnum.None)] 
+  [DefaultValue(RecordDelimiterTypeEnum.None)]
   public RecordDelimiterTypeEnum NewLine { get; set; } = RecordDelimiterTypeEnum.None;
 
   /// <summary>
@@ -64,7 +69,7 @@ public sealed class InspectionResult
   /// </summary>
   [JsonIgnore]
   [DefaultValue("")]
-  public string FileName { get; set;  } = string.Empty;
+  public string FileName { get; set; } = string.Empty;
 
   /// <summary>
   /// Flag to indicate that it's a Json file
@@ -109,6 +114,7 @@ public sealed class InspectionResult
   public InspectionResult(IFileSetting fileSetting)
   {
     SkipRows = fileSetting.SkipRows;
+    SkipRowsAfterHeader = fileSetting.SkipRowsAfterHeader;
     Columns.AddRange(fileSetting.ColumnCollection);
 
     if (fileSetting is IFileSettingPhysicalFile physical)
@@ -142,7 +148,7 @@ public sealed class InspectionResult
     fileSetting.CodePageId = CodePageId;
     fileSetting.ByteOrderMark = ByteOrderMark;
     fileSetting.IdentifierInContainer = IdentifierInContainer;
-    fileSetting.HasFieldHeader = HasFieldHeader;    
+    fileSetting.HasFieldHeader = HasFieldHeader;
     fileSetting.ColumnCollection.Overwrite(Columns);
     if (fileSetting is ICsvFile csvFile)
     {

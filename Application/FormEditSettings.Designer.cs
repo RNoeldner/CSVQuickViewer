@@ -76,6 +76,8 @@
       buttonKeyFileRead = new System.Windows.Forms.Button();
       buttonFileInfo = new System.Windows.Forms.Button();
       buttonInteractiveSettings = new System.Windows.Forms.Button();
+      label3 = new System.Windows.Forms.Label();
+      numericUpDownSkipRowsAfterHeader = new System.Windows.Forms.NumericUpDown();
       checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
       checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
       checkBoxTreatUnknowCharaterAsSpace = new System.Windows.Forms.CheckBox();
@@ -145,6 +147,7 @@
       tableLayoutPanelFile.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize) bindingSourceViewSetting).BeginInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRowsAfterHeader).BeginInit();
       ((System.ComponentModel.ISupportInitialize) bindingSourceWrite).BeginInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownNumWarnings).BeginInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownLength).BeginInit();
@@ -290,7 +293,7 @@
       linkLabelRepository.AutoSize = true;
       linkLabelRepository.Location = new System.Drawing.Point(72, 148);
       linkLabelRepository.Name = "linkLabelRepository";
-      linkLabelRepository.Size = new System.Drawing.Size(90, 13);
+      linkLabelRepository.Size = new System.Drawing.Size(92, 13);
       linkLabelRepository.TabIndex = 4;
       linkLabelRepository.TabStop = true;
       linkLabelRepository.Text = "Source on GitHub";
@@ -430,6 +433,8 @@
       tableLayoutPanelFile.Controls.Add(buttonKeyFileRead, 5, 8);
       tableLayoutPanelFile.Controls.Add(buttonFileInfo, 6, 0);
       tableLayoutPanelFile.Controls.Add(buttonInteractiveSettings, 6, 5);
+      tableLayoutPanelFile.Controls.Add(label3, 2, 5);
+      tableLayoutPanelFile.Controls.Add(numericUpDownSkipRowsAfterHeader, 3, 5);
       tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
       tableLayoutPanelFile.Name = "tableLayoutPanelFile";
@@ -898,6 +903,25 @@
       toolTip.SetToolTip(buttonInteractiveSettings, "Interactive Skip First Lines");
       buttonInteractiveSettings.UseVisualStyleBackColor = true;
       buttonInteractiveSettings.Click += ButtonInteractiveSettings_Click;
+      // 
+      // label3
+      // 
+      label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label3.AutoSize = true;
+      label3.Location = new System.Drawing.Point(211, 164);
+      label3.Name = "label3";
+      label3.Size = new System.Drawing.Size(123, 13);
+      label3.TabIndex = 18;
+      label3.Text = "Skip Rows after Header:";
+      // 
+      // numericUpDownSkipRowsAfterHeader
+      // 
+      numericUpDownSkipRowsAfterHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      numericUpDownSkipRowsAfterHeader.Location = new System.Drawing.Point(340, 160);
+      numericUpDownSkipRowsAfterHeader.Name = "numericUpDownSkipRowsAfterHeader";
+      numericUpDownSkipRowsAfterHeader.Size = new System.Drawing.Size(62, 20);
+      numericUpDownSkipRowsAfterHeader.TabIndex = 19;
+      numericUpDownSkipRowsAfterHeader.ValueChanged += NumericUpDownSkipRows_ValueChanged;
       // 
       // checkBoxTreatNBSPAsSpace
       // 
@@ -1683,6 +1707,7 @@
       tableLayoutPanelFile.PerformLayout();
       ((System.ComponentModel.ISupportInitialize) bindingSourceViewSetting).EndInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRows).EndInit();
+      ((System.ComponentModel.ISupportInitialize) numericUpDownSkipRowsAfterHeader).EndInit();
       ((System.ComponentModel.ISupportInitialize) bindingSourceWrite).EndInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownNumWarnings).EndInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownLength).EndInit();
@@ -1816,5 +1841,7 @@
     private System.Windows.Forms.Label label19;
     private System.Windows.Forms.PictureBox pictureBox;
     private System.Windows.Forms.CheckBox checkBoxAutoLoad;
+    private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.NumericUpDown numericUpDownSkipRowsAfterHeader;
   }
 }
