@@ -55,7 +55,7 @@ public sealed class TimeToCompletion
   /// <param name="historySeconds">
   ///   Maximum age (in seconds) of samples used for velocity estimation.
   /// </param>
-  public TimeToCompletion(long targetValue = 1, int bufferSize = 32, double historySeconds = 15.0)
+  public TimeToCompletion(long targetValue = 1, int bufferSize = 32, double historySeconds = 120.0)
   {
     m_TargetValue = Math.Max(1, targetValue);
     m_BufferSize = bufferSize;
