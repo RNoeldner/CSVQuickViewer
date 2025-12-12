@@ -18,6 +18,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,10 +53,28 @@ public static class SerializedFilesLib
         DateTimeZoneHandling = DateTimeZoneHandling.Utc
       };
       setting.Converters.Add(new StringEnumConverter());
-      // setting.Converters.Add(new StringDictionaryConverter<string>());
       return setting;
     });
 
+  // <summary>
+  /// Creates a safe, shallow copy of the specified <see cref="JsonSerializerSettings"/>.
+  /// The global settings instance stays untouched, and mutable collections such as
+  /// <see cref="JsonSerializerSettings.Converters"/> are duplicated.
+  /// </summary>
+  public static JsonSerializerSettings CloneJsonSettings(this JsonSerializerSettings original)
+  {
+    return new JsonSerializerSettings
+    {
+      TypeNameHandling = original.TypeNameHandling,
+      DefaultValueHandling = original.DefaultValueHandling,
+      ContractResolver = original.ContractResolver,
+      NullValueHandling = original.NullValueHandling,
+      ReferenceLoopHandling = original.ReferenceLoopHandling,
+      DateFormatHandling = original.DateFormatHandling,
+      DateTimeZoneHandling = original.DateTimeZoneHandling,
+      Converters = new List<JsonConverter>(original.Converters)
+    };
+  }
   /// <summary>
   /// Recursively removes empty objects and empty arrays from a JSON structure.
   /// Also removes objects that contain only "$type".
@@ -138,7 +157,7 @@ public static class SerializedFilesLib
   /// <returns>New instance of the class</returns>
   public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
   {
-    Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName()); 
+    Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
