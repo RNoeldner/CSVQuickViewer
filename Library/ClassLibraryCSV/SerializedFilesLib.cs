@@ -56,7 +56,7 @@ public static class SerializedFilesLib
       return setting;
     });
 
-  // <summary>
+  /// <summary>
   /// Creates a safe, shallow copy of the specified <see cref="JsonSerializerSettings"/>.
   /// The global settings instance stays untouched, and mutable collections such as
   /// <see cref="JsonSerializerSettings.Converters"/> are duplicated.
