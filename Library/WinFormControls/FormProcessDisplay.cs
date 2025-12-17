@@ -25,7 +25,7 @@ namespace CsvTools;
 /// <summary>
 ///   Popup form showing progress and optional log output.
 /// </summary>
-public sealed class FormProgress : Form, IProgressTime, IProgressWithCancellation
+public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCancellation
 {
   private System.ComponentModel.IContainer components;
   private bool m_IsClosed;
@@ -228,8 +228,6 @@ public sealed class FormProgress : Form, IProgressTime, IProgressWithCancellatio
     // 
     // FormProgress
     // 
-    AutoScaleDimensions = new SizeF(6F, 13F);
-    AutoScaleMode = AutoScaleMode.Dpi;
     BackColor = SystemColors.Control;
     ClientSize = new Size(454, 214);
     Controls.Add(m_TableLayoutPanel);

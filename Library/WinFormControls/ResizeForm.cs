@@ -49,6 +49,13 @@ public class ResizeForm : Form
     FontConfig = new FontConfig();
   }
 
+  private void OnDpiChanged(object? sender, DpiChangedEventArgs e)
+  {
+    SuspendLayout();
+    PerformLayout();
+    ResumeLayout(true);
+  }
+
   private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
   {
     if (sender is IFontConfig conf &&
@@ -101,6 +108,7 @@ public class ResizeForm : Form
     AutoScaleDimensions = new SizeF(96F, 96F);
     AutoScaleMode = AutoScaleMode.Dpi;
     ClientSize = new Size(514, 350);
+    DpiChanged += OnDpiChanged;
     Icon = (Icon) resources.GetObject("$this.Icon");
     Name = "ResizeForm";
     ResumeLayout(false);

@@ -20,8 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-// ReSharper disable LocalizableElement
-// ReSharper disable StringLiteralTypo
+
 #pragma warning disable CA1416
 
 namespace CsvTools;
@@ -40,10 +39,7 @@ public class QuotingControl : UserControl
   private readonly Style m_PilcrowStyle = new TextStyle(Brushes.Orange, null, FontStyle.Bold);
   private readonly Style m_QuoteStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
   private readonly Style m_EscapedQuoteStyle = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
-
-  private readonly Style m_SpaceStyle =
-    new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
-
+  private readonly Style m_SpaceStyle = new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
   private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
   private IContainer components;
   private FastColoredTextBox m_FastColoredTextBox;
@@ -79,9 +75,9 @@ public class QuotingControl : UserControl
   private CheckBox m_CheckBoxAlternateQuoting;
   private CheckBox m_CheckBoxDuplicateQuotingToEscape;
   private TableLayoutPanel m_TableLayoutPanelColumns;
-  private SplitContainer m_SplitContainer;
   private Timer m_TimerRebuilt;
   private ToolTip m_ToolTip;
+  private SplitContainer m_SplitContainer;
   private bool m_HasChanges;
 
   /// <summary>
@@ -106,17 +102,20 @@ public class QuotingControl : UserControl
     {
       if (m_CsvFile != null)
       {
-        if (m_CsvFile is INotifyPropertyChanged notify1)
-          notify1.PropertyChanged -= FormatPropertyChanged;
+        {
+          if (m_CsvFile is INotifyPropertyChanged notify)
+            notify.PropertyChanged -= FormatPropertyChanged;
+        }
         if (m_CsvFile.Equals(value))
           return;
       }
-
       m_CsvFile = value;
-      if (m_CsvFile is INotifyPropertyChanged notify2)
-        notify2.PropertyChanged += FormatPropertyChanged;
-      m_CsvSettingBindingSource!.DataSource = m_CsvFile;
-      m_CsvSettingBindingSource.ResetBindings(false);
+      {
+        if (m_CsvFile is INotifyPropertyChanged notify)
+          notify.PropertyChanged += FormatPropertyChanged;
+      }
+      m_CsvSettingBindingSource.DataSource = m_CsvFile;
+      // m_CsvSettingBindingSource.ResetBindings(false);
       m_HasChanges = true;
       m_TimerRebuilt.Enabled = true;
     }
@@ -143,7 +142,6 @@ public class QuotingControl : UserControl
       m_RadioButtonNeeded.Visible = value;
 
       if (value)
-
       {
         m_SplitContainer.Panel2.Controls.Remove(m_TableLayoutPanelColumns);
         m_SplitContainer.Panel1.Controls.Remove(m_TableLayoutPanelText);
@@ -189,656 +187,643 @@ public class QuotingControl : UserControl
 #pragma warning disable CS8622
   private void InitializeComponent()
   {
-    this.components = new System.ComponentModel.Container();
-    System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QuotingControl));
-    this.m_ToolTip = new System.Windows.Forms.ToolTip(this.components);
-    this.m_RadioButtonNeeded = new System.Windows.Forms.RadioButton();
-    this.m_CsvSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
-    this.m_RadioButtonAlways = new System.Windows.Forms.RadioButton();
-    this.m_ComboBoxTrim = new System.Windows.Forms.ComboBox();
-    this.m_CheckBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
-    this.m_CheckBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
-    this.m_TextBoxQuote = new CsvTools.PunctuationTextBox();
-    this.m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
-    this.m_ErrorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-    this.m_FastColoredTextBox00 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_Label1 = new System.Windows.Forms.Label();
-    this.m_FastColoredTextBox12 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_FastColoredTextBox02 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_FastColoredTextBox11 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_FastColoredTextBox01 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_FastColoredTextBox10 = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_FastColoredTextBox = new FastColoredTextBoxNS.FastColoredTextBox();
-    this.m_Label2 = new System.Windows.Forms.Label();
-    this.m_Label3 = new System.Windows.Forms.Label();
-    this.m_Label5 = new System.Windows.Forms.Label();
-    this.m_Label4 = new System.Windows.Forms.Label();
-    this.m_Label6 = new System.Windows.Forms.Label();
-    this.m_TableLayoutPanelText = new System.Windows.Forms.TableLayoutPanel();
-    this.m_TableLayoutPanelColumns = new System.Windows.Forms.TableLayoutPanel();
-    this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-    this.m_LabelQuote = new System.Windows.Forms.Label();
-    this.m_LabelQuotePlaceholder = new System.Windows.Forms.Label();
-    this.m_LabelTrim = new System.Windows.Forms.Label();
-    this.m_SplitContainer = new System.Windows.Forms.SplitContainer();
-    this.m_TimerRebuilt = new System.Windows.Forms.Timer(this.components);
-    ((System.ComponentModel.ISupportInitialize) (this.m_CsvSettingBindingSource)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox00)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox12)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox02)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox11)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox01)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox10)).BeginInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox)).BeginInit();
-    this.m_TableLayoutPanelText.SuspendLayout();
-    this.m_TableLayoutPanelColumns.SuspendLayout();
-    this.m_TableLayoutPanel.SuspendLayout();
-    ((System.ComponentModel.ISupportInitialize) (this.m_SplitContainer)).BeginInit();
-    this.m_SplitContainer.Panel1.SuspendLayout();
-    this.m_SplitContainer.Panel2.SuspendLayout();
-    this.m_SplitContainer.SuspendLayout();
-    this.SuspendLayout();
-    // 
-    // m_RadioButtonNeeded
-    // 
-    this.m_RadioButtonNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_RadioButtonNeeded.AutoSize = true;
-    this.m_RadioButtonNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifyOnlyIfNeeded), true));
-    this.m_RadioButtonNeeded.Location = new System.Drawing.Point(372, 3);
-    this.m_RadioButtonNeeded.Name = "m_RadioButtonNeeded";
-    this.m_RadioButtonNeeded.Size = new System.Drawing.Size(131, 17);
-    this.m_RadioButtonNeeded.TabIndex = 3;
-    this.m_RadioButtonNeeded.TabStop = true;
-    this.m_RadioButtonNeeded.Text = "Qualify Only If Needed";
-    this.m_ToolTip.SetToolTip(this.m_RadioButtonNeeded, "Writing Text the content is quoted only if it's necessary ");
-    this.m_RadioButtonNeeded.UseVisualStyleBackColor = true;
-    this.m_RadioButtonNeeded.Visible = false;
-    // 
-    // m_CsvSettingBindingSource
-    // 
-    this.m_CsvSettingBindingSource.AllowNew = false;
-    this.m_CsvSettingBindingSource.DataSource = typeof(CsvTools.ICsvFile);
-    // 
-    // m_RadioButtonAlways
-    // 
-    this.m_RadioButtonAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_RadioButtonAlways.AutoSize = true;
-    this.m_RadioButtonAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifyAlways), true));
-    this.m_RadioButtonAlways.Location = new System.Drawing.Point(372, 27);
-    this.m_RadioButtonAlways.Name = "m_RadioButtonAlways";
-    this.m_RadioButtonAlways.Size = new System.Drawing.Size(93, 17);
-    this.m_RadioButtonAlways.TabIndex = 7;
-    this.m_RadioButtonAlways.TabStop = true;
-    this.m_RadioButtonAlways.Text = "Qualify Always";
-    this.m_ToolTip.SetToolTip(this.m_RadioButtonAlways, "Writing Text the content is quoted even its is not required");
-    this.m_RadioButtonAlways.UseVisualStyleBackColor = true;
-    this.m_RadioButtonAlways.Visible = false;
-    // 
-    // m_ComboBoxTrim
-    // 
-    this.m_ComboBoxTrim.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_ComboBoxTrim.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.m_CsvSettingBindingSource, nameof(ICsvFile.TrimmingOption), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-    this.m_ComboBoxTrim.DisplayMember = "Display";
-    this.m_ComboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-    this.m_ComboBoxTrim.Location = new System.Drawing.Point(95, 50);
-    this.m_ComboBoxTrim.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
-    this.m_ComboBoxTrim.Name = "m_ComboBoxTrim";
-    this.m_ComboBoxTrim.Size = new System.Drawing.Size(96, 21);
-    this.m_ComboBoxTrim.TabIndex = 8;
-    this.m_ToolTip.SetToolTip(this.m_ComboBoxTrim, "None will preserve whitespace; Unquoted will remove white spaces if the column wa" +
-                                                   "s not quoted; All will remove white spaces even if the column was quoted");
-    this.m_ComboBoxTrim.ValueMember = "ID";
-    // 
-    // m_CheckBoxAlternateQuoting
-    // 
-    this.m_CheckBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_CheckBoxAlternateQuoting.AutoSize = true;
-    this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.ContextSensitiveQualifier), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-    this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(197, 3);
-    this.m_CheckBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-    this.m_CheckBoxAlternateQuoting.Name = "m_CheckBoxAlternateQuoting";
-    this.m_CheckBoxAlternateQuoting.Size = new System.Drawing.Size(169, 17);
-    this.m_CheckBoxAlternateQuoting.TabIndex = 2;
-    this.m_CheckBoxAlternateQuoting.Text = "Context Sensitive Qualification";
-    this.m_ToolTip.SetToolTip(this.m_CheckBoxAlternateQuoting, "This is a uncommon way of quoting but allows to parse incorrectly quoted files, a" +
-                                                               " quote is only regarded as closing quote if it is followed by linefeed or delimi" +
-                                                               "ter");
-    this.m_CheckBoxAlternateQuoting.UseVisualStyleBackColor = true;
-    // 
-    // m_CheckBoxDuplicateQuotingToEscape
-    // 
-    this.m_CheckBoxDuplicateQuotingToEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_CheckBoxDuplicateQuotingToEscape.AutoSize = true;
-    this.m_CheckBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CsvSettingBindingSource, nameof(ICsvFile.DuplicateQualifierToEscape), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-    this.m_CheckBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(196, 27);
-    this.m_CheckBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(2);
-    this.m_CheckBoxDuplicateQuotingToEscape.Name = "m_CheckBoxDuplicateQuotingToEscape";
-    this.m_CheckBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(134, 17);
-    this.m_CheckBoxDuplicateQuotingToEscape.TabIndex = 6;
-    this.m_CheckBoxDuplicateQuotingToEscape.Text = "Repeated Qualification";
-    this.m_ToolTip.SetToolTip(this.m_CheckBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
-                                                                       "ext qualification, usually either repeated quoting or escaped charters are used." +
-                                                                       " ");
-    this.m_CheckBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
-    // 
-    // m_TextBoxQuote
-    // 
-    this.m_TextBoxQuote.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_TextBoxQuote.AutoCompleteCustomSource.AddRange(new string[] {
-      "\"",
-      "\'"});
-    this.m_TextBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-    this.m_TextBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-    this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Character", this.m_CsvSettingBindingSource, nameof(ICsvFile.FieldQualifierChar), true));
-    this.m_TextBoxQuote.Location = new System.Drawing.Point(95, 2);
-    this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-    this.m_TextBoxQuote.Name = "m_TextBoxQuote";
-    this.m_TextBoxQuote.Size = new System.Drawing.Size(96, 20);
-    this.m_TextBoxQuote.TabIndex = 1;
-    this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are rem" +
-                                                   "oved by the reading applications. This is needed in case a line feed or a delimi" +
-                                                   "ter is part of the column");
-    this.m_TextBoxQuote.Type = CsvTools.PunctuationTextBox.PunctuationType.Qualifier;
-    this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.TextBoxQuote_TextChanged);
-    // 
-    // m_TextBoxQuotePlaceHolder
-    // 
-    this.m_TextBoxQuotePlaceHolder.Anchor = System.Windows.Forms.AnchorStyles.Left;
-    this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-    this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_CsvSettingBindingSource, nameof(ICsvFile.QualifierPlaceholder), true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-    this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(95, 26);
-    this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-    this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
-    this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(96, 20);
-    this.m_TextBoxQuotePlaceHolder.TabIndex = 5;
-    // 
-    // m_ErrorProvider
-    // 
-    this.m_ErrorProvider.ContainerControl = this;
-    // 
-    // m_FastColoredTextBox00
-    // 
-    this.m_FastColoredTextBox00.AllowDrop = false;
-    this.m_FastColoredTextBox00.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox00.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox00.AutoScrollMinSize = new System.Drawing.Size(66, 14);
-    this.m_FastColoredTextBox00.BackBrush = null;
-    this.m_FastColoredTextBox00.CharHeight = 14;
-    this.m_FastColoredTextBox00.CharWidth = 8;
-    this.m_FastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox00.IsReplaceMode = false;
-    this.m_FastColoredTextBox00.Location = new System.Drawing.Point(45, 16);
-    this.m_FastColoredTextBox00.Multiline = false;
-    this.m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
-    this.m_FastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox00.ReadOnly = true;
-    this.m_FastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox00.ShowLineNumbers = false;
-    this.m_FastColoredTextBox00.ShowScrollBars = false;
-    this.m_FastColoredTextBox00.Size = new System.Drawing.Size(92, 18);
-    this.m_FastColoredTextBox00.TabIndex = 9;
-    this.m_FastColoredTextBox00.Text = "This is ";
-    this.m_FastColoredTextBox00.Zoom = 100;
-    // 
-    // m_Label1
-    // 
-    this.m_Label1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-    this.m_Label1.AutoSize = true;
-    this.m_Label1.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label1.Location = new System.Drawing.Point(3, 13);
-    this.m_Label1.Name = "m_Label1";
-    this.m_Label1.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-    this.m_Label1.Size = new System.Drawing.Size(36, 16);
-    this.m_Label1.TabIndex = 8;
-    this.m_Label1.Text = "Rec 1";
-    // 
-    // m_FastColoredTextBox12
-    // 
-    this.m_FastColoredTextBox12.AllowDrop = false;
-    this.m_FastColoredTextBox12.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox12.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox12.AutoScrollMinSize = new System.Drawing.Size(106, 28);
-    this.m_FastColoredTextBox12.BackBrush = null;
-    this.m_FastColoredTextBox12.CharHeight = 14;
-    this.m_FastColoredTextBox12.CharWidth = 8;
-    this.m_FastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox12.IsReplaceMode = false;
-    this.m_FastColoredTextBox12.Location = new System.Drawing.Point(143, 64);
-    this.m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
-    this.m_FastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox12.ReadOnly = true;
-    this.m_FastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox12.ShowLineNumbers = false;
-    this.m_FastColoredTextBox12.Size = new System.Drawing.Size(197, 33);
-    this.m_FastColoredTextBox12.TabIndex = 5;
-    this.m_FastColoredTextBox12.Text = "Column with ¶\r\nLinefeed";
-    this.m_FastColoredTextBox12.Zoom = 100;
-    // 
-    // m_FastColoredTextBox02
-    // 
-    this.m_FastColoredTextBox02.AllowDrop = false;
-    this.m_FastColoredTextBox02.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox02.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox02.AutoScrollMinSize = new System.Drawing.Size(66, 14);
-    this.m_FastColoredTextBox02.BackBrush = null;
-    this.m_FastColoredTextBox02.CharHeight = 14;
-    this.m_FastColoredTextBox02.CharWidth = 8;
-    this.m_FastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox02.IsReplaceMode = false;
-    this.m_FastColoredTextBox02.Location = new System.Drawing.Point(45, 64);
-    this.m_FastColoredTextBox02.Multiline = false;
-    this.m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
-    this.m_FastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox02.ReadOnly = true;
-    this.m_FastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox02.ShowLineNumbers = false;
-    this.m_FastColoredTextBox02.ShowScrollBars = false;
-    this.m_FastColoredTextBox02.Size = new System.Drawing.Size(92, 33);
-    this.m_FastColoredTextBox02.TabIndex = 4;
-    this.m_FastColoredTextBox02.Text = "Example ";
-    this.m_FastColoredTextBox02.Zoom = 100;
-    // 
-    // m_FastColoredTextBox11
-    // 
-    this.m_FastColoredTextBox11.AllowDrop = false;
-    this.m_FastColoredTextBox11.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox11.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox11.AutoScrollMinSize = new System.Drawing.Size(154, 14);
-    this.m_FastColoredTextBox11.BackBrush = null;
-    this.m_FastColoredTextBox11.CharHeight = 14;
-    this.m_FastColoredTextBox11.CharWidth = 8;
-    this.m_FastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox11.IsReplaceMode = false;
-    this.m_FastColoredTextBox11.Location = new System.Drawing.Point(143, 40);
-    this.m_FastColoredTextBox11.Multiline = false;
-    this.m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
-    this.m_FastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox11.ReadOnly = true;
-    this.m_FastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox11.ShowLineNumbers = false;
-    this.m_FastColoredTextBox11.ShowScrollBars = false;
-    this.m_FastColoredTextBox11.Size = new System.Drawing.Size(197, 18);
-    this.m_FastColoredTextBox11.TabIndex = 2;
-    this.m_FastColoredTextBox11.Text = "Column with \" Quote";
-    this.m_FastColoredTextBox11.Zoom = 100;
-    // 
-    // m_FastColoredTextBox01
-    // 
-    this.m_FastColoredTextBox01.AllowDrop = false;
-    this.m_FastColoredTextBox01.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox01.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox01.AutoScrollMinSize = new System.Drawing.Size(98, 14);
-    this.m_FastColoredTextBox01.BackBrush = null;
-    this.m_FastColoredTextBox01.CharHeight = 14;
-    this.m_FastColoredTextBox01.CharWidth = 8;
-    this.m_FastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox01.IsReplaceMode = false;
-    this.m_FastColoredTextBox01.Location = new System.Drawing.Point(45, 40);
-    this.m_FastColoredTextBox01.Multiline = false;
-    this.m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
-    this.m_FastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox01.ReadOnly = true;
-    this.m_FastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox01.ShowLineNumbers = false;
-    this.m_FastColoredTextBox01.ShowScrollBars = false;
-    this.m_FastColoredTextBox01.Size = new System.Drawing.Size(92, 18);
-    this.m_FastColoredTextBox01.TabIndex = 1;
-    this.m_FastColoredTextBox01.Text = " a Trimming ";
-    this.m_FastColoredTextBox01.Zoom = 100;
-    // 
-    // m_FastColoredTextBox10
-    // 
-    this.m_FastColoredTextBox10.AllowDrop = false;
-    this.m_FastColoredTextBox10.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox10.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox10.AutoScrollMinSize = new System.Drawing.Size(186, 14);
-    this.m_FastColoredTextBox10.BackBrush = null;
-    this.m_FastColoredTextBox10.CharHeight = 14;
-    this.m_FastColoredTextBox10.CharWidth = 8;
-    this.m_FastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox10.IsReplaceMode = false;
-    this.m_FastColoredTextBox10.Location = new System.Drawing.Point(143, 16);
-    this.m_FastColoredTextBox10.Multiline = false;
-    this.m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
-    this.m_FastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox10.ReadOnly = true;
-    this.m_FastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox10.ShowLineNumbers = false;
-    this.m_FastColoredTextBox10.ShowScrollBars = false;
-    this.m_FastColoredTextBox10.Size = new System.Drawing.Size(197, 18);
-    this.m_FastColoredTextBox10.TabIndex = 10;
-    this.m_FastColoredTextBox10.TabLength = 1;
-    this.m_FastColoredTextBox10.TabStop = false;
-    this.m_FastColoredTextBox10.Text = "Column with:, Delimiter";
-    this.m_FastColoredTextBox10.Zoom = 100;
-    // 
-    // m_FastColoredTextBox
-    // 
-    this.m_FastColoredTextBox.AllowDrop = false;
-    this.m_FastColoredTextBox.AutoCompleteBracketsList = new char[] {
-      '(',
-      ')',
-      '{',
-      '}',
-      '[',
-      ']',
-      '\"',
-      '\"',
-      '\'',
-      '\''};
-    this.m_FastColoredTextBox.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                        "?<range>:)\\s*(?<range>[^;]+);";
-    this.m_FastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(307, 56);
-    this.m_FastColoredTextBox.BackBrush = null;
-    this.m_FastColoredTextBox.CharHeight = 14;
-    this.m_FastColoredTextBox.CharWidth = 8;
-    this.m_FastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-    this.m_FastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-    this.m_FastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-    this.m_FastColoredTextBox.IsReplaceMode = false;
-    this.m_FastColoredTextBox.Location = new System.Drawing.Point(3, 16);
-    this.m_FastColoredTextBox.Name = "m_FastColoredTextBox";
-    this.m_FastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
-    this.m_FastColoredTextBox.ReadOnly = true;
-    this.m_TableLayoutPanelText.SetRowSpan(this.m_FastColoredTextBox, 3);
-    this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-    this.m_FastColoredTextBox.Size = new System.Drawing.Size(362, 95);
-    this.m_FastColoredTextBox.TabIndex = 0;
-    this.m_FastColoredTextBox.TabLength = 1;
-    this.m_FastColoredTextBox.TabStop = false;
-    this.m_FastColoredTextBox.Text = "\"This is \";Column with:, Delimiter¶\r\n a Trimming ;Column with \"\" Quote¶\r\nExample " +
-                                     ";\"Column with ¶\r\nLinefeed\"";
-    this.m_FastColoredTextBox.Zoom = 100;
-    // 
-    // m_Label2
-    // 
-    this.m_Label2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-    this.m_Label2.AutoSize = true;
-    this.m_Label2.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label2.Location = new System.Drawing.Point(3, 37);
-    this.m_Label2.Name = "m_Label2";
-    this.m_Label2.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-    this.m_Label2.Size = new System.Drawing.Size(36, 16);
-    this.m_Label2.TabIndex = 0;
-    this.m_Label2.Text = "Rec 2";
-    // 
-    // m_Label3
-    // 
-    this.m_Label3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-    this.m_Label3.AutoSize = true;
-    this.m_Label3.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label3.Location = new System.Drawing.Point(3, 61);
-    this.m_Label3.Name = "m_Label3";
-    this.m_Label3.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-    this.m_Label3.Size = new System.Drawing.Size(36, 16);
-    this.m_Label3.TabIndex = 3;
-    this.m_Label3.Text = "Rec 3";
-    // 
-    // m_Label5
-    // 
-    this.m_Label5.Anchor = System.Windows.Forms.AnchorStyles.None;
-    this.m_Label5.AutoSize = true;
-    this.m_Label5.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label5.Location = new System.Drawing.Point(65, 0);
-    this.m_Label5.Name = "m_Label5";
-    this.m_Label5.Size = new System.Drawing.Size(51, 13);
-    this.m_Label5.TabIndex = 6;
-    this.m_Label5.Text = "Column 1";
-    // 
-    // m_Label4
-    // 
-    this.m_Label4.Anchor = System.Windows.Forms.AnchorStyles.None;
-    this.m_Label4.AutoSize = true;
-    this.m_Label4.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label4.Location = new System.Drawing.Point(221, 0);
-    this.m_Label4.Name = "m_Label4";
-    this.m_Label4.Size = new System.Drawing.Size(51, 13);
-    this.m_Label4.TabIndex = 7;
-    this.m_Label4.Text = "Column 2";
-    // 
-    // m_Label6
-    // 
-    this.m_Label6.Anchor = System.Windows.Forms.AnchorStyles.None;
-    this.m_Label6.AutoSize = true;
-    this.m_Label6.ForeColor = System.Drawing.Color.Teal;
-    this.m_Label6.Location = new System.Drawing.Point(147, 0);
-    this.m_Label6.Name = "m_Label6";
-    this.m_Label6.Size = new System.Drawing.Size(74, 13);
-    this.m_Label6.TabIndex = 35;
-    this.m_Label6.Text = "Delimited Text";
-    // 
-    // m_TableLayoutPanelText
-    // 
-    this.m_TableLayoutPanelText.ColumnCount = 1;
-    this.m_TableLayoutPanelText.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 44.49112F));
-    this.m_TableLayoutPanelText.Controls.Add(this.m_FastColoredTextBox, 0, 1);
-    this.m_TableLayoutPanelText.Controls.Add(this.m_Label6, 0, 0);
-    this.m_TableLayoutPanelText.Dock = System.Windows.Forms.DockStyle.Fill;
-    this.m_TableLayoutPanelText.Location = new System.Drawing.Point(0, 0);
-    this.m_TableLayoutPanelText.Name = "m_TableLayoutPanelText";
-    this.m_TableLayoutPanelText.RowCount = 4;
-    this.m_TableLayoutPanelText.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelText.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelText.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelText.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelText.Size = new System.Drawing.Size(368, 114);
-    this.m_TableLayoutPanelText.TabIndex = 0;
-    // 
-    // m_TableLayoutPanelColumns
-    // 
-    this.m_TableLayoutPanelColumns.ColumnCount = 3;
-    this.m_TableLayoutPanelColumns.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanelColumns.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanelColumns.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_Label3, 0, 3);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox12, 2, 3);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox02, 1, 3);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox01, 1, 2);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox11, 2, 2);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox00, 1, 1);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_Label2, 0, 2);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_FastColoredTextBox10, 2, 1);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_Label1, 0, 1);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_Label5, 1, 0);
-    this.m_TableLayoutPanelColumns.Controls.Add(this.m_Label4, 2, 0);
-    this.m_TableLayoutPanelColumns.Dock = System.Windows.Forms.DockStyle.Fill;
-    this.m_TableLayoutPanelColumns.Location = new System.Drawing.Point(0, 0);
-    this.m_TableLayoutPanelColumns.Name = "m_TableLayoutPanelColumns";
-    this.m_TableLayoutPanelColumns.RowCount = 4;
-    this.m_TableLayoutPanelColumns.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelColumns.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelColumns.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelColumns.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanelColumns.Size = new System.Drawing.Size(353, 114);
-    this.m_TableLayoutPanelColumns.TabIndex = 0;
-    // 
-    // m_TableLayoutPanel
-    // 
-    this.m_TableLayoutPanel.AutoSize = true;
-    this.m_TableLayoutPanel.ColumnCount = 4;
-    this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-    this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuote, 0, 0);
-    this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxQuote, 1, 0);
-    this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxAlternateQuoting, 2, 0);
-    this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxDuplicateQuotingToEscape, 2, 1);
-    this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholder, 0, 1);
-    this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxQuotePlaceHolder, 1, 1);
-    this.m_TableLayoutPanel.Controls.Add(this.m_LabelTrim, 0, 2);
-    this.m_TableLayoutPanel.Controls.Add(this.m_ComboBoxTrim, 1, 2);
-    this.m_TableLayoutPanel.Controls.Add(this.m_RadioButtonNeeded, 3, 0);
-    this.m_TableLayoutPanel.Controls.Add(this.m_RadioButtonAlways, 3, 1);
-    this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
-    this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-    this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-    this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-    this.m_TableLayoutPanel.RowCount = 3;
-    this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-    this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-    this.m_TableLayoutPanel.Size = new System.Drawing.Size(726, 74);
-    this.m_TableLayoutPanel.TabIndex = 0;
-    // 
-    // m_LabelQuote
-    // 
-    this.m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
-    this.m_LabelQuote.AutoSize = true;
-    this.m_LabelQuote.Location = new System.Drawing.Point(17, 5);
-    this.m_LabelQuote.Name = "m_LabelQuote";
-    this.m_LabelQuote.Size = new System.Drawing.Size(72, 13);
-    this.m_LabelQuote.TabIndex = 0;
-    this.m_LabelQuote.Text = "Text Qualifier:";
-    // 
-    // m_LabelQuotePlaceholder
-    // 
-    this.m_LabelQuotePlaceholder.Anchor = System.Windows.Forms.AnchorStyles.Right;
-    this.m_LabelQuotePlaceholder.AutoSize = true;
-    this.m_LabelQuotePlaceholder.Location = new System.Drawing.Point(23, 29);
-    this.m_LabelQuotePlaceholder.Name = "m_LabelQuotePlaceholder";
-    this.m_LabelQuotePlaceholder.Size = new System.Drawing.Size(66, 13);
-    this.m_LabelQuotePlaceholder.TabIndex = 4;
-    this.m_LabelQuotePlaceholder.Text = "Placeholder:";
-    // 
-    // m_LabelTrim
-    // 
-    this.m_LabelTrim.Anchor = System.Windows.Forms.AnchorStyles.Right;
-    this.m_LabelTrim.AutoSize = true;
-    this.m_LabelTrim.Location = new System.Drawing.Point(3, 54);
-    this.m_LabelTrim.Name = "m_LabelTrim";
-    this.m_LabelTrim.Size = new System.Drawing.Size(86, 13);
-    this.m_LabelTrim.TabIndex = 7;
-    this.m_LabelTrim.Text = "Trimming Option:";
+    components = new Container();
+    var resources = new ComponentResourceManager(typeof(QuotingControl));
+    m_SplitContainer = new SplitContainer();
+    m_TableLayoutPanelText = new TableLayoutPanel();
+    m_FastColoredTextBox = new FastColoredTextBox();
+    m_Label6 = new Label();
+    m_TableLayoutPanelColumns = new TableLayoutPanel();
+    m_Label3 = new Label();
+    m_FastColoredTextBox12 = new FastColoredTextBox();
+    m_FastColoredTextBox02 = new FastColoredTextBox();
+    m_FastColoredTextBox01 = new FastColoredTextBox();
+    m_FastColoredTextBox11 = new FastColoredTextBox();
+    m_FastColoredTextBox00 = new FastColoredTextBox();
+    m_Label2 = new Label();
+    m_FastColoredTextBox10 = new FastColoredTextBox();
+    m_Label1 = new Label();
+    m_Label5 = new Label();
+    m_Label4 = new Label();
+    m_ToolTip = new ToolTip(components);
+    m_RadioButtonNeeded = new RadioButton();
+    m_CsvSettingBindingSource = new BindingSource(components);
+    m_RadioButtonAlways = new RadioButton();
+    m_ComboBoxTrim = new ComboBox();
+    m_CheckBoxAlternateQuoting = new CheckBox();
+    m_CheckBoxDuplicateQuotingToEscape = new CheckBox();
+    m_TextBoxQuote = new PunctuationTextBox();
+    m_TextBoxQuotePlaceHolder = new TextBox();
+    m_ErrorProvider = new ErrorProvider(components);
+    m_TableLayoutPanel = new TableLayoutPanel();
+    m_LabelQuote = new Label();
+    m_LabelQuotePlaceholder = new Label();
+    m_LabelTrim = new Label();
+    m_TimerRebuilt = new Timer(components);
+    ((ISupportInitialize) m_SplitContainer).BeginInit();
+    m_SplitContainer.Panel1.SuspendLayout();
+    m_SplitContainer.Panel2.SuspendLayout();
+    m_SplitContainer.SuspendLayout();
+    m_TableLayoutPanelText.SuspendLayout();
+    ((ISupportInitialize) m_FastColoredTextBox).BeginInit();
+    m_TableLayoutPanelColumns.SuspendLayout();
+    ((ISupportInitialize) m_FastColoredTextBox12).BeginInit();
+    ((ISupportInitialize) m_FastColoredTextBox02).BeginInit();
+    ((ISupportInitialize) m_FastColoredTextBox01).BeginInit();
+    ((ISupportInitialize) m_FastColoredTextBox11).BeginInit();
+    ((ISupportInitialize) m_FastColoredTextBox00).BeginInit();
+    ((ISupportInitialize) m_FastColoredTextBox10).BeginInit();
+    ((ISupportInitialize) m_CsvSettingBindingSource).BeginInit();
+    ((ISupportInitialize) m_ErrorProvider).BeginInit();
+    m_TableLayoutPanel.SuspendLayout();
+    SuspendLayout();
     // 
     // m_SplitContainer
     // 
-    this.m_SplitContainer.Dock = System.Windows.Forms.DockStyle.Top;
-    this.m_SplitContainer.Location = new System.Drawing.Point(0, 74);
-    this.m_SplitContainer.Name = "m_SplitContainer";
+    m_TableLayoutPanel.SetColumnSpan(m_SplitContainer, 4);
+    m_SplitContainer.Location = new Point(3, 82);
+    m_SplitContainer.Name = "m_SplitContainer";
     // 
     // m_SplitContainer.Panel1
     // 
-    this.m_SplitContainer.Panel1.Controls.Add(this.m_TableLayoutPanelText);
+    m_SplitContainer.Panel1.Controls.Add(m_TableLayoutPanelText);
     // 
     // m_SplitContainer.Panel2
     // 
-    this.m_SplitContainer.Panel2.Controls.Add(this.m_TableLayoutPanelColumns);
-    this.m_SplitContainer.Size = new System.Drawing.Size(726, 114);
-    this.m_SplitContainer.SplitterDistance = 368;
-    this.m_SplitContainer.SplitterWidth = 5;
-    this.m_SplitContainer.TabIndex = 4;
+    m_SplitContainer.Panel2.Controls.Add(m_TableLayoutPanelColumns);
+    m_SplitContainer.Size = new Size(672, 112);
+    m_SplitContainer.SplitterDistance = 313;
+    m_SplitContainer.TabIndex = 5;
+    // 
+    // m_TableLayoutPanelText
+    // 
+    m_TableLayoutPanelText.ColumnCount = 1;
+    m_TableLayoutPanelText.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44.49112F));
+    m_TableLayoutPanelText.Controls.Add(m_FastColoredTextBox, 0, 1);
+    m_TableLayoutPanelText.Controls.Add(m_Label6, 0, 0);
+    m_TableLayoutPanelText.Dock = DockStyle.Top;
+    m_TableLayoutPanelText.Location = new Point(0, 0);
+    m_TableLayoutPanelText.Name = "m_TableLayoutPanelText";
+    m_TableLayoutPanelText.RowCount = 4;
+    m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelText.Size = new Size(313, 105);
+    m_TableLayoutPanelText.TabIndex = 0;
+    // 
+    // m_FastColoredTextBox
+    // 
+    m_FastColoredTextBox.AllowDrop = false;
+    m_FastColoredTextBox.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox.AutoScrollMinSize = new Size(307, 56);
+    m_FastColoredTextBox.BackBrush = null;
+    m_FastColoredTextBox.CharHeight = 14;
+    m_FastColoredTextBox.CharWidth = 8;
+    m_FastColoredTextBox.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox.Dock = DockStyle.Fill;
+    m_FastColoredTextBox.IsReplaceMode = false;
+    m_FastColoredTextBox.Location = new Point(3, 16);
+    m_FastColoredTextBox.Name = "m_FastColoredTextBox";
+    m_FastColoredTextBox.Paddings = new Padding(0);
+    m_FastColoredTextBox.ReadOnly = true;
+    m_TableLayoutPanelText.SetRowSpan(m_FastColoredTextBox, 3);
+    m_FastColoredTextBox.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox.Size = new Size(307, 95);
+    m_FastColoredTextBox.TabIndex = 0;
+    m_FastColoredTextBox.TabLength = 1;
+    m_FastColoredTextBox.TabStop = false;
+    m_FastColoredTextBox.Text = "\"This is \";Column with:, Delimiter¶\r\n a Trimming ;Column with \"\" Quote¶\r\nExample ;\"Column with ¶\r\nLinefeed\"";
+    m_FastColoredTextBox.Zoom = 100;
+    // 
+    // m_Label6
+    // 
+    m_Label6.Anchor = AnchorStyles.None;
+    m_Label6.AutoSize = true;
+    m_Label6.ForeColor = Color.Teal;
+    m_Label6.Location = new Point(119, 0);
+    m_Label6.Name = "m_Label6";
+    m_Label6.Size = new Size(74, 13);
+    m_Label6.TabIndex = 35;
+    m_Label6.Text = "Delimited Text";
+    // 
+    // m_TableLayoutPanelColumns
+    // 
+    m_TableLayoutPanelColumns.ColumnCount = 3;
+    m_TableLayoutPanelColumns.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanelColumns.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanelColumns.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanelColumns.Controls.Add(m_Label3, 0, 3);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox12, 2, 3);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox02, 1, 3);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox01, 1, 2);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox11, 2, 2);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox00, 1, 1);
+    m_TableLayoutPanelColumns.Controls.Add(m_Label2, 0, 2);
+    m_TableLayoutPanelColumns.Controls.Add(m_FastColoredTextBox10, 2, 1);
+    m_TableLayoutPanelColumns.Controls.Add(m_Label1, 0, 1);
+    m_TableLayoutPanelColumns.Controls.Add(m_Label5, 1, 0);
+    m_TableLayoutPanelColumns.Controls.Add(m_Label4, 2, 0);
+    m_TableLayoutPanelColumns.Dock = DockStyle.Top;
+    m_TableLayoutPanelColumns.Location = new Point(0, 0);
+    m_TableLayoutPanelColumns.Name = "m_TableLayoutPanelColumns";
+    m_TableLayoutPanelColumns.RowCount = 4;
+    m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanelColumns.Size = new Size(355, 106);
+    m_TableLayoutPanelColumns.TabIndex = 0;
+    // 
+    // m_Label3
+    // 
+    m_Label3.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
+    m_Label3.AutoSize = true;
+    m_Label3.ForeColor = Color.Teal;
+    m_Label3.Location = new Point(3, 61);
+    m_Label3.Name = "m_Label3";
+    m_Label3.Padding = new Padding(0, 3, 0, 0);
+    m_Label3.Size = new Size(36, 16);
+    m_Label3.TabIndex = 3;
+    m_Label3.Text = "Rec 3";
+    // 
+    // m_FastColoredTextBox12
+    // 
+    m_FastColoredTextBox12.AllowDrop = false;
+    m_FastColoredTextBox12.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox12.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox12.AutoScrollMinSize = new Size(106, 28);
+    m_FastColoredTextBox12.BackBrush = null;
+    m_FastColoredTextBox12.CharHeight = 14;
+    m_FastColoredTextBox12.CharWidth = 8;
+    m_FastColoredTextBox12.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox12.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox12.IsReplaceMode = false;
+    m_FastColoredTextBox12.Location = new Point(143, 64);
+    m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
+    m_FastColoredTextBox12.Paddings = new Padding(0);
+    m_FastColoredTextBox12.ReadOnly = true;
+    m_FastColoredTextBox12.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox12.ShowLineNumbers = false;
+    m_FastColoredTextBox12.Size = new Size(197, 33);
+    m_FastColoredTextBox12.TabIndex = 5;
+    m_FastColoredTextBox12.Text = "Column with ¶\r\nLinefeed";
+    m_FastColoredTextBox12.Zoom = 100;
+    // 
+    // m_FastColoredTextBox02
+    // 
+    m_FastColoredTextBox02.AllowDrop = false;
+    m_FastColoredTextBox02.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox02.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox02.AutoScrollMinSize = new Size(66, 14);
+    m_FastColoredTextBox02.BackBrush = null;
+    m_FastColoredTextBox02.CharHeight = 14;
+    m_FastColoredTextBox02.CharWidth = 8;
+    m_FastColoredTextBox02.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox02.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox02.IsReplaceMode = false;
+    m_FastColoredTextBox02.Location = new Point(45, 64);
+    m_FastColoredTextBox02.Multiline = false;
+    m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
+    m_FastColoredTextBox02.Paddings = new Padding(0);
+    m_FastColoredTextBox02.ReadOnly = true;
+    m_FastColoredTextBox02.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox02.ShowLineNumbers = false;
+    m_FastColoredTextBox02.ShowScrollBars = false;
+    m_FastColoredTextBox02.Size = new Size(92, 33);
+    m_FastColoredTextBox02.TabIndex = 4;
+    m_FastColoredTextBox02.Text = "Example ";
+    m_FastColoredTextBox02.Zoom = 100;
+    // 
+    // m_FastColoredTextBox01
+    // 
+    m_FastColoredTextBox01.AllowDrop = false;
+    m_FastColoredTextBox01.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox01.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox01.AutoScrollMinSize = new Size(98, 14);
+    m_FastColoredTextBox01.BackBrush = null;
+    m_FastColoredTextBox01.CharHeight = 14;
+    m_FastColoredTextBox01.CharWidth = 8;
+    m_FastColoredTextBox01.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox01.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox01.IsReplaceMode = false;
+    m_FastColoredTextBox01.Location = new Point(45, 40);
+    m_FastColoredTextBox01.Multiline = false;
+    m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
+    m_FastColoredTextBox01.Paddings = new Padding(0);
+    m_FastColoredTextBox01.ReadOnly = true;
+    m_FastColoredTextBox01.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox01.ShowLineNumbers = false;
+    m_FastColoredTextBox01.ShowScrollBars = false;
+    m_FastColoredTextBox01.Size = new Size(92, 18);
+    m_FastColoredTextBox01.TabIndex = 1;
+    m_FastColoredTextBox01.Text = " a Trimming ";
+    m_FastColoredTextBox01.Zoom = 100;
+    // 
+    // m_FastColoredTextBox11
+    // 
+    m_FastColoredTextBox11.AllowDrop = false;
+    m_FastColoredTextBox11.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox11.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox11.AutoScrollMinSize = new Size(154, 14);
+    m_FastColoredTextBox11.BackBrush = null;
+    m_FastColoredTextBox11.CharHeight = 14;
+    m_FastColoredTextBox11.CharWidth = 8;
+    m_FastColoredTextBox11.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox11.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox11.IsReplaceMode = false;
+    m_FastColoredTextBox11.Location = new Point(143, 40);
+    m_FastColoredTextBox11.Multiline = false;
+    m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
+    m_FastColoredTextBox11.Paddings = new Padding(0);
+    m_FastColoredTextBox11.ReadOnly = true;
+    m_FastColoredTextBox11.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox11.ShowLineNumbers = false;
+    m_FastColoredTextBox11.ShowScrollBars = false;
+    m_FastColoredTextBox11.Size = new Size(197, 18);
+    m_FastColoredTextBox11.TabIndex = 2;
+    m_FastColoredTextBox11.Text = "Column with \" Quote";
+    m_FastColoredTextBox11.Zoom = 100;
+    // 
+    // m_FastColoredTextBox00
+    // 
+    m_FastColoredTextBox00.AllowDrop = false;
+    m_FastColoredTextBox00.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox00.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox00.AutoScrollMinSize = new Size(66, 14);
+    m_FastColoredTextBox00.BackBrush = null;
+    m_FastColoredTextBox00.CharHeight = 14;
+    m_FastColoredTextBox00.CharWidth = 8;
+    m_FastColoredTextBox00.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox00.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox00.IsReplaceMode = false;
+    m_FastColoredTextBox00.Location = new Point(45, 16);
+    m_FastColoredTextBox00.Multiline = false;
+    m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
+    m_FastColoredTextBox00.Paddings = new Padding(0);
+    m_FastColoredTextBox00.ReadOnly = true;
+    m_FastColoredTextBox00.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox00.ShowLineNumbers = false;
+    m_FastColoredTextBox00.ShowScrollBars = false;
+    m_FastColoredTextBox00.Size = new Size(92, 18);
+    m_FastColoredTextBox00.TabIndex = 9;
+    m_FastColoredTextBox00.Text = "This is ";
+    m_FastColoredTextBox00.Zoom = 100;
+    // 
+    // m_Label2
+    // 
+    m_Label2.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
+    m_Label2.AutoSize = true;
+    m_Label2.ForeColor = Color.Teal;
+    m_Label2.Location = new Point(3, 37);
+    m_Label2.Name = "m_Label2";
+    m_Label2.Padding = new Padding(0, 3, 0, 0);
+    m_Label2.Size = new Size(36, 16);
+    m_Label2.TabIndex = 0;
+    m_Label2.Text = "Rec 2";
+    // 
+    // m_FastColoredTextBox10
+    // 
+    m_FastColoredTextBox10.AllowDrop = false;
+    m_FastColoredTextBox10.AutoCompleteBracketsList = new char[]
+{
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+};
+    m_FastColoredTextBox10.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(?<range>:)\\s*(?<range>[^;]+);";
+    m_FastColoredTextBox10.AutoScrollMinSize = new Size(186, 14);
+    m_FastColoredTextBox10.BackBrush = null;
+    m_FastColoredTextBox10.CharHeight = 14;
+    m_FastColoredTextBox10.CharWidth = 8;
+    m_FastColoredTextBox10.Cursor = Cursors.IBeam;
+    m_FastColoredTextBox10.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox10.IsReplaceMode = false;
+    m_FastColoredTextBox10.Location = new Point(143, 16);
+    m_FastColoredTextBox10.Multiline = false;
+    m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
+    m_FastColoredTextBox10.Paddings = new Padding(0);
+    m_FastColoredTextBox10.ReadOnly = true;
+    m_FastColoredTextBox10.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox10.ShowLineNumbers = false;
+    m_FastColoredTextBox10.ShowScrollBars = false;
+    m_FastColoredTextBox10.Size = new Size(197, 18);
+    m_FastColoredTextBox10.TabIndex = 10;
+    m_FastColoredTextBox10.TabLength = 1;
+    m_FastColoredTextBox10.TabStop = false;
+    m_FastColoredTextBox10.Text = "Column with:, Delimiter";
+    m_FastColoredTextBox10.Zoom = 100;
+    // 
+    // m_Label1
+    // 
+    m_Label1.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
+    m_Label1.AutoSize = true;
+    m_Label1.ForeColor = Color.Teal;
+    m_Label1.Location = new Point(3, 13);
+    m_Label1.Name = "m_Label1";
+    m_Label1.Padding = new Padding(0, 3, 0, 0);
+    m_Label1.Size = new Size(36, 16);
+    m_Label1.TabIndex = 8;
+    m_Label1.Text = "Rec 1";
+    // 
+    // m_Label5
+    // 
+    m_Label5.Anchor = AnchorStyles.None;
+    m_Label5.AutoSize = true;
+    m_Label5.ForeColor = Color.Teal;
+    m_Label5.Location = new Point(65, 0);
+    m_Label5.Name = "m_Label5";
+    m_Label5.Size = new Size(51, 13);
+    m_Label5.TabIndex = 6;
+    m_Label5.Text = "Column 1";
+    // 
+    // m_Label4
+    // 
+    m_Label4.Anchor = AnchorStyles.None;
+    m_Label4.AutoSize = true;
+    m_Label4.ForeColor = Color.Teal;
+    m_Label4.Location = new Point(222, 0);
+    m_Label4.Name = "m_Label4";
+    m_Label4.Size = new Size(51, 13);
+    m_Label4.TabIndex = 7;
+    m_Label4.Text = "Column 2";
+    // 
+    // m_RadioButtonNeeded
+    // 
+    m_RadioButtonNeeded.Anchor = AnchorStyles.Left;
+    m_RadioButtonNeeded.AutoSize = true;
+    m_RadioButtonNeeded.DataBindings.Add(new Binding("Checked", m_CsvSettingBindingSource, "QualifyOnlyIfNeeded", true));
+    m_RadioButtonNeeded.Location = new Point(372, 4);
+    m_RadioButtonNeeded.Name = "m_RadioButtonNeeded";
+    m_RadioButtonNeeded.Size = new Size(131, 17);
+    m_RadioButtonNeeded.TabIndex = 3;
+    m_RadioButtonNeeded.TabStop = true;
+    m_RadioButtonNeeded.Text = "Qualify Only If Needed";
+    m_ToolTip.SetToolTip(m_RadioButtonNeeded, "Writing Text the content is quoted only if it's necessary ");
+    m_RadioButtonNeeded.UseVisualStyleBackColor = true;
+    m_RadioButtonNeeded.Visible = false;
+    // 
+    // m_CsvSettingBindingSource
+    // 
+    m_CsvSettingBindingSource.AllowNew = false;
+    m_CsvSettingBindingSource.DataSource = typeof(ICsvFile);
+    // 
+    // m_RadioButtonAlways
+    // 
+    m_RadioButtonAlways.Anchor = AnchorStyles.Left;
+    m_RadioButtonAlways.AutoSize = true;
+    m_RadioButtonAlways.DataBindings.Add(new Binding("Checked", m_CsvSettingBindingSource, "QualifyAlways", true));
+    m_RadioButtonAlways.Location = new Point(372, 30);
+    m_RadioButtonAlways.Name = "m_RadioButtonAlways";
+    m_RadioButtonAlways.Size = new Size(93, 17);
+    m_RadioButtonAlways.TabIndex = 7;
+    m_RadioButtonAlways.TabStop = true;
+    m_RadioButtonAlways.Text = "Qualify Always";
+    m_ToolTip.SetToolTip(m_RadioButtonAlways, "Writing Text the content is quoted even its is not required");
+    m_RadioButtonAlways.UseVisualStyleBackColor = true;
+    m_RadioButtonAlways.Visible = false;
+    // 
+    // m_ComboBoxTrim
+    // 
+    m_ComboBoxTrim.Anchor = AnchorStyles.Left;
+    m_ComboBoxTrim.DataBindings.Add(new Binding("SelectedValue", m_CsvSettingBindingSource, "TrimmingOption", true, DataSourceUpdateMode.OnPropertyChanged));
+    m_ComboBoxTrim.DisplayMember = "Display";
+    m_ComboBoxTrim.DropDownStyle = ComboBoxStyle.DropDownList;
+    m_ComboBoxTrim.Location = new Point(95, 55);
+    m_ComboBoxTrim.Name = "m_ComboBoxTrim";
+    m_ComboBoxTrim.Size = new Size(96, 21);
+    m_ComboBoxTrim.TabIndex = 8;
+    m_ToolTip.SetToolTip(m_ComboBoxTrim, "None will preserve whitespace; Unquoted will remove white spaces if the column was not quoted; All will remove white spaces even if the column was quoted");
+    m_ComboBoxTrim.ValueMember = "ID";
+    // 
+    // m_CheckBoxAlternateQuoting
+    // 
+    m_CheckBoxAlternateQuoting.Anchor = AnchorStyles.Left;
+    m_CheckBoxAlternateQuoting.AutoSize = true;
+    m_CheckBoxAlternateQuoting.DataBindings.Add(new Binding("Checked", m_CsvSettingBindingSource, "ContextSensitiveQualifier", true, DataSourceUpdateMode.OnPropertyChanged));
+    m_CheckBoxAlternateQuoting.Location = new Point(197, 4);
+    m_CheckBoxAlternateQuoting.Name = "m_CheckBoxAlternateQuoting";
+    m_CheckBoxAlternateQuoting.Size = new Size(169, 17);
+    m_CheckBoxAlternateQuoting.TabIndex = 2;
+    m_CheckBoxAlternateQuoting.Text = "Context Sensitive Qualification";
+    m_ToolTip.SetToolTip(m_CheckBoxAlternateQuoting, "This is a uncommon way of quoting but allows to parse incorrectly quoted files, a quote is only regarded as closing quote if it is followed by linefeed or delimiter");
+    m_CheckBoxAlternateQuoting.UseVisualStyleBackColor = true;
+    // 
+    // m_CheckBoxDuplicateQuotingToEscape
+    // 
+    m_CheckBoxDuplicateQuotingToEscape.Anchor = AnchorStyles.Left;
+    m_CheckBoxDuplicateQuotingToEscape.AutoSize = true;
+    m_CheckBoxDuplicateQuotingToEscape.DataBindings.Add(new Binding("Checked", m_CsvSettingBindingSource, "DuplicateQualifierToEscape", true));
+    m_CheckBoxDuplicateQuotingToEscape.Location = new Point(197, 30);
+    m_CheckBoxDuplicateQuotingToEscape.Name = "m_CheckBoxDuplicateQuotingToEscape";
+    m_CheckBoxDuplicateQuotingToEscape.Size = new Size(134, 17);
+    m_CheckBoxDuplicateQuotingToEscape.TabIndex = 6;
+    m_CheckBoxDuplicateQuotingToEscape.Text = "Repeated Qualification";
+    m_ToolTip.SetToolTip(m_CheckBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end text qualification, usually either repeated quoting or escaped charters are used. ");
+    m_CheckBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
+    // 
+    // m_TextBoxQuote
+    // 
+    m_TextBoxQuote.Anchor = AnchorStyles.Left;
+    m_TextBoxQuote.AutoCompleteCustomSource.AddRange(new string[] { "\"", "'" });
+    m_TextBoxQuote.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+    m_TextBoxQuote.AutoCompleteSource = AutoCompleteSource.CustomSource;
+    m_TextBoxQuote.DataBindings.Add(new Binding("Character", m_CsvSettingBindingSource, "FieldQualifierChar", true));
+    m_TextBoxQuote.Location = new Point(95, 3);
+    m_TextBoxQuote.Name = "m_TextBoxQuote";
+    m_TextBoxQuote.Size = new Size(96, 20);
+    m_TextBoxQuote.TabIndex = 1;
+    m_ToolTip.SetToolTip(m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are removed by the reading applications. This is needed in case a line feed or a delimiter is part of the column");
+    m_TextBoxQuote.Type = PunctuationTextBox.PunctuationType.Qualifier;
+    m_TextBoxQuote.TextChanged += TextBoxQuote_TextChanged;
+    // 
+    // m_TextBoxQuotePlaceHolder
+    // 
+    m_TextBoxQuotePlaceHolder.Anchor = AnchorStyles.Left;
+    m_TextBoxQuotePlaceHolder.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+    m_TextBoxQuotePlaceHolder.DataBindings.Add(new Binding("Text", m_CsvSettingBindingSource, "QualifierPlaceholder", true));
+    m_TextBoxQuotePlaceHolder.Location = new Point(95, 29);
+    m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
+    m_TextBoxQuotePlaceHolder.Size = new Size(96, 20);
+    m_TextBoxQuotePlaceHolder.TabIndex = 5;
+    // 
+    // m_ErrorProvider
+    // 
+    m_ErrorProvider.ContainerControl = this;
+    // 
+    // m_TableLayoutPanel
+    // 
+    m_TableLayoutPanel.ColumnCount = 4;
+    m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+    m_TableLayoutPanel.Controls.Add(m_SplitContainer, 0, 3);
+    m_TableLayoutPanel.Controls.Add(m_LabelQuote, 0, 0);
+    m_TableLayoutPanel.Controls.Add(m_TextBoxQuote, 1, 0);
+    m_TableLayoutPanel.Controls.Add(m_CheckBoxAlternateQuoting, 2, 0);
+    m_TableLayoutPanel.Controls.Add(m_CheckBoxDuplicateQuotingToEscape, 2, 1);
+    m_TableLayoutPanel.Controls.Add(m_LabelQuotePlaceholder, 0, 1);
+    m_TableLayoutPanel.Controls.Add(m_TextBoxQuotePlaceHolder, 1, 1);
+    m_TableLayoutPanel.Controls.Add(m_LabelTrim, 0, 2);
+    m_TableLayoutPanel.Controls.Add(m_ComboBoxTrim, 1, 2);
+    m_TableLayoutPanel.Controls.Add(m_RadioButtonNeeded, 3, 0);
+    m_TableLayoutPanel.Controls.Add(m_RadioButtonAlways, 3, 1);
+    m_TableLayoutPanel.Dock = DockStyle.Fill;
+    m_TableLayoutPanel.Location = new Point(0, 0);
+    m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+    m_TableLayoutPanel.RowCount = 4;
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+    m_TableLayoutPanel.Size = new Size(677, 197);
+    m_TableLayoutPanel.TabIndex = 0;
+    // 
+    // m_LabelQuote
+    // 
+    m_LabelQuote.Anchor = AnchorStyles.Right;
+    m_LabelQuote.AutoSize = true;
+    m_LabelQuote.Location = new Point(17, 6);
+    m_LabelQuote.Name = "m_LabelQuote";
+    m_LabelQuote.Size = new Size(72, 13);
+    m_LabelQuote.TabIndex = 0;
+    m_LabelQuote.Text = "Text Qualifier:";
+    // 
+    // m_LabelQuotePlaceholder
+    // 
+    m_LabelQuotePlaceholder.Anchor = AnchorStyles.Right;
+    m_LabelQuotePlaceholder.AutoSize = true;
+    m_LabelQuotePlaceholder.Location = new Point(23, 32);
+    m_LabelQuotePlaceholder.Name = "m_LabelQuotePlaceholder";
+    m_LabelQuotePlaceholder.Size = new Size(66, 13);
+    m_LabelQuotePlaceholder.TabIndex = 4;
+    m_LabelQuotePlaceholder.Text = "Placeholder:";
+    // 
+    // m_LabelTrim
+    // 
+    m_LabelTrim.Anchor = AnchorStyles.Right;
+    m_LabelTrim.AutoSize = true;
+    m_LabelTrim.Location = new Point(3, 59);
+    m_LabelTrim.Name = "m_LabelTrim";
+    m_LabelTrim.Size = new Size(86, 13);
+    m_LabelTrim.TabIndex = 7;
+    m_LabelTrim.Text = "Trimming Option:";
     // 
     // m_TimerRebuilt
     // 
-    this.m_TimerRebuilt.Interval = 200;
-    this.m_TimerRebuilt.Tick += new System.EventHandler(this.TimerRebuilt_Tick);
+    m_TimerRebuilt.Interval = 200;
+    m_TimerRebuilt.Tick += TimerRebuilt_Tick;
     // 
     // QuotingControl
     // 
-    this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-    this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-    this.Controls.Add(this.m_SplitContainer);
-    this.Controls.Add(this.m_TableLayoutPanel);
-    this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-    this.MinimumSize = new System.Drawing.Size(498, 0);
-    this.Name = "QuotingControl";
-    this.Size = new System.Drawing.Size(726, 220);
-    ((System.ComponentModel.ISupportInitialize) (this.m_CsvSettingBindingSource)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox00)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox12)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox02)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox11)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox01)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox10)).EndInit();
-    ((System.ComponentModel.ISupportInitialize) (this.m_FastColoredTextBox)).EndInit();
-    this.m_TableLayoutPanelText.ResumeLayout(false);
-    this.m_TableLayoutPanelText.PerformLayout();
-    this.m_TableLayoutPanelColumns.ResumeLayout(false);
-    this.m_TableLayoutPanelColumns.PerformLayout();
-    this.m_TableLayoutPanel.ResumeLayout(false);
-    this.m_TableLayoutPanel.PerformLayout();
-    this.m_SplitContainer.Panel1.ResumeLayout(false);
-    this.m_SplitContainer.Panel2.ResumeLayout(false);
-    ((System.ComponentModel.ISupportInitialize) (this.m_SplitContainer)).EndInit();
-    this.m_SplitContainer.ResumeLayout(false);
-    this.ResumeLayout(false);
-    this.PerformLayout();
+    Controls.Add(m_TableLayoutPanel);
+    MinimumSize = new Size(31, 0);
+    Name = "QuotingControl";
+    Size = new Size(677, 197);
+    m_SplitContainer.Panel1.ResumeLayout(false);
+    m_SplitContainer.Panel2.ResumeLayout(false);
+    ((ISupportInitialize) m_SplitContainer).EndInit();
+    m_SplitContainer.ResumeLayout(false);
+    m_TableLayoutPanelText.ResumeLayout(false);
+    m_TableLayoutPanelText.PerformLayout();
+    ((ISupportInitialize) m_FastColoredTextBox).EndInit();
+    m_TableLayoutPanelColumns.ResumeLayout(false);
+    m_TableLayoutPanelColumns.PerformLayout();
+    ((ISupportInitialize) m_FastColoredTextBox12).EndInit();
+    ((ISupportInitialize) m_FastColoredTextBox02).EndInit();
+    ((ISupportInitialize) m_FastColoredTextBox01).EndInit();
+    ((ISupportInitialize) m_FastColoredTextBox11).EndInit();
+    ((ISupportInitialize) m_FastColoredTextBox00).EndInit();
+    ((ISupportInitialize) m_FastColoredTextBox10).EndInit();
+    ((ISupportInitialize) m_CsvSettingBindingSource).EndInit();
+    ((ISupportInitialize) m_ErrorProvider).EndInit();
+    m_TableLayoutPanel.ResumeLayout(false);
+    m_TableLayoutPanel.PerformLayout();
+    ResumeLayout(false);
 
   }
 #pragma warning restore CS8622

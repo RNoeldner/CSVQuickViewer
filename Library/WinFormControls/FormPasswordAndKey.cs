@@ -135,11 +135,10 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     // m_BtnOk
     // 
-    m_BtnOk.AutoSize = true;
     m_BtnOk.DialogResult = DialogResult.OK;
-    m_BtnOk.Location = new System.Drawing.Point(713, 74);
+    m_BtnOk.Location = new System.Drawing.Point(501, 60);
     m_BtnOk.Name = "m_BtnOk";
-    m_BtnOk.Size = new System.Drawing.Size(86, 36);
+    m_BtnOk.Size = new System.Drawing.Size(78, 25);
     m_BtnOk.TabIndex = 5;
     m_BtnOk.Text = "&OK";
     m_BtnOk.Click += BtnOK_Click;
@@ -167,16 +166,15 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-    m_TableLayoutPanel.Size = new System.Drawing.Size(910, 125);
+    m_TableLayoutPanel.Size = new System.Drawing.Size(666, 86);
     m_TableLayoutPanel.TabIndex = 0;
     // 
     // m_BtnCancel
     // 
-    m_BtnCancel.AutoSize = true;
     m_BtnCancel.DialogResult = DialogResult.Cancel;
-    m_BtnCancel.Location = new System.Drawing.Point(805, 74);
+    m_BtnCancel.Location = new System.Drawing.Point(585, 60);
     m_BtnCancel.Name = "m_BtnCancel";
-    m_BtnCancel.Size = new System.Drawing.Size(102, 36);
+    m_BtnCancel.Size = new System.Drawing.Size(78, 25);
     m_BtnCancel.TabIndex = 6;
     m_BtnCancel.Text = "&Cancel";
     m_BtnCancel.Click += BtnCancel_Click;
@@ -186,19 +184,18 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TextBoxKeyFile.AutoCompleteMode = AutoCompleteMode.Suggest;
     m_TextBoxKeyFile.AutoCompleteSource = AutoCompleteSource.FileSystem;
     m_TextBoxKeyFile.Dock = DockStyle.Top;
-    m_TextBoxKeyFile.Location = new System.Drawing.Point(108, 35);
+    m_TextBoxKeyFile.Location = new System.Drawing.Point(76, 29);
     m_TextBoxKeyFile.MinimumSize = new System.Drawing.Size(67, 4);
     m_TextBoxKeyFile.Name = "m_TextBoxKeyFile";
-    m_TextBoxKeyFile.Size = new System.Drawing.Size(599, 26);
+    m_TextBoxKeyFile.Size = new System.Drawing.Size(419, 20);
     m_TextBoxKeyFile.TabIndex = 2;
     // 
     // m_ButtonKeyFile
     // 
-    m_ButtonKeyFile.AutoSize = true;
     m_TableLayoutPanel.SetColumnSpan(m_ButtonKeyFile, 2);
-    m_ButtonKeyFile.Location = new System.Drawing.Point(713, 35);
+    m_ButtonKeyFile.Location = new System.Drawing.Point(501, 29);
     m_ButtonKeyFile.Name = "m_ButtonKeyFile";
-    m_ButtonKeyFile.Size = new System.Drawing.Size(193, 33);
+    m_ButtonKeyFile.Size = new System.Drawing.Size(162, 25);
     m_ButtonKeyFile.TabIndex = 3;
     m_ButtonKeyFile.Text = "Select File";
     m_ButtonKeyFile.UseVisualStyleBackColor = true;
@@ -208,11 +205,11 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     m_TableLayoutPanel.SetColumnSpan(m_TextBoxPassphrase, 3);
     m_TextBoxPassphrase.Dock = DockStyle.Top;
-    m_TextBoxPassphrase.Location = new System.Drawing.Point(109, 3);
+    m_TextBoxPassphrase.Location = new System.Drawing.Point(77, 3);
     m_TextBoxPassphrase.Margin = new Padding(4, 3, 4, 3);
     m_TextBoxPassphrase.Name = "m_TextBoxPassphrase";
     m_TextBoxPassphrase.PasswordChar = '*';
-    m_TextBoxPassphrase.Size = new System.Drawing.Size(797, 26);
+    m_TextBoxPassphrase.Size = new System.Drawing.Size(585, 20);
     m_TextBoxPassphrase.TabIndex = 0;
     // 
     // m_LabelPassphrase
@@ -222,7 +219,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_LabelPassphrase.Location = new System.Drawing.Point(4, 6);
     m_LabelPassphrase.Margin = new Padding(4, 0, 4, 0);
     m_LabelPassphrase.Name = "m_LabelPassphrase";
-    m_LabelPassphrase.Size = new System.Drawing.Size(97, 20);
+    m_LabelPassphrase.Size = new System.Drawing.Size(65, 13);
     m_LabelPassphrase.TabIndex = 36;
     m_LabelPassphrase.Text = "Passphrase:";
     // 
@@ -230,10 +227,10 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     m_LabelKeyFile.Anchor = AnchorStyles.Right;
     m_LabelKeyFile.AutoSize = true;
-    m_LabelKeyFile.Location = new System.Drawing.Point(33, 41);
+    m_LabelKeyFile.Location = new System.Drawing.Point(22, 35);
     m_LabelKeyFile.Margin = new Padding(4, 0, 4, 0);
     m_LabelKeyFile.Name = "m_LabelKeyFile";
-    m_LabelKeyFile.Size = new System.Drawing.Size(68, 20);
+    m_LabelKeyFile.Size = new System.Drawing.Size(47, 13);
     m_LabelKeyFile.TabIndex = 1;
     m_LabelKeyFile.Text = "Key File:";
     // 
@@ -241,9 +238,9 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     m_CheckBoxShowHide.Anchor = AnchorStyles.Right;
     m_CheckBoxShowHide.AutoSize = true;
-    m_CheckBoxShowHide.Location = new System.Drawing.Point(591, 86);
+    m_CheckBoxShowHide.Location = new System.Drawing.Point(415, 64);
     m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-    m_CheckBoxShowHide.Size = new System.Drawing.Size(116, 24);
+    m_CheckBoxShowHide.Size = new System.Drawing.Size(80, 17);
     m_CheckBoxShowHide.TabIndex = 4;
     m_CheckBoxShowHide.Text = "Show Entry";
     m_CheckBoxShowHide.UseVisualStyleBackColor = true;
@@ -252,10 +249,9 @@ public sealed class FormPasswordAndKey : ResizeForm
     // FormPasswordAndKey
     // 
     AllowDrop = true;
-    AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-    AutoScaleMode = AutoScaleMode.Dpi;
+    AutoScaleMode = AutoScaleMode.Inherit;
     AutoSize = true;
-    ClientSize = new System.Drawing.Size(910, 125);
+    ClientSize = new System.Drawing.Size(666, 86);
     Controls.Add(m_TableLayoutPanel);
     FormBorderStyle = FormBorderStyle.SizableToolWindow;
     Margin = new Padding(4, 3, 4, 3);

@@ -304,7 +304,7 @@ public class TimedMessage : ResizeForm
     // 
     // m_Button3
     // 
-    m_Button3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+    m_Button3.Anchor =  AnchorStyles.Bottom | AnchorStyles.Right;
     m_Button3.AutoSize = true;
     m_Button3.BackColor = SystemColors.ButtonFace;
     m_Button3.Location = new Point(350, 186);
@@ -318,7 +318,7 @@ public class TimedMessage : ResizeForm
     // 
     // m_Button2
     // 
-    m_Button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+    m_Button2.Anchor =  AnchorStyles.Bottom | AnchorStyles.Right;
     m_Button2.AutoSize = true;
     m_Button2.BackColor = SystemColors.ButtonFace;
     m_Button2.DialogResult = DialogResult.Cancel;
@@ -351,7 +351,7 @@ public class TimedMessage : ResizeForm
     // 
     // m_Button1
     // 
-    m_Button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+    m_Button1.Anchor =  AnchorStyles.Bottom | AnchorStyles.Right;
     m_Button1.AutoSize = true;
     m_Button1.BackColor = SystemColors.ButtonFace;
     m_Button1.Location = new Point(172, 186);
@@ -378,8 +378,6 @@ public class TimedMessage : ResizeForm
     // 
     // TimedMessage
     // 
-    AutoScaleDimensions = new SizeF(6F, 13F);
-    AutoScaleMode = AutoScaleMode.Dpi;
     AutoSize = true;
     BackColor = SystemColors.Control;
     ClientSize = new Size(446, 217);

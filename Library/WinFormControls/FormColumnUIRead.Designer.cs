@@ -826,10 +826,10 @@ namespace CsvTools
       panelBottom.Controls.Add(buttonGuess);
       panelBottom.Controls.Add(buttonDisplayValues);
       panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-      panelBottom.Location = new System.Drawing.Point(0, 806);
+      panelBottom.Location = new System.Drawing.Point(0, 804);
       panelBottom.Margin = new System.Windows.Forms.Padding(2);
       panelBottom.Name = "panelBottom";
-      panelBottom.Size = new System.Drawing.Size(627, 28);
+      panelBottom.Size = new System.Drawing.Size(627, 30);
       panelBottom.TabIndex = 7;
       // 
       // flowLayoutPanel
@@ -882,7 +882,7 @@ namespace CsvTools
       // linkLabelRegionLanguage
       // 
       linkLabelRegionLanguage.AutoSize = true;
-      linkLabelRegionLanguage.Location = new System.Drawing.Point(173, 60);
+      linkLabelRegionLanguage.Location = new System.Drawing.Point(153, 68);
       linkLabelRegionLanguage.Name = "linkLabelRegionLanguage";
       linkLabelRegionLanguage.Size = new System.Drawing.Size(130, 13);
       linkLabelRegionLanguage.TabIndex = 3;
@@ -1139,8 +1139,6 @@ namespace CsvTools
       // 
       // FormColumnUiRead
       // 
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       ClientSize = new System.Drawing.Size(627, 834);
       Controls.Add(panelBottom);
       Controls.Add(flowLayoutPanel);

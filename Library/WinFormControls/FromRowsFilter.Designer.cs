@@ -31,28 +31,28 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
+      components = new System.ComponentModel.Container();
       System.Windows.Forms.ColumnHeader colItems;
-      this.colText = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
-      this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      this.buttonFilter = new System.Windows.Forms.Button();
-      this.lblCondition = new System.Windows.Forms.Label();
-      this.comboBoxOperator = new System.Windows.Forms.ComboBox();
-      this.dateTimePickerValue = new System.Windows.Forms.DateTimePicker();
-      this.textBoxValue = new System.Windows.Forms.TextBox();
-      this.listViewCluster = new System.Windows.Forms.ListView();
-      this.panelTop = new System.Windows.Forms.Panel();
-      this.radioButtonEven = new System.Windows.Forms.RadioButton();
-      this.radioButtonCombine = new System.Windows.Forms.RadioButton();
-      this.radioButtonReg = new System.Windows.Forms.RadioButton();
-      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-      this.timerFilter = new System.Windows.Forms.Timer(this.components);
-      this.labelError = new System.Windows.Forms.Label();
-      this.timerRebuild = new System.Windows.Forms.Timer(this.components);
-      colItems = ((System.Windows.Forms.ColumnHeader) (new System.Windows.Forms.ColumnHeader()));
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
-      this.panelTop.SuspendLayout();
-      this.SuspendLayout();
+      colText = new System.Windows.Forms.ColumnHeader();
+      errorProvider = new System.Windows.Forms.ErrorProvider(components);
+      buttonFilter = new System.Windows.Forms.Button();
+      lblCondition = new System.Windows.Forms.Label();
+      comboBoxOperator = new System.Windows.Forms.ComboBox();
+      dateTimePickerValue = new System.Windows.Forms.DateTimePicker();
+      textBoxValue = new System.Windows.Forms.TextBox();
+      listViewCluster = new System.Windows.Forms.ListView();
+      panelTop = new System.Windows.Forms.Panel();
+      radioButtonEven = new System.Windows.Forms.RadioButton();
+      radioButtonCombine = new System.Windows.Forms.RadioButton();
+      radioButtonReg = new System.Windows.Forms.RadioButton();
+      toolTip = new System.Windows.Forms.ToolTip(components);
+      timerFilter = new System.Windows.Forms.Timer(components);
+      labelError = new System.Windows.Forms.Label();
+      timerRebuild = new System.Windows.Forms.Timer(components);
+      colItems = new System.Windows.Forms.ColumnHeader();
+      ((System.ComponentModel.ISupportInitialize) errorProvider).BeginInit();
+      panelTop.SuspendLayout();
+      SuspendLayout();
       // 
       // colItems
       // 
@@ -61,202 +61,195 @@ namespace CsvTools
       // 
       // colText
       // 
-      this.colText.Text = "Filter";
-      this.colText.Width = 200;
+      colText.Text = "Filter";
+      colText.Width = 200;
       // 
       // errorProvider
       // 
-      this.errorProvider.ContainerControl = this;
+      errorProvider.ContainerControl = this;
       // 
       // buttonFilter
       // 
-      this.buttonFilter.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonFilter.AutoSize = true;
-      this.buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonFilter.Location = new System.Drawing.Point(598, 2);
-      this.buttonFilter.Name = "buttonFilter";
-      this.buttonFilter.Size = new System.Drawing.Size(87, 25);
-      this.buttonFilter.TabIndex = 3;
-      this.buttonFilter.Text = "&Apply Filter";
-      this.toolTip.SetToolTip(this.buttonFilter, "Apply the filter for the column");
-      this.buttonFilter.UseVisualStyleBackColor = true;
-      this.buttonFilter.Click += new System.EventHandler(this.ButtonFilter_Click);
+      buttonFilter.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      buttonFilter.AutoSize = true;
+      buttonFilter.DialogResult = System.Windows.Forms.DialogResult.OK;
+      buttonFilter.Location = new System.Drawing.Point(598, 2);
+      buttonFilter.Name = "buttonFilter";
+      buttonFilter.Size = new System.Drawing.Size(87, 25);
+      buttonFilter.TabIndex = 3;
+      buttonFilter.Text = "&Apply Filter";
+      toolTip.SetToolTip(buttonFilter, "Apply the filter for the column");
+      buttonFilter.UseVisualStyleBackColor = true;
+      buttonFilter.Click += ButtonFilter_Click;
       // 
       // lblCondition
       // 
-      this.lblCondition.AutoSize = true;
-      this.lblCondition.BackColor = System.Drawing.Color.Transparent;
-      this.lblCondition.Location = new System.Drawing.Point(10, 7);
-      this.lblCondition.Margin = new System.Windows.Forms.Padding(3);
-      this.lblCondition.Name = "lblCondition";
-      this.lblCondition.Size = new System.Drawing.Size(51, 13);
-      this.lblCondition.TabIndex = 0;
-      this.lblCondition.Text = "Condition";
+      lblCondition.AutoSize = true;
+      lblCondition.BackColor = System.Drawing.Color.Transparent;
+      lblCondition.Location = new System.Drawing.Point(10, 7);
+      lblCondition.Margin = new System.Windows.Forms.Padding(3);
+      lblCondition.Name = "lblCondition";
+      lblCondition.Size = new System.Drawing.Size(51, 13);
+      lblCondition.TabIndex = 0;
+      lblCondition.Text = "Condition";
       // 
       // comboBoxOperator
       // 
-      this.comboBoxOperator.Location = new System.Drawing.Point(67, 3);
-      this.comboBoxOperator.Name = "comboBoxOperator";
-      this.comboBoxOperator.Size = new System.Drawing.Size(103, 21);
-      this.comboBoxOperator.TabIndex = 2;
-      this.toolTip.SetToolTip(this.comboBoxOperator, "Operator for comparison");
-      this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
+      comboBoxOperator.Location = new System.Drawing.Point(67, 3);
+      comboBoxOperator.Name = "comboBoxOperator";
+      comboBoxOperator.Size = new System.Drawing.Size(103, 21);
+      comboBoxOperator.TabIndex = 2;
+      toolTip.SetToolTip(comboBoxOperator, "Operator for comparison");
+      comboBoxOperator.SelectedIndexChanged += ComboBoxOperator_SelectedIndexChanged;
       // 
       // dateTimePickerValue
       // 
-      this.dateTimePickerValue.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-      this.dateTimePickerValue.Location = new System.Drawing.Point(176, 4);
-      this.dateTimePickerValue.Name = "dateTimePickerValue";
-      this.dateTimePickerValue.Size = new System.Drawing.Size(129, 20);
-      this.dateTimePickerValue.TabIndex = 0;
-      this.toolTip.SetToolTip(this.dateTimePickerValue, "Date for Filter");
-      this.dateTimePickerValue.Visible = false;
+      dateTimePickerValue.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+      dateTimePickerValue.Location = new System.Drawing.Point(176, 4);
+      dateTimePickerValue.Name = "dateTimePickerValue";
+      dateTimePickerValue.Size = new System.Drawing.Size(129, 20);
+      dateTimePickerValue.TabIndex = 0;
+      toolTip.SetToolTip(dateTimePickerValue, "Date for Filter");
+      dateTimePickerValue.Visible = false;
       // 
       // textBoxValue
       // 
-      this.textBoxValue.Location = new System.Drawing.Point(176, 4);
-      this.textBoxValue.Name = "textBoxValue";
-      this.textBoxValue.Size = new System.Drawing.Size(188, 20);
-      this.textBoxValue.TabIndex = 1;
-      this.toolTip.SetToolTip(this.textBoxValue, "Text to filter.  Please use decimal point for numbers");
-      this.textBoxValue.Visible = false;
-      this.textBoxValue.TextChanged += new System.EventHandler(this.TextBoxValue_TextChanged);
+      textBoxValue.Location = new System.Drawing.Point(176, 4);
+      textBoxValue.Name = "textBoxValue";
+      textBoxValue.Size = new System.Drawing.Size(188, 20);
+      textBoxValue.TabIndex = 1;
+      toolTip.SetToolTip(textBoxValue, "Text to filter.  Please use decimal point for numbers");
+      textBoxValue.Visible = false;
+      textBoxValue.TextChanged += TextBoxValue_TextChanged;
       // 
       // listViewCluster
       // 
-      this.listViewCluster.CheckBoxes = true;
-      this.listViewCluster.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colText,
-            colItems});
-      this.listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-      this.listViewCluster.HideSelection = false;
-      this.listViewCluster.Location = new System.Drawing.Point(0, 30);
-      this.listViewCluster.Name = "listViewCluster";
-      this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(689, 352);
-      this.listViewCluster.TabIndex = 1;
-      this.toolTip.SetToolTip(this.listViewCluster, "Check allowed values. Count is based on filtered records.");
-      this.listViewCluster.UseCompatibleStateImageBehavior = false;
-      this.listViewCluster.View = System.Windows.Forms.View.Details;
-      this.listViewCluster.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ListViewCluster_KeyUp);
+      listViewCluster.CheckBoxes = true;
+      listViewCluster.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { colText, colItems });
+      listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
+      listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+      listViewCluster.HideSelection = false;
+      listViewCluster.Location = new System.Drawing.Point(0, 30);
+      listViewCluster.Name = "listViewCluster";
+      listViewCluster.ShowGroups = false;
+      listViewCluster.Size = new System.Drawing.Size(689, 352);
+      listViewCluster.TabIndex = 1;
+      toolTip.SetToolTip(listViewCluster, "Check allowed values. Count is based on filtered records.");
+      listViewCluster.UseCompatibleStateImageBehavior = false;
+      listViewCluster.View = System.Windows.Forms.View.Details;
+      listViewCluster.KeyUp += ListViewCluster_KeyUp;
       // 
       // panelTop
       // 
-      this.panelTop.AutoSize = true;
-      this.panelTop.Controls.Add(this.radioButtonEven);
-      this.panelTop.Controls.Add(this.radioButtonCombine);
-      this.panelTop.Controls.Add(this.radioButtonReg);
-      this.panelTop.Controls.Add(this.textBoxValue);
-      this.panelTop.Controls.Add(this.dateTimePickerValue);
-      this.panelTop.Controls.Add(this.buttonFilter);
-      this.panelTop.Controls.Add(this.comboBoxOperator);
-      this.panelTop.Controls.Add(this.lblCondition);
-      this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-      this.panelTop.Location = new System.Drawing.Point(0, 0);
-      this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(689, 30);
-      this.panelTop.TabIndex = 0;
-      this.panelTop.Resize += new System.EventHandler(this.PanelTop_Resize);
+      panelTop.AutoSize = true;
+      panelTop.Controls.Add(radioButtonEven);
+      panelTop.Controls.Add(radioButtonCombine);
+      panelTop.Controls.Add(radioButtonReg);
+      panelTop.Controls.Add(textBoxValue);
+      panelTop.Controls.Add(dateTimePickerValue);
+      panelTop.Controls.Add(buttonFilter);
+      panelTop.Controls.Add(comboBoxOperator);
+      panelTop.Controls.Add(lblCondition);
+      panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+      panelTop.Location = new System.Drawing.Point(0, 0);
+      panelTop.Name = "panelTop";
+      panelTop.Size = new System.Drawing.Size(689, 30);
+      panelTop.TabIndex = 0;
+      panelTop.Resize += PanelTop_Resize;
       // 
       // radioButtonEven
       // 
-      this.radioButtonEven.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButtonEven.AutoSize = true;
-      this.radioButtonEven.Location = new System.Drawing.Point(510, 5);
-      this.radioButtonEven.Name = "radioButtonEven";
-      this.radioButtonEven.Size = new System.Drawing.Size(82, 17);
-      this.radioButtonEven.TabIndex = 4;
-      this.radioButtonEven.Text = "By Numbers";
-      this.toolTip.SetToolTip(this.radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only availab" +
-        "le with numbers and dates");
-      this.radioButtonEven.UseVisualStyleBackColor = true;
-      this.radioButtonEven.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
+      radioButtonEven.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      radioButtonEven.AutoSize = true;
+      radioButtonEven.Location = new System.Drawing.Point(510, 5);
+      radioButtonEven.Name = "radioButtonEven";
+      radioButtonEven.Size = new System.Drawing.Size(82, 17);
+      radioButtonEven.TabIndex = 4;
+      radioButtonEven.Text = "By Numbers";
+      toolTip.SetToolTip(radioButtonEven, "Adjust border resulting in clusters of comparable number of entries, only available with numbers and dates");
+      radioButtonEven.UseVisualStyleBackColor = true;
+      radioButtonEven.CheckedChanged += ClusterTypeChanged;
       // 
       // radioButtonCombine
       // 
-      this.radioButtonCombine.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButtonCombine.AutoSize = true;
-      this.radioButtonCombine.Location = new System.Drawing.Point(438, 5);
-      this.radioButtonCombine.Name = "radioButtonCombine";
-      this.radioButtonCombine.Size = new System.Drawing.Size(66, 17);
-      this.radioButtonCombine.TabIndex = 4;
-      this.radioButtonCombine.Text = "Combine";
-      this.toolTip.SetToolTip(this.radioButtonCombine, "Combine close clusters that do not have many records, only available with numbers" +
-        " and dates");
-      this.radioButtonCombine.UseVisualStyleBackColor = true;
-      this.radioButtonCombine.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
+      radioButtonCombine.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      radioButtonCombine.AutoSize = true;
+      radioButtonCombine.Location = new System.Drawing.Point(438, 5);
+      radioButtonCombine.Name = "radioButtonCombine";
+      radioButtonCombine.Size = new System.Drawing.Size(66, 17);
+      radioButtonCombine.TabIndex = 4;
+      radioButtonCombine.Text = "Combine";
+      toolTip.SetToolTip(radioButtonCombine, "Combine close clusters that do not have many records, only available with numbers and dates");
+      radioButtonCombine.UseVisualStyleBackColor = true;
+      radioButtonCombine.CheckedChanged += ClusterTypeChanged;
       // 
       // radioButtonReg
       // 
-      this.radioButtonReg.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButtonReg.AutoSize = true;
-      this.radioButtonReg.Checked = true;
-      this.radioButtonReg.Location = new System.Drawing.Point(370, 5);
-      this.radioButtonReg.Name = "radioButtonReg";
-      this.radioButtonReg.Size = new System.Drawing.Size(62, 17);
-      this.radioButtonReg.TabIndex = 4;
-      this.radioButtonReg.TabStop = true;
-      this.radioButtonReg.Text = "Regular";
-      this.toolTip.SetToolTip(this.radioButtonReg, "Separate all values into clusters of even ranges, the number of entries may vary " +
-        "a lot, only available with numbers and dates");
-      this.radioButtonReg.UseVisualStyleBackColor = true;
-      this.radioButtonReg.CheckedChanged += new System.EventHandler(this.ClusterTypeChanged);
+      radioButtonReg.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      radioButtonReg.AutoSize = true;
+      radioButtonReg.Checked = true;
+      radioButtonReg.Location = new System.Drawing.Point(370, 5);
+      radioButtonReg.Name = "radioButtonReg";
+      radioButtonReg.Size = new System.Drawing.Size(62, 17);
+      radioButtonReg.TabIndex = 4;
+      radioButtonReg.TabStop = true;
+      radioButtonReg.Text = "Regular";
+      toolTip.SetToolTip(radioButtonReg, "Separate all values into clusters of even ranges, the number of entries may vary a lot, only available with numbers and dates");
+      radioButtonReg.UseVisualStyleBackColor = true;
+      radioButtonReg.CheckedChanged += ClusterTypeChanged;
       // 
       // timerFilter
       // 
-      this.timerFilter.Enabled = true;
-      this.timerFilter.Interval = 200;
-      this.timerFilter.Tick += new System.EventHandler(this.TimerFilter_Tick);
+      timerFilter.Enabled = true;
+      timerFilter.Interval = 200;
+      timerFilter.Tick += TimerFilter_Tick;
       // 
       // labelError
       // 
-      this.labelError.Anchor = ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-      this.labelError.AutoSize = true;
-      this.labelError.BackColor = System.Drawing.SystemColors.Info;
-      this.labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelError.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.labelError.Location = new System.Drawing.Point(25, 90);
-      this.labelError.Margin = new System.Windows.Forms.Padding(0);
-      this.labelError.Name = "labelError";
-      this.labelError.Padding = new System.Windows.Forms.Padding(5);
-      this.labelError.Size = new System.Drawing.Size(96, 25);
-      this.labelError.TabIndex = 2;
-      this.labelError.Text = "Error Information";
-      this.labelError.Visible = false;
+      labelError.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+      labelError.AutoSize = true;
+      labelError.BackColor = System.Drawing.SystemColors.Info;
+      labelError.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      labelError.ForeColor = System.Drawing.SystemColors.InfoText;
+      labelError.Location = new System.Drawing.Point(25, 90);
+      labelError.Name = "labelError";
+      labelError.Padding = new System.Windows.Forms.Padding(5);
+      labelError.Size = new System.Drawing.Size(96, 25);
+      labelError.TabIndex = 2;
+      labelError.Text = "Error Information";
+      labelError.Visible = false;
       // 
       // timerRebuild
       // 
-      this.timerRebuild.Enabled = true;
-      this.timerRebuild.Interval = 200;
-      this.timerRebuild.Tick += new System.EventHandler(this.timerRebuild_Tick);
+      timerRebuild.Enabled = true;
+      timerRebuild.Interval = 200;
+      timerRebuild.Tick += timerRebuild_Tick;
       // 
       // FromRowsFilter
       // 
-      this.AcceptButton = this.buttonFilter;
-      this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
-      this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(689, 382);
-      this.Controls.Add(this.labelError);
-      this.Controls.Add(this.listViewCluster);
-      this.Controls.Add(this.panelTop);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(705, 260);
-      this.Name = "FromRowsFilter";
-      this.Text = "Filter";
-      this.Activated += new System.EventHandler(this.FromDataGridViewFilter_Activated);
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FromRowsFilter_FormClosing);
-      this.Load += new System.EventHandler(this.FromDataGridViewFilter_Load);
-      this.Resize += new System.EventHandler(this.FromDataGridViewFilter_Resize);
-      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
-      this.panelTop.ResumeLayout(false);
-      this.panelTop.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
+      AcceptButton = buttonFilter;
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
+      BackColor = System.Drawing.SystemColors.Control;
+      ClientSize = new System.Drawing.Size(689, 382);
+      Controls.Add(labelError);
+      Controls.Add(listViewCluster);
+      Controls.Add(panelTop);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      MaximizeBox = false;
+      MinimizeBox = false;
+      MinimumSize = new System.Drawing.Size(705, 260);
+      Name = "FromRowsFilter";
+      Text = "Filter";
+      Activated += FromDataGridViewFilter_Activated;
+      FormClosing += FromRowsFilter_FormClosing;
+      Load += FromDataGridViewFilter_Load;
+      Resize += FromDataGridViewFilter_Resize;
+      ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
+      panelTop.ResumeLayout(false);
+      panelTop.PerformLayout();
+      ResumeLayout(false);
+      PerformLayout();
 
     }
 

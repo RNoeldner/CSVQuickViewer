@@ -20,7 +20,7 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    
+
     #region Windows Form Designer generated code
 
     /// <summary>
@@ -29,23 +29,23 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
+      components = new System.ComponentModel.Container();
       System.Windows.Forms.ColumnHeader colText;
-      this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      this.listViewCluster = new System.Windows.Forms.ListView();
-      this.panelTop = new System.Windows.Forms.Panel();
-      this.label1 = new System.Windows.Forms.Label();
-      this.buttonUncheck = new System.Windows.Forms.Button();
-      this.textBoxFilter = new System.Windows.Forms.TextBox();
-      this.buttonEmpty = new System.Windows.Forms.Button();
-      this.buttonCheck = new System.Windows.Forms.Button();
-      this.buttonApply = new System.Windows.Forms.Button();
-      this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-      this.timerFilter = new System.Windows.Forms.Timer(this.components);
-      colText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-      this.panelTop.SuspendLayout();
-      this.SuspendLayout();
+      errorProvider = new System.Windows.Forms.ErrorProvider(components);
+      listViewCluster = new System.Windows.Forms.ListView();
+      panelTop = new System.Windows.Forms.Panel();
+      label1 = new System.Windows.Forms.Label();
+      buttonUncheck = new System.Windows.Forms.Button();
+      textBoxFilter = new System.Windows.Forms.TextBox();
+      buttonEmpty = new System.Windows.Forms.Button();
+      buttonCheck = new System.Windows.Forms.Button();
+      buttonApply = new System.Windows.Forms.Button();
+      toolTip = new System.Windows.Forms.ToolTip(components);
+      timerFilter = new System.Windows.Forms.Timer(components);
+      colText = new System.Windows.Forms.ColumnHeader();
+      ((System.ComponentModel.ISupportInitialize) errorProvider).BeginInit();
+      panelTop.SuspendLayout();
+      SuspendLayout();
       // 
       // colText
       // 
@@ -54,130 +54,130 @@ namespace CsvTools
       // 
       // errorProvider
       // 
-      this.errorProvider.ContainerControl = this;
+      errorProvider.ContainerControl = this;
       // 
       // listViewCluster
       // 
-      this.listViewCluster.CheckBoxes = true;
-      this.listViewCluster.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            colText});
-      this.listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-      this.listViewCluster.HideSelection = false;
-      this.listViewCluster.Location = new System.Drawing.Point(0, 34);
-      this.listViewCluster.Name = "listViewCluster";
-      this.listViewCluster.ShowGroups = false;
-      this.listViewCluster.Size = new System.Drawing.Size(535, 374);
-      this.listViewCluster.TabIndex = 0;
-      this.listViewCluster.UseCompatibleStateImageBehavior = false;
-      this.listViewCluster.View = System.Windows.Forms.View.List;
+      listViewCluster.CheckBoxes = true;
+      listViewCluster.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { colText });
+      listViewCluster.Dock = System.Windows.Forms.DockStyle.Fill;
+      listViewCluster.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+      listViewCluster.HideSelection = false;
+      listViewCluster.Location = new System.Drawing.Point(0, 34);
+      listViewCluster.Name = "listViewCluster";
+      listViewCluster.ShowGroups = false;
+      listViewCluster.Size = new System.Drawing.Size(535, 374);
+      listViewCluster.TabIndex = 0;
+      listViewCluster.UseCompatibleStateImageBehavior = false;
+      listViewCluster.View = System.Windows.Forms.View.List;
       // 
       // panelTop
       // 
-      this.panelTop.AutoSize = true;
-      this.panelTop.Controls.Add(this.label1);
-      this.panelTop.Controls.Add(this.buttonUncheck);
-      this.panelTop.Controls.Add(this.textBoxFilter);
-      this.panelTop.Controls.Add(this.buttonEmpty);
-      this.panelTop.Controls.Add(this.buttonCheck);
-      this.panelTop.Controls.Add(this.buttonApply);
-      this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-      this.panelTop.Location = new System.Drawing.Point(0, 0);
-      this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(535, 34);
-      this.panelTop.TabIndex = 0;
+      panelTop.AutoSize = true;
+      panelTop.Controls.Add(label1);
+      panelTop.Controls.Add(buttonUncheck);
+      panelTop.Controls.Add(textBoxFilter);
+      panelTop.Controls.Add(buttonEmpty);
+      panelTop.Controls.Add(buttonCheck);
+      panelTop.Controls.Add(buttonApply);
+      panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+      panelTop.Location = new System.Drawing.Point(0, 0);
+      panelTop.Name = "panelTop";
+      panelTop.Size = new System.Drawing.Size(535, 34);
+      panelTop.TabIndex = 0;
       // 
       // label1
       // 
-      this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(304, 11);
-      this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(29, 13);
-      this.label1.TabIndex = 7;
-      this.label1.Text = "Filter";
+      label1.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      label1.AutoSize = true;
+      label1.Location = new System.Drawing.Point(304, 11);
+      label1.Name = "label1";
+      label1.Size = new System.Drawing.Size(29, 13);
+      label1.TabIndex = 7;
+      label1.Text = "Filter";
       // 
       // buttonUncheck
       // 
-      this.buttonUncheck.AutoSize = true;
-      this.buttonUncheck.Location = new System.Drawing.Point(65, 4);
-      this.buttonUncheck.Name = "buttonUncheck";
-      this.buttonUncheck.Size = new System.Drawing.Size(66, 25);
-      this.buttonUncheck.TabIndex = 1;
-      this.buttonUncheck.Text = "&Uncheck";
-      this.buttonUncheck.UseVisualStyleBackColor = true;
-      this.buttonUncheck.Click += new System.EventHandler(this.ButtonUncheck_Click);
+      buttonUncheck.AutoSize = true;
+      buttonUncheck.Location = new System.Drawing.Point(65, 4);
+      buttonUncheck.Name = "buttonUncheck";
+      buttonUncheck.Size = new System.Drawing.Size(66, 25);
+      buttonUncheck.TabIndex = 1;
+      buttonUncheck.Text = "&Uncheck";
+      buttonUncheck.UseVisualStyleBackColor = true;
+      buttonUncheck.Click += ButtonUncheck_Click;
       // 
       // textBoxFilter
       // 
-      this.textBoxFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.textBoxFilter.Location = new System.Drawing.Point(339, 7);
-      this.textBoxFilter.Name = "textBoxFilter";
-      this.textBoxFilter.Size = new System.Drawing.Size(100, 20);
-      this.textBoxFilter.TabIndex = 3;
-      this.textBoxFilter.TextChanged += new System.EventHandler(this.TextBoxValue_TextChanged);
+      textBoxFilter.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      textBoxFilter.Location = new System.Drawing.Point(339, 7);
+      textBoxFilter.Name = "textBoxFilter";
+      textBoxFilter.Size = new System.Drawing.Size(100, 20);
+      textBoxFilter.TabIndex = 3;
+      textBoxFilter.TextChanged += TextBoxValue_TextChanged;
       // 
       // buttonEmpty
       // 
-      this.buttonEmpty.AutoSize = true;
-      this.buttonEmpty.Location = new System.Drawing.Point(137, 4);
-      this.buttonEmpty.Name = "buttonEmpty";
-      this.buttonEmpty.Size = new System.Drawing.Size(112, 25);
-      this.buttonEmpty.TabIndex = 2;
-      this.buttonEmpty.Text = "&Hide empty columns";
-      this.buttonEmpty.UseVisualStyleBackColor = true;
-      this.buttonEmpty.Click += new System.EventHandler(this.ButtonEmpty_Click);
+      buttonEmpty.AutoSize = true;
+      buttonEmpty.Location = new System.Drawing.Point(137, 4);
+      buttonEmpty.Name = "buttonEmpty";
+      buttonEmpty.Size = new System.Drawing.Size(112, 25);
+      buttonEmpty.TabIndex = 2;
+      buttonEmpty.Text = "&Hide empty columns";
+      buttonEmpty.UseVisualStyleBackColor = true;
+      buttonEmpty.Click += ButtonEmpty_Click;
       // 
       // buttonCheck
       // 
-      this.buttonCheck.AutoSize = true;
-      this.buttonCheck.Location = new System.Drawing.Point(3, 4);
-      this.buttonCheck.Name = "buttonCheck";
-      this.buttonCheck.Size = new System.Drawing.Size(56, 25);
-      this.buttonCheck.TabIndex = 0;
-      this.buttonCheck.Text = "&Check";
-      this.buttonCheck.UseVisualStyleBackColor = true;
-      this.buttonCheck.Click += new System.EventHandler(this.ButtonCheck_Click);
+      buttonCheck.AutoSize = true;
+      buttonCheck.Location = new System.Drawing.Point(3, 4);
+      buttonCheck.Name = "buttonCheck";
+      buttonCheck.Size = new System.Drawing.Size(56, 25);
+      buttonCheck.TabIndex = 0;
+      buttonCheck.Text = "&Check";
+      buttonCheck.UseVisualStyleBackColor = true;
+      buttonCheck.Click += ButtonCheck_Click;
       // 
       // buttonApply
       // 
-      this.buttonApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonApply.AutoSize = true;
-      this.buttonApply.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonApply.Location = new System.Drawing.Point(445, 6);
-      this.buttonApply.Name = "buttonApply";
-      this.buttonApply.Size = new System.Drawing.Size(87, 25);
-      this.buttonApply.TabIndex = 4;
-      this.buttonApply.Text = "&Apply";
-      this.toolTip.SetToolTip(this.buttonApply, "Apply the filter for the column");
-      this.buttonApply.UseVisualStyleBackColor = true;
-      this.buttonApply.Click += new System.EventHandler(this.ButtonApply_Click);
+      buttonApply.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      buttonApply.AutoSize = true;
+      buttonApply.DialogResult = System.Windows.Forms.DialogResult.OK;
+      buttonApply.Location = new System.Drawing.Point(445, 6);
+      buttonApply.Name = "buttonApply";
+      buttonApply.Size = new System.Drawing.Size(87, 25);
+      buttonApply.TabIndex = 4;
+      buttonApply.Text = "&Apply";
+      toolTip.SetToolTip(buttonApply, "Apply the filter for the column");
+      buttonApply.UseVisualStyleBackColor = true;
+      buttonApply.Click += ButtonApply_Click;
       // 
       // timerFilter
       // 
-      this.timerFilter.Enabled = true;
-      this.timerFilter.Interval = 200;
-      this.timerFilter.Tick += new System.EventHandler(this.TimerFilter_Tick);
+      timerFilter.Enabled = true;
+      timerFilter.Interval = 200;
+      timerFilter.Tick += TimerFilter_Tick;
       // 
       // FromColumnsFilter
       // 
-      this.AcceptButton = this.buttonApply;
-      this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
-      this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(535, 408);
-      this.Controls.Add(this.listViewCluster);
-      this.Controls.Add(this.panelTop);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(551, 260);
-      this.Name = "FromColumnsFilter";
-      this.Text = "Filter";
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-      this.panelTop.ResumeLayout(false);
-      this.panelTop.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
+      AcceptButton = buttonApply;
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
+      BackColor = System.Drawing.SystemColors.Control;
+      ClientSize = new System.Drawing.Size(535, 408);
+      Controls.Add(listViewCluster);
+      Controls.Add(panelTop);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      MaximizeBox = false;
+      MinimizeBox = false;
+      MinimumSize = new System.Drawing.Size(551, 260);
+      Name = "FromColumnsFilter";
+      Text = "Filter";
+      ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
+      panelTop.ResumeLayout(false);
+      panelTop.PerformLayout();
+      ResumeLayout(false);
+      PerformLayout();
 
     }
 

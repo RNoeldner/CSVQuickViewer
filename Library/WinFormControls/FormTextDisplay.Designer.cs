@@ -34,8 +34,8 @@ namespace CsvTools
     {
       components = new System.ComponentModel.Container();
       System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDisplay;
-      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTextDisplay));
       System.Windows.Forms.StatusStrip statusStrip;
+      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTextDisplay));
       radioButtonText = new System.Windows.Forms.RadioButton();
       radioButtonJson = new System.Windows.Forms.RadioButton();
       radioButtonXml = new System.Windows.Forms.RadioButton();
@@ -62,7 +62,7 @@ namespace CsvTools
       flowLayoutPanelDisplay.Controls.Add(radioButtonHtml);
       flowLayoutPanelDisplay.Controls.Add(buttonSave);
       flowLayoutPanelDisplay.Controls.Add(buttonCancel);
-      flowLayoutPanelDisplay.Location = new System.Drawing.Point(482, 463);
+      flowLayoutPanelDisplay.Location = new System.Drawing.Point(483, 261);
       flowLayoutPanelDisplay.Name = "flowLayoutPanelDisplay";
       flowLayoutPanelDisplay.Size = new System.Drawing.Size(338, 31);
       flowLayoutPanelDisplay.TabIndex = 8;
@@ -148,6 +148,15 @@ namespace CsvTools
       buttonCancel.UseVisualStyleBackColor = true;
       buttonCancel.Click += ButtonCancel_Click;
       // 
+      // statusStrip
+      // 
+      statusStrip.Location = new System.Drawing.Point(0, 263);
+      statusStrip.MinimumSize = new System.Drawing.Size(0, 30);
+      statusStrip.Name = "statusStrip";
+      statusStrip.Size = new System.Drawing.Size(833, 30);
+      statusStrip.TabIndex = 7;
+      statusStrip.Text = "statusStrip1";
+      // 
       // textBox
       // 
       textBox.AutoCompleteBracketsList = new char[]
@@ -175,7 +184,6 @@ namespace CsvTools
       textBox.DelayedTextChangedInterval = 50;
       textBox.DisabledColor = System.Drawing.Color.FromArgb(  100,   180,   180,   180);
       textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       textBox.IsReplaceMode = false;
       textBox.Location = new System.Drawing.Point(0, 0);
       textBox.Margin = new System.Windows.Forms.Padding(2);
@@ -183,7 +191,7 @@ namespace CsvTools
       textBox.Paddings = new System.Windows.Forms.Padding(0);
       textBox.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);
       textBox.ShowFoldingLines = true;
-      textBox.Size = new System.Drawing.Size(832, 465);
+      textBox.Size = new System.Drawing.Size(833, 263);
       textBox.TabIndex = 1;
       textBox.WordWrap = true;
       textBox.Zoom = 100;
@@ -195,7 +203,7 @@ namespace CsvTools
       webBrowser.Location = new System.Drawing.Point(0, 0);
       webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
       webBrowser.Name = "webBrowser";
-      webBrowser.Size = new System.Drawing.Size(832, 465);
+      webBrowser.Size = new System.Drawing.Size(833, 263);
       webBrowser.TabIndex = 6;
       // 
       // fastColoredTextBoxRO
@@ -225,7 +233,6 @@ namespace CsvTools
       fastColoredTextBoxRO.DelayedTextChangedInterval = 50;
       fastColoredTextBoxRO.DisabledColor = System.Drawing.Color.FromArgb(  100,   180,   180,   180);
       fastColoredTextBoxRO.Dock = System.Windows.Forms.DockStyle.Fill;
-      fastColoredTextBoxRO.Font = new System.Drawing.Font("Courier New", 9.75F);
       fastColoredTextBoxRO.IsReplaceMode = false;
       fastColoredTextBoxRO.Location = new System.Drawing.Point(0, 0);
       fastColoredTextBoxRO.Margin = new System.Windows.Forms.Padding(2);
@@ -234,25 +241,17 @@ namespace CsvTools
       fastColoredTextBoxRO.ReadOnly = true;
       fastColoredTextBoxRO.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);
       fastColoredTextBoxRO.ShowFoldingLines = true;
-      fastColoredTextBoxRO.Size = new System.Drawing.Size(832, 465);
+      fastColoredTextBoxRO.Size = new System.Drawing.Size(833, 263);
       fastColoredTextBoxRO.TabIndex = 2;
       fastColoredTextBoxRO.WordWrap = true;
       fastColoredTextBoxRO.Zoom = 100;
       fastColoredTextBoxRO.TextChangedDelayed += TextBox_TextChangedDelayed;
       fastColoredTextBoxRO.VisibleRangeChangedDelayed += TextBox_VisibleRangeChangedDelayed;
       // 
-      // statusStrip
-      // 
-      statusStrip.Location = new System.Drawing.Point(0, 465);
-      statusStrip.MinimumSize = new System.Drawing.Size(0, 30);
-      statusStrip.Name = "statusStrip";
-      statusStrip.Size = new System.Drawing.Size(832, 30);
-      statusStrip.TabIndex = 7;
-      statusStrip.Text = "statusStrip1";
-      // 
       // FormTextDisplay
       // 
-      ClientSize = new System.Drawing.Size(832, 495);
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      ClientSize = new System.Drawing.Size(833, 293);
       Controls.Add(flowLayoutPanelDisplay);
       Controls.Add(textBox);
       Controls.Add(webBrowser);

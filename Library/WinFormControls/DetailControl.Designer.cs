@@ -31,9 +31,9 @@ namespace CsvTools
     {
       components = new Container();
       var resources = new ComponentResourceManager(typeof(DetailControl));
-      var dataGridViewCellStyle7 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle8 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle9 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle3 = new DataGridViewCellStyle();
       m_BindingNavigator = new BindingNavigator(components);
       m_BindingSource = new BindingSource(components);
       m_ToolStripLabelCount = new ToolStripLabel();
@@ -77,7 +77,7 @@ namespace CsvTools
       m_BindingNavigator.GripStyle = ToolStripGripStyle.Hidden;
       m_BindingNavigator.ImageScalingSize = new System.Drawing.Size(20, 20);
       m_BindingNavigator.Items.AddRange(new ToolStripItem[] { toolStripButtonMoveFirstItem, toolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, toolStripButtonMoveNextItem, toolStripButtonMoveLastItem, m_ToolStripButtonLoadRemaining });
-      m_BindingNavigator.Location = new System.Drawing.Point(4, 0);
+      m_BindingNavigator.Location = new System.Drawing.Point(3, 0);
       m_BindingNavigator.MoveFirstItem = toolStripButtonMoveFirstItem;
       m_BindingNavigator.MoveLastItem = toolStripButtonMoveLastItem;
       m_BindingNavigator.MoveNextItem = toolStripButtonMoveNextItem;
@@ -153,36 +153,37 @@ namespace CsvTools
       // FilteredDataGridView
       // 
       FilteredDataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle7.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+      dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
       FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
-      dataGridViewCellStyle8.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle8.WrapMode = DataGridViewTriState.False;
-      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle8;
+      dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
+      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
+      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
       FilteredDataGridView.Dock = DockStyle.Fill;
       FilteredDataGridView.HighlightText = "";
       FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
+      FilteredDataGridView.Margin = new Padding(0);
       FilteredDataGridView.Name = "FilteredDataGridView";
-      dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle9.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+      dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
       FilteredDataGridView.RowHeadersWidth = 51;
       FilteredDataGridView.ShowButtonAtLength = 1000;
-      FilteredDataGridView.Size = new System.Drawing.Size(1015, 348);
+      FilteredDataGridView.Size = new System.Drawing.Size(752, 275);
       FilteredDataGridView.TabIndex = 2;
       FilteredDataGridView.DataViewChanged += DataViewChanged;
       // 
@@ -245,15 +246,15 @@ namespace CsvTools
       // 
       m_ToolStripContainer.ContentPanel.Controls.Add(m_Search);
       m_ToolStripContainer.ContentPanel.Controls.Add(FilteredDataGridView);
-      m_ToolStripContainer.ContentPanel.Margin = new Padding(4, 3, 4, 3);
-      m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(1015, 348);
+      m_ToolStripContainer.ContentPanel.Margin = new Padding(0);
+      m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(752, 275);
       m_ToolStripContainer.Dock = DockStyle.Fill;
       m_ToolStripContainer.LeftToolStripPanelVisible = false;
       m_ToolStripContainer.Location = new System.Drawing.Point(0, 0);
-      m_ToolStripContainer.Margin = new Padding(4, 3, 4, 3);
+      m_ToolStripContainer.Margin = new Padding(0);
       m_ToolStripContainer.Name = "m_ToolStripContainer";
       m_ToolStripContainer.RightToolStripPanelVisible = false;
-      m_ToolStripContainer.Size = new System.Drawing.Size(1015, 402);
+      m_ToolStripContainer.Size = new System.Drawing.Size(752, 329);
       m_ToolStripContainer.TabIndex = 13;
       m_ToolStripContainer.Text = "toolStripContainer";
       // 
@@ -266,11 +267,11 @@ namespace CsvTools
       m_Search.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
       m_Search.AutoSize = true;
       m_Search.BorderStyle = BorderStyle.FixedSingle;
-      m_Search.Location = new System.Drawing.Point(662, 3);
-      m_Search.Margin = new Padding(4, 3, 4, 3);
+      m_Search.Location = new System.Drawing.Point(730, 0);
+      m_Search.Margin = new Padding(0);
       m_Search.Name = "m_Search";
       m_Search.Results = 0;
-      m_Search.Size = new System.Drawing.Size(354, 27);
+      m_Search.Size = new System.Drawing.Size(24, 5);
       m_Search.TabIndex = 1;
       m_Search.Visible = false;
       m_Search.OnResultChanged += OnSearchResultChanged;
@@ -320,12 +321,10 @@ namespace CsvTools
       // 
       // DetailControl
       // 
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = AutoScaleMode.Dpi;
       Controls.Add(m_ToolStripContainer);
-      Margin = new Padding(4, 3, 4, 3);
+      Margin = new Padding(0);
       Name = "DetailControl";
-      Size = new System.Drawing.Size(1015, 402);
+      Size = new System.Drawing.Size(752, 329);
       FontChanged += DetailControl_FontChanged;
       KeyDown += DetailControl_KeyDown;
       ParentChanged += DetailControl_ParentChanged;

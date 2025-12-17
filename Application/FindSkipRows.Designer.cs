@@ -190,15 +190,13 @@
       textBox.DelayedTextChangedInterval = 50;
       textBox.DisabledColor = System.Drawing.Color.FromArgb(  100,   180,   180,   180);
       textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       textBox.IsReplaceMode = false;
       textBox.Location = new System.Drawing.Point(2, 59);
       textBox.Margin = new System.Windows.Forms.Padding(2);
       textBox.Name = "textBox";
       textBox.Paddings = new System.Windows.Forms.Padding(0);
       textBox.ReadOnly = true;
-      textBox.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);
-      textBox.ServiceColors = (FastColoredTextBoxNS.ServiceColors) resources.GetObject("textBox.ServiceColors");
+      textBox.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);      
       textBox.Size = new System.Drawing.Size(615, 490);
       textBox.TabIndex = 126;
       textBox.WordWrap = true;
@@ -269,8 +267,6 @@
       // 
       // FindSkipRows
       // 
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       ClientSize = new System.Drawing.Size(616, 551);
       Controls.Add(tableLayoutPanel1);
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

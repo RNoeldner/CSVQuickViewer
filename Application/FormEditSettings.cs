@@ -53,8 +53,7 @@ public partial class FormEditSettings : ResizeForm
     FileSetting = setting;
     FontConfig = viewSettings;
     InitializeComponent();
-    if (setting != null)
-      quotingControl.CsvFile = setting;
+    quotingControlRead.CsvFile = setting ?? new CsvFileDummy();
     buttonFileInfo.Enabled = setting != null;
 
 
@@ -410,11 +409,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       if (!m_ViewSettings.GuessQualifier)
       {
-        quotingControl.CsvFile.ContextSensitiveQualifier =
+        quotingControlRead.CsvFile.ContextSensitiveQualifier =
           m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
-        quotingControl.CsvFile.DuplicateQualifierToEscape =
+        quotingControlRead.CsvFile.DuplicateQualifierToEscape =
           m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
-        quotingControl.CsvFile.FieldQualifierChar = m_ViewSettings.DefaultInspectionResult.FieldQualifier;
+        quotingControlRead.CsvFile.FieldQualifierChar = m_ViewSettings.DefaultInspectionResult.FieldQualifier;
       }
 
       numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
@@ -505,10 +504,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     if (!m_ViewSettings.GuessQualifier)
     {
       m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier =
-        quotingControl.CsvFile.ContextSensitiveQualifier;
+        quotingControlRead.CsvFile.ContextSensitiveQualifier;
       m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape =
-        quotingControl.CsvFile.DuplicateQualifierToEscape;
-      m_ViewSettings.DefaultInspectionResult.FieldQualifier = quotingControl.CsvFile.FieldQualifierChar;
+        quotingControlRead.CsvFile.DuplicateQualifierToEscape;
+      m_ViewSettings.DefaultInspectionResult.FieldQualifier = quotingControlRead.CsvFile.FieldQualifierChar;
     }
 
     if (!m_ViewSettings.GuessStartRow)

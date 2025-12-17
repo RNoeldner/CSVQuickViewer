@@ -84,12 +84,12 @@ namespace CsvTools
       // 
       // labelDetectBool
       // 
-      labelDetectBool.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelDetectBool.AutoSize = true;
-      labelDetectBool.Location = new System.Drawing.Point(208, 209);
+      labelDetectBool.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelDetectBool.Location = new System.Drawing.Point(228, 224);
       labelDetectBool.Margin = new System.Windows.Forms.Padding(3);
       labelDetectBool.Name = "labelDetectBool";
-      labelDetectBool.Size = new System.Drawing.Size(444, 26);
+      labelDetectBool.Size = new System.Drawing.Size(439, 26);
       labelDetectBool.TabIndex = 22;
       labelDetectBool.Text = "Detect Boolean values. e.g. Yes/No, True/False, 1/0.  You may add your own values to the text boxes";
       // 
@@ -97,7 +97,7 @@ namespace CsvTools
       // 
       labelDetectNumeric.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelDetectNumeric.AutoSize = true;
-      labelDetectNumeric.Location = new System.Drawing.Point(208, 78);
+      labelDetectNumeric.Location = new System.Drawing.Point(228, 93);
       labelDetectNumeric.Margin = new System.Windows.Forms.Padding(3);
       labelDetectNumeric.Name = "labelDetectNumeric";
       labelDetectNumeric.Size = new System.Drawing.Size(210, 13);
@@ -106,23 +106,23 @@ namespace CsvTools
       // 
       // labelDetectDate
       // 
-      labelDetectDate.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelDetectDate.AutoSize = true;
-      labelDetectDate.Location = new System.Drawing.Point(208, 99);
+      labelDetectDate.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelDetectDate.Location = new System.Drawing.Point(228, 114);
       labelDetectDate.Margin = new System.Windows.Forms.Padding(3);
       labelDetectDate.Name = "labelDetectDate";
-      labelDetectDate.Size = new System.Drawing.Size(441, 26);
+      labelDetectDate.Size = new System.Drawing.Size(439, 26);
       labelDetectDate.TabIndex = 10;
       labelDetectDate.Text = "Detect Date/Time values in various formats; If a format is entered the inspection of this date format will not require the minimum number of records it only has to be valid for all records.";
       // 
       // labelDetectPercent
       // 
-      labelDetectPercent.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelDetectPercent.AutoSize = true;
-      labelDetectPercent.Location = new System.Drawing.Point(208, 188);
+      labelDetectPercent.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelDetectPercent.Location = new System.Drawing.Point(228, 201);
       labelDetectPercent.Margin = new System.Windows.Forms.Padding(3);
       labelDetectPercent.Name = "labelDetectPercent";
-      labelDetectPercent.Size = new System.Drawing.Size(352, 13);
+      labelDetectPercent.Size = new System.Drawing.Size(439, 17);
       labelDetectPercent.TabIndex = 18;
       labelDetectPercent.Text = "Detect Percentage and Permille, stored as decimal value (divided by 100)";
       // 
@@ -130,7 +130,7 @@ namespace CsvTools
       // 
       labelSerialDate.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelSerialDate.AutoSize = true;
-      labelSerialDate.Location = new System.Drawing.Point(208, 133);
+      labelSerialDate.Location = new System.Drawing.Point(228, 148);
       labelSerialDate.Margin = new System.Windows.Forms.Padding(3);
       labelSerialDate.Name = "labelSerialDate";
       labelSerialDate.Size = new System.Drawing.Size(318, 13);
@@ -139,31 +139,31 @@ namespace CsvTools
       // 
       // labelIgnoreID
       // 
-      labelIgnoreID.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelIgnoreID.AutoSize = true;
-      labelIgnoreID.Location = new System.Drawing.Point(208, 266);
+      labelIgnoreID.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelIgnoreID.Location = new System.Drawing.Point(228, 279);
       labelIgnoreID.Margin = new System.Windows.Forms.Padding(3);
       labelIgnoreID.Name = "labelIgnoreID";
-      labelIgnoreID.Size = new System.Drawing.Size(373, 13);
+      labelIgnoreID.Size = new System.Drawing.Size(439, 54);
       labelIgnoreID.TabIndex = 26;
       labelIgnoreID.Text = "Ignore columns that end with Id, Ref or Text and always process these as text";
       // 
       // labelDetectGUID
       // 
-      labelDetectGUID.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelDetectGUID.AutoSize = true;
-      labelDetectGUID.Location = new System.Drawing.Point(208, 243);
+      labelDetectGUID.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelDetectGUID.Location = new System.Drawing.Point(228, 256);
       labelDetectGUID.Margin = new System.Windows.Forms.Padding(3);
       labelDetectGUID.Name = "labelDetectGUID";
-      labelDetectGUID.Size = new System.Drawing.Size(305, 13);
+      labelDetectGUID.Size = new System.Drawing.Size(439, 17);
       labelDetectGUID.TabIndex = 24;
-      labelDetectGUID.Text = "Detect Globally Unique IDentifier / Universally Unique IDentifier";
+      labelDetectGUID.Text = "Detect Globally Unique Identifier / Universally Unique Identifier";
       // 
       // labelMaxRows
       // 
       labelMaxRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelMaxRows.AutoSize = true;
-      labelMaxRows.Location = new System.Drawing.Point(208, 54);
+      labelMaxRows.Location = new System.Drawing.Point(228, 65);
       labelMaxRows.Margin = new System.Windows.Forms.Padding(3);
       labelMaxRows.Name = "labelMaxRows";
       labelMaxRows.Size = new System.Drawing.Size(221, 13);
@@ -172,37 +172,38 @@ namespace CsvTools
       // 
       // labelMinMax
       // 
-      labelMinMax.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelMinMax.AutoSize = true;
-      labelMinMax.Location = new System.Drawing.Point(208, 29);
+      labelMinMax.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelMinMax.Location = new System.Drawing.Point(228, 26);
       labelMinMax.Margin = new System.Windows.Forms.Padding(3);
       labelMinMax.Name = "labelMinMax";
-      labelMinMax.Size = new System.Drawing.Size(444, 13);
+      labelMinMax.Size = new System.Drawing.Size(439, 26);
       labelMinMax.TabIndex = 2;
       labelMinMax.Text = "Minimum and maximum number of samples to read for a before trying to determine the format. ";
       // 
       // labelFindTime
       // 
-      labelFindTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelFindTime.AutoSize = true;
-      labelFindTime.Location = new System.Drawing.Point(208, 154);
+      labelFindTime.Dock = System.Windows.Forms.DockStyle.Fill;
+      labelFindTime.Location = new System.Drawing.Point(228, 169);
       labelFindTime.Margin = new System.Windows.Forms.Padding(3);
       labelFindTime.Name = "labelFindTime";
-      labelFindTime.Size = new System.Drawing.Size(444, 26);
+      labelFindTime.Size = new System.Drawing.Size(439, 26);
       labelFindTime.TabIndex = 16;
       labelFindTime.Text = "Find associated Time and Time Zone for date columns and combine the information to a date with time\r\n";
       // 
       // trackBarCheckedRecords
       // 
+      trackBarCheckedRecords.AutoSize = false;
       tableLayoutPanel1.SetColumnSpan(trackBarCheckedRecords, 2);
       trackBarCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       trackBarCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      trackBarCheckedRecords.Dock = System.Windows.Forms.DockStyle.Top;
       trackBarCheckedRecords.LargeChange = 2000;
-      trackBarCheckedRecords.Location = new System.Drawing.Point(2, 51);
-      trackBarCheckedRecords.Margin = new System.Windows.Forms.Padding(2);
+      trackBarCheckedRecords.Location = new System.Drawing.Point(3, 58);
       trackBarCheckedRecords.Maximum = 50000;
       trackBarCheckedRecords.Name = "trackBarCheckedRecords";
-      trackBarCheckedRecords.Size = new System.Drawing.Size(129, 20);
+      trackBarCheckedRecords.Size = new System.Drawing.Size(151, 27);
       trackBarCheckedRecords.SmallChange = 100;
       trackBarCheckedRecords.TabIndex = 3;
       trackBarCheckedRecords.TickFrequency = 2000;
@@ -219,7 +220,7 @@ namespace CsvTools
       checkBoxDectectNumbers.AutoSize = true;
       checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DetectNumbers", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 76);
+      checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 91);
       checkBoxDectectNumbers.Name = "checkBoxDectectNumbers";
       checkBoxDectectNumbers.Size = new System.Drawing.Size(65, 17);
       checkBoxDectectNumbers.TabIndex = 6;
@@ -234,7 +235,7 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(checkBoxDectectPercentage, 3);
       checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DetectPercentage", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 186);
+      checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 201);
       checkBoxDectectPercentage.Name = "checkBoxDectectPercentage";
       checkBoxDectectPercentage.Size = new System.Drawing.Size(81, 17);
       checkBoxDectectPercentage.TabIndex = 17;
@@ -248,7 +249,7 @@ namespace CsvTools
       checkBoxDetectDateTime.AutoSize = true;
       checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DetectDateTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 103);
+      checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 118);
       checkBoxDetectDateTime.Name = "checkBoxDetectDateTime";
       checkBoxDetectDateTime.Size = new System.Drawing.Size(83, 17);
       checkBoxDetectDateTime.TabIndex = 8;
@@ -262,7 +263,7 @@ namespace CsvTools
       checkBoxDetectBoolean.AutoSize = true;
       checkBoxDetectBoolean.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DetectBoolean", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxDetectBoolean.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDetectBoolean.Location = new System.Drawing.Point(3, 213);
+      checkBoxDetectBoolean.Location = new System.Drawing.Point(3, 228);
       checkBoxDetectBoolean.Name = "checkBoxDetectBoolean";
       checkBoxDetectBoolean.Size = new System.Drawing.Size(65, 17);
       checkBoxDetectBoolean.TabIndex = 19;
@@ -275,9 +276,9 @@ namespace CsvTools
       textBoxTrue.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", fillGuessSettingsBindingSource, "TrueValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      textBoxTrue.Location = new System.Drawing.Point(92, 212);
+      textBoxTrue.Location = new System.Drawing.Point(92, 227);
       textBoxTrue.Name = "textBoxTrue";
-      textBoxTrue.Size = new System.Drawing.Size(48, 20);
+      textBoxTrue.Size = new System.Drawing.Size(49, 20);
       textBoxTrue.TabIndex = 20;
       toolTip.SetToolTip(textBoxTrue, "Value(s) that should be regarded as TRUE, separated by ;");
       // 
@@ -286,9 +287,9 @@ namespace CsvTools
       textBoxFalse.Anchor = System.Windows.Forms.AnchorStyles.Left;
       textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", fillGuessSettingsBindingSource, "FalseValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      textBoxFalse.Location = new System.Drawing.Point(146, 212);
+      textBoxFalse.Location = new System.Drawing.Point(160, 227);
       textBoxFalse.Name = "textBoxFalse";
-      textBoxFalse.Size = new System.Drawing.Size(48, 20);
+      textBoxFalse.Size = new System.Drawing.Size(49, 20);
       textBoxFalse.TabIndex = 21;
       toolTip.SetToolTip(textBoxFalse, "Value(s) that should be regarded as FALSE, separated by ;");
       // 
@@ -299,7 +300,7 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(checkBoxSerialDateTime, 3);
       checkBoxSerialDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "SerialDateTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxSerialDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxSerialDateTime.Location = new System.Drawing.Point(3, 131);
+      checkBoxSerialDateTime.Location = new System.Drawing.Point(3, 146);
       checkBoxSerialDateTime.Name = "checkBoxSerialDateTime";
       checkBoxSerialDateTime.Size = new System.Drawing.Size(129, 17);
       checkBoxSerialDateTime.TabIndex = 13;
@@ -314,7 +315,7 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(checkBoxDetectGUID, 2);
       checkBoxDetectGUID.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DetectGUID", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxDetectGUID.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDetectGUID.Location = new System.Drawing.Point(3, 241);
+      checkBoxDetectGUID.Location = new System.Drawing.Point(3, 256);
       checkBoxDetectGUID.Name = "checkBoxDetectGUID";
       checkBoxDetectGUID.Size = new System.Drawing.Size(91, 17);
       checkBoxDetectGUID.TabIndex = 23;
@@ -324,12 +325,11 @@ namespace CsvTools
       // 
       // checkBoxIgnoreId
       // 
-      checkBoxIgnoreId.Anchor = System.Windows.Forms.AnchorStyles.Left;
       checkBoxIgnoreId.AutoSize = true;
       tableLayoutPanel1.SetColumnSpan(checkBoxIgnoreId, 3);
       checkBoxIgnoreId.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       checkBoxIgnoreId.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "IgnoreIdColumns", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxIgnoreId.Location = new System.Drawing.Point(3, 264);
+      checkBoxIgnoreId.Location = new System.Drawing.Point(3, 279);
       checkBoxIgnoreId.Name = "checkBoxIgnoreId";
       checkBoxIgnoreId.Size = new System.Drawing.Size(112, 17);
       checkBoxIgnoreId.TabIndex = 25;
@@ -344,11 +344,11 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(checkBoxDateParts, 3);
       checkBoxDateParts.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "DateParts", true));
       checkBoxDateParts.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDateParts.Location = new System.Drawing.Point(3, 158);
+      checkBoxDateParts.Location = new System.Drawing.Point(3, 173);
       checkBoxDateParts.Name = "checkBoxDateParts";
-      checkBoxDateParts.Size = new System.Drawing.Size(157, 17);
+      checkBoxDateParts.Size = new System.Drawing.Size(160, 17);
       checkBoxDateParts.TabIndex = 15;
-      checkBoxDateParts.Text = "Include Time and Timezone";
+      checkBoxDateParts.Text = "Include Time and Time zone";
       toolTip.SetToolTip(checkBoxDateParts, "Find columns that possible correspond to a date column to combine date and time");
       checkBoxDateParts.UseVisualStyleBackColor = true;
       // 
@@ -358,9 +358,9 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(textBoxDateFormat, 2);
       textBoxDateFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", fillGuessSettingsBindingSource, "DateFormat", true));
       textBoxDateFormat.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      textBoxDateFormat.Location = new System.Drawing.Point(92, 102);
+      textBoxDateFormat.Location = new System.Drawing.Point(92, 117);
       textBoxDateFormat.Name = "textBoxDateFormat";
-      textBoxDateFormat.Size = new System.Drawing.Size(100, 20);
+      textBoxDateFormat.Size = new System.Drawing.Size(117, 20);
       textBoxDateFormat.TabIndex = 31;
       toolTip.SetToolTip(textBoxDateFormat, "Format that does not require the minimum number of samples to be accepted, if left empty the systems short date format is used.");
       // 
@@ -382,7 +382,7 @@ namespace CsvTools
       // 
       radioButtonDisabled.AutoSize = true;
       tableLayoutPanel1.SetColumnSpan(radioButtonDisabled, 2);
-      radioButtonDisabled.Location = new System.Drawing.Point(146, 3);
+      radioButtonDisabled.Location = new System.Drawing.Point(160, 3);
       radioButtonDisabled.Name = "radioButtonDisabled";
       radioButtonDisabled.Size = new System.Drawing.Size(112, 17);
       radioButtonDisabled.TabIndex = 27;
@@ -398,7 +398,7 @@ namespace CsvTools
       numericUpDownMin.Location = new System.Drawing.Point(92, 26);
       numericUpDownMin.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
       numericUpDownMin.Name = "numericUpDownMin";
-      numericUpDownMin.Size = new System.Drawing.Size(46, 20);
+      numericUpDownMin.Size = new System.Drawing.Size(49, 20);
       numericUpDownMin.TabIndex = 28;
       toolTip.SetToolTip(numericUpDownMin, "Text can be ambiguous and match different formats, a higher value makes sure that the found format is correct. e.g. 10/05/2022 could be the 10th May or the 5th Oct. ");
       // 
@@ -407,22 +407,23 @@ namespace CsvTools
       numericUpDownSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "SampleValues", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSampleValues.Increment = new decimal(new int[] { 10, 0, 0, 0 });
-      numericUpDownSampleValues.Location = new System.Drawing.Point(146, 26);
+      numericUpDownSampleValues.Location = new System.Drawing.Point(160, 26);
       numericUpDownSampleValues.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
       numericUpDownSampleValues.Name = "numericUpDownSampleValues";
-      numericUpDownSampleValues.Size = new System.Drawing.Size(46, 20);
+      numericUpDownSampleValues.Size = new System.Drawing.Size(49, 20);
       numericUpDownSampleValues.TabIndex = 29;
       toolTip.SetToolTip(numericUpDownSampleValues, "Stop reading new unique values if this number is reached.");
       // 
       // numericUpDownChecked
       // 
+      numericUpDownChecked.Anchor = System.Windows.Forms.AnchorStyles.Left;
       numericUpDownChecked.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownChecked.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownChecked.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-      numericUpDownChecked.Location = new System.Drawing.Point(146, 52);
+      numericUpDownChecked.Location = new System.Drawing.Point(160, 61);
       numericUpDownChecked.Maximum = new decimal(new int[] { 50000, 0, 0, 0 });
       numericUpDownChecked.Name = "numericUpDownChecked";
-      numericUpDownChecked.Size = new System.Drawing.Size(46, 20);
+      numericUpDownChecked.Size = new System.Drawing.Size(49, 20);
       numericUpDownChecked.TabIndex = 30;
       toolTip.SetToolTip(numericUpDownChecked, "Limit the records to look for text in the columns");
       // 
@@ -433,7 +434,7 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(checkBoxRemoveCurrencySymbols, 2);
       checkBoxRemoveCurrencySymbols.DataBindings.Add(new System.Windows.Forms.Binding("Checked", fillGuessSettingsBindingSource, "RemoveCurrencySymbols", true));
       checkBoxRemoveCurrencySymbols.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "DetectNumbers", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxRemoveCurrencySymbols.Location = new System.Drawing.Point(92, 76);
+      checkBoxRemoveCurrencySymbols.Location = new System.Drawing.Point(92, 91);
       checkBoxRemoveCurrencySymbols.Name = "checkBoxRemoveCurrencySymbols";
       checkBoxRemoveCurrencySymbols.Size = new System.Drawing.Size(110, 17);
       checkBoxRemoveCurrencySymbols.TabIndex = 6;
@@ -443,7 +444,6 @@ namespace CsvTools
       // 
       // tableLayoutPanel1
       // 
-      tableLayoutPanel1.AutoSize = true;
       tableLayoutPanel1.ColumnCount = 4;
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -477,14 +477,12 @@ namespace CsvTools
       tableLayoutPanel1.Controls.Add(labelDetectGUID, 3, 10);
       tableLayoutPanel1.Controls.Add(labelIgnoreID, 3, 11);
       tableLayoutPanel1.Controls.Add(checkBoxRemoveCurrencySymbols, 1, 3);
-      tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+      tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
       tableLayoutPanel1.Name = "tableLayoutPanel1";
       tableLayoutPanel1.RowCount = 12;
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -494,7 +492,8 @@ namespace CsvTools
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.Size = new System.Drawing.Size(656, 284);
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel1.Size = new System.Drawing.Size(670, 336);
       tableLayoutPanel1.TabIndex = 0;
       // 
       // errorProvider
@@ -503,13 +502,11 @@ namespace CsvTools
       // 
       // FillGuessSettingEdit
       // 
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       Controls.Add(tableLayoutPanel1);
-      Margin = new System.Windows.Forms.Padding(2);
-      MinimumSize = new System.Drawing.Size(632, 240);
+      Margin = new System.Windows.Forms.Padding(0);
+      MinimumSize = new System.Drawing.Size(40, 32);
       Name = "FillGuessSettingEdit";
-      Size = new System.Drawing.Size(656, 300);
+      Size = new System.Drawing.Size(670, 336);
       ((System.ComponentModel.ISupportInitialize) trackBarCheckedRecords).EndInit();
       ((System.ComponentModel.ISupportInitialize) fillGuessSettingsBindingSource).EndInit();
       ((System.ComponentModel.ISupportInitialize) numericUpDownMin).EndInit();
@@ -519,7 +516,6 @@ namespace CsvTools
       tableLayoutPanel1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
       ResumeLayout(false);
-      PerformLayout();
     }
 
     #endregion

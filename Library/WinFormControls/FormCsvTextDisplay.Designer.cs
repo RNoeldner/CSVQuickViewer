@@ -31,96 +31,95 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
-      this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
-      this.contextMenuJson = new System.Windows.Forms.ContextMenuStrip(this.components);
-      this.prettyPrintJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.originalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      ((System.ComponentModel.ISupportInitialize) (this.textBox)).BeginInit();
-      this.contextMenuJson.SuspendLayout();
-      this.SuspendLayout();
+      components = new System.ComponentModel.Container();
+      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
+      textBox = new FastColoredTextBoxNS.FastColoredTextBox();
+      contextMenuJson = new System.Windows.Forms.ContextMenuStrip(components);
+      prettyPrintJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      originalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      ((System.ComponentModel.ISupportInitialize) textBox).BeginInit();
+      contextMenuJson.SuspendLayout();
+      SuspendLayout();
       // 
-      // m_HistoryDisplay
+      // textBox
       // 
-      this.textBox.AllowDrop = false;
-      this.textBox.AutoCompleteBracketsList = new char[] {
-        '(',
-        ')',
-        '{',
-        '}',
-        '[',
-        ']',
-        '\"',
-        '\"',
-        '\'',
-        '\''};
-      this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 13);
-      this.textBox.BackBrush = null;
-      this.textBox.CaretColor = System.Drawing.Color.Silver;
-      this.textBox.CharHeight = 13;
-      this.textBox.CharWidth = 7;
-      this.textBox.CommentPrefix = "--";
-      this.textBox.ContextMenuStrip = this.contextMenuJson;
-      this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.textBox.DelayedEventsInterval = 50;
-      this.textBox.DelayedTextChangedInterval = 50;
-      this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.IsReplaceMode = false;
-      this.textBox.Location = new System.Drawing.Point(0, 0);
-      this.textBox.Margin = new System.Windows.Forms.Padding(2);
-      this.textBox.Name = "textBox";
-      this.textBox.Paddings = new System.Windows.Forms.Padding(0);
-      this.textBox.ReadOnly = true;
-      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
-      this.textBox.ShowFoldingLines = true;
-      this.textBox.Size = new System.Drawing.Size(718, 362);
-      this.textBox.TabIndex = 1;
-      this.textBox.WordWrap = true;
-      this.textBox.Zoom = 100;
-      this.textBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
-      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
+      textBox.AllowDrop = false;
+      textBox.AutoCompleteBracketsList = new char[]
+  {
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '"',
+    '"',
+    '\'',
+    '\''
+  };
+      textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+      textBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+      textBox.BackBrush = null;
+      textBox.CaretColor = System.Drawing.Color.Silver;
+      textBox.CharHeight = 14;
+      textBox.CharWidth = 8;
+      textBox.CommentPrefix = "--";
+      textBox.ContextMenuStrip = contextMenuJson;
+      textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+      textBox.DelayedEventsInterval = 50;
+      textBox.DelayedTextChangedInterval = 50;
+      textBox.DisabledColor = System.Drawing.Color.FromArgb(  100,   180,   180,   180);
+      textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      textBox.Font = new System.Drawing.Font("Courier New", 9.75F);
+      textBox.IsReplaceMode = false;
+      textBox.Location = new System.Drawing.Point(0, 0);
+      textBox.Margin = new System.Windows.Forms.Padding(2);
+      textBox.Name = "textBox";
+      textBox.Paddings = new System.Windows.Forms.Padding(0);
+      textBox.ReadOnly = true;
+      textBox.SelectionColor = System.Drawing.Color.FromArgb(  60,   0,   0,   255);
+      textBox.ShowFoldingLines = true;
+      textBox.Size = new System.Drawing.Size(718, 362);
+      textBox.TabIndex = 1;
+      textBox.WordWrap = true;
+      textBox.Zoom = 100;
+      textBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+      textBox.VisibleRangeChangedDelayed += TextBox_VisibleRangeChangedDelayed;
       // 
       // contextMenuJson
       // 
-      this.contextMenuJson.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.prettyPrintJsonToolStripMenuItem,
-            this.originalFileToolStripMenuItem});
-      this.contextMenuJson.Name = "contextMenuStrip";
-      this.contextMenuJson.Size = new System.Drawing.Size(201, 48);
+      contextMenuJson.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { prettyPrintJsonToolStripMenuItem, originalFileToolStripMenuItem });
+      contextMenuJson.Name = "contextMenuStrip";
+      contextMenuJson.Size = new System.Drawing.Size(201, 48);
       // 
       // prettyPrintJsonToolStripMenuItem
       // 
-      this.prettyPrintJsonToolStripMenuItem.Name = "prettyPrintJsonToolStripMenuItem";
-      this.prettyPrintJsonToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys) ((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-      this.prettyPrintJsonToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-      this.prettyPrintJsonToolStripMenuItem.Text = "&Pretty Print Json";
-      this.prettyPrintJsonToolStripMenuItem.Click += new System.EventHandler(this.PrettyPrintJsonToolStripMenuItem_Click);
+      prettyPrintJsonToolStripMenuItem.Name = "prettyPrintJsonToolStripMenuItem";
+      prettyPrintJsonToolStripMenuItem.ShortcutKeys =  System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P;
+      prettyPrintJsonToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+      prettyPrintJsonToolStripMenuItem.Text = "&Pretty Print Json";
+      prettyPrintJsonToolStripMenuItem.Click += PrettyPrintJsonToolStripMenuItem_Click;
       // 
       // originalFileToolStripMenuItem
       // 
-      this.originalFileToolStripMenuItem.Checked = true;
-      this.originalFileToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.originalFileToolStripMenuItem.Name = "originalFileToolStripMenuItem";
-      this.originalFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys) ((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-      this.originalFileToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-      this.originalFileToolStripMenuItem.Text = "&Original File";
-      this.originalFileToolStripMenuItem.Click += new System.EventHandler(this.OriginalFileToolStripMenuItem_Click);
+      originalFileToolStripMenuItem.Checked = true;
+      originalFileToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      originalFileToolStripMenuItem.Name = "originalFileToolStripMenuItem";
+      originalFileToolStripMenuItem.ShortcutKeys =  System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O;
+      originalFileToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+      originalFileToolStripMenuItem.Text = "&Original File";
+      originalFileToolStripMenuItem.Click += OriginalFileToolStripMenuItem_Click;
       // 
       // FormCsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-      this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-      this.ClientSize = new System.Drawing.Size(718, 362);
-      this.Controls.Add(this.textBox);
-      this.Margin = new System.Windows.Forms.Padding(2);
-      this.Name = "FormCsvTextDisplay";
-      ((System.ComponentModel.ISupportInitialize) (this.textBox)).EndInit();
-      this.contextMenuJson.ResumeLayout(false);
-      this.ResumeLayout(false);
+      BackColor = System.Drawing.SystemColors.ControlLightLight;
+      ClientSize = new System.Drawing.Size(718, 362);
+      Controls.Add(textBox);
+      Margin = new System.Windows.Forms.Padding(2);
+      Name = "FormCsvTextDisplay";
+      ((System.ComponentModel.ISupportInitialize) textBox).EndInit();
+      contextMenuJson.ResumeLayout(false);
+      ResumeLayout(false);
 
     }
 
