@@ -811,7 +811,7 @@ public class QuotingControl : UserControl
     // QuotingControl
     // 
     this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-    this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+    this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
     this.Controls.Add(this.m_SplitContainer);
     this.Controls.Add(this.m_TableLayoutPanel);
     this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);

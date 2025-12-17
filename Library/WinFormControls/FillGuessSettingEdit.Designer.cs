@@ -504,7 +504,7 @@ namespace CsvTools
       // FillGuessSettingEdit
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       Controls.Add(tableLayoutPanel1);
       Margin = new System.Windows.Forms.Padding(2);
       MinimumSize = new System.Drawing.Size(632, 240);

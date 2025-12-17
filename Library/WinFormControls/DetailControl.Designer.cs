@@ -321,7 +321,7 @@ namespace CsvTools
       // DetailControl
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = AutoScaleMode.Font;
+      AutoScaleMode = AutoScaleMode.Dpi;
       Controls.Add(m_ToolStripContainer);
       Margin = new Padding(4, 3, 4, 3);
       Name = "DetailControl";

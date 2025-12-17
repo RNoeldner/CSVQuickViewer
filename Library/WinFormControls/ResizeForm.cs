@@ -93,15 +93,17 @@ public class ResizeForm : Form
 #pragma warning disable CS8600
   private void InitializeComponent()
   {
-    ComponentResourceManager resources = new ComponentResourceManager(typeof(ResizeForm));
-    this.SuspendLayout();
+    var resources = new ComponentResourceManager(typeof(ResizeForm));
+    SuspendLayout();
     // 
     // ResizeForm
     // 
-    this.ClientSize = new System.Drawing.Size(514, 350);
-    this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
-    this.Name = "ResizeForm";
-    this.ResumeLayout(false);
+    AutoScaleDimensions = new SizeF(96F, 96F);
+    AutoScaleMode = AutoScaleMode.Dpi;
+    ClientSize = new Size(514, 350);
+    Icon = (Icon) resources.GetObject("$this.Icon");
+    Name = "ResizeForm";
+    ResumeLayout(false);
   }
 #pragma warning restore CS8600
 }

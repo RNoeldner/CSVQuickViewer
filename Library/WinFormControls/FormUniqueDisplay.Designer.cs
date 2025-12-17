@@ -124,7 +124,7 @@ namespace CsvTools
       // FormUniqueDisplay
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       this.ClientSize = new System.Drawing.Size(724, 726);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

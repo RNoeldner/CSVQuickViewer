@@ -253,7 +253,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     AllowDrop = true;
     AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-    AutoScaleMode = AutoScaleMode.Font;
+    AutoScaleMode = AutoScaleMode.Dpi;
     AutoSize = true;
     ClientSize = new System.Drawing.Size(910, 125);
     Controls.Add(m_TableLayoutPanel);

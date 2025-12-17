@@ -119,7 +119,7 @@
       // SelectFont
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       this.Controls.Add(this.tableLayoutPanelFont);
       this.Name = "SelectFont";
       this.Size = new System.Drawing.Size(657, 215);

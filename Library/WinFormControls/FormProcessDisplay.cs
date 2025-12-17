@@ -229,7 +229,7 @@ public sealed class FormProgress : Form, IProgressTime, IProgressWithCancellatio
     // FormProgress
     // 
     AutoScaleDimensions = new SizeF(6F, 13F);
-    AutoScaleMode = AutoScaleMode.Font;
+    AutoScaleMode = AutoScaleMode.Dpi;
     BackColor = SystemColors.Control;
     ClientSize = new Size(454, 214);
     Controls.Add(m_TableLayoutPanel);

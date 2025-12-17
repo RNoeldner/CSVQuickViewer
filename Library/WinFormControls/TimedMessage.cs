@@ -379,7 +379,7 @@ public class TimedMessage : ResizeForm
     // TimedMessage
     // 
     AutoScaleDimensions = new SizeF(6F, 13F);
-    AutoScaleMode = AutoScaleMode.Font;
+    AutoScaleMode = AutoScaleMode.Dpi;
     AutoSize = true;
     BackColor = SystemColors.Control;
     ClientSize = new Size(446, 217);
