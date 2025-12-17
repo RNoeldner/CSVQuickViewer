@@ -1681,7 +1681,7 @@
       // FormEditSettings
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       ClientSize = new System.Drawing.Size(814, 512);
       Controls.Add(tabControl);
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
