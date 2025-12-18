@@ -383,37 +383,40 @@ namespace CsvTools
       // 
       // numericUpDownMin
       // 
+      numericUpDownMin.AutoSize = true;
       numericUpDownMin.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "MinSamples", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownMin.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownMin.Location = new System.Drawing.Point(92, 26);
       numericUpDownMin.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
       numericUpDownMin.Name = "numericUpDownMin";
-      numericUpDownMin.Size = new System.Drawing.Size(58, 20);
+      numericUpDownMin.Size = new System.Drawing.Size(41, 20);
       numericUpDownMin.TabIndex = 28;
       toolTip.SetToolTip(numericUpDownMin, "Text can be ambiguous and match different formats, a higher value makes sure that the found format is correct. e.g. 10/05/2022 could be the 10th May or the 5th Oct. ");
       // 
       // numericUpDownSampleValues
       // 
+      numericUpDownSampleValues.AutoSize = true;
       numericUpDownSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "SampleValues", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSampleValues.Increment = new decimal(new int[] { 10, 0, 0, 0 });
       numericUpDownSampleValues.Location = new System.Drawing.Point(160, 26);
       numericUpDownSampleValues.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
       numericUpDownSampleValues.Name = "numericUpDownSampleValues";
-      numericUpDownSampleValues.Size = new System.Drawing.Size(58, 20);
+      numericUpDownSampleValues.Size = new System.Drawing.Size(53, 20);
       numericUpDownSampleValues.TabIndex = 29;
       toolTip.SetToolTip(numericUpDownSampleValues, "Stop reading new unique values if this number is reached.");
       // 
       // numericUpDownChecked
       // 
       numericUpDownChecked.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      numericUpDownChecked.AutoSize = true;
       numericUpDownChecked.DataBindings.Add(new System.Windows.Forms.Binding("Value", fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownChecked.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownChecked.Increment = new decimal(new int[] { 100, 0, 0, 0 });
       numericUpDownChecked.Location = new System.Drawing.Point(160, 55);
       numericUpDownChecked.Maximum = new decimal(new int[] { 50000, 0, 0, 0 });
       numericUpDownChecked.Name = "numericUpDownChecked";
-      numericUpDownChecked.Size = new System.Drawing.Size(58, 20);
+      numericUpDownChecked.Size = new System.Drawing.Size(53, 20);
       numericUpDownChecked.TabIndex = 30;
       toolTip.SetToolTip(numericUpDownChecked, "Limit the records to look for text in the columns");
       // 
@@ -434,6 +437,7 @@ namespace CsvTools
       // 
       // tableLayoutPanel1
       // 
+      tableLayoutPanel1.AutoSize = true;
       tableLayoutPanel1.ColumnCount = 4;
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -506,6 +510,7 @@ namespace CsvTools
       tableLayoutPanel1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
       ResumeLayout(false);
+      PerformLayout();
     }
 
     #endregion

@@ -29,13 +29,14 @@
     private void InitializeComponent()
     {
       components = new System.ComponentModel.Container();
+      System.Windows.Forms.TableLayoutPanel tableLayoutPanelFont;
       comboBoxFont = new System.Windows.Forms.ComboBox();
       labelFontSize = new System.Windows.Forms.Label();
       labelFont = new System.Windows.Forms.Label();
-      tableLayoutPanelFont = new System.Windows.Forms.TableLayoutPanel();
       comboBoxSize = new System.Windows.Forms.ComboBox();
       buttonDefault = new System.Windows.Forms.Button();
       toolTip = new System.Windows.Forms.ToolTip(components);
+      tableLayoutPanelFont = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelFont.SuspendLayout();
       SuspendLayout();
       // 
@@ -43,7 +44,6 @@
       // 
       comboBoxFont.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxFont.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      comboBoxFont.FormattingEnabled = true;
       comboBoxFont.Location = new System.Drawing.Point(60, 0);
       comboBoxFont.Margin = new System.Windows.Forms.Padding(0);
       comboBoxFont.Name = "comboBoxFont";
@@ -76,6 +76,7 @@
       // 
       // tableLayoutPanelFont
       // 
+      tableLayoutPanelFont.AutoSize = true;
       tableLayoutPanelFont.ColumnCount = 3;
       tableLayoutPanelFont.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanelFont.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -93,14 +94,13 @@
       tableLayoutPanelFont.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFont.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFont.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanelFont.Size = new System.Drawing.Size(327, 47);
+      tableLayoutPanelFont.Size = new System.Drawing.Size(327, 44);
       tableLayoutPanelFont.TabIndex = 16;
       // 
       // comboBoxSize
       // 
       comboBoxSize.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      comboBoxSize.FormattingEnabled = true;
       comboBoxSize.Location = new System.Drawing.Point(60, 21);
       comboBoxSize.Margin = new System.Windows.Forms.Padding(0);
       comboBoxSize.Name = "comboBoxSize";
@@ -124,13 +124,15 @@
       // 
       // SelectFont
       // 
+      AutoSize = true;
       Controls.Add(tableLayoutPanelFont);
       Margin = new System.Windows.Forms.Padding(0);
       Name = "SelectFont";
-      Size = new System.Drawing.Size(327, 47);
+      Size = new System.Drawing.Size(327, 44);
       tableLayoutPanelFont.ResumeLayout(false);
       tableLayoutPanelFont.PerformLayout();
       ResumeLayout(false);
+      PerformLayout();
 
     }
 

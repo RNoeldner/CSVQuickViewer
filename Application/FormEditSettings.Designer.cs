@@ -22,20 +22,20 @@
       System.Windows.Forms.Label labelCopyright;
       System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
       tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      label7 = new System.Windows.Forms.Label();
+      labelExecutable2 = new System.Windows.Forms.Label();
       labelExecutable = new System.Windows.Forms.Label();
       labelVersion = new System.Windows.Forms.Label();
       label8 = new System.Windows.Forms.Label();
       flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-      label9 = new System.Windows.Forms.Label();
-      label14 = new System.Windows.Forms.Label();
+      labelAppTitle = new System.Windows.Forms.Label();
+      labelRepository = new System.Windows.Forms.Label();
       linkLabelRepository = new System.Windows.Forms.LinkLabel();
-      label18 = new System.Windows.Forms.Label();
+      labelLicense = new System.Windows.Forms.Label();
       linkLabelGnu = new System.Windows.Forms.LinkLabel();
-      label10 = new System.Windows.Forms.Label();
-      label16 = new System.Windows.Forms.Label();
+      labelWarrenty = new System.Windows.Forms.Label();
+      labelRuntime = new System.Windows.Forms.Label();
       labelFrameWork = new System.Windows.Forms.Label();
-      label19 = new System.Windows.Forms.Label();
+      labelDownload = new System.Windows.Forms.Label();
       pictureBox = new System.Windows.Forms.PictureBox();
       tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
       labelDelimitedFile = new System.Windows.Forms.Label();
@@ -179,18 +179,18 @@
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-      tableLayoutPanel1.Controls.Add(label7, 0, 1);
+      tableLayoutPanel1.Controls.Add(labelExecutable2, 0, 1);
       tableLayoutPanel1.Controls.Add(labelExecutable, 1, 1);
       tableLayoutPanel1.Controls.Add(labelVersion, 1, 2);
       tableLayoutPanel1.Controls.Add(label8, 0, 2);
       tableLayoutPanel1.Controls.Add(flowLayoutPanel1, 1, 0);
-      tableLayoutPanel1.Controls.Add(label14, 0, 3);
+      tableLayoutPanel1.Controls.Add(labelRepository, 0, 3);
       tableLayoutPanel1.Controls.Add(linkLabelRepository, 1, 3);
-      tableLayoutPanel1.Controls.Add(label18, 0, 5);
+      tableLayoutPanel1.Controls.Add(labelLicense, 0, 5);
       tableLayoutPanel1.Controls.Add(flowLayoutPanel, 1, 5);
-      tableLayoutPanel1.Controls.Add(label16, 2, 2);
+      tableLayoutPanel1.Controls.Add(labelRuntime, 2, 2);
       tableLayoutPanel1.Controls.Add(labelFrameWork, 3, 2);
-      tableLayoutPanel1.Controls.Add(label19, 2, 3);
+      tableLayoutPanel1.Controls.Add(labelDownload, 2, 3);
       tableLayoutPanel1.Controls.Add(pictureBox, 3, 3);
       tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
@@ -207,13 +207,13 @@
       // 
       // label7
       // 
-      label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(3, 59);
-      label7.Name = "label7";
-      label7.Size = new System.Drawing.Size(63, 13);
-      label7.TabIndex = 1;
-      label7.Text = "Executable:";
+      labelExecutable2.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelExecutable2.AutoSize = true;
+      labelExecutable2.Location = new System.Drawing.Point(3, 59);
+      labelExecutable2.Name = "labelExecutable2";
+      labelExecutable2.Size = new System.Drawing.Size(63, 13);
+      labelExecutable2.TabIndex = 1;
+      labelExecutable2.Text = "Executable:";
       // 
       // labelExecutable
       // 
@@ -251,23 +251,23 @@
       flowLayoutPanel1.AutoSize = true;
       flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanel1.SetColumnSpan(flowLayoutPanel1, 3);
-      flowLayoutPanel1.Controls.Add(label9);
+      flowLayoutPanel1.Controls.Add(labelAppTitle);
       flowLayoutPanel1.Controls.Add(labelCopyright);
       flowLayoutPanel1.Location = new System.Drawing.Point(72, 13);
       flowLayoutPanel1.Name = "flowLayoutPanel1";
       flowLayoutPanel1.Size = new System.Drawing.Size(320, 24);
       flowLayoutPanel1.TabIndex = 7;
       // 
-      // label9
+      // labelAppTitle
       // 
-      label9.AutoSize = true;
-      label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point,  0);
-      label9.Location = new System.Drawing.Point(3, 0);
-      label9.Name = "label9";
-      label9.Size = new System.Drawing.Size(182, 24);
-      label9.TabIndex = 6;
-      label9.Tag = "NoFontChange";
-      label9.Text = "CSV Quick Viewer";
+      labelAppTitle.AutoSize = true;
+      labelAppTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point,  0);
+      labelAppTitle.Location = new System.Drawing.Point(3, 0);
+      labelAppTitle.Name = "labelAppTitle";
+      labelAppTitle.Size = new System.Drawing.Size(182, 24);
+      labelAppTitle.TabIndex = 6;
+      labelAppTitle.Tag = "NoFontChange";
+      labelAppTitle.Text = "CSV Quick Viewer";
       // 
       // labelCopyright
       // 
@@ -280,15 +280,15 @@
       labelCopyright.TabIndex = 7;
       labelCopyright.Text = "© 2014 Raphael Nöldner";
       // 
-      // label14
+      // labelRepository
       // 
-      label14.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label14.AutoSize = true;
-      label14.Location = new System.Drawing.Point(6, 117);
-      label14.Name = "label14";
-      label14.Size = new System.Drawing.Size(60, 13);
-      label14.TabIndex = 1;
-      label14.Text = "Repository:";
+      labelRepository.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelRepository.AutoSize = true;
+      labelRepository.Location = new System.Drawing.Point(6, 117);
+      labelRepository.Name = "labelRepository";
+      labelRepository.Size = new System.Drawing.Size(60, 13);
+      labelRepository.TabIndex = 1;
+      labelRepository.Text = "Repository:";
       // 
       // linkLabelRepository
       // 
@@ -303,21 +303,21 @@
       toolTip.SetToolTip(linkLabelRepository, "https://github.com/RNoeldner/CSVQuickViewer");
       linkLabelRepository.LinkClicked += LinkClicked;
       // 
-      // label18
+      // labelLicense
       // 
-      label18.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-      label18.AutoSize = true;
-      label18.Location = new System.Drawing.Point(19, 167);
-      label18.Name = "label18";
-      label18.Size = new System.Drawing.Size(47, 13);
-      label18.TabIndex = 1;
-      label18.Text = "License:";
+      labelLicense.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      labelLicense.AutoSize = true;
+      labelLicense.Location = new System.Drawing.Point(19, 167);
+      labelLicense.Name = "labelLicense";
+      labelLicense.Size = new System.Drawing.Size(47, 13);
+      labelLicense.TabIndex = 1;
+      labelLicense.Text = "License:";
       // 
       // flowLayoutPanel
       // 
       tableLayoutPanel1.SetColumnSpan(flowLayoutPanel, 3);
       flowLayoutPanel.Controls.Add(linkLabelGnu);
-      flowLayoutPanel.Controls.Add(label10);
+      flowLayoutPanel.Controls.Add(labelWarrenty);
       flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       flowLayoutPanel.Location = new System.Drawing.Point(72, 170);
       flowLayoutPanel.Name = "flowLayoutPanel";
@@ -336,25 +336,25 @@
       toolTip.SetToolTip(linkLabelGnu, "http://www.gnu.org/licenses/lgpl-3.0.html");
       linkLabelGnu.LinkClicked += LinkClicked;
       // 
-      // label10
+      // labelWarrenty
       // 
-      label10.AutoSize = true;
-      flowLayoutPanel.SetFlowBreak(label10, true);
-      label10.Location = new System.Drawing.Point(3, 13);
-      label10.Name = "label10";
-      label10.Size = new System.Drawing.Size(447, 13);
-      label10.TabIndex = 0;
-      label10.Text = "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;";
+      labelWarrenty.AutoSize = true;
+      flowLayoutPanel.SetFlowBreak(labelWarrenty, true);
+      labelWarrenty.Location = new System.Drawing.Point(3, 13);
+      labelWarrenty.Name = "labelWarrenty";
+      labelWarrenty.Size = new System.Drawing.Size(447, 13);
+      labelWarrenty.TabIndex = 0;
+      labelWarrenty.Text = "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;";
       // 
-      // label16
+      // labelRuntime
       // 
-      label16.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label16.AutoSize = true;
-      label16.Location = new System.Drawing.Point(419, 88);
-      label16.Name = "label16";
-      label16.Size = new System.Drawing.Size(49, 13);
-      label16.TabIndex = 1;
-      label16.Text = "Runtime:";
+      labelRuntime.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelRuntime.AutoSize = true;
+      labelRuntime.Location = new System.Drawing.Point(419, 88);
+      labelRuntime.Name = "labelRuntime";
+      labelRuntime.Size = new System.Drawing.Size(49, 13);
+      labelRuntime.TabIndex = 1;
+      labelRuntime.Text = "Runtime:";
       // 
       // labelFrameWork
       // 
@@ -366,15 +366,15 @@
       labelFrameWork.TabIndex = 8;
       labelFrameWork.Text = ".NET";
       // 
-      // label19
+      // labelDownload
       // 
-      label19.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label19.AutoSize = true;
-      label19.Location = new System.Drawing.Point(410, 117);
-      label19.Name = "label19";
-      label19.Size = new System.Drawing.Size(58, 13);
-      label19.TabIndex = 1;
-      label19.Text = "Download:";
+      labelDownload.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDownload.AutoSize = true;
+      labelDownload.Location = new System.Drawing.Point(410, 117);
+      labelDownload.Name = "labelDownload";
+      labelDownload.Size = new System.Drawing.Size(58, 13);
+      labelDownload.TabIndex = 1;
+      labelDownload.Text = "Download:";
       // 
       // pictureBox
       // 
@@ -1111,7 +1111,7 @@
       checkBoxWarnEmptyTailingColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnEmptyTailingColumns, 2);
       checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
-      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 240);
+      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 246);
       checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
       checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
       checkBoxWarnEmptyTailingColumns.TabIndex = 17;
@@ -1125,7 +1125,7 @@
       checkBoxWarnNBSP.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnNBSP, 2);
       checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnNBSP", true));
-      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 335);
+      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 341);
       checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
       checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
       checkBoxWarnNBSP.TabIndex = 23;
@@ -1138,7 +1138,7 @@
       checkBoxWarnUnknowCharater.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnUnknowCharater, 2);
       checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnUnknownCharacter", true));
-      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 312);
+      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 318);
       checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
       checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
       checkBoxWarnUnknowCharater.TabIndex = 22;
@@ -1151,7 +1151,7 @@
       checkBoxWarnDelimiterInValue.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnDelimiterInValue, 2);
       checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnDelimiterInValue", true));
-      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 266);
+      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 272);
       checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
       checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
       checkBoxWarnDelimiterInValue.TabIndex = 20;
@@ -1164,7 +1164,7 @@
       checkBoxWarnQuotes.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnQuotes, 2);
       checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnQuotes", true));
-      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 289);
+      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 295);
       checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
       checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
       checkBoxWarnQuotes.TabIndex = 21;
@@ -1238,7 +1238,7 @@
       checkBoxWarnLineFeed.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnLineFeed, 2);
       checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnLineFeed", true));
-      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 358);
+      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 364);
       checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
       checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
       checkBoxWarnLineFeed.TabIndex = 24;
@@ -1250,7 +1250,7 @@
       // 
       numericUpDownNumWarnings.AutoSize = true;
       numericUpDownNumWarnings.Increment = new decimal(new int[] { 10, 0, 0, 0 });
-      numericUpDownNumWarnings.Location = new System.Drawing.Point(344, 240);
+      numericUpDownNumWarnings.Location = new System.Drawing.Point(344, 246);
       numericUpDownNumWarnings.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
       numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
       numericUpDownNumWarnings.Size = new System.Drawing.Size(41, 20);
@@ -1274,7 +1274,7 @@
       numericUpDownLength.AutoSize = true;
       numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceViewSetting, "ShowButtonAtLength", true));
       numericUpDownLength.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-      numericUpDownLength.Location = new System.Drawing.Point(162, 381);
+      numericUpDownLength.Location = new System.Drawing.Point(162, 387);
       numericUpDownLength.Maximum = new decimal(new int[] { 4000, 0, 0, 0 });
       numericUpDownLength.Name = "numericUpDownLength";
       numericUpDownLength.Size = new System.Drawing.Size(47, 20);
@@ -1383,7 +1383,7 @@
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(811, 404);
+      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(811, 410);
       tableLayoutPanelBehaviour.TabIndex = 3;
       // 
       // labelPersistentSettings
@@ -1409,13 +1409,13 @@
       // 
       // selectFont
       // 
-      tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 4);
+      tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 3);
       selectFont.FontName = "Microsoft Sans Serif";
       selectFont.FontSize = 9.75F;
       selectFont.Location = new System.Drawing.Point(0, 184);
       selectFont.Margin = new System.Windows.Forms.Padding(0);
       selectFont.Name = "selectFont";
-      selectFont.Size = new System.Drawing.Size(345, 53);
+      selectFont.Size = new System.Drawing.Size(341, 59);
       selectFont.TabIndex = 16;
       selectFont.ValueChanged += SelectFont_ValueChanged;
       // 
@@ -1423,7 +1423,7 @@
       // 
       label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label6.AutoSize = true;
-      label6.Location = new System.Drawing.Point(24, 384);
+      label6.Location = new System.Drawing.Point(24, 390);
       label6.Name = "label6";
       label6.Size = new System.Drawing.Size(132, 13);
       label6.TabIndex = 25;
@@ -1433,7 +1433,7 @@
       // 
       labelWarningLimit.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelWarningLimit.AutoSize = true;
-      labelWarningLimit.Location = new System.Drawing.Point(264, 243);
+      labelWarningLimit.Location = new System.Drawing.Point(264, 249);
       labelWarningLimit.Name = "labelWarningLimit";
       labelWarningLimit.Size = new System.Drawing.Size(74, 13);
       labelWarningLimit.TabIndex = 18;
@@ -1558,12 +1558,13 @@
       quotingControlWrite.AutoSize = true;
       quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelWrite.SetColumnSpan(quotingControlWrite, 5);
+      quotingControlWrite.Dock = System.Windows.Forms.DockStyle.Fill;
       quotingControlWrite.IsWriteSetting = true;
       quotingControlWrite.Location = new System.Drawing.Point(3, 165);
       quotingControlWrite.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
       quotingControlWrite.Name = "quotingControlWrite";
-      quotingControlWrite.Size = new System.Drawing.Size(415, 172);
+      quotingControlWrite.Size = new System.Drawing.Size(803, 172);
       quotingControlWrite.TabIndex = 18;
       // 
       // label11
@@ -1848,20 +1849,20 @@
     private System.Windows.Forms.TextBox textBoxKeyFileWrite;
     private System.Windows.Forms.Button buttonFileInfo;
     private System.Windows.Forms.Label label8;
-    private System.Windows.Forms.Label label7;
+    private System.Windows.Forms.Label labelExecutable2;
     private System.Windows.Forms.Label labelVersion;
     private System.Windows.Forms.Label labelExecutable;
     private System.Windows.Forms.LinkLabel linkLabelGnu;    
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-    private System.Windows.Forms.Label label9;
-    private System.Windows.Forms.Label label10;
+    private System.Windows.Forms.Label labelAppTitle;
+    private System.Windows.Forms.Label labelWarrenty;
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
     private System.Windows.Forms.LinkLabel linkLabelRepository;
-    private System.Windows.Forms.Label label14;
-    private System.Windows.Forms.Label label16;
+    private System.Windows.Forms.Label labelRepository;
+    private System.Windows.Forms.Label labelRuntime;
     private System.Windows.Forms.Label labelFrameWork;
-    private System.Windows.Forms.Label label18;
-    private System.Windows.Forms.Label label19;
+    private System.Windows.Forms.Label labelLicense;
+    private System.Windows.Forms.Label labelDownload;
     private System.Windows.Forms.PictureBox pictureBox;
     private System.Windows.Forms.CheckBox checkBoxAutoLoad;
     private System.Windows.Forms.Label label3;
