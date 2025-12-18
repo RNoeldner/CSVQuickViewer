@@ -48,6 +48,7 @@ namespace CsvTools
       // buttonOK
       // 
       buttonOK.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      buttonOK.AutoSize = true;
       buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
       buttonOK.Location = new System.Drawing.Point(224, 30);
       buttonOK.Name = "buttonOK";
@@ -59,6 +60,7 @@ namespace CsvTools
       // buttonCancel
       // 
       buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      buttonCancel.AutoSize = true;
       buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       buttonCancel.Location = new System.Drawing.Point(299, 30);
       buttonCancel.Name = "buttonCancel";
@@ -89,7 +91,7 @@ namespace CsvTools
       // FormSelectInDropdown
       // 
       BackColor = System.Drawing.SystemColors.Control;
-      ClientSize = new System.Drawing.Size(371, 55);
+      ClientSize = new System.Drawing.Size(371, 58);
       Controls.Add(tableLayoutPanel1);
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       Margin = new System.Windows.Forms.Padding(3, 1, 3, 1);
@@ -99,6 +101,7 @@ namespace CsvTools
       ShowIcon = false;
       Text = "Select";
       tableLayoutPanel1.ResumeLayout(false);
+      tableLayoutPanel1.PerformLayout();
       ResumeLayout(false);
       PerformLayout();
 

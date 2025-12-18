@@ -158,7 +158,6 @@ public sealed class TestForm : Form
   {
     SuspendLayout();
     m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
-    AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
     AutoScaleMode = AutoScaleMode.Dpi;
     BackColor = SystemColors.Control;
     ClientSize = new Size(895, 445);

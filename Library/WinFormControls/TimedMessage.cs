@@ -378,7 +378,6 @@ public class TimedMessage : ResizeForm
     // 
     // TimedMessage
     // 
-    AutoSize = true;
     BackColor = SystemColors.Control;
     ClientSize = new Size(446, 217);
     Controls.Add(m_TableLayoutPanel);

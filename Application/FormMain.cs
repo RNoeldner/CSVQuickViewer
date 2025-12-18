@@ -17,7 +17,7 @@ using CsvTools.Properties;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -239,7 +239,8 @@ public sealed partial class FormMain : ResizeForm
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
   internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
-
+  
+  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
   public DataTable DataTable => detailControl.DataTable;
 
   private static string AssemblyTitle

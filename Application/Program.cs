@@ -33,7 +33,7 @@ public static class Program
 
     var fileName = string.Empty;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    Application.SetHighDpiMode(HighDpiMode.SystemAware);
+    Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 #endif
     Application.EnableVisualStyles();
     Application.SetCompatibleTextRenderingDefault(false);

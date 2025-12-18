@@ -167,7 +167,7 @@
       tabPageAbout.Location = new System.Drawing.Point(4, 22);
       tabPageAbout.Name = "tabPageAbout";
       tabPageAbout.Padding = new System.Windows.Forms.Padding(3);
-      tabPageAbout.Size = new System.Drawing.Size(692, 451);
+      tabPageAbout.Size = new System.Drawing.Size(815, 451);
       tabPageAbout.TabIndex = 11;
       tabPageAbout.Text = "About";
       tabPageAbout.UseVisualStyleBackColor = true;
@@ -196,20 +196,20 @@
       tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
       tableLayoutPanel1.Name = "tableLayoutPanel1";
       tableLayoutPanel1.RowCount = 6;
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.60135126F));
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.60135126F));
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.60135126F));
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.60135126F));
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 69.5946F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(686, 445);
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 11.6607771F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 6.7149744F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 6.7149744F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 6.7149744F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 6.7149744F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 61.47932F));
+      tableLayoutPanel1.Size = new System.Drawing.Size(809, 445);
       tableLayoutPanel1.TabIndex = 6;
       // 
       // label7
       // 
       label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(3, 48);
+      label7.Location = new System.Drawing.Point(3, 59);
       label7.Name = "label7";
       label7.Size = new System.Drawing.Size(63, 13);
       label7.TabIndex = 1;
@@ -220,7 +220,7 @@
       labelExecutable.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelExecutable.AutoSize = true;
       tableLayoutPanel1.SetColumnSpan(labelExecutable, 3);
-      labelExecutable.Location = new System.Drawing.Point(72, 48);
+      labelExecutable.Location = new System.Drawing.Point(72, 59);
       labelExecutable.Name = "labelExecutable";
       labelExecutable.Size = new System.Drawing.Size(10, 13);
       labelExecutable.TabIndex = 2;
@@ -230,7 +230,7 @@
       // 
       labelVersion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelVersion.AutoSize = true;
-      labelVersion.Location = new System.Drawing.Point(72, 78);
+      labelVersion.Location = new System.Drawing.Point(72, 88);
       labelVersion.Name = "labelVersion";
       labelVersion.Size = new System.Drawing.Size(0, 13);
       labelVersion.TabIndex = 3;
@@ -239,7 +239,7 @@
       // 
       label8.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label8.AutoSize = true;
-      label8.Location = new System.Drawing.Point(21, 78);
+      label8.Location = new System.Drawing.Point(21, 88);
       label8.Name = "label8";
       label8.Size = new System.Drawing.Size(45, 13);
       label8.TabIndex = 1;
@@ -248,12 +248,14 @@
       // flowLayoutPanel1
       // 
       flowLayoutPanel1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      flowLayoutPanel1.AutoSize = true;
+      flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanel1.SetColumnSpan(flowLayoutPanel1, 3);
       flowLayoutPanel1.Controls.Add(label9);
       flowLayoutPanel1.Controls.Add(labelCopyright);
-      flowLayoutPanel1.Location = new System.Drawing.Point(72, 3);
+      flowLayoutPanel1.Location = new System.Drawing.Point(72, 13);
       flowLayoutPanel1.Name = "flowLayoutPanel1";
-      flowLayoutPanel1.Size = new System.Drawing.Size(525, 34);
+      flowLayoutPanel1.Size = new System.Drawing.Size(320, 24);
       flowLayoutPanel1.TabIndex = 7;
       // 
       // label9
@@ -264,6 +266,7 @@
       label9.Name = "label9";
       label9.Size = new System.Drawing.Size(182, 24);
       label9.TabIndex = 6;
+      label9.Tag = "NoFontChange";
       label9.Text = "CSV Quick Viewer";
       // 
       // labelCopyright
@@ -271,6 +274,7 @@
       labelCopyright.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelCopyright.AutoSize = true;
       labelCopyright.Location = new System.Drawing.Point(191, 5);
+      labelCopyright.Margin = new System.Windows.Forms.Padding(3);
       labelCopyright.Name = "labelCopyright";
       labelCopyright.Size = new System.Drawing.Size(126, 13);
       labelCopyright.TabIndex = 7;
@@ -280,7 +284,7 @@
       // 
       label14.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label14.AutoSize = true;
-      label14.Location = new System.Drawing.Point(6, 108);
+      label14.Location = new System.Drawing.Point(6, 117);
       label14.Name = "label14";
       label14.Size = new System.Drawing.Size(60, 13);
       label14.TabIndex = 1;
@@ -290,7 +294,7 @@
       // 
       linkLabelRepository.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRepository.AutoSize = true;
-      linkLabelRepository.Location = new System.Drawing.Point(72, 108);
+      linkLabelRepository.Location = new System.Drawing.Point(72, 117);
       linkLabelRepository.Name = "linkLabelRepository";
       linkLabelRepository.Size = new System.Drawing.Size(92, 13);
       linkLabelRepository.TabIndex = 4;
@@ -303,7 +307,7 @@
       // 
       label18.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       label18.AutoSize = true;
-      label18.Location = new System.Drawing.Point(19, 160);
+      label18.Location = new System.Drawing.Point(19, 167);
       label18.Name = "label18";
       label18.Size = new System.Drawing.Size(47, 13);
       label18.TabIndex = 1;
@@ -315,9 +319,9 @@
       flowLayoutPanel.Controls.Add(linkLabelGnu);
       flowLayoutPanel.Controls.Add(label10);
       flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      flowLayoutPanel.Location = new System.Drawing.Point(72, 163);
+      flowLayoutPanel.Location = new System.Drawing.Point(72, 170);
       flowLayoutPanel.Name = "flowLayoutPanel";
-      flowLayoutPanel.Size = new System.Drawing.Size(611, 279);
+      flowLayoutPanel.Size = new System.Drawing.Size(734, 272);
       flowLayoutPanel.TabIndex = 5;
       // 
       // linkLabelGnu
@@ -346,7 +350,7 @@
       // 
       label16.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label16.AutoSize = true;
-      label16.Location = new System.Drawing.Point(357, 78);
+      label16.Location = new System.Drawing.Point(419, 88);
       label16.Name = "label16";
       label16.Size = new System.Drawing.Size(49, 13);
       label16.TabIndex = 1;
@@ -356,7 +360,7 @@
       // 
       labelFrameWork.Anchor = System.Windows.Forms.AnchorStyles.Left;
       labelFrameWork.AutoSize = true;
-      labelFrameWork.Location = new System.Drawing.Point(412, 78);
+      labelFrameWork.Location = new System.Drawing.Point(474, 88);
       labelFrameWork.Name = "labelFrameWork";
       labelFrameWork.Size = new System.Drawing.Size(32, 13);
       labelFrameWork.TabIndex = 8;
@@ -366,7 +370,7 @@
       // 
       label19.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label19.AutoSize = true;
-      label19.Location = new System.Drawing.Point(348, 108);
+      label19.Location = new System.Drawing.Point(410, 117);
       label19.Name = "label19";
       label19.Size = new System.Drawing.Size(58, 13);
       label19.TabIndex = 1;
@@ -376,7 +380,7 @@
       // 
       pictureBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
       pictureBox.ImageLocation = "https://img.shields.io/sourceforge/dt/csvquickviewer.png";
-      pictureBox.Location = new System.Drawing.Point(412, 105);
+      pictureBox.Location = new System.Drawing.Point(474, 113);
       pictureBox.Name = "pictureBox";
       pictureBox.Size = new System.Drawing.Size(100, 20);
       pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -448,7 +452,7 @@
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelFile.Size = new System.Drawing.Size(688, 447);
+      tableLayoutPanelFile.Size = new System.Drawing.Size(811, 447);
       tableLayoutPanelFile.TabIndex = 0;
       // 
       // labelDelimitedFile
@@ -497,12 +501,13 @@
       // buttonGuessDelimiter
       // 
       buttonGuessDelimiter.AutoSize = true;
+      buttonGuessDelimiter.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonGuessDelimiter, 2);
       buttonGuessDelimiter.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonGuessDelimiter.Location = new System.Drawing.Point(585, 90);
       buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-      buttonGuessDelimiter.Size = new System.Drawing.Size(100, 23);
+      buttonGuessDelimiter.Size = new System.Drawing.Size(223, 23);
       buttonGuessDelimiter.TabIndex = 13;
       buttonGuessDelimiter.Text = "Detect Delimiter";
       buttonGuessDelimiter.UseVisualStyleBackColor = true;
@@ -511,10 +516,11 @@
       // btnOpenFile
       // 
       btnOpenFile.AutoSize = true;
+      btnOpenFile.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
       btnOpenFile.Location = new System.Drawing.Point(585, 3);
       btnOpenFile.Name = "btnOpenFile";
-      btnOpenFile.Size = new System.Drawing.Size(62, 23);
+      btnOpenFile.Size = new System.Drawing.Size(142, 23);
       btnOpenFile.TabIndex = 1;
       btnOpenFile.Text = "Select File";
       btnOpenFile.UseVisualStyleBackColor = true;
@@ -569,12 +575,13 @@
       // buttonGuessCP
       // 
       buttonGuessCP.AutoSize = true;
+      buttonGuessCP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonGuessCP, 2);
       buttonGuessCP.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonGuessCP.Location = new System.Drawing.Point(585, 61);
       buttonGuessCP.Name = "buttonGuessCP";
-      buttonGuessCP.Size = new System.Drawing.Size(100, 23);
+      buttonGuessCP.Size = new System.Drawing.Size(223, 23);
       buttonGuessCP.TabIndex = 9;
       buttonGuessCP.Text = "Detect Code Page";
       buttonGuessCP.UseVisualStyleBackColor = true;
@@ -601,11 +608,12 @@
       // buttonSkipLine
       // 
       buttonSkipLine.AutoSize = true;
+      buttonSkipLine.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       buttonSkipLine.Dock = System.Windows.Forms.DockStyle.Top;
       buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonSkipLine.Location = new System.Drawing.Point(585, 148);
       buttonSkipLine.Name = "buttonSkipLine";
-      buttonSkipLine.Size = new System.Drawing.Size(62, 23);
+      buttonSkipLine.Size = new System.Drawing.Size(142, 23);
       buttonSkipLine.TabIndex = 22;
       buttonSkipLine.Text = "Detect Start Row";
       buttonSkipLine.UseVisualStyleBackColor = true;
@@ -627,12 +635,13 @@
       // buttonGuessHeader
       // 
       buttonGuessHeader.AutoSize = true;
+      buttonGuessHeader.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonGuessHeader, 2);
       buttonGuessHeader.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonGuessHeader.Location = new System.Drawing.Point(585, 32);
       buttonGuessHeader.Name = "buttonGuessHeader";
-      buttonGuessHeader.Size = new System.Drawing.Size(100, 23);
+      buttonGuessHeader.Size = new System.Drawing.Size(223, 23);
       buttonGuessHeader.TabIndex = 4;
       buttonGuessHeader.Text = "Detect Header";
       buttonGuessHeader.UseVisualStyleBackColor = true;
@@ -666,12 +675,13 @@
       // buttonGuessLineComment
       // 
       buttonGuessLineComment.AutoSize = true;
+      buttonGuessLineComment.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonGuessLineComment, 2);
       buttonGuessLineComment.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessLineComment.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonGuessLineComment.Location = new System.Drawing.Point(585, 119);
       buttonGuessLineComment.Name = "buttonGuessLineComment";
-      buttonGuessLineComment.Size = new System.Drawing.Size(100, 23);
+      buttonGuessLineComment.Size = new System.Drawing.Size(223, 23);
       buttonGuessLineComment.TabIndex = 17;
       buttonGuessLineComment.Text = "Detect Comment";
       buttonGuessLineComment.UseVisualStyleBackColor = true;
@@ -693,12 +703,13 @@
       // buttonGuessTextQualifier
       // 
       buttonGuessTextQualifier.AutoSize = true;
+      buttonGuessTextQualifier.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonGuessTextQualifier, 2);
       buttonGuessTextQualifier.Dock = System.Windows.Forms.DockStyle.Top;
       buttonGuessTextQualifier.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonGuessTextQualifier.Location = new System.Drawing.Point(585, 177);
       buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-      buttonGuessTextQualifier.Size = new System.Drawing.Size(100, 23);
+      buttonGuessTextQualifier.Size = new System.Drawing.Size(223, 23);
       buttonGuessTextQualifier.TabIndex = 26;
       buttonGuessTextQualifier.Text = "Detect Text Qualifier";
       buttonGuessTextQualifier.UseVisualStyleBackColor = true;
@@ -706,6 +717,7 @@
       // 
       // quotingControlRead
       // 
+      quotingControlRead.AutoSize = true;
       quotingControlRead.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelFile.SetColumnSpan(quotingControlRead, 7);
       quotingControlRead.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -713,18 +725,19 @@
       quotingControlRead.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       quotingControlRead.MinimumSize = new System.Drawing.Size(415, 0);
       quotingControlRead.Name = "quotingControlRead";
-      quotingControlRead.Size = new System.Drawing.Size(682, 214);
+      quotingControlRead.Size = new System.Drawing.Size(805, 199);
       quotingControlRead.TabIndex = 34;
       // 
       // buttonEscapeSequence
       // 
       buttonEscapeSequence.AutoSize = true;
+      buttonEscapeSequence.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonEscapeSequence, 2);
       buttonEscapeSequence.Dock = System.Windows.Forms.DockStyle.Top;
       buttonEscapeSequence.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonEscapeSequence.Location = new System.Drawing.Point(585, 206);
       buttonEscapeSequence.Name = "buttonEscapeSequence";
-      buttonEscapeSequence.Size = new System.Drawing.Size(100, 23);
+      buttonEscapeSequence.Size = new System.Drawing.Size(223, 23);
       buttonEscapeSequence.TabIndex = 30;
       buttonEscapeSequence.Text = "Detect Escape";
       buttonEscapeSequence.UseVisualStyleBackColor = true;
@@ -869,11 +882,12 @@
       // buttonKeyFileRead
       // 
       buttonKeyFileRead.AutoSize = true;
+      buttonKeyFileRead.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       tableLayoutPanelFile.SetColumnSpan(buttonKeyFileRead, 2);
       buttonKeyFileRead.Dock = System.Windows.Forms.DockStyle.Top;
       buttonKeyFileRead.Location = new System.Drawing.Point(585, 235);
       buttonKeyFileRead.Name = "buttonKeyFileRead";
-      buttonKeyFileRead.Size = new System.Drawing.Size(100, 23);
+      buttonKeyFileRead.Size = new System.Drawing.Size(223, 23);
       buttonKeyFileRead.TabIndex = 33;
       buttonKeyFileRead.Text = "Select File";
       buttonKeyFileRead.UseVisualStyleBackColor = true;
@@ -882,10 +896,11 @@
       // buttonFileInfo
       // 
       buttonFileInfo.AutoSize = true;
+      buttonFileInfo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       buttonFileInfo.Dock = System.Windows.Forms.DockStyle.Top;
-      buttonFileInfo.Location = new System.Drawing.Point(653, 3);
+      buttonFileInfo.Location = new System.Drawing.Point(733, 3);
       buttonFileInfo.Name = "buttonFileInfo";
-      buttonFileInfo.Size = new System.Drawing.Size(32, 23);
+      buttonFileInfo.Size = new System.Drawing.Size(75, 23);
       buttonFileInfo.TabIndex = 35;
       buttonFileInfo.Text = "Info";
       buttonFileInfo.UseVisualStyleBackColor = true;
@@ -894,11 +909,12 @@
       // buttonInteractiveSettings
       // 
       buttonInteractiveSettings.AutoSize = true;
+      buttonInteractiveSettings.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       buttonInteractiveSettings.Dock = System.Windows.Forms.DockStyle.Top;
       buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonInteractiveSettings.Location = new System.Drawing.Point(653, 148);
+      buttonInteractiveSettings.Location = new System.Drawing.Point(733, 148);
       buttonInteractiveSettings.Name = "buttonInteractiveSettings";
-      buttonInteractiveSettings.Size = new System.Drawing.Size(32, 23);
+      buttonInteractiveSettings.Size = new System.Drawing.Size(75, 23);
       buttonInteractiveSettings.TabIndex = 20;
       buttonInteractiveSettings.Text = "...";
       toolTip.SetToolTip(buttonInteractiveSettings, "Interactive Skip First Lines");
@@ -928,7 +944,7 @@
       // 
       checkBoxTreatNBSPAsSpace.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatNBSPAsSpace, 2);
-      checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(233, 137);
+      checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(254, 137);
       checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
       checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
       checkBoxTreatNBSPAsSpace.TabIndex = 13;
@@ -940,7 +956,7 @@
       // 
       checkBoxSkipEmptyLines.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxSkipEmptyLines, 2);
-      checkBoxSkipEmptyLines.Location = new System.Drawing.Point(233, 22);
+      checkBoxSkipEmptyLines.Location = new System.Drawing.Point(254, 22);
       checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
       checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
       checkBoxSkipEmptyLines.TabIndex = 3;
@@ -953,7 +969,7 @@
       checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
       checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatUnknowCharaterAsSpace, 2);
-      checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(233, 114);
+      checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(254, 114);
       checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
       checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
       checkBoxTreatUnknowCharaterAsSpace.TabIndex = 11;
@@ -965,7 +981,7 @@
       // 
       checkBoxTreatLfAsSpace.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTreatLfAsSpace, 2);
-      checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(233, 91);
+      checkBoxTreatLfAsSpace.Location = new System.Drawing.Point(254, 91);
       checkBoxTreatLfAsSpace.Name = "checkBoxTreatLfAsSpace";
       checkBoxTreatLfAsSpace.Size = new System.Drawing.Size(143, 17);
       checkBoxTreatLfAsSpace.TabIndex = 9;
@@ -977,7 +993,7 @@
       // 
       checkBoxTryToSolveMoreColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxTryToSolveMoreColumns, 2);
-      checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(233, 68);
+      checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(254, 68);
       checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
       checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(426, 17);
       checkBoxTryToSolveMoreColumns.TabIndex = 7;
@@ -990,7 +1006,7 @@
       // 
       checkBoxAllowRowCombining.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAllowRowCombining, 2);
-      checkBoxAllowRowCombining.Location = new System.Drawing.Point(233, 45);
+      checkBoxAllowRowCombining.Location = new System.Drawing.Point(254, 45);
       checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
       checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
       checkBoxAllowRowCombining.TabIndex = 5;
@@ -1095,7 +1111,7 @@
       checkBoxWarnEmptyTailingColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnEmptyTailingColumns, 2);
       checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
-      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 231);
+      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 240);
       checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
       checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
       checkBoxWarnEmptyTailingColumns.TabIndex = 17;
@@ -1109,7 +1125,7 @@
       checkBoxWarnNBSP.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnNBSP, 2);
       checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnNBSP", true));
-      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 326);
+      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 335);
       checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
       checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
       checkBoxWarnNBSP.TabIndex = 23;
@@ -1122,7 +1138,7 @@
       checkBoxWarnUnknowCharater.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnUnknowCharater, 2);
       checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnUnknownCharacter", true));
-      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 303);
+      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 312);
       checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
       checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
       checkBoxWarnUnknowCharater.TabIndex = 22;
@@ -1135,7 +1151,7 @@
       checkBoxWarnDelimiterInValue.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnDelimiterInValue, 2);
       checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnDelimiterInValue", true));
-      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 257);
+      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 266);
       checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
       checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
       checkBoxWarnDelimiterInValue.TabIndex = 20;
@@ -1148,7 +1164,7 @@
       checkBoxWarnQuotes.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnQuotes, 2);
       checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnQuotes", true));
-      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 280);
+      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 289);
       checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
       checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
       checkBoxWarnQuotes.TabIndex = 21;
@@ -1222,7 +1238,7 @@
       checkBoxWarnLineFeed.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnLineFeed, 2);
       checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnLineFeed", true));
-      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 349);
+      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 358);
       checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
       checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
       checkBoxWarnLineFeed.TabIndex = 24;
@@ -1232,11 +1248,12 @@
       // 
       // numericUpDownNumWarnings
       // 
+      numericUpDownNumWarnings.AutoSize = true;
       numericUpDownNumWarnings.Increment = new decimal(new int[] { 10, 0, 0, 0 });
-      numericUpDownNumWarnings.Location = new System.Drawing.Point(323, 231);
+      numericUpDownNumWarnings.Location = new System.Drawing.Point(344, 240);
       numericUpDownNumWarnings.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
       numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
-      numericUpDownNumWarnings.Size = new System.Drawing.Size(53, 20);
+      numericUpDownNumWarnings.Size = new System.Drawing.Size(41, 20);
       numericUpDownNumWarnings.TabIndex = 19;
       numericUpDownNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       toolTip.SetToolTip(numericUpDownNumWarnings, "After the set limit is reached further warning are omitted, if set to 0 there is no limit.");
@@ -1248,18 +1265,19 @@
       comboBoxLimitDuration.FormattingEnabled = true;
       comboBoxLimitDuration.Location = new System.Drawing.Point(162, 160);
       comboBoxLimitDuration.Name = "comboBoxLimitDuration";
-      comboBoxLimitDuration.Size = new System.Drawing.Size(65, 21);
+      comboBoxLimitDuration.Size = new System.Drawing.Size(1, 21);
       comboBoxLimitDuration.TabIndex = 15;
       toolTip.SetToolTip(comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing the data that has been read so far");
       // 
       // numericUpDownLength
       // 
+      numericUpDownLength.AutoSize = true;
       numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceViewSetting, "ShowButtonAtLength", true));
       numericUpDownLength.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-      numericUpDownLength.Location = new System.Drawing.Point(162, 372);
+      numericUpDownLength.Location = new System.Drawing.Point(162, 381);
       numericUpDownLength.Maximum = new decimal(new int[] { 4000, 0, 0, 0 });
       numericUpDownLength.Name = "numericUpDownLength";
-      numericUpDownLength.Size = new System.Drawing.Size(65, 20);
+      numericUpDownLength.Size = new System.Drawing.Size(47, 20);
       numericUpDownLength.TabIndex = 26;
       numericUpDownLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       toolTip.SetToolTip(numericUpDownLength, "Do not show columns with long text, but display a button to open the text");
@@ -1270,7 +1288,7 @@
       checkBoxCopySkipped.AutoSize = true;
       checkBoxCopySkipped.Location = new System.Drawing.Point(577, 31);
       checkBoxCopySkipped.Name = "checkBoxCopySkipped";
-      checkBoxCopySkipped.Size = new System.Drawing.Size(106, 17);
+      checkBoxCopySkipped.Size = new System.Drawing.Size(120, 17);
       checkBoxCopySkipped.TabIndex = 5;
       checkBoxCopySkipped.Text = "Copy Skipped Lines";
       toolTip.SetToolTip(checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
@@ -1301,7 +1319,7 @@
       tabPageBehaviour.Location = new System.Drawing.Point(4, 22);
       tabPageBehaviour.Name = "tabPageBehaviour";
       tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-      tabPageBehaviour.Size = new System.Drawing.Size(692, 451);
+      tabPageBehaviour.Size = new System.Drawing.Size(815, 451);
       tabPageBehaviour.TabIndex = 9;
       tabPageBehaviour.Text = "Behavior and Warnings";
       // 
@@ -1365,7 +1383,7 @@
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(688, 395);
+      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(811, 404);
       tableLayoutPanelBehaviour.TabIndex = 3;
       // 
       // labelPersistentSettings
@@ -1382,7 +1400,7 @@
       // labelByFile
       // 
       labelByFile.AutoSize = true;
-      labelByFile.Location = new System.Drawing.Point(233, 0);
+      labelByFile.Location = new System.Drawing.Point(254, 0);
       labelByFile.Name = "labelByFile";
       labelByFile.Padding = new System.Windows.Forms.Padding(3);
       labelByFile.Size = new System.Drawing.Size(84, 19);
@@ -1391,14 +1409,13 @@
       // 
       // selectFont
       // 
-      tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 3);
-      selectFont.Dock = System.Windows.Forms.DockStyle.Fill;
+      tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 4);
       selectFont.FontName = "Microsoft Sans Serif";
       selectFont.FontSize = 9.75F;
       selectFont.Location = new System.Drawing.Point(0, 184);
       selectFont.Margin = new System.Windows.Forms.Padding(0);
       selectFont.Name = "selectFont";
-      selectFont.Size = new System.Drawing.Size(320, 44);
+      selectFont.Size = new System.Drawing.Size(345, 53);
       selectFont.TabIndex = 16;
       selectFont.ValueChanged += SelectFont_ValueChanged;
       // 
@@ -1406,7 +1423,7 @@
       // 
       label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label6.AutoSize = true;
-      label6.Location = new System.Drawing.Point(24, 375);
+      label6.Location = new System.Drawing.Point(24, 384);
       label6.Name = "label6";
       label6.Size = new System.Drawing.Size(132, 13);
       label6.TabIndex = 25;
@@ -1416,7 +1433,7 @@
       // 
       labelWarningLimit.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelWarningLimit.AutoSize = true;
-      labelWarningLimit.Location = new System.Drawing.Point(243, 234);
+      labelWarningLimit.Location = new System.Drawing.Point(264, 243);
       labelWarningLimit.Name = "labelWarningLimit";
       labelWarningLimit.Size = new System.Drawing.Size(74, 13);
       labelWarningLimit.TabIndex = 18;
@@ -1427,7 +1444,7 @@
       checkBoxAutoLoad.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxAutoLoad, 2);
       checkBoxAutoLoad.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "AutoStartMode", true));
-      checkBoxAutoLoad.Location = new System.Drawing.Point(233, 160);
+      checkBoxAutoLoad.Location = new System.Drawing.Point(254, 160);
       checkBoxAutoLoad.Name = "checkBoxAutoLoad";
       checkBoxAutoLoad.Size = new System.Drawing.Size(208, 17);
       checkBoxAutoLoad.TabIndex = 13;
@@ -1441,18 +1458,19 @@
       tabPageFormat.Location = new System.Drawing.Point(4, 22);
       tabPageFormat.Name = "tabPageFormat";
       tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFormat.Size = new System.Drawing.Size(692, 451);
+      tabPageFormat.Size = new System.Drawing.Size(815, 451);
       tabPageFormat.TabIndex = 0;
       tabPageFormat.Text = "Detection";
       // 
       // fillGuessSettingEdit
       // 
+      fillGuessSettingEdit.AutoSize = true;
       fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
       fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
       fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(2);
       fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
       fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      fillGuessSettingEdit.Size = new System.Drawing.Size(688, 447);
+      fillGuessSettingEdit.Size = new System.Drawing.Size(811, 447);
       fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageFile
@@ -1462,7 +1480,7 @@
       tabPageFile.Location = new System.Drawing.Point(4, 22);
       tabPageFile.Name = "tabPageFile";
       tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-      tabPageFile.Size = new System.Drawing.Size(692, 451);
+      tabPageFile.Size = new System.Drawing.Size(815, 451);
       tabPageFile.TabIndex = 6;
       tabPageFile.Text = "Read Settings";
       // 
@@ -1477,7 +1495,7 @@
       tabControl.Location = new System.Drawing.Point(0, 0);
       tabControl.Name = "tabControl";
       tabControl.SelectedIndex = 0;
-      tabControl.Size = new System.Drawing.Size(700, 477);
+      tabControl.Size = new System.Drawing.Size(823, 477);
       tabControl.TabIndex = 0;
       // 
       // tabPageWrite
@@ -1487,7 +1505,7 @@
       tabPageWrite.Location = new System.Drawing.Point(4, 22);
       tabPageWrite.Name = "tabPageWrite";
       tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-      tabPageWrite.Size = new System.Drawing.Size(692, 451);
+      tabPageWrite.Size = new System.Drawing.Size(815, 451);
       tabPageWrite.TabIndex = 10;
       tabPageWrite.Text = "Write Settings";
       // 
@@ -1532,11 +1550,12 @@
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWrite.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      tableLayoutPanelWrite.Size = new System.Drawing.Size(686, 363);
+      tableLayoutPanelWrite.Size = new System.Drawing.Size(809, 359);
       tableLayoutPanelWrite.TabIndex = 0;
       // 
       // quotingControlWrite
       // 
+      quotingControlWrite.AutoSize = true;
       quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelWrite.SetColumnSpan(quotingControlWrite, 5);
       quotingControlWrite.IsWriteSetting = true;
@@ -1544,7 +1563,7 @@
       quotingControlWrite.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
       quotingControlWrite.Name = "quotingControlWrite";
-      quotingControlWrite.Size = new System.Drawing.Size(673, 176);
+      quotingControlWrite.Size = new System.Drawing.Size(415, 172);
       quotingControlWrite.TabIndex = 18;
       // 
       // label11
@@ -1665,7 +1684,7 @@
       buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       buttonNewLine.Location = new System.Drawing.Point(577, 56);
       buttonNewLine.Name = "buttonNewLine";
-      buttonNewLine.Size = new System.Drawing.Size(106, 23);
+      buttonNewLine.Size = new System.Drawing.Size(143, 23);
       buttonNewLine.TabIndex = 8;
       buttonNewLine.Text = "Source Record Seperation";
       buttonNewLine.UseVisualStyleBackColor = true;
@@ -1684,9 +1703,10 @@
       // 
       // FormEditSettings
       // 
-      ClientSize = new System.Drawing.Size(700, 477);
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      ClientSize = new System.Drawing.Size(823, 477);
       Controls.Add(tabControl);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       MaximizeBox = false;
       MinimizeBox = false;
       MinimumSize = new System.Drawing.Size(716, 516);
@@ -1719,6 +1739,7 @@
       tableLayoutPanelBehaviour.ResumeLayout(false);
       tableLayoutPanelBehaviour.PerformLayout();
       tabPageFormat.ResumeLayout(false);
+      tabPageFormat.PerformLayout();
       tabPageFile.ResumeLayout(false);
       tabControl.ResumeLayout(false);
       tabPageWrite.ResumeLayout(false);

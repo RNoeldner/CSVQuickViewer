@@ -68,7 +68,6 @@ namespace CsvTools
       tableLayoutPanel1.SetColumnSpan(detailControl, 3);
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -123,7 +122,7 @@ namespace CsvTools
       // 
       ClientSize = new System.Drawing.Size(637, 488);
       Controls.Add(tableLayoutPanel1);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;      
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       Name = "FormDuplicatesDisplay";
       Text = "Duplicates Display";
       FormClosing += DuplicatesDisplay_FormClosing;

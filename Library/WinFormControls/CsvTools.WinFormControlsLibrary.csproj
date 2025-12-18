@@ -8,17 +8,17 @@
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
-    <IsPublishable>False</IsPublishable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvTools.WinFormControls</AssemblyName>    
-    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>    
-    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-windows'">
+		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
@@ -62,11 +62,5 @@
   <ItemGroup>
     <EmbeddedResource Update="DetailControl.resx">
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\rnoldner\source\repos\CSVQuickViewer\Library\WinFormControls\.editorconfig" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="C:\Users\rnoldner\source\repos\CSVQuickViewer\Library\WinFormControls\.editorconfig" />
   </ItemGroup>
 </Project>

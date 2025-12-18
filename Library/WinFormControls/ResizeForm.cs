@@ -12,16 +12,24 @@
  *
  */
 #nullable enable
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace CsvTools;
 
+/// <summary>
+/// Base form that supports DPI-awareness, recursive font scaling, and optional global font changes.
+/// </summary>
 public class ResizeForm : Form
 {
-  private IFontConfig m_FontConfig;
+  private IFontConfig m_FontConfig = CsvTools.FontConfig.Default;
 
+  /// <summary>
+  /// The font configuration shared across multiple forms.
+  /// Adjusting FontSize here will propagate automatically to other forms using the same instance.
+  /// </summary>
   [Browsable(false)]
   [Bindable(false)]
   public IFontConfig FontConfig
@@ -29,26 +37,21 @@ public class ResizeForm : Form
     get => m_FontConfig;
     set
     {
-      if (m_FontConfig != null)
-        m_FontConfig.PropertyChanged -= FontSettingChanged;
-
-      if (m_FontConfig != null)
-      {
-        m_FontConfig = value;
-        m_FontConfig.PropertyChanged += FontSettingChanged;
-        FontSettingChanged(value, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
-      }
+      m_FontConfig.PropertyChanged -= FontSettingChanged;
+      m_FontConfig = value;
+      m_FontConfig.PropertyChanged += FontSettingChanged;
+      FontSettingChanged(value, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
     }
   }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
   public ResizeForm()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
   {
     InitializeComponent();
-    FontConfig = new FontConfig();
   }
 
+  /// <summary>
+  /// Handles DPI changes.
+  /// </summary>
   private void OnDpiChanged(object? sender, DpiChangedEventArgs e)
   {
     SuspendLayout();
@@ -56,17 +59,21 @@ public class ResizeForm : Form
     ResumeLayout(true);
   }
 
+  /// <summary>
+  /// Responds to changes in the FontConfig (font name or size)
+  /// </summary>
   private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
   {
     if (sender is IFontConfig conf &&
         (e.PropertyName == nameof(IFontConfig.Font) || e.PropertyName == nameof(IFontConfig.FontSize)))
     {
+      var newFont = new Font(conf.Font, conf.FontSize);
       this.SafeInvoke(() =>
       {
+        SuspendLayout();
         try
         {
-          SuspendLayout();
-          SetFonts(this, new Font(conf.Font, conf.FontSize));
+          SetFonts(this, newFont);
         }
         catch
         {
@@ -74,30 +81,47 @@ public class ResizeForm : Form
         }
         finally
         {
-          ResumeLayout();
+          ResumeLayout(true);
           Refresh();
         }
       });
     }
   }
+  /// <summary>
+  /// Optional: Mouse wheel zoom
+  /// Ctrl+MouseWheel adjusts the zoom factor for the font
+  /// </summary>
+  protected override void OnMouseWheel(MouseEventArgs e)
+  {
+    if ((ModifierKeys & Keys.Control) != 0)
+    {
+      const float step = 0.5f;
+      float delta = e.Delta > 0 ? step : -step;
+      float newSize = FontConfig.FontSize + delta;
+      FontConfig.FontSize = Math.Max(6f, Math.Min(32f, newSize));
+      return;
+    }
+
+    base.OnMouseWheel(e);
+  }
 
   public void SetFont(Font newFont) => SetFonts(this, newFont);
 
-  /// <summary>
-  ///   Recursively change the font of all controls, needed on Windows 8 / 2012
-  /// </summary>
-  /// <param name="container">A container control like a form or panel</param>
-  /// <param name="newFont">The font with size to use</param>
-  private static void SetFonts(in Control container, in Font newFont)
-  {
-    if (!Equals(container.Font, newFont))
-      container.Font = newFont;
 
-    foreach (Control ctrl in container.Controls)
+  /// <summary>
+  /// Recursively set the font for this form and all child controls
+  /// </summary>
+  private static void SetFonts(in Control control, in Font newFont)
+  {
+    if ("NoFontChange".Equals(control.Tag?.ToString()))
+      return;
+    if (!Equals(control.Font, newFont))
+      control.Font = newFont;
+
+    foreach (Control ctrl in control.Controls)
       SetFonts(ctrl, newFont);
   }
 
-#pragma warning disable CS8600
   private void InitializeComponent()
   {
     var resources = new ComponentResourceManager(typeof(ResizeForm));
@@ -107,11 +131,11 @@ public class ResizeForm : Form
     // 
     AutoScaleDimensions = new SizeF(96F, 96F);
     AutoScaleMode = AutoScaleMode.Dpi;
+    AutoSize = true;
     ClientSize = new Size(514, 350);
-    DpiChanged += OnDpiChanged;
     Icon = (Icon) resources.GetObject("$this.Icon");
     Name = "ResizeForm";
+    DpiChanged += OnDpiChanged;
     ResumeLayout(false);
   }
-#pragma warning restore CS8600
 }

@@ -551,11 +551,11 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxDisplay1.Location = new System.Drawing.Point(77, 30);
     m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
     m_ComboBoxDisplay1.Size = new System.Drawing.Size(208, 21);
-    m_ComboBoxDisplay1.TabIndex = 16;    
+    m_ComboBoxDisplay1.TabIndex = 16;
     m_ComboBoxDisplay1.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // FormHierarchyDisplay
-    //     
+    // 
     ClientSize = new System.Drawing.Size(502, 368);
     Controls.Add(m_TableLayoutPanel1);
     FormBorderStyle = FormBorderStyle.SizableToolWindow;

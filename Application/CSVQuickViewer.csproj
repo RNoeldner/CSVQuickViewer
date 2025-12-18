@@ -6,30 +6,24 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ApplicationIcon>csv_text.ico</ApplicationIcon>
 		<Authors>Raphael Nöldner</Authors>
-		<PackageIcon>Picture.png</PackageIcon>
 		<SignAssembly>True</SignAssembly>
 		<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<Configurations>Debug;Release</Configurations>
-		<RepositoryType>git</RepositoryType>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<IsPublishable>False</IsPublishable>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
-		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-		<ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
-		<ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
 		<UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
-		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<AnalysisLevel>6.0-recommended</AnalysisLevel>
+	</PropertyGroup>
+	<!-- DPI settings for .NET 8 only -->
+	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-windows'">
+		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net472'">
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 	<PropertyGroup>
 		<PlatformTarget>AnyCPU</PlatformTarget>
@@ -91,10 +85,6 @@
 	<ItemGroup>
 		<None Update="LICENSE">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Picture.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
 		</None>
 		<None Update="README.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -241,6 +241,7 @@ public class QuotingControl : UserControl
     // m_SplitContainer
     // 
     m_TableLayoutPanel.SetColumnSpan(m_SplitContainer, 4);
+    m_SplitContainer.Dock = DockStyle.Top;
     m_SplitContainer.Location = new Point(3, 82);
     m_SplitContainer.Name = "m_SplitContainer";
     // 
@@ -251,17 +252,18 @@ public class QuotingControl : UserControl
     // m_SplitContainer.Panel2
     // 
     m_SplitContainer.Panel2.Controls.Add(m_TableLayoutPanelColumns);
-    m_SplitContainer.Size = new Size(672, 112);
-    m_SplitContainer.SplitterDistance = 313;
+    m_SplitContainer.Size = new Size(720, 114);
+    m_SplitContainer.SplitterDistance = 335;
     m_SplitContainer.TabIndex = 5;
     // 
     // m_TableLayoutPanelText
     // 
+    m_TableLayoutPanelText.AutoSize = true;
     m_TableLayoutPanelText.ColumnCount = 1;
     m_TableLayoutPanelText.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44.49112F));
     m_TableLayoutPanelText.Controls.Add(m_FastColoredTextBox, 0, 1);
     m_TableLayoutPanelText.Controls.Add(m_Label6, 0, 0);
-    m_TableLayoutPanelText.Dock = DockStyle.Top;
+    m_TableLayoutPanelText.Dock = DockStyle.Fill;
     m_TableLayoutPanelText.Location = new Point(0, 0);
     m_TableLayoutPanelText.Name = "m_TableLayoutPanelText";
     m_TableLayoutPanelText.RowCount = 4;
@@ -269,7 +271,7 @@ public class QuotingControl : UserControl
     m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
     m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
     m_TableLayoutPanelText.RowStyles.Add(new RowStyle());
-    m_TableLayoutPanelText.Size = new Size(313, 105);
+    m_TableLayoutPanelText.Size = new Size(335, 114);
     m_TableLayoutPanelText.TabIndex = 0;
     // 
     // m_FastColoredTextBox
@@ -294,7 +296,7 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox.CharHeight = 14;
     m_FastColoredTextBox.CharWidth = 8;
     m_FastColoredTextBox.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox.Dock = DockStyle.Fill;
     m_FastColoredTextBox.IsReplaceMode = false;
     m_FastColoredTextBox.Location = new Point(3, 16);
@@ -302,11 +304,12 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox.Paddings = new Padding(0);
     m_FastColoredTextBox.ReadOnly = true;
     m_TableLayoutPanelText.SetRowSpan(m_FastColoredTextBox, 3);
-    m_FastColoredTextBox.SelectionColor = Color.FromArgb(60, 0, 0, 255);
-    m_FastColoredTextBox.Size = new Size(307, 95);
+    m_FastColoredTextBox.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox.Size = new Size(329, 95);
     m_FastColoredTextBox.TabIndex = 0;
     m_FastColoredTextBox.TabLength = 1;
     m_FastColoredTextBox.TabStop = false;
+    m_FastColoredTextBox.Tag = "NoFontChange";
     m_FastColoredTextBox.Text = "\"This is \";Column with:, Delimiter¶\r\n a Trimming ;Column with \"\" Quote¶\r\nExample ;\"Column with ¶\r\nLinefeed\"";
     m_FastColoredTextBox.Zoom = 100;
     // 
@@ -315,7 +318,7 @@ public class QuotingControl : UserControl
     m_Label6.Anchor = AnchorStyles.None;
     m_Label6.AutoSize = true;
     m_Label6.ForeColor = Color.Teal;
-    m_Label6.Location = new Point(119, 0);
+    m_Label6.Location = new Point(130, 0);
     m_Label6.Name = "m_Label6";
     m_Label6.Size = new Size(74, 13);
     m_Label6.TabIndex = 35;
@@ -323,6 +326,7 @@ public class QuotingControl : UserControl
     // 
     // m_TableLayoutPanelColumns
     // 
+    m_TableLayoutPanelColumns.AutoSize = true;
     m_TableLayoutPanelColumns.ColumnCount = 3;
     m_TableLayoutPanelColumns.ColumnStyles.Add(new ColumnStyle());
     m_TableLayoutPanelColumns.ColumnStyles.Add(new ColumnStyle());
@@ -338,7 +342,7 @@ public class QuotingControl : UserControl
     m_TableLayoutPanelColumns.Controls.Add(m_Label1, 0, 1);
     m_TableLayoutPanelColumns.Controls.Add(m_Label5, 1, 0);
     m_TableLayoutPanelColumns.Controls.Add(m_Label4, 2, 0);
-    m_TableLayoutPanelColumns.Dock = DockStyle.Top;
+    m_TableLayoutPanelColumns.Dock = DockStyle.Fill;
     m_TableLayoutPanelColumns.Location = new Point(0, 0);
     m_TableLayoutPanelColumns.Name = "m_TableLayoutPanelColumns";
     m_TableLayoutPanelColumns.RowCount = 4;
@@ -346,7 +350,7 @@ public class QuotingControl : UserControl
     m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
     m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
     m_TableLayoutPanelColumns.RowStyles.Add(new RowStyle());
-    m_TableLayoutPanelColumns.Size = new Size(355, 106);
+    m_TableLayoutPanelColumns.Size = new Size(381, 114);
     m_TableLayoutPanelColumns.TabIndex = 0;
     // 
     // m_Label3
@@ -383,16 +387,17 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox12.CharHeight = 14;
     m_FastColoredTextBox12.CharWidth = 8;
     m_FastColoredTextBox12.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox12.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox12.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox12.IsReplaceMode = false;
     m_FastColoredTextBox12.Location = new Point(143, 64);
     m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
     m_FastColoredTextBox12.Paddings = new Padding(0);
     m_FastColoredTextBox12.ReadOnly = true;
-    m_FastColoredTextBox12.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox12.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox12.ShowLineNumbers = false;
     m_FastColoredTextBox12.Size = new Size(197, 33);
     m_FastColoredTextBox12.TabIndex = 5;
+    m_FastColoredTextBox12.Tag = "NoFontChange";
     m_FastColoredTextBox12.Text = "Column with ¶\r\nLinefeed";
     m_FastColoredTextBox12.Zoom = 100;
     // 
@@ -418,18 +423,19 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox02.CharHeight = 14;
     m_FastColoredTextBox02.CharWidth = 8;
     m_FastColoredTextBox02.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox02.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox02.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox02.IsReplaceMode = false;
     m_FastColoredTextBox02.Location = new Point(45, 64);
     m_FastColoredTextBox02.Multiline = false;
     m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
     m_FastColoredTextBox02.Paddings = new Padding(0);
     m_FastColoredTextBox02.ReadOnly = true;
-    m_FastColoredTextBox02.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox02.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox02.ShowLineNumbers = false;
     m_FastColoredTextBox02.ShowScrollBars = false;
     m_FastColoredTextBox02.Size = new Size(92, 33);
     m_FastColoredTextBox02.TabIndex = 4;
+    m_FastColoredTextBox02.Tag = "NoFontChange";
     m_FastColoredTextBox02.Text = "Example ";
     m_FastColoredTextBox02.Zoom = 100;
     // 
@@ -455,18 +461,19 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox01.CharHeight = 14;
     m_FastColoredTextBox01.CharWidth = 8;
     m_FastColoredTextBox01.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox01.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox01.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox01.IsReplaceMode = false;
     m_FastColoredTextBox01.Location = new Point(45, 40);
     m_FastColoredTextBox01.Multiline = false;
     m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
     m_FastColoredTextBox01.Paddings = new Padding(0);
     m_FastColoredTextBox01.ReadOnly = true;
-    m_FastColoredTextBox01.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox01.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox01.ShowLineNumbers = false;
     m_FastColoredTextBox01.ShowScrollBars = false;
     m_FastColoredTextBox01.Size = new Size(92, 18);
     m_FastColoredTextBox01.TabIndex = 1;
+    m_FastColoredTextBox01.Tag = "NoFontChange";
     m_FastColoredTextBox01.Text = " a Trimming ";
     m_FastColoredTextBox01.Zoom = 100;
     // 
@@ -492,18 +499,19 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox11.CharHeight = 14;
     m_FastColoredTextBox11.CharWidth = 8;
     m_FastColoredTextBox11.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox11.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox11.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox11.IsReplaceMode = false;
     m_FastColoredTextBox11.Location = new Point(143, 40);
     m_FastColoredTextBox11.Multiline = false;
     m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
     m_FastColoredTextBox11.Paddings = new Padding(0);
     m_FastColoredTextBox11.ReadOnly = true;
-    m_FastColoredTextBox11.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox11.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox11.ShowLineNumbers = false;
     m_FastColoredTextBox11.ShowScrollBars = false;
     m_FastColoredTextBox11.Size = new Size(197, 18);
     m_FastColoredTextBox11.TabIndex = 2;
+    m_FastColoredTextBox11.Tag = "NoFontChange";
     m_FastColoredTextBox11.Text = "Column with \" Quote";
     m_FastColoredTextBox11.Zoom = 100;
     // 
@@ -529,18 +537,19 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox00.CharHeight = 14;
     m_FastColoredTextBox00.CharWidth = 8;
     m_FastColoredTextBox00.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox00.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox00.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox00.IsReplaceMode = false;
     m_FastColoredTextBox00.Location = new Point(45, 16);
     m_FastColoredTextBox00.Multiline = false;
     m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
     m_FastColoredTextBox00.Paddings = new Padding(0);
     m_FastColoredTextBox00.ReadOnly = true;
-    m_FastColoredTextBox00.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox00.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox00.ShowLineNumbers = false;
     m_FastColoredTextBox00.ShowScrollBars = false;
     m_FastColoredTextBox00.Size = new Size(92, 18);
     m_FastColoredTextBox00.TabIndex = 9;
+    m_FastColoredTextBox00.Tag = "NoFontChange";
     m_FastColoredTextBox00.Text = "This is ";
     m_FastColoredTextBox00.Zoom = 100;
     // 
@@ -578,20 +587,21 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox10.CharHeight = 14;
     m_FastColoredTextBox10.CharWidth = 8;
     m_FastColoredTextBox10.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox10.DisabledColor = Color.FromArgb(100, 180, 180, 180);
+    m_FastColoredTextBox10.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
     m_FastColoredTextBox10.IsReplaceMode = false;
     m_FastColoredTextBox10.Location = new Point(143, 16);
     m_FastColoredTextBox10.Multiline = false;
     m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
     m_FastColoredTextBox10.Paddings = new Padding(0);
     m_FastColoredTextBox10.ReadOnly = true;
-    m_FastColoredTextBox10.SelectionColor = Color.FromArgb(60, 0, 0, 255);
+    m_FastColoredTextBox10.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
     m_FastColoredTextBox10.ShowLineNumbers = false;
     m_FastColoredTextBox10.ShowScrollBars = false;
     m_FastColoredTextBox10.Size = new Size(197, 18);
     m_FastColoredTextBox10.TabIndex = 10;
     m_FastColoredTextBox10.TabLength = 1;
     m_FastColoredTextBox10.TabStop = false;
+    m_FastColoredTextBox10.Tag = "NoFontChange";
     m_FastColoredTextBox10.Text = "Column with:, Delimiter";
     m_FastColoredTextBox10.Zoom = 100;
     // 
@@ -623,7 +633,7 @@ public class QuotingControl : UserControl
     m_Label4.Anchor = AnchorStyles.None;
     m_Label4.AutoSize = true;
     m_Label4.ForeColor = Color.Teal;
-    m_Label4.Location = new Point(222, 0);
+    m_Label4.Location = new Point(235, 0);
     m_Label4.Name = "m_Label4";
     m_Label4.Size = new Size(51, 13);
     m_Label4.TabIndex = 7;
@@ -734,6 +744,7 @@ public class QuotingControl : UserControl
     // 
     // m_TableLayoutPanel
     // 
+    m_TableLayoutPanel.AutoSize = true;
     m_TableLayoutPanel.ColumnCount = 4;
     m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
     m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
@@ -750,17 +761,15 @@ public class QuotingControl : UserControl
     m_TableLayoutPanel.Controls.Add(m_ComboBoxTrim, 1, 2);
     m_TableLayoutPanel.Controls.Add(m_RadioButtonNeeded, 3, 0);
     m_TableLayoutPanel.Controls.Add(m_RadioButtonAlways, 3, 1);
-    m_TableLayoutPanel.Dock = DockStyle.Fill;
+    m_TableLayoutPanel.Dock = DockStyle.Top;
     m_TableLayoutPanel.Location = new Point(0, 0);
     m_TableLayoutPanel.Name = "m_TableLayoutPanel";
     m_TableLayoutPanel.RowCount = 4;
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-    m_TableLayoutPanel.Size = new Size(677, 197);
+    m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 120F));
+    m_TableLayoutPanel.Size = new Size(726, 199);
     m_TableLayoutPanel.TabIndex = 0;
     // 
     // m_LabelQuote
@@ -803,9 +812,11 @@ public class QuotingControl : UserControl
     Controls.Add(m_TableLayoutPanel);
     MinimumSize = new Size(31, 0);
     Name = "QuotingControl";
-    Size = new Size(677, 197);
+    Size = new Size(726, 201);
     m_SplitContainer.Panel1.ResumeLayout(false);
+    m_SplitContainer.Panel1.PerformLayout();
     m_SplitContainer.Panel2.ResumeLayout(false);
+    m_SplitContainer.Panel2.PerformLayout();
     ((ISupportInitialize) m_SplitContainer).EndInit();
     m_SplitContainer.ResumeLayout(false);
     m_TableLayoutPanelText.ResumeLayout(false);
@@ -824,6 +835,7 @@ public class QuotingControl : UserControl
     m_TableLayoutPanel.ResumeLayout(false);
     m_TableLayoutPanel.PerformLayout();
     ResumeLayout(false);
+    PerformLayout();
 
   }
 #pragma warning restore CS8622

@@ -87,14 +87,13 @@ namespace CsvTools
       detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
+      
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      detailControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
       detailControl.Location = new System.Drawing.Point(0, 0);
       detailControl.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       detailControl.MenuDown = false;

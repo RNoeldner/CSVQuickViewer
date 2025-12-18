@@ -5,3 +5,8 @@ dotnet_style_qualification_for_event = false
 dotnet_style_qualification_for_field = false
 dotnet_style_qualification_for_method = false
 dotnet_style_qualification_for_property = false
+
+[*.cs]
+
+# Default severity for analyzer diagnostics with category 'Globalization'
+dotnet_analyzer_diagnostic.category-Globalization.severity = none

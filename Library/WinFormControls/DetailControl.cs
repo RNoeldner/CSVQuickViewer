@@ -237,6 +237,7 @@ public sealed partial class DetailControl : UserControl
   ///   Allows setting the data table
   /// </summary>
   /// <value>The data table.</value>
+  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
   public DataTable DataTable
   {
     get => m_DataTable;

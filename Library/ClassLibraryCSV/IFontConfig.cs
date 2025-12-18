@@ -12,49 +12,84 @@
  *
  */
 
+using System;
 using System.ComponentModel;
 
 
 namespace CsvTools;
 
 /// <summary>
-/// IFontConfig interface defines font configuration properties.
+/// Interface defining a font configuration with a name and size.
+/// This allows forms to listen for changes via PropertyChanged.
 /// </summary>
 public interface IFontConfig : INotifyPropertyChanged
 {
   /// <summary>
-  /// Gets the font name could be Segoe UI
+  /// Gets the font family name (e.g., "Segoe UI").
   /// </summary>
-  string Font { get; }
+  string Font { get; set; }
 
   /// <summary>
-  /// Gets the font size, usual values are 8.25F
+  /// Gets the font size in points (typical value 8.25F).
   /// </summary>
-  float FontSize { get; }
+  float FontSize { get; set; }
 }
 
 /// <summary>
-/// FontConfig class implements IFontConfig interface to provide concrete font configuration.
+/// Concrete implementation of IFontConfig with mutable font properties.
+/// Raising PropertyChanged ensures that forms can update dynamically.
 /// </summary>
 public class FontConfig : ObservableObject, IFontConfig
 {
-  private readonly string m_Font;
-  private readonly float m_FontSize;
+  // Backing fields for font name and size
+  private string m_Font;
+  private float m_FontSize;
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="FontConfig"/> class.
+  /// Default Font
   /// </summary>
-  /// <param name="font">The font name.</param>
-  /// <param name="fontSize">Size of the font.</param>
-  public FontConfig(string? font = null, float? fontSize = null)
+  public static FontConfig Default = new();
+
+  /// <summary>
+  /// Initializes a new instance of FontConfig.
+  /// </summary>
+  /// <param name="font">Font family name (default: "Segoe UI").</param>
+  /// <param name="fontSize">Font size in points (default: 8.25F).</param>
+  public FontConfig(string font = "Segoe UI", float fontSize = 8.25F)
   {
-    m_Font=font ?? "Segoe UI";
-    m_FontSize=fontSize ?? 8.25F;
+    m_Font= font;
+    m_FontSize= fontSize;
   }
 
-  /// <inheritdoc/>
-  public string Font => m_Font;
+  /// <summary>
+  /// Gets or sets the font family.
+  /// When set, raises PropertyChanged for data binding or form updates.
+  /// </summary>
+  public string Font
+  {
+    get => m_Font;
+    set
+    {
+      // Ensure non-null and trimmed value
+      if (!string.IsNullOrWhiteSpace(value))
+      {
+        SetProperty(ref m_Font, value.Trim());
+      }
+    }
+  }
 
-  /// <inheritdoc/>
-  public float FontSize => m_FontSize;
+  /// <summary>
+  /// Gets or sets the font size in points.
+  /// When set, raises PropertyChanged to notify forms of updates.
+  /// </summary>
+  public float FontSize
+  {
+    get => m_FontSize;
+    set
+    {
+      // Clamp font size to reasonable range (1 to 72 points)
+      float newSize = Math.Max(1f, Math.Min(72f, value));
+      SetProperty(ref m_FontSize, newSize);
+    }
+  }
 }

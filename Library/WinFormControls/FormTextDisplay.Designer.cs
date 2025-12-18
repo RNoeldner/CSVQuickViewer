@@ -62,9 +62,9 @@ namespace CsvTools
       flowLayoutPanelDisplay.Controls.Add(radioButtonHtml);
       flowLayoutPanelDisplay.Controls.Add(buttonSave);
       flowLayoutPanelDisplay.Controls.Add(buttonCancel);
-      flowLayoutPanelDisplay.Location = new System.Drawing.Point(483, 261);
+      flowLayoutPanelDisplay.Location = new System.Drawing.Point(480, 261);
       flowLayoutPanelDisplay.Name = "flowLayoutPanelDisplay";
-      flowLayoutPanelDisplay.Size = new System.Drawing.Size(338, 31);
+      flowLayoutPanelDisplay.Size = new System.Drawing.Size(341, 31);
       flowLayoutPanelDisplay.TabIndex = 8;
       // 
       // radioButtonText
@@ -127,6 +127,7 @@ namespace CsvTools
       // 
       // buttonSave
       // 
+      buttonSave.AutoSize = true;
       buttonSave.DialogResult = System.Windows.Forms.DialogResult.OK;
       buttonSave.Enabled = false;
       buttonSave.Location = new System.Drawing.Point(208, 3);
@@ -139,6 +140,7 @@ namespace CsvTools
       // 
       // buttonCancel
       // 
+      buttonCancel.AutoSize = true;
       buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       buttonCancel.Location = new System.Drawing.Point(276, 3);
       buttonCancel.Name = "buttonCancel";
@@ -250,7 +252,6 @@ namespace CsvTools
       // 
       // FormTextDisplay
       // 
-      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
       ClientSize = new System.Drawing.Size(833, 293);
       Controls.Add(flowLayoutPanelDisplay);
       Controls.Add(textBox);

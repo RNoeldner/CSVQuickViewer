@@ -161,7 +161,6 @@ namespace CsvTools
       // FromColumnsFilter
       // 
       AcceptButton = buttonApply;
-      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
       AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
       BackColor = System.Drawing.SystemColors.Control;
       ClientSize = new System.Drawing.Size(535, 408);

@@ -163,7 +163,6 @@ namespace CsvTools
       FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
       dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -246,12 +245,10 @@ namespace CsvTools
       // 
       m_ToolStripContainer.ContentPanel.Controls.Add(m_Search);
       m_ToolStripContainer.ContentPanel.Controls.Add(FilteredDataGridView);
-      m_ToolStripContainer.ContentPanel.Margin = new Padding(0);
       m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(752, 275);
       m_ToolStripContainer.Dock = DockStyle.Fill;
       m_ToolStripContainer.LeftToolStripPanelVisible = false;
       m_ToolStripContainer.Location = new System.Drawing.Point(0, 0);
-      m_ToolStripContainer.Margin = new Padding(0);
       m_ToolStripContainer.Name = "m_ToolStripContainer";
       m_ToolStripContainer.RightToolStripPanelVisible = false;
       m_ToolStripContainer.Size = new System.Drawing.Size(752, 329);

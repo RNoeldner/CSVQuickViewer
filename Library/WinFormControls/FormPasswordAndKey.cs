@@ -145,6 +145,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     // 
     // m_TableLayoutPanel
     // 
+    m_TableLayoutPanel.AutoSize = true;
     m_TableLayoutPanel.ColumnCount = 4;
     m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
     m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -158,7 +159,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TableLayoutPanel.Controls.Add(m_LabelPassphrase, 0, 0);
     m_TableLayoutPanel.Controls.Add(m_LabelKeyFile, 0, 1);
     m_TableLayoutPanel.Controls.Add(m_CheckBoxShowHide, 1, 2);
-    m_TableLayoutPanel.Dock = DockStyle.Fill;
+    m_TableLayoutPanel.Dock = DockStyle.Top;
     m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
     m_TableLayoutPanel.Margin = new Padding(4, 3, 4, 3);
     m_TableLayoutPanel.Name = "m_TableLayoutPanel";
@@ -166,7 +167,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-    m_TableLayoutPanel.Size = new System.Drawing.Size(666, 86);
+    m_TableLayoutPanel.Size = new System.Drawing.Size(666, 88);
     m_TableLayoutPanel.TabIndex = 0;
     // 
     // m_BtnCancel
@@ -249,9 +250,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     // FormPasswordAndKey
     // 
     AllowDrop = true;
-    AutoScaleMode = AutoScaleMode.Inherit;
-    AutoSize = true;
-    ClientSize = new System.Drawing.Size(666, 86);
+    ClientSize = new System.Drawing.Size(666, 89);
     Controls.Add(m_TableLayoutPanel);
     FormBorderStyle = FormBorderStyle.SizableToolWindow;
     Margin = new Padding(4, 3, 4, 3);
@@ -266,6 +265,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TableLayoutPanel.ResumeLayout(false);
     m_TableLayoutPanel.PerformLayout();
     ResumeLayout(false);
+    PerformLayout();
 
   }
 
