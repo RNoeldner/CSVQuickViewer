@@ -205,7 +205,7 @@
       tableLayoutPanel1.Size = new System.Drawing.Size(809, 445);
       tableLayoutPanel1.TabIndex = 6;
       // 
-      // label7
+      // labelExecutable2
       // 
       labelExecutable2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelExecutable2.AutoSize = true;
@@ -1111,7 +1111,7 @@
       checkBoxWarnEmptyTailingColumns.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnEmptyTailingColumns, 2);
       checkBoxWarnEmptyTailingColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnEmptyTailingColumns", true));
-      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 246);
+      checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(3, 229);
       checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
       checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(121, 17);
       checkBoxWarnEmptyTailingColumns.TabIndex = 17;
@@ -1125,7 +1125,7 @@
       checkBoxWarnNBSP.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnNBSP, 2);
       checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnNBSP", true));
-      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 341);
+      checkBoxWarnNBSP.Location = new System.Drawing.Point(3, 324);
       checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
       checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
       checkBoxWarnNBSP.TabIndex = 23;
@@ -1138,7 +1138,7 @@
       checkBoxWarnUnknowCharater.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnUnknowCharater, 2);
       checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnUnknownCharacter", true));
-      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 318);
+      checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(3, 301);
       checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
       checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
       checkBoxWarnUnknowCharater.TabIndex = 22;
@@ -1151,7 +1151,7 @@
       checkBoxWarnDelimiterInValue.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnDelimiterInValue, 2);
       checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnDelimiterInValue", true));
-      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 272);
+      checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(3, 255);
       checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
       checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
       checkBoxWarnDelimiterInValue.TabIndex = 20;
@@ -1164,7 +1164,7 @@
       checkBoxWarnQuotes.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnQuotes, 2);
       checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnQuotes", true));
-      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 295);
+      checkBoxWarnQuotes.Location = new System.Drawing.Point(3, 278);
       checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
       checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
       checkBoxWarnQuotes.TabIndex = 21;
@@ -1238,7 +1238,7 @@
       checkBoxWarnLineFeed.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(checkBoxWarnLineFeed, 2);
       checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceViewSetting, "WarnLineFeed", true));
-      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 364);
+      checkBoxWarnLineFeed.Location = new System.Drawing.Point(3, 347);
       checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
       checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
       checkBoxWarnLineFeed.TabIndex = 24;
@@ -1250,7 +1250,7 @@
       // 
       numericUpDownNumWarnings.AutoSize = true;
       numericUpDownNumWarnings.Increment = new decimal(new int[] { 10, 0, 0, 0 });
-      numericUpDownNumWarnings.Location = new System.Drawing.Point(344, 246);
+      numericUpDownNumWarnings.Location = new System.Drawing.Point(344, 229);
       numericUpDownNumWarnings.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
       numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
       numericUpDownNumWarnings.Size = new System.Drawing.Size(41, 20);
@@ -1274,7 +1274,7 @@
       numericUpDownLength.AutoSize = true;
       numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceViewSetting, "ShowButtonAtLength", true));
       numericUpDownLength.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-      numericUpDownLength.Location = new System.Drawing.Point(162, 387);
+      numericUpDownLength.Location = new System.Drawing.Point(162, 370);
       numericUpDownLength.Maximum = new decimal(new int[] { 4000, 0, 0, 0 });
       numericUpDownLength.Name = "numericUpDownLength";
       numericUpDownLength.Size = new System.Drawing.Size(47, 20);
@@ -1383,7 +1383,7 @@
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(811, 410);
+      tableLayoutPanelBehaviour.Size = new System.Drawing.Size(811, 393);
       tableLayoutPanelBehaviour.TabIndex = 3;
       // 
       // labelPersistentSettings
@@ -1409,13 +1409,16 @@
       // 
       // selectFont
       // 
+      selectFont.AutoSize = true;
       tableLayoutPanelBehaviour.SetColumnSpan(selectFont, 3);
+      selectFont.DataBindings.Add(new System.Windows.Forms.Binding("FontSize", bindingSourceViewSetting, "FontSize", true));
+      selectFont.DataBindings.Add(new System.Windows.Forms.Binding("FontName", bindingSourceViewSetting, "Font", true));
       selectFont.FontName = "Microsoft Sans Serif";
       selectFont.FontSize = 9.75F;
       selectFont.Location = new System.Drawing.Point(0, 184);
       selectFont.Margin = new System.Windows.Forms.Padding(0);
       selectFont.Name = "selectFont";
-      selectFont.Size = new System.Drawing.Size(341, 59);
+      selectFont.Size = new System.Drawing.Size(327, 42);
       selectFont.TabIndex = 16;
       selectFont.ValueChanged += SelectFont_ValueChanged;
       // 
@@ -1423,7 +1426,7 @@
       // 
       label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label6.AutoSize = true;
-      label6.Location = new System.Drawing.Point(24, 390);
+      label6.Location = new System.Drawing.Point(24, 373);
       label6.Name = "label6";
       label6.Size = new System.Drawing.Size(132, 13);
       label6.TabIndex = 25;
@@ -1433,7 +1436,7 @@
       // 
       labelWarningLimit.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelWarningLimit.AutoSize = true;
-      labelWarningLimit.Location = new System.Drawing.Point(264, 249);
+      labelWarningLimit.Location = new System.Drawing.Point(264, 232);
       labelWarningLimit.Name = "labelWarningLimit";
       labelWarningLimit.Size = new System.Drawing.Size(74, 13);
       labelWarningLimit.TabIndex = 18;

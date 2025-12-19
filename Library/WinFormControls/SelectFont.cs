@@ -27,6 +27,7 @@ public partial class SelectFont : UserControl
 
   private bool m_UiChange = true;
 
+
   [Browsable(true)]
   [Bindable(true)]
   [Category("Data")]
@@ -81,12 +82,10 @@ public partial class SelectFont : UserControl
 
   public SelectFont()
   {
-
     InitializeComponent();
-#pragma warning disable CA1416
+
     this.toolTip.SetToolTip(this.buttonDefault,
       $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
-
 
     comboBoxFont.BeginUpdate();
     using var col = new InstalledFontCollection();
@@ -97,15 +96,13 @@ public partial class SelectFont : UserControl
 
     comboBoxSize.BeginUpdate();
     using Graphics g = CreateGraphics();
-    for (int pixel = 8; pixel < 24; pixel++)
+    for (int pixel = 9; pixel < 21; pixel++)
       comboBoxSize.Items.Add(new DisplayItem<float>(pixel * 72 / g.DpiX,
         $"{pixel,2} Pixel - {pixel * 72 / g.DpiX} Points"));
 
     comboBoxSize.ValueMember = "ID";
     comboBoxSize.DisplayMember = "Display";
     comboBoxSize.EndUpdate();
-#pragma warning restore CA1416
-
   }
 
   private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)

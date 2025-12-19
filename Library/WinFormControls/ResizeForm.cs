@@ -20,15 +20,44 @@ using System.Windows.Forms;
 namespace CsvTools;
 
 /// <summary>
-/// Base form that supports DPI-awareness, recursive font scaling, and optional global font changes.
+/// Base form providing bounded, DPI-aware font scaling.
+///
+/// Responsibilities:
+/// - Enforce a logical font size range of 9–20 points
+/// - Apply font changes consistently to all child controls
+/// - Support Ctrl+MouseWheel font zoom in discrete point steps
+/// - Handle runtime DPI changes correctly (per-monitor DPI awareness)
 /// </summary>
 public class ResizeForm : Form
 {
-  private IFontConfig m_FontConfig = CsvTools.FontConfig.Default;
+  /// <summary>
+  /// Currently applied font instance.
+  /// Stored to ensure proper disposal when font settings change.
+  /// </summary>
+  private Font? m_CurrentFont;
 
   /// <summary>
-  /// The font configuration shared across multiple forms.
-  /// Adjusting FontSize here will propagate automatically to other forms using the same instance.
+  /// Current logical font size in points (clamped to the allowed range).
+  /// This value represents the zoom level independent of DPI.
+  /// </summary>  
+  private int m_CurrentFontSize = 10; // or from FontConfig
+  private const int MinFontSize = 9;
+  private const int MaxFontSize = 20;
+
+  /// <summary>
+  /// Shared font configuration instance.
+  /// Changes to this instance propagate automatically to all forms using it.
+  /// </summary>
+  private IFontConfig m_FontConfig = CsvTools.FontConfig.Default;
+
+  public ResizeForm()
+  {
+    InitializeComponent();
+  }
+
+  /// <summary>
+  /// Assigning a new instance will immediately synchronize
+  /// the form's zoom index and applied font.
   /// </summary>
   [Browsable(false)]
   [Bindable(false)]
@@ -40,27 +69,82 @@ public class ResizeForm : Form
       m_FontConfig.PropertyChanged -= FontSettingChanged;
       m_FontConfig = value;
       m_FontConfig.PropertyChanged += FontSettingChanged;
+      m_CurrentFontSize = FindClosestFontSize(m_FontConfig.FontSize);
       FontSettingChanged(value, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
     }
   }
 
-  public ResizeForm()
-  {
-    InitializeComponent();
-  }
-
   /// <summary>
-  /// Handles DPI changes.
+  /// Applies a font to this form and all child controls.
+  /// Provided for compatibility with existing code paths.
   /// </summary>
-  private void OnDpiChanged(object? sender, DpiChangedEventArgs e)
+  public void SetFont(Font newFont) => SetFonts(this, newFont);
+
+  /// <summary>
+  /// Handles Ctrl+MouseWheel font zoom.
+  /// Adjusts the logical font size in discrete point steps
+  /// and updates the shared FontConfig.
+  /// </summary>
+  protected override void OnMouseWheel(MouseEventArgs e)
   {
-    SuspendLayout();
-    PerformLayout();
-    ResumeLayout(true);
+    if ((ModifierKeys & Keys.Control) != 0)
+    {
+      var newSize = m_CurrentFontSize + (e.Delta > 0 ? 1 : -1);
+      if (newSize<MinFontSize)
+        newSize=MinFontSize;
+      if (newSize > MaxFontSize)
+        newSize=MaxFontSize;
+      if (m_CurrentFontSize!= newSize)
+      {
+        using Graphics g = CreateGraphics();
+        m_CurrentFontSize= newSize;
+        FontConfig.FontSize = (m_CurrentFontSize * 72f) / g.DpiX;
+      }
+    }
+    base.OnMouseWheel(e);
   }
 
   /// <summary>
-  /// Responds to changes in the FontConfig (font name or size)
+  /// Recursively applies a font to the specified control hierarchy.
+  /// Controls tagged with "NoFontChange" are excluded.
+  /// </summary>
+  private static void SetFonts(in Control control, in Font newFont)
+  {
+    if ("NoFontChange".Equals(control.Tag?.ToString()))
+      return;
+    if (!Equals(control.Font, newFont))
+      control.Font = newFont;
+
+    foreach (Control ctrl in control.Controls)
+      SetFonts(ctrl, newFont);
+  }
+
+  /// <summary>
+  /// Finds the closest logical font size (in points) within the allowed range
+  /// that matches the specified font size at the current DPI.
+  /// </summary>
+  private int FindClosestFontSize(float value)
+  {
+    using Graphics g = CreateGraphics();
+    int bestSize = 0;
+    float bestDiff = Math.Abs((MinFontSize * 72f) / g.DpiX - value);
+
+    for (int frontSize = MinFontSize; frontSize <= MaxFontSize; frontSize++)
+    {
+      float diff = Math.Abs((frontSize * 72f) / g.DpiX - value);
+      if (diff < bestDiff)
+      {
+        bestDiff = diff;
+        bestSize = frontSize;
+      }
+    }
+
+    return bestSize;
+  }
+
+  /// <summary>
+  /// Reacts to font or font-size changes in the shared FontConfig.
+  /// Applies the new font recursively and disposes the previous font instance.
   /// </summary>
   private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
   {
@@ -68,12 +152,15 @@ public class ResizeForm : Form
         (e.PropertyName == nameof(IFontConfig.Font) || e.PropertyName == nameof(IFontConfig.FontSize)))
     {
       var newFont = new Font(conf.Font, conf.FontSize);
+      m_CurrentFont?.Dispose();
+      m_CurrentFont = newFont;
+
       this.SafeInvoke(() =>
       {
         SuspendLayout();
         try
         {
-          SetFonts(this, newFont);
+          SetFonts(this, m_CurrentFont);
         }
         catch
         {
@@ -86,40 +173,6 @@ public class ResizeForm : Form
         }
       });
     }
-  }
-  /// <summary>
-  /// Optional: Mouse wheel zoom
-  /// Ctrl+MouseWheel adjusts the zoom factor for the font
-  /// </summary>
-  protected override void OnMouseWheel(MouseEventArgs e)
-  {
-    if ((ModifierKeys & Keys.Control) != 0)
-    {
-      const float step = 0.5f;
-      float delta = e.Delta > 0 ? step : -step;
-      float newSize = FontConfig.FontSize + delta;
-      FontConfig.FontSize = Math.Max(6f, Math.Min(32f, newSize));
-      return;
-    }
-
-    base.OnMouseWheel(e);
-  }
-
-  public void SetFont(Font newFont) => SetFonts(this, newFont);
-
-
-  /// <summary>
-  /// Recursively set the font for this form and all child controls
-  /// </summary>
-  private static void SetFonts(in Control control, in Font newFont)
-  {
-    if ("NoFontChange".Equals(control.Tag?.ToString()))
-      return;
-    if (!Equals(control.Font, newFont))
-      control.Font = newFont;
-
-    foreach (Control ctrl in control.Controls)
-      SetFonts(ctrl, newFont);
   }
 
   private void InitializeComponent()
@@ -137,5 +190,16 @@ public class ResizeForm : Form
     Name = "ResizeForm";
     DpiChanged += OnDpiChanged;
     ResumeLayout(false);
+  }
+
+  /// <summary>
+  /// Triggers layout recalculation after a DPI change.
+  /// Font size remains logically unchanged and is re-rendered by WinForms.
+  /// </summary>
+  private void OnDpiChanged(object? sender, DpiChangedEventArgs e)
+  {
+    SuspendLayout();
+    PerformLayout();
+    ResumeLayout(true);
   }
 }
