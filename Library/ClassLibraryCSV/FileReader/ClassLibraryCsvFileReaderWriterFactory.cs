@@ -83,6 +83,7 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   /// <inheritdoc />
   public virtual IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
   {
+
     var publicKey = string.Empty;
 
     return fileSetting switch

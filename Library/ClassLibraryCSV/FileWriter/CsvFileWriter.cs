@@ -99,9 +99,7 @@ public sealed class CsvFileWriter : BaseFileWriter
     string publicKey = "",
     bool unencrypted = false
   )
-    : base(
-      fullPath,
-      valueFormat, identifierInContainer,
+    : base(fullPath, valueFormat, identifierInContainer,
       footer, header, columnDefinition,
       fileSettingDisplay, timeZoneAdjust,
       sourceTimeZone, publicKey, unencrypted)
