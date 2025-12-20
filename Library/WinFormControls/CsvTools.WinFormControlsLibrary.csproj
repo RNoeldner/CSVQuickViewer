@@ -32,6 +32,12 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\error.png" />
+    <None Remove="Resources\info.png" />
+    <None Remove="Resources\question.png" />
+    <None Remove="Resources\warning.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -44,6 +50,12 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\error.png" />
+    <EmbeddedResource Include="Resources\info.png" />
+    <EmbeddedResource Include="Resources\question.png" />
+    <EmbeddedResource Include="Resources\warning.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FCTB" Version="2.16.24" />

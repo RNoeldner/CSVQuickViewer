@@ -13,32 +13,29 @@
  */
 #nullable enable
 
-using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools;
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
-[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 public class TimedMessage : ResizeForm
 {
+  private static readonly Assembly m_ResourceAssembly = Assembly.GetExecutingAssembly();
+  private static readonly Dictionary<MessageBoxIcon, Image> m_IconCache = new();
+
+  private IContainer components;
   private Button m_Button1;
-
   private Button m_Button2;
-
   private Button m_Button3;
-
   private int m_Counter;
-
   private Label m_LabelDefault;
-
   private PictureBox m_PictureBox;
-
   private TableLayoutPanel m_TableLayoutPanel;
-
   private TextBox m_TextBox;
   private Timer m_Timer = new Timer();
   private WebBrowser? m_WebBrowser;
@@ -46,14 +43,7 @@ public class TimedMessage : ResizeForm
 #pragma warning disable CS8618
   public TimedMessage() => InitializeComponent();
 #pragma warning restore CS8618
-
-
   public double Duration { get; set; } = 4.0;
-
-  public string Message
-  {
-    set => m_TextBox.Text = value.HandleCrlfCombinations(Environment.NewLine);
-  }
 
   public string Html
   {
@@ -76,28 +66,21 @@ public class TimedMessage : ResizeForm
     }
   }
 
-  /// <inheritdoc />
-  protected override void Dispose(bool disposing)
+  public string Message
   {
-    if (disposing)
-    {
-      components?.Dispose();
-      m_WebBrowser?.Dispose();
-    }
-
-    base.Dispose(disposing);
+    set => m_TextBox.Text = value.HandleCrlfCombinations(Environment.NewLine);
   }
 
   public DialogResult ShowDialog(
-    string message,
-    string? title,
-    MessageBoxButtons buttons,
-    MessageBoxIcon icon,
-    MessageBoxDefaultButton defaultButton,
-    double timeout,
-    string? button1Text,
-    string? button2Text,
-    string? button3Text)
+      string message,
+      string? title,
+      MessageBoxButtons buttons,
+      MessageBoxIcon icon,
+      MessageBoxDefaultButton defaultButton,
+      double timeout,
+      string? button1Text,
+      string? button2Text,
+      string? button3Text)
   {
     Text = title ?? string.Empty;
     if (!string.IsNullOrEmpty(message))
@@ -195,29 +178,51 @@ public class TimedMessage : ResizeForm
       MessageBoxDefaultButton.Button3 => m_Button3,
       _ => m_Button1
     };
-    if (icon != MessageBoxIcon.None)
-    {
-      try
-      {
-        var resources = new ComponentResourceManager(typeof(TimedMessage));
-        m_PictureBox.Image = icon switch
-        {
-          MessageBoxIcon.Information => resources.GetObject("info") as Image,
-          MessageBoxIcon.Warning => resources.GetObject("warning") as Image,
-          MessageBoxIcon.Question => resources.GetObject("question") as Image,
-          MessageBoxIcon.Error => resources.GetObject("error") as Image,
-          _ => m_PictureBox.Image
-        };
-      }
-      catch
-      {
-      }
-    }
+    m_PictureBox.Image = GetEmbeddedImage(icon) ?? m_PictureBox.Image;
 
     TopLevel = true;
     return ShowDialog();
   }
 
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+    if (disposing)
+    {
+      components?.Dispose();
+      m_WebBrowser?.Dispose();
+    }
+
+    base.Dispose(disposing);
+  }
+
+  /// <summary>
+  /// Gets the embedded image for a MessageBoxIcon.
+  /// </summary>
+  private static Image? GetEmbeddedImage(MessageBoxIcon icon)
+  {
+    if (m_IconCache.TryGetValue(icon, out var cached))
+      return cached;
+
+    string resourceName = icon switch
+    {
+      MessageBoxIcon.Information => "info",
+      MessageBoxIcon.Warning => "warning",
+      MessageBoxIcon.Question => "question",
+      MessageBoxIcon.Error => "error",
+      MessageBoxIcon.None => string.Empty
+    };
+    string fullName = $"CsvTools.Resources.{resourceName}.png";
+    using var stream = m_ResourceAssembly.GetManifestResourceStream(fullName);
+    if (stream == null)
+      return null;
+
+    var img = Image.FromStream(stream);
+    m_IconCache[icon] = img; // cache for future use
+    return img;
+  }
+  
+  
   private void HideColumn(int colNumber, bool visible)
   {
     var styles = m_TableLayoutPanel.ColumnStyles;
@@ -236,10 +241,6 @@ public class TimedMessage : ResizeForm
   ///   Required method for Designer support - do not modify the contents of this method with the
   ///   code editor.
   /// </summary>
-  [SuppressMessage("ReSharper", "RedundantNameQualifier")]
-  [SuppressMessage("ReSharper", "RedundantCast")]
-  [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
-  [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
   private void InitializeComponent()
   {
     components = new Container();
@@ -445,6 +446,4 @@ public class TimedMessage : ResizeForm
 
     m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
   }
-
-  private IContainer components;
 }
