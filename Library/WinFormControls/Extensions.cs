@@ -511,7 +511,7 @@ public static class Extensions
       ex.ExceptionMessages(),
       string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
       MessageBoxButtons.OK,
-      MessageBoxIcon.Warning,
+      MessageBoxIcon.Error,
       timeout: timeout);
   }
 
