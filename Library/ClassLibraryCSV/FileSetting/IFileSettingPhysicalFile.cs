@@ -11,13 +11,15 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+using System;
+
 namespace CsvTools;
 
 /// <summary>
 ///   Interface for an information on physical files
 /// </summary>
 /// <seealso cref="CsvTools.IFileSetting" />
-public interface IFileSettingPhysicalFile : IFileSetting 
+public interface IFileSettingPhysicalFile : IFileSetting
 {
   /// <summary>
   ///   May store information on columns to show, filtering and sorting
@@ -62,6 +64,12 @@ public interface IFileSettingPhysicalFile : IFileSetting
   string RemoteFileName { get; set; }
 
   /// <summary>
+  /// When loading from file store the time of the file when it was read,
+  /// Mainly Important if getting the time does take more time, like from a sFTP server
+  /// </summary>
+  DateTime? RemoteFileTimeUtc { get; set; }
+
+  /// <summary>
   ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
   /// </summary>
   /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
@@ -91,7 +99,6 @@ public interface IFileSettingPhysicalFile : IFileSetting
   /// </summary>
   /// <value><c>true</c> if throw an error if not exists; otherwise, <c>false</c>.</value>
   bool ThrowErrorIfNotExists { get; set; }
-
 
   /// <summary>
   /// ValueFormat to be used if no column specific ValueFormat is defined 

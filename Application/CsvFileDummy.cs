@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+using System;
 using System.ComponentModel;
 
 namespace CsvTools;
@@ -185,6 +186,8 @@ public sealed class CsvFileDummy : ICsvFile
   /// <inheritdoc />
   [DefaultValue("")] public string RemoteFileName { get; set; } = string.Empty;
 
+  [DefaultValue(null)] public DateTime? RemoteFileTimeUtc { get; set; }
+
   /// <inheritdoc />
   [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
@@ -310,7 +313,7 @@ public sealed class CsvFileDummy : ICsvFile
       other.QualifyAlways = QualifyAlways;
       other.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       other.NewLine = NewLine;
-      other.RemoteFileName = RemoteFileName;
+      other.RemoteFileName = RemoteFileName;      
       other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
       other.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       other.TreatLfAsSpace = TreatLfAsSpace;
