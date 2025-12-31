@@ -344,7 +344,7 @@ public static class CsvHelper
         progress.Report($"Configuration read from setting file {fileNameSetting.GetShortDisplayFileName(40)}");
         return inspectionResult;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         progress.Report($"Could not parse setting file {fileNameSetting.GetShortDisplayFileName(40)}");
       }

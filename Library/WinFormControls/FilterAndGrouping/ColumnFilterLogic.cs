@@ -279,7 +279,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// </summary>
   /// <param name="item">The cluster to add.</param>
   /// <note>Not sure if we need this...</note>
-  public new void AddOrUpdate(ValueCluster item)
+  public void AddOrUpdate(ValueCluster item)
   {
     var oldActive = ActiveValueClusterCollection.FirstOrDefault(x => x.Display.Equals(item.Display));
     if (oldActive != null)
