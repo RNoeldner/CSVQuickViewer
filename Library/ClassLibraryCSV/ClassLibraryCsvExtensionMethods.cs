@@ -65,7 +65,7 @@ public static class ClassLibraryCsvExtensionMethods
     list.Insert(newIndex, removedItem);
   }
 
-  /// <summary>    
+  /// <summary>
   /// Generate a hash for a case-insensitive text
   /// </summary>
   /// <param name="name">The identifier to base the hash on.</param>

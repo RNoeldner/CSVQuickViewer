@@ -11,6 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+using System;
+
 namespace CsvTools;
 
 /// <summary>
@@ -24,6 +26,7 @@ public interface ICollectionIdentity
   /// </summary>
   /// <returns>HashCode of the identifying properties</returns>
   /// <remarks>In case a required property is not set, this should raise an error</remarks>
+  [Obsolete("TODO: Avoid using this, use .GetUniqueKey().IdentifierHash() instead")]
   public int CollectionIdentifier { get; }
 
 
