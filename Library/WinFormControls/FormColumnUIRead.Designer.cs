@@ -115,6 +115,7 @@ namespace CsvTools
       groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
       labelRegEx = new System.Windows.Forms.Label();
       textBoxRegexReplacement = new System.Windows.Forms.TextBox();
+      tableLayoutPanelHeader = new System.Windows.Forms.TableLayoutPanel();
       labelGroup = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
       labelTrue = new System.Windows.Forms.Label();
@@ -151,6 +152,7 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize) numericUpDownPart).BeginInit();
       groupBoxBinary.SuspendLayout();
       groupBoxRegExReplace.SuspendLayout();
+      tableLayoutPanelHeader.SuspendLayout();
       SuspendLayout();
       // 
       // labelGroup
@@ -637,11 +639,12 @@ namespace CsvTools
       // 
       comboBoxDataType.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceValueFormat, "DataType", true));
       comboBoxDataType.DisplayMember = "Display";
+      comboBoxDataType.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       comboBoxDataType.FormattingEnabled = true;
-      comboBoxDataType.Location = new System.Drawing.Point(325, 3);
+      comboBoxDataType.Location = new System.Drawing.Point(341, 3);
       comboBoxDataType.Name = "comboBoxDataType";
-      comboBoxDataType.Size = new System.Drawing.Size(174, 21);
+      comboBoxDataType.Size = new System.Drawing.Size(250, 21);
       comboBoxDataType.TabIndex = 2;
       comboBoxDataType.ValueMember = "ID";
       comboBoxDataType.SelectedIndexChanged += ComboBoxDataType_SelectedIndexChanged;
@@ -650,7 +653,7 @@ namespace CsvTools
       // 
       buttonCancel.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      buttonCancel.Location = new System.Drawing.Point(541, 3);
+      buttonCancel.Location = new System.Drawing.Point(508, 3);
       buttonCancel.Name = "buttonCancel";
       buttonCancel.Size = new System.Drawing.Size(83, 25);
       buttonCancel.TabIndex = 4;
@@ -659,8 +662,9 @@ namespace CsvTools
       // 
       // labelColName
       // 
+      labelColName.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelColName.AutoSize = true;
-      labelColName.Location = new System.Drawing.Point(3, 6);
+      labelColName.Location = new System.Drawing.Point(3, 7);
       labelColName.Margin = new System.Windows.Forms.Padding(3);
       labelColName.Name = "labelColName";
       labelColName.Size = new System.Drawing.Size(76, 13);
@@ -670,10 +674,11 @@ namespace CsvTools
       // comboBoxColumnName
       // 
       comboBoxColumnName.DataBindings.Add(new System.Windows.Forms.Binding("Text", columnBindingSource, "Name", true));
+      comboBoxColumnName.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxColumnName.FormattingEnabled = true;
-      comboBoxColumnName.Location = new System.Drawing.Point(83, 3);
+      comboBoxColumnName.Location = new System.Drawing.Point(85, 3);
       comboBoxColumnName.Name = "comboBoxColumnName";
-      comboBoxColumnName.Size = new System.Drawing.Size(238, 21);
+      comboBoxColumnName.Size = new System.Drawing.Size(250, 21);
       comboBoxColumnName.TabIndex = 1;
       comboBoxColumnName.SelectedIndexChanged += ComboBoxColumnName_SelectedIndexChanged;
       comboBoxColumnName.TextUpdate += ComboBoxColumnName_TextUpdate;
@@ -692,13 +697,14 @@ namespace CsvTools
       // 
       // checkBoxIgnore
       // 
+      checkBoxIgnore.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      checkBoxIgnore.AutoSize = true;
       checkBoxIgnore.DataBindings.Add(new System.Windows.Forms.Binding("Checked", columnBindingSource, "Ignore", true));
-      checkBoxIgnore.Location = new System.Drawing.Point(83, 27);
+      checkBoxIgnore.Location = new System.Drawing.Point(23, 31);
       checkBoxIgnore.Name = "checkBoxIgnore";
-      checkBoxIgnore.Size = new System.Drawing.Size(103, 20);
+      checkBoxIgnore.Size = new System.Drawing.Size(56, 17);
       checkBoxIgnore.TabIndex = 3;
       checkBoxIgnore.Text = "&Ignore";
-      checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       toolTip.SetToolTip(checkBoxIgnore, "Ignore the content do not display/import this column");
       checkBoxIgnore.UseVisualStyleBackColor = true;
       checkBoxIgnore.Visible = false;
@@ -773,7 +779,7 @@ namespace CsvTools
       // textBoxDisplayNullAs
       // 
       textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "DisplayNullAs", true));
-      textBoxDisplayNullAs.Location = new System.Drawing.Point(325, 27);
+      textBoxDisplayNullAs.Location = new System.Drawing.Point(341, 30);
       textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
       textBoxDisplayNullAs.Size = new System.Drawing.Size(93, 20);
       textBoxDisplayNullAs.TabIndex = 11;
@@ -783,7 +789,7 @@ namespace CsvTools
       // 
       buttonOK.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      buttonOK.Location = new System.Drawing.Point(454, 3);
+      buttonOK.Location = new System.Drawing.Point(421, 3);
       buttonOK.Name = "buttonOK";
       buttonOK.Size = new System.Drawing.Size(83, 25);
       buttonOK.TabIndex = 3;
@@ -792,27 +798,20 @@ namespace CsvTools
       // 
       // panelTop
       // 
-      panelTop.AutoSize = true;
-      panelTop.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       panelTop.BackColor = System.Drawing.SystemColors.Control;
-      panelTop.Controls.Add(labelDisplayNullAs);
-      panelTop.Controls.Add(textBoxDisplayNullAs);
-      panelTop.Controls.Add(labelColName);
-      panelTop.Controls.Add(comboBoxColumnName);
-      panelTop.Controls.Add(comboBoxDataType);
-      panelTop.Controls.Add(checkBoxIgnore);
+      panelTop.Controls.Add(tableLayoutPanelHeader);
       panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       panelTop.Location = new System.Drawing.Point(0, 0);
       panelTop.Margin = new System.Windows.Forms.Padding(2);
       panelTop.Name = "panelTop";
-      panelTop.Size = new System.Drawing.Size(627, 50);
+      panelTop.Size = new System.Drawing.Size(594, 53);
       panelTop.TabIndex = 6;
       // 
       // labelDisplayNullAs
       // 
-      labelDisplayNullAs.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      labelDisplayNullAs.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDisplayNullAs.AutoSize = true;
-      labelDisplayNullAs.Location = new System.Drawing.Point(241, 30);
+      labelDisplayNullAs.Location = new System.Drawing.Point(255, 33);
       labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
       labelDisplayNullAs.Name = "labelDisplayNullAs";
       labelDisplayNullAs.Size = new System.Drawing.Size(80, 13);
@@ -826,10 +825,10 @@ namespace CsvTools
       panelBottom.Controls.Add(buttonGuess);
       panelBottom.Controls.Add(buttonDisplayValues);
       panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-      panelBottom.Location = new System.Drawing.Point(0, 804);
+      panelBottom.Location = new System.Drawing.Point(0, 445);
       panelBottom.Margin = new System.Windows.Forms.Padding(2);
       panelBottom.Name = "panelBottom";
-      panelBottom.Size = new System.Drawing.Size(627, 30);
+      panelBottom.Size = new System.Drawing.Size(594, 30);
       panelBottom.TabIndex = 7;
       // 
       // flowLayoutPanel
@@ -840,10 +839,11 @@ namespace CsvTools
       flowLayoutPanel.Controls.Add(groupBoxSplit);
       flowLayoutPanel.Controls.Add(groupBoxBinary);
       flowLayoutPanel.Controls.Add(groupBoxRegExReplace);
+      flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       flowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-      flowLayoutPanel.Location = new System.Drawing.Point(0, 48);
+      flowLayoutPanel.Location = new System.Drawing.Point(0, 53);
       flowLayoutPanel.Name = "flowLayoutPanel";
-      flowLayoutPanel.Size = new System.Drawing.Size(622, 758);
+      flowLayoutPanel.Size = new System.Drawing.Size(594, 422);
       flowLayoutPanel.TabIndex = 8;
       flowLayoutPanel.WrapContents = false;
       // 
@@ -1137,9 +1137,34 @@ namespace CsvTools
       textBoxRegexReplacement.Size = new System.Drawing.Size(239, 20);
       textBoxRegexReplacement.TabIndex = 9;
       // 
+      // tableLayoutPanelHeader
+      // 
+      tableLayoutPanelHeader.AutoSize = true;
+      tableLayoutPanelHeader.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      tableLayoutPanelHeader.ColumnCount = 3;
+      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      tableLayoutPanelHeader.Controls.Add(labelColName, 0, 0);
+      tableLayoutPanelHeader.Controls.Add(textBoxDisplayNullAs, 2, 1);
+      tableLayoutPanelHeader.Controls.Add(labelDisplayNullAs, 1, 1);
+      tableLayoutPanelHeader.Controls.Add(comboBoxColumnName, 1, 0);
+      tableLayoutPanelHeader.Controls.Add(comboBoxDataType, 2, 0);
+      tableLayoutPanelHeader.Controls.Add(checkBoxIgnore, 0, 1);
+      tableLayoutPanelHeader.Dock = System.Windows.Forms.DockStyle.Fill;
+      tableLayoutPanelHeader.Location = new System.Drawing.Point(0, 0);
+      tableLayoutPanelHeader.Margin = new System.Windows.Forms.Padding(0);
+      tableLayoutPanelHeader.Name = "tableLayoutPanelHeader";
+      tableLayoutPanelHeader.RowCount = 2;
+      tableLayoutPanelHeader.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelHeader.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanelHeader.Size = new System.Drawing.Size(594, 53);
+      tableLayoutPanelHeader.TabIndex = 13;
+      // 
       // FormColumnUiRead
       // 
-      ClientSize = new System.Drawing.Size(627, 834);
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      ClientSize = new System.Drawing.Size(594, 475);
       Controls.Add(panelBottom);
       Controls.Add(flowLayoutPanel);
       Controls.Add(panelTop);
@@ -1176,8 +1201,9 @@ namespace CsvTools
       groupBoxBinary.PerformLayout();
       groupBoxRegExReplace.ResumeLayout(false);
       groupBoxRegExReplace.PerformLayout();
+      tableLayoutPanelHeader.ResumeLayout(false);
+      tableLayoutPanelHeader.PerformLayout();
       ResumeLayout(false);
-      PerformLayout();
     }
 
     private System.Windows.Forms.BindingSource bindingSourceValueFormat;
@@ -1245,5 +1271,6 @@ namespace CsvTools
     private System.Windows.Forms.TextBox textBoxDisplayNullAs;
     private System.Windows.Forms.TextBox textBoxDateFormat;
     private System.Windows.Forms.Label labelNoteConversion;
+    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelHeader;
   }
 }

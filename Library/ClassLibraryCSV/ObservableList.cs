@@ -9,7 +9,7 @@ namespace CsvTools
   ///   Inherits from <see cref="List{T}"/> and extends it with change notifications.
   /// </summary>
   /// <typeparam name="T">The type of elements in the collection.</typeparam>
-  /// <remarks>Unlike ObservableCollection it has methods for ranges that will trigger the CollectionChanged only after something has happened</remarks>
+  /// <remarks>Unlike ObservableCollection, this class provides range methods that raise CollectionChanged only after actual changes.</remarks>
   public class ObservableList<T> : List<T>
   {
     /// <summary>
@@ -128,19 +128,6 @@ namespace CsvTools
       return removed;
     }
 
-    /// <summary>
-    ///   Removes a range of items and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="index">The zero-based starting index of the range to remove.</param>
-    /// <param name="count">The number of items to remove.</param>
-    public new void RemoveRange(int index, int count)
-    {
-      if (count>0)
-      {
-        base.RemoveRange(index, count);
-        OnCollectionChanged();
-      }
-    }
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>

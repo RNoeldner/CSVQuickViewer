@@ -1,8 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace CsvTools;
 
@@ -34,6 +32,9 @@ public sealed class ColumnCollection : ObservableList<Column>
   /// <summary>
   ///   Replaces an existing column with the same name, or adds it if no match is found.
   /// </summary>
+  /// <param name="column">The column to add or replace.</param>
+  /// <exception cref="ArgumentException">Thrown if <paramref name="column"/> is null or has an empty name.</exception>
+
   public override void Add(Column column)
   {
     Validate(column);
@@ -45,13 +46,19 @@ public sealed class ColumnCollection : ObservableList<Column>
   /// </summary>
   private void InternalAdd(Column column)
   {
-    var existing = GetByName(column.Name);
-    if (existing!=null)
-      Remove(existing);
-    base.Add(column);
+    var existingIndex = FindIndex(column.Name);
+    if (existingIndex >= 0)
+    {
+      base[existingIndex] = column; // replace in place
+      OnCollectionChanged();
+    }
+    else
+      base.Add(column);
   }
 
   /// <inheritdoc/>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="columns"/> is null.</exception>
+  /// <exception cref="ArgumentException">Thrown if any column is null or has an empty name.</exception>
   public override void AddRange(IEnumerable<Column> columns)
   {
     if (columns is null)
@@ -87,36 +94,56 @@ public sealed class ColumnCollection : ObservableList<Column>
     base.AddRange(listAdd);
   }
 
+  private int FindIndex(string? columnName) => FindIndex(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase));
+
   /// <summary>
   ///   Retrieves a column from the collection by its name, using a case-insensitive comparison.
   /// </summary>
   /// <param name="columnName">The name of the column to retrieve. Can be <c>null</c> or empty.</param>
-  /// <returns>
-  ///   The <see cref="Column"/> with the specified name, or <c>null</c> if no matching column is found
-  ///   or if <paramref name="columnName"/> is <c>null</c> or empty.
-  /// </returns>
+  /// <returns>The <see cref="Column"/> with the specified name, or <c>null</c> if not found.</returns>
+
   public Column? GetByName(string? columnName)
   {
     if (string.IsNullOrEmpty(columnName))
       return null;
 
-    for (int i = 0; i < Count; i++)
-    {
-      if (string.Equals(base[i].Name, columnName, StringComparison.OrdinalIgnoreCase))
-        return base[i];
-    }
-
+    var index = FindIndex(columnName);
+    if (index!=-1)
+      return base[index];
     return null;
   }
 
   /// <inheritdoc/>
+  /// <exception cref="ArgumentException">Thrown if <paramref name="column"/> is null, has an empty name, or its name already exists at a different index.</exception>
+
   public override void Insert(int index, Column column)
   {
     Validate(column);
-    base.Insert(index, column);
+    // Try to replace existing column with same name
+    var existingIndex = FindIndex(column.Name);
+    if (existingIndex == index)
+    {
+      base[existingIndex] = column; // replace in place
+      OnCollectionChanged();
+    }
+    else if (existingIndex==-1)
+    {
+      base.Insert(index, column); // insert at requested index
+    }
+    else
+    {
+      throw new ArgumentException(
+            $"A column with the name '{column.Name}' already exists at index {existingIndex}.",
+            nameof(column));
+    }
   }
 
   /// <inheritdoc/>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="columns"/> is null.</exception>
+  /// <exception cref="ArgumentException">
+  ///   Thrown if any column is null, has an empty name, or its name already exists in the collection.
+  /// </exception>
+
   public override void InsertRange(int index, IEnumerable<Column> columns)
   {
     if (columns is null)
@@ -125,30 +152,37 @@ public sealed class ColumnCollection : ObservableList<Column>
     // We have multiple enumerations
     // Materialize only if not a collection already 
     var list = columns as ICollection<Column> ?? new List<Column>(columns);
-
-    foreach (var column in list)
-      Validate(column);
-
-    base.InsertRange(index, list);
+    if (list.Count > 0)
+    {
+      foreach (var column in list)
+      {
+        Validate(column);
+        var existingIndex = FindIndex(column.Name);
+        if (existingIndex != -1)
+          throw new ArgumentException(
+              $"A column with the name '{column.Name}' already exists at index {existingIndex}.",
+              nameof(column));
+      }
+      base.InsertRange(index, list);
+    }
   }
 
   /// <summary>
   ///   Replaces an existing column with the same name, or adds it if no match is found.
   /// </summary>
-  /// <param name="column">The column to replace or add. Must not be <c>null</c> and must have a valid <see cref="Column.Name"/>.</param>
+  /// <param name="column">The column to replace or add.</param>
   /// <remarks>
-  ///   The replacement is based on the column's <see cref="Column.Name"/>, 
-  ///   ensuring predictable behavior independent of reference equality.
-  ///   Triggers <see cref="ObservableList{T}.CollectionChanged"/> after a modification.
+  ///   Replacement is based on the column's <see cref="Column.Name"/>, independent of reference equality.
+  ///   Triggers <see cref="ObservableList{T}.CollectionChanged"/> after modification.
   /// </remarks>
   public void Replace(Column column) => Add(column);
 
   /// <summary>
-  ///   Validates that a column is not <c>null</c> and has a non-empty <see cref="Column.Name"/>.
+  ///   Validates that a column is not null and has a non-empty <see cref="Column.Name"/>.
   /// </summary>
   /// <param name="column">The column to validate.</param>
   /// <exception cref="ArgumentException">
-  ///   Thrown if <paramref name="column"/> is <c>null</c> or its <see cref="Column.Name"/> is <c>null</c> or empty.
+  ///   Thrown if <paramref name="column"/> is null or its <see cref="Column.Name"/> is null or empty.
   /// </exception>
   private static void Validate(Column column)
   {
