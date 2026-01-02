@@ -74,6 +74,15 @@ public class ResizeForm : Form
     }
   }
 
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+    if (disposing )
+      m_FontConfig.PropertyChanged -= FontSettingChanged;
+
+    base.Dispose(disposing);
+  }
+
   /// <summary>
   /// Applies a font to this form and all child controls.
   /// Provided for compatibility with existing code paths.

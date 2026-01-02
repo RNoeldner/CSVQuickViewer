@@ -133,6 +133,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
   */
 
   /// <inheritdoc cref="ICollection{T}" />
+  /// <remarks>Overwrite RemoveAt instead</remarks>
   public new void Remove(T item)
   {
     var index = IndexOf(item);
@@ -174,6 +175,14 @@ public class UniqueObservableCollection<T> : ObservableCollection<T> where T : I
     if (!(other is ICollection<T> coll))
       return false;
     return Equals(coll);
+  }
+
+  /// <inheritdoc cref="ICollection{T}"/>
+  public new virtual void Clear()
+  {
+    foreach (var item in Items)
+      UnwireItemEvents(item);
+    base.Clear();
   }
 
   /// <summary>

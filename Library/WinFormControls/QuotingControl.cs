@@ -120,6 +120,14 @@ public class QuotingControl : UserControl
       m_TimerRebuilt.Enabled = true;
     }
   }
+  protected override void Dispose(bool disposing)
+  {
+    if (m_CsvFile != null && m_CsvFile is INotifyPropertyChanged notify)
+    {
+      notify.PropertyChanged -= FormatPropertyChanged;
+    }
+    base.Dispose(disposing);
+  }
 
   /// <summary>
   ///   In case of a Write only setting things will be hidden
@@ -296,7 +304,7 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox.CharHeight = 14;
     m_FastColoredTextBox.CharWidth = 8;
     m_FastColoredTextBox.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox.Dock = DockStyle.Fill;
     m_FastColoredTextBox.IsReplaceMode = false;
     m_FastColoredTextBox.Location = new Point(3, 16);
@@ -304,7 +312,7 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox.Paddings = new Padding(0);
     m_FastColoredTextBox.ReadOnly = true;
     m_TableLayoutPanelText.SetRowSpan(m_FastColoredTextBox, 3);
-    m_FastColoredTextBox.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox.Size = new Size(329, 95);
     m_FastColoredTextBox.TabIndex = 0;
     m_FastColoredTextBox.TabLength = 1;
@@ -387,13 +395,13 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox12.CharHeight = 14;
     m_FastColoredTextBox12.CharWidth = 8;
     m_FastColoredTextBox12.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox12.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox12.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox12.IsReplaceMode = false;
     m_FastColoredTextBox12.Location = new Point(143, 64);
     m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
     m_FastColoredTextBox12.Paddings = new Padding(0);
     m_FastColoredTextBox12.ReadOnly = true;
-    m_FastColoredTextBox12.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox12.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox12.ShowLineNumbers = false;
     m_FastColoredTextBox12.Size = new Size(197, 33);
     m_FastColoredTextBox12.TabIndex = 5;
@@ -423,14 +431,14 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox02.CharHeight = 14;
     m_FastColoredTextBox02.CharWidth = 8;
     m_FastColoredTextBox02.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox02.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox02.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox02.IsReplaceMode = false;
     m_FastColoredTextBox02.Location = new Point(45, 64);
     m_FastColoredTextBox02.Multiline = false;
     m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
     m_FastColoredTextBox02.Paddings = new Padding(0);
     m_FastColoredTextBox02.ReadOnly = true;
-    m_FastColoredTextBox02.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox02.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox02.ShowLineNumbers = false;
     m_FastColoredTextBox02.ShowScrollBars = false;
     m_FastColoredTextBox02.Size = new Size(92, 33);
@@ -461,14 +469,14 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox01.CharHeight = 14;
     m_FastColoredTextBox01.CharWidth = 8;
     m_FastColoredTextBox01.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox01.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox01.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox01.IsReplaceMode = false;
     m_FastColoredTextBox01.Location = new Point(45, 40);
     m_FastColoredTextBox01.Multiline = false;
     m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
     m_FastColoredTextBox01.Paddings = new Padding(0);
     m_FastColoredTextBox01.ReadOnly = true;
-    m_FastColoredTextBox01.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox01.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox01.ShowLineNumbers = false;
     m_FastColoredTextBox01.ShowScrollBars = false;
     m_FastColoredTextBox01.Size = new Size(92, 18);
@@ -499,14 +507,14 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox11.CharHeight = 14;
     m_FastColoredTextBox11.CharWidth = 8;
     m_FastColoredTextBox11.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox11.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox11.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox11.IsReplaceMode = false;
     m_FastColoredTextBox11.Location = new Point(143, 40);
     m_FastColoredTextBox11.Multiline = false;
     m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
     m_FastColoredTextBox11.Paddings = new Padding(0);
     m_FastColoredTextBox11.ReadOnly = true;
-    m_FastColoredTextBox11.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox11.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox11.ShowLineNumbers = false;
     m_FastColoredTextBox11.ShowScrollBars = false;
     m_FastColoredTextBox11.Size = new Size(197, 18);
@@ -537,14 +545,14 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox00.CharHeight = 14;
     m_FastColoredTextBox00.CharWidth = 8;
     m_FastColoredTextBox00.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox00.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox00.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox00.IsReplaceMode = false;
     m_FastColoredTextBox00.Location = new Point(45, 16);
     m_FastColoredTextBox00.Multiline = false;
     m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
     m_FastColoredTextBox00.Paddings = new Padding(0);
     m_FastColoredTextBox00.ReadOnly = true;
-    m_FastColoredTextBox00.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox00.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox00.ShowLineNumbers = false;
     m_FastColoredTextBox00.ShowScrollBars = false;
     m_FastColoredTextBox00.Size = new Size(92, 18);
@@ -587,14 +595,14 @@ public class QuotingControl : UserControl
     m_FastColoredTextBox10.CharHeight = 14;
     m_FastColoredTextBox10.CharWidth = 8;
     m_FastColoredTextBox10.Cursor = Cursors.IBeam;
-    m_FastColoredTextBox10.DisabledColor = Color.FromArgb(  100,   180,   180,   180);
+    m_FastColoredTextBox10.DisabledColor = Color.FromArgb(100, 180, 180, 180);
     m_FastColoredTextBox10.IsReplaceMode = false;
     m_FastColoredTextBox10.Location = new Point(143, 16);
     m_FastColoredTextBox10.Multiline = false;
     m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
     m_FastColoredTextBox10.Paddings = new Padding(0);
     m_FastColoredTextBox10.ReadOnly = true;
-    m_FastColoredTextBox10.SelectionColor = Color.FromArgb(  60,   0,   0,   255);
+    m_FastColoredTextBox10.SelectionColor = Color.FromArgb(60, 0, 0, 255);
     m_FastColoredTextBox10.ShowLineNumbers = false;
     m_FastColoredTextBox10.ShowScrollBars = false;
     m_FastColoredTextBox10.Size = new Size(197, 18);
