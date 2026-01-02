@@ -167,7 +167,7 @@ public sealed class TestForm : Form
     StartPosition = FormStartPosition.CenterScreen;
     // ReSharper disable once LocalizableElement
     Text = "TestForm";
-    TopMost = true;
+    // TopMost = true;
     FormClosing += TestForm_FormClosing;
     CreatedControl = createControl?.Invoke() ?? new Label();
 

@@ -107,13 +107,13 @@ public record Column
   ///   the column is ignored the target will not show this column
   /// </summary>
   [DefaultValue(false)]
-  public bool Ignore { get; }
+  public bool Ignore { get; set; }
 
   /// <summary>
   ///   Indicating if the value or text should be converted
   /// </summary>
   [DefaultValue(false)]
-  public bool Convert { get; }
+  public bool Convert { get; set; }
 
   /// <summary>
   ///   Name of the column in the destination system

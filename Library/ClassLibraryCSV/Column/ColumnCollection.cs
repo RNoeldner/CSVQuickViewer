@@ -1,6 +1,8 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace CsvTools;
 
@@ -29,18 +31,23 @@ public sealed class ColumnCollection : ObservableList<Column>
     }
   }
 
-  /// <inheritdoc/>
+  /// <summary>
+  ///   Replaces an existing column with the same name, or adds it if no match is found.
+  /// </summary>
   public override void Add(Column column)
   {
     Validate(column);
     InternalAdd(column);
   }
 
+  /// <summary>
+  ///   Replaces an existing column with the same name, or adds it if no match is found.
+  /// </summary>
   private void InternalAdd(Column column)
   {
     var existing = GetByName(column.Name);
     if (existing!=null)
-      base.Remove(existing);
+      Remove(existing);
     base.Add(column);
   }
 
@@ -53,17 +60,31 @@ public sealed class ColumnCollection : ObservableList<Column>
     // We have multiple enumerations
     // Materialize only if not a collection already 
     var list = columns as ICollection<Column> ?? new List<Column>(columns);
-
-    var replace = new List<Column>();
+    // Validate first (fail fast, no partial mutation)
+    foreach (var column in list)
+      Validate(column);
+    var listAdd = new List<Column>();
     foreach (var column in list)
     {
-      Validate(column);
-      var existing = GetByName(column.Name);
-      if (existing!=null)
-        replace.Add(existing);
+      var index = -1;
+      for (int i = 0; i < Count; i++)
+      {
+        if (string.Equals(base[i].Name, column.Name, StringComparison.OrdinalIgnoreCase))
+        {
+          index = i;
+          break;
+        }
+      }
+
+      if (index >= 0)
+        // Replace in place
+        base[index] = column;
+      else
+        listAdd.Add(column);
     }
-    base.RemoveRange(replace);
-    base.AddRange(list);
+
+    // Append new column
+    base.AddRange(listAdd);
   }
 
   /// <summary>
@@ -120,21 +141,7 @@ public sealed class ColumnCollection : ObservableList<Column>
   ///   ensuring predictable behavior independent of reference equality.
   ///   Triggers <see cref="ObservableList{T}.CollectionChanged"/> after a modification.
   /// </remarks>
-  public void Replace(Column column)
-  {
-    Validate(column);
-
-    for (int i = 0; i < base.Count; i++)
-    {
-      if (string.Equals(base[i].Name, column.Name, StringComparison.OrdinalIgnoreCase))
-      {
-        base[i] = column;
-        OnCollectionChanged();
-        return;
-      }
-    }
-    Add(column);
-  }
+  public void Replace(Column column) => Add(column);
 
   /// <summary>
   ///   Validates that a column is not <c>null</c> and has a non-empty <see cref="Column.Name"/>.

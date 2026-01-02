@@ -47,7 +47,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
   {
     CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
     InitializeComponent();
-
+    TopMost = true;
     Text = windowTitle ?? string.Empty;
     Maximum = 0;
   }
