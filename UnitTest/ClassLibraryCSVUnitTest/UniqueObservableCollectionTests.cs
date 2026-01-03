@@ -43,9 +43,7 @@ public class UniqueObservableCollectionTests
       Name= name;
     }
 
-    [Obsolete("TODO: Avoid using this, use .GetUniqueKey().IdentifierHash() instead")]
-    public int CollectionIdentifier => this.GetUniqueKey().IdentifierHash();
-
+    public string UniqueKeyPropertyName => nameof(Name);
     public object Clone() => new TestObject(Name) { ID = ID, Cloned = true };
     public string GetUniqueKey() => Name;
     public void SetUniqueKey(string key) => Name= key;

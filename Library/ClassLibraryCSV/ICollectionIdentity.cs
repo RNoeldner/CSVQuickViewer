@@ -11,8 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using System;
-
 namespace CsvTools;
 
 /// <summary>
@@ -21,14 +19,9 @@ namespace CsvTools;
 public interface ICollectionIdentity
 {
   /// <summary>
-  ///   Identifier in collections, an int based on a properties that should be
-  ///   unique in a collection
+  /// Name of the property that backs the unique key
   /// </summary>
-  /// <returns>HashCode of the identifying properties</returns>
-  /// <remarks>In case a required property is not set, this should raise an error</remarks>
-  [Obsolete("TODO: Avoid using this, use .GetUniqueKey().IdentifierHash() instead")]
-  public int CollectionIdentifier { get; }
-
+  string UniqueKeyPropertyName { get; }
 
   /// <summary>
   /// Returns the string key used for uniqueness in collections.

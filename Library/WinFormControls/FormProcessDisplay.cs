@@ -27,7 +27,6 @@ namespace CsvTools;
 /// </summary>
 public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCancellation
 {
-  private System.ComponentModel.IContainer components;
   private bool m_IsClosed;
   private bool m_IsDisposed = false;
   private Label m_LabelEtl;

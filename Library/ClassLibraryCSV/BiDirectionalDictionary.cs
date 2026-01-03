@@ -41,7 +41,7 @@ public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TVa
   ///   Initializes a new instance of the <see cref="T:CsvTools.BiDirectionalDictionary`2" /> class.
   /// </summary>
   public BiDirectionalDictionary()
-  {      
+  {
     m_SecondToFirst = new Dictionary<TValue, TKey>();
   }
 
@@ -51,15 +51,15 @@ public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TVa
   /// </summary>
   /// <param name="capacity">Initial capacity.</param>
   public BiDirectionalDictionary(int capacity) : base(capacity)
-  {      
+  {
     m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
   }
 
   /// <summary>
   /// Dictionary mapping values to keys for fast lookups of keys from values.
   /// </summary>
-  public BiDirectionalDictionary(IDictionary<TKey, TValue>? dictionary) 
-  {      
+  public BiDirectionalDictionary(IDictionary<TKey, TValue>? dictionary)
+  {
     m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
     if (dictionary is null) return;
     foreach (var kv in dictionary)
@@ -121,7 +121,11 @@ public sealed class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TVa
   /// <summary>
   /// Attempts to add a pair, returns false if key or value already exists.
   /// </summary>
-  public new bool TryAdd(TKey key, TValue value)
+  public
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    new 
+#endif
+    bool TryAdd(TKey key, TValue value)
   {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (!base.TryAdd(key, value))

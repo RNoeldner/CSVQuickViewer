@@ -1,217 +1,249 @@
-﻿/*
- * CSVQuickViewer - A CSV viewing utility - Copyright (C) 2014 Raphael Nöldner
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
-#nullable enable 
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
 namespace CsvTools;
 
 /// <summary>
-/// An observable collection that ensures all items are unique by <see cref="ICollectionIdentity.CollectionIdentifier"/>.
-/// Supports automatic wiring of <see cref="INotifyPropertyChanged"/> events for items in the collection.
+/// An <see cref="ObservableCollection{T}"/> that enforces uniqueness of its items
+/// based on a case-insensitive string key provided by <see cref="ICollectionIdentity"/>.
+/// 
+/// Internally, a dictionary is maintained for O(1) lookups by key, while the
+/// observable collection preserves insertion order and serializes as a JSON array.
 /// </summary>
-/// <typeparam name="T">Type of items in the collection, must implement <see cref="ICollectionIdentity"/>.</typeparam>
-public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity, INotifyPropertyChanged
+/// <typeparam name="T">
+/// The item type. Must expose a unique string key and notify about property changes.
+/// </typeparam>
+public class UniqueObservableCollection<T> : ObservableCollection<T>
+  where T : class, ICollectionIdentity, INotifyPropertyChanged
 {
+  /// <summary>
+  /// Internal lookup table mapping unique keys to items.
+  /// Uses case-insensitive comparison to enforce key uniqueness.
+  /// This dictionary is an implementation detail and must stay in sync with the list.
+  /// </summary>
+  private readonly Dictionary<string, T> m_InternalDictionary =
+    new(StringComparer.OrdinalIgnoreCase);
 
   /// <summary>
-  /// Event raised when a property of any item in the collection changes (assuming the element .
+  /// Raised whenever any property of any item in the collection changes.
+  /// This allows consumers to listen at the collection level instead of
+  /// subscribing to each individual item.
   /// </summary>
   public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
 
   /// <summary>
-  /// Rewires all items in the collection to the <see cref="CollectionItemPropertyChanged"/> event.
-  /// Useful after deserialization or bulk modifications.
+  /// Adds an item to the collection, automatically modifying its key
+  /// if necessary so that it becomes unique within the collection.
   /// </summary>
-  public virtual void WireEvents()
+  public void AddMakeUnique(T item)
   {
-    if (CollectionItemPropertyChanged == null)
-      return;
-    foreach (var item in Items)
-    {
-      UnwireItemEvents(item);
-      WireItemEvents(item);
-    }
+    MakeUnique(item);
+    m_InternalDictionary[item.GetUniqueKey()] = item;
+    Add(item);
   }
 
   /// <summary>
-  /// Wires property changed events for an item.
+  /// Adds multiple items to the collection, ignoring duplicates.
+  /// Raises a single CollectionChanged event.
   /// </summary>
-  private void WireItemEvents(T item)
+  public void AddRange(IEnumerable<T> items)
   {
+    if (items == null) return;
+
+    bool addedAny = false;
+
+    foreach (var item in items)
+    {
+      var key = item.GetUniqueKey();
+      if (!ContainsKey(key))
+      {
+        Register(item);
+        m_InternalDictionary.Add(key, item);
+        Items.Add(item); // Add directly to avoid multiple CollectionChanged events
+        addedAny = true;
+      }
+    }
+
+    if (addedAny)
+    {
+      // Notify observers once for the range addition
+      OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+          NotifyCollectionChangedAction.Reset));
+    }
+  }
+
+  /// <summary> Rewires all items in the collection to the <see cref="CollectionItemPropertyChanged"/> event. 
+  /// Useful after deserialization or bulk modifications. 
+  /// </summary>
+  public virtual void WireEvents()
+  {
+    foreach (var item in Items)
+    {
+      Unregister(item);
+      Register(item);
+    }
+  }
+
+
+  /// <summary>
+  /// Clears the collection and fully resets internal bookkeeping,
+  /// including dictionary entries and event subscriptions.
+  /// </summary>
+  protected override void ClearItems()
+  {
+    foreach (var item in Items)
+      Unregister(item);
+    m_InternalDictionary.Clear();
+    base.ClearItems();
+  }
+
+  /// <summary>
+  /// Determines whether an item with the specified unique key exists in the collection.
+  /// Comparison is case-insensitive.
+  /// </summary>
+  public bool ContainsKey(string key)
+    => m_InternalDictionary.ContainsKey(key);
+
+  /// <summary>
+  /// Retrieves an item by its unique key, or <c>null</c> if no such item exists.
+  /// </summary>
+  public T? GetByKey(string key)
+    => m_InternalDictionary.TryGetValue(key, out var value) ? value : null;
+
+  /// <summary>
+  /// Returns the zero-based index of the item with the specified unique key,
+  /// or -1 if no such item exists.
+  /// Comparison is case-insensitive.
+  /// </summary>
+   public int IndexOf(string key) => m_InternalDictionary.TryGetValue(key, out var item) ? Items.IndexOf(item) : -1;
+
+  /// <summary>
+  /// Inserts an item at the specified index after verifying that its unique key
+  /// does not collide with an existing item.
+  /// Also wires property change notifications for the item.
+  /// </summary>
+  protected override void InsertItem(int index, T item)
+  {
+    EnsureUniqueKey(item);
+    base.InsertItem(index, item);
+    m_InternalDictionary[item.GetUniqueKey()] = item;
+    Register(item);
+  }
+
+  /// <summary>
+  /// Registers an item with the collection.
+  /// Derived classes may override to wire additional events,
+  /// but must call the base implementation.
+  /// </summary>
+  protected virtual void Register(T item)
+  {
+    item.PropertyChanged += OnItemPropertyChanged;
     if (CollectionItemPropertyChanged != null)
       item.PropertyChanged += CollectionItemPropertyChanged;
   }
 
   /// <summary>
-  /// Unwires property changed events for an item.
+  /// Removes the item at the specified index and unwires all associated event handlers.
   /// </summary>
-  private void UnwireItemEvents(T item)
+  protected override void RemoveItem(int index)
   {
+    var item = Items[index];
+    Unregister(item);
+    base.RemoveItem(index);
+  }
+
+  /// <summary>
+  /// Replaces an item at the given index, ensuring that the new item
+  /// satisfies the uniqueness constraint and is correctly registered.
+  /// </summary>
+  protected override void SetItem(int index, T item)
+  {
+    var old = Items[index];
+    Unregister(old);
+
+    EnsureUniqueKey(item);
+    base.SetItem(index, item);
+    m_InternalDictionary[item.GetUniqueKey()] = item;
+    Register(item);
+  }
+
+  /// <summary>
+  /// Unregisters an item from the collection.
+  /// Derived classes may override to unwire additional events,
+  /// but must call the base implementation.
+  /// </summary>
+  protected virtual void Unregister(T item)
+  {
+    item.PropertyChanged -= OnItemPropertyChanged;
     if (CollectionItemPropertyChanged != null)
       item.PropertyChanged -= CollectionItemPropertyChanged;
   }
 
   /// <summary>
-  ///   Adds the specified item to the collection and makes sure the item is not already present,
-  ///   if the item does support <see cref="INotifyPropertyChanged" /><see
-  ///   cref="CollectionItemPropertyChanged" /> will be registered to pass the event to the
-  ///   implementing class
+  /// Ensures that the item's unique key is valid (non-null, non-empty)
+  /// and does not already exist in the collection.
   /// </summary>
-  /// <param name="item">The item to add</param>
-  /// <remarks>
-  ///   In case the item is clone able <see cref="ICloneable" /> a value copy will be made. In
-  ///   this case any change to the passed in item would not be reflected in the collection
-  /// </remarks>    
-  public new virtual void Add(T item)
+  /// <exception cref="InvalidOperationException">
+  /// Thrown if the key is invalid or already present.
+  /// </exception>
+  private void EnsureUniqueKey(T item)
   {
-    if (IndexOf(item)!=-1)
-      return;
-    WireItemEvents(item);
-    base.Add(item);
+    var key = item.GetUniqueKey();
+
+    if (string.IsNullOrWhiteSpace(key))
+      throw new InvalidOperationException($"{item.UniqueKeyPropertyName} must not be null or empty.");
+
+    if (m_InternalDictionary.ContainsKey(key))
+      throw new InvalidOperationException(
+        $"Duplicate {item.UniqueKeyPropertyName} '{key}' (case-insensitive).");
   }
 
+  /// <summary>
+  /// Modifies the item's key so that it becomes unique within the collection,
+  /// based on the keys currently present.
+  /// </summary>
   private void MakeUnique(T item)
   {
-    // Check if we have this identifier already
-    if (IndexOf(item) != -1)
-    {
-      var existingKeys = Items.Select(x => x.GetUniqueKey()).Where(k => k != null).ToList();
-      var uniqueKey = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
-      item.SetUniqueKey(uniqueKey);
-    }
+    var existingKeys = m_InternalDictionary.Keys.ToList();
+    var unique = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
+    item.SetUniqueKey(unique);
   }
 
   /// <summary>
-  /// Adds an item and ensures the key property is unique.
+  /// Handles property change notifications from items in the collection.
+  /// If the property that defines the unique key changes, the item is reindexed.
   /// </summary>
-  public void AddMakeUnique(T item)
+  private void OnItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
   {
-    MakeUnique(item);
-    Add(item);
-  }
-
-  /*
-  /// <summary>
-  /// Inserts the specified item at the given index in the collection, 
-  /// ensuring that its unique key does not collide with any existing item.
-  /// If necessary, the item's key will be modified to make it unique.
-  /// </summary>
-  /// <param name="index">The zero-based index at which the item should be inserted.</param>
-  /// <param name="item">The item to insert into the collection.</param>
-  public new void InsertMakeUnique(int index, T item)
-  {
-    MakeUnique(item);
-    Insert(index, item);
-  }
-
-  /// <inheritdoc cref="ObservableCollection{T}" />
-  public new void Insert(int index, T item)
-  {
-    if (IndexOf(item) != -1)
-      throw new InvalidOperationException(
-       $"The collection already contains an element with the unique key '{item.GetUniqueKey()}'."
-     );
-    UnwireItemEvents(item);
-    WireItemEvents(item);
-    base.Insert(index, item);
-  }
-  */
-
-  /// <inheritdoc cref="ICollection{T}" />
-  /// <remarks>Overwrite RemoveAt instead</remarks>
-  public new void Remove(T item)
-  {
-    var index = IndexOf(item);
-    if (index==-1)
+    if (sender is not T item)
       return;
-    RemoveAt(index);
-  }
 
-  /// <inheritdoc cref="ICollection{T}"/>
-  public new virtual void RemoveAt(int index)
-  {
-    var item = Items[index];
-    UnwireItemEvents(item);
-    base.RemoveAt(index);
+    // React to key changes
+    if (item.UniqueKeyPropertyName.Equals(e.PropertyName))
+      Reindex(item);
+
+    CollectionItemPropertyChanged?.Invoke(sender, e);
   }
 
   /// <summary>
-  ///   A slightly faster method to add a number of items in one go, the collection gets a reference to the passed in values
+  /// Updates the internal dictionary when an item's unique key changes.
+  /// Removes the old key entry and re-adds the item under its new key,
+  /// while enforcing uniqueness.
   /// </summary>
-  /// <param name="items">Some items to add</param>
-  public void AddRange(IEnumerable<T> items)
+  private void Reindex(T item)
   {
-    using var enumerator = items.GetEnumerator();
-    while (enumerator.MoveNext())
-      if (enumerator.Current != null)
-        Add(enumerator.Current);
-  }
+    // remove old entry
+    var oldKey = m_InternalDictionary.FirstOrDefault(p => ReferenceEquals(p.Value, item)).Key;
+    if (oldKey != null)
+      m_InternalDictionary.Remove(oldKey);
 
-  /// <summary>
-  ///   Determines whether the specified object is equal to the current object.
-  /// </summary>
-  /// <param name="other">The object to compare with the current object.</param>
-  /// <returns>
-  ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-  ///   <see langword="false" />.
-  /// </returns>
-  public override bool Equals(object? other)
-  {
-    if (!(other is ICollection<T> coll))
-      return false;
-    return Equals(coll);
-  }
-
-  /// <inheritdoc cref="ICollection{T}"/>
-  public new virtual void Clear()
-  {
-    foreach (var item in Items)
-      UnwireItemEvents(item);
-    base.Clear();
-  }
-
-  /// <summary>
-  ///   Determines whether the other collection is equal to the current collection.
-  /// </summary>
-  /// <param name="other">the collection</param>
-  /// <returns>
-  ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
-  ///   <see langword="false" />.
-  /// </returns>
-  public bool Equals(IEnumerable<T> other)
-  {
-    return this.CollectionEqualWithOrder(other);
-  }
-
-  /// <inheritdoc cref="IList{T}" />
-  public new int IndexOf(T search)
-    => GetIndexByIdentifier(search.GetUniqueKey().IdentifierHash());
-
-  /// <summary>
-  ///   Gets the index of a collection item by the CollectionIdentifier
-  /// </summary>
-  /// <param name="searchId">The identifier in the collection.</param>
-  /// <returns>-1 if not found, the index otherwise</returns>
-  protected int GetIndexByIdentifier(int searchId)
-  {
-    for (var index = 0; index < Items.Count; index++)
-      if (Items[index].GetUniqueKey().IdentifierHash() == searchId)
-        return index;
-    return -1;
+    // ensure new key is unique
+    EnsureUniqueKey(item);
+    m_InternalDictionary[item.GetUniqueKey()] = item;
   }
 }

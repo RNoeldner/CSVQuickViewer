@@ -735,7 +735,7 @@ public static class FileSystemUtils
   /// <remarks>
   /// - If <paramref name="path"/> is null or empty, both directory and filename are empty strings.
   /// - Environment variables (e.g., %USERPROFILE%) are expanded.
-  /// - Relative paths are converted to absolute paths using <see cref="Path.GetFullPath"/>.
+  /// - Relative paths are converted to absolute paths using <see cref="GetFullPath"/>.
   /// - Directory separators are normalized to <see cref="Path.DirectorySeparatorChar"/>.
   /// - Windows long path prefixes (e.g., "\\?\" or "\\?\UNC\") are removed.
   /// - DirectoryName never ends with a separator.

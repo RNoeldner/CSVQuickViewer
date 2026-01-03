@@ -278,7 +278,6 @@ namespace CsvTools
     private System.Windows.Forms.RadioButton radioButtonHtml;
     private System.Windows.Forms.WebBrowser webBrowser;
     private FastColoredTextBoxNS.FastColoredTextBox fastColoredTextBoxRO;
-    private System.Windows.Forms.StatusStrip statusStrip;
     private System.Windows.Forms.Button buttonSave;
     private System.Windows.Forms.Button buttonCancel;
   }

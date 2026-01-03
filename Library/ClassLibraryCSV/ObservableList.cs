@@ -161,6 +161,7 @@ namespace CsvTools
     /// </summary>
     protected void OnCollectionChanged() => CollectionChanged?.Invoke(this, EventArgs.Empty);
 
+    /// <inheritdoc/>
     public override int GetHashCode() => this.CollectionHashCode();
   }
 }
