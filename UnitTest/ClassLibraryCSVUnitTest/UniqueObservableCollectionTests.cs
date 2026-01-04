@@ -75,16 +75,15 @@ public class UniqueObservableCollectionTests
   {
     var collection = new UniqueObservableCollection<TestObject>();
     int changeCalled = 0;
-    collection.CollectionItemPropertyChanged += (s, e) => 
-    { 
-      changeCalled++; 
-    };
+    collection.CollectionChanged += (s, e) => changeCalled++; 
 
     var item = new TestObject("Text1",1);
     collection.Add(item);
     collection.Add(new TestObject("Test2", 2));
-    item.Name= "Test1";
     Assert.AreEqual(2, changeCalled);
+    
+    collection.AddRange(new[] { new TestObject("Test3", 3), new TestObject("Test4", 4), new TestObject("Test5", 5) });
+    Assert.AreEqual(3, changeCalled);
   }
 
 

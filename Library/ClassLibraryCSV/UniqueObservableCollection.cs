@@ -14,6 +14,8 @@ namespace CsvTools;
 /// 
 /// Internally, a dictionary is maintained for O(1) lookups by key, while the
 /// observable collection preserves insertion order and serializes as a JSON array.
+/// 
+/// This collection is not thread-safe. All mutations must occur on the owning thread.
 /// </summary>
 /// <typeparam name="T">
 /// The item type. Must expose a unique string key and notify about property changes.
@@ -21,6 +23,8 @@ namespace CsvTools;
 public class UniqueObservableCollection<T> : ObservableCollection<T>
   where T : class, ICollectionIdentity, INotifyPropertyChanged
 {
+  private bool m_SuppressOnCollectionChanged = false;
+
   /// <summary>
   /// Internal lookup table mapping unique keys to items.
   /// Uses case-insensitive comparison to enforce key uniqueness.
@@ -28,6 +32,14 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// </summary>
   private readonly Dictionary<string, T> m_InternalDictionary =
     new(StringComparer.OrdinalIgnoreCase);
+
+  /// <inheritdoc/>
+  protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+  {
+    if (m_SuppressOnCollectionChanged)
+      return;
+    base.OnCollectionChanged(e);
+  }
 
   /// <summary>
   /// Raised whenever any property of any item in the collection changes.
@@ -47,23 +59,30 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   }
 
   /// <summary>
-  /// Adds multiple items to the collection, ignoring duplicates.
+  /// Adds multiple items to the collection, ensuring uniqueness of all keys.
   /// Raises a single CollectionChanged event.
   /// </summary>
   public void AddRange(IEnumerable<T> items)
   {
     if (items == null) return;
-
     bool addedAny = false;
-    foreach (var item in items)
-      AddMakeUnique(item);
-
-      if (addedAny)
+    try
     {
-      // Notify observers once for the range addition
-      OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+      m_SuppressOnCollectionChanged = true;
+      foreach (var item in items)
+      {
+        AddMakeUnique(item);
+        addedAny = true;
+      }
+    }
+    finally
+    {
+      m_SuppressOnCollectionChanged = false;
+      if (addedAny)
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Reset));
     }
+
   }
 
   /// <summary> Rewires all items in the collection to the <see cref="CollectionItemPropertyChanged"/> event. 
@@ -129,11 +148,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// but must call the base implementation.
   /// </summary>
   protected virtual void Register(T item)
-  {
-    item.PropertyChanged += OnItemPropertyChanged;
-    if (CollectionItemPropertyChanged != null)
-      item.PropertyChanged += CollectionItemPropertyChanged;
-  }
+    => item.PropertyChanged += OnItemPropertyChanged;
 
   /// <summary>
   /// Removes the item at the specified index and unwires all associated event handlers.
@@ -168,11 +183,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// but must call the base implementation.
   /// </summary>
   protected virtual void Unregister(T item)
-  {
-    item.PropertyChanged -= OnItemPropertyChanged;
-    if (CollectionItemPropertyChanged != null)
-      item.PropertyChanged -= CollectionItemPropertyChanged;
-  }
+      => item.PropertyChanged -= OnItemPropertyChanged;
 
   /// <summary>
   /// Ensures that the item's unique key is valid (non-null, non-empty)
@@ -211,7 +222,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
       item.SetUniqueKey(unique);
       return;
     }
-    throw new InvalidOperationException($"UniqueCollection does not allow to add the same item");
+    throw new InvalidOperationException("The same item instance cannot be added to the collection more than once.");
   }
 
   /// <summary>

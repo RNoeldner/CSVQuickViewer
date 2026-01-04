@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -9,11 +10,15 @@ namespace CsvTools
   ///   Inherits from <see cref="List{T}"/> and extends it with change notifications.
   /// </summary>
   /// <typeparam name="T">The type of elements in the collection.</typeparam>
-  /// <remarks>Unlike ObservableCollection, this class provides range methods that raise CollectionChanged only after actual changes.</remarks>
+  /// <remarks>Unlike ObservableCollection, this class provides range methods that raise 
+  /// CollectionChanged only after actual changes.</remarks>
   public class ObservableList<T> : List<T>
   {
     /// <summary>
-    ///   Occurs whenever the collection content changes, such as when an item is added, inserted, removed, or cleared.
+    ///   Occurs whenever the collection content changes, 
+    ///   such as when an item is added, inserted, removed, 
+    ///   or collection is cleared.
+    ///   AddRange, InsertRange, Overwrite, RemoveRange all raise exactly one event.
     /// </summary>
     [field: NonSerialized]
     public event EventHandler? CollectionChanged;
@@ -34,7 +39,10 @@ namespace CsvTools
     /// <param name="items">The items to add.</param>
     public new virtual void AddRange(IEnumerable<T> items)
     {
-      base.AddRange(items);
+      var list = items as ICollection<T> ?? items.ToList();
+      if (list.Count == 0)
+        return;
+      base.AddRange(list);
       OnCollectionChanged();
     }
 
@@ -81,7 +89,10 @@ namespace CsvTools
     /// <param name="items">The items to insert.</param>
     public new virtual void InsertRange(int index, IEnumerable<T> items)
     {
-      base.InsertRange(index, items);
+      var list = items as ICollection<T> ?? items.ToList();
+      if (list.Count == 0)
+        return;
+      base.InsertRange(index, list);
       OnCollectionChanged();
     }
 
