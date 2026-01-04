@@ -33,12 +33,7 @@ public class UniqueObservableCollectionTests
 
     public bool Cloned { get; set; } = false;
 
-    public TestObject(int id)
-    {
-      ID= id;
-    }
-
-    public TestObject(string name)
+    public TestObject(string name, int ID =0)
     {
       Name= name;
     }
@@ -79,25 +74,25 @@ public class UniqueObservableCollectionTests
   public void ChangeCalled()
   {
     var collection = new UniqueObservableCollection<TestObject>();
-    bool changeCalled = false;
-    collection.CollectionItemPropertyChanged += (s, e) => { changeCalled = true; };
+    int changeCalled = 0;
+    collection.CollectionItemPropertyChanged += (s, e) => 
+    { 
+      changeCalled++; 
+    };
 
-    var item = new TestObject("Tset1");
-
+    var item = new TestObject("Text1",1);
     collection.Add(item);
-    collection.Add(new TestObject(11));
+    collection.Add(new TestObject("Test2", 2));
     item.Name= "Test1";
-    Assert.IsTrue(changeCalled);
+    Assert.AreEqual(2, changeCalled);
   }
 
 
   [TestMethod()]
-  public void AddRangeNoCloneTest()
+  public void AddRange()
   {
     var collection = new UniqueObservableCollection<TestObject>();
-    collection.AddRange(new[] { new TestObject(10), new TestObject(11), new TestObject(12) });
+    collection.AddRange(new[] { new TestObject("10", 10), new TestObject("11", 11), new TestObject("12", 12) });
     Assert.IsFalse(collection.First().Cloned);
   }
-
-
 }

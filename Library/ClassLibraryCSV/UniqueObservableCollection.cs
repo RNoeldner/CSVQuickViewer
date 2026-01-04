@@ -43,7 +43,6 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   public void AddMakeUnique(T item)
   {
     MakeUnique(item);
-    m_InternalDictionary[item.GetUniqueKey()] = item;
     Add(item);
   }
 
@@ -56,20 +55,10 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     if (items == null) return;
 
     bool addedAny = false;
-
     foreach (var item in items)
-    {
-      var key = item.GetUniqueKey();
-      if (!ContainsKey(key))
-      {
-        Register(item);
-        m_InternalDictionary.Add(key, item);
-        Items.Add(item); // Add directly to avoid multiple CollectionChanged events
-        addedAny = true;
-      }
-    }
+      AddMakeUnique(item);
 
-    if (addedAny)
+      if (addedAny)
     {
       // Notify observers once for the range addition
       OnCollectionChanged(new NotifyCollectionChangedEventArgs(
@@ -120,18 +109,17 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// or -1 if no such item exists.
   /// Comparison is case-insensitive.
   /// </summary>
-   public int IndexOf(string key) => m_InternalDictionary.TryGetValue(key, out var item) ? Items.IndexOf(item) : -1;
+  public int IndexOf(string key) => m_InternalDictionary.TryGetValue(key, out var item) ? Items.IndexOf(item) : -1;
 
   /// <summary>
   /// Inserts an item at the specified index after verifying that its unique key
   /// does not collide with an existing item.
-  /// Also wires property change notifications for the item.
+  /// Also wires property change notifications for the item. This is called by the underlying ObservableCollection 
   /// </summary>
   protected override void InsertItem(int index, T item)
   {
-    EnsureUniqueKey(item);
+    m_InternalDictionary[EnsureUniqueKey(item)] = item;
     base.InsertItem(index, item);
-    m_InternalDictionary[item.GetUniqueKey()] = item;
     Register(item);
   }
 
@@ -154,6 +142,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   {
     var item = Items[index];
     Unregister(item);
+    m_InternalDictionary.Remove(item.GetUniqueKey());
     base.RemoveItem(index);
   }
 
@@ -165,10 +154,11 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   {
     var old = Items[index];
     Unregister(old);
+    m_InternalDictionary.Remove(old.GetUniqueKey());
 
-    EnsureUniqueKey(item);
+    var key = EnsureUniqueKey(item);
     base.SetItem(index, item);
-    m_InternalDictionary[item.GetUniqueKey()] = item;
+    m_InternalDictionary[key] = item;
     Register(item);
   }
 
@@ -191,7 +181,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// <exception cref="InvalidOperationException">
   /// Thrown if the key is invalid or already present.
   /// </exception>
-  private void EnsureUniqueKey(T item)
+  private string EnsureUniqueKey(T item)
   {
     var key = item.GetUniqueKey();
 
@@ -201,6 +191,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     if (m_InternalDictionary.ContainsKey(key))
       throw new InvalidOperationException(
         $"Duplicate {item.UniqueKeyPropertyName} '{key}' (case-insensitive).");
+    return key;
   }
 
   /// <summary>
@@ -210,8 +201,17 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   private void MakeUnique(T item)
   {
     var existingKeys = m_InternalDictionary.Keys.ToList();
-    var unique = existingKeys.MakeUniqueInCollection(item.GetUniqueKey());
-    item.SetUniqueKey(unique);
+    var key = item.GetUniqueKey();
+    var unique = existingKeys.MakeUniqueInCollection(key);
+    // was unique already
+    if (unique == key)
+      return;
+    if (!m_InternalDictionary.Any(p => ReferenceEquals(p.Value, item)))
+    {
+      item.SetUniqueKey(unique);
+      return;
+    }
+    throw new InvalidOperationException($"UniqueCollection does not allow to add the same item");
   }
 
   /// <summary>
@@ -243,7 +243,6 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
       m_InternalDictionary.Remove(oldKey);
 
     // ensure new key is unique
-    EnsureUniqueKey(item);
-    m_InternalDictionary[item.GetUniqueKey()] = item;
+    m_InternalDictionary[EnsureUniqueKey(item)] = item;
   }
 }
