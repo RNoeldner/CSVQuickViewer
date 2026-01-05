@@ -47,19 +47,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces all items in the collection with the specified sequence
-    ///   and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="items">The new items to replace the current collection. Must not be <c>null</c>.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
-    public virtual void Overwrite(IEnumerable<T> items)
-    {
-      base.Clear();
-      base.AddRange(items);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
     ///   Removes all items from the collection and raises <see cref="CollectionChanged"/> if the collection was not empty.
     /// </summary>
     public new void Clear()
@@ -70,6 +57,37 @@ namespace CsvTools
       base.Clear();
       OnCollectionChanged();
     }
+
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="other">The object to compare with the current object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object? other)
+    {
+      if (!(other is List<T> coll))
+        return false;
+      return Equals(coll);
+    }
+
+    /// <summary>
+    ///   Determines whether the other collection is equal to the current collection.
+    /// </summary>
+    /// <param name="other">the collection</param>
+    /// <returns>
+    ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public bool Equals(IEnumerable<T> other)
+    {
+      return this.CollectionEqualWithOrder(other);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => this.CollectionHashCode();
 
     /// <summary>
     ///   Inserts an item at the specified index and raises <see cref="CollectionChanged"/>.
@@ -97,6 +115,18 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Replaces all items in the collection with the specified sequence
+    ///   and raises <see cref="CollectionChanged"/>.
+    /// </summary>
+    /// <param name="items">The new items to replace the current collection. Must not be <c>null</c>.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
+    public virtual void Overwrite(IEnumerable<T> items)
+    {
+      base.Clear();
+      base.AddRange(items);
+      OnCollectionChanged();
+    }
+    /// <summary>
     ///   Removes the specified item from the collection and raises <see cref="CollectionChanged"/> if the item was successfully removed.
     /// </summary>
     /// <param name="item">The item to remove.</param>
@@ -105,6 +135,21 @@ namespace CsvTools
     {
       var removed = base.Remove(item);
       if (removed)
+        OnCollectionChanged();
+      return removed;
+    }
+
+    /// <summary>
+    ///   Removes all items that match the conditions defined by the specified predicate.
+    ///   Raises <see cref="CollectionChanged"/> if at least one item was successfully removed.
+    /// </summary>
+    /// <param name="match">The predicate that defines the conditions of the elements to remove.</param>
+    /// <returns>The number of elements removed from the collection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="match"/> is <c>null</c>.</exception>
+    public new virtual int RemoveAll(Predicate<T> match)
+    {
+      int removed = base.RemoveAll(match);
+      if (removed > 0)
         OnCollectionChanged();
       return removed;
     }
@@ -128,7 +173,7 @@ namespace CsvTools
     ///   <c>true</c> if at least one item was removed; otherwise, <c>false</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
-    public bool RemoveRange(IEnumerable<T> items)
+    public void RemoveRange(IEnumerable<T> items)
     {
       bool removed = false;
       foreach (var item in items)
@@ -136,43 +181,10 @@ namespace CsvTools
 
       if (removed)
         OnCollectionChanged();
-      return removed;
     }
-
-    /// <summary>
-    ///   Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="other">The object to compare with the current object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object? other)
-    {
-      if (!(other is ICollection<T> coll))
-        return false;
-      return Equals(coll);
-    }
-
-    /// <summary>
-    ///   Determines whether the other collection is equal to the current collection.
-    /// </summary>
-    /// <param name="other">the collection</param>
-    /// <returns>
-    ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public bool Equals(IEnumerable<T> other)
-    {
-      return this.CollectionEqualWithOrder(other);
-    }
-
     /// <summary>
     ///   Raises the <see cref="CollectionChanged"/> event to notify subscribers that the collection has changed.
     /// </summary>
     protected void OnCollectionChanged() => CollectionChanged?.Invoke(this, EventArgs.Empty);
-
-    /// <inheritdoc/>
-    public override int GetHashCode() => this.CollectionHashCode();
   }
 }

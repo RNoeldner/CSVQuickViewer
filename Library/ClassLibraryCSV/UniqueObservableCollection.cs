@@ -79,8 +79,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     {
       m_SuppressOnCollectionChanged = false;
       if (addedAny)
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(
-          NotifyCollectionChangedAction.Reset));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items));
     }
 
   }
@@ -214,15 +213,15 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     var existingKeys = m_InternalDictionary.Keys.ToList();
     var key = item.GetUniqueKey();
     var unique = existingKeys.MakeUniqueInCollection(key);
-    // was unique already
+    // Key was unique already
     if (unique == key)
       return;
-    if (!m_InternalDictionary.Any(p => ReferenceEquals(p.Value, item)))
-    {
-      item.SetUniqueKey(unique);
-      return;
-    }
-    throw new InvalidOperationException("The same item instance cannot be added to the collection more than once.");
+
+    // Item added twice
+    if (m_InternalDictionary.Any(p => ReferenceEquals(p.Value, item)))
+      throw new InvalidOperationException("The same item instance cannot be added to the collection more than once.");
+
+    item.SetUniqueKey(unique);
   }
 
   /// <summary>

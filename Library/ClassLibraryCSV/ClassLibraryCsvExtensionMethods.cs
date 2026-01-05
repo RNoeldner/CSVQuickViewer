@@ -955,26 +955,31 @@ public static class ClassLibraryCsvExtensionMethods
     if (other is null)
       return false;
 
-    // Shortcut if we have collections but different number of Items
+    // Shortcut if we have collections with different counts
     if (self is ICollection<T> selfCol && other is ICollection<T> otherCol && selfCol.Count != otherCol.Count)
       return false;
 
-    // use Enumerators to compare the two collections
+    // Use Enumerators to compare the two collections element by element
     using var selfEnum = self.GetEnumerator();
     using var otherEnum = other.GetEnumerator();
     IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
     while (true)
     {
-      // move to the next item
+      // Move to the next item in both collections
       var s = selfEnum.MoveNext();
       var o = otherEnum.MoveNext();
+      // If both reached the end, collections are equal
       if (!s && !o)
         return true;
+      // If only one reached the end, collections have different lengths
       if (!s || !o)
         return false;
-      if (selfEnum.Current is null || otherEnum.Current is null ||
-          !comparer.Equals(selfEnum.Current, otherEnum.Current))
+      // Handle null elements: both null means equal
+      if (selfEnum.Current is null && otherEnum.Current is null)
+        continue;
+      // Compare elements
+      if (!comparer.Equals(selfEnum.Current, otherEnum.Current))
         return false;
     }
   }
