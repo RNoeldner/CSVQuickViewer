@@ -21,7 +21,7 @@ namespace CsvTools;
 /// The item type. Must expose a unique string key and notify about property changes.
 /// </typeparam>
 public class UniqueObservableCollection<T> : ObservableCollection<T>
-  where T : class, ICollectionIdentity, INotifyPropertyChanged
+  where T : class, ICollectionIdentity, INotifyPropertyChanged, IEquatable<T>
 {
   private bool m_SuppressOnCollectionChanged = false;
 
@@ -255,4 +255,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     // ensure new key is unique
     m_InternalDictionary[EnsureUniqueKey(item)] = item;
   }
+
+  /// <inheritdoc/>
+  public bool Equals(ICollection<T> other) =>  this.CollectionEqual(other);
 }

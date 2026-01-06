@@ -21,7 +21,7 @@ namespace CsvTools.Tests;
 [TestClass()]
 public class UniqueObservableCollectionTests
 {
-  public class TestObject : ObservableObject, ICollectionIdentity, ICloneable
+  public class TestObject : ObservableObject, ICollectionIdentity, ICloneable, IEquatable<TestObject>
   {
     private int iD;
 
@@ -42,6 +42,7 @@ public class UniqueObservableCollectionTests
     public object Clone() => new TestObject(Name) { ID = ID, Cloned = true };
     public string GetUniqueKey() => Name;
     public void SetUniqueKey(string key) => Name= key;
+    public bool Equals(TestObject other) => ID==other.ID && Name.Equals(other.Name);
   }
 
 
