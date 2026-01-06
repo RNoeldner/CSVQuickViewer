@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -31,6 +32,22 @@ namespace CsvTools;
 public static class Extensions
 {
   public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+  public static Image ResizeImage(this Image source, int width, int height)
+  {
+    var bmp = new Bitmap(width, height);
+    bmp.SetResolution(source.HorizontalResolution, source.VerticalResolution);
+
+    using (var g = Graphics.FromImage(bmp))
+    {
+      g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+      g.SmoothingMode = SmoothingMode.HighQuality;
+      g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+      g.DrawImage(source, 0, 0, width, height);
+    }
+
+    return bmp;
+  }
 
   public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
   {
