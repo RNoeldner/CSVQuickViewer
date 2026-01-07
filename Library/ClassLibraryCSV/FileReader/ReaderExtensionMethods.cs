@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -35,7 +34,7 @@ public static class ReaderExtensionMethods
   /// </summary>
   /// <param name="reader">A file reader or any data reader</param>
   /// <returns>A List of all column, be aware that the format in ValueFormat of might be wrong, if is passed in as IDataReader</returns>
-  public static IEnumerable<Column> GetColumnsOfReader(this IDataReader reader)
+  public static IReadOnlyCollection<Column> GetColumnsOfReader(this IDataReader reader)
   {
     if (reader is null)
       throw new ArgumentNullException(nameof(reader));
@@ -110,7 +109,7 @@ public static class ReaderExtensionMethods
   /// </summary>
   /// <param name="source">The source.</param>
   /// <param name="cancellationToken">The cancellation token.</param>    
-  public static async Task<IEnumerable<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
+  public static async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
     CancellationToken cancellationToken)
   {
     var res = new List<Column>();

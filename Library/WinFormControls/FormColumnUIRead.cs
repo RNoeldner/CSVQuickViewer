@@ -55,7 +55,7 @@ public partial class FormColumnUiRead : ResizeForm
   /// <summary>
   /// Function to get a Columns of a setting, in case the data is retrieved by a SQL this should be set to a different function.
   /// </summary>
-  public Func<IFileSetting, CancellationToken, Task<IEnumerable<Column>>> GetReaderForColumnsAsync { private get; set; }
+  public Func<IFileSetting, CancellationToken, Task<IReadOnlyCollection<Column>>> GetReaderForColumnsAsync { private get; set; }
     = (source, cancellationToken) => source.GetAllReaderColumnsAsync(cancellationToken);
 
   /// <summary>

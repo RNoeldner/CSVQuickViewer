@@ -911,7 +911,7 @@ public static class ClassLibraryCsvExtensionMethods
   public static bool CollectionEqual<T>(this IEnumerable<T> self, in IEnumerable<T>? other)
     where T : IEquatable<T>
   {
-    if (other is null)
+    if (other is null || self is null)
       return false;
 
     ICollection<T> selfCol = self.ToArray();
