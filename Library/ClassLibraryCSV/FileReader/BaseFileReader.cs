@@ -95,7 +95,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private bool m_IsFinished;
 
   // ReSharper disable once FieldCanBeMadeReadOnly.Global    
-  private IProgress<ProgressInfo> m_ReportProgress = ProgressCancellation.Instance;
+  private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
 
   /// <inheritdoc />
   /// <summary>

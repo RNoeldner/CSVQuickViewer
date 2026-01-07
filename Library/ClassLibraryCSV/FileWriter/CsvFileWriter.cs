@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -176,79 +175,77 @@ public sealed class CsvFileWriter : BaseFileWriter
       await
 #endif
     using var writer =
-      new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
+      new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 64 * 1024, true);
 
-    var sb = new StringBuilder();
+    // --- Write header ---
     if (!string.IsNullOrEmpty(Header))
     {
-      sb.Append(Header);
+      await writer.WriteAsync(Header).ConfigureAwait(false);
       if (!Header.EndsWith(m_NewLine, StringComparison.Ordinal))
-        sb.Append(m_NewLine);
+        await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
     }
 
     var lastCol = columns.Last();
-
+    // --- Write column header ---
     if (m_ColumnHeader)
     {
       foreach (var columnInfo in columns)
       {
-        sb.Append(HandleText(columnInfo.Name, columnInfo.FieldLength));
+        await writer.WriteAsync(HandleText(columnInfo.Name, columnInfo.FieldLength)).ConfigureAwait(false);
         if (!m_IsFixedLength && columnInfo != lastCol)
-          sb.Append(m_FieldDelimiter);
+          await writer.WriteAsync(m_FieldDelimiter).ConfigureAwait(false);
       }
-      sb.Append(m_NewLine);
+      await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
     }
 
+    var intervalAction = IntervalAction.ForProgress(ReportProgress);
+    // --- Write rows ---
     while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-           && !cancellationToken.IsCancellationRequested)
+       && !cancellationToken.IsCancellationRequested)
     {
-      if (sb.Length > 32768)
-      {
-        ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
-        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-        sb.Length = 0;
-      }
+      int emptyColumns = 0;
 
-      var emptyColumns = 0;
-
-      var row = new StringBuilder();
-      foreach (var columnInfo in columns)
+      for (int i = 0; i < columns.Count(); i++)
       {
-        // Number of columns might be higher than number of reader columns
+        var columnInfo = columns.ElementAt(i);
         var col = reader.GetValue(columnInfo.ColumnOrdinal);
+
         if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
+        {
           emptyColumns++;
+        }
         else
         {
-          row.Append(HandleText(TextEncodeField(col, columnInfo, reader),
-            columnInfo.FieldLength,
-            msg => HandleWarning(columnInfo.Name, msg)));
+          var textValue = TextEncodeField(col, columnInfo, reader);
+          await writer.WriteAsync(
+              HandleText(textValue, columnInfo.FieldLength, msg => HandleWarning(columnInfo.Name, msg))
+          ).ConfigureAwait(false);
         }
-        if (m_FieldDelimiter != char.MinValue && columnInfo != lastCol)
-          row.Append(m_FieldDelimiter);
+
+        if (m_FieldDelimiter != char.MinValue && i != columns.Count() - 1)
+          await writer.WriteAsync(m_FieldDelimiter).ConfigureAwait(false);
       }
 
-      if (emptyColumns == columns.Count()) break;
-      NextRecord();
-      sb.Append(row);
-      sb.Append(m_NewLine);
-    }
+      if (emptyColumns == columns.Count())
+        break;
 
+      NextRecord();
+      await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
+
+      // Progress reporting
+      intervalAction?.Invoke(ReportProgress!, "Writing", reader.RecordNumber);
+    }
+    ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
+
+    // --- Write footer ---
     var footer = Footer();
     if (!string.IsNullOrEmpty(footer))
     {
-      sb.Append(footer);
+      await writer.WriteAsync(footer).ConfigureAwait(false);
       if (!footer.EndsWith(m_NewLine, StringComparison.Ordinal))
-        sb.Append(m_NewLine);
+        await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
     }
 
-    // remove the very last newline
-    if (sb.Length > m_NewLine.Length)
-    {
-      sb.Length -= m_NewLine.Length;
-      // and store the possibly remaining data
-      await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-    }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
 #else
@@ -257,62 +254,78 @@ public sealed class CsvFileWriter : BaseFileWriter
   }
 
   /// <summary>
-  /// Handled escaping, placeholders and qualifying 
+  /// Escapes, replaces placeholders, and applies fixed-length padding or field qualification to a text value
+  /// for writing to a CSV or fixed-length file.
   /// </summary>
-  /// <param name="text">The text to be written</param>    
-  /// <param name="fieldLength">The length for fixedLength</param>    
-  /// <param name="handleWarning">Action to perform if text is cut off for fixed length</param>
-  /// <returns></returns>
-  /// <exception cref="FileWriterException"></exception>
+  /// <param name="text">The input text to format.</param>
+  /// <param name="fieldLength">
+  /// The target length for fixed-length fields. Must be greater than 0 if <see cref="m_IsFixedLength"/> is true.
+  /// </param>
+  /// <param name="handleWarning">
+  /// Optional callback invoked if the text is truncated due to fixed-length constraints.
+  /// </param>
+  /// <returns>
+  /// The processed text, ready to write, with applied padding, escaping, placeholders, and/or field qualification.
+  /// </returns>
+  /// <exception cref="FileWriterException">
+  /// Thrown if <paramref name="fieldLength"/> is zero while fixed-length output is required.
+  /// </exception>
   private string HandleText(string text, int fieldLength, Action<string>? handleWarning = null)
   {
-    if (m_IsFixedLength && fieldLength == 0)
-      throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
+    if (m_IsFixedLength && fieldLength <= 0)
+      throw new FileWriterException("For fixed-length output the length of the columns needs to be specified.");
 
-    // New line of any kind will be replaced with the placeholder if set
-    if (m_NewLinePlaceholder.Length > 0)
-      text = text.HandleCrlfCombinations(m_NewLinePlaceholder);
+    // --- Replace CR/LF and special chars using StringBuilder ---
+    var sb = new StringBuilder(text.Length + 16);
 
-    // Delimiter  e.G. ; replaced with the placeholder or escaped 
-    if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiter != char.MinValue)
-      text = text.Replace(m_FieldDelimiter.ToString(), m_DelimiterPlaceholder);
-    else if (m_HasEscapePrefix)
-      text = text.Replace(m_FieldDelimiter.ToString(), m_FieldDelimiterEscaped);
+    foreach (var c in text)
+    {
+      if ((c == '\r' || c == '\n') && !string.IsNullOrEmpty(m_NewLinePlaceholder))
+      {
+        sb.Append(m_NewLinePlaceholder);
+        continue;
+      }
 
-    // Qualifier e.G. " replaced with the placeholder if set
-    if (m_QualifierPlaceholder.Length > 0 && m_FieldQualifier != char.MinValue)
-      text = text.Replace(m_FieldQualifier.ToString(), m_QualifierPlaceholder);
+      if (c == m_FieldDelimiter)
+      {
+        sb.Append(!string.IsNullOrEmpty(m_DelimiterPlaceholder) ? m_DelimiterPlaceholder : m_FieldDelimiterEscaped);
+        continue;
+      }
 
+      if (c == m_FieldQualifier && !string.IsNullOrEmpty(m_QualifierPlaceholder))
+      {
+        sb.Append(m_QualifierPlaceholder);
+        continue;
+      }
+
+      sb.Append(c);
+    }
+
+    var processed = sb.ToString();
+
+    // --- Fixed-length padding / truncation ---
     if (m_IsFixedLength)
     {
-      if (text.Length <= fieldLength || fieldLength <= 0)
-        return text.PadRight(fieldLength, ' ');
-      handleWarning?.Invoke($"Text with length of {text.Length} has been cut off after {fieldLength} character");
-      return text.Substring(0, fieldLength);
+      if (processed.Length > fieldLength)
+      {
+        handleWarning?.Invoke($"Text with length {processed.Length} has been cut off after {fieldLength} characters.");
+        processed = processed.Substring(0, fieldLength);
+      }
+      if (processed.Length < fieldLength)
+        processed = processed.PadRight(fieldLength, ' ');
+      return processed;
     }
 
-    /* Old method:
-    var qualifyThis = m_QualifyAlways;
-    if (!qualifyThis)
-    {
-      if (m_QualifyOnlyIfNeeded)
-        // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
-        // the Qualifier or a whitespace that is lost otherwise
-        qualifyThis = displayAs.IndexOfAny(m_QualifyCharArray) > -1 || displayAs[0].Equals(m_FieldQualifier) ||
-                      displayAs[0].Equals(' ');
-      else
-        // quality any text or date etc that containing a Qualify Char
-        qualifyThis = columnInfo.ValueFormat.DataType == DataTypeEnum.String ||
-                      columnInfo.ValueFormat.DataType == DataTypeEnum.TextToHtml ||
-                      displayAs.IndexOfAny(m_QualifyCharArray) > -1;
-    }
-    */
+    // --- Qualification ---
+    bool qualifyThis = (m_FieldQualifier != char.MinValue) &&
+                       (m_QualifyAlways ||
+                        processed.IndexOfAny(m_QualifyCharArray) >= 0 ||
+                        (m_QualifyOnlyIfNeeded && processed.Length > 0 &&
+                         (processed[0] == m_FieldQualifier || processed[0] == ' ')));
 
-    // Determine if we need to qualify
-    var qualifyThis = (m_FieldQualifier != char.MinValue) && (m_QualifyAlways || text.IndexOfAny(m_QualifyCharArray) > -1 || (m_QualifyOnlyIfNeeded && text.Length>0 && (text[0].Equals(m_FieldQualifier) || text[0].Equals(' '))));
+    if (!qualifyThis) return processed;
 
-    return qualifyThis
-      ? $"{m_FieldQualifier}{text.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped)}{m_FieldQualifier}"
-      : text;
+    return m_FieldQualifier + processed.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped) + m_FieldQualifier;
   }
+
 }

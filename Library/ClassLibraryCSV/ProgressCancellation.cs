@@ -42,7 +42,7 @@ public sealed class ProgressCancellation : IProgressWithCancellation
   /// A reusable default instance.
   /// </summary>
   public static readonly ProgressCancellation Instance = new ProgressCancellation(CancellationToken.None);
-    
+
   /// <summary>
   /// Initializes a new instance of the class.
   /// </summary>
