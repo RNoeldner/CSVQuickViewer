@@ -31,6 +31,8 @@ public sealed class SyntaxHighlighterJson : SyntaxHighlighterBase
 
   public SyntaxHighlighterJson(FastColoredTextBox fastColoredTextBox) : base(fastColoredTextBox)
   {
+    if (fastColoredTextBox is null)
+      return;
     fastColoredTextBox.LeftBracket = '[';
     fastColoredTextBox.RightBracket = ']';
     fastColoredTextBox.LeftBracket2 = '{';

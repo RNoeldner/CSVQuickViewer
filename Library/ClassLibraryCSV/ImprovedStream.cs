@@ -319,8 +319,6 @@ public class ImprovedStream : Stream, IImprovedStream
   private void ReopenStreamAt(long position)
   {
     Logger.Debug("Reopening stream {identifier} at {position}", SourceAccess.Identifier, position);
-    if (!SourceAccess.Reading)
-      throw new NotSupportedException("Cannot seek a write-only stream");
     // Custom logic: reopen ZIP/GZip entry, then skip to `position` bytes
     Close();
     BaseStream = SourceAccess.OpenStream();
