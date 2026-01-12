@@ -542,7 +542,7 @@ public sealed partial class DetailControl : UserControl
         m_FormDuplicatesDisplay =
           new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               columnName, HtmlStyle)
-            { Icon = ParentForm?.Icon };
+          { Icon = ParentForm?.Icon };
         m_FormDuplicatesDisplay.ShowWithFont(this);
         m_FormDuplicatesDisplay.FormClosed +=
           (o, formClosedEventArgs) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
@@ -571,7 +571,7 @@ public sealed partial class DetailControl : UserControl
         m_HierarchyDisplay =
           new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               HtmlStyle)
-            { Icon = ParentForm?.Icon };
+          { Icon = ParentForm?.Icon };
         m_HierarchyDisplay.ShowWithFont(this);
         m_HierarchyDisplay.FormClosed += (o, formClosedEventArgs) =>
           this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
@@ -823,23 +823,32 @@ public sealed partial class DetailControl : UserControl
     OnSearchClear(this, EventArgs.Empty);
 
     var timeSpan = backgroundLoad ? TimeSpan.MaxValue : TimeSpan.FromSeconds(5);
-    IProgressWithCancellation progress = backgroundLoad ? new ProgressCancellation(CancellationToken) : new FormProgress("Load more...", CancellationToken); ;
+    using var progress = new FormProgress("Load more...", CancellationToken);
     try
     {
       m_ToolStripButtonLoadRemaining.Enabled = false;
-      if (progress is FormProgress formProgress)
-        formProgress.Show(FindForm());
+      if (backgroundLoad)
+      { 
+        // Show but one can go back to the main form
+        progress.Show();
+        progress.SendToBack();
+      }
+      else
+        // Show over the main form
+        progress.Show(FindForm());
+
       var newDt = await m_SteppedDataTableLoader.GetNextBatch(timeSpan, progress);
       if (newDt.Rows.Count > 0)
+      {
+        progress.Report($"Populating the data grid with the new {newDt.Rows.Count:N0} new records.\nThis may take a moment…");
         DataTable.Merge(newDt, false, MissingSchemaAction.Error);
+      }
 
       RefreshDisplay(GetCurrentFilter(), progress.CancellationToken);
     }
     finally
     {
       m_ToolStripButtonLoadRemaining.Enabled = true;
-      if (progress is FormProgress formProgress)
-        formProgress.Dispose();
     }
   }
 

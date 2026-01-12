@@ -51,7 +51,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   private bool m_DisplayStartLineNo = true;
   private bool m_DisplayRecordNo;
   private int m_ShowButtonAtLength = 2000;
-  private Duration m_LimitDuration = Duration.Second;
+  private Duration m_LimitDuration = Duration.FiveSecond;
   private bool m_AutoStartRemaining = true;
 
   public enum Duration
@@ -251,7 +251,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_GuessStartRow, value);
   }
 
-  [DefaultValue(Duration.Second)]
+  [DefaultValue(Duration.FiveSecond)]
   public Duration LimitDuration
   {
     get => m_LimitDuration;

@@ -62,8 +62,65 @@ namespace EIHControlCenter.Code
       public string HeaderName =>
           string.IsNullOrEmpty(ObjectProperty)
               ? JsonProperty
-              : $"{JsonProperty}.{ObjectProperty}";
+              : $"{JsonProperty}.{Pluralize(ObjectProperty)}";
 
+
+      private static readonly HashSet<string> Acronyms =
+  new(StringComparer.OrdinalIgnoreCase)
+  {
+    "id",
+    "uuid",
+    "guid",
+    "uid",
+    "url",
+    "uri",
+    "ip",
+    "api",
+    "jwt",
+    "oauth",
+    "key",
+    "ver",
+    "sec"
+  };
+      private static string Pluralize(string name)
+      {
+        if (string.IsNullOrWhiteSpace(name))
+          return name;
+
+        var lower = name.ToLowerInvariant();
+
+        // Handle snake_case: pluralize last segment only
+        var lastUnderscore = name.LastIndexOf('_');
+        if (lastUnderscore >= 0)
+        {
+          // Replace this line in Pluralize method:
+          // with the following lines to avoid using System.Range/System.Index (C# 8+ feature):
+
+          var prefix = name.Substring(0, lastUnderscore + 1);
+          var tail = name.Substring(lastUnderscore + 1);
+          return prefix + Pluralize(tail);
+        }
+
+        // Acronyms: id → ids, uuid → uuids, url → urls
+        if (Acronyms.Contains(lower))
+          return name + "s";
+
+        // s, x, z, ch, sh → es
+        if (lower.EndsWith("s") ||
+            lower.EndsWith("x") ||
+            lower.EndsWith("z") ||
+            lower.EndsWith("ch") ||
+            lower.EndsWith("sh"))
+          return name + "es";
+
+        // consonant + y → ies
+        if (lower.EndsWith("y") && lower.Length > 1 &&
+            !"aeiou".Contains(lower[lower.Length - 2]))
+          return name.Substring(0, name.Length - 1) + "ies";
+
+        // default
+        return name + "s";
+      }
       /// <summary>
       /// Initializes a new instance of the <see cref="JsonColumn"/> class.
       /// </summary>

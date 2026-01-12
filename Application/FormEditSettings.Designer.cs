@@ -1261,11 +1261,12 @@
       // comboBoxLimitDuration
       // 
       comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", bindingSourceViewSetting, "LimitDuration", true));
+      comboBoxLimitDuration.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       comboBoxLimitDuration.FormattingEnabled = true;
       comboBoxLimitDuration.Location = new System.Drawing.Point(162, 160);
       comboBoxLimitDuration.Name = "comboBoxLimitDuration";
-      comboBoxLimitDuration.Size = new System.Drawing.Size(1, 21);
+      comboBoxLimitDuration.Size = new System.Drawing.Size(86, 21);
       comboBoxLimitDuration.TabIndex = 15;
       toolTip.SetToolTip(comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing the data that has been read so far");
       // 
