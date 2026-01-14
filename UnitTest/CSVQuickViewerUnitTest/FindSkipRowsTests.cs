@@ -22,6 +22,6 @@ public class FindSkipRowsTests
   [Timeout(2000)]
   public void FindSkipRows()
   {
-    UnitTestStaticForms.ShowForm(() => new FindSkipRows(new CsvFileDummy() {FileName = UnitTestStatic.GetTestPath("AllFormatsPipe.txt"),}));
+    UnitTestStaticForms.ShowForm(() => new FindSkipRows(UnitTestStatic.GetTestPath("AllFormatsPipe.txt")));
   }
 }

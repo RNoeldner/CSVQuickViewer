@@ -180,8 +180,13 @@ public class ControlsTests
   {
     UnitTestStaticForms.ShowControl(() =>
     {
+      var sample = new CsvFileDummy();
       var ctrl = new QuotingControl();
-      ctrl.CsvFile = new CsvFileDummy();
+      ctrl.ContextSensitiveQualifier = sample.ContextSensitiveQualifier;
+      ctrl.DuplicateQualifierToEscape = sample.DuplicateQualifierToEscape;
+      ctrl.EscapePrefixChar = sample.EscapePrefixChar;
+      ctrl.FieldDelimiterChar = sample.FieldDelimiterChar;
+      sample.FieldDelimiterChar = ';';
       return ctrl;
     });
   }
@@ -189,7 +194,7 @@ public class ControlsTests
   [TestMethod, Timeout(1000)]
   public void QuotingControl2()
   {
-    UnitTestStaticForms.ShowControl(() => new QuotingControl(), 0.1, control => control.CsvFile = new CsvFileDummy());
+    UnitTestStaticForms.ShowControl(() => new QuotingControl(), 0.1, control => control.QualifyAlways = true);
   }
 
   [TestMethod, Timeout(2000)]

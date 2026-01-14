@@ -239,7 +239,7 @@ public sealed partial class FormMain : ResizeForm
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
   internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
-  
+
   [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
   public DataTable DataTable => detailControl.DataTable;
 
@@ -393,13 +393,12 @@ public sealed partial class FormMain : ResizeForm
         display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
       var title = new StringBuilder(display.GetShortDisplayFileName(50));
-      if (m_FileSetting is ICsvFile csv)
-      {
-        title.Append(" - ");
-        title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
-        if (csv.NumWarnings > 0)
-          m_WarningMax = csv.NumWarnings;
-      }
+
+      title.Append(" - ");
+      title.Append(EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark));
+      if (m_FileSetting.NumWarnings > 0)
+        m_WarningMax = m_FileSetting.NumWarnings;
+
       title.Append(" - ");
       title.Append(AssemblyTitle);
 
@@ -648,7 +647,7 @@ public sealed partial class FormMain : ResizeForm
       {
         var fileNameShort = m_FileSetting.FileName.GetShortDisplayFileName(60);
         ShowTextPanel(true);
-          
+
 
         try { Logger.Debug("Loading Batch"); } catch { }
         using (var formProgress = new FormProgress(fileNameShort, m_CancellationTokenSource.Token))
@@ -659,7 +658,7 @@ public sealed partial class FormMain : ResizeForm
           detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
           detailControl.CancellationToken = m_CancellationTokenSource.Token;
           detailControl.ShowInfoButtons = false;
-            
+
           await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
         }
 
@@ -830,7 +829,7 @@ public sealed partial class FormMain : ResizeForm
         m_ShouldReloadData |= m_FileSetting.CommentLine != editSetting.CommentLine;
         m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != editSetting.ContextSensitiveQualifier;
         m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != editSetting.DuplicateQualifierToEscape;
-        
+
         m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
         editSetting.CopyTo(m_FileSetting);
         m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;

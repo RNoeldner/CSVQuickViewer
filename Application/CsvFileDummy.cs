@@ -63,7 +63,7 @@ public sealed class CsvFileDummy : ICsvFile
   public char EscapePrefixChar { get; set; } = '\0';
 
   /// <inheritdoc />
-  [DefaultValue(',')]    
+  [DefaultValue(',')]
   public char FieldDelimiterChar { get; set; } = ',';
 
   /// <inheritdoc />
@@ -192,7 +192,7 @@ public sealed class CsvFileDummy : ICsvFile
   [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
   /// <inheritdoc />
-  [DefaultValue(false)]  public bool SetLatestSourceTimeForWrite { get; set; }
+  [DefaultValue(false)] public bool SetLatestSourceTimeForWrite { get; set; }
 
   /// <inheritdoc />
   [DefaultValue(false)] public bool ThrowErrorIfNotExists { get; set; }
@@ -259,7 +259,7 @@ public sealed class CsvFileDummy : ICsvFile
   [DefaultValue(false)] public bool Trim { get; set; } = false;
 
   /// <inheritdoc />
-  public object Clone()
+  public CsvFileDummy Clone()
   {
     var res = new CsvFileDummy();
     CopyTo(res);
@@ -287,7 +287,7 @@ public sealed class CsvFileDummy : ICsvFile
     target.TreatTextAsNull = TreatTextAsNull;
     target.Trim = Trim;
 
-    if (target is ICsvFile other)
+    if (target is CsvFileDummy other)
     {
       other.AllowRowCombining = AllowRowCombining;
       other.ByteOrderMark = ByteOrderMark;
@@ -313,7 +313,7 @@ public sealed class CsvFileDummy : ICsvFile
       other.QualifyAlways = QualifyAlways;
       other.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       other.NewLine = NewLine;
-      other.RemoteFileName = RemoteFileName;      
+      other.RemoteFileName = RemoteFileName;
       other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
       other.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       other.TreatLfAsSpace = TreatLfAsSpace;
@@ -329,11 +329,8 @@ public sealed class CsvFileDummy : ICsvFile
       other.WarnQuotesInQuotes = WarnQuotesInQuotes;
       other.WarnUnknownCharacter = WarnUnknownCharacter;
       other.WriteFixedLength = WriteFixedLength;
-    }
-    if (target is CsvFileDummy fileDummy)
-    {        
-      fileDummy.IsJson = IsJson;
-      fileDummy.IsXml = IsXml;
+      other.IsJson = IsJson;
+      other.IsXml = IsXml;
     }
   }
 
@@ -407,6 +404,7 @@ public sealed class CsvFileDummy : ICsvFile
 
   /// <inheritdoc />
   public string GetDisplay() => "CSV";
+  object ICloneable.Clone() => Clone();
 
   #endregion IFileSetting
 }

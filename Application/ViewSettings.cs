@@ -160,8 +160,8 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_DetectFileChanges, value);
   }
 
-  [JsonIgnore] 
-  public ICsvFile WriteSetting { get; } = new CsvFileDummy();
+  [JsonIgnore]
+  public CsvFileDummy WriteSetting { get; } = new CsvFileDummy();
 
   [JsonIgnore]
   public TimeSpan DurationTimeSpan
@@ -329,23 +329,17 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_ShowButtonAtLength, value);
   }
 
-  public void DeriveWriteSetting(IFileSetting fileSetting)
+  public void DeriveWriteSetting(CsvFileDummy fileSetting)
   {
-    if (fileSetting is IFileSettingPhysicalFile phyS)
-    {
-      WriteSetting.CodePageId = phyS.CodePageId;
-      WriteSetting.ByteOrderMark = phyS.ByteOrderMark;
-    }
 
-    if (fileSetting is ICsvFile csvS)
-    {
-      WriteSetting.WarnDelimiterInValue = csvS.WarnDelimiterInValue;
-      WriteSetting.WarnEmptyTailingColumns = csvS.WarnEmptyTailingColumns;
-      WriteSetting.WarnLineFeed = csvS.WarnLineFeed;
-      WriteSetting.WarnNBSP = csvS.WarnNBSP;
-      WriteSetting.WarnQuotes = csvS.WarnQuotes;
-      WriteSetting.WarnUnknownCharacter = csvS.WarnUnknownCharacter;
-    }
+    WriteSetting.CodePageId = fileSetting.CodePageId;
+    WriteSetting.ByteOrderMark = fileSetting.ByteOrderMark;
+    WriteSetting.WarnDelimiterInValue = fileSetting.WarnDelimiterInValue;
+    WriteSetting.WarnEmptyTailingColumns = fileSetting.WarnEmptyTailingColumns;
+    WriteSetting.WarnLineFeed = fileSetting.WarnLineFeed;
+    WriteSetting.WarnNBSP = fileSetting.WarnNBSP;
+    WriteSetting.WarnQuotes = fileSetting.WarnQuotes;
+    WriteSetting.WarnUnknownCharacter = fileSetting.WarnUnknownCharacter;
 
     WriteSetting.DisplayStartLineNo = fileSetting.DisplayStartLineNo;
     WriteSetting.DisplayRecordNo = fileSetting.DisplayRecordNo;
@@ -373,18 +367,14 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
       WriteSetting.NewLine = RecordDelimiterTypeEnum.Cr;
   }
 
-  public void PassOnConfiguration(in IFileSetting fileSetting)
+  public void PassOnConfiguration(CsvFileDummy fileSetting)
   {
-    if (fileSetting is ICsvFile csvFile)
-    {
-      csvFile.WarnDelimiterInValue = WarnDelimiterInValue;
-      csvFile.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
-      csvFile.WarnLineFeed = WarnLineFeed;
-      csvFile.WarnNBSP = WarnNBSP;
-      csvFile.WarnQuotes = WarnQuotes;
-      csvFile.WarnUnknownCharacter = WarnUnknownCharacter;
-    }
-
+    fileSetting.WarnDelimiterInValue = WarnDelimiterInValue;
+    fileSetting.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
+    fileSetting.WarnLineFeed = WarnLineFeed;
+    fileSetting.WarnNBSP = WarnNBSP;
+    fileSetting.WarnQuotes = WarnQuotes;
+    fileSetting.WarnUnknownCharacter = WarnUnknownCharacter;
     fileSetting.DisplayStartLineNo = DisplayStartLineNo;
     fileSetting.DisplayRecordNo = DisplayRecordNo;
   }
