@@ -54,22 +54,22 @@ public partial class FormEditSettings : ResizeForm
     FileSetting = setting ?? new CsvFileDummy();
     FontConfig = viewSettings;
     InitializeComponent();
-    quotingControlWrite.IsWriteSetting = true;
+
     buttonFileInfo.Enabled = !m_InitialSettingNull;
 
     m_Warnings = warnings;
 
-    cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });
+    cboNewLine.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });
     comboBoxLimitDuration.SetEnumDataSource(m_ViewSettings.LimitDuration);
 
     // Set Code Page Dropdown
-    cboCodePage.SuspendLayout();
-    cboWriteCodePage.SuspendLayout();
+    cboCodePageId.SuspendLayout();
+    cboWriteCodePageId.SuspendLayout();
     var codePages = EncodingHelper.CommonCodePages.Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp))).ToList();
-    cboCodePage.DataSource = codePages;
-    cboWriteCodePage.DataSource = codePages;
-    cboCodePage.ResumeLayout(true);
-    cboWriteCodePage.ResumeLayout(true);
+    cboCodePageId.DataSource = codePages;
+    cboWriteCodePageId.DataSource = codePages;
+    cboCodePageId.ResumeLayout(true);
+    cboWriteCodePageId.ResumeLayout(true);
 
 #if !SupportPGP
     labelPGPKey.Visible = false;
@@ -151,7 +151,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   {
     try
     {
-      var split = FileSystemUtils.SplitPath(textBoxFile.Text);
+      var split = FileSystemUtils.SplitPath(textBoxFileName.Text);
       var newFileName = WindowsAPICodePackWrapper.Open(
         split.DirectoryName,
         "Delimited File",
@@ -160,6 +160,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       if (newFileName is null || newFileName.Length == 0)
         return;
+
+      newFileName = newFileName.GetShortestPath(".");
       SetDefaultInspectionResult();
 
       using var formProgress = new FormProgress("Examining file", m_CancellationTokenSource.Token);
@@ -189,7 +191,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       formProgress.Close();
 
       buttonFileInfo.Enabled = true;
-      FileSetting.FileName = ir.FileName;
       FileSetting.SkipRows = ir.SkipRows;
       FileSetting.CodePageId = ir.CodePageId;
       FileSetting.ByteOrderMark = ir.ByteOrderMark;
@@ -206,6 +207,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       FileSetting.IsJson = ir.IsJson;
       FileSetting.IsXml = ir.IsXml;
       m_ViewSettings.DeriveWriteSetting(FileSetting);
+      FileSetting.FileName = newFileName;
     }
     catch (Exception ex)
     {
@@ -434,6 +436,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     bindingSourceRead.DataSource = FileSetting;
     fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
+    quotingControlWrite = QuotingControl.AddQuotingControl(tableLayoutPanelWrite, 0, 7, 5, bindingSourceWrite);
+    quotingControlWrite.IsWriteSetting = true;
+
+    quotingControlRead = QuotingControl.AddQuotingControl(tableLayoutPanelFile, 0, 9, 5, bindingSourceRead);
+    quotingControlRead.IsWriteSetting = false;
+
     TextBoxFile_Validating(this, new CancelEventArgs(false));
   }
 
@@ -478,7 +486,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
-      cboRecordDelimiter.SelectedValue =
+      cboNewLine.SelectedValue =
         textReader.InspectRecordDelimiter(FileSetting.FieldQualifierChar, m_CancellationTokenSource.Token);
     });
   }
@@ -605,12 +613,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     buttonEscapeSequence.Enabled=hasFile;
     if (!hasFile)
     {
-      errorProvider.SetError(textBoxFile, "File does not exist.");
+      errorProvider.SetError(textBoxFileName, "File does not exist.");
       e.Cancel = true;
     }
     else
     {
-      errorProvider.SetError(textBoxFile, string.Empty);
+      errorProvider.SetError(textBoxFileName, string.Empty);
     }
   }
 }

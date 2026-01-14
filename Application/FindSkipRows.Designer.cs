@@ -38,13 +38,13 @@
       labelComment = new System.Windows.Forms.Label();
       labelQuote = new System.Windows.Forms.Label();
       labelDelimiter = new System.Windows.Forms.Label();
-      textBoxDelimiter = new PunctuationTextBox();
+      charBoxDelimiter = new PunctuationTextBox();
       labelSkip = new System.Windows.Forms.Label();
       textBox = new FastColoredTextBoxNS.FastColoredTextBox();
-      textBoxQuote = new PunctuationTextBox();
+      charBoxQuote = new PunctuationTextBox();
       numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
       labelEscape = new System.Windows.Forms.Label();
-      textBoxEscape = new PunctuationTextBox();
+      charBoxEscape = new PunctuationTextBox();
       buttonSkipLine = new System.Windows.Forms.Button();
       flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
       buttonOk = new System.Windows.Forms.Button();
@@ -69,13 +69,13 @@
       tableLayoutPanel.Controls.Add(labelComment, 2, 1);
       tableLayoutPanel.Controls.Add(labelQuote, 0, 1);
       tableLayoutPanel.Controls.Add(labelDelimiter, 2, 0);
-      tableLayoutPanel.Controls.Add(textBoxDelimiter, 3, 0);
+      tableLayoutPanel.Controls.Add(charBoxDelimiter, 3, 0);
       tableLayoutPanel.Controls.Add(labelSkip, 0, 0);
       tableLayoutPanel.Controls.Add(textBox, 0, 2);
-      tableLayoutPanel.Controls.Add(textBoxQuote, 1, 1);
+      tableLayoutPanel.Controls.Add(charBoxQuote, 1, 1);
       tableLayoutPanel.Controls.Add(numericUpDownSkipRows, 1, 0);
       tableLayoutPanel.Controls.Add(labelEscape, 4, 0);
-      tableLayoutPanel.Controls.Add(textBoxEscape, 5, 0);
+      tableLayoutPanel.Controls.Add(charBoxEscape, 5, 0);
       tableLayoutPanel.Controls.Add(buttonSkipLine, 5, 1);
       tableLayoutPanel.Controls.Add(flowLayoutPanel1, 5, 3);
       tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -132,19 +132,19 @@
       labelDelimiter.TabIndex = 124;
       labelDelimiter.Text = "Delimiter:";
       // 
-      // textBoxDelimiter
+      // charBoxDelimiter
       // 
-      textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
-      textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      textBoxDelimiter.Location = new System.Drawing.Point(220, 3);
-      textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
-      textBoxDelimiter.Name = "textBoxDelimiter";
-      textBoxDelimiter.Size = new System.Drawing.Size(46, 20);
-      textBoxDelimiter.TabIndex = 123;
-      textBoxDelimiter.Type = PunctuationTextBox.PunctuationType.Delimiter;
-      textBoxDelimiter.TextChanged += DifferentSyntaxHighlighter;
+      charBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      charBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] { "Tab", ",", ";", "،", "؛", "|", "¦", "￤", "*", "`", "US", "RS", "GS", "FS" });
+      charBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      charBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      charBoxDelimiter.Location = new System.Drawing.Point(220, 3);
+      charBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
+      charBoxDelimiter.Name = "charBoxDelimiter";
+      charBoxDelimiter.Size = new System.Drawing.Size(46, 20);
+      charBoxDelimiter.TabIndex = 123;
+      charBoxDelimiter.Type = PunctuationTextBox.PunctuationType.Delimiter;
+      charBoxDelimiter.TextChanged += DifferentSyntaxHighlighter;
       // 
       // labelSkip
       // 
@@ -202,16 +202,16 @@
       // 
       // textBoxQuote
       // 
-      textBoxQuote.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
-      textBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      textBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      textBoxQuote.Location = new System.Drawing.Point(90, 28);
-      textBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      textBoxQuote.Name = "textBoxQuote";
-      textBoxQuote.Size = new System.Drawing.Size(41, 20);
-      textBoxQuote.TabIndex = 129;
-      textBoxQuote.Type = PunctuationTextBox.PunctuationType.Escape;
-      textBoxQuote.TextChanged += DifferentSyntaxHighlighter;
+      charBoxQuote.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      charBoxQuote.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      charBoxQuote.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      charBoxQuote.Location = new System.Drawing.Point(90, 28);
+      charBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      charBoxQuote.Name = "textBoxQuote";
+      charBoxQuote.Size = new System.Drawing.Size(41, 20);
+      charBoxQuote.TabIndex = 129;
+      charBoxQuote.Type = PunctuationTextBox.PunctuationType.Escape;
+      charBoxQuote.TextChanged += DifferentSyntaxHighlighter;
       // 
       // numericUpDownSkipRows
       // 
@@ -235,18 +235,18 @@
       // 
       // textBoxEscape
       // 
-      textBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      textBoxEscape.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
-      textBoxEscape.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-      textBoxEscape.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      textBoxEscape.Location = new System.Drawing.Point(318, 3);
-      textBoxEscape.Margin = new System.Windows.Forms.Padding(2);
-      textBoxEscape.MinimumSize = new System.Drawing.Size(46, 4);
-      textBoxEscape.Name = "textBoxEscape";
-      textBoxEscape.Size = new System.Drawing.Size(46, 20);
-      textBoxEscape.TabIndex = 123;
-      textBoxEscape.Type = PunctuationTextBox.PunctuationType.Escape;
-      textBoxEscape.TextChanged += DifferentSyntaxHighlighter;
+      charBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      charBoxEscape.AutoCompleteCustomSource.AddRange(new string[] { "\\", "/", "?" });
+      charBoxEscape.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      charBoxEscape.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      charBoxEscape.Location = new System.Drawing.Point(318, 3);
+      charBoxEscape.Margin = new System.Windows.Forms.Padding(2);
+      charBoxEscape.MinimumSize = new System.Drawing.Size(46, 4);
+      charBoxEscape.Name = "textBoxEscape";
+      charBoxEscape.Size = new System.Drawing.Size(46, 20);
+      charBoxEscape.TabIndex = 123;
+      charBoxEscape.Type = PunctuationTextBox.PunctuationType.Escape;
+      charBoxEscape.TextChanged += DifferentSyntaxHighlighter;
       // 
       // buttonSkipLine
       // 
@@ -328,16 +328,16 @@
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
     private System.Windows.Forms.Label labelSkip;
     private System.Windows.Forms.Label labelDelimiter;
-    private PunctuationTextBox textBoxDelimiter;
+    private PunctuationTextBox charBoxDelimiter;
     private System.Windows.Forms.Button buttonSkipLine;
     private System.Windows.Forms.Label labelQuote;
     private FastColoredTextBoxNS.FastColoredTextBox textBox;
-    private PunctuationTextBox textBoxQuote;
+    private PunctuationTextBox charBoxQuote;
     private System.Windows.Forms.Label labelComment;
     private System.Windows.Forms.TextBox textBoxComment;
     private System.Windows.Forms.NumericUpDown numericUpDownSkipRows;
     private System.Windows.Forms.Label labelEscape;
-    private PunctuationTextBox textBoxEscape;
+    private PunctuationTextBox charBoxEscape;
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
     private System.Windows.Forms.Button buttonOk;
   }

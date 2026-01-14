@@ -158,12 +158,11 @@ public class JsonTabularConverterTests
 
     var columns = new List<JsonTabularConverter.JsonColumn>();
     var rows = new List<IReadOnlyCollection<string>>();
-
-
+    
     // Act
     int rowCount = jsonObj.WriteJsonArrayAsTable(
         columns,
-        fileName.Contains("larger", StringComparison.OrdinalIgnoreCase) ? "pl" : fileName.Contains("user", StringComparison.OrdinalIgnoreCase) ? "profiles" : "data",
+        fileName.Contains("larger") ? "pl" : fileName.Contains("User") ? "profiles" : "data",
         writeHeader: true,
         handleOneRow: row => rows.Add(row),
         token: CancellationToken.None
@@ -179,8 +178,8 @@ public class JsonTabularConverterTests
       Logger.Information($"First data row:\n{string.Join(", ", rows[1])}");
 
     // Optional: check specific columns exist
-    var expectedColumns = fileName.Contains("larger", StringComparison.OrdinalIgnoreCase) ? new[] { "object_id", "course_code", "lo_hours" } : 
-                          fileName.Contains("user", StringComparison.OrdinalIgnoreCase) ? new[] { "externalId", "userId", "email", "avatar.tiny", "learningTopics.topic_id" } : Array.Empty<string>(); 
+    var expectedColumns = fileName.Contains("larger") ? new[] { "object_id", "course_code", "lo_hours" } : 
+                          fileName.Contains("User") ? new[] { "externalId", "userId", "email", "avatar.tiny", "learningTopics.topic_id" } : Array.Empty<string>(); 
     foreach (var col in expectedColumns)
     {
       Assert.IsTrue(columns.Any(c => c.HeaderName.Equals(col, StringComparison.OrdinalIgnoreCase)),

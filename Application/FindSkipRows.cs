@@ -62,9 +62,9 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
     m_CommentLine=commentLine ?? string.Empty;
     InitializeComponent();
 
-    AddCharBinding(textBoxDelimiter, nameof(FieldDelimiterChar));
-    AddCharBinding(textBoxQuote, nameof(FieldQualifierChar));
-    AddCharBinding(textBoxEscape, nameof(EscapePrefixChar));
+    AddCharBinding(charBoxDelimiter, nameof(FieldDelimiterChar));
+    AddCharBinding(charBoxQuote, nameof(FieldQualifierChar));
+    AddCharBinding(charBoxEscape, nameof(EscapePrefixChar));
 
     numericUpDownSkipRows.DataBindings.Add("Value", this, nameof(SkipRows), true, DataSourceUpdateMode.OnPropertyChanged);
     textBoxComment.DataBindings.Add("Text", this, nameof(CommentLine), true, DataSourceUpdateMode.OnPropertyChanged);
@@ -146,8 +146,8 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
     using var stream = FunctionalDI.GetStream(new SourceAccess(m_FileName));
     using var streamReader = new ImprovedTextReader(stream, m_CodePageId);
     formProgress.Report("Inspecting");
-    SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Character, textBoxQuote.Character,
-      textBoxEscape.Character, textBoxComment.Text,
+    SkipRows = streamReader.InspectStartRow(charBoxDelimiter.Character, charBoxQuote.Character,
+      charBoxEscape.Character, textBoxComment.Text,
       formProgress.CancellationToken);
 
     HighlightVisibleRange(SkipRows);
@@ -156,8 +156,8 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
   private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
   {
     m_HighLighter?.Dispose();
-    m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, textBoxQuote.Character, textBoxDelimiter.Character,
-      textBoxEscape.Character, textBoxComment.Text);
+    m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, charBoxQuote.Character, charBoxDelimiter.Character,
+      charBoxEscape.Character, textBoxComment.Text);
     HighlightVisibleRange(SkipRows);
   }
 

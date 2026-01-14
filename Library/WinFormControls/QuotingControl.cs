@@ -98,6 +98,45 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
 
   public event PropertyChangedEventHandler? PropertyChanged;
 
+
+  /// <summary>
+  /// Helper function to add a bound QuotingControl, the form designer seems to be unable to handle this control it crashes or destroys teh control
+  /// </summary>
+  /// <param name="tableLayout"></param>
+  /// <param name="column"></param>
+  /// <param name="row"></param>
+  /// <param name="span"></param>
+  /// <param name="bindingSource"></param>
+  /// <returns></returns>
+  public static QuotingControl AddQuotingControl(TableLayoutPanel? tableLayout, int column, int row, int span, BindingSource? bindingSource)
+  {
+    var ctrl = new QuotingControl();
+    if (bindingSource!=null)
+    {
+      ctrl.DataBindings.Add(new Binding(nameof(FieldDelimiterChar), bindingSource, nameof(FieldDelimiterChar), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(EscapePrefixChar), bindingSource, nameof(EscapePrefixChar), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(QualifyOnlyIfNeeded), bindingSource, nameof(QualifyOnlyIfNeeded), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(QualifyAlways), bindingSource, nameof(QualifyAlways), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(ContextSensitiveQualifier), bindingSource, nameof(ContextSensitiveQualifier), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(DuplicateQualifierToEscape), bindingSource, nameof(DuplicateQualifierToEscape), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(FieldQualifierChar), bindingSource, nameof(FieldQualifierChar), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(QualifierPlaceholder), bindingSource, nameof(QualifierPlaceholder), false, DataSourceUpdateMode.OnPropertyChanged));
+      ctrl.DataBindings.Add(new Binding(nameof(TrimmingOption), bindingSource, nameof(TrimmingOption), true));
+    }
+    if (tableLayout!=null)
+    {
+      tableLayout.SuspendLayout();
+      tableLayout.Controls.Add(ctrl, column, row);
+      if (span>1)
+        tableLayout.SetColumnSpan(ctrl, span);
+      ctrl.Dock = DockStyle.Fill;
+      tableLayout.ResumeLayout(false);
+      tableLayout.PerformLayout();
+    }
+    return ctrl;
+  }
+
+
   [Bindable(true)]
   [Browsable(true)]
   public bool ContextSensitiveQualifier
