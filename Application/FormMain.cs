@@ -141,13 +141,13 @@ public sealed partial class FormMain : ResizeForm
         if (m_FileSetting.SkipRows > 0)
         {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            await
+          await
 #endif
-          using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
+        using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            await
+          await
 #endif
-          using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
+        using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
           for (var i = 0; i < m_FileSetting.SkipRows; i++)
             skippedLines.AppendLine(await sr.ReadLineAsync(ct));
         }
@@ -196,9 +196,9 @@ public sealed partial class FormMain : ResizeForm
           var sa = new SourceAccess(m_FileSetting!.FullPath);
           sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
+          await
 #endif
-          using var stream = FunctionalDI.GetStream(sa);
+              using var stream = FunctionalDI.GetStream(sa);
 
           using var textReader =
             new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
@@ -236,7 +236,7 @@ public sealed partial class FormMain : ResizeForm
   ///   Initializes a new instance of the <see cref="FormMain" /> class.
   /// </summary>
 #if !NETFRAMEWORK
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+  [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
   internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
@@ -608,7 +608,7 @@ public sealed partial class FormMain : ResizeForm
     if (!m_CancellationTokenSource.IsCancellationRequested)
     {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await m_CancellationTokenSource.CancelAsync();
+      await m_CancellationTokenSource.CancelAsync();
 #else
       m_CancellationTokenSource.Cancel();
 #endif
@@ -750,15 +750,22 @@ public sealed partial class FormMain : ResizeForm
 
   private void SetFileSystemWatcher(string fileName)
   {
-    if (m_ViewSettings.DetectFileChanges)
+    fileSystemWatcher.EnableRaisingEvents = false;
+    try
     {
       var split = FileSystemUtils.SplitPath(fileName);
-      fileSystemWatcher.Filter = split.FileName;
-      fileSystemWatcher.Path = split.DirectoryName;
-    }
 
-    if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
-      fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
+      if (m_ViewSettings.DetectFileChanges && !string.IsNullOrEmpty(split.FileName))
+      {
+        fileSystemWatcher.Filter = split.FileName;
+        fileSystemWatcher.Path = split.DirectoryName;
+        fileSystemWatcher.EnableRaisingEvents = true;
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.Error(ex, "Could not set File System Watcher");
+    }
   }
 
   private async void ShowSettings(object? sender, EventArgs e) =>
@@ -766,81 +773,70 @@ public sealed partial class FormMain : ResizeForm
     {
       var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
 
-      var editSetting = m_FileSetting?.Clone() as CsvFileDummy;
-
-      using var frm = new FormEditSettings(m_ViewSettings, editSetting, m_LoadWarnings,
+      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, m_LoadWarnings,
         detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : (int?) null);
       this.AllowDrop = false;
       frm.ShowDialog(this);
       this.AllowDrop = true;
       await m_ViewSettings.SaveViewSettingsAsync();
 
-      // FormEditSettings could have created a new CsvFileDummy
-      editSetting = frm.FileSetting;
-      if (editSetting == null)
-        return;
+      var newFileSetting = frm.EditedSetting;
+      m_ViewSettings.PassOnConfiguration(newFileSetting);
 
       // Update Setting
       if (m_FileSetting != null)
       {
-        m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
-        m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
-        SetFileSystemWatcher(m_FileSetting.FileName);
-
         // If field headers or FillGuess has changed we need to run  Detection again
-        m_RunDetection = m_FileSetting.HasFieldHeader != editSetting.HasFieldHeader ||
+        m_RunDetection = m_FileSetting.HasFieldHeader != newFileSetting.HasFieldHeader ||
                          !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
 
         // if the file has changed need to load all
-        m_FileChanged = !editSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
-
+        m_FileChanged = !newFileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
         m_AskOpenFile = !(m_FileChanged || m_RunDetection);
 
-        m_ShouldReloadData = m_FileSetting.AllowRowCombining != editSetting.AllowRowCombining;
-        m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqualWithOrder(editSetting.ColumnCollection);
-        m_ShouldReloadData |= m_FileSetting.ByteOrderMark != editSetting.ByteOrderMark;
-        m_ShouldReloadData |= m_FileSetting.CodePageId != editSetting.CodePageId;
-        m_ShouldReloadData |= m_FileSetting.ConsecutiveEmptyRows != editSetting.ConsecutiveEmptyRows;
-        m_ShouldReloadData |= m_FileSetting.HasFieldHeader != editSetting.HasFieldHeader;
-        m_ShouldReloadData |= m_FileSetting.NumWarnings != editSetting.NumWarnings;
-        m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != editSetting.SkipEmptyLines;
-        m_ShouldReloadData |= m_FileSetting.SkipRows != editSetting.SkipRows;
-        m_ShouldReloadData |= m_FileSetting.SkipRowsAfterHeader != editSetting.SkipRowsAfterHeader;
-        m_ShouldReloadData |= m_FileSetting.TreatLfAsSpace != editSetting.TreatLfAsSpace;
-        m_ShouldReloadData |= m_FileSetting.TreatNBSPAsSpace != editSetting.TreatNBSPAsSpace;
-        m_ShouldReloadData |= m_FileSetting.TreatTextAsNull != editSetting.TreatTextAsNull;
-        m_ShouldReloadData |= m_FileSetting.TreatUnknownCharacterAsSpace != editSetting.TreatUnknownCharacterAsSpace;
-        m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != editSetting.TryToSolveMoreColumns;
-        m_ShouldReloadData |= m_FileSetting.WarnDelimiterInValue != editSetting.WarnDelimiterInValue;
-        m_ShouldReloadData |= m_FileSetting.WarnEmptyTailingColumns != editSetting.WarnEmptyTailingColumns;
-        m_ShouldReloadData |= m_FileSetting.WarnLineFeed != editSetting.WarnLineFeed;
-        m_ShouldReloadData |= m_FileSetting.WarnNBSP != editSetting.WarnNBSP;
-        m_ShouldReloadData |= m_FileSetting.WarnQuotes != editSetting.WarnQuotes;
-        m_ShouldReloadData |= m_FileSetting.WarnQuotesInQuotes != editSetting.WarnQuotesInQuotes;
-        m_ShouldReloadData |= m_FileSetting.WarnUnknownCharacter != editSetting.WarnUnknownCharacter;
-        m_ShouldReloadData |= m_FileSetting.DisplayStartLineNo != editSetting.DisplayStartLineNo;
-        m_ShouldReloadData |= m_FileSetting.DisplayRecordNo != editSetting.DisplayRecordNo;
-        m_ShouldReloadData |= m_FileSetting.FieldDelimiterChar != editSetting.FieldDelimiterChar;
-        m_ShouldReloadData |= m_FileSetting.FieldQualifierChar != editSetting.FieldQualifierChar;
-        m_ShouldReloadData |= m_FileSetting.EscapePrefixChar != editSetting.EscapePrefixChar;
-        m_ShouldReloadData |= m_FileSetting.DelimiterPlaceholder != editSetting.DelimiterPlaceholder;
-        m_ShouldReloadData |= m_FileSetting.NewLinePlaceholder != editSetting.NewLinePlaceholder;
-        m_ShouldReloadData |= m_FileSetting.QualifierPlaceholder != editSetting.QualifierPlaceholder;
-        m_ShouldReloadData |= m_FileSetting.CommentLine != editSetting.CommentLine;
-        m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != editSetting.ContextSensitiveQualifier;
-        m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != editSetting.DuplicateQualifierToEscape;
+        m_ShouldReloadData = m_FileSetting.AllowRowCombining != newFileSetting.AllowRowCombining;
+        m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqualWithOrder(newFileSetting.ColumnCollection);
+        m_ShouldReloadData |= m_FileSetting.ByteOrderMark != newFileSetting.ByteOrderMark;
+        m_ShouldReloadData |= m_FileSetting.CodePageId != newFileSetting.CodePageId;
+        m_ShouldReloadData |= m_FileSetting.HasFieldHeader != newFileSetting.HasFieldHeader;
+        m_ShouldReloadData |= m_FileSetting.SkipRows != newFileSetting.SkipRows;
+        m_ShouldReloadData |= m_FileSetting.SkipRowsAfterHeader != newFileSetting.SkipRowsAfterHeader;
+        m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != newFileSetting.TryToSolveMoreColumns;
+        m_ShouldReloadData |= m_FileSetting.WarnDelimiterInValue != newFileSetting.WarnDelimiterInValue;
+        m_ShouldReloadData |= m_FileSetting.WarnEmptyTailingColumns != newFileSetting.WarnEmptyTailingColumns;
+        m_ShouldReloadData |= m_FileSetting.WarnLineFeed != newFileSetting.WarnLineFeed;
+        m_ShouldReloadData |= m_FileSetting.WarnNBSP != newFileSetting.WarnNBSP;
+        m_ShouldReloadData |= m_FileSetting.WarnQuotes != newFileSetting.WarnQuotes;
+        m_ShouldReloadData |= m_FileSetting.WarnQuotesInQuotes != newFileSetting.WarnQuotesInQuotes;
+        m_ShouldReloadData |= m_FileSetting.WarnUnknownCharacter != newFileSetting.WarnUnknownCharacter;
+        m_ShouldReloadData |= m_FileSetting.DisplayStartLineNo != newFileSetting.DisplayStartLineNo;
+        m_ShouldReloadData |= m_FileSetting.DisplayRecordNo != newFileSetting.DisplayRecordNo;
+        m_ShouldReloadData |= m_FileSetting.FieldDelimiterChar != newFileSetting.FieldDelimiterChar;
+        m_ShouldReloadData |= m_FileSetting.FieldQualifierChar != newFileSetting.FieldQualifierChar;
+        m_ShouldReloadData |= m_FileSetting.EscapePrefixChar != newFileSetting.EscapePrefixChar;
+        m_ShouldReloadData |= m_FileSetting.DelimiterPlaceholder != newFileSetting.DelimiterPlaceholder;
+        m_ShouldReloadData |= m_FileSetting.NewLinePlaceholder != newFileSetting.NewLinePlaceholder;
+        m_ShouldReloadData |= m_FileSetting.QualifierPlaceholder != newFileSetting.QualifierPlaceholder;
+        m_ShouldReloadData |= m_FileSetting.CommentLine != newFileSetting.CommentLine;
+        m_ShouldReloadData |= m_FileSetting.ContextSensitiveQualifier != newFileSetting.ContextSensitiveQualifier;
+        m_ShouldReloadData |= m_FileSetting.DuplicateQualifierToEscape != newFileSetting.DuplicateQualifierToEscape;
+        m_ShouldReloadData |= m_FileSetting.TreatLfAsSpace != newFileSetting.TreatLfAsSpace;
+        m_ShouldReloadData |= m_FileSetting.TreatNBSPAsSpace != newFileSetting.TreatNBSPAsSpace;
+        m_ShouldReloadData |= m_FileSetting.TreatUnknownCharacterAsSpace != newFileSetting.TreatUnknownCharacterAsSpace;
+        m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != newFileSetting.SkipEmptyLines;
 
         m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-        editSetting.CopyTo(m_FileSetting);
+        m_FileSetting = newFileSetting;
         m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
       }
       // Set Setting
       else
       {
-        m_FileSetting = editSetting;
+        m_FileSetting = newFileSetting;
         m_FileChanged = true;
         m_AskOpenFile = false;
       }
+      SetFileSystemWatcher(m_FileSetting.FileName);
 
       await CheckPossibleChange();
       ApplyViewSettings();

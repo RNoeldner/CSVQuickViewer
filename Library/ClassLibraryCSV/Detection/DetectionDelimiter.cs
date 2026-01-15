@@ -37,7 +37,7 @@ public static class DetectionDelimiter
   /// <returns>
   /// Comma for .csv, Tab for .tsv or .tab, /0 otherwise
   /// </returns>
-  public static char GetDelimiterByExtension(string name)
+  public static char GetDelimiterByExtension(this string name)
   {
     if (!string.IsNullOrEmpty(name))
     {

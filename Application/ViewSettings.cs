@@ -25,35 +25,44 @@ namespace CsvTools;
 public sealed class ViewSettings : ObservableObject, IFontConfig
 {
   private bool m_AllowJson = true;
+  private bool m_AllowRowCombining = false;
+  private bool m_AutoStartRemaining = true;
   private bool m_DetectFileChanges = true;
+  private bool m_DisplayRecordNo;
+  private bool m_DisplayStartLineNo = true;
   private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
+  private string m_Font = "Tahoma";
+  private float m_FontSize = 8.25f;
   private bool m_GuessCodePage = true;
-  private bool m_GuessEscapePrefix = true;
   private bool m_GuessComment = true;
   private bool m_GuessDelimiter = true;
+  private bool m_GuessEscapePrefix = true;
   private bool m_GuessHasHeader = true;
   private bool m_GuessNewLine = true;
   private bool m_GuessQualifier = true;
   private bool m_GuessStartRow = true;
+  private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
+#if SupportPGP
+    private string m_KeyFileRead = string.Empty;
+    private string m_KeyFileWrite = string.Empty;
+#endif
+  private Duration m_LimitDuration = Duration.FiveSecond;
+  private bool m_MenuDown;
+  private int m_NumWarnings = 0;
+  private int m_ShowButtonAtLength = 2000;
+  private bool m_SkipEmptyLines = true;
+  private bool m_StoreSettingsByFile;
+  private bool m_TreatLfAsSpace = false;
+  private bool m_TreatNBSPAsSpace = false;
+  private string m_TreatTextAsNull = "NULL";
+  private bool m_TreatUnknownCharacterAsSpace;
+  private bool m_TryToSolveMoreColumns = false;
   private bool m_WarnDelimiterInValue;
   private bool m_WarnEmptyTailingColumns = true;
   private bool m_WarnLineFeed = true;
   private bool m_WarnNbsp = true;
   private bool m_WarnQuotes = true;
   private bool m_WarnUnknownCharacter = true;
-
-  // ReSharper disable once StringLiteralTypo
-  private string m_Font = "Tahoma";
-  private float m_FontSize = 8.25f;
-  private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
-  private bool m_MenuDown;
-  private bool m_StoreSettingsByFile;
-  private bool m_DisplayStartLineNo = true;
-  private bool m_DisplayRecordNo;
-  private int m_ShowButtonAtLength = 2000;
-  private Duration m_LimitDuration = Duration.FiveSecond;
-  private bool m_AutoStartRemaining = true;
-
   public enum Duration
   {
     [Description("unlimited")]
@@ -81,55 +90,18 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     TenSecond
   }
 
-#if SupportPGP
-    private string m_KeyFileRead = string.Empty;
-    private string m_KeyFileWrite = string.Empty;    
-
-    [DefaultValue("")]
-    public string KeyFileRead
-    {
-      get => m_KeyFileRead;
-      set => SetProperty(ref m_KeyFileRead, value);
-    }
-
-    [DefaultValue("")]
-    public string KeyFileWrite
-    {
-      get => m_KeyFileWrite;
-      set => SetProperty(ref m_KeyFileWrite, value);
-    }
-#endif
-  [JsonIgnore]
-  [DefaultValue(".")]
-  public string InitialFolder
+  [DefaultValue(true)]
+  public bool AllowJson
   {
-    get;
-    set;
-  } = ".";
-
-  // ReSharper disable once StringLiteralTypo
-  [DefaultValue("Tahoma")]
-  public string Font
-  {
-    get => m_Font;
-    set => SetProperty(ref m_Font, value);
+    get => m_AllowJson;
+    set => SetProperty(ref m_AllowJson, value);
   }
-
-  [DefaultValue(8.25f)]
-  public float FontSize
-  {
-    get => m_FontSize;
-    set => SetProperty(ref m_FontSize, value);
-  }
-
-  [JsonIgnore]
-  public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
 
   [DefaultValue(false)]
-  public bool DisplayRecordNo
+  public bool AllowRowCombining
   {
-    get => m_DisplayRecordNo;
-    set => SetProperty(ref m_DisplayRecordNo, value);
+    get => m_AllowRowCombining;
+    set => SetProperty(ref m_AllowRowCombining, value);
   }
 
   [DefaultValue(true)]
@@ -139,19 +111,8 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_AutoStartRemaining, value);
   }
 
-  [DefaultValue(true)]
-  public bool DisplayStartLineNo
-  {
-    get => m_DisplayStartLineNo;
-    set => SetProperty(ref m_DisplayStartLineNo, value);
-  }
-
-  [DefaultValue(true)]
-  public bool AllowJson
-  {
-    get => m_AllowJson;
-    set => SetProperty(ref m_AllowJson, value);
-  }
+  [JsonIgnore]
+  public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
 
   [DefaultValue(true)]
   public bool DetectFileChanges
@@ -160,8 +121,19 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_DetectFileChanges, value);
   }
 
-  [JsonIgnore]
-  public CsvFileDummy WriteSetting { get; } = new CsvFileDummy();
+  [DefaultValue(false)]
+  public bool DisplayRecordNo
+  {
+    get => m_DisplayRecordNo;
+    set => SetProperty(ref m_DisplayRecordNo, value);
+  }
+
+  [DefaultValue(true)]
+  public bool DisplayStartLineNo
+  {
+    get => m_DisplayStartLineNo;
+    set => SetProperty(ref m_DisplayStartLineNo, value);
+  }
 
   [JsonIgnore]
   public TimeSpan DurationTimeSpan
@@ -180,19 +152,26 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     }
   }
 
-  /// <summary>
-  ///   Gets or sets the fill guess settings.
-  /// </summary>
-  /// <value>The fill guess settings.</value>
-#if NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
   public FillGuessSettings FillGuessSettings
   {
     get => m_FillGuessSettings;
     set => SetProperty(ref m_FillGuessSettings, value);
   }
 
+  // ReSharper disable once StringLiteralTypo
+  [DefaultValue("Tahoma")]
+  public string Font
+  {
+    get => m_Font;
+    set => SetProperty(ref m_Font, value);
+  }
+
+  [DefaultValue(8.25f)]
+  public float FontSize
+  {
+    get => m_FontSize;
+    set => SetProperty(ref m_FontSize, value);
+  }
 
   [DefaultValue(true)]
   public bool GuessCodePage
@@ -200,12 +179,11 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     get => m_GuessCodePage;
     set => SetProperty(ref m_GuessCodePage, value);
   }
-
   [DefaultValue(true)]
-  public bool GuessEscapePrefix
+  public bool GuessComment
   {
-    get => m_GuessEscapePrefix;
-    set => SetProperty(ref m_GuessEscapePrefix, value);
+    get => m_GuessComment;
+    set => SetProperty(ref m_GuessComment, value);
   }
 
   [DefaultValue(true)]
@@ -213,6 +191,13 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   {
     get => m_GuessDelimiter;
     set => SetProperty(ref m_GuessDelimiter, value);
+  }
+
+  [DefaultValue(true)]
+  public bool GuessEscapePrefix
+  {
+    get => m_GuessEscapePrefix;
+    set => SetProperty(ref m_GuessEscapePrefix, value);
   }
 
   [DefaultValue(true)]
@@ -230,19 +215,11 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   }
 
   [DefaultValue(true)]
-  public bool GuessComment
-  {
-    get => m_GuessComment;
-    set => SetProperty(ref m_GuessComment, value);
-  }
-
-  [DefaultValue(true)]
   public bool GuessQualifier
   {
     get => m_GuessQualifier;
     set => SetProperty(ref m_GuessQualifier, value);
   }
-
 
   [DefaultValue(true)]
   public bool GuessStartRow
@@ -250,6 +227,20 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     get => m_GuessStartRow;
     set => SetProperty(ref m_GuessStartRow, value);
   }
+
+  public HtmlStyle HtmlStyle
+  {
+    get => m_HtmlStyle;
+    set => SetProperty(ref m_HtmlStyle, value);
+  }
+
+  [JsonIgnore]
+  [DefaultValue(".")]
+  public string InitialFolder
+  {
+    get;
+    set;
+  } = ".";
 
   [DefaultValue(Duration.FiveSecond)]
   public Duration LimitDuration
@@ -265,6 +256,25 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_MenuDown, value);
   }
 
+  [DefaultValue(0)]
+  public int NumWarnings
+  {
+    get => m_NumWarnings;
+    set => SetProperty(ref m_NumWarnings, value);
+  }
+
+  [DefaultValue(500)]
+  public int ShowButtonAtLength
+  {
+    get => m_ShowButtonAtLength;
+    set => SetProperty(ref m_ShowButtonAtLength, value);
+  }
+
+  [DefaultValue(true)] 
+  public bool SkipEmptyLines 
+  { 
+    get => m_SkipEmptyLines; 
+    set => SetProperty(ref m_SkipEmptyLines, value); }
 
   [DefaultValue(false)]
   public bool StoreSettingsByFile
@@ -273,11 +283,55 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_StoreSettingsByFile, value);
   }
 
-  public HtmlStyle HtmlStyle
+  [DefaultValue(false)]
+  public bool TreatLfAsSpace
   {
-    get => m_HtmlStyle;
-    set => SetProperty(ref m_HtmlStyle, value);
+    get => m_TreatLfAsSpace;
+    set => SetProperty(ref m_TreatLfAsSpace, value);
   }
+
+  [DefaultValue(false)]
+  public bool TreatNBSPAsSpace
+  {
+    get => m_TreatNBSPAsSpace;
+    set => SetProperty(ref m_TreatNBSPAsSpace, value);
+  }
+
+  [DefaultValue("NULL")]
+  public string TreatTextAsNull 
+  { 
+    get => m_TreatTextAsNull;
+    set => SetProperty(ref m_TreatTextAsNull, value);
+  }
+  [DefaultValue(false)]
+  public bool TreatUnknownCharacterAsSpace
+  {
+    get => m_TreatUnknownCharacterAsSpace;
+    set => SetProperty(ref m_TreatUnknownCharacterAsSpace, value);
+  }
+
+  [DefaultValue(false)]
+  public bool TryToSolveMoreColumns
+  {
+    get => m_TryToSolveMoreColumns;
+    set => SetProperty(ref m_TryToSolveMoreColumns, value);
+  }
+
+#if SupportPGP
+    [DefaultValue("")]
+    public string KeyFileRead
+    {
+      get => m_KeyFileRead;
+      set => SetProperty(ref m_KeyFileRead, value);
+    }
+
+    [DefaultValue("")]
+    public string KeyFileWrite
+    {
+      get => m_KeyFileWrite;
+      set => SetProperty(ref m_KeyFileWrite, value);
+    }
+#endif
 
   [DefaultValue(false)]
   public bool WarnDelimiterInValue
@@ -287,25 +341,10 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   }
 
   [DefaultValue(true)]
-  public bool WarnUnknownCharacter
+  public bool WarnEmptyTailingColumns
   {
-    get => m_WarnUnknownCharacter;
-    set => SetProperty(ref m_WarnUnknownCharacter, value);
-  }
-
-
-  [DefaultValue(true)]
-  public bool WarnQuotes
-  {
-    get => m_WarnQuotes;
-    set => SetProperty(ref m_WarnQuotes, value);
-  }
-
-  [DefaultValue(true)]
-  public bool WarnNBSP
-  {
-    get => m_WarnNbsp;
-    set => SetProperty(ref m_WarnNbsp, value);
+    get => m_WarnEmptyTailingColumns;
+    set => SetProperty(ref m_WarnEmptyTailingColumns, value);
   }
 
   [DefaultValue(true)]
@@ -316,47 +355,58 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   }
 
   [DefaultValue(true)]
-  public bool WarnEmptyTailingColumns
+  public bool WarnNBSP
   {
-    get => m_WarnEmptyTailingColumns;
-    set => SetProperty(ref m_WarnEmptyTailingColumns, value);
+    get => m_WarnNbsp;
+    set => SetProperty(ref m_WarnNbsp, value);
   }
 
-  [DefaultValue(500)]
-  public int ShowButtonAtLength
+  [DefaultValue(true)]
+  public bool WarnQuotes
   {
-    get => m_ShowButtonAtLength;
-    set => SetProperty(ref m_ShowButtonAtLength, value);
+    get => m_WarnQuotes;
+    set => SetProperty(ref m_WarnQuotes, value);
   }
 
+  [DefaultValue(true)]
+  public bool WarnUnknownCharacter
+  {
+    get => m_WarnUnknownCharacter;
+    set => SetProperty(ref m_WarnUnknownCharacter, value);
+  }
+
+  [JsonIgnore]
+  public CsvFileDummy WriteSetting { get; internal set;  } = new CsvFileDummy();
+
+  /// <summary>
+  ///   Gets or sets the fill guess settings.
+  /// </summary>
+  /// <value>The fill guess settings.</value>
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
   public void DeriveWriteSetting(CsvFileDummy fileSetting)
   {
-
     WriteSetting.CodePageId = fileSetting.CodePageId;
     WriteSetting.ByteOrderMark = fileSetting.ByteOrderMark;
-    WriteSetting.WarnDelimiterInValue = fileSetting.WarnDelimiterInValue;
-    WriteSetting.WarnEmptyTailingColumns = fileSetting.WarnEmptyTailingColumns;
-    WriteSetting.WarnLineFeed = fileSetting.WarnLineFeed;
-    WriteSetting.WarnNBSP = fileSetting.WarnNBSP;
-    WriteSetting.WarnQuotes = fileSetting.WarnQuotes;
-    WriteSetting.WarnUnknownCharacter = fileSetting.WarnUnknownCharacter;
-
-    WriteSetting.DisplayStartLineNo = fileSetting.DisplayStartLineNo;
-    WriteSetting.DisplayRecordNo = fileSetting.DisplayRecordNo;
     WriteSetting.ColumnCollection.Overwrite(fileSetting.ColumnCollection);
 
-    // Fix No Qualifier
+    // Qualifier
     if (WriteSetting.FieldQualifierChar == 0)
       WriteSetting.FieldQualifierChar = '"';
+
+    // Delimiter
+    if (WriteSetting.FieldDelimiterChar == 0)
+      WriteSetting.FieldDelimiterChar = ',';
+
+    // Escape
+    if (WriteSetting.EscapePrefixChar == 0)
+      WriteSetting.EscapePrefixChar = fileSetting.EscapePrefixChar;
 
     // Fix No DuplicateQualifier
     if (!WriteSetting.DuplicateQualifierToEscape && WriteSetting.FieldQualifierChar == '"' &&
         WriteSetting.EscapePrefixChar == char.MinValue)
       WriteSetting.DuplicateQualifierToEscape = true;
-
-    // Fix No Delimiter
-    if (WriteSetting.FieldDelimiterChar == 0)
-      WriteSetting.FieldDelimiterChar = '\t';
 
     // NewLine depending on Environment
     if (Environment.NewLine == "\r\n")
@@ -369,13 +419,22 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
 
   public void PassOnConfiguration(CsvFileDummy fileSetting)
   {
+    fileSetting.AllowRowCombining = AllowRowCombining;
+    fileSetting.DisplayRecordNo = DisplayRecordNo;
+    fileSetting.DisplayStartLineNo = DisplayStartLineNo;
+    fileSetting.NumWarnings = NumWarnings;
+    fileSetting.SkipEmptyLines = SkipEmptyLines;
+    fileSetting.TreatLfAsSpace = TreatLfAsSpace;
+    fileSetting.TreatNBSPAsSpace = TreatNBSPAsSpace;
+    fileSetting.TreatTextAsNull = TreatTextAsNull;
+    fileSetting.TreatUnknownCharacterAsSpace = TreatUnknownCharacterAsSpace;
+    fileSetting.TryToSolveMoreColumns = TryToSolveMoreColumns;
     fileSetting.WarnDelimiterInValue = WarnDelimiterInValue;
     fileSetting.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
     fileSetting.WarnLineFeed = WarnLineFeed;
     fileSetting.WarnNBSP = WarnNBSP;
     fileSetting.WarnQuotes = WarnQuotes;
+    fileSetting.WarnQuotesInQuotes = WarnQuotes;
     fileSetting.WarnUnknownCharacter = WarnUnknownCharacter;
-    fileSetting.DisplayStartLineNo = DisplayStartLineNo;
-    fileSetting.DisplayRecordNo = DisplayRecordNo;
   }
 }

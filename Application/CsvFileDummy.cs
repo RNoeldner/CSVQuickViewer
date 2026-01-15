@@ -13,8 +13,6 @@
  */
 using System;
 using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace CsvTools;
 
@@ -22,489 +20,243 @@ namespace CsvTools;
 /// <summary>
 ///   setting for CSV files
 /// </summary>
-public sealed class CsvFileDummy : ICsvFile, INotifyPropertyChanged
+public sealed class CsvFileDummy : ICsvFile
 {
-  private bool m_AllowRowCombining;
+  /// <summary>
+  /// Gets or sets a value indicating whether this file is a Json file
+  /// </summary>
+  /// <value>
+  ///   <c>true</c> if this instance is json; otherwise, <c>false</c>.
+  /// </value>
+  public bool IsJson { get; set; }
 
-  private bool m_ByteOrderMark = true;
+  /// <summary>
+  /// Gets a value indicating whether this instance is delimited file
+  /// </summary>
+  public bool IsCsv => !IsJson && !IsXml;
 
-  private int m_CodePageId = 65001;
+  /// <summary>
+  /// Gets or sets a value indicating whether this file is a XML file
+  /// </summary>
+  /// <value>
+  ///   <c>true</c> if this instance is XML; otherwise, <c>false</c>.
+  /// </value>
+  public bool IsXml { get; set; }
 
-  private string m_ColumnFile = string.Empty;
+  /// <inheritdoc />
+  public bool AllowRowCombining { get; set; }
 
-  private string m_CommentLine = string.Empty;
+  /// <inheritdoc />
+  public string CommentLine { get; set; } = string.Empty;
 
-  private int m_ConsecutiveEmptyRows = 5;
+  /// <inheritdoc />
+  public bool ContextSensitiveQualifier { get; set; }
 
-  private bool m_ContextSensitiveQualifier;
+  /// <inheritdoc />
+  public string DelimiterPlaceholder { get; set; } = string.Empty;
 
-  private string m_DelimiterPlaceholder = string.Empty;
+  /// <inheritdoc />
+  public bool DuplicateQualifierToEscape { get; set; } = true;
 
-  private bool m_DisplayEndLineNo;
+  /// <inheritdoc />
+  [DefaultValue('\0')]
+  public char EscapePrefixChar { get; set; } = '\0';
 
-  private bool m_DisplayRecordNo;
+  /// <inheritdoc />
+  [DefaultValue(',')]
+  public char FieldDelimiterChar { get; set; } = ',';
 
-  private bool m_DisplayStartLineNo = true;
+  /// <inheritdoc />
+  [DefaultValue('"')]
+  public char FieldQualifierChar { get; set; } = '"';
 
-  private bool m_DuplicateQualifierToEscape = true;
+  /// <inheritdoc />
+  [DefaultValue(RecordDelimiterTypeEnum.Crlf)]
+  public RecordDelimiterTypeEnum NewLine { get; set; } = RecordDelimiterTypeEnum.Crlf;
 
-  private char m_EscapePrefixChar = '\0';
+  /// <inheritdoc />
+  [DefaultValue("")]
+  public string NewLinePlaceholder { get; set; } = string.Empty;
 
-  private char m_FieldDelimiterChar = ',';
+  /// <inheritdoc />
+  public bool NoDelimitedFile { get; set; }
 
-  private char m_FieldQualifierChar = '"';
+  /// <inheritdoc />
+  [DefaultValue(0)]
+  public int NumWarnings { get; set; }
 
-  private string m_FileName = string.Empty;
+  /// <inheritdoc />
+  [DefaultValue("")]
+  public string QualifierPlaceholder { get; set; } = string.Empty;
 
-  private long m_FileSize;
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool QualifyAlways { get; set; }
 
-  private string m_Footer = string.Empty;
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool QualifyOnlyIfNeeded { get; set; } = true;
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool TreatLfAsSpace { get; set; }
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool TreatUnknownCharacterAsSpace { get; set; }
+
+  /// <inheritdoc />
+  [DefaultValue(TrimmingOptionEnum.Unquoted)]
+  public TrimmingOptionEnum TrimmingOption { get; set; } = TrimmingOptionEnum.Unquoted;
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool TryToSolveMoreColumns { get; set; }
+
+  /// <inheritdoc />
+  public bool WarnDelimiterInValue { get; set; }
+
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool WarnEmptyTailingColumns { get; set; } = true;
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool WarnLineFeed { get; set; }
+
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool WarnNBSP { get; set; } = true;
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool WarnQuotes { get; set; }
+
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool WarnQuotesInQuotes { get; set; } = true;
+
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool WarnUnknownCharacter { get; set; } = true;
+
+  /// <inheritdoc />
+  [DefaultValue(false)]
+  public bool WriteFixedLength { get; set; }
+
+  /// <inheritdoc cref="IWithCopyTo{T}" />
+  public bool Equals(ICsvFile? other) => ReferenceEquals(this, other);
+
+  #region IFileSettingPhysicalFile
 
   private string? m_FullPath;
 
-  private bool m_HasFieldHeader = true;
+  /// <inheritdoc />
+  [DefaultValue(true)]
+  public bool ByteOrderMark { get; set; } = true;
 
-  private string m_Header = string.Empty;
+  /// <inheritdoc />
+  [DefaultValue(65001)]
+  public int CodePageId { get; set; } = 65001;
 
-  private string m_IdentifierInContainer = string.Empty;
+  /// <inheritdoc />
+  [DefaultValue("")]
+  public string ColumnFile { get; set; } = string.Empty;
 
-  private bool m_IsJson;
+  /// <inheritdoc />
+  [DefaultValue("")]
+  public string FileName { get; set; } = string.Empty;
 
-  private bool m_IsXml;
+  /// <inheritdoc />
+  [DefaultValue(0)]
+  public long FileSize { get; set; }
 
-  private bool m_KeepUnencrypted;
-
-  private string m_KeyFile = string.Empty;
-
-  private RecordDelimiterTypeEnum m_NewLine = RecordDelimiterTypeEnum.Crlf;
-
-  private string m_NewLinePlaceholder = string.Empty;
-
-  private bool m_NoDelimitedFile;
-
-  private int m_NumWarnings;
-
-  private string m_Passphrase = string.Empty;
-
-  private string m_QualifierPlaceholder = string.Empty;
-
-  private bool m_QualifyAlways;
-
-  private bool m_QualifyOnlyIfNeeded = true;
-
-  private long m_RecordLimit;
-
-  private string m_RemoteFileName = string.Empty;
-
-  private DateTime? m_RemoteFileTimeUtc;
-
-  private string m_RootFolder = string.Empty;
-
-  private bool m_SetLatestSourceTimeForWrite;
-
-  private bool m_SkipDuplicateHeader = true;
-
-  private bool m_SkipEmptyLines = true;
-
-  private int m_SkipRows;
-
-  private int m_SkipRowsAfterHeader;
-
-  private bool m_ThrowErrorIfNotExists;
-
-  private bool m_TreatLfAsSpace;
-
-  private bool m_TreatNBSPAsSpace;
-
-  private string m_TreatTextAsNull = "NULL";
-
-  private bool m_TreatUnknownCharacterAsSpace;
-
-  private bool m_Trim;
-
-  private TrimmingOptionEnum m_TrimmingOption = TrimmingOptionEnum.Unquoted;
-
-  private bool m_TryToSolveMoreColumns;
-
-  private ValueFormat m_ValueFormatWrite = ValueFormat.Empty;
-
-  private bool m_WarnDelimiterInValue;
-
-  private bool m_WarnEmptyTailingColumns = true;
-
-  private bool m_WarnLineFeed;
-
-  private bool m_WarnNBSP = true;
-
-  private bool m_WarnQuotes;
-
-  private bool m_WarnQuotesInQuotes = true;
-
-  private bool m_WarnUnknownCharacter = true;
-
-  private bool m_WriteFixedLength;
-
-  public event PropertyChangedEventHandler? PropertyChanged;
-
-  public bool AllowRowCombining
-  {
-    get => m_AllowRowCombining;
-    set => SetField(ref m_AllowRowCombining, value);
-  }
-
-  public bool ByteOrderMark
-  {
-    get => m_ByteOrderMark;
-    set => SetField(ref m_ByteOrderMark, value);
-  }
-
-  public int CodePageId
-  {
-    get => m_CodePageId;
-    set => SetField(ref m_CodePageId, value);
-  }
-
-  public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
-
-  public string ColumnFile
-  {
-    get => m_ColumnFile;
-    set => SetField(ref m_ColumnFile, value);
-  }
-
-  public string CommentLine
-  {
-    get => m_CommentLine;
-    set => SetField(ref m_CommentLine, value);
-  }
-
-  public int ConsecutiveEmptyRows
-  {
-    get => m_ConsecutiveEmptyRows;
-    set => SetField(ref m_ConsecutiveEmptyRows, value);
-  }
-
-  public bool ContextSensitiveQualifier
-  {
-    get => m_ContextSensitiveQualifier;
-    set => SetField(ref m_ContextSensitiveQualifier, value);
-  }
-
-  public string DelimiterPlaceholder
-  {
-    get => m_DelimiterPlaceholder;
-    set => SetField(ref m_DelimiterPlaceholder, value);
-  }
-
-  public bool DisplayEndLineNo
-  {
-    get => m_DisplayEndLineNo;
-    set => SetField(ref m_DisplayEndLineNo, value);
-  }
-
-  public bool DisplayRecordNo
-  {
-    get => m_DisplayRecordNo;
-    set => SetField(ref m_DisplayRecordNo, value);
-  }
-
-  public bool DisplayStartLineNo
-  {
-    get => m_DisplayStartLineNo;
-    set => SetField(ref m_DisplayStartLineNo, value);
-  }
-
-  public bool DuplicateQualifierToEscape
-  {
-    get => m_DuplicateQualifierToEscape;
-    set => SetField(ref m_DuplicateQualifierToEscape, value);
-  }
-
-  public char EscapePrefixChar
-  {
-    get => m_EscapePrefixChar;
-    set => SetField(ref m_EscapePrefixChar, value);
-  }
-
-  public char FieldDelimiterChar
-  {
-    get => m_FieldDelimiterChar;
-    set => SetField(ref m_FieldDelimiterChar, value);
-  }
-
-  public char FieldQualifierChar
-  {
-    get => m_FieldQualifierChar;
-    set => SetField(ref m_FieldQualifierChar, value);
-  }
-
-  public string FileName
-  {
-    get => m_FileName;
-    set => SetField(ref m_FileName, value);
-  }
-
-  public long FileSize
-  {
-    get => m_FileSize;
-    set => SetField(ref m_FileSize, value);
-  }
-
-  public string Footer
-  {
-    get => m_Footer;
-    set => SetField(ref m_Footer, value);
-  }
-
+  /// <inheritdoc />
   public string FullPath => m_FullPath ?? FileName;
 
-  public bool HasFieldHeader
-  {
-    get => m_HasFieldHeader;
-    set => SetField(ref m_HasFieldHeader, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string IdentifierInContainer { get; set; } = string.Empty;
 
-  public string Header
-  {
-    get => m_Header;
-    set => SetField(ref m_Header, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string KeyFile { get; set; } = string.Empty;
 
-  public string IdentifierInContainer
-  {
-    get => m_IdentifierInContainer;
-    set => SetField(ref m_IdentifierInContainer, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string Passphrase { get; set; } = string.Empty;
 
-  public bool IsCsv => !IsJson && !IsXml;
+  /// <inheritdoc />
+  [DefaultValue("")] public string RemoteFileName { get; set; } = string.Empty;
 
-  public bool IsJson
-  {
-    get => m_IsJson;
-    set => SetField(ref m_IsJson, value);
-  }
+  [DefaultValue(null)] public DateTime? RemoteFileTimeUtc { get; set; }
 
-  public bool IsXml
-  {
-    get => m_IsXml;
-    set => SetField(ref m_IsXml, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
-  public bool KeepUnencrypted
-  {
-    get => m_KeepUnencrypted;
-    set => SetField(ref m_KeepUnencrypted, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool SetLatestSourceTimeForWrite { get; set; }
 
-  public string KeyFile
-  {
-    get => m_KeyFile;
-    set => SetField(ref m_KeyFile, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool ThrowErrorIfNotExists { get; set; }
 
-  public RecordDelimiterTypeEnum NewLine
-  {
-    get => m_NewLine;
-    set => SetField(ref m_NewLine, value);
-  }
+  /// <inheritdoc />
+  public ValueFormat ValueFormatWrite { get; set; } = ValueFormat.Empty;
 
-  public string NewLinePlaceholder
-  {
-    get => m_NewLinePlaceholder;
-    set => SetField(ref m_NewLinePlaceholder, value);
-  }
+  /// <inheritdoc />
+  public void ResetFullPath() => m_FullPath = FileName.FullPath(RootFolder);
 
-  public bool NoDelimitedFile
-  {
-    get => m_NoDelimitedFile;
-    set => SetField(ref m_NoDelimitedFile, value);
-  }
+  #endregion IFileSettingPhysicalFile
 
-  public int NumWarnings
-  {
-    get => m_NumWarnings;
-    set => SetField(ref m_NumWarnings, value);
-  }
+  #region IFileSetting
 
-  public string Passphrase
-  {
-    get => m_Passphrase;
-    set => SetField(ref m_Passphrase, value);
-  }
+  /// <inheritdoc />
+  public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
-  public string QualifierPlaceholder
-  {
-    get => m_QualifierPlaceholder;
-    set => SetField(ref m_QualifierPlaceholder, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(5)] public int ConsecutiveEmptyRows { get; set; } = 5;
 
-  public bool QualifyAlways
-  {
-    get => m_QualifyAlways;
-    set => SetField(ref m_QualifyAlways, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool DisplayEndLineNo { get; set; }
 
-  public bool QualifyOnlyIfNeeded
-  {
-    get => m_QualifyOnlyIfNeeded;
-    set => SetField(ref m_QualifyOnlyIfNeeded, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool DisplayRecordNo { get; set; }
 
-  public long RecordLimit
-  {
-    get => m_RecordLimit;
-    set => SetField(ref m_RecordLimit, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(true)] public bool DisplayStartLineNo { get; set; } = true;
 
-  public string RemoteFileName
-  {
-    get => m_RemoteFileName;
-    set => SetField(ref m_RemoteFileName, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string Footer { get; set; } = string.Empty;
 
-  public DateTime? RemoteFileTimeUtc
-  {
-    get => m_RemoteFileTimeUtc;
-    set => SetField(ref m_RemoteFileTimeUtc, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(true)] public bool HasFieldHeader { get; set; } = true;
 
-  public string RootFolder
-  {
-    get => m_RootFolder;
-    set => SetField(ref m_RootFolder, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("")] public string Header { get; set; } = string.Empty;
 
-  public bool SetLatestSourceTimeForWrite
-  {
-    get => m_SetLatestSourceTimeForWrite;
-    set => SetField(ref m_SetLatestSourceTimeForWrite, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool KeepUnencrypted { get; set; }
 
-  public bool SkipDuplicateHeader
-  {
-    get => m_SkipDuplicateHeader;
-    set => SetField(ref m_SkipDuplicateHeader, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(0)] public long RecordLimit { get; set; }
 
-  public bool SkipEmptyLines
-  {
-    get => m_SkipEmptyLines;
-    set => SetField(ref m_SkipEmptyLines, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(true)] public bool SkipDuplicateHeader { get; set; } = true;
 
-  public int SkipRows
-  {
-    get => m_SkipRows;
-    set => SetField(ref m_SkipRows, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(true)] public bool SkipEmptyLines { get; set; } = true;
 
-  public int SkipRowsAfterHeader
-  {
-    get => m_SkipRowsAfterHeader;
-    set => SetField(ref m_SkipRowsAfterHeader, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(0)] public int SkipRows { get; set; }
 
-  public bool ThrowErrorIfNotExists
-  {
-    get => m_ThrowErrorIfNotExists;
-    set => SetField(ref m_ThrowErrorIfNotExists, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(0)] public int SkipRowsAfterHeader { get; set; }
 
-  public bool TreatLfAsSpace
-  {
-    get => m_TreatLfAsSpace;
-    set => SetField(ref m_TreatLfAsSpace, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool TreatNBSPAsSpace { get; set; }
 
-  public bool TreatNBSPAsSpace
-  {
-    get => m_TreatNBSPAsSpace;
-    set => SetField(ref m_TreatNBSPAsSpace, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue("NULL")] public string TreatTextAsNull { get; set; } = "NULL";
 
-  public string TreatTextAsNull
-  {
-    get => m_TreatTextAsNull;
-    set => SetField(ref m_TreatTextAsNull, value);
-  }
-
-  public bool TreatUnknownCharacterAsSpace
-  {
-    get => m_TreatUnknownCharacterAsSpace;
-    set => SetField(ref m_TreatUnknownCharacterAsSpace, value);
-  }
-
-  public bool Trim
-  {
-    get => m_Trim;
-    set => SetField(ref m_Trim, value);
-  }
-
-  public TrimmingOptionEnum TrimmingOption
-  {
-    get => m_TrimmingOption;
-    set => SetField(ref m_TrimmingOption, value);
-  }
-
-  public bool TryToSolveMoreColumns
-  {
-    get => m_TryToSolveMoreColumns;
-    set => SetField(ref m_TryToSolveMoreColumns, value);
-  }
-
-  public ValueFormat ValueFormatWrite
-  {
-    get => m_ValueFormatWrite;
-    set => SetField(ref m_ValueFormatWrite, value);
-  }
-
-  public bool WarnDelimiterInValue
-  {
-    get => m_WarnDelimiterInValue;
-    set => SetField(ref m_WarnDelimiterInValue, value);
-  }
-
-  public bool WarnEmptyTailingColumns
-  {
-    get => m_WarnEmptyTailingColumns;
-    set => SetField(ref m_WarnEmptyTailingColumns, value);
-  }
-
-  public bool WarnLineFeed
-  {
-    get => m_WarnLineFeed;
-    set => SetField(ref m_WarnLineFeed, value);
-  }
-
-  public bool WarnNBSP
-  {
-    get => m_WarnNBSP;
-    set => SetField(ref m_WarnNBSP, value);
-  }
-
-  public bool WarnQuotes
-  {
-    get => m_WarnQuotes;
-    set => SetField(ref m_WarnQuotes, value);
-  }
-
-  public bool WarnQuotesInQuotes
-  {
-    get => m_WarnQuotesInQuotes;
-    set => SetField(ref m_WarnQuotesInQuotes, value);
-  }
-
-  public bool WarnUnknownCharacter
-  {
-    get => m_WarnUnknownCharacter;
-    set => SetField(ref m_WarnUnknownCharacter, value);
-  }
-
-  public bool WriteFixedLength
-  {
-    get => m_WriteFixedLength;
-    set => SetField(ref m_WriteFixedLength, value);
-  }
+  /// <inheritdoc />
+  [DefaultValue(false)] public bool Trim { get; set; } = false;
 
   /// <inheritdoc />
   public CsvFileDummy Clone()
@@ -513,8 +265,6 @@ public sealed class CsvFileDummy : ICsvFile, INotifyPropertyChanged
     CopyTo(res);
     return res;
   }
-
-  object ICloneable.Clone() => Clone();
 
   /// <inheritdoc />
   public void CopyTo(IFileSetting target)
@@ -654,19 +404,7 @@ public sealed class CsvFileDummy : ICsvFile, INotifyPropertyChanged
 
   /// <inheritdoc />
   public string GetDisplay() => "CSV";
+  object ICloneable.Clone() => Clone();
 
-  public void ResetFullPath() => m_FullPath = Path.GetFullPath(m_FileName);
-
-  private void OnPropertyChanged(string propertyName) =>
-                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-  private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-  {
-    if (Equals(field, value))
-      return false;
-
-    field = value;
-    OnPropertyChanged(propertyName);
-    return true;
-  }
+  #endregion IFileSetting
 }

@@ -33,11 +33,15 @@ public partial class FormEditSettings : ResizeForm
 {
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
   private readonly int? m_NumRecords;
+  private readonly EditSettings m_ReadSettings;
+  private readonly EditSettings m_WriteSettings;
   private readonly ViewSettings m_ViewSettings;
+
   /// <summary>
   /// Warnings are passed on to HTML Info
   /// </summary>
   private readonly IEnumerable<string> m_Warnings;
+
   /// <summary>
   /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
   /// </summary>
@@ -50,16 +54,31 @@ public partial class FormEditSettings : ResizeForm
     IEnumerable<string> warnings, int? numRecords)
   {
     m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
-    var m_InitialSettingNull = setting is null;
-    FileSetting = setting ?? new CsvFileDummy();
+    m_ReadSettings = new EditSettings(setting);
+    m_WriteSettings  = new EditSettings(viewSettings.WriteSetting);
+    m_Warnings = warnings;
+    m_NumRecords = numRecords;
+
+    if (setting is null)
+    {
+#if SupportPGP
+        if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileRead))
+          textBoxKeyFileRead.Text = m_ViewSettings.KeyFileRead;
+        if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileWrite))
+          textBoxKeyFileWrite.Text = m_ViewSettings.KeyFileWrite;
+#endif
+
+      m_ReadSettings.ContextSensitiveQualifier = m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
+      m_ReadSettings.DuplicateQualifierToEscape = m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
+      m_ReadSettings.FieldQualifierChar = m_ViewSettings.DefaultInspectionResult.FieldQualifier;
+      m_ReadSettings.SkipRows = m_ViewSettings.DefaultInspectionResult.SkipRows;
+      m_ReadSettings.SkipRowsAfterHeader = m_ViewSettings.DefaultInspectionResult.SkipRowsAfterHeader;
+    }
+
     FontConfig = viewSettings;
     InitializeComponent();
 
-    buttonFileInfo.Enabled = !m_InitialSettingNull;
-
-    m_Warnings = warnings;
-
-    cboNewLine.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });
+    cboNewLine.SetEnumDataSource(m_WriteSettings.NewLine, new[] { RecordDelimiterTypeEnum.None });
     comboBoxLimitDuration.SetEnumDataSource(m_ViewSettings.LimitDuration);
 
     // Set Code Page Dropdown
@@ -80,23 +99,6 @@ public partial class FormEditSettings : ResizeForm
     buttonKeyFileRead.Visible = false;
 #endif
 
-    if (m_InitialSettingNull)
-    {
-#if SupportPGP
-        if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileRead))
-          textBoxKeyFileRead.Text = m_ViewSettings.KeyFileRead;
-        if (!string.IsNullOrEmpty(m_ViewSettings.KeyFileWrite))
-          textBoxKeyFileWrite.Text = m_ViewSettings.KeyFileWrite;
-#endif
-
-      FileSetting.ContextSensitiveQualifier = m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier;
-      FileSetting.DuplicateQualifierToEscape = m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
-      FileSetting.FieldQualifierChar = m_ViewSettings.DefaultInspectionResult.FieldQualifier;
-      FileSetting.SkipRows = m_ViewSettings.DefaultInspectionResult.SkipRows;
-      FileSetting.SkipRowsAfterHeader = m_ViewSettings.DefaultInspectionResult.SkipRowsAfterHeader;
-    }
-
-
     toolTip.SetToolTip(checkBoxAllowRowCombining,
       @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
 That column content is moved to the next line.
@@ -106,8 +108,6 @@ This is a very risky option, in some cases rows might be lost.");
     toolTip.SetToolTip(checkBoxTryToSolveMoreColumns,
       @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
-    m_NumRecords = numRecords;
-
 
     var assembly = Assembly.GetExecutingAssembly();
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -127,7 +127,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     linkLabelGnu.Links.Add(0, linkLabelGnu.Text.Length, "http://www.gnu.org/licenses/lgpl-3.0.html");
   }
 
-  public CsvFileDummy FileSetting { get; }
+  public CsvFileDummy EditedSetting => m_ReadSettings.ToCsvFile();
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
@@ -190,24 +190,52 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         formProgress);
       formProgress.Close();
 
-      buttonFileInfo.Enabled = true;
-      FileSetting.SkipRows = ir.SkipRows;
-      FileSetting.CodePageId = ir.CodePageId;
-      FileSetting.ByteOrderMark = ir.ByteOrderMark;
-      FileSetting.IdentifierInContainer = ir.IdentifierInContainer;
-      FileSetting.HasFieldHeader = ir.HasFieldHeader;
-      FileSetting.ColumnCollection.Overwrite(ir.Columns);
-      FileSetting.CommentLine = ir.CommentLine;
-      FileSetting.EscapePrefixChar = ir.EscapePrefix;
-      FileSetting.FieldDelimiterChar = ir.FieldDelimiter;
-      FileSetting.FieldQualifierChar = ir.FieldQualifier;
-      FileSetting.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
-      FileSetting.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
-      FileSetting.NewLine = ir.NewLine;
-      FileSetting.IsJson = ir.IsJson;
-      FileSetting.IsXml = ir.IsXml;
-      m_ViewSettings.DeriveWriteSetting(FileSetting);
-      FileSetting.FileName = newFileName;
+
+      m_ReadSettings.FileName = newFileName;
+      m_ReadSettings.SkipRows = ir.SkipRows;
+      m_ReadSettings.CodePageId = ir.CodePageId;
+      m_ReadSettings.ByteOrderMark = ir.ByteOrderMark;
+      m_ReadSettings.IdentifierInContainer = ir.IdentifierInContainer;
+      m_ReadSettings.HasFieldHeader = ir.HasFieldHeader;
+      m_ReadSettings.ColumnCollection.Overwrite(ir.Columns);
+      m_ReadSettings.CommentLine = ir.CommentLine;
+      m_ReadSettings.EscapePrefixChar = ir.EscapePrefix;
+      m_ReadSettings.FieldDelimiterChar = ir.FieldDelimiter;
+      m_ReadSettings.FieldQualifierChar = ir.FieldQualifier;
+      m_ReadSettings.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
+      m_ReadSettings.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
+      m_ReadSettings.NewLine = ir.NewLine;
+      m_ReadSettings.IsJson = ir.IsJson;
+      m_ReadSettings.IsXml = ir.IsXml;
+
+      m_WriteSettings.CodePageId = ir.CodePageId;
+      m_WriteSettings.ByteOrderMark = ir.ByteOrderMark;
+
+      m_WriteSettings.ColumnCollection.Overwrite(ir.Columns);
+
+      // Fix No Qualifier
+      if (m_WriteSettings.FieldQualifierChar == 0)
+        m_WriteSettings.FieldQualifierChar = '"';
+
+      // Fix No DuplicateQualifier
+      if (!m_WriteSettings.DuplicateQualifierToEscape && m_WriteSettings.FieldQualifierChar == '"' &&
+          m_WriteSettings.EscapePrefixChar == char.MinValue)
+        m_WriteSettings.DuplicateQualifierToEscape = true;
+
+      // Fix No Delimiter
+      if (m_WriteSettings.FieldDelimiterChar == 0)
+        m_WriteSettings.FieldDelimiterChar = ',';
+
+      // NewLine depending on Environment
+      if (Environment.NewLine == "\r\n")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Crlf;
+      else if (Environment.NewLine == "\n")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Lf;
+      else if (Environment.NewLine == "\r")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Cr;
+
+      TextBoxFile_Validating(sender, new CancelEventArgs(false));
+      textBoxFileName.Focus();
     }
     catch (Exception ex)
     {
@@ -217,7 +245,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonEscapeSequence_Click(object sender, EventArgs e)
   {
-    if (string.IsNullOrEmpty(FileSetting.FullPath))
+    if (string.IsNullOrEmpty(m_ReadSettings.FileName))
     { return; }
 
     await buttonEscapeSequence.RunWithHourglassAsync(async () =>
@@ -231,8 +259,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(stream);
-      FileSetting.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(FileSetting.FieldDelimiterChar,
-        FileSetting.FieldQualifierChar, m_CancellationTokenSource.Token));
+      m_ReadSettings.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(m_ReadSettings.FieldDelimiterChar,
+        m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token));
     });
   }
 
@@ -240,13 +268,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   {
     if (FileNameEmpty()) return;
 
-    var info = FileSetting.Clone();
     var html = new HtmlStyle(string.Empty);
-    var stringBuilder = html.StartHtmlDoc("eeeeee");
+    var stringBuilder = html.StartHtmlDoc(string.Empty);
     await buttonFileInfo.RunWithHourglassAsync(async () =>
     {
       stringBuilder.Append(
-        await info.GetFileInformationHtml(m_Warnings, m_NumRecords, FileSetting.IsCsv,
+        await m_ReadSettings.ToCsvFile().GetFileInformationHtml(m_Warnings, m_NumRecords, !(m_ReadSettings.IsJson || m_ReadSettings.IsXml),
           m_CancellationTokenSource.Token));
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");
@@ -268,8 +295,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         // ReSharper disable once UseAwaitUsing
         using var improvedStream = GetStream();
         var (codepage, bom) = await improvedStream.InspectCodePageAsync(m_CancellationTokenSource.Token);
-        FileSetting.CodePageId = codepage;
-        FileSetting.ByteOrderMark = bom;
+        m_ReadSettings.CodePageId = codepage;
+        m_ReadSettings.ByteOrderMark = bom;
       });
   }
 
@@ -288,10 +315,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         await
 #endif
         using var textReader = await GetTextReaderAsync(stream);
-        var res = await textReader.InspectDelimiterAsync(FileSetting.FieldQualifierChar, FileSetting.EscapePrefixChar,
-          Array.Empty<char>(), FileSetting.GetDelimiterByExtension(), m_CancellationTokenSource.Token);
+        var res = await textReader.InspectDelimiterAsync(m_ReadSettings.FieldQualifierChar, m_ReadSettings.EscapePrefixChar,
+          Array.Empty<char>(), m_ReadSettings.FileName.GetDelimiterByExtension(), m_CancellationTokenSource.Token);
         if (res.IsDetected)
-          FileSetting.FieldDelimiterChar = res.Delimiter;
+          m_ReadSettings.FieldDelimiterChar = res.Delimiter;
       });
   }
 
@@ -310,11 +337,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
-      var res = await textReader.InspectHasHeaderAsync(FileSetting.FieldDelimiterChar, FileSetting.FieldQualifierChar,
-        FileSetting.EscapePrefixChar, FileSetting.CommentLine, m_CancellationTokenSource.Token);
+      var res = await textReader.InspectHasHeaderAsync(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
+        m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token);
       if (!string.IsNullOrEmpty(res.message))
         MessageBox.Show(res.message, "Check Header");
-      FileSetting.HasFieldHeader = res.hasHeader;
+      m_ReadSettings.HasFieldHeader = res.hasHeader;
       bindingSourceViewSetting.ResetBindings(false);
     });
 
@@ -335,7 +362,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
-      FileSetting.CommentLine = await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
+      m_ReadSettings.CommentLine = await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
     });
 
   }
@@ -355,13 +382,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
-      var res = textReader.InspectQualifier(FileSetting.FieldDelimiterChar, FileSetting.EscapePrefixChar, FileSetting.CommentLine,
+      var res = textReader.InspectQualifier(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine,
         StaticCollections.PossibleQualifiers, m_CancellationTokenSource.Token);
-      FileSetting.FieldQualifierChar = res.QuoteChar;
+      m_ReadSettings.FieldQualifierChar = res.QuoteChar;
       if (res.DuplicateQualifier)
-        FileSetting.DuplicateQualifierToEscape = res.DuplicateQualifier;
-      if (!FileSetting.ContextSensitiveQualifier)
-        FileSetting.ContextSensitiveQualifier = !(res.DuplicateQualifier || res.EscapedQualifier);
+        m_ReadSettings.DuplicateQualifierToEscape = res.DuplicateQualifier;
+      if (!m_ReadSettings.ContextSensitiveQualifier)
+        m_ReadSettings.ContextSensitiveQualifier = !(res.DuplicateQualifier || res.EscapedQualifier);
     });
   }
 
@@ -369,15 +396,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   {
     if (FileNameEmpty()) return;
 
-    using var frm = new FindSkipRows(FileSetting.FullPath, FileSetting.CodePageId, FileSetting.SkipRows, FileSetting.FieldDelimiterChar, FileSetting.EscapePrefixChar,
-      FileSetting.FieldQualifierChar, FileSetting.CommentLine);
+    using var frm = new FindSkipRows(m_ReadSettings.FileName, m_ReadSettings.CodePageId, m_ReadSettings.SkipRows, m_ReadSettings.FieldDelimiterChar, m_ReadSettings.EscapePrefixChar,
+      m_ReadSettings.FieldQualifierChar, m_ReadSettings.CommentLine);
     if (frm.ShowDialog() == DialogResult.OK)
     {
-      FileSetting.SkipRows = frm.SkipRows;
-      FileSetting.FieldDelimiterChar = frm.FieldDelimiterChar;
-      FileSetting.EscapePrefixChar = frm.EscapePrefixChar;
-      FileSetting.FieldQualifierChar = frm.FieldQualifierChar;
-      FileSetting.CommentLine = frm.CommentLine;
+      m_ReadSettings.SkipRows = frm.SkipRows;
+      m_ReadSettings.FieldDelimiterChar = frm.FieldDelimiterChar;
+      m_ReadSettings.EscapePrefixChar = frm.EscapePrefixChar;
+      m_ReadSettings.FieldQualifierChar = frm.FieldQualifierChar;
+      m_ReadSettings.CommentLine = frm.CommentLine;
     }
   }
 
@@ -386,12 +413,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private void ButtonKeyFileWrite_Click(object sender, EventArgs e)
     => SetPpgFile(textBoxKeyFileWrite);
-
-  private bool FileNameEmpty()
-  {
-    ValidateChildren();
-    return string.IsNullOrEmpty(FileSetting.FileName);
-  }
 
   private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
   {
@@ -407,21 +428,38 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
-      FileSetting.SkipRows = textReader.InspectStartRow(FileSetting.FieldDelimiterChar, FileSetting.FieldQualifierChar,
-        FileSetting.EscapePrefixChar, FileSetting.CommentLine, m_CancellationTokenSource.Token);
+      m_ReadSettings.SkipRows = textReader.InspectStartRow(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
+        m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token);
     });
   }
 
   private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
   {
-    if (FileSetting.TryToSolveMoreColumns || FileSetting.AllowRowCombining)
-      FileSetting.WarnEmptyTailingColumns = true;
+    if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
+      m_ViewSettings.WarnEmptyTailingColumns = true;
   }
 
   private void CheckBoxCopySkipped_MouseClick(object sender, MouseEventArgs e)
   {
     if (!checkBoxCopySkipped.Checked)
-      m_ViewSettings.WriteSetting.SkipRows = 0;
+      m_WriteSettings.SkipRows = 0;
+  }
+
+  private bool FileNameEmpty()
+  {
+    ValidateChildren();
+    return string.IsNullOrEmpty(m_ReadSettings.FileName);
+  }
+  private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
+  {
+    ValidateChildren();
+    try { m_CancellationTokenSource.Cancel(); }
+    catch
+    {
+      /* ignore */
+    }
+    m_ViewSettings.WriteSetting = m_WriteSettings.ToCsvFile();
+    SetDefaultInspectionResult();
   }
 
   /// <summary>
@@ -432,37 +470,22 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   private void FormEditSettings_Load(object? sender, EventArgs e)
   {
     bindingSourceViewSetting.DataSource = m_ViewSettings;
-    bindingSourceWrite.DataSource = m_ViewSettings.WriteSetting;
-    bindingSourceRead.DataSource = FileSetting;
+    bindingSourceWrite.DataSource = m_WriteSettings;
+    bindingSourceRead.DataSource = m_ReadSettings;
     fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
     quotingControlWrite = QuotingControl.AddQuotingControl(tableLayoutPanelWrite, 0, 7, 5, bindingSourceWrite);
     quotingControlWrite.IsWriteSetting = true;
 
-    quotingControlRead = QuotingControl.AddQuotingControl(tableLayoutPanelFile, 0, 9, 5, bindingSourceRead);
+    quotingControlRead = QuotingControl.AddQuotingControl(tableLayoutPanelFile, 0, 9, 7, bindingSourceRead);
     quotingControlRead.IsWriteSetting = false;
 
     TextBoxFile_Validating(this, new CancelEventArgs(false));
   }
-
-  private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
-  {
-    ValidateChildren();
-    try { m_CancellationTokenSource.Cancel(); }
-    catch
-    {
-      /* ignore */
-    }
-
-    SetDefaultInspectionResult();
-    if (FileSetting != null)
-      m_ViewSettings.PassOnConfiguration(FileSetting);
-  }
-
   private Stream GetStream()
   {
 #if !SupportPGP
-    var sourceAccess = new SourceAccess(FileSetting.FileName, true, "", false, "");
+    var sourceAccess = new SourceAccess(m_ReadSettings.FileName, true, "", false, "");
 #else
     var sourceAccess = new SourceAccess(FileSetting.FileName, true);
 #endif
@@ -470,7 +493,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   }
 
   private Task<ImprovedTextReader> GetTextReaderAsync(Stream stream)
-      => stream.GetTextReaderAsync(FileSetting.CodePageId, FileSetting.SkipRows, m_CancellationTokenSource.Token);
+      => stream.GetTextReaderAsync(m_ReadSettings.CodePageId, m_ReadSettings.SkipRows, m_CancellationTokenSource.Token);
 
 
   private async void GuessNewline_Click(object? sender, EventArgs e)
@@ -487,7 +510,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       cboNewLine.SelectedValue =
-        textReader.InspectRecordDelimiter(FileSetting.FieldQualifierChar, m_CancellationTokenSource.Token);
+        textReader.InspectRecordDelimiter(m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token);
     });
   }
 
@@ -532,33 +555,33 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   {
     if (!m_ViewSettings.GuessCodePage)
     {
-      m_ViewSettings.DefaultInspectionResult.CodePageId = FileSetting.CodePageId;
-      m_ViewSettings.DefaultInspectionResult.ByteOrderMark = FileSetting.ByteOrderMark;
+      m_ViewSettings.DefaultInspectionResult.CodePageId = m_ReadSettings.CodePageId;
+      m_ViewSettings.DefaultInspectionResult.ByteOrderMark = m_ReadSettings.ByteOrderMark;
     }
 
     if (!m_ViewSettings.GuessEscapePrefix)
-      m_ViewSettings.DefaultInspectionResult.EscapePrefix = FileSetting.EscapePrefixChar;
+      m_ViewSettings.DefaultInspectionResult.EscapePrefix = m_ReadSettings.EscapePrefixChar;
 
     if (!m_ViewSettings.GuessComment)
-      m_ViewSettings.DefaultInspectionResult.CommentLine = FileSetting.CommentLine;
+      m_ViewSettings.DefaultInspectionResult.CommentLine = m_ReadSettings.CommentLine;
 
     if (!m_ViewSettings.GuessDelimiter)
-      m_ViewSettings.DefaultInspectionResult.FieldDelimiter = FileSetting.FieldDelimiterChar;
+      m_ViewSettings.DefaultInspectionResult.FieldDelimiter = m_ReadSettings.FieldDelimiterChar;
 
     if (!m_ViewSettings.GuessHasHeader)
-      m_ViewSettings.DefaultInspectionResult.HasFieldHeader = FileSetting.HasFieldHeader;
+      m_ViewSettings.DefaultInspectionResult.HasFieldHeader = m_ReadSettings.HasFieldHeader;
 
     if (!m_ViewSettings.GuessQualifier)
     {
-      m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier = FileSetting.ContextSensitiveQualifier;
-      m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape = FileSetting.DuplicateQualifierToEscape;
-      m_ViewSettings.DefaultInspectionResult.FieldQualifier = FileSetting.FieldQualifierChar;
+      m_ViewSettings.DefaultInspectionResult.ContextSensitiveQualifier = m_ReadSettings.ContextSensitiveQualifier;
+      m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape = m_ReadSettings.DuplicateQualifierToEscape;
+      m_ViewSettings.DefaultInspectionResult.FieldQualifier = m_ReadSettings.FieldQualifierChar;
     }
 
     if (!m_ViewSettings.GuessStartRow)
     {
-      m_ViewSettings.DefaultInspectionResult.SkipRows = FileSetting.SkipRows;
-      m_ViewSettings.DefaultInspectionResult.SkipRowsAfterHeader = FileSetting.SkipRowsAfterHeader;
+      m_ViewSettings.DefaultInspectionResult.SkipRows = m_ReadSettings.SkipRows;
+      m_ViewSettings.DefaultInspectionResult.SkipRowsAfterHeader = m_ReadSettings.SkipRowsAfterHeader;
     }
 
 #if SupportPGP
@@ -601,17 +624,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private void TextBoxFile_Validating(object? sender, CancelEventArgs e)
   {
+    var isValidFile = !m_ReadSettings.IsJson
+                && !m_ReadSettings.IsXml
+                && FileSystemUtils.FileExists(m_ReadSettings.FileName);
+    buttonFileInfo.Enabled = isValidFile;
+    buttonGuessHeader.Enabled=isValidFile;
+    buttonGuessCP.Enabled=isValidFile;
+    buttonGuessDelimiter.Enabled=isValidFile;
+    buttonGuessLineComment.Enabled=isValidFile;
+    buttonSkipLine.Enabled=isValidFile;
+    buttonInteractiveSettings.Enabled=isValidFile;
+    buttonGuessTextQualifier.Enabled=isValidFile;
+    buttonEscapeSequence.Enabled=isValidFile;
 
-    var hasFile = FileSystemUtils.FileExists(textBoxKeyFileRead.Text);
-    buttonGuessHeader.Enabled=hasFile;
-    buttonGuessCP.Enabled=hasFile;
-    buttonGuessDelimiter.Enabled=hasFile;
-    buttonGuessLineComment.Enabled=hasFile;
-    buttonSkipLine.Enabled=hasFile;
-    buttonInteractiveSettings.Enabled=hasFile;
-    buttonGuessTextQualifier.Enabled=hasFile;
-    buttonEscapeSequence.Enabled=hasFile;
-    if (!hasFile)
+    if (!m_ReadSettings.IsJson && !m_ReadSettings.IsXml && !isValidFile)
     {
       errorProvider.SetError(textBoxFileName, "File does not exist.");
       e.Cancel = true;
@@ -619,6 +645,286 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     else
     {
       errorProvider.SetError(textBoxFileName, string.Empty);
+    }
+  }
+
+  /// <summary>
+  /// Editable setting of CsvFileDummy that will be Observable for Binding
+  /// Excluding properties from ViewSetting
+  /// </summary>
+  private sealed class EditSettings : ObservableObject
+  {
+    private bool m_ByteOrderMark = true;
+    private int m_CodePageId = 65001;
+    private string m_CommentLine = string.Empty;
+    private bool m_ContextSensitiveQualifier;
+    private string m_DelimiterPlaceholder = string.Empty;
+    private bool m_DuplicateQualifierToEscape = true;
+    private char m_EscapePrefixChar = '\0';
+    private char m_FieldDelimiterChar = ',';
+    private char m_FieldQualifierChar = '"';
+    private string m_FileName = string.Empty;
+    private bool m_HasFieldHeader = true;
+    private string m_IdentifierInContainer = string.Empty;
+    private bool m_IsJson;
+    private bool m_IsXml;
+    private bool m_KeepUnencrypted;
+    private string m_KeyFile = string.Empty;
+    private RecordDelimiterTypeEnum m_NewLine = RecordDelimiterTypeEnum.Crlf;
+    private string m_NewLinePlaceholder = string.Empty;
+    private string m_QualifierPlaceholder = string.Empty;
+    private bool m_QualifyAlways;
+    private bool m_QualifyOnlyIfNeeded = true;
+    private int m_SkipRows;
+    private int m_SkipRowsAfterHeader;
+    private string m_TreatTextAsNull = "NULL";
+
+    private TrimmingOptionEnum m_TrimmingOption = TrimmingOptionEnum.Unquoted;
+
+    public EditSettings(CsvFileDummy? fileSetting)
+    {
+      ColumnCollection = new ColumnCollection();
+      if (fileSetting!=null)
+      {
+        ColumnCollection.Overwrite(fileSetting.ColumnCollection);
+
+        // Encoding / IO
+        m_CodePageId = fileSetting.CodePageId;
+        m_ByteOrderMark = fileSetting.ByteOrderMark;
+        m_FileName = fileSetting.FileName;
+        m_NewLine = fileSetting.NewLine;
+        m_NewLinePlaceholder = fileSetting.NewLinePlaceholder;
+        m_TreatTextAsNull = fileSetting.TreatTextAsNull;
+
+
+        // CSV formatting
+        m_FieldDelimiterChar = fileSetting.FieldDelimiterChar;
+        m_FieldQualifierChar = fileSetting.FieldQualifierChar;
+        m_EscapePrefixChar = fileSetting.EscapePrefixChar;
+        m_DuplicateQualifierToEscape = fileSetting.DuplicateQualifierToEscape;
+        m_ContextSensitiveQualifier = fileSetting.ContextSensitiveQualifier;
+        m_QualifierPlaceholder = fileSetting.QualifierPlaceholder;
+        m_DelimiterPlaceholder = fileSetting.DelimiterPlaceholder;
+        m_QualifyAlways = fileSetting.QualifyAlways;
+        m_QualifyOnlyIfNeeded = fileSetting.QualifyOnlyIfNeeded;
+        m_TrimmingOption = fileSetting.TrimmingOption;
+
+        // Records / layout
+        m_HasFieldHeader = fileSetting.HasFieldHeader;
+        m_SkipRows = fileSetting.SkipRows;
+        m_SkipRowsAfterHeader = fileSetting.SkipRowsAfterHeader;
+        m_CommentLine = fileSetting.CommentLine;
+
+        // Identification / container
+        m_IdentifierInContainer = fileSetting.IdentifierInContainer;
+
+        // Format flags
+        m_IsJson = fileSetting.IsJson;
+        m_IsXml = fileSetting.IsXml;
+
+        // Security
+        m_KeepUnencrypted = fileSetting.KeepUnencrypted;
+        m_KeyFile = fileSetting.KeyFile;
+      }
+
+      // Not needed here asn teh Ui doe not show columns (yet)
+      // ColumnCollection.CollectionChanged += (_, _) => NotifyPropertyChanged(nameof(ColumnCollection));
+    }
+
+    public bool ByteOrderMark
+    {
+      get => m_ByteOrderMark;
+      set => SetProperty(ref m_ByteOrderMark, value);
+    }
+
+    public int CodePageId
+    {
+      get => m_CodePageId;
+      set => SetProperty(ref m_CodePageId, value);
+    }
+
+    public ColumnCollection ColumnCollection { get; }
+
+    public string CommentLine
+    {
+      get => m_CommentLine;
+      set => SetProperty(ref m_CommentLine, value);
+    }
+
+    public bool ContextSensitiveQualifier
+    {
+      get => m_ContextSensitiveQualifier;
+      set => SetProperty(ref m_ContextSensitiveQualifier, value);
+    }
+
+    public string DelimiterPlaceholder
+    {
+      get => m_DelimiterPlaceholder;
+      set => SetProperty(ref m_DelimiterPlaceholder, value);
+    }
+
+    public bool DuplicateQualifierToEscape
+    {
+      get => m_DuplicateQualifierToEscape;
+      set => SetProperty(ref m_DuplicateQualifierToEscape, value);
+    }
+
+    public char EscapePrefixChar
+    {
+      get => m_EscapePrefixChar;
+      set => SetProperty(ref m_EscapePrefixChar, value);
+    }
+
+    public char FieldDelimiterChar
+    {
+      get => m_FieldDelimiterChar;
+      set => SetProperty(ref m_FieldDelimiterChar, value);
+    }
+
+    public char FieldQualifierChar
+    {
+      get => m_FieldQualifierChar;
+      set => SetProperty(ref m_FieldQualifierChar, value);
+    }
+
+    public string FileName
+    {
+      get => m_FileName;
+      set => SetProperty(ref m_FileName, value);
+    }
+
+    public bool HasFieldHeader
+    {
+      get => m_HasFieldHeader;
+      set => SetProperty(ref m_HasFieldHeader, value);
+    }
+
+    public string IdentifierInContainer
+    {
+      get => m_IdentifierInContainer;
+      set => SetProperty(ref m_IdentifierInContainer, value);
+    }
+
+    public bool IsJson
+    {
+      get => m_IsJson;
+      set => SetProperty(ref m_IsJson, value);
+    }
+
+    public bool IsXml
+    {
+      get => m_IsXml;
+      set => SetProperty(ref m_IsXml, value);
+    }
+
+    public bool KeepUnencrypted
+    {
+      get => m_KeepUnencrypted;
+      set => SetProperty(ref m_KeepUnencrypted, value);
+    }
+
+    public string KeyFile
+    {
+      get => m_KeyFile;
+      set => SetProperty(ref m_KeyFile, value);
+    }
+
+    public RecordDelimiterTypeEnum NewLine
+    {
+      get => m_NewLine;
+      set => SetProperty(ref m_NewLine, value);
+    }
+
+    public string NewLinePlaceholder
+    {
+      get => m_NewLinePlaceholder;
+      set => SetProperty(ref m_NewLinePlaceholder, value);
+    }
+
+    public string QualifierPlaceholder
+    {
+      get => m_QualifierPlaceholder;
+      set => SetProperty(ref m_QualifierPlaceholder, value);
+    }
+
+    public bool QualifyAlways
+    {
+      get => m_QualifyAlways;
+      set => SetProperty(ref m_QualifyAlways, value);
+    }
+
+    public bool QualifyOnlyIfNeeded
+    {
+      get => m_QualifyOnlyIfNeeded;
+      set => SetProperty(ref m_QualifyOnlyIfNeeded, value);
+    }
+
+    public int SkipRows
+    {
+      get => m_SkipRows;
+      set => SetProperty(ref m_SkipRows, value);
+    }
+
+    public int SkipRowsAfterHeader
+    {
+      get => m_SkipRowsAfterHeader;
+      set => SetProperty(ref m_SkipRowsAfterHeader, value);
+    }
+
+    public string TreatTextAsNull
+    {
+      get => m_TreatTextAsNull;
+      set => SetProperty(ref m_TreatTextAsNull, value);
+    }
+
+    public TrimmingOptionEnum TrimmingOption
+    {
+      get => m_TrimmingOption;
+      set => SetProperty(ref m_TrimmingOption, value);
+    }
+
+    public CsvFileDummy ToCsvFile()
+    {
+      var fileSetting = new CsvFileDummy();
+      fileSetting.ColumnCollection.Overwrite(ColumnCollection);
+      // Encoding / IO
+      fileSetting.ByteOrderMark = ByteOrderMark;
+      fileSetting.CodePageId = CodePageId;
+      fileSetting.FileName = FileName;
+      fileSetting.NewLine = NewLine;
+      fileSetting.NewLinePlaceholder = NewLinePlaceholder;
+
+      // CSV formatting
+      fileSetting.FieldDelimiterChar = FieldDelimiterChar;
+      fileSetting.FieldQualifierChar = FieldQualifierChar;
+      fileSetting.EscapePrefixChar = EscapePrefixChar;
+      fileSetting.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
+      fileSetting.ContextSensitiveQualifier = ContextSensitiveQualifier;
+      fileSetting.QualifierPlaceholder = QualifierPlaceholder;
+      fileSetting.DelimiterPlaceholder = DelimiterPlaceholder;
+      fileSetting.QualifyAlways = QualifyAlways;
+      fileSetting.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
+      fileSetting.TrimmingOption = TrimmingOption;
+      fileSetting.TreatTextAsNull = TreatTextAsNull;
+
+      // Records / layout
+      fileSetting.HasFieldHeader = HasFieldHeader;
+      fileSetting.SkipRows = SkipRows;
+      fileSetting.SkipRowsAfterHeader = SkipRowsAfterHeader;
+      fileSetting.CommentLine = CommentLine;
+
+      // Identification / container
+      fileSetting.IdentifierInContainer = IdentifierInContainer;
+
+      // Format flags
+      fileSetting.IsJson = IsJson;
+      fileSetting.IsXml = IsXml;
+
+      // Security
+      fileSetting.KeepUnencrypted = KeepUnencrypted;
+      fileSetting.KeyFile = KeyFile;
+
+      return fileSetting;
     }
   }
 }
