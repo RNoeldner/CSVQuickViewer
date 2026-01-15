@@ -131,12 +131,12 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
 
   /// <summary>
   /// Inserts an item at the specified index after verifying that its unique key
-  /// does not collide with an existing item.
+  /// does not collide with an existing item. This is called when an item is added by de-serialisation
   /// Also wires property change notifications for the item. This is called by the underlying ObservableCollection 
   /// </summary>
   protected override void InsertItem(int index, T item)
   {
-    m_InternalDictionary[EnsureUniqueKey(item)] = item;
+    m_InternalDictionary[MakeUnique(item)] = item;
     base.InsertItem(index, item);
     Register(item);
   }
@@ -208,20 +208,21 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// Modifies the item's key so that it becomes unique within the collection,
   /// based on the keys currently present.
   /// </summary>
-  private void MakeUnique(T item)
+  private string MakeUnique(T item)
   {
     var existingKeys = m_InternalDictionary.Keys.ToList();
     var key = item.GetUniqueKey();
     var unique = existingKeys.MakeUniqueInCollection(key);
     // Key was unique already
     if (unique == key)
-      return;
+      return key;
 
     // Item added twice
     if (m_InternalDictionary.Any(p => ReferenceEquals(p.Value, item)))
       throw new InvalidOperationException("The same item instance cannot be added to the collection more than once.");
 
     item.SetUniqueKey(unique);
+    return unique;
   }
 
   /// <summary>
@@ -257,5 +258,5 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   }
 
   /// <inheritdoc/>
-  public bool Equals(ICollection<T> other) =>  this.CollectionEqual(other);
+  public bool Equals(ICollection<T> other) => this.CollectionEqual(other);
 }
