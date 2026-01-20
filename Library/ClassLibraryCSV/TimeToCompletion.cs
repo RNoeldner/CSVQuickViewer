@@ -163,7 +163,7 @@ public sealed class TimeToCompletion
       Percent = (double) m_LastValue / m_TargetValue * 100.0;
       return;
     }
-    
+
     var maxAgeTicks = (long) (m_MaxAge.TotalSeconds * m_TicksPerSecond);
 
     // Latest sample index (just behind the write position)
@@ -220,16 +220,28 @@ public sealed class TimeToCompletion
   ///   Converts a <see cref="TimeSpan"/> into a readable UI-friendly string.
   ///   Short times (&lt; 2 sec) are suppressed unless explicitly requested.
   /// </summary>
-  public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
+  public static string DisplayTimespan(TimeSpan value, bool cutBelowTwoSeconds = true)
   {
-    if (value == Max || (cut2Sec && value.TotalSeconds < 2) || value.TotalDays > 2)
+    if (value == Max || value.TotalDays > 7)
       return string.Empty;
-    if (value.TotalSeconds < 2 && !cut2Sec)
-      return $"{value:s\\.ff} sec";
+
+    if (value.TotalSeconds < 2)
+    {
+      if (cutBelowTwoSeconds)
+        return string.Empty;
+
+      return $"{value.TotalSeconds:F2} sec";
+    }
+
     if (value.TotalMinutes < 1)
-      return $"{value:%s} sec";
+      return $"{value.TotalSeconds:F0} sec";
+
     if (value.TotalHours < 1)
-      return $"{value:m\\:ss} min";
-    return value.TotalHours < 24 ? $"{value:h\\:mm} hrs" : $"{value.TotalDays:F1} days";
+      return $"{value.Minutes}:{value.Seconds:00} min";
+
+    if (value.TotalHours < 24)
+      return $"{value.Hours}:{value.Minutes:00} hrs";
+
+    return $"{value.TotalDays:F2} days";
   }
 }

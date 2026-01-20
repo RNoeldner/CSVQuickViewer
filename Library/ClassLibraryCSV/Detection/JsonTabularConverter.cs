@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ namespace EIHControlCenter.Code
   /// Provides helper methods to convert JSON data into tabular form.
   /// Supports scalar properties, object flattening, arrays of primitives, 
   /// and arrays of objects with identity properties (id, name, title, label).
+  /// Also supports streaming large JSON files without loading the entire content into memory.
   /// </summary>
   public static class JsonTabularConverter
   {
@@ -66,22 +68,13 @@ namespace EIHControlCenter.Code
 
 
       private static readonly HashSet<string> Acronyms =
-  new(StringComparer.OrdinalIgnoreCase)
-  {
-    "id",
-    "uuid",
-    "guid",
-    "uid",
-    "url",
-    "uri",
-    "ip",
-    "api",
-    "jwt",
-    "oauth",
-    "key",
-    "ver",
-    "sec"
-  };
+        new(StringComparer.OrdinalIgnoreCase)  {
+          "id",    "uuid",    "guid",    "uid",
+          "url",    "uri",    "ip",    "api",
+          "jwt",    "oauth",    "key",    "ver",
+          "sec"
+        };
+
       private static string Pluralize(string name)
       {
         if (string.IsNullOrWhiteSpace(name))
@@ -141,28 +134,41 @@ namespace EIHControlCenter.Code
     // ------------------------------------------------------------
     // Column Discovery
     // ------------------------------------------------------------
+    private static readonly Dictionary<string, int> NamePriority =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+          ["id"]    = 0,
+          ["code"]  = 1,
+          ["name"]  = 1,
+          ["title"] = 2
+        };
 
     /// <summary>
-    /// Analyzes a JSON array and discovers columns suitable for tabular extraction.
-    /// Scalars are directly converted to columns, objects are flattened by one level,
-    /// and arrays of objects are sampled to extract up to a limited number of scalar identity properties.
-    /// Identity properties are prioritized as: id, code, name, title, label (including variants ending with _id, _code, etc.).
+    /// Discovers tabular columns from a sequence of JSON objects.
+    /// Only samples the first few objects for performance.
+    /// Scalars are mapped directly, objects are flattened, and arrays are sampled.
     /// </summary>
-    /// <param name="array">The JSON array to analyze for columns.</param>
-    /// <param name="limitProperties">Maximum number of properties to extract from objects inside arrays. Defaults to 3.</param>
-    /// <param name="token">Cancellation token to allow aborting the operation.</param>
-    /// <returns>A read-only list of <see cref="JsonColumn"/> representing the discovered columns.</returns>
-    public static IReadOnlyList<JsonColumn> DiscoverColumns(this JArray array, int limitProperties = 3, CancellationToken token = default)
+    /// <param name="array">Sequence of JSON objects to analyze.</param>
+    /// <param name="limitProperties">Max number of object properties per column (default 3).</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>
+    /// A tuple:
+    /// <list type="bullet">
+    ///   <item>Read-only list of discovered <see cref="JsonColumn"/> objects.</item>
+    ///   <item>Sampled JSON objects used for discovery.</item>
+    /// </list>
+    /// </returns>
+    public static IReadOnlyList<JsonColumn> DiscoverColumns(this IEnumerable<JObject> array, int limitProperties = 3, CancellationToken token = default)
     {
       var columns = new List<JsonColumn>();
       var columnNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var processedArrayProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      using var enumerator = array.GetEnumerator();
 
-      foreach (var entry in array)
+      for (int i = 0; i < 5 && enumerator.MoveNext(); i++)
       {
         token.ThrowIfCancellationRequested();
-
-        foreach (var prop in entry.OfType<JProperty>())
+        foreach (var prop in enumerator.Current.OfType<JProperty>())
         {
           var name = prop.Name;
           if (string.IsNullOrWhiteSpace(name)) continue;
@@ -227,169 +233,82 @@ namespace EIHControlCenter.Code
     }
 
     /// <summary>
-    /// Collects up to <paramref name="limitProperties"/> scalar identity properties from one or more objects.
-    /// Only considers scalar JValue properties; nested objects or arrays are ignored.
+    /// Extracts values for a single JSON object according to the provided column definitions
+    /// and emits them in column order via <paramref name="handleColumn" />.
+    ///
+    /// Responsibilities:
+    /// - Maps scalar properties directly to a column
+    /// - Flattens objects by extracting the configured object property
+    /// - Aggregates arrays into a single cell using <paramref name="valueSeparator" />
+    /// - Ensures stable column ordering and safe string output
+    ///
+    /// Design notes:
+    /// - Arrays are flattened into a single cell rather than expanding rows
+    /// - Missing or null values always produce an empty string
+    /// - No exceptions are thrown for malformed or unexpected JSON shapes
     /// </summary>
-    private static IReadOnlyCollection<JProperty> PickObjectProperties(int limitProperties, params JObject[] objects)
-    {
-      var candidates = new Dictionary<string, JProperty>(StringComparer.OrdinalIgnoreCase);
-
-      // Collect all scalar properties
-      var allScalars = objects
-          .SelectMany(o => o.Properties().Where(p => p.Value is JValue))
-          .ToList();
-
-      // Helper: check property priority
-      int GetPriority(string name)
-      {
-        if (name.Equals("id", StringComparison.OrdinalIgnoreCase)) return 0; // highest priority
-        if (name.EndsWith("_id", StringComparison.OrdinalIgnoreCase)) return 1;
-        return 2; // all others
-      }
-
-      // Order properties by priority and uniqueness
-      foreach (var prop in allScalars.OrderBy(p => GetPriority(p.Name)))
-      {
-        if (!candidates.ContainsKey(prop.Name))
-          candidates[prop.Name] = prop;
-        if (candidates.Count == limitProperties) break;
-      }
-
-      // Fallback: pick first scalar if none found (should rarely happen)
-      if (candidates.Count == 0 && allScalars.Count > 0)
-        candidates[allScalars[0].Name] = allScalars[0];
-
-      return candidates.Values;
-    }
-
-
-    /// <summary>
-    /// Determines whether a objectProperty name should be considered an identity objectProperty.
-    /// </summary>
-    private static bool IsIdentityProperty(string propertyName)
-    {
-      return propertyName.Equals("id", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("_id", StringComparison.OrdinalIgnoreCase) ||
-             propertyName.Equals("code", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("_code", StringComparison.OrdinalIgnoreCase) ||
-             propertyName.Equals("name", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("_name", StringComparison.OrdinalIgnoreCase) ||
-             propertyName.Equals("title", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("_title", StringComparison.OrdinalIgnoreCase) ||
-             propertyName.Equals("label", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("_label", StringComparison.OrdinalIgnoreCase);
-    }
-
-    // ------------------------------------------------------------
-    // JSON Content Processing
-    // ------------------------------------------------------------
-
-    /// <summary>
-    /// Retrieves a JSON array from a JSON object by objectProperty name.
-    /// Throws <see cref="InvalidDataException"/> if the objectProperty does not exist or is not an array.
-    /// </summary>
-    public static JArray GetJsonArray(this JObject jsonData, string propertyName = "data")
-    {
-      var container = jsonData[propertyName];
-      if (container is not JArray array)
-        throw new InvalidDataException($"Could not find data array '{propertyName}' in the JSON object.");
-
-      return array;
-    }
-
-    /// <summary>
-    /// Processes a JSON object by extracting a specified array (propertyName) and converting it into tabular rows.
-    /// Columns are discovered automatically if the list is empty.
-    /// </summary>
-    [Obsolete()]
-    public static int WriteJsonArrayAsTable(
-        this JObject jsonData,
-        List<JsonColumn> columns,
-        string arrayName,
-        bool writeHeader,
-        Action<IReadOnlyCollection<string>> handleOneRow,
-        CancellationToken token)
-    {
-      var array = GetJsonArray(jsonData, arrayName);
-
-      if (columns.Count == 0)
-      {
-        columns.AddRange(DiscoverColumns(array, 3, token));
-        if (writeHeader)
-          handleOneRow(columns.Select(c => c.HeaderName).ToArray());
-      }
-
-      return WriteRows(array, columns, handleOneRow, token);
-    }
-
-    // ------------------------------------------------------------
-    // Row Processing
-    // ------------------------------------------------------------
-
-    /// <summary>
-    /// Converts a JSON array into tabular rows using the specified columns.
-    /// All values are returned as strings, including dates, numbers, and booleans.
-    /// Arrays are concatenated into single-cell strings.
-    /// </summary>
-    public static int WriteRows(
-        this JArray array,
+    public static void HandleRow(
+        this JObject currentObject,
         IReadOnlyCollection<JsonColumn> columns,
-        Action<IReadOnlyCollection<string>> handleOneRow,
-        CancellationToken token)
+        char valueSeparator,
+        Action<int, string> handleColumn)
     {
-      var written = 0;
-      foreach (var arrayItem in array)
+      var index = 0;
+      var sb = new StringBuilder(); // Reuse per row
+      // Iterate columns in discovery order to guarantee stable output layout
+      foreach (var col in columns)
       {
-        token.ThrowIfCancellationRequested();
-        var row = new string[columns.Count];
-        var index = 0;
-
-        foreach (var col in columns)
+        string value = string.Empty;
+        // Resolve the top-level JSON property for this column
+        var tokenValue = currentObject[col.JsonProperty];
+        if (tokenValue == null)
         {
-          string value = string.Empty;
-          var tokenValue = arrayItem[col.JsonProperty];
-          if (tokenValue == null)
-          {
-            row[index++] = string.Empty;
-            continue;
-          }
-
-          switch (tokenValue)
-          {
-            case JArray internalArray:
-              var sb = new StringBuilder();
-              if (!string.IsNullOrEmpty(col.ObjectProperty))
-                foreach (var jObject in internalArray.OfType<JObject>())
-                  HandleList(jObject[col.ObjectProperty], sb, col.PropertyType);
-
-              foreach (var t in internalArray.OfType<JValue>())
-                HandleList(t, sb, col.PropertyType);
-
-              value = sb.ToString();
-              break;
-
-            case JObject jObject:
-              value = HandleValue(jObject[col.ObjectProperty], col.PropertyType);
-              break;
-
-            default:
-              value = HandleValue(tokenValue, col.PropertyType);
-              break;
-          }
-          row[index++] = value;
+          handleColumn(index++, string.Empty);
+          continue;
         }
 
-        handleOneRow(row);
-        written++;
+        switch (tokenValue)
+        {
+          case JArray internalArray:
+            sb.Clear(); // Reset for this column
+            // Arrays are flattened into a single cell
+            // using the configured list separator (e.g. ',' or '|')
+            if (!string.IsNullOrEmpty(col.ObjectProperty))
+              foreach (var jObject in internalArray.OfType<JObject>())
+                HandleList(jObject[col.ObjectProperty], sb, col.PropertyType, valueSeparator);
+
+            foreach (var t in internalArray.OfType<JValue>())
+              HandleList(t, sb, col.PropertyType, valueSeparator);
+
+            value = sb.ToString();
+            break;
+
+          case JObject jObject:
+            // Single object: extract the configured object property
+            value = HandleValue(jObject[col.ObjectProperty], col.PropertyType);
+            break;
+
+          default:
+            // Scalar value: convert directly
+            value = HandleValue(tokenValue, col.PropertyType);
+            break;
+        }
+        handleColumn(index++, value);
       }
 
-      return written;
-
-      void HandleList(JToken? t, StringBuilder sb, Type type)
+      static void HandleList(JToken? t, StringBuilder sb, Type type, char valueSeparator)
       {
+        // Convert the token to its string representation using column type rules
         string text = HandleValue(t, type);
-        // Replace commas inside values to avoid breaking CSV or list delimiters
-        if (text.Contains(',')) text = text.Replace(",", "_");
-        if (sb.Length > 0) sb.Append(", ");
+        // Replace occurrences of the list separator inside values
+        // to avoid breaking CSV or delimited exports
+        if (text.Contains(valueSeparator)) text = text.Replace(valueSeparator.ToString(), "_");
+        // Append separator only between values
+        if (sb.Length > 0) { sb.Append(valueSeparator); sb.Append(' '); }
         sb.Append(text);
       }
 
-      string HandleValue(JToken? t, Type type)
+      static string HandleValue(JToken? t, Type type)
       {
         if (t is null || t.Type == JTokenType.Null)
           return string.Empty;
@@ -410,6 +329,224 @@ namespace EIHControlCenter.Code
           return t.ToString()?.Trim() ?? string.Empty;
         }
       }
+    }
+
+    /// <summary>
+    /// Streams JSON objects from a <see cref="TextReader"/> for large or nested JSON files.
+    /// Scalars found at the root level are captured as metadata.
+    /// Supports arrays at root, nested objects, and multiple top-level properties.
+    /// </summary>
+    /// <param name="reader">TextReader containing JSON content.</param>
+    /// <returns>
+    /// A tuple:
+    /// <list type="bullet">
+    ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
+    ///   <item>A dictionary of metadata scalars found at root level.</item>
+    /// </list>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
+    /// Caller is responsible for keeping the TextReader open
+    /// for the duration of enumeration.
+    public static (IEnumerable<JObject> Items, Dictionary<string, JValue> Metadata) StreamJsonObjects(this TextReader reader)
+    {
+      if (reader == null) throw new ArgumentNullException(nameof(reader));
+
+      var metadata = new Dictionary<string, JValue>(StringComparer.OrdinalIgnoreCase);
+
+      IEnumerable<JObject> Enumerate()
+      {
+        var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
+
+        while (jsonReader.Read())
+        {
+          switch (jsonReader.TokenType)
+          {
+            case JsonToken.StartArray:
+              while (jsonReader.Read())
+              {
+                if (jsonReader.TokenType == JsonToken.StartObject)
+                  yield return JObject.Load(jsonReader);
+                else if (jsonReader.TokenType == JsonToken.EndArray)
+                  break;
+              }
+              break;
+
+            case JsonToken.StartObject:
+              var obj = JObject.Load(jsonReader);
+
+              // Capture root-level scalar properties
+              foreach (var prop in obj.Properties())
+              {
+                if (prop.Value is JValue jValue)
+                  metadata[prop.Name] = jValue;
+              }
+
+              bool yieldedArrayObjects = false;
+
+              foreach (var prop in obj.Properties())
+              {
+                if (prop.Value is JArray arr)
+                {
+                  foreach (var item in arr.OfType<JObject>())
+                    yield return item;
+                  yieldedArrayObjects = true;
+                }
+                else if (prop.Value is JObject childObj)
+                {
+                  // Yield top-level child objects (e.g., collection, collection2)
+                  yield return childObj;
+                  yieldedArrayObjects = true;
+                }
+              }
+
+              // If nothing yielded (scalar-only root object), yield root itself
+              if (!yieldedArrayObjects)
+                yield return obj;
+
+              break;
+
+            case JsonToken.Comment:
+            case JsonToken.None:
+              continue;
+
+            default:
+              throw new InvalidDataException($"Unsupported JSON token: {jsonReader.TokenType}");
+          }
+        }
+      }
+
+      return (Enumerate(), metadata);
+    }
+
+    // ------------------------------------------------------------
+    // Row Processing
+    // ------------------------------------------------------------
+
+    /// <summary>
+    /// Reads JSON objects from a <see cref="TextReader"/>, discovers tabular columns from the first few rows,
+    /// and writes all rows as strings using the provided callback. Supports streaming large JSON files without 
+    /// loading the entire dataset into memory.
+    /// </summary>
+    /// <param name="reader">The <see cref="TextReader"/> containing JSON data. Caller is responsible for disposing it.</param>
+    /// <param name="handleOneRow">
+    /// Callback invoked for each row. Receives a read-only collection of string values in column order.
+    /// Arrays are flattened into a single cell using <paramref name="valueSeparator"/>.
+    /// </param>
+    /// <param name="valueSeparator">
+    /// Character used to join multiple values from arrays into a single cell (default is ',').
+    /// Any occurrences of this character inside values are replaced with '_'.
+    /// </param>
+    /// <param name="cancellationToken">Token to cancel processing at any time.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    ///   <item><see cref="IReadOnlyCollection{JsonColumn}"/>: the discovered columns in order.</item>
+    ///   <item><see cref="Dictionary{String, JValue}"/>: metadata scalars found at the root of the JSON.</item>
+    /// </list>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> or <paramref name="handleOneRow"/> is null.</exception>
+    /// <remarks>
+    /// Column discovery is performed by reading up to the first 5 rows. Those rows are immediately written
+    /// using <paramref name="handleOneRow"/>, after which streaming continues for the remaining objects.  
+    /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
+    /// </remarks>
+    public static (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
+      StreamRows(this TextReader reader, Action<IReadOnlyCollection<string>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
+    {
+      var (items, metadata) = reader.StreamJsonObjects();
+      var enumerator = items.GetEnumerator();
+
+      // Discover columns from first N rows
+      var firstRows = new List<JObject>();
+      for (int i = 0; i < sampleSize && enumerator.MoveNext(); i++)
+        firstRows.Add(enumerator.Current);
+
+      var columns = firstRows.DiscoverColumns(sampleSize, cancellationToken);
+      if (columns.Count>0)
+      {
+        // Write first rows immediately
+        foreach (var row in firstRows)
+        {
+          var columnValues = new string[columns.Count];
+          row.HandleRow(columns, valueSeparator, (idx, val) => columnValues[idx]=val);
+          // Pass copy to avoid overwrites
+          handleOneRow(columnValues);
+        }
+
+        // Continue streaming the rest
+        while (enumerator.MoveNext())
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          var columnValues = new string[columns.Count];
+          enumerator.Current.HandleRow(columns, valueSeparator, (idx, val) => columnValues[idx]=val);
+          // Pass copy to avoid overwrites
+          handleOneRow(columnValues);
+        }
+      }
+      return (columns, metadata);
+    }
+
+    /// <summary>
+    /// Collects up to <paramref name="limitProperties"/> scalar identity properties from one or more objects.
+    /// Only considers scalar JValue properties; nested objects or arrays are ignored.
+    /// </summary>
+    private static IReadOnlyCollection<JProperty> PickObjectProperties(int limitProperties, params JObject[] objects)
+    {
+      var candidates = new Dictionary<string, JProperty>(StringComparer.OrdinalIgnoreCase);
+      var firstSeen = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+      var counter = 0;
+      // Collect all scalar properties
+      var allScalars = objects
+      .SelectMany(o => o.Properties())
+      .Where(p => p.Value is JValue)
+      .Select(p =>
+      {
+        if (!firstSeen.ContainsKey(p.Name))
+          firstSeen[p.Name] = counter++;
+
+        return new
+        {
+          Property = p,
+          FirstSeenIndex = firstSeen[p.Name]
+        };
+      })
+      .ToList();
+
+      // Order by semantic importance first, then by structural appearance
+      foreach (var prop in allScalars
+              .OrderBy(p =>
+              {
+                // Exact match in NamePriority
+                if (NamePriority.TryGetValue(p.Property.Name, out var exactPriority))
+                  return exactPriority;
+
+                // Suffix match: _id, _code, _name, _title in NamePriority
+                foreach (var kvp in NamePriority)
+                {
+                  if (p.Property.Name.EndsWith("_" + kvp.Key, StringComparison.OrdinalIgnoreCase))
+                    return kvp.Value + 50;
+                }
+
+                // All others
+                return 100;
+              })
+              .ThenBy(p => p.FirstSeenIndex)
+              .Select(x => x.Property))
+      {
+        if (!candidates.ContainsKey(prop.Name))
+          candidates[prop.Name] = prop;
+        if (candidates.Count == limitProperties) break;
+      }
+
+      // Fallback: pick first scalar if none found (should rarely happen)
+      if (candidates.Count == 0 && allScalars.Count > 0)
+      {
+        var first = allScalars.OrderBy(p => p.FirstSeenIndex).Select(x => x.Property).First();
+        candidates[first.Name] = first;
+      }
+
+      return candidates.Values;
     }
   }
 }
