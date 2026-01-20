@@ -753,30 +753,21 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <inheritdoc cref="BaseFileReader" />
-  public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
-    Task.FromResult(Read(cancellationToken));
-
-  /// <inheritdoc />
-#pragma warning disable CS0618
-  public override bool Read(in CancellationToken token) => !token.IsCancellationRequested && Read();
-#pragma warning restore CS0618
-
-  /// <inheritdoc cref="BaseFileReader" />
-  public override bool Read()
+  protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
-    if (!EndOfFile)
+    if (!EndOfFile && !cancellationToken.IsCancellationRequested)
     {
       // GetNextRecordAsync does take care of RecordNumber
       var couldRead = GetNextRecord();
       InfoDisplay(couldRead);
 
       if (couldRead && !IsClosed && RecordNumber <= RecordLimit)
-        return true;
+        return new ValueTask<bool>(true);
     }
 
     EndOfFile = true;
     HandleReadFinished();
-    return false;
+    return new ValueTask<bool>(false);
   }
 
   /// <inheritdoc cref="IFileReader" />

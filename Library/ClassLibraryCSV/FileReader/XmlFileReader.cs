@@ -163,28 +163,25 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     }
   }
 
-  /// <inheritdoc cref="IFileReader" />
-  public override bool Read()
+  /// <inheritdoc cref="BaseFileReader" />
+  protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
-    if (!EndOfFile)
+    if (!EndOfFile && !cancellationToken.IsCancellationRequested)
     {
       var couldRead = GetNextRecord();
       if (couldRead) RecordNumber++;
       InfoDisplay(couldRead);
 
       if (couldRead && !IsClosed && RecordNumber <= RecordLimit)
-        return true;
+        return new ValueTask<bool>(true);
     }
 
     EndOfFile = true;
     HandleReadFinished();
-    return false;
+    return new ValueTask<bool>(false);
   }
 
-  /// <inheritdoc cref="DbDataReader" />
-  public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
-    Task.FromResult(!cancellationToken.IsCancellationRequested && Read());
-    
+
   /// <inheritdoc />
   public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
@@ -212,7 +209,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   private static IDictionary<string, string> ReadNode(XmlNode? check)
   {
     var columns = new DictionaryIgnoreCase<string>();
-    if (check == null) 
+    if (check == null)
       return columns;
     if (check.ChildNodes.Count>0)
     {
@@ -225,7 +222,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       }
     }
 
-    if (check.Attributes == null) 
+    if (check.Attributes == null)
       return columns;
 
     foreach (XmlAttribute attributes in check.Attributes)

@@ -28,7 +28,7 @@ public class XmlFileReaderTest
   public async Task XmlFileAsync()
   {
     var setting = new CsvFileDummy();
-        
+
     using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
       setting.TrimmingOption == TrimmingOptionEnum.All,
       setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
@@ -47,7 +47,7 @@ public class XmlFileReaderTest
   public async Task XmlFileSyncAsync()
   {
     var setting = new CsvFileDummy();
-        
+
     using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
       setting.TrimmingOption == TrimmingOptionEnum.All,
       setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
@@ -56,7 +56,7 @@ public class XmlFileReaderTest
     Assert.AreEqual("COMMON", xml.GetName(0));
     Assert.AreEqual("BOTANICAL", xml.GetName(1));
 
-    xml.Read(UnitTestStatic.Token);
+    xml.Read();
 
     Assert.AreEqual("Bloodroot", xml.GetString(0));
     Assert.AreEqual(4L, xml.GetInt64(2));
@@ -180,7 +180,7 @@ public class XmlFileReaderTest
     Assert.AreEqual((int) 4, xmlReader.GetInt32(2));
     Assert.AreEqual("$2.44", xmlReader.GetString(4));
     Assert.AreEqual(2.44d, xmlReader.GetDouble(4));
-        
+
     await xmlReader.ReadAsync(UnitTestStatic.Token);
     var target = new object[xmlReader.FieldCount];
     xmlReader.GetValues(target);

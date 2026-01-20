@@ -13,10 +13,9 @@
  */
 #nullable enable
 
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,15 +26,18 @@ namespace CsvTools;
 
 /// <inheritdoc cref="CsvTools.IFileReader" />
 /// <summary>
-///   Json text file reader
+///   Json text file reader, this reader is a synchonous reader
 /// </summary>
 public sealed class JsonFileReader : BaseFileReaderTyped
 {
   private Stream? m_Stream;
 
-  private JsonTextReader? m_JsonTextReader;
-
+  private IEnumerator<JObject>? m_EnumeratorJson = null;
+  // Storage for already read columns 
+  private readonly List<JObject> m_SampleRows = new List<JObject>();
+  // Need to keep the StreamReader so its not disposed in between
   private StreamReader? m_StreamReader;
+  private IReadOnlyList<JsonTabularConverter.JsonColumn> m_JsonColumns = Array.Empty<JsonTabularConverter.JsonColumn>();
 
   /// <summary>
   /// Constructor for Json Reader
@@ -102,18 +104,18 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   }
 
   /// <inheritdoc />
-  public override bool IsClosed => m_StreamReader is null;
+  public override bool IsClosed => m_Stream is null;
 
   /// <inheritdoc />
   public override void Close()
   {
     base.Close();
-    m_JsonTextReader?.Close();
-    (m_JsonTextReader as IDisposable)?.Dispose();
-    m_JsonTextReader = null;
 
     m_StreamReader?.Dispose();
     m_StreamReader = null;
+    m_EnumeratorJson?.Dispose();
+    m_EnumeratorJson = null;
+
     if (!SelfOpenedStream) return;
     m_Stream?.Dispose();
     m_Stream = null;
@@ -133,35 +135,26 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   /// <inheritdoc cref="IFileReader" />
   public override async Task OpenAsync(CancellationToken token)
   {
-    HandleShowProgress($"Opening JSON file {FileName}", 0);
+    // Make sure to free old resources
+    Close();
+
     await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
     Retry:
     try
     {
       ResetPositionToStartOrOpen();
-      var line = await GetNextRecordAsync(token).ConfigureAwait(false);
+      if (m_EnumeratorJson is null)
+        throw new InvalidOperationException("JSON enumerator not initialized.");
 
-      // get column names for some time
-      var colNames = new DictionaryIgnoreCase<DataTypeEnum>();
-      var stopwatch = Stopwatch.StartNew();
-      // read additional rows to see if we have some extra columns
-      while (line.Count != 0)
-      {
-        foreach (var keyValue in line)
-          colNames[keyValue.Key]= keyValue.Value?.GetType().GetDataType() ?? DataTypeEnum.String;
-
-        if (stopwatch.ElapsedMilliseconds > 1000)
-          break;
-        line = await GetNextRecordAsync(token).ConfigureAwait(false);
-      }
-
-      InitColumn(colNames.Count);
-      ParseColumnName(colNames.Select(colValue => colValue.Key), colNames.Select(colValue => colValue.Value));
+      // Discover columns from first N rows
+      for (int i = 0; i < 5 && m_EnumeratorJson.MoveNext(); i++)
+        m_SampleRows.Add(m_EnumeratorJson.Current);
+      m_JsonColumns = m_SampleRows.DiscoverColumns(4, token);
+      InitColumn(m_JsonColumns.Count);
+      ParseColumnName(m_JsonColumns.Select(x => x.HeaderName), m_JsonColumns.Select(x => x.PropertyType.GetDataType()));
 
       FinishOpen();
-
-      ResetPositionToStartOrOpen();
     }
     catch (Exception ex)
     {
@@ -177,22 +170,34 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     }
   }
 
-  /// <inheritdoc cref="IFileReader" />
-  public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
+  /// <inheritdoc cref="BaseFileReader" />
+  protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
-    if (!EndOfFile && !cancellationToken.IsCancellationRequested)
+      if (!EndOfFile && !cancellationToken.IsCancellationRequested && m_EnumeratorJson !=null)
     {
-      var couldRead = (await GetNextRecordAsync(cancellationToken).ConfigureAwait(false)).Count > 0;
-      if (couldRead) RecordNumber++;
-      InfoDisplay(couldRead);
+      JObject? json = null;
+      if (RecordNumber < m_SampleRows.Count)
+        json = m_SampleRows[(int) RecordNumber];
+      else if (m_EnumeratorJson.MoveNext())
+        json = m_EnumeratorJson.Current;
 
+      bool couldRead = json != null;
+      if (couldRead)
+      {
+        RecordNumber++;
+        EndLineNumber++;
+        StartLineNumber++;
+        json!.HandleRow(m_JsonColumns, ',', (idx, val) => CurrentRowColumnText[idx]= val, (idx, val) => CurrentValues[idx]= val);
+      }
+
+      InfoDisplay(couldRead);
       if (couldRead && !IsClosed && RecordNumber <= RecordLimit)
-        return true;
+        return new ValueTask<bool>(true);
     }
 
     EndOfFile = true;
     HandleReadFinished();
-    return false;
+    return new ValueTask<bool>(false);
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -205,8 +210,8 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     {
       m_Stream?.Dispose();
       m_StreamReader?.Dispose();
-      (m_JsonTextReader as IDisposable)?.Dispose();
-      m_JsonTextReader = null;
+      m_EnumeratorJson?.Dispose();
+      m_EnumeratorJson = null;
       m_StreamReader = null;
       m_Stream = null;
     }
@@ -224,172 +229,6 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   }
 
   /// <summary>
-  ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
-  ///   the structure of the Json file
-  /// </summary>
-  /// <returns>A collection with name and value of the properties</returns>
-  private async Task<IReadOnlyCollection<KeyValuePair<string, object?>>> GetNextRecordAsync(CancellationToken token)
-  {
-    if (m_JsonTextReader is null)
-      throw new FileReaderOpenException();
-    try
-    {
-      var headers = new DictionaryIgnoreCase<bool>();
-      var keyValuePairs = new DictionaryIgnoreCase<object?>();
-      while (m_JsonTextReader.TokenType != JsonToken.StartObject
-             // && m_JsonTextReader.TokenType != JsonToken.PropertyName
-             && m_JsonTextReader.TokenType != JsonToken.StartArray)
-        if (!await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false))
-          return Array.Empty<KeyValuePair<string, object?>>();
-
-      // sore the parent Property Name in parentKey
-      var startKey = string.Empty;
-      var endKey = "<dummy>";
-      var key = string.Empty;
-      var hasAnyData = false;
-
-      // sore the current Property Name in key
-      StartLineNumber = m_JsonTextReader.LineNumber;
-      var inArray = false;
-      do
-      {
-        switch (m_JsonTextReader.TokenType)
-        {
-          // either the start of the row or a sub object that will be flattened
-          case JsonToken.StartObject:
-            if (startKey.Length == 0 || (!hasAnyData && m_JsonTextReader.Path.EndsWith("]")))
-              startKey = m_JsonTextReader.Path;
-            break;
-
-          case JsonToken.EndObject:
-            endKey = m_JsonTextReader.Path;
-            break;
-
-          // arrays will be read as multi line columns
-          case JsonToken.StartArray:
-            inArray = true;
-            break;
-
-          case JsonToken.PropertyName:
-            key = startKey.Length > 0 ? m_JsonTextReader.Path.Substring(startKey.Length + 1) : m_JsonTextReader.Path;
-            if (!headers.ContainsKey(key))
-            {
-              headers.Add(key, false);
-              keyValuePairs.Add(key, null);
-            }
-
-            break;
-
-          case JsonToken.Raw:
-          case JsonToken.Null:
-            headers[key] = true;
-            hasAnyData = true;
-            break;
-
-          case JsonToken.Date:
-          case JsonToken.Bytes:
-          case JsonToken.Integer:
-          case JsonToken.Float:
-          case JsonToken.String:
-          case JsonToken.Boolean:
-            // in case there is a property it's a real column, otherwise it's used for structuring only
-            headers[key] = true;
-            hasAnyData = true;
-
-            // in case we are in an array combine all values but separate them with linefeed
-            if (inArray && keyValuePairs[key] != null)
-              keyValuePairs[key] = (Convert.ToString(keyValuePairs[key])) + '\n'
-                                                                          + m_JsonTextReader.Value;
-            else
-              keyValuePairs[key] = m_JsonTextReader.Value;
-            break;
-
-          case JsonToken.EndArray:
-            inArray = false;
-            break;
-
-          case JsonToken.None:
-            break;
-
-          case JsonToken.StartConstructor:
-            break;
-
-          case JsonToken.Comment:
-            break;
-
-          case JsonToken.Undefined:
-            break;
-
-          case JsonToken.EndConstructor:
-            break;
-
-          default:
-            throw new ArgumentOutOfRangeException($"Unknown TokenType {m_JsonTextReader.TokenType}");
-        }
-
-        token.ThrowIfCancellationRequested();
-      } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) &&
-               await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
-
-      EndLineNumber = m_JsonTextReader.LineNumber;
-
-      foreach (var kv in headers.Where(kv => !kv.Value))
-        keyValuePairs.Remove(kv.Key);
-
-      // store the information into our fixed structure, even if the tokens in Json change order
-      // they will align
-      if (Column.Length == 0) return keyValuePairs;
-      var columnNumber = 0;
-      foreach (var col in Column)
-      {
-        if (col.Ignore)
-          continue;
-        if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
-        {
-          if (CurrentValues[columnNumber] is null)
-          {
-            CurrentRowColumnText[columnNumber] = string.Empty;
-          }
-          else
-          {
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
-            CurrentRowColumnText[columnNumber] = orgVal;
-
-            // ReSharper disable once MergeIntoPattern
-            if (!string.IsNullOrEmpty(orgVal) && col.ValueFormat.DataType >= DataTypeEnum.String)
-            {
-              CurrentRowColumnText[columnNumber] =
-                TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal.AsSpan(), columnNumber));
-              CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
-            }
-          }
-        }
-
-        columnNumber++;
-      }
-
-      if (keyValuePairs.Count < FieldCount)
-        HandleWarning(
-          -1,
-          $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
-      else if (keyValuePairs.Count > FieldCount)
-        HandleWarning(
-          -1,
-          $"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
-
-      return keyValuePairs;
-    }
-    catch (Exception ex)
-    {
-      // A serious error will be logged and its assume the file is ended
-      HandleError(-1, ex.Message);
-      EndOfFile = true;
-      return Array.Empty<KeyValuePair<string, object?>>();
-    }
-  }
-
-  /// <summary>
   ///   Resets the position and buffer to the first line, excluding headers, use
   ///   ResetPositionToStart if you want to go to first data line
   /// </summary>
@@ -397,7 +236,6 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   {
     if (SelfOpenedStream)
     {
-      // Better would be DisposeAsync(), but method is synchronous
       m_Stream?.Dispose();
       m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
     }
@@ -406,23 +244,14 @@ public sealed class JsonFileReader : BaseFileReaderTyped
       m_Stream!.Seek(0, SeekOrigin.Begin);
     }
 
-    // in case we can not seek need to reopen the stream reader
-    m_StreamReader?.Close();
-    m_StreamReader = new StreamReader(
-      m_Stream ?? throw new InvalidOperationException(),
-      Encoding.UTF8,
-      true,
-      4096,
-      true);
-
-    // End Line should be at 1, later on as the line is read the start line s set to this value
-    StartLineNumber = 1;
     EndLineNumber = 1;
+    StartLineNumber = EndLineNumber;
     RecordNumber = 0;
 
-    EndOfFile = m_StreamReader.EndOfStream;
+    m_StreamReader = new StreamReader(m_Stream!, Encoding.UTF8, true, 4096, true);
 
-    m_JsonTextReader?.Close();
-    m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
+    // Initialize the JsonTextReader for streaming
+    m_EnumeratorJson = m_StreamReader.StreamJsonObjects().Items.GetEnumerator();
+    m_SampleRows.Clear();
   }
 }

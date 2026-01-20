@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -716,29 +715,49 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc cref="IDataReader" />
   [Obsolete("Use OpenAsync instead for asynchronous, non-blocking operation.")]
   public virtual void Open()
-  {
+  =>
     // Synchronously calls async method; safe for non-UI threads.
     OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
-  }
 
   /// <inheritdoc cref="IDataReader" />
   public abstract Task OpenAsync(CancellationToken cancellationToken);
 
-  /// <inheritdoc cref="IDataReader" />
-  /// <remarks>
-  /// This synchronous method blocks until the asynchronous read completes. 
-  /// Prefer ReadAsync in async scenarios.
-  /// </remarks>
-  public virtual bool Read(in CancellationToken cancellationToken) =>
-    ReadAsync(cancellationToken).GetAwaiter().GetResult();
+  /// <inheritdoc cref="IFileReader" />
+  public sealed override Task<bool> ReadAsync(CancellationToken cancellationToken)
+    => ReadCoreAsync(cancellationToken).AsTask();
 
-  /// <inheritdoc cref="DbDataReader" />
+  /// <inheritdoc cref="IDataReader" />
   /// <remarks>
   /// This synchronous method blocks until the asynchronous read completes.
   /// Prefer ReadAsync(CancellationToken) in asynchronous scenarios.
   /// </remarks>
-  public override bool Read() =>
-    ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
+  public sealed override bool Read()
+  => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+  /// <summary>
+  /// Performs the actual read operation for the data reader.
+  /// </summary>
+  /// <param name="cancellationToken">
+  /// A token that can be used to cancel the read operation.
+  /// Implementations should observe this token and stop reading promptly when cancellation is requested.
+  /// </param>
+  /// <returns>
+  /// A <see cref="ValueTask{Boolean}"/> that completes with <c>true</c> if a record was read successfully;
+  /// <c>false</c> if the end of the data source was reached, reading was cancelled, or the reader was closed.
+  /// </returns>
+  /// <remarks>
+  /// This method represents the core read logic and must be implemented by derived classes.
+  /// The base class provides the public <see cref="Read"/> and <see cref="ReadAsync(CancellationToken)"/> methods
+  /// and delegates to this method to avoid sync-over-async and async-over-sync implementations.
+  /// <para/>
+  /// Implementations may complete the returned <see cref="ValueTask{Boolean}"/> synchronously if no asynchronous
+  /// I/O is required. True asynchronous readers should perform their I/O asynchronously and respect the
+  /// <paramref name="cancellationToken"/>.
+  /// <para/>
+  /// When this method returns <c>false</c>, the reader is considered finished and the base class will trigger
+  /// the read-finished lifecycle handling.
+  /// </remarks>
+  protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
 
   /// <summary>
   ///   Resets the position to first data row.
@@ -1137,6 +1156,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   ///   Parses the name of the columns and sets the data types, it will handle TimePart and
   ///   TimeZone. Column must be set beforehand
+  ///   TODO: Handing in two Lists, better would be to have a combined list so the order does not matter much any more
   /// </summary>
   /// <param name="headerRow">The header row.</param>
   /// <param name="dataType">Type of the data.</param>

@@ -135,7 +135,6 @@ public interface IFileReader : IDataReader
   /// <returns>
   ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
   /// </returns>
-  [Obsolete("Use ReadAsync if possible")]
   new bool Read();
 
   /// <summary>
