@@ -207,6 +207,10 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// <summary>
   /// Modifies the item's key so that it becomes unique within the collection,
   /// based on the keys currently present.
+  ///
+  /// IMPORTANT:
+  /// This method is ONLY used during insertion (JSON load, Add, AddRange).
+  /// Key changes on existing items must NEVER be auto-adjusted.
   /// </summary>
   private string MakeUnique(T item)
   {
@@ -227,7 +231,9 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
 
   /// <summary>
   /// Handles property change notifications from items in the collection.
-  /// If the property that defines the unique key changes, the item is reindexed.
+  ///
+  /// If the property that defines the unique key changes, the change is
+  /// validated and either accepted or rejected.
   /// </summary>
   private void OnItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
   {
@@ -236,25 +242,49 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
 
     // React to key changes
     if (item.UniqueKeyPropertyName.Equals(e.PropertyName))
-      Reindex(item);
+    { 
+      HandleKeyChange(item);
+      return;
+    }
+      
 
     CollectionItemPropertyChanged?.Invoke(sender, e);
   }
 
   /// <summary>
-  /// Updates the internal dictionary when an item's unique key changes.
-  /// Removes the old key entry and re-adds the item under its new key,
-  /// while enforcing uniqueness.
+  /// Handles changes to an item's unique key.
+  ///
+  /// Duplicate keys are rejected and the previous value is restored.
+  /// Automatic key adjustment is explicitly NOT performed here.
   /// </summary>
-  private void Reindex(T item)
+  private void HandleKeyChange(T item)
   {
-    // remove old entry
-    var oldKey = m_InternalDictionary.FirstOrDefault(p => ReferenceEquals(p.Value, item)).Key;
-    if (oldKey != null)
-      m_InternalDictionary.Remove(oldKey);
+    // Find old key
+    var oldEntry = m_InternalDictionary.FirstOrDefault(p => ReferenceEquals(p.Value, item));
+    var oldKey = oldEntry.Key;
+    var newKey = item.GetUniqueKey();
 
-    // ensure new key is unique
-    m_InternalDictionary[EnsureUniqueKey(item)] = item;
+    if (oldKey == null || oldKey.Equals(newKey, StringComparison.OrdinalIgnoreCase))
+      return;
+
+    // Reject duplicates
+    if (m_InternalDictionary.ContainsKey(newKey))
+    {
+      // revert change
+      item.PropertyChanged -= OnItemPropertyChanged;
+      item.SetUniqueKey(oldKey);
+      item.PropertyChanged += OnItemPropertyChanged;
+
+      throw new InvalidOperationException(
+        $"Duplicate {item.UniqueKeyPropertyName} '{newKey}' (case-insensitive).");
+    }
+
+    // Accept change
+    m_InternalDictionary.Remove(oldKey);
+    m_InternalDictionary[newKey] = item;
+
+    CollectionItemPropertyChanged?.Invoke(item,
+      new PropertyChangedEventArgs(item.UniqueKeyPropertyName));
   }
 
   /// <inheritdoc/>

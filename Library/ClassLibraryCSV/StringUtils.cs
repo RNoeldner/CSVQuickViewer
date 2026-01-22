@@ -339,15 +339,26 @@ public static class StringUtils
   }
 
   /// <summary>
-  ///   Check if a text would match a filter value,
+  /// Determines whether the specified text matches a filter expression.
   /// </summary>
-  /// <param name="item">The item of a list that should be checked</param>
-  /// <param name="filter">
-  ///   Filter value, for OR separate words by space for AND separate words by +
+  /// <param name="item">
+  /// The text to test against the filter.
   /// </param>
-  /// <param name="stringComparison"></param>
-  /// <Note>In case the filter is empty there is no filter it will always return true</Note>
-  /// <returns>True if text matches</returns>
+  /// <param name="filter">
+  /// The filter expression.
+  /// Multiple terms may be separated by spaces, commas, or semicolons (logical OR).
+  /// Terms prefixed with '+' are mandatory and must all be present (logical AND).
+  /// </param>
+  /// <param name="stringComparison">
+  /// Specifies how string comparisons are performed (for example, case sensitivity).
+  /// </param>
+  /// <remarks>
+  /// If <paramref name="filter"/> is empty, the method always returns <see langword="true"/>.
+  /// If <paramref name="item"/> is empty and the filter is not, the method returns <see langword="false"/>.
+  /// </remarks>
+  /// <returns>
+  /// <see langword="true"/> if the text satisfies the filter expression; otherwise, <see langword="false"/>.
+  /// </returns>
   public static bool PassesFilter(
     this ReadOnlySpan<char> item,
     ReadOnlySpan<char> filter,
