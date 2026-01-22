@@ -395,8 +395,8 @@ public static class DetermineColumnFormat
             var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
             if ((columnTimeZone.ValueFormat.DataType != DataTypeEnum.String
                  && columnTimeZone.ValueFormat.DataType != DataTypeEnum.Integer)
-                || (colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE"
-                    && colName != "TIME ZONE ID"))
+                || (!string.Equals(colName, "TIMEZONE", StringComparison.Ordinal)&& !string.Equals(colName, "TIMEZONEID", StringComparison.Ordinal)&& !string.Equals(colName, "TIME ZONE", StringComparison.Ordinal)
+                    && !string.Equals(colName, "TIME ZONE ID", StringComparison.Ordinal)))
               continue;
             columnCollection.Replace(
               new Column(
@@ -1145,10 +1145,7 @@ public static class DetermineColumnFormat
     if (fileSetting is ICsvFile { FieldDelimiterChar: char.MinValue })
       return fileSetting.ColumnCollection;
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await
-#endif
-    using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken);
+    using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken).ConfigureAwait(false);
     return await FillGuessColumnFormatReaderAsyncReader(
       fileReader,
       fillGuessSettings,

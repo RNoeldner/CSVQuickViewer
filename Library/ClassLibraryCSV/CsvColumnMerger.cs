@@ -207,7 +207,7 @@ public sealed class CsvColumnMerger
     {
       var newColumText = parseColumn(mergeIndex - 1, rawText.Substring(starts[mergeIndex - 1], starts[mergeIndex + 1] - starts[mergeIndex - 1] -1));
       // Only if the new text is different to what we had
-      if (!string.IsNullOrEmpty(newColumText) && newColumText!=columns[mergeIndex - 1])
+      if (!string.IsNullOrEmpty(newColumText) && !string.Equals(newColumText, columns[mergeIndex - 1], StringComparison.OrdinalIgnoreCase))
         return newColumText;
     }
 

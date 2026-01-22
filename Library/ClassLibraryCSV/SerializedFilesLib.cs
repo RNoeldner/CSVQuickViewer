@@ -158,9 +158,6 @@ public static class SerializedFilesLib
   public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
   {
     Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
     using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
     using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
@@ -168,7 +165,7 @@ public static class SerializedFilesLib
     // Moved some classes across library, this need to be adjusted here
     text = new[] { ".CsvFile", ".JsonFile", ".XMLFile" }.Aggregate(text, (current, className) => current.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\""));
 
-    if (text.StartsWith("<?xml"))
+    if (text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
       throw new JsonReaderException("XML files are no longer supported.");
     return DeserializeText<T>(text);
   }
@@ -198,13 +195,10 @@ public static class SerializedFilesLib
     var newContent = data.SerializeIndentedJson();
     if (!FileSystemUtils.FileExists(fileName))
       return newContent;
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
     using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
     using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
     var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
-    if (oldContent != newContent)
+    if (!string.Equals(oldContent, newContent, StringComparison.OrdinalIgnoreCase))
       return newContent;
     try { Logger.Debug("No change to file {filename}", fileName); }
     catch
@@ -250,15 +244,9 @@ public static class SerializedFilesLib
       if (delete)
         FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
       using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName, false)))
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
       using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
-        await sr.WriteAsync(content);
+        await sr.WriteAsync(content).ConfigureAwait(false);
 
       Logger.Information($"Written file {fileName.GetShortDisplayFileName()}");
     }

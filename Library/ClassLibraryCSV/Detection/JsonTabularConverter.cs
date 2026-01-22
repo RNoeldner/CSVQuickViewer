@@ -99,15 +99,15 @@ public static class JsonTabularConverter
         return name + "s";
 
       // s, x, z, ch, sh → es
-      if (lower.EndsWith("s") ||
-          lower.EndsWith("x") ||
-          lower.EndsWith("z") ||
-          lower.EndsWith("ch") ||
-          lower.EndsWith("sh"))
+      if (lower.EndsWith("s", StringComparison.OrdinalIgnoreCase) ||
+          lower.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
+          lower.EndsWith("z", StringComparison.OrdinalIgnoreCase) ||
+          lower.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
+          lower.EndsWith("sh", StringComparison.OrdinalIgnoreCase))
         return name + "es";
 
       // consonant + y → ies
-      if (lower.EndsWith("y") && lower.Length > 1 &&
+      if (lower.EndsWith("y", StringComparison.OrdinalIgnoreCase) && lower.Length > 1 &&
           !"aeiou".Contains(lower[lower.Length - 2]))
         return name.Substring(0, name.Length - 1) + "ies";
 
@@ -464,6 +464,7 @@ public static class JsonTabularConverter
   /// Character used to join multiple values from arrays into a single cell (default is ',').
   /// Any occurrences of this character inside values are replaced with '_'.
   /// </param>
+  /// <param name="sampleSize">Number of rows to check to determine the columns</param>
   /// <param name="cancellationToken">Token to cancel processing at any time.</param>
   /// <returns>
   /// A tuple containing:

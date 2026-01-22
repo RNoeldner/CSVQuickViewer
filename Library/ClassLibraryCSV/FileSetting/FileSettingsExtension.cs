@@ -99,16 +99,10 @@ public static class FileSettingsExtensionMethods
         var qualifierUsed = true;
         try
         {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-            using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-            using var textReader = await improvedStream
-              .GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, cancellationToken)
-              .ConfigureAwait(false);
+          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+          using var textReader = await improvedStream
+            .GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, cancellationToken)
+            .ConfigureAwait(false);
           qualifierUsed = await improvedStream.HasUsedQualifierAsync(csvFile.CodePageId, csvFile.SkipRows,
               csvFile.FieldDelimiterChar,
               csvFile.FieldQualifierChar, cancellationToken)
@@ -130,20 +124,14 @@ public static class FileSettingsExtensionMethods
 
       try
       {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
-          using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
+        using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
         {
           rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.FieldDelimiterChar,
             csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
         }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
-          using (var stream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
+        using (var stream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
         {
           using var streamReader =
             new StreamReader(stream, Encoding.GetEncoding(csvFile.CodePageId),
@@ -169,11 +157,8 @@ public static class FileSettingsExtensionMethods
     if (numRecords.HasValue)
       AddInfo("Number of Records", numRecords.Value.ToString());
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await
-#endif
-      using var fileReader =
-        FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
+    using var fileReader =
+      FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
     await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
     var columnNames = string.Join(join,

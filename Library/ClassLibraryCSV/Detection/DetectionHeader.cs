@@ -166,7 +166,7 @@ public static class DetectionHeader
 
       var tooLong = headers.Where(header => header.Length > 128).ToList();
       var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
-      var notUnique = headers.GroupBy(x => x)
+      var notUnique = headers.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
         .Where(x => x.Count() > 1).ToList();
       var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
       var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();

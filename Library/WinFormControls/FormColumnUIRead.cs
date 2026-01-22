@@ -670,12 +670,10 @@ public partial class FormColumnUiRead : ResizeForm
       var hasRetried = false;
 
       retry:
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        // ReSharper disable once UseAwaitUsing
-        using (var fileReader = await GetReaderForDetectionAsync(m_FileSetting, cancellationToken))
+
+      // ReSharper disable once ConvertToUsingDeclaration
+      // ReSharper disable once UseAwaitUsing
+      using (var fileReader = await GetReaderForDetectionAsync(m_FileSetting, cancellationToken))
       {
         if (progress != null)
           fileReader.ReportProgress = progress;

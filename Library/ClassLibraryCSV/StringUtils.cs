@@ -230,11 +230,11 @@ public static class StringUtils
       throw new ArgumentNullException(nameof(nameToAdd));
 
     // Already unique
-    if (!previousColumns.Contains(nameToAdd))
+    if (!previousColumns.Contains(nameToAdd, StringComparer.OrdinalIgnoreCase))
       return nameToAdd;
 
     // Detect and temporarily remove trailing ellipsis
-    bool hadEllipsis = nameToAdd.EndsWith("…");
+    bool hadEllipsis = nameToAdd.EndsWith("…", StringComparison.Ordinal);
     string cleanName = hadEllipsis ? nameToAdd.Substring(0, nameToAdd.Length - 1) : nameToAdd;
 
     // Remove numeric suffix if present

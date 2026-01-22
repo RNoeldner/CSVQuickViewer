@@ -822,7 +822,7 @@ public static class StringConversionSpan
             out var result)) return result;
 
       // try InvariantCulture
-      if (culture.Name != "en-US" && !Equals(culture, CultureInfo.InvariantCulture))
+      if (!string.Equals(culture.Name, "en-US", StringComparison.OrdinalIgnoreCase)&& !Equals(culture, CultureInfo.InvariantCulture))
       {
         dateTimeFormatInfo.AbbreviatedDayNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames;
         dateTimeFormatInfo.DayNames = CultureInfo.InvariantCulture.DateTimeFormat.DayNames;

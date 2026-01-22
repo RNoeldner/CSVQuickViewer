@@ -170,12 +170,7 @@ public sealed class CsvFileWriter : BaseFileWriter
       throw new FileWriterException("No columns defined to be written.");
 
     HandleWriteStart();
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-    using var writer =
-      new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 64 * 1024, true);
+    using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 64 * 1024, true);
 
     // --- Write header ---
     if (!string.IsNullOrEmpty(Header))

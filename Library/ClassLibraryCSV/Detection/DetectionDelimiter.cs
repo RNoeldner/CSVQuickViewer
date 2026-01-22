@@ -15,6 +15,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -372,6 +373,7 @@ public static class DetectionDelimiter
   /// <summary>
   /// Result for Delimiter Detection
   /// </summary>
+  [StructLayout(LayoutKind.Auto)]
   public readonly struct DelimiterDetection
   {
     /// <summary>

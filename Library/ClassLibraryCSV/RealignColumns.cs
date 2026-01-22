@@ -73,102 +73,144 @@ public sealed class ReAlignColumns
   }
 
   /// <summary>
-  ///   Tries to condense (combine two columns into one) in a way that makes sense.
+  /// Tries to condense (combine two columns into one) in a way that makes sense.
   /// </summary>
   /// <param name="row">Array with the columns of that row</param>
   /// <param name="handleWarning">Action to be called to store a warning</param>
   /// <param name="rawText">The raw text of the file before splitting it into columns</param>
   /// <returns>A new list of columns</returns>
-  public IReadOnlyList<string> RealignColumn(IReadOnlyList<string> row, Action<int, string> handleWarning, in string rawText)
+  public IReadOnlyList<string> RealignColumn(
+    IReadOnlyList<string> row,
+    Action<int, string> handleWarning,
+    in string rawText)
   {
-    if (row is null) throw new ArgumentNullException(nameof(row));
-    if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
+    // Preconditions
+    if (row is null)
+      throw new ArgumentNullException(nameof(row));
+    if (handleWarning is null)
+      throw new ArgumentNullException(nameof(handleWarning));
 
     if (m_GoodRows.Count < 3)
     {
-      handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
+      handleWarning(-1,
+        "Not enough error free rows have been read to allow realigning of columns.");
       return row;
     }
 
-    // List is easier to handle than an array
+    var columns = NormalizeAndTruncate(row, handleWarning);
+    if (columns.Count == m_ExpectedColumns)
+      return columns;
+
+    var expected = BuildExpectedColumnOptions();
+    ApplyRealignmentHeuristics(columns, expected, rawText, handleWarning);
+
+    return columns.Count == row.Count && row.Count == m_ExpectedColumns
+      ? row
+      : columns.ToArray();
+  }
+
+  private List<string> NormalizeAndTruncate(
+   IReadOnlyList<string> row,
+   Action<int, string> handleWarning)
+  {
     var columns = new List<string>(row.Count);
     for (int i = 0; i < row.Count; i++)
       columns.Add(row[i]?.Trim() ?? string.Empty);
 
-    if (row.Count >= m_ExpectedColumns * 2 - 1)
+    if (columns.Count >= m_ExpectedColumns * 2 - 1)
     {
-      // take the columns as is...
-      while (columns.Count > m_ExpectedColumns) columns.RemoveAt(m_ExpectedColumns);
-      handleWarning.Invoke(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
+      while (columns.Count > m_ExpectedColumns)
+        columns.RemoveAt(m_ExpectedColumns);
+
+      handleWarning(
+        m_ExpectedColumns - 1,
+        "Information in following columns has been ignored.");
     }
-    else
-    {
-      for (var colIndex = 0; colIndex < columns.Count; colIndex++)
-        columns[colIndex] ??= string.Empty;
-      //Get the Options for all good rows
-      var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
-      for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
-        otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
-      var col = 0;
-      // Step 1: try combining
-      while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
-      {
 
-        if (col + 1 < columns.Count &&
-            string.IsNullOrEmpty(columns[col]) &&
-            !otherColumns[col].HasFlag(ColumnOption.Empty) &&
-            GetColumnOption(columns[col + 1]) == otherColumns[col])
-        {
-          handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
-          columns.RemoveAt(col);
-          continue;
-        }
-
-        if (otherColumns[col] != ColumnOption.None && col > 0)
-        {
-          var thisCol = GetColumnOption(columns[col]);
-          // assume we have to remove this columns
-          if (!thisCol.HasFlag(otherColumns[col])
-              || thisCol == ColumnOption.None && thisCol == otherColumns[col - 1])
-          {
-            var fromRaw = false;
-            if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length > 0 && columns[col].Length > 0)
-            {
-              var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
-              if (pos1 != -1)
-              {
-                var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
-                if (pos2 != -1)
-                {
-                  fromRaw = true;
-                  columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
-                }
-              }
-            }
-
-
-            if (!fromRaw)
-            {
-              if (string.IsNullOrEmpty((columns[col - 1])))
-                columns[col - 1] = columns[col];
-              else
-                columns[col - 1] += columns[col];
-            }
-            columns.RemoveAt(col);
-            col--;
-            handleWarning.Invoke(
-              col,
-              "Extra information from in next column has been appended, assuming the data was misaligned.");
-          }
-        }
-
-        col++;
-      }
-    }
-    return (columns.Count == row.Count && row.Count == m_ExpectedColumns)
-      ? row : columns.ToArray();
+    return columns;
   }
 
+  private List<ColumnOption> BuildExpectedColumnOptions()
+  {
+    var expected = new List<ColumnOption>(m_ExpectedColumns);
+    for (int i = 0; i < m_ExpectedColumns; i++)
+      expected.Add(GetColumnOptionAllRows(i, m_GoodRows));
+    return expected;
+  }
+  private void ApplyRealignmentHeuristics(
+  List<string> columns,
+  List<ColumnOption> expected,
+  in string rawText,
+  Action<int, string> handleWarning)
+  {
+    for (int col = 0;
+         col < columns.Count &&
+         col < m_ExpectedColumns &&
+         columns.Count != m_ExpectedColumns;
+         col++)
+    {
+      // Remove empty misaligned column
+      if (col + 1 < columns.Count &&
+          string.IsNullOrEmpty(columns[col]) &&
+          !expected[col].HasFlag(ColumnOption.Empty) &&
+          GetColumnOption(columns[col + 1]) == expected[col])
+      {
+        handleWarning(col,
+          "Empty column has been removed, assuming the data was misaligned.");
+        columns.RemoveAt(col);
+        col--;
+        continue;
+      }
+
+      // Merge into previous column
+      if (col > 0 && expected[col] != ColumnOption.None)
+      {
+        var current = GetColumnOption(columns[col]);
+
+        if (!current.HasFlag(expected[col]) ||
+            (current == ColumnOption.None && current == expected[col - 1]))
+        {
+          MergeWithPrevious(columns, col, rawText);
+          columns.RemoveAt(col);
+          col--;
+
+          handleWarning(col,
+            "Extra information from next column has been appended, assuming the data was misaligned.");
+        }
+      }
+    }
+  }
+
+  private static void MergeWithPrevious(
+  List<string> columns,
+  int col,
+  in string rawText)
+  {
+    if (!string.IsNullOrEmpty(rawText) &&
+        columns[col - 1].Length > 0 &&
+        columns[col].Length > 0)
+    {
+      var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
+      if (pos1 >= 0)
+      {
+        var pos2 = rawText.IndexOf(
+          columns[col],
+          pos1 + columns[col - 1].Length,
+          StringComparison.Ordinal);
+
+        if (pos2 >= 0)
+        {
+          columns[col - 1] =
+            rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
+          return;
+        }
+      }
+    }
+
+    columns[col - 1] = string.IsNullOrEmpty(columns[col - 1])
+      ? columns[col]
+      : columns[col - 1] + columns[col];
+  }
   /// <summary>
   ///   Looking at the text sets certain flags
   /// </summary>

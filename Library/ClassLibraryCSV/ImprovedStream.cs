@@ -454,7 +454,7 @@ public class ImprovedStream : Stream, IImprovedStream
   /// <inheritdoc />
   public override async ValueTask DisposeAsync()
   {
-    await DisposeAsyncCore();
+    await DisposeAsyncCore().ConfigureAwait(false);
     await base.DisposeAsync().ConfigureAwait(false);
   }
 
@@ -591,7 +591,7 @@ public class ImprovedStream : Stream, IImprovedStream
         {
           if (!(entryEnumerator.Current is ZipEntry zipEntry))
             continue;
-          if (zipEntry.IsFile && zipEntry.Name != cleanName)
+          if (zipEntry.IsFile && !zipEntry.Name.Equals(cleanName, StringComparison.OrdinalIgnoreCase))
           {
             copyOtherFiles = true;
             break;
@@ -616,7 +616,7 @@ public class ImprovedStream : Stream, IImprovedStream
           while (entryEnumerator.MoveNext())
           {
             var zipEntry = entryEnumerator.Current as ZipEntry;
-            if (!(zipEntry?.IsFile ?? false) || zipEntry.Name == cleanName)
+            if (!(zipEntry?.IsFile ?? false) || !zipEntry.Name.Equals(cleanName, StringComparison.OrdinalIgnoreCase))
               continue;
             using var zipStream = zipFile.GetInputStream(zipEntry);
             // Copy the source data to the new stream

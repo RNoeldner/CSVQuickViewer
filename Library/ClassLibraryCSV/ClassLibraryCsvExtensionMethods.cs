@@ -367,7 +367,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// </summary>
   /// <param name="columnName">Name of the column.</param>    
   public static bool NoArtificialField(this string columnName) =>
-    !ReaderConstants.ArtificialFields.Contains(columnName);
+    !ReaderConstants.ArtificialFields.Contains(columnName, StringComparer.OrdinalIgnoreCase);
 
   /// <summary>
   ///   Combines all inner exceptions to one formatted string for logging.

@@ -339,6 +339,5 @@
     private System.Windows.Forms.Label labelEscape;
     private PunctuationTextBox charBoxEscape;
     private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-    private System.Windows.Forms.Button buttonOk;
   }
 }

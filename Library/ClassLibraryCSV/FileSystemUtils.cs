@@ -234,8 +234,7 @@ public static class FileSystemUtils
 
     var relativePart = fileName.Substring(dir.Length + 1);
 
-    return placeHolder == "."
-      ? relativePart
+    return string.Equals(placeHolder, ".", StringComparison.Ordinal) ? relativePart
       : placeHolder + Path.DirectorySeparatorChar + relativePart;
   }
 

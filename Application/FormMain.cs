@@ -140,14 +140,8 @@ public sealed partial class FormMain : ResizeForm
         // in case we skipped lines read them as Header, so we do not lose them
         if (m_FileSetting.SkipRows > 0)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-        using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-        using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
+          using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
+          using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
           for (var i = 0; i < m_FileSetting.SkipRows; i++)
             skippedLines.AppendLine(await sr.ReadLineAsync(ct));
         }
@@ -195,11 +189,7 @@ public sealed partial class FormMain : ResizeForm
         {
           var sa = new SourceAccess(m_FileSetting!.FullPath);
           sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await
-#endif
-              using var stream = FunctionalDI.GetStream(sa);
-
+          using var stream = FunctionalDI.GetStream(sa);
           using var textReader =
             new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
 

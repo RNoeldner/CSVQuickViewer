@@ -12,12 +12,14 @@
  *
  */
 using System;
+using System.Runtime.InteropServices;
 
 namespace CsvTools;
 
 /// <summary>
 /// Information about the minimum and maximum length of a date/time format string with the current settings.
 /// </summary>
+[StructLayout(LayoutKind.Auto)]
 public record struct DateTimeFormatInformation
 {
   /// <summary>

@@ -62,7 +62,7 @@ public sealed class DataTableWrapper : DataReaderWrapper
   {
     var src = base.GetValue(ordinal);
     // in case of the error column add the information that stored in columns and row errors
-    if (!m_AddErrorField || GetColumn(ordinal).Name != ReaderConstants.cErrorField) return src;
+    if (!m_AddErrorField || !string.Equals(GetColumn(ordinal).Name, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)) return src;
     var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
     var dbRowError = row.GetErrorInformation();
     if (dbRowError.Length > 0)

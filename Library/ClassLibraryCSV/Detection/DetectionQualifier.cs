@@ -16,6 +16,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -355,6 +356,7 @@ public static class DetectionQualifier
   /// <summary>
   /// Outcome of the Tests
   /// </summary>
+  [StructLayout(LayoutKind.Auto)]
   public struct QuoteTestResult
   {
     /// <summary>

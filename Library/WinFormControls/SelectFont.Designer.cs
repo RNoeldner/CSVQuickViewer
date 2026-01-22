@@ -140,8 +140,7 @@
 
     private System.Windows.Forms.ComboBox comboBoxFont;
     private System.Windows.Forms.Label labelFontSize;
-    private System.Windows.Forms.Label labelFont;
-    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelFont;
+    private System.Windows.Forms.Label labelFont;    
     private System.Windows.Forms.ComboBox comboBoxSize;
     private System.Windows.Forms.Button buttonDefault;
     private System.Windows.Forms.ToolTip toolTip;

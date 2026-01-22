@@ -136,7 +136,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
         var values = ReadNode(m_CurrentNode);
         foreach (var column in values)
         {
-          if (!columnNames.Contains(column.Key))
+          if (!columnNames.Contains(column.Key, StringComparer.OrdinalIgnoreCase))
             columnNames.Add(column.Key);
         }
         m_CurrentNode = m_CurrentNode.NextSibling;

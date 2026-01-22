@@ -218,7 +218,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     var key = item.GetUniqueKey();
     var unique = existingKeys.MakeUniqueInCollection(key);
     // Key was unique already
-    if (unique == key)
+    if (string.Equals(unique, key, StringComparison.OrdinalIgnoreCase))
       return key;
 
     // Item added twice
@@ -248,7 +248,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     }
       
 
-    CollectionItemPropertyChanged?.Invoke(sender, e);
+    CollectionItemPropertyChanged?.Invoke(this, e);
   }
 
   /// <summary>
@@ -283,7 +283,7 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     m_InternalDictionary.Remove(oldKey);
     m_InternalDictionary[newKey] = item;
 
-    CollectionItemPropertyChanged?.Invoke(item,
+    CollectionItemPropertyChanged?.Invoke(this,
       new PropertyChangedEventArgs(item.UniqueKeyPropertyName));
   }
 

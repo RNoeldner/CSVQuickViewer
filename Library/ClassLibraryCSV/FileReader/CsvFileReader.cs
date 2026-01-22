@@ -634,7 +634,7 @@ public class CsvFileReader : BaseFileReader
   /// <inheritdoc cref="IFileReader" />
   /// <exception cref="T:System.NotImplementedException">Always returns</exception>
   [Obsolete("Not implemented")]
-  public new IDataReader GetData(int i) => throw new NotImplementedException();
+  public new IDataReader GetData(int i) => throw new NotSupportedException();
 
   /// <inheritdoc cref="IFileReader" />
   /// <summary>
@@ -1641,7 +1641,7 @@ public class CsvFileReader : BaseFileReader
     /// <inheritdoc cref="BaseFileReader" />
     public new async ValueTask DisposeAsync()
     {
-      await DisposeAsyncCore();
+      await DisposeAsyncCore().ConfigureAwait(false);
 
       Dispose(false);
     }

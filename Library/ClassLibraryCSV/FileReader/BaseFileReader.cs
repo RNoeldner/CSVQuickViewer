@@ -799,7 +799,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       {
         resultingName = trimmed;
 
-        if (column != trimmed)
+        if (!string.Equals(column, trimmed, StringComparison.OrdinalIgnoreCase))
           HandleWarning(counter, $"Column title '{column}' had leading or trailing spaces, removed.");
 
         // Truncate first
@@ -812,7 +812,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
         // Ensure uniqueness (handles truncated columns)
         var uniqueName = existingNames.MakeUniqueInCollection(resultingName);
-        if (uniqueName != resultingName)
+        if (!string.Equals(uniqueName, resultingName, StringComparison.OrdinalIgnoreCase))
         {
           HandleError(counter, $"Column title '{resultingName}' exists more than once, replaced with {uniqueName}");
           resultingName = uniqueName;

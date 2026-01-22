@@ -1,9 +1,9 @@
-﻿using CsvTools;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
+namespace CsvTools;
 /// <summary>
 /// Custom JsonConverter for Dictionary that supports:
 /// - Object-style JSON: {"key":"value"}

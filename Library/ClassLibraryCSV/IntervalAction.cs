@@ -1,7 +1,8 @@
-using CsvTools;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
+namespace CsvTools;
 
 /// <summary>
 ///   Class to throttle calls to actions, ensuring they are invoked only after a specified interval.

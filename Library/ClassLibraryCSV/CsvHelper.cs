@@ -74,10 +74,7 @@ public static class CsvHelper
     var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey, identifierInContainer: identifierInContainer);
 
     inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await
-#endif
-      using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
+    using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
     var disallowedDelimiter = new List<char>();
 
     var delimiterByExtension = DetectionDelimiter.GetDelimiterByExtension(!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName);
@@ -99,10 +96,7 @@ public static class CsvHelper
       if (!inspectionResult.IsJson && !inspectionResult.IsXml)
       {
         progress.Report("Checking field delimiter");
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
-          using var reader = GetFileReader(inspectionResult, usedStream);
+        using var reader = GetFileReader(inspectionResult, usedStream);
         await reader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
         if (reader.FieldCount <= 1)
         {
@@ -140,10 +134,7 @@ public static class CsvHelper
     if (fillGuessSettings.Enabled)
     {
       progress.Report("Determining column format by reading samples");
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-        using var reader2 = GetFileReader(inspectionResult, usedStream);
+      using var reader2 = GetFileReader(inspectionResult, usedStream);
       await reader2.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
       var b = await reader2.FillGuessColumnFormatReaderAsyncReader(
         fillGuessSettings, columnCollectionInput: null,
@@ -177,7 +168,7 @@ public static class CsvHelper
       var memoryStream = new MemoryStream(capacity);
       await stream.CopyToAsync(memoryStream, capacity, cancellationToken).ConfigureAwait(false);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await stream.DisposeAsync();
+      await stream.DisposeAsync().ConfigureAwait(false);
 #else
         stream.Dispose();
 #endif
@@ -426,9 +417,6 @@ public static class CsvHelper
   {
     stream.Seek(0, SeekOrigin.Begin);
     using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await
-#endif
       using var jsonTextReader = new JsonTextReader(streamReader);
     jsonTextReader.CloseInput = false;
     try

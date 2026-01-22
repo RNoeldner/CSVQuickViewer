@@ -250,14 +250,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonEscapeSequence.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var stream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(stream);
       m_ReadSettings.EscapePrefixChar = (await textReader.InspectEscapePrefixAsync(m_ReadSettings.FieldDelimiterChar,
         m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token));
@@ -289,9 +283,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
         // ReSharper disable once UseAwaitUsing
         using var improvedStream = GetStream();
         var (codepage, bom) = await improvedStream.InspectCodePageAsync(m_CancellationTokenSource.Token);
@@ -306,14 +297,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
         // ReSharper disable once UseAwaitUsing
         using var stream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await
-#endif
         using var textReader = await GetTextReaderAsync(stream);
         var res = await textReader.InspectDelimiterAsync(m_ReadSettings.FieldQualifierChar, m_ReadSettings.EscapePrefixChar,
           Array.Empty<char>(), m_ReadSettings.FileName.GetDelimiterByExtension(), m_CancellationTokenSource.Token);
@@ -328,14 +313,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonGuessHeader.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       var res = await textReader.InspectHasHeaderAsync(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
         m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token);
@@ -353,14 +332,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonGuessLineComment.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       m_ReadSettings.CommentLine = await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
     });
@@ -373,14 +346,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       var res = textReader.InspectQualifier(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine,
         StaticCollections.PossibleQualifiers, m_CancellationTokenSource.Token);
@@ -419,14 +386,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     if (FileNameEmpty()) return;
     await buttonSkipLine.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       m_ReadSettings.SkipRows = textReader.InspectStartRow(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
         m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token);
@@ -500,14 +461,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   {
     await buttonWriteNewLine.RunWithHourglassAsync(async () =>
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
       using var textReader = await GetTextReaderAsync(improvedStream);
       cboNewLine.SelectedValue =
         textReader.InspectRecordDelimiter(m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token);

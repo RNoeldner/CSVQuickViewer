@@ -51,7 +51,7 @@ public static class ReaderExtensionMethods
       }
     }
     else
-      // IData Reader, any column
+    // IData Reader, any column
     {
       for (var col = 0; col < reader.FieldCount; col++)
       {
@@ -113,10 +113,7 @@ public static class ReaderExtensionMethods
     CancellationToken cancellationToken)
   {
     var res = new List<Column>();
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await
-#endif
-      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+    using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
     await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       res.Add(fileReader.GetColumn(colIndex));
@@ -182,12 +179,12 @@ public static class ReaderExtensionMethods
 
     try
     {
-        
+
       if (maxDuration < TimeSpan.MaxValue)
         progress.Report($"Reading batch (Limit {maxDuration.TotalSeconds:F1}s)");
       else
         progress.Report($"Reading all data");
-        
+
       var watch = Stopwatch.StartNew();
       while (!progress.CancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
                                                                  && await wrapper.ReadAsync(progress.CancellationToken)

@@ -282,24 +282,21 @@ public abstract class BaseFileWriter : IFileWriter
       var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
       if (!string.IsNullOrEmpty(m_IdentifierInContainer))
         sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await
-#endif
-        using var stream = FunctionalDI.GetStream(sourceAccess);
+      using var stream = FunctionalDI.GetStream(sourceAccess);
       await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
     }
     catch (Exception exc)
     {
-      Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName()); 
-        
+      Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());
+
       throw new FileWriterException(
         $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
         exc);
     }
     finally
     {
-      Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records); 
-        
+      Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);
+
 
       HandleWriteEnd();
     }
