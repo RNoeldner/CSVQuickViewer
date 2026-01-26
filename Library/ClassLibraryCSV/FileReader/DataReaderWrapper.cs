@@ -58,7 +58,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
     m_FileReader = reader as IFileReader;
     if (reader.IsClosed)
-      throw new InvalidOperationException("Reader can not be closed");
+      throw new InvalidOperationException("Reader can not be status closed");
     RowErrorInformation = string.Empty;
     m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
     var sourceColumns = new List<Column>();
@@ -405,6 +405,8 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       m_FileReader.Warning -= HandleSourceWarning;
       m_FileReader.Dispose();
     }
+    else
+      DataReader.Dispose();
 
     base.Dispose(disposing);
   }

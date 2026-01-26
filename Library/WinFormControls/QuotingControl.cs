@@ -123,13 +123,14 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
       ctrl.DataBindings.Add(new Binding(nameof(QualifierPlaceholder), bindingSource, nameof(QualifierPlaceholder), false, DataSourceUpdateMode.OnPropertyChanged));
       ctrl.DataBindings.Add(new Binding(nameof(TrimmingOption), bindingSource, nameof(TrimmingOption), true));
     }
+    ctrl.Dock = DockStyle.Fill;
     if (tableLayout!=null)
     {
       tableLayout.SuspendLayout();
       tableLayout.Controls.Add(ctrl, column, row);
       if (span>1)
         tableLayout.SetColumnSpan(ctrl, span);
-      ctrl.Dock = DockStyle.Fill;
+      
       tableLayout.ResumeLayout(false);
       tableLayout.PerformLayout();
     }
