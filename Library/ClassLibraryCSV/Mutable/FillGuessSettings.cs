@@ -53,7 +53,7 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   [JsonConstructor]
   public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
     bool? detectDateTime = true,
-    bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = true,
+    bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = false,
     bool? dateParts = false, string? dateFormat = "", string? trueValue = "True", string? falseValue = "False",
     int? minSamples = 3, int? sampleValues = 150, long? checkedRecords = 30000,
     bool? removeCurrencySymbols = true)
@@ -67,7 +67,7 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
     m_DetectGuid = detectGuid ?? false;
 
     // Date/Time settings
-    m_SerialDateTime = serialDateTime ?? true;
+    m_SerialDateTime = serialDateTime ?? false;
     m_DateParts = dateParts ?? false;
     m_DateFormat = dateFormat ?? string.Empty;
 
@@ -219,7 +219,7 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   /// <summary>
   /// Gets or sets a value indicating whether to treat serial date/time values as dates.
   /// </summary>
-  [DefaultValue(true)]
+  [DefaultValue(false)]
   public bool SerialDateTime
   {
     get => m_SerialDateTime;
