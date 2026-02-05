@@ -235,7 +235,6 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   }
 
   [JsonIgnore]
-  [DefaultValue(".")]
   public string InitialFolder
   {
     get;

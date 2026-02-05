@@ -731,6 +731,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// This synchronous method blocks until the asynchronous read completes.
   /// Prefer ReadAsync(CancellationToken) in asynchronous scenarios.
   /// </remarks>
+  [Obsolete("Use ReadAsync instead for asynchronous, non-blocking operation.")]
   public sealed override bool Read()
   => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
@@ -876,7 +877,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Does set EndOfFile sets the max value for Progress and stores the now know reader columns
+  ///   Does set EndOfFile sets the max value for Progress and stores the now known reader columns
   /// </summary>
   protected void FinishOpen()
   {

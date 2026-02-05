@@ -114,9 +114,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     labelExecutable.Text= Environment.ProcessPath;
 #else
     labelExecutable.Text= assembly.Location;
-#endif
-
-    labelVersion.Text =   assembly.GetName().Version!.ToString();
+#endif    
+    labelVersion.Text = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? assembly.GetName().Version!.ToString();
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     labelFrameWork.Text = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;

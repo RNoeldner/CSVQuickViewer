@@ -56,7 +56,7 @@ public class XmlFileReaderTest
     Assert.AreEqual("COMMON", xml.GetName(0));
     Assert.AreEqual("BOTANICAL", xml.GetName(1));
 
-    xml.Read();
+    await xml.ReadAsync(UnitTestStatic.Token);
 
     Assert.AreEqual("Bloodroot", xml.GetString(0));
     Assert.AreEqual(4L, xml.GetInt64(2));

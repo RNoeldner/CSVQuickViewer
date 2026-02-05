@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -31,71 +33,34 @@ namespace CsvTools;
 /// </summary>
 public sealed partial class DetailControl : UserControl
 {
+  /// <summary>
+  /// Async Action to be invoked when Display Source Button is pressed
+  /// </summary>
+  public Func<CancellationToken, Task>? DisplaySourceAsync;
+
+  /// <summary>
+  /// Async Action to be invoked when Write File Button is pressed
+  /// </summary>
+  public Func<CancellationToken, IFileReader, Task>? WriteFileAsync;
+
   // Storing foundCells cells for search next / previous
-  private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
-  // Token source for managing cancellation of the current search
-  private CancellationTokenSource? m_SearchCancellation;
-
+  private List<(int rowIndex, int colIndex)> m_FoundCells = new List<(int rowIndex, int colIndex)>();
+  private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
   private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
-
   private DataTable m_DataTable = new DataTable();
   private FilterDataTable m_FilterDataTable = new FilterDataTable(new DataTable());
   private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
   private FormShowMaxLength? m_FormShowMaxLength;
   private FormUniqueDisplay? m_FormUniqueDisplay;
   private FormHierarchyDisplay? m_HierarchyDisplay;
+  private bool m_IsSyncing = false;
   private bool m_MenuDown;
+
+  // Token source for managing cancellation of the current search
+  private CancellationTokenSource? m_SearchCancellation;
   private bool m_ShowButtons = true;
   private bool m_ShowFilter = true;
   private bool m_UpdateVisibility = true;
-  private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
-
-  /// <summary>
-  /// Asynchronously loads a CSV or data setting into the detail control and updates the display.
-  /// Optionally triggers background loading of remaining data if <paramref name="autoLoad"/> is true.
-  /// </summary>
-  /// <param name="fileSetting">The file setting describing the source and format of the data.</param>
-  /// <param name="durationInitial">The initial duration used for stepped loading operations.</param>
-  /// <param name="autoLoad">
-  /// If true, automatically triggers loading of remaining data in the background after the initial load
-  /// with a short delay to ensure the control has finished rendering.
-  /// </param>
-  /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
-  /// <param name="progress">A progress reporter to receive progress updates during loading.</param>
-  /// <param name="addWarning">
-  /// Optional event handler to receive warnings that may occur during loading.
-  /// </param>
-  /// <remarks>
-  /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
-  /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
-  /// </remarks>
-  public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
-    RowFilterTypeEnum filterType, IProgressWithCancellation progress,
-    EventHandler<WarningEventArgs>? addWarning)
-  {
-    try
-    {
-      // Need to set FileSetting so we can change Formats
-      FilteredDataGridView.FileSetting = fileSetting;
-
-      m_ToolStripLabelCount.Text = " loading...";
-      DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning);
-    }
-    finally
-    {
-      RefreshDisplay(filterType, progress.CancellationToken);
-    }
-    timerLoadRemain.Enabled=autoLoad;
-  }
-
-
-  /// <inheritdoc />
-  /// <summary>
-  ///   Initializes a new instance of the <see cref="DetailControl" /> class.
-  /// </summary>
-#if !NETFRAMEWORK
-  [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-#endif
 
   public DetailControl()
   {
@@ -110,108 +75,6 @@ public sealed partial class DetailControl : UserControl
                m_ToolStripButtonStore
              })
       m_ToolStripItems.Add(item);
-  }
-
-  //public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
-  //public EventHandler<IFileSettingPhysicalFile>? FileStored;
-
-  /// <summary>
-  ///   Gets or sets the HTML style.
-  /// </summary>
-  /// <value>The HTML style.</value>
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  [EditorBrowsable(EditorBrowsableState.Never)]
-  [Bindable(false)]
-  [Browsable(false)]
-  public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
-
-  [Bindable(false)]
-  [Browsable(true)]
-  [DefaultValue(500)]
-  public int ShowButtonAtLength
-  {
-    get => FilteredDataGridView.ShowButtonAtLength;
-    set => FilteredDataGridView.ShowButtonAtLength = value;
-  }
-
-  /// <summary>
-  /// Sort the data by this column ascending
-  /// </summary>
-  /// <param name="dataColumnName">The name of the data column</param>
-  /// <param name="direction">Direction for sorting, by default it is Ascending</param>
-  public void Sort(string dataColumnName, ListSortDirection direction = ListSortDirection.Ascending)
-  {
-    try
-    {
-      FilteredDataGridView.SafeInvoke(
-        () =>
-        {
-          var col = GetViewColumn(dataColumnName);
-          if (col != null)
-            FilteredDataGridView.Sort(col, direction);
-        }
-      );
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine($"Processing Sorting {ex.Message}");
-    }
-  }
-
-  private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
-    FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col =>
-      col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
-
-  /// <summary>
-  /// Set a filter on a data column
-  /// </summary>
-  /// <param name="dataColumnName">The name of the data column</param>
-  /// <param name="op">The operator for the filter e.G. =</param>
-  /// <param name="value">The value to compare to</param>
-  // ReSharper disable once UnusedMember.Global
-  public void SetFilter(string dataColumnName, string op, object value)
-  {
-    try
-    {
-      FilteredDataGridView.SafeInvoke(
-        () =>
-        {
-          var col = GetViewColumn(dataColumnName);
-          if (col is null) return;
-          var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
-
-          columnFilters.Operator = op;
-          if (value is DateTime dateTime)
-            columnFilters.ValueDateTime = dateTime;
-          else
-            columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
-          columnFilters.ApplyFilter();
-        }
-      );
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine($"Processing Filter {ex.Message}");
-    }
-  }
-
-  public string GetViewStatus() => FilteredDataGridView.GetViewStatus;
-
-  public void SetViewStatus(string newStatus) => FilteredDataGridView.SetViewStatus(newStatus);
-
-  /// <summary>
-  ///   General Setting that determines if the menu is display in the bottom of a detail control
-  /// </summary>
-  public bool MenuDown
-  {
-    // ReSharper disable once UnusedMember.Global : Needed for Forms Designer
-    get => m_MenuDown;
-    set
-    {
-      if (m_MenuDown == value) return;
-      m_MenuDown = value;
-      m_UpdateVisibility = true;
-    }
   }
 
   /// <summary>
@@ -268,15 +131,7 @@ public sealed partial class DetailControl : UserControl
     set => FilteredDataGridView.DefaultCellStyle = value;
   }
 
-  /// <summary>
-  /// Async Action to be invoked when Display Source Button is pressed
-  /// </summary>
-  public Func<CancellationToken, Task>? DisplaySourceAsync;
-
-  /// <summary>
-  /// Async Action to be invoked when Write File Button is pressed
-  /// </summary>
-  public Func<CancellationToken, IFileReader, Task>? WriteFileAsync;
+  public bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
 
   /// <summary>
   ///   A File Setting
@@ -289,6 +144,31 @@ public sealed partial class DetailControl : UserControl
   public int FrozenColumns
   {
     set => FilteredDataGridView.FrozenColumns = value;
+  }
+
+  /// <summary>
+  ///   Gets or sets the HTML style.
+  /// </summary>
+  /// <value>The HTML style.</value>
+  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  [Bindable(false)]
+  [Browsable(false)]
+  public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
+
+  /// <summary>
+  ///   General Setting that determines if the menu is display in the bottom of a detail control
+  /// </summary>
+  public bool MenuDown
+  {
+    // ReSharper disable once UnusedMember.Global : Needed for Forms Designer
+    get => m_MenuDown;
+    set
+    {
+      if (m_MenuDown == value) return;
+      m_MenuDown = value;
+      m_UpdateVisibility = true;
+    }
   }
 
   /// <summary>
@@ -308,6 +188,17 @@ public sealed partial class DetailControl : UserControl
       FilteredDataGridView.AllowUserToAddRows = !value;
       FilteredDataGridView.AllowUserToDeleteRows = !value;
     }
+  }
+
+  //public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
+  //public EventHandler<IFileSettingPhysicalFile>? FileStored;
+  [Bindable(false)]
+  [Browsable(true)]
+  [DefaultValue(500)]
+  public int ShowButtonAtLength
+  {
+    get => FilteredDataGridView.ShowButtonAtLength;
+    set => FilteredDataGridView.ShowButtonAtLength = value;
   }
 
   /// <summary>
@@ -375,36 +266,130 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
-  private void DetailControl_FontChanged(object? sender, EventArgs e)
+  public string GetViewStatus() => FilteredDataGridView.GetViewStatus;
+
+  /// <summary>
+  /// Asynchronously loads a CSV or data setting into the detail control and updates the display.
+  /// Optionally triggers background loading of remaining data if <paramref name="autoLoad"/> is true.
+  /// </summary>
+  /// <param name="fileSetting">The file setting describing the source and format of the data.</param>
+  /// <param name="durationInitial">The initial duration used for stepped loading operations.</param>
+  /// <param name="autoLoad">
+  /// If true, automatically triggers loading of remaining data in the background after the initial load
+  /// with a short delay to ensure the control has finished rendering.
+  /// </param>
+  /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
+  /// <param name="progress">A progress reporter to receive progress updates during loading.</param>
+  /// <param name="addWarning">
+  /// Optional event handler to receive warnings that may occur during loading.
+  /// </param>
+  /// <remarks>
+  /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
+  /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
+  /// </remarks>
+  public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
+    RowFilterTypeEnum filterType, IProgressWithCancellation progress,
+    EventHandler<WarningEventArgs>? addWarning)
   {
-    this.SafeInvoke(() =>
+    try
     {
-      FilteredDataGridView.Font = Font;
-      m_BindingNavigator.Font = Font;
-      m_ToolStripTop.Font = Font;
-    });
+      // Need to set FileSetting so we can change Formats
+      FilteredDataGridView.FileSetting = fileSetting;
+
+      m_ToolStripLabelCount.Text = " loading...";
+      DataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning);
+    }
+    finally
+    {
+      RefreshDisplay(filterType, progress.CancellationToken);
+    }
+    timerLoadRemain.Enabled=autoLoad;
   }
+
 
   /// <inheritdoc />
-  protected override void Dispose(bool disposing)
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="DetailControl" /> class.
+  /// </summary>
+#if !NETFRAMEWORK
+  [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
+  /// <summary>
+  ///   Sets the data source.
+  /// </summary>
+  public void RefreshDisplay(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
   {
-    if (disposing)
-    {
-      m_SearchCancellation?.Dispose();
-      components?.Dispose();
-      m_FormShowMaxLength?.Dispose();
-      m_FormDuplicatesDisplay?.Dispose();
-      m_FormUniqueDisplay?.Dispose();
-      m_HierarchyDisplay?.Dispose();
+    var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
+    var oldOrder = FilteredDataGridView.SortOrder;
 
-      m_DataTable?.Dispose();
-      m_DataTable = null!;
-      m_FilterDataTable?.Dispose();
-      m_FilterDataTable = null!;
-      m_SteppedDataTableLoader?.Dispose();
+    // Cancel the current search
+    OnSearchClear(this, EventArgs.Empty);
+
+    var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
+
+    if (m_BindingSource.DataSource == newDt)
+    {
+      m_UpdateVisibility = true;
+      return;
     }
-    base.Dispose(disposing);
+
+    this.SafeInvokeNoHandleNeeded(() =>
+    {
+      // Now apply filter
+      FilteredDataGridView.DataTable = newDt;
+      m_BindingSource.DataSource = newDt;
+
+      m_BindingSource.PositionChanged += (s, e) =>
+      {
+        if (m_IsSyncing) return;
+        m_IsSyncing = true;
+        try
+        {
+          if (m_BindingSource.Position >= 0)
+          {
+            var oldColIndex = FilteredDataGridView.CurrentCell.ColumnIndex;
+            FilteredDataGridView.CurrentCell = FilteredDataGridView.Rows[m_BindingSource.Position].Cells[oldColIndex];
+          }
+        }
+        finally { m_IsSyncing = false; }
+      };
+
+      FilteredDataGridView.SelectionChanged += (s, e) =>
+      {
+        if (m_IsSyncing) return;
+        m_IsSyncing = true;
+        try
+        {
+          if (FilteredDataGridView.CurrentRow != null)
+            m_BindingSource.Position = FilteredDataGridView.CurrentRow.Index;
+        }
+        finally { m_IsSyncing = false; }
+      };
+      FilterColumns(filterType);
+
+      if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
+        Sort(oldSortedColumn,
+          oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+
+      var newIndex = filterType switch
+      {
+        RowFilterTypeEnum.ErrorsAndWarning => 1,
+        RowFilterTypeEnum.ShowErrors => 2,
+        RowFilterTypeEnum.ShowWarning => 3,
+        RowFilterTypeEnum.None => 4,
+        _ => 0
+      };
+      if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex)
+        return;
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+      m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+    });
+
+    m_UpdateVisibility = true;
   }
+
+  public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
 
   /// <summary>
   /// Performs a case-insensitive search across all visible columns.
@@ -421,80 +406,133 @@ public sealed partial class DetailControl : UserControl
     m_SearchCancellation?.Dispose();
     m_SearchCancellation = new CancellationTokenSource();
 
-    m_FoundCells.Clear();
-    // Set the highlight text
     FilteredDataGridView.HighlightText = searchText;
+    m_FoundCells.Clear();
     m_Search.Results = 0;
 
     if (string.IsNullOrWhiteSpace(searchText))
       return;
-
     try
     {
-      await Task.Run(() =>
+      m_FoundCells = await Task.Run(() =>
       {
-        // Limit to columns that are not hidden
-        foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
+        var foundPositions = new List<(int rowIndex, int colIndex)>();
+        var view = FilteredDataGridView.DataTable?.DefaultView;
+        if (view == null) return foundPositions;
+
+        // Pre-calculate visible column mappings
+        var visibleCols = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+            .Where(c => c.Visible && !string.IsNullOrEmpty(c.DataPropertyName))
+            .ToList();
+
+        for (int rowIndex = 0; rowIndex < view.Count; rowIndex++)
         {
-          if (!col.Visible || string.IsNullOrEmpty(col.DataPropertyName))
-            continue;
+          // Check cancellation frequently
+          if (rowIndex % 50 == 0)
+            m_SearchCancellation.Token.ThrowIfCancellationRequested();
 
-          foreach (DataGridViewRow row in FilteredDataGridView.Rows)
+          foreach (var column in visibleCols)
           {
-            try
-            {
-              var cell = row.Cells[col.Index];
-              if (cell.FormattedValue?.ToString()?
-                    .IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
-              {
-                m_FoundCells.Add(cell);
-                if (m_FoundCells.Count > 999)
-                  break; // stop processing
-              }
-            }
-            catch
-            {
-              // Ignore invalid cells
-            }
+            var cellValue = view[rowIndex][column.DataPropertyName]?.ToString();
+            if (cellValue != null && cellValue.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+              foundPositions.Add((rowIndex, column.Index));
           }
-
-          if (m_FoundCells.Count > 999)
+          if (foundPositions.Count >= 1000)
             break;
         }
-      }, m_SearchCancellation.Token);
-
-      // Apply result back to UI
-      this.SafeInvoke(() =>
-      {
-        m_FoundCells.ForEach(c => FilteredDataGridView.InvalidateCell(c));
-        m_Search.Results = m_FoundCells.Count;
-        if (m_FoundCells.Count > 0)
-        {
-          FilteredDataGridView.InvalidateCell(m_FoundCells[0]);
-          FilteredDataGridView.CurrentCell = m_FoundCells[0];
-        }
-        FilteredDataGridView.Refresh();
+        return foundPositions;
       });
+
+      m_SearchCancellation.Token.ThrowIfCancellationRequested();
+      // Apply result back to UI, but only for visible cells
+      // Back on UI Thread: Convert positions to actual Cell objects
+      m_Search.Results = m_FoundCells.Count;
+
+      if (m_FoundCells.Count > 0)
+        OnSearchResultChanged(this, new SearchEventArgs(searchText, 0));
+
+      this.SafeInvoke(FilteredDataGridView.Invalidate);
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException) { /* Ignore */ }
+  }
+
+
+  /// <summary>
+  /// Set a filter on a data column
+  /// </summary>
+  /// <param name="dataColumnName">The name of the data column</param>
+  /// <param name="op">The operator for the filter e.G. =</param>
+  /// <param name="value">The value to compare to</param>
+  // ReSharper disable once UnusedMember.Global
+  public void SetFilter(string dataColumnName, string op, object value)
+  {
+    try
     {
-      // search was cancelled – ignore
+      FilteredDataGridView.SafeInvoke(
+        () =>
+        {
+          var col = GetViewColumn(dataColumnName);
+          if (col is null) return;
+          var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
+
+          columnFilters.Operator = op;
+          if (value is DateTime dateTime)
+            columnFilters.ValueDateTime = dateTime;
+          else
+            columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
+          columnFilters.ApplyFilter();
+        }
+      );
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"Processing Filter {ex.Message}");
     }
   }
 
-  private bool CancelMissingData()
+  public void SetViewStatus(string newStatus) => FilteredDataGridView.SetViewStatus(newStatus);
+
+  /// <summary>
+  /// Sort the data by this column ascending
+  /// </summary>
+  /// <param name="dataColumnName">The name of the data column</param>
+  /// <param name="direction">Direction for sorting, by default it is Ascending</param>
+  public void Sort(string dataColumnName, ListSortDirection direction = ListSortDirection.Ascending)
   {
-    if (FilteredDataGridView.Columns.Count <= 0)
-      return true;
+    try
+    {
+      FilteredDataGridView.SafeInvoke(
+        () =>
+        {
+          var col = GetViewColumn(dataColumnName);
+          if (col != null)
+            FilteredDataGridView.Sort(col, direction);
+        }
+      );
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"Processing Sorting {ex.Message}");
+    }
+  }
 
-    if (EndOfFile)
-      return false;
-
-    var result = MessageBox.Show(
-      "Some data is not yet loaded from file.\nOnly already processed data will be used.",
-      "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
-      MessageBoxDefaultButton.Button1, 3);
-    return result == DialogResult.Cancel;
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+    if (disposing)
+    {
+      m_SearchCancellation?.Dispose();
+      components?.Dispose();
+      m_FormShowMaxLength?.Dispose();
+      m_FormDuplicatesDisplay?.Dispose();
+      m_FormUniqueDisplay?.Dispose();
+      m_HierarchyDisplay?.Dispose();
+      m_DataTable = null!;
+      m_FilterDataTable?.Dispose();
+      m_FilterDataTable = null!;
+      m_SteppedDataTableLoader?.Dispose();
+    }
+    base.Dispose(disposing);
   }
 
   /// <summary>
@@ -612,17 +650,19 @@ public sealed partial class DetailControl : UserControl
     }, ParentForm);
   }
 
-  /// <summary>
-  /// Clears the search and cancels any running search operation.
-  /// </summary>
-  private void OnSearchClear(object? sender, EventArgs e)
+  private bool CancelMissingData()
   {
-    // Cancel the current search
-    m_SearchCancellation?.Cancel();
-    m_SearchCancellation?.Dispose();
-    m_Search.Hide();
-    FilteredDataGridView.HighlightText = string.Empty;
-    FilteredDataGridView.Refresh();
+    if (FilteredDataGridView.Columns.Count <= 0)
+      return true;
+
+    if (EndOfFile)
+      return false;
+
+    var result = MessageBox.Show(
+      "Some data is not yet loaded from file.\nOnly already processed data will be used.",
+      "Data", MessageBoxButtons.OKCancel, MessageBoxIcon.Information,
+      MessageBoxDefaultButton.Button1, 3);
+    return result == DialogResult.Cancel;
   }
 
   private void DataViewChanged(object? sender, EventArgs args)
@@ -632,6 +672,16 @@ public sealed partial class DetailControl : UserControl
     OnSearchClear(sender, args);
   }
 
+  private void DetailControl_FontChanged(object? sender, EventArgs e)
+  {
+    this.SafeInvoke(() =>
+    {
+      FilteredDataGridView.Font = Font;
+      m_BindingNavigator.Font = Font;
+      m_ToolStripTop.Font = Font;
+    });
+  }
+
   private void DetailControl_KeyDown(object? sender, KeyEventArgs e)
   {
     if (!e.Control || e.KeyCode != Keys.F)
@@ -639,6 +689,28 @@ public sealed partial class DetailControl : UserControl
     m_Search.Visible = true;
     m_Search.Focus();
     e.Handled = true;
+  }
+
+  private void DetailControl_ParentChanged(object sender, EventArgs e)
+  {
+    var frm = this.ParentForm;
+    if (frm is null)
+      return;
+    if (!frm.KeyPreview)
+      frm.KeyPreview = true;
+    frm.KeyDown += DetailControl_KeyDown;
+    Font = frm.Font;
+  }
+
+  private async void DisplaySource_Click(object sender, EventArgs e)
+  {
+    if (DisplaySourceAsync == null)
+      return;
+
+    await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
+    {
+      await DisplaySourceAsync.Invoke(CancellationToken);
+    }, ParentForm);
   }
 
   /// <summary>
@@ -663,139 +735,6 @@ public sealed partial class DetailControl : UserControl
       dgCol.Visible = cols.Contains(dgCol.DataPropertyName);
   }
 
-  /// <summary>
-  ///   Called when search changes.
-  /// </summary>
-  /// <param name="sender">The sender.</param>
-  /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
-  private async void OnSearchChanged(object? sender, SearchEventArgs e)
-  {
-    await SearchTextAsync(e.SearchText);
-  }
-
-  /// <summary>
-  ///   Called when search result number changed.
-  /// </summary>
-  /// <param name="sender">The sender.</param>
-  /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
-  private void OnSearchResultChanged(object? sender, SearchEventArgs e)
-  {
-    if (e.Result < 1 || e.Result > m_FoundCells.Count)
-      return;
-    FilteredDataGridView.SafeInvoke(
-      () =>
-      {
-        try
-        {
-          FilteredDataGridView.HighlightText = e.SearchText;
-          FilteredDataGridView.CurrentCell = m_FoundCells[e.Result - 1];
-          FilteredDataGridView.InvalidateCell(FilteredDataGridView.CurrentCell);
-        }
-        catch
-        {
-          //  Non essential UI operation
-        }
-      });
-  }
-
-  /// <summary>
-  ///   Sets the data source.
-  /// </summary>
-  public void RefreshDisplay(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
-  {
-    var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
-    var oldOrder = FilteredDataGridView.SortOrder;
-
-    // Cancel the current search
-    OnSearchClear(this, EventArgs.Empty);
-
-    var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
-
-    if (m_BindingSource.DataSource == newDt)
-    {
-      m_UpdateVisibility = true;
-      return;
-    }
-
-    this.SafeInvokeNoHandleNeeded(() =>
-    {
-      // Now apply filter
-      FilteredDataGridView.DataSource = null;
-
-      m_BindingSource.DataSource = newDt;
-      FilteredDataGridView.DataSource = m_BindingSource;
-
-      FilterColumns(filterType);
-
-      if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
-        Sort(oldSortedColumn,
-          oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-
-      var newIndex = filterType switch
-      {
-        RowFilterTypeEnum.ErrorsAndWarning => 1,
-        RowFilterTypeEnum.ShowErrors => 2,
-        RowFilterTypeEnum.ShowWarning => 3,
-        RowFilterTypeEnum.None => 4,
-        _ => 0
-      };
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex)
-        return;
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
-      m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
-    });
-
-    m_UpdateVisibility = true;
-  }
-
-  private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
-  {
-    if (WriteFileAsync == null || FilteredDataGridView.DataView == null)
-      return;
-
-    await m_ToolStripButtonStore.RunWithHourglassAsync(async () =>
-    {
-      var reader = new DataTableWrapper(
-        FilteredDataGridView.DataView.ToTable(false,
-          // Restrict to shown data
-          FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-            .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-            .OrderBy(col => col.DisplayIndex)
-            .Select(col => col.DataPropertyName).ToArray()));
-
-      await WriteFileAsync.Invoke(CancellationToken, reader);
-    }, ParentForm);
-
-    //try
-    //{
-    //  FileSystemUtils.SplitResult split;
-
-    //  if (FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
-    //    split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
-    //  else
-    //    split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
-    //      $"{FileSetting!.ID}.txt");
-
-    //  var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File",
-    //    "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
-    //    ".csv",
-    //    false,
-    //    split.FileName);
-
-    //  if (fileName is null || fileName.Length == 0)
-    //    return;
-
-    //  await SafeCurrentFile(fileName);
-    //}
-    //catch (Exception ex)
-    //{
-    //  ParentForm.ShowError(ex);
-    //}
-  }
-
-  public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
-
   private RowFilterTypeEnum GetCurrentFilter()
   {
     int index = 0;
@@ -810,13 +749,9 @@ public sealed partial class DetailControl : UserControl
     };
   }
 
-  private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
-  {
-    RefreshDisplay(GetCurrentFilter(), CancellationToken);
-  }
-
-  public bool EndOfFile => m_SteppedDataTableLoader.EndOfFile;
-
+  private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
+                              FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col =>
+      col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
   private async Task LoadBatch(bool backgroundLoad)
   {
     // Cancel the current search
@@ -828,7 +763,7 @@ public sealed partial class DetailControl : UserControl
     {
       m_ToolStripButtonLoadRemaining.Enabled = false;
       if (backgroundLoad)
-      { 
+      {
         // Show but one can go back to the main form
         progress.Show();
         progress.SendToBack();
@@ -852,11 +787,73 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
-  private void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
+  /// <summary>
+  ///   Called when search changes.
+  /// </summary>
+  /// <param name="sender">The sender.</param>
+  /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
+  private async void OnSearchChanged(object? sender, SearchEventArgs e)
   {
-    if (EndOfFile)
-      return;
-    _ = LoadBatch(false);
+    await SearchTextAsync(e.SearchText);
+  }
+
+  /// <summary>
+  /// Clears the search and cancels any running search operation.
+  /// </summary>
+  private void OnSearchClear(object? sender, EventArgs e)
+  {
+    // Cancel the current search
+    m_SearchCancellation?.Cancel();
+    m_Search.Hide();
+    FilteredDataGridView.HighlightText = string.Empty;
+    FilteredDataGridView.SafeInvoke(FilteredDataGridView.Invalidate);
+  }
+
+  /// <summary>
+  ///   Called when search result number changed.
+  /// </summary>
+  /// <param name="sender">The sender.</param>
+  /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
+  private void OnSearchResultChanged(object? sender, SearchEventArgs e)
+  {
+    // Validate bounds
+    if (e.Result < 0 || e.Result >= m_FoundCells.Count) return;
+
+    FilteredDataGridView.SafeBeginInvoke(() =>
+    {
+      try
+      {
+        var targetPos = m_FoundCells[e.Result];
+
+        // Safety Check: Ensure the index is still valid for the current grid state
+        if (targetPos.rowIndex >= FilteredDataGridView.RowCount ||
+            targetPos.colIndex >= FilteredDataGridView.ColumnCount)
+        {
+          return;
+        }
+
+        var cell = FilteredDataGridView.Rows[targetPos.rowIndex].Cells[targetPos.colIndex];
+
+        // Final check: Does the cell still contain the text? 
+        // (In case the user changed filters/sorts in the meantime)
+        if (cell.FormattedValue?.ToString()?.Contains(e.SearchText, StringComparison.OrdinalIgnoreCase) == true)
+        {
+          FilteredDataGridView.CurrentCell = cell;
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning($"Navigation failed: {ex.Message}");
+      }
+    });
+
+    FilteredDataGridView.HighlightText = e.SearchText;
+  }
+
+  private void timerLoadRemain_Tick(object sender, EventArgs e)
+  {
+    timerLoadRemain.Enabled=false;
+    _ = LoadBatch(true);
   }
 
   private void TimerVisibility_Tick(object? sender, EventArgs e)
@@ -943,31 +940,40 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
-  private void DetailControl_ParentChanged(object sender, EventArgs e)
+  private void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
   {
-    var frm = this.ParentForm;
-    if (frm is null)
+    if (EndOfFile)
       return;
-    if (!frm.KeyPreview)
-      frm.KeyPreview = true;
-    frm.KeyDown += DetailControl_KeyDown;
-    Font = frm.Font;
+    _ = LoadBatch(false);
   }
 
-  private async void DisplaySource_Click(object sender, EventArgs e)
+  private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
   {
-    if (DisplaySourceAsync == null)
+    if (WriteFileAsync == null || FilteredDataGridView.DataTable == null)
       return;
 
-    await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
+    await m_ToolStripButtonStore.RunWithHourglassAsync(async () =>
     {
-      await DisplaySourceAsync.Invoke(CancellationToken);
+      // Extract the column names first
+      string[] columnsToExport = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+          .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+          .OrderBy(col => col.DisplayIndex)
+          .Select(col => col.DataPropertyName)
+          .ToArray();
+      // Create the snapshot of the filtered/sorted data
+      using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(false, columnsToExport);
+
+      using var wrapper = new DataTableWrapper(exportTable);
+
+      // Use the wrapper to satisfy the ICsvReader requirement
+      await WriteFileAsync.Invoke(CancellationToken, wrapper);
+
+
     }, ParentForm);
   }
 
-  private void timerLoadRemain_Tick(object sender, EventArgs e)
+  private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
   {
-    timerLoadRemain.Enabled=false;
-    _ = LoadBatch(true);
+    RefreshDisplay(GetCurrentFilter(), CancellationToken);
   }
 }

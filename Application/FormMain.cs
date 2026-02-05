@@ -26,7 +26,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timer = System.Timers.Timer;
 
 namespace CsvTools;
 
@@ -36,10 +35,10 @@ namespace CsvTools;
 public sealed partial class FormMain : ResizeForm
 {
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-  private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
+  private readonly System.Windows.Forms.Timer m_SettingsChangedTimerChange = new System.Windows.Forms.Timer { Interval = 200 };
   private readonly ViewSettings m_ViewSettings;
   private bool m_AskOpenFile = true;
-  private bool m_FileChanged;
+  private volatile bool m_FileChanged;
   private CsvFileDummy? m_FileSetting;
   private bool m_RunDetection;
   private bool m_ShouldReloadData;
@@ -169,7 +168,7 @@ public sealed partial class FormMain : ResizeForm
           FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, m_ViewSettings.WriteSetting.KeepUnencrypted);
 
         // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(reader, formProgress.CancellationToken);
+        await writer.WriteAsync(reader, formProgress);
 
         fileSystemWatcher.Changed += FileSystemWatcher_Changed;
         fileSystemWatcher.EnableRaisingEvents = true;
@@ -185,7 +184,7 @@ public sealed partial class FormMain : ResizeForm
     detailControl.DisplaySourceAsync = async ct =>
     {
       using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath,
-        async (formProgress, cancellationToken) =>
+        async formProgress =>
         {
           var sa = new SourceAccess(m_FileSetting!.FullPath);
           sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
@@ -200,7 +199,7 @@ public sealed partial class FormMain : ResizeForm
           formProgress.SetMaximum(max);
           while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length)) != 0)
           {
-            cancellationToken.ThrowIfCancellationRequested();
+            formProgress.CancellationToken.ThrowIfCancellationRequested();
             sb.Append(buffer, 0, len);
             var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * max) : 0L;
             formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
@@ -440,11 +439,11 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private bool m_CheckRunning;
+  private int m_CheckRunning;
 
   private async Task CheckPossibleChange()
   {
-    if (m_CheckRunning)
+    if (Interlocked.Exchange(ref m_CheckRunning, 1) == 1)
       return;
     // In case the file was deleted we can not reload it...
     if (m_FileChanged && m_FileSetting != null && m_FileSetting.FileName.Length > 0 && !File.Exists(m_FileSetting.FileName))
@@ -454,7 +453,6 @@ public sealed partial class FormMain : ResizeForm
 
     try
     {
-      m_CheckRunning = true;
       if (m_ShouldReloadData)
       {
         m_ShouldReloadData = false;
@@ -505,7 +503,7 @@ public sealed partial class FormMain : ResizeForm
     }
     finally
     {
-      m_CheckRunning = false;
+      Interlocked.Exchange(ref m_CheckRunning, 0);
     }
   }
 
@@ -564,8 +562,25 @@ public sealed partial class FormMain : ResizeForm
   /// <param name="e">
   ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
   /// </param>
-  private void FileSystemWatcher_Changed(object? sender, FileSystemEventArgs e) =>
-    m_FileChanged |= e.FullPath == m_FileSetting!.FileName && e.ChangeType == WatcherChangeTypes.Changed;
+  private void FileSystemWatcher_Changed(object? sender, FileSystemEventArgs e)
+  {
+    if (m_FileChanged)
+      return;
+
+    var fileName = m_FileSetting?.FileName;
+    if (string.IsNullOrEmpty(fileName))
+      return;
+
+    var currentFile = Path.GetFullPath(fileName);
+    var changedFile = Path.GetFullPath(e.FullPath);
+
+    if (string.Equals(currentFile, changedFile, StringComparison.OrdinalIgnoreCase) &&
+        e.ChangeType == WatcherChangeTypes.Changed)
+    {
+      m_FileChanged = true;
+    }
+  }
+
 
   /// <summary>
   ///   Handles the Activated event of the Display control.
@@ -586,10 +601,11 @@ public sealed partial class FormMain : ResizeForm
     };
     ApplyViewSettings();
 
-    m_SettingsChangedTimerChange.AutoReset = false;
-    m_SettingsChangedTimerChange.Elapsed += async (send, eventArgs) =>
+    m_SettingsChangedTimerChange.Tick += async (_, _) =>
+    {
+      m_SettingsChangedTimerChange.Stop();
       await OpenDataReaderAsync();
-
+    };
     ShowTextPanel(false);
   }
 
@@ -604,11 +620,10 @@ public sealed partial class FormMain : ResizeForm
 #endif
 
       // Give the possibly running threads some time to exit
-      Thread.Sleep(100);
+      await Task.Delay(100);
     }
 
     if (e.CloseReason != CloseReason.UserClosing) return;
-    try { Logger.Debug("Closing Form"); } catch { }
     await SaveIndividualFileSettingAsync();
   }
 
@@ -758,16 +773,15 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private async void ShowSettings(object? sender, EventArgs e) =>
+  private async void ShowSettings(object? sender, EventArgs e)
+  {
+    var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
     await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
     {
-      var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
-
-      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, m_LoadWarnings,
-        detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : (int?) null);
-      this.AllowDrop = false;
+      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, m_LoadWarnings, detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);
+      // this.AllowDrop = false;
       frm.ShowDialog(this);
-      this.AllowDrop = true;
+      // this.AllowDrop = true;
       await m_ViewSettings.SaveViewSettingsAsync();
 
       var newFileSetting = frm.EditedSetting;
@@ -832,6 +846,7 @@ public sealed partial class FormMain : ResizeForm
       ApplyViewSettings();
       await SaveIndividualFileSettingAsync();
     }, this);
+  }
 
   private void ShowTextPanel(bool visible)
   {
@@ -866,8 +881,13 @@ public sealed partial class FormMain : ResizeForm
         new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
       : columns);
   }
-
   private async void ToggleDisplayAsText(object? sender, EventArgs e)
+  {
+    try { await ToggleDisplayAsTextAsync(); }
+    catch (Exception ex) { Logger.Error(ex); }
+  }
+
+  private async Task ToggleDisplayAsTextAsync()
   {
     if (m_FileSetting is null)
       return;

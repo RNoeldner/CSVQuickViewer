@@ -260,7 +260,7 @@ public sealed class HtmlStyle
   }
 
   /// <summary>
-  ///   Does a basic HTML Encoding, handling some special charters like linefeed, &lt;, &gt;, "
+  ///   Does a basic HTML Encoding, handling some special characters like linefeed, &lt;, &gt;, "
   ///   and &amp;
   /// </summary>
   /// <param name="text">The text.</param>

@@ -162,7 +162,7 @@ public sealed class CsvFileWriter : BaseFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter"/>
-  public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+  public override async Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress)
   {
     var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
 
@@ -193,10 +193,10 @@ public sealed class CsvFileWriter : BaseFileWriter
       await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
     }
 
-    var intervalAction = IntervalAction.ForProgress(ReportProgress);
+    var intervalAction = IntervalAction.ForProgress(progress);
     // --- Write rows ---
-    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-       && !cancellationToken.IsCancellationRequested)
+    while (await reader.ReadAsync(progress.CancellationToken).ConfigureAwait(false)
+       && !progress.CancellationToken.IsCancellationRequested)
     {
       int emptyColumns = 0;
 
@@ -228,9 +228,9 @@ public sealed class CsvFileWriter : BaseFileWriter
       await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
 
       // Progress reporting
-      intervalAction?.Invoke(ReportProgress!, "Writing", reader.RecordNumber);
+      intervalAction?.Invoke(progress!, "Writing", reader.RecordNumber);
     }
-    ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
+    progress.Report(new ProgressInfo("Writing", reader.RecordNumber));
 
     // --- Write footer ---
     var footer = Footer();
@@ -242,7 +242,7 @@ public sealed class CsvFileWriter : BaseFileWriter
     }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+      await writer.FlushAsync(progress.CancellationToken).ConfigureAwait(false);
 #else
     await writer.FlushAsync().ConfigureAwait(false);
 #endif

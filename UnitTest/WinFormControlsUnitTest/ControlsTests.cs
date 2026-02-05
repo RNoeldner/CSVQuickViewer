@@ -52,7 +52,7 @@ public class ControlsTests
   {
     UnitTestStaticForms.ShowFormAsync(
       () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        (frm, token) => Task.FromResult(File.ReadAllText(UnitTestStatic.GetTestPath("BasicCSV.txt")))),
+        frm => Task.FromResult(File.ReadAllText(UnitTestStatic.GetTestPath("BasicCSV.txt")))),
       async frm => await frm.OpenFileAsync(false, '"', '\t', char.MinValue, 1, "##", UnitTestStatic.Token), .1);
   }
 

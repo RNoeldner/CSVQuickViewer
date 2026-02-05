@@ -25,17 +25,26 @@ using System.Threading.Tasks;
 namespace CsvTools;
 
 /// <summary>
-///   Base class with methods used by all <see cref="IFileWriter" />.
+/// Base class with methods used by all <see cref="IFileWriter"/> implementations.
+/// Provides infrastructure for column definitions, value formatting, time zone conversion, progress reporting, and error handling.
 /// </summary>
 public abstract class BaseFileWriter : IFileWriter
 {
-  /// <summary>The column definition</summary>
+  /// <summary>
+  /// The column definitions for the file being written.
+  /// </summary>
   protected readonly IReadOnlyCollection<Column> ColumnDefinition;
 
-  /// <summary>The display text for the writer</summary>
+
+  /// <summary>
+  /// Display text for the writer used in logs and progress reporting.
+  /// </summary>
   protected readonly string FileSettingDisplay;
 
   private readonly string m_Footer;
+  /// <summary>
+  /// Fully qualified file path to write.
+  /// </summary>
   private readonly string FullPath;
   private readonly string m_IdentifierInContainer;
   private readonly bool m_KeepUnencrypted;
@@ -44,7 +53,10 @@ public abstract class BaseFileWriter : IFileWriter
   /// <summary>The general value format in case no special value format is defined for a column</summary>
   protected readonly ValueFormat ValueFormatGeneral;
 
-  /// <summary>The routine to adjust datTime for time zones</summary>
+
+  /// <summary>
+  /// Delegate for converting DateTime values between time zones.
+  /// </summary>
   protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
   /// <summary>The header written before the records are stored</summary>
@@ -54,14 +66,6 @@ public abstract class BaseFileWriter : IFileWriter
   protected readonly string SourceTimeZone;
 
   private DateTime m_LastNotification = DateTime.Now;
-
-  /// <summary>Gets or sets the progress reporter</summary>
-  /// <value>The report progress.</value>
-  public IProgress<ProgressInfo>? ReportProgress
-  {
-    protected get;
-    set;
-  }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
@@ -271,7 +275,7 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter" />
-  public virtual async Task<long> WriteAsync(IFileReader? reader, CancellationToken token)
+  public virtual async Task<long> WriteAsync(IFileReader? reader, IProgressWithCancellation progress)
   {
     if (reader is null)
       return -1;
@@ -283,7 +287,7 @@ public abstract class BaseFileWriter : IFileWriter
       if (!string.IsNullOrEmpty(m_IdentifierInContainer))
         sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
       using var stream = FunctionalDI.GetStream(sourceAccess);
-      await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
+      await WriteReaderAsync(reader, stream, progress).ConfigureAwait(false);
     }
     catch (Exception exc)
     {
@@ -339,7 +343,7 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter"/>
-  public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
+  public abstract Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress);
 
   private static string ReplacePlaceHolder(string? input, string fileName) =>
     input?.PlaceholderReplace("FileName", fileName)

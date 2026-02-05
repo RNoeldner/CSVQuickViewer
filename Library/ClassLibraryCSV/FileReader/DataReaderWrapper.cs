@@ -349,6 +349,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   }
 
   /// <inheritdoc cref="IFileReader" />
+  [Obsolete("Use ReadAsync instead for asynchronous, non-blocking operation.")]
   public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
 

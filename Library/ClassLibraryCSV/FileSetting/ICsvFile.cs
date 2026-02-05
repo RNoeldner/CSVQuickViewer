@@ -150,9 +150,9 @@ public interface ICsvFile : IFileSettingPhysicalFile
   bool WarnDelimiterInValue { get; set; }
 
   /// <summary>
-  ///   Gets or sets a value indicating whether to warn empty tailing columns.
+  ///   Gets or sets a value indicating whether to warn empty trailing columns.
   /// </summary>
-  /// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
+  /// <value><c>true</c> if [warn empty Trailing columns]; otherwise, <c>false</c>.</value>
   bool WarnEmptyTailingColumns { get; set; }
 
   /// <summary>

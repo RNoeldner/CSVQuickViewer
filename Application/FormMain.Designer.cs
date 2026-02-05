@@ -13,17 +13,24 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      m_CancellationTokenSource?.Cancel();
       if (disposing)
       {
+        try
+        {
+          m_CancellationTokenSource?.Cancel();
+        }
+        catch { /* ignore */ }
+
 #if SupportPGP
-        PgpHelper.ClearPgpInfo();
+    PgpHelper.ClearPgpInfo();
 #endif
-        components?.Dispose();
-        m_CancellationTokenSource?.Dispose();
+
         m_SettingsChangedTimerChange?.Dispose();
+        m_CancellationTokenSource?.Dispose();
+        components?.Dispose();
       }
-      this.SafeInvoke(() => base.Dispose(disposing));
+
+      base.Dispose(disposing);
     }
 
 
@@ -87,7 +94,7 @@ namespace CsvTools
       detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      
+
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;

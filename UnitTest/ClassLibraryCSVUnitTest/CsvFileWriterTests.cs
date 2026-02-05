@@ -85,7 +85,7 @@ public class CsvFileWriterTests
       string.Empty, string.Empty,
       string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
 
-    var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
+    var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress);
 
     Assert.IsTrue(FileSystemUtils.FileExists(fileName), "File created");
     Assert.AreEqual(1065, res, "Records");
@@ -111,7 +111,7 @@ public class CsvFileWriterTests
 
 
     using var reader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100));
-    var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
+    var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress);
     Assert.IsTrue(FileSystemUtils.FileExists(fileName));
     Assert.AreEqual(100, res);
   }
@@ -156,7 +156,7 @@ public class CsvFileWriterTests
       string.Empty, string.Empty,
       string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
 
-    var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
+    var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress);
     Assert.IsTrue(FileSystemUtils.FileExists(fileName));
     Assert.AreEqual(1065, res, $"Records {res}");
   }
@@ -186,7 +186,7 @@ public class CsvFileWriterTests
 
     using var reader = new DataTableWrapper(dataTable);
     // await reader.OpenAsync(UnitTestStatic.Token);
-    Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
+    Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.TesterProgress));
 
     Assert.IsTrue(File.Exists(fileName));
   }
@@ -218,7 +218,7 @@ public class CsvFileWriterTests
 
     using (var reader = new DataTableWrapper(dataTable))
     {
-      Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token), "Records");
+      Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.TesterProgress), "Records");
     }
     Assert.AreEqual(100, count, "Warnings");
     Assert.IsTrue(File.Exists(fileName));
@@ -245,7 +245,7 @@ public class CsvFileWriterTests
       await file.WriteLineAsync("Hello");
       var writer = new CsvFileWriter(fn);
       using var reader = new DataTableWrapper(dataTable);
-      await Assert.ThrowsAsync<FileWriterException>(() => writer.WriteAsync(reader, UnitTestStatic.Token));
+      await Assert.ThrowsAsync<FileWriterException>(() => writer.WriteAsync(reader, UnitTestStatic.TesterProgress));
       await file.WriteLineAsync("World");
     }
     FileSystemUtils.FileDelete(fn);
@@ -258,7 +258,7 @@ public class CsvFileWriterTests
     FileSystemUtils.FileDelete(fn);
     var writer = new CsvFileWriter(fn, columnDefinition: UnitTestStaticData.Columns, fieldDelimiterChar: '|');
     using var reader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100, false));
-    var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
+    var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress );
     Assert.IsTrue(FileSystemUtils.FileExists(fn));
     Assert.AreEqual(100, res);
   }

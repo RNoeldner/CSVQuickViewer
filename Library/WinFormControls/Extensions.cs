@@ -313,38 +313,21 @@ public static class Extensions
     }
   }
 
-  public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
+  public static async Task RunWithHourglassAsync(
+  this ToolStripItem item,
+  Func<Task> action,
+  Form? frm)
   {
-    if (item is null)
-      throw new ArgumentNullException(nameof(item));
-    var disabled = false;
+    if (item == null) throw new ArgumentNullException(nameof(item));
+
     try
     {
-      if (frm!= null)
-      {
-        frm.SafeInvoke(() =>
-        {
-          item.Enabled = false;
-          disabled = true;
-        });
-      }
-      else
-        try
-        {
-          item.Enabled = false;
-          disabled = true;
-        }
-        catch (Exception)
-        {
-          // ignored
-        }
-
-      // this should not use ConfigureAwait(false);
+      frm?.SafeInvoke(() => item.Enabled = false);
       await action.InvokeWithHourglassAsync();
     }
     catch (ObjectDisposedException)
     {
-      // ignore
+      // shutdown race – ignore
     }
     catch (Exception ex)
     {
@@ -352,19 +335,13 @@ public static class Extensions
     }
     finally
     {
-      if (disabled)
+      try
       {
-        if (frm != null)
-          frm.SafeInvoke(() => item.Enabled = true);
-        else
-          try
-          {
-            item.Enabled = true;
-          }
-          catch (Exception)
-          {
-            // ignored
-          }
+        frm?.SafeInvoke(() => item.Enabled = true);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
       }
     }
   }

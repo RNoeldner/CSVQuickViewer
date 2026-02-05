@@ -39,9 +39,8 @@
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Remove="FileAssiciation.cs" />
-		<Compile Remove="FileSettingPhysicalFile.cs" />
-	</ItemGroup>
+	  <Compile Remove="FileSettingPhysicalFile.cs" />
+	</ItemGroup>	
 	<ItemGroup>
 		<None Remove="App.config" />
 		<None Remove="CSVQuickViewer.csproj.DotSettings" />

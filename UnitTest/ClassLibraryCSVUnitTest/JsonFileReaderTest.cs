@@ -14,6 +14,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable UseAwaitUsing
 
@@ -296,8 +297,8 @@ public class JsonFileReaderTest
     using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Jason2.json"));
     await jfr.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual(7, jfr.FieldCount);
-    Assert.IsTrue(jfr.Read(), "Read Row1");
-    Assert.IsTrue(jfr.Read(), "Read Row2");
+    Assert.IsTrue(await jfr.ReadAsync(UnitTestStatic.Token), "Read Row1");
+    Assert.IsTrue(await jfr.ReadAsync(UnitTestStatic.Token), "Read Row2");
     Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml",
       jfr.GetValue(6));
     while (await jfr.ReadAsync(UnitTestStatic.Token))

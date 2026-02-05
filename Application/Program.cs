@@ -49,8 +49,8 @@ public static class Program
     // in case we have multiple arguments assume the path was split at space
     else if (args.Length > 1)
       fileName = args.Join(' ');
-
-    var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
+ 
+    var viewSettings = ViewSettingHelper.LoadViewSettings();
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);

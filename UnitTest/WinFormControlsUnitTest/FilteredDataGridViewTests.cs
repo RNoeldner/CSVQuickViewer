@@ -57,7 +57,7 @@ public class FilteredDataGridViewTests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = DataTable200;
+          control.DataTable = DataTable200;
           control.ApplyFilters();
         });
     }
@@ -70,7 +70,7 @@ public class FilteredDataGridViewTests
     UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
       control =>
       {
-        control.DataSource = dataTable200;
+        control.DataTable = dataTable200;
         control.CurrentCell = control[1, 0];
         control.FilterCurrentCell();
 
@@ -86,7 +86,7 @@ public class FilteredDataGridViewTests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = dataTable200;
+          control.DataTable = dataTable200;
           control.RefreshUI();
         });
   }
@@ -114,7 +114,7 @@ public class FilteredDataGridViewTests
     UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
       control =>
       {
-        control.DataSource = dataTable200;
+        control.DataTable = dataTable200;
         control.FrozenColumns = 1;
         control.HighlightText = "HH";
       });
@@ -126,7 +126,7 @@ public class FilteredDataGridViewTests
   {
     using var filteredDataGridView = new FilteredDataGridView();
     using var dataTable200 = UnitTestStaticData.GetDataTable(200);
-    filteredDataGridView.DataSource = dataTable200;
+    filteredDataGridView.DataTable = dataTable200;
     filteredDataGridView.FrozenColumns = 2;
     UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
   }
@@ -136,7 +136,7 @@ public class FilteredDataGridViewTests
   public void HideEmptyColumnsTest()
   {
     using var dt = UnitTestStaticData.GetDataTable();
-    UnitTestStaticForms.ShowControl(() => new FilteredDataGridView { DataSource = dt }, 0.1,
+    UnitTestStaticForms.ShowControl(() => new FilteredDataGridView { DataTable = dt }, 0.1,
       c =>
       {
         var numCol = c.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
@@ -155,7 +155,7 @@ public class FilteredDataGridViewTests
     using var filteredDataGridView = new FilteredDataGridView();
     using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
     {
-      filteredDataGridView.DataSource = dataTable200;
+      filteredDataGridView.DataTable = dataTable200;
       filteredDataGridView.HighlightText = "ag";
       UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
       Assert.AreEqual("", filteredDataGridView.CurrentFilter);
@@ -170,7 +170,7 @@ public class FilteredDataGridViewTests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = DataTable200;
+          control.DataTable = DataTable200;
           control.SetColumnFrozen(0, true);
         });
   }
@@ -183,7 +183,7 @@ public class FilteredDataGridViewTests
     UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
       control =>
       {
-        control.DataSource = dataTable200;
+        control.DataTable = dataTable200;
         control.SetToolStripMenu(0, 0, MouseButtons.Right);
         control.SetToolStripMenu(1, -1, MouseButtons.Right);
       });
@@ -198,7 +198,7 @@ public class FilteredDataGridViewTests
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataSource = DataTable200;
+          control.DataTable = DataTable200;
           control.HideEmptyColumns();
 
           control.SetColumnVisibility(new Dictionary<string, bool>

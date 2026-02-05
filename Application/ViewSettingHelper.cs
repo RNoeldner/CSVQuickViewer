@@ -11,7 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools;
@@ -26,18 +30,18 @@ public static class ViewSettingHelper
   /// <summary>
   /// Load the ViewSettings in the fileSystem
   /// </summary>
-  public static async Task<ViewSettings> LoadViewSettingsAsync()
+  public static ViewSettings LoadViewSettings()
   {
     try
     {
-      return await SettingPath.DeserializeFileAsync<ViewSettings>();
+      Logger.Debug("Loading information from file {filename}", SettingPath.GetShortDisplayFileName());
+      using var reader = File.OpenText(SettingPath);
+      return reader.ReadToEnd().DeserializeText<ViewSettings>();
     }
     catch (Exception ex)
     {
       try { Logger.Error(ex, "Loading ViewSettings {path}", SettingPath); } catch { }
-
     }
-
     return new ViewSettings();
   }
 

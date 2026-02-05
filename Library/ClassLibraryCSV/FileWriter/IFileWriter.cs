@@ -9,48 +9,66 @@
  *
  * You should have received a copy of the GNU Lesser Public License along with this program.
  * If not, see http://www.gnu.org/licenses/ .
- *
  */
 #nullable enable
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools;
 
 /// <summary>
-///   Interface for a File Writer.
+/// Defines the contract for a file writer.
+/// Implementations are responsible for writing data from a source to a file or stream,
+/// reporting progress, and raising warnings or completion events.
 /// </summary>
 public interface IFileWriter
 {
   /// <summary>
-  ///   Event handler called if a warning or error occurred
+  /// Occurs when a warning or error occurs during writing.
   /// </summary>
   event EventHandler<WarningEventArgs>? Warning;
 
   /// <summary>
-  ///   Event handler called once writing of the file is completed
+  /// Occurs when the writing operation has completed successfully.
   /// </summary>
   event EventHandler? WriteFinished;
 
   /// <summary>
-  ///   Writes data reading from the source
+  /// Writes data from a source to the target file.
   /// </summary>
-  /// <param name="source">The data that should be used as source </param>
-  /// <param name="token">A cancellation token to stop a long running process</param>
-  /// <returns>Number of records written; -1 if there is no source; -2 if canceled</returns>
-  Task<long> WriteAsync(IFileReader? source, CancellationToken token);
-
-  /// <summary>Writes data to the stream reading from the source</summary>
-  /// <param name="reader">The data that should be read</param>
-  /// <param name="output">The Stream to write to</param>
-  /// <param name="cancellationToken">A cancellation token to stop a long running process</param>
-  /// <returns>Number of records written</returns>
-  Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
+  /// <param name="source">The data source to write from. Returns -1 if <c>null</c>.</param>
+  /// <param name="progress">
+  /// Provides progress reporting and cancellation support. 
+  /// <see cref="ProgressInfo.Value"/> represents the current record written.
+  /// Use <see cref="IProgressWithCancellation.CancellationToken"/> to observe cancellation requests.
+  /// Can be <c>null</c> if neither progress nor cancellation support is needed.
+  /// </param>
+  /// <returns>
+  /// The number of records written.
+  /// Returns -1 if <paramref name="source"/> is <c>null</c>.
+  /// Returns -2 if the operation was canceled.
+  /// </returns>
+  /// <remarks>
+  /// Implementations may internally call <see cref="WriteReaderAsync"/> for the actual writing logic.
+  /// </remarks>
+  Task<long> WriteAsync(IFileReader? source, IProgressWithCancellation progress);
 
   /// <summary>
-  ///   Sets the progress reporting action <see cref="ProgressInfo.Value"/> will be the current record that has been written/>
+  /// Writes data from a source directly to a <see cref="Stream"/>.
   /// </summary>
-  IProgress<ProgressInfo> ReportProgress { set; }
+  /// <param name="reader">The data source to read from.</param>
+  /// <param name="output">The <see cref="Stream"/> to write the data to.</param>
+  /// <param name="progress">
+  /// Provides progress reporting and cancellation support. 
+  /// <see cref="ProgressInfo.Value"/> represents the current record written.
+  /// Use <see cref="IProgressWithCancellation.CancellationToken"/> to observe cancellation requests.
+  /// Can be <c>null</c> if neither progress nor cancellation support is needed.
+  /// </param>
+  /// <returns>A task representing the asynchronous write operation.</returns>
+  /// <remarks>
+  /// Typically called by <see cref="WriteAsync"/>, but can also be used directly if writing
+  /// to a specific stream is required.
+  /// </remarks>
+  Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress);
 }

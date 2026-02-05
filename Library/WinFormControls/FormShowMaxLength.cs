@@ -184,7 +184,7 @@ public class FormShowMaxLength : ResizeForm
         dataTable.Rows.Add(lastRow);
       }
 
-      m_DataGridView.DataSource = dataTable;
+      m_DataGridView.DataTable = dataTable;
       // ReSharper disable PossibleNullReferenceException
       m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
 

@@ -69,9 +69,7 @@ setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNu
 setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("object_id", reader.GetColumn(0).Name);
-#pragma warning disable CS0618
-    reader.Read();
-#pragma warning restore CS0618
+    await reader.ReadAsync(UnitTestStatic.Token);
   }
 
   [TestMethod]
@@ -104,9 +102,8 @@ setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNu
 setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
-#pragma warning disable CS0618
-    reader.Read();
-#pragma warning restore CS0618
+
+    await reader.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("Other", reader.GetValue(1));
   }
 }

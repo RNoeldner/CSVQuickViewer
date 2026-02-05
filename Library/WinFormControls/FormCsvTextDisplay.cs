@@ -28,13 +28,13 @@ public partial class FormCsvTextDisplay : ResizeForm
   private readonly string? m_FullPath;
   private SyntaxHighlighterBase? m_HighLighter;
   private int m_SkipLines;
-  private readonly Func<IProgress<ProgressInfo>, CancellationToken, Task<string>> m_GetContent;
+  private readonly Func<IProgressWithCancellation, Task<string>> m_GetContent;
 
   /// <summary>
   ///   CTOR CsvTextDisplay
   /// </summary>
   public FormCsvTextDisplay(string? fullPath,
-    in Func<IProgress<ProgressInfo>, CancellationToken, Task<string>> getContent)
+    in Func<IProgressWithCancellation, Task<string>> getContent)
   {
     m_FullPath = fullPath;
     m_GetContent = getContent;
@@ -70,7 +70,7 @@ public partial class FormCsvTextDisplay : ResizeForm
       formProgress.Report("Display of read file");
 
       // Actually now read the text to display
-      textBox.Text = (await m_GetContent(formProgress, cancellationToken)).Replace("\t", "⇥");
+      textBox.Text = (await m_GetContent(formProgress)).Replace("\t", "⇥");
 
       textBox.IsChanged = false;
       formProgress.Maximum = 0;

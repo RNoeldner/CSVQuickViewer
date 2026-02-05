@@ -145,7 +145,7 @@ public sealed class CsvFileDummy : ICsvFile
   public bool WriteFixedLength { get; set; }
 
   /// <inheritdoc cref="IWithCopyTo{T}" />
-  public bool Equals(ICsvFile? other) => ReferenceEquals(this, other);
+  public bool Equals(ICsvFile? other) => other is IFileSetting fs && Equals(fs);
 
   #region IFileSettingPhysicalFile
 
