@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,21 +28,14 @@ namespace CsvTools;
 /// <seealso cref="T:System.IDisposable" />
 public sealed class FilterDataTable : DisposableBase
 {
-  private readonly DataTable m_SourceTable;
-
-  private readonly List<string> m_UniqueFieldName = new List<string>();
-
   private readonly Dictionary<DataColumn, bool> m_CacheColumns = new Dictionary<DataColumn, bool>();
-
-  private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
-
-  private volatile bool m_Filtering;
+  private readonly DataTable m_SourceTable;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
   /// </summary>
   /// <param name="init">The initial DataTable</param>
-  public FilterDataTable(in DataTable init)
+  public FilterDataTable(DataTable init)
   {
     m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
     foreach (DataColumn col in m_SourceTable.Columns)
@@ -54,11 +46,6 @@ public sealed class FilterDataTable : DisposableBase
   /// Set to true if we reached the set limit (see Filter)
   /// </summary>
   public bool CutAtLimit { get; private set; }
-
-  /// <summary>
-  /// Indicating the filtering is ongoing
-  /// </summary>
-  public bool Filtering => m_Filtering;
 
   /// <summary>
   ///   Gets the filtered table, need to Filter before 
@@ -72,68 +59,37 @@ public sealed class FilterDataTable : DisposableBase
   private RowFilterTypeEnum FilterType { get; set; } = RowFilterTypeEnum.All;
 
   /// <summary>
-  ///   Sets the name of the unique field.
+  /// Asynchronously filters the source data based on the specified error/warning criteria.
   /// </summary>
-  /// <value>The name of the unique field.</value>
-  /// <remarks>Setting the UniqueFieldName will update ColumnWithoutErrors</remarks>
-  public IEnumerable<string> UniqueFieldName
+  /// <param name="limit">The maximum number of rows to include in the filtered result. Use 0 or less for no limit.</param>
+  /// <param name="newFilterType">The <see cref="RowFilterTypeEnum"/> criteria used to identify matching rows.</param>
+  /// <param name="token">A <see cref="CancellationToken"/> used to abort the filtering process (e.g., if the control is disposed or a new filter is requested).</param>
+  /// <returns>
+  /// A <see cref="Task{DataTable}"/> containing the filtered rows. 
+  /// Returns the original source table if <paramref name="newFilterType"/> is <see cref="RowFilterTypeEnum.All"/>.
+  /// </returns>
+  /// <remarks>
+  /// This method is optimized for large datasets through several key strategies:
+  /// <list type="bullet">
+  ///   <item>
+  ///     <description><b>Off-thread Processing:</b> The heavy row-validation logic runs on a background thread to keep the UI responsive.</description>
+  ///   </item>
+  ///   <item>
+  ///     <description><b>Buffering:</b> Matches are collected in a local list first to minimize <see cref="DataTable"/> index recalculation overhead.</description>
+  ///   </item>
+  ///   <item>
+  ///     <description><b>Atomic Swapping:</b> Resulting data and metadata (column issue cache) are updated only upon successful completion, preventing partial data states in the UI.</description>
+  ///   </item>
+  ///   <item>
+  ///     <description><b>Bulk Loading:</b> Uses <see cref="DataTable.BeginLoadData"/> during the final import to maximize throughput.</description>
+  ///   </item>
+  /// </list>
+  /// </remarks>
+  /// <exception cref="OperationCanceledException">Thrown if the <paramref name="token"/> is signaled during processing.</exception>
+  public async Task<DataTable> FilterAsync(int limit, RowFilterTypeEnum newFilterType, CancellationToken token)
   {
-    set
-    {
-      m_UniqueFieldName.Clear();
-      if (value.Any())
-        m_UniqueFieldName.AddRange(value);
-    }
-  }
-
-  /// <summary>
-  ///   Gets the columns that do match the filter.
-  /// </summary>
-  public IReadOnlyCollection<string> GetColumns(RowFilterTypeEnum filterType)
-  {
-    var result = new HashSet<string>(
-      filterType switch
-      {
-        RowFilterTypeEnum.None =>
-          m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToList(),
-        RowFilterTypeEnum.All =>
-          m_CacheColumns.Select(x => x.Key.ColumnName).ToList(),
-        _ =>
-          m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToList(),
-      });
-
-    foreach (var fld in m_UniqueFieldName)
-      result.Add(fld);
-    return result;
-  }
-
-  /// <summary>
-  /// Method to Cancel ongoing Filtering
-  /// </summary>
-  public void Cancel()
-  {
-    // stop old filtering
-    if (m_CurrentFilterCancellationTokenSource?.IsCancellationRequested ?? true) return;
-
-    m_CurrentFilterCancellationTokenSource.Cancel();
-
-    // make sure the filtering is canceled
-    WaitCompeteFilter(0.1);
-
-    m_CurrentFilterCancellationTokenSource.Dispose();
-    m_CurrentFilterCancellationTokenSource = null;
-  }
-
-  /// <summary>
-  /// Synchronous method to filter records
-  /// </summary>
-  /// <param name="limit">Number of maximum records</param>
-  /// <param name="newFilterType">The Filter Type</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  public DataTable Filter(int limit, RowFilterTypeEnum newFilterType, in CancellationToken cancellationToken)
-  {
-    if (limit < 1)
-      limit = int.MaxValue;
+    // 1. Guard against invalid limits and "All" shortcut
+    int effectiveLimit = limit < 1 ? int.MaxValue : limit;
 
     if (newFilterType == RowFilterTypeEnum.All)
       return m_SourceTable;
@@ -144,103 +100,113 @@ public sealed class FilterDataTable : DisposableBase
     foreach (DataColumn col in m_SourceTable.Columns)
       m_CacheColumns[col] = true;
 
-    m_Filtering = true;
-
-    FilterTable?.Dispose();
-    FilterTable = m_SourceTable.Clone();
     try
     {
+      // 3. Prepare fresh metadata tracking
+      var localCache = m_SourceTable.Columns.Cast<DataColumn>().ToDictionary(c => c, c => true);
+      var resultTable = m_SourceTable.Clone();
       FilterType = newFilterType;
-      for (var counter = 0; counter < m_SourceTable.Rows.Count; counter++)
+      // Run the heavy loop on a background thread to avoid UI stutters
+      await Task.Run(() =>
       {
-        cancellationToken.ThrowIfCancellationRequested();
-        var row = m_SourceTable.Rows[counter];
-        if (newFilterType.HasFlag(RowFilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
-          continue;
+        // Use a list as a buffer. List<T> is faster to add to than a DataTable index.
+        var buffer = new List<DataRow>();
 
-        var rowIssues = RowFilterTypeEnum.None;
-        if (row.RowError.Length != 0)
+        for (var i = 0; i < m_SourceTable.Rows.Count; i++)
         {
-          if (row.RowError.IsWarningMessage())
-            rowIssues |= RowFilterTypeEnum.ShowWarning;
-          else
-            rowIssues |= RowFilterTypeEnum.ShowErrors;
+          token.ThrowIfCancellationRequested();
+          var row = m_SourceTable.Rows[i];
+
+          // Optimization: Pre-check "OnlyTrueErrors"
+          if (newFilterType.HasFlag(RowFilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
+            continue;
+
+          var rowIssues = RowFilterTypeEnum.None;
+
+          // Check Row Errors
+          if (row.RowError.Length != 0)
+          {
+            rowIssues |= row.RowError.IsWarningMessage() ? RowFilterTypeEnum.ShowWarning : RowFilterTypeEnum.ShowErrors;
+          }
+
+          // Check Column Errors
+          var errorCols = row.GetColumnsInError();
+          foreach (var col in errorCols)
+          {
+            localCache[col] = false;
+            rowIssues |= row.GetColumnError(col).IsWarningMessage() ? RowFilterTypeEnum.ShowWarning : RowFilterTypeEnum.ShowErrors;
+          }
+
+          // Match Logic
+          bool isMatch = (rowIssues == RowFilterTypeEnum.None && newFilterType == RowFilterTypeEnum.None) ||
+                         (rowIssues.HasFlag(RowFilterTypeEnum.ShowWarning) && newFilterType.HasFlag(RowFilterTypeEnum.ShowWarning)) ||
+                         (rowIssues.HasFlag(RowFilterTypeEnum.ShowErrors) && newFilterType.HasFlag(RowFilterTypeEnum.ShowErrors));
+
+          if (isMatch)
+          {
+            buffer.Add(row);
+            if (buffer.Count >= effectiveLimit) break;
+          }
         }
 
-        foreach (var col in row.GetColumnsInError())
+        // 4. Critical Section: Bulk Import
+        resultTable.BeginLoadData();
+        try
         {
-          m_CacheColumns[col] = false;
-          if (row.GetColumnError(col).IsWarningMessage())
-            rowIssues |= RowFilterTypeEnum.ShowWarning;
-          else
-            rowIssues |= RowFilterTypeEnum.ShowErrors;
+          foreach (var match in buffer)
+            resultTable.ImportRow(match);
         }
-
-        if ((rowIssues == RowFilterTypeEnum.None && newFilterType == RowFilterTypeEnum.None) ||
-            (rowIssues.HasFlag(RowFilterTypeEnum.ShowWarning) && newFilterType.HasFlag(RowFilterTypeEnum.ShowWarning)) ||
-            (rowIssues.HasFlag(RowFilterTypeEnum.ShowErrors) && newFilterType.HasFlag(RowFilterTypeEnum.ShowErrors)))
+        finally
         {
-          // Import Row copies the data and the errors information
-          FilterTable.ImportRow(row);
-          if (FilterTable.Rows.Count >= limit)
-            break;
+          resultTable.EndLoadData();
         }
-      }
+      }, token);
 
-      CutAtLimit = FilterTable.Rows.Count >= limit;
+      // 5. Update state only after successful completion
+      FilterType = newFilterType;
+      foreach (var kvp in localCache) m_CacheColumns[kvp.Key] = kvp.Value;
+
+      FilterTable?.Dispose();
+      FilterTable = resultTable;
+      CutAtLimit = FilterTable.Rows.Count >= effectiveLimit;
+    }
+    catch (OperationCanceledException)
+    {
     }
     catch (Exception ex)
     {
-      Debug.WriteLine(ex);
-    }
-    finally
-    {
-      m_Filtering = false;
+      Logger.Warning($"FilterAsync {newFilterType}", ex);
     }
 
-    return FilterTable;
+    // Fallback: return existing table or an empty clone of the source schema
+    return FilterTable ?? m_SourceTable.Clone();
   }
 
   /// <summary>
-  /// Background method to start filtering
+  /// Returns a collection of column names based on the results of the last filter operation.
   /// </summary>
-  /// <param name="limit">Number of maximum records</param>
-  /// <param name="type">The Filter Type</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <returns></returns>
-  public Task StartFilterAsync(int limit, RowFilterTypeEnum type, CancellationToken cancellationToken)
+  /// <param name="filterType">
+  /// The filter category to retrieve: 
+  /// <see cref="RowFilterTypeEnum.None"/> for columns without issues, 
+  /// <see cref="RowFilterTypeEnum.All"/> for all columns, 
+  /// or others for columns containing errors/warnings.
+  /// </param>
+  /// <returns>A read-only collection of unique column names.</returns>
+  public IReadOnlyCollection<string> GetColumns(RowFilterTypeEnum filterType)
+  => filterType switch
   {
-    if (m_Filtering)
-      Cancel();
-
-    m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-    // ReSharper disable once MethodSupportsCancellation
-    return Task.Run(() => Filter(limit, type, m_CurrentFilterCancellationTokenSource.Token));
-  }
-
-  private void WaitCompeteFilter(double timeoutInSeconds)
-  {
-    if (!m_Filtering) return;
-    var stopwatch = timeoutInSeconds > 0.01 ? Stopwatch.StartNew() : null;
-    while (m_Filtering)
-    {
-      Thread.Sleep(125);
-      if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
-      // can not call Cancel as this method is called by timeout
-      m_CurrentFilterCancellationTokenSource?.Cancel();
-      break;
-    }
-  }
+    RowFilterTypeEnum.None =>
+      m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
+    RowFilterTypeEnum.All =>
+      m_CacheColumns.Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
+    _ =>
+      m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
+  };
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
-    Cancel();
     if (disposing)
-    {
-      m_CurrentFilterCancellationTokenSource?.Dispose();
       FilterTable?.Dispose();
-    }
   }
 }

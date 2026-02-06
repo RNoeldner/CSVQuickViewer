@@ -75,84 +75,56 @@ public class FilterDataTableTests
   }
 
   [TestMethod]
-  public void FilterWarningTest()
+  public async Task FilterWarningTestAsync()
   {
     var (dt, _, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    test.Filter(0, RowFilterTypeEnum.ShowWarning, UnitTestStatic.Token);
+    await test.FilterAsync(0, RowFilterTypeEnum.ShowWarning, UnitTestStatic.Token);
     Assert.AreEqual(warn, test.FilterTable!.Rows.Count);
   }
 
   [TestMethod]
-  public void FilterErrorsTest()
+  public async Task FilterErrorsTestAsync()
   {
     var (dt, err, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    test.Filter(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
+    await test.FilterAsync(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
     Assert.AreEqual(err, test.FilterTable!.Rows.Count);
   }
 
   [TestMethod]
-  public void FilterErrorsAndWarningTest()
+  public async Task FilterErrorsAndWarningTestAsync()
   {
     var (dt, err, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = test.Filter(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+    var res = await test.FilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
     Assert.AreEqual(err + warn, res.Rows.Count);
   }
 
   [TestMethod]
-  public void FilterAllTest()
+  public async Task FilterAllTestAsync()
   {
     var (dt, _, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = test.Filter(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
+    var res = await test.FilterAsync(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
     Assert.AreEqual(dt.Rows.Count, res.Rows.Count);
   }
 
   [TestMethod]
-  public void FilterNoneTest()
+  public async Task FilterNoneTestAsync()
   {
     var (dt, err, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = test.Filter(0, RowFilterTypeEnum.None, UnitTestStatic.Token);
+    var res = await test.FilterAsync(0, RowFilterTypeEnum.None, UnitTestStatic.Token);
     Assert.AreEqual(dt.Rows.Count - err - warn, res.Rows.Count);
   }
 
-  [TestMethod, Timeout(2000)]
-  public void CancelTest()
-  {
-    var (dt, _, _)  = GetDataTable(2000);
-    using var test = new FilterDataTable(dt);
-    test.Cancel();
-    // No effect but no error either
-    test.StartFilterAsync(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
-    while (!test.Filtering)
-    {
-    }
-    Assert.IsTrue(test.Filtering);
-    test.Cancel();
-    Assert.IsFalse(test.Filtering);
-  }
-
   [TestMethod]
-  public async Task UniqueFieldNameAsync()
-  {
-    var (dt, _, _) = GetDataTable(10);
-    using var test = new FilterDataTable(dt);
-    test.UniqueFieldName = new[] { "ColID" };
-    await test.StartFilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
-    Assert.IsFalse(test.Filtering);
-    // A unique column should be displayed so its part of the Error columns 
-    Assert.IsTrue(test.GetColumns(RowFilterTypeEnum.ShowErrors).Any(x => x == "ColID"), "Result does not contain ColID");
-  }
-
-  [TestMethod]
-  public void GetColumns()
+  public async Task GetColumnsAsync()
   {
     var (dt, _, _)= GetDataTable(100);
     var test = new FilterDataTable(dt);
-    test.Filter(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+    await test.FilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
 
     // not a good test, but its known how many columns will have errors
     Assert.AreEqual(4, test.GetColumns(RowFilterTypeEnum.All).Count);

@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests;
 
@@ -31,8 +32,9 @@ public class DetailControlTests
     UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
     {
       ctrl.DataTable = dt;
-      ctrl.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
-      await ctrl.SearchTextAsync("212");
+      await ctrl.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+      ctrl.SearchText="212";
+      await ctrl.FindNextAsync(true);
     });
   }
 
@@ -42,17 +44,17 @@ public class DetailControlTests
   {
     using var dt = UnitTestStaticData.RandomDataTable(500);
 
-    UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, ctrl =>
+    UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
     {
       ctrl.DataTable = dt;
-      ctrl.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
+      await ctrl.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
       ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
     });
   }
 
   [TestMethod]
   [Timeout(1000)]
-  public void DetailControlTestAsync()
+  public async Task DetailControlTestAsync()
   {
     using var dt = new DataTable();
     dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
@@ -78,12 +80,12 @@ public class DetailControlTests
     dc.Show();
     dc.DataTable = dt;
 
-    dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
+    await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
   }
 
   [TestMethod]
   [Timeout(1000)]
-  public void SortTestAsync()
+  public async Task SortTestAsync()
   {
     using var dt = new DataTable();
     dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
@@ -104,7 +106,7 @@ public class DetailControlTests
     dc.HtmlStyle = HtmlStyle.Default;
     dc.Show();
     dc.DataTable = dt;
-    dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
+    await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
     dc.Sort("ID", ListSortDirection.Ascending);
   }
 }

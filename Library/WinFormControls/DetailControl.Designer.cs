@@ -31,9 +31,9 @@ namespace CsvTools
     {
       components = new Container();
       var resources = new ComponentResourceManager(typeof(DetailControl));
-      var dataGridViewCellStyle4 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle5 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle6 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle3 = new DataGridViewCellStyle();
       m_BindingNavigator = new BindingNavigator(components);
       m_BindingSource = new BindingSource(components);
       m_ToolStripLabelCount = new ToolStripLabel();
@@ -68,8 +68,7 @@ namespace CsvTools
       SuspendLayout();
       // 
       // m_BindingNavigator
-      // 
-      m_BindingNavigator.AddNewItem = null;
+      //       
       m_BindingNavigator.BindingSource = m_BindingSource;
       m_BindingNavigator.CountItem = m_ToolStripLabelCount;
       m_BindingNavigator.DeleteItem = null;
@@ -154,41 +153,39 @@ namespace CsvTools
       // 
       FilteredDataGridView.AllowUserToAddRows = false;
       FilteredDataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
-      FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      FilteredDataGridView.DataTable = null;
-      dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
-      dataGridViewCellStyle5.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle5.WrapMode = DataGridViewTriState.False;
-      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle5;
+      dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+      FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;      
+      dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
+      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
+      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
       FilteredDataGridView.Dock = DockStyle.Fill;
       FilteredDataGridView.HighlightText = "";
       FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
       FilteredDataGridView.Margin = new Padding(0);
       FilteredDataGridView.Name = "FilteredDataGridView";
-      dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+      dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
       FilteredDataGridView.RowHeadersWidth = 51;
       FilteredDataGridView.ShowButtonAtLength = 1000;
       FilteredDataGridView.Size = new System.Drawing.Size(719, 364);
       FilteredDataGridView.TabIndex = 2;
       FilteredDataGridView.VirtualMode = true;
-      FilteredDataGridView.DataViewChanged += DataViewChanged;
       // 
       // m_ToolStripButtonDuplicates
       // 
@@ -268,17 +265,17 @@ namespace CsvTools
       m_Search.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
       m_Search.AutoSize = true;
       m_Search.BackColor = System.Drawing.SystemColors.ControlLightLight;
-      m_Search.BorderStyle = BorderStyle.Fixed3D;
-      m_Search.Location = new System.Drawing.Point(448, 0);
-      m_Search.MinimumSize = new System.Drawing.Size(220, 27);
+      m_Search.BorderStyle = BorderStyle.FixedSingle;
+      m_Search.Location = new System.Drawing.Point(512, 0);
+      m_Search.MinimumSize = new System.Drawing.Size(200, 25);
       m_Search.Name = "m_Search";
-      m_Search.Results = 0;
-      m_Search.Size = new System.Drawing.Size(268, 29);
+      m_Search.SearchText = "";
+      m_Search.Size = new System.Drawing.Size(207, 27);
       m_Search.TabIndex = 1;
       m_Search.Visible = false;
-      m_Search.OnResultChanged += OnSearchResultChanged;
-      m_Search.OnSearchChanged += OnSearchChanged;
       m_Search.OnSearchClear += OnSearchClear;
+      m_Search.OnSearchNext += OnSearchNext;
+      m_Search.OnSearchPrev += OnSearchPrev;
       // 
       // m_ToolStripTop
       // 
@@ -348,6 +345,7 @@ namespace CsvTools
       ResumeLayout(false);
 
     }
+
 
     private FilteredDataGridView FilteredDataGridView;
     private ToolStripButton m_ToolStripButtonSource;

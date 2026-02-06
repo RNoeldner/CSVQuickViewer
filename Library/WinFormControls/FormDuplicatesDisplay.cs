@@ -80,7 +80,7 @@ public partial class FormDuplicatesDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
+  private async void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
   {
     var index = 0;
     var current = 0;
@@ -94,9 +94,8 @@ public partial class FormDuplicatesDisplay : ResizeForm
     }
     comboBoxID.SelectedIndex = index;
 
-    detailControl.CancellationToken = m_CancellationTokenSource.Token;
     detailControl.DataTable = m_DataTable;
-    detailControl.RefreshDisplay(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
+    await detailControl.RefreshDisplayAsync(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
   }
 
   private void Work(string dataColumnName, bool ignoreNull)

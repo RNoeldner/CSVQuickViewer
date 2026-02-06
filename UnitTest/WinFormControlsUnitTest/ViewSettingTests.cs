@@ -14,6 +14,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CsvTools.Tests;
@@ -72,7 +73,7 @@ public class ViewSettingTests
 
   [TestMethod]
   [Timeout(1000)]
-  public void ReStoreViewSettingDetailControlAsync()
+  public async Task ReStoreViewSettingDetailControlAsync()
   {
     using (var dt = UnitTestStaticData.GetDataTable())
     {
@@ -80,7 +81,7 @@ public class ViewSettingTests
       {
         dc.HtmlStyle = HtmlStyle.Default;
         dc.DataTable = dt;
-        dc.RefreshDisplay(RowFilterTypeEnum.All, UnitTestStatic.Token);
+        await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
         dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
         var text = dc.GetViewStatus();
 

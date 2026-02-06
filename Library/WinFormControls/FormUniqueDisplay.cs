@@ -90,7 +90,7 @@ public partial class FormUniqueDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void FormUniqueDisplay_Load(object? sender, EventArgs e)
+  private async void FormUniqueDisplay_Load(object? sender, EventArgs e)
   {
     var index = 0;
     var current = 0;
@@ -104,9 +104,8 @@ public partial class FormUniqueDisplay : ResizeForm
     }
 
     comboBoxID.SelectedIndex = index;
-    detailControl.CancellationToken = m_CancellationTokenSource.Token;
     detailControl.DataTable = m_DataTable;
-    detailControl.RefreshDisplay(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
+    await detailControl.RefreshDisplayAsync(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
   }
 
   private void Work(string dataColumnName, bool ignoreNull)
@@ -191,7 +190,6 @@ public partial class FormUniqueDisplay : ResizeForm
       }
 
       m_DataTable.EndLoadData();
-      detailControl.CancellationToken = m_CancellationTokenSource.Token;
       formProgress.Maximum = 0;
       formProgress.Report("Sorting");
       detailControl.Sort(dataColumnName);

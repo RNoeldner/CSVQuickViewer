@@ -661,7 +661,6 @@ public sealed partial class FormMain : ResizeForm
           m_LoadWarnings.Clear();
 
           detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-          detailControl.CancellationToken = m_CancellationTokenSource.Token;
           detailControl.ShowInfoButtons = false;
 
           await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
