@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,18 +24,28 @@ namespace CsvTools;
 
 /// <inheritdoc />
 /// <summary>
-///   Utility Class to filter a DataTable for Errors
+///   Utility Class to filter a DataTable for Errors and Warnings.
+///   Tracks column-level health to allow UI synchronization of column visibility.
 /// </summary>
 /// <seealso cref="T:System.IDisposable" />
 public sealed class FilterDataTable : DisposableBase
 {
+  /// <summary>
+  ///   Internal cache mapping each DataColumn to its health status.
+  ///   True if the column is "Clean" (no errors/warnings encountered), otherwise false.
+  /// </summary>
   private readonly Dictionary<DataColumn, bool> m_CacheColumns = new Dictionary<DataColumn, bool>();
+
+  /// <summary>
+  ///   The original unfiltered data source.
+  /// </summary>
   private readonly DataTable m_SourceTable;
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
   /// </summary>
-  /// <param name="init">The initial DataTable</param>
+  /// <param name="init">The initial DataTable to be monitored and filtered.</param>
+  /// <exception cref="ArgumentNullException">Thrown when init is null.</exception>
   public FilterDataTable(DataTable init)
   {
     m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
@@ -43,20 +54,22 @@ public sealed class FilterDataTable : DisposableBase
   }
 
   /// <summary>
-  /// Set to true if we reached the set limit (see Filter)
+  ///   Gets a value indicating whether the last filter operation was truncated
+  ///   due to reaching the specified row limit.
   /// </summary>
   public bool CutAtLimit { get; private set; }
 
   /// <summary>
-  ///   Gets the filtered table, need to Filter before 
+  ///   Gets the most original unfiltered DataTable.
   /// </summary>
-  /// <value>The error table.</value>
-  public DataTable? FilterTable { get; private set; }
+  public DataTable OriginalTable => m_SourceTable;
 
   /// <summary>
-  /// The type of Filter
+  ///   Gets the most recently generated filtered DataTable.
+  ///   Note: Requires a call to <see cref="FilterAsync"/> to populate.
   /// </summary>
-  private RowFilterTypeEnum FilterType { get; set; } = RowFilterTypeEnum.All;
+  /// <value>The currently filtered result table.</value>
+  private DataTable? m_FilteredTable;
 
   /// <summary>
   /// Asynchronously filters the source data based on the specified error/warning criteria.
@@ -86,70 +99,40 @@ public sealed class FilterDataTable : DisposableBase
   /// </list>
   /// </remarks>
   /// <exception cref="OperationCanceledException">Thrown if the <paramref name="token"/> is signaled during processing.</exception>
-  public async Task<DataTable> FilterAsync(int limit, RowFilterTypeEnum newFilterType, CancellationToken token)
+  public async Task<(DataTable DataTable, int NumWarning, int NumErrors, int NumWarningOrError)>
+    FilterAsync(int limit, RowFilterTypeEnum newFilterType, CancellationToken token)
   {
     // 1. Guard against invalid limits and "All" shortcut
     int effectiveLimit = limit < 1 ? int.MaxValue : limit;
-
-    if (newFilterType == RowFilterTypeEnum.All)
-      return m_SourceTable;
-
-    if (newFilterType == FilterType && FilterTable != null && FilterTable.Rows.Count <= limit)
-      return FilterTable;
-
+    var numWarnings = 0;
+    var numErrors = 0;
+    var numWarningOrError = 0;
     foreach (DataColumn col in m_SourceTable.Columns)
       m_CacheColumns[col] = true;
 
-    try
+    if (newFilterType == RowFilterTypeEnum.All)
     {
-      // 3. Prepare fresh metadata tracking
-      var localCache = m_SourceTable.Columns.Cast<DataColumn>().ToDictionary(c => c, c => true);
-      var resultTable = m_SourceTable.Clone();
-      FilterType = newFilterType;
-      // Run the heavy loop on a background thread to avoid UI stutters
-      await Task.Run(() =>
+      (numWarnings, numErrors, numWarningOrError) = await ParseTableAsync(m_SourceTable, (col) => m_CacheColumns[col] = false, null, token).ConfigureAwait(false);
+    }
+    else
+    {
+      try
       {
+        // Run the heavy loop on a background thread to avoid UI stutters
         // Use a list as a buffer. List<T> is faster to add to than a DataTable index.
         var buffer = new List<DataRow>();
 
-        for (var i = 0; i < m_SourceTable.Rows.Count; i++)
-        {
-          token.ThrowIfCancellationRequested();
-          var row = m_SourceTable.Rows[i];
-
-          // Optimization: Pre-check "OnlyTrueErrors"
-          if (newFilterType.HasFlag(RowFilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
-            continue;
-
-          var rowIssues = RowFilterTypeEnum.None;
-
-          // Check Row Errors
-          if (row.RowError.Length != 0)
-          {
-            rowIssues |= row.RowError.IsWarningMessage() ? RowFilterTypeEnum.ShowWarning : RowFilterTypeEnum.ShowErrors;
-          }
-
-          // Check Column Errors
-          var errorCols = row.GetColumnsInError();
-          foreach (var col in errorCols)
-          {
-            localCache[col] = false;
-            rowIssues |= row.GetColumnError(col).IsWarningMessage() ? RowFilterTypeEnum.ShowWarning : RowFilterTypeEnum.ShowErrors;
-          }
-
-          // Match Logic
-          bool isMatch = (rowIssues == RowFilterTypeEnum.None && newFilterType == RowFilterTypeEnum.None) ||
-                         (rowIssues.HasFlag(RowFilterTypeEnum.ShowWarning) && newFilterType.HasFlag(RowFilterTypeEnum.ShowWarning)) ||
-                         (rowIssues.HasFlag(RowFilterTypeEnum.ShowErrors) && newFilterType.HasFlag(RowFilterTypeEnum.ShowErrors));
-
-          if (isMatch)
-          {
-            buffer.Add(row);
-            if (buffer.Count >= effectiveLimit) break;
-          }
-        }
+        (numWarnings, numErrors, numWarningOrError) =await ParseTableAsync(m_SourceTable,
+          (col) => m_CacheColumns[col] = false,
+          (rowIssues, row) =>
+            {
+              if ((rowIssues & newFilterType) != 0)
+                buffer.Add(row);
+              return (buffer.Count >= effectiveLimit);
+            }, token).ConfigureAwait(false);
 
         // 4. Critical Section: Bulk Import
+        var resultTable = m_SourceTable.Clone();
         resultTable.BeginLoadData();
         try
         {
@@ -160,46 +143,41 @@ public sealed class FilterDataTable : DisposableBase
         {
           resultTable.EndLoadData();
         }
-      }, token);
 
-      // 5. Update state only after successful completion
-      FilterType = newFilterType;
-      foreach (var kvp in localCache) m_CacheColumns[kvp.Key] = kvp.Value;
+        // 5. Atomic update of state
+        m_FilteredTable?.Dispose();
+        m_FilteredTable = resultTable;
 
-      FilterTable?.Dispose();
-      FilterTable = resultTable;
-      CutAtLimit = FilterTable.Rows.Count >= effectiveLimit;
-    }
-    catch (OperationCanceledException)
-    {
-    }
-    catch (Exception ex)
-    {
-      Logger.Warning($"FilterAsync {newFilterType}", ex);
-    }
+        CutAtLimit = m_FilteredTable.Rows.Count >= effectiveLimit;
 
-    // Fallback: return existing table or an empty clone of the source schema
-    return FilterTable ?? m_SourceTable.Clone();
+        return (m_FilteredTable, numWarnings, numErrors, numWarningOrError);
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning($"FilterAsync {newFilterType}", ex);
+      }
+    }
+    return (m_SourceTable, numWarnings, numErrors, numWarningOrError);
   }
 
   /// <summary>
-  /// Returns a collection of column names based on the results of the last filter operation.
+  ///   Retrieves a collection of column names filtered by their health status.
   /// </summary>
   /// <param name="filterType">
-  /// The filter category to retrieve: 
-  /// <see cref="RowFilterTypeEnum.None"/> for columns without issues, 
-  /// <see cref="RowFilterTypeEnum.All"/> for all columns, 
-  /// or others for columns containing errors/warnings.
-  /// </param>
-  /// <returns>A read-only collection of unique column names.</returns>
+  ///   Determines the logic: <see cref="RowFilterTypeEnum.Clean"/> returns healthy columns,
+  ///   <see cref="RowFilterTypeEnum.All"/> returns all, any other flag returns problematic columns.
+  /// </param>  /// <returns>A unique collection of DataPropertyName/ColumnName strings.</returns>
   public IReadOnlyCollection<string> GetColumns(RowFilterTypeEnum filterType)
   => filterType switch
   {
-    RowFilterTypeEnum.None =>
+    RowFilterTypeEnum.Clean =>
       m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
     RowFilterTypeEnum.All =>
       m_CacheColumns.Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
-    _ =>
+    _ => // This covers Warning, Errors, and ErrorsAndWarning
       m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToHashSet(StringComparer.OrdinalIgnoreCase),
   };
 
@@ -207,6 +185,80 @@ public sealed class FilterDataTable : DisposableBase
   protected override void Dispose(bool disposing)
   {
     if (disposing)
-      FilterTable?.Dispose();
+      m_FilteredTable?.Dispose();
+  }
+
+  /// <summary>
+  ///   Asynchronously parses the table to calculate issue counts and identify problematic columns.
+  /// </summary>
+  /// <param name="table">The table to parse.</param>
+  /// <param name="actionColumn">Callback invoked when a column is found to contain an issue.</param>
+  /// <param name="actionRow">Callback invoked for each row, returning true to halt parsing (e.g., limit reached).</param>
+  /// <param name="token">Propagates notification that operations should be canceled.</param>
+  /// <returns>A tuple containing the total count of warnings, errors, and unique rows with issues.</returns>
+  private static async Task<(int NumWarnings, int NumErrors, int NumWarningOrError)> ParseTableAsync(DataTable table,
+          Action<DataColumn>? actionColumn,
+    Func<RowFilterTypeEnum, DataRow, bool>? actionRow, CancellationToken token)
+  {
+    int numErrors = 0;
+    int numWarnings = 0;
+    int numWarningOrError = 0;
+
+    await Task.Run(() =>
+    {
+      for (var i = 0; i < table.Rows.Count; i++)
+      {
+        // This is the standard way to stop the task and signal "Canceled"
+        if (i % 100 == 0)
+          token.ThrowIfCancellationRequested();
+
+        var row = table.Rows[i];
+        var rowHasWarning = false;
+        var rowHasError = false;
+        // Default to 'Clean' (Value 1)
+        var rowIssues = RowFilterTypeEnum.Clean;
+
+        // 1. Check Row-Level Errors
+        if (row.RowError.Length != 0)
+        {
+          // Clear the 'None' bit because we found an issue
+          rowIssues &= ~RowFilterTypeEnum.Clean;
+          var isWarning = row.RowError.IsWarningMessage();
+          rowHasWarning |= isWarning;
+          rowHasError |= !isWarning;
+          if (rowHasError)
+            Debug.WriteLine("");
+          // Set the bit for Warning or Error based on the message type
+          rowIssues |= isWarning ? RowFilterTypeEnum.Warning : RowFilterTypeEnum.Errors;
+        }
+
+        // 2. Check Column-Level Errors
+        var errorCols = row.GetColumnsInError();
+        foreach (var col in errorCols)
+        {
+          var colError = row.GetColumnError(col);
+          // Check if there is actually a message (not just an empty entry)
+          if (!string.IsNullOrEmpty(colError))
+          {
+            actionColumn?.Invoke(col);
+            rowIssues &= ~RowFilterTypeEnum.Clean; // Remove 'Clean' flag
+            var isWarning = colError.IsWarningMessage();
+            rowHasWarning |= isWarning;
+            rowHasError |= !isWarning;
+            if (rowHasError)
+              Debug.WriteLine("");
+            rowIssues |= isWarning ? RowFilterTypeEnum.Warning : RowFilterTypeEnum.Errors;
+          }
+        }
+        if (rowHasWarning) numWarnings++;
+        if (rowHasError) numErrors++;
+        if (rowHasWarning || rowHasError) numWarningOrError++;
+
+        if (actionRow?.Invoke(rowIssues, row) ?? false)
+          break;
+      }
+    }, token);
+
+    return new(numWarnings, numErrors, numWarningOrError);
   }
 }

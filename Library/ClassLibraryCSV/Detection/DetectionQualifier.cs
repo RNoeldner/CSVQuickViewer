@@ -23,59 +23,156 @@ using System.Threading.Tasks;
 namespace CsvTools;
 
 /// <summary>
-/// Static class with methods for Qualifier Detection
+/// Static class for high-performance CSV Qualifier (Quote) detection.
 /// </summary>
 public static class DetectionQualifier
 {
   /// <summary>
-  ///   Try to determine quote character, by looking at the file and doing a quick analysis
+  /// Try to determine the most likely quote character by performing a weighted analysis of the file.
   /// </summary>
-  /// <param name="textReader">The opened TextReader</param>
-  /// <param name="fieldDelimiterChar">The char to be used as field delimiter</param>
-  /// <param name="escapePrefixChar">Used to escape a delimiter or quoting char</param>
-  /// <param name="commentLine">The characters for a comment line.</param>
-  /// <param name="possibleQuotes">Possible quotes to test, usually its ' and "</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-  /// <returns>The most likely quoting char</returns>
-  /// <remarks>
-  ///   Any line feed or carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
-  ///   single quote, an \ escaped quote will be ignored
-  /// </remarks>
   public static QuoteTestResult InspectQualifier(
-    this ImprovedTextReader textReader,
-    char fieldDelimiterChar,
-    char escapePrefixChar,
-    string commentLine,
-    IEnumerable<char> possibleQuotes,
-    CancellationToken cancellationToken)
+      this ImprovedTextReader textReader,
+      char fieldDelimiterChar,
+      char escapePrefixChar,
+      string commentLine,
+      IEnumerable<char> possibleQuotes,
+      CancellationToken cancellationToken)
   {
     if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-    var bestQuoteTestResults = new QuoteTestResult();
+    var bestResult = new QuoteTestResult();
+
     foreach (var quoteChar in possibleQuotes)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      var currentQuote = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
-      if (currentQuote.Score > bestQuoteTestResults.Score)
-        bestQuoteTestResults = currentQuote;
-      // Give " a large edge
-      if (quoteChar == '"' && currentQuote.Score >= 45)
+
+      // Analyze the file for this specific quote candidate
+      var currentResult = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
+
+      if (currentResult.Score > bestResult.Score)
+        bestResult = currentResult;
+
+      // Short-circuit: If double-quote looks very solid, don't waste time on other candidates
+      if (quoteChar == '"' && currentResult.Score >= 45)
         break;
     }
 
-    return bestQuoteTestResults;
+    return bestResult;
+  }
+
+  private static QuoteTestResult GetScoreForQuote(
+      ImprovedTextReader textReader,
+      char delimiterChar,
+      char escapeChar,
+      char quoteChar,
+      string commentLine,
+      CancellationToken cancellationToken)
+  {
+    const int cBufferMax = 262144;
+    const char textPlaceholder = 't';
+
+    textReader.ToBeginning();
+
+    // Use ArrayPool to avoid massive heap allocations for every candidate quote
+    var analysisBuffer = ArrayPool<char>.Shared.Rent(cBufferMax + 5);
+    var readBuffer = ArrayPool<char>.Shared.Rent(4096);
+
+    try
+    {
+      int analysisPos = 0;
+      char lastNormalized = '\0';
+      bool isStartOfLine = true;
+      var res = new QuoteTestResult(quoteChar);
+
+      // Analysis state
+      analysisBuffer[analysisPos++] = delimiterChar; // Seed with delimiter
+
+      while (analysisPos < cBufferMax && !cancellationToken.IsCancellationRequested)
+      {
+        int charsRead = textReader.ReadBlock(readBuffer, 0, readBuffer.Length);
+        if (charsRead == 0) break;
+
+        for (int i = 0; i < charsRead && analysisPos < cBufferMax; i++)
+        {
+          char c = readBuffer[i];
+
+          // 1. Skip Comments
+          if (isStartOfLine && !string.IsNullOrEmpty(commentLine) && c == commentLine[0])
+          {
+            // Optimization: Simple skip to end of line
+            while (i < charsRead && readBuffer[i] != '\n' && readBuffer[i] != '\r') i++;
+            isStartOfLine = true;
+            continue;
+          }
+
+          char normalized;
+          if (c is '\r' or '\n')
+          {
+            isStartOfLine = true;
+            continue;
+          }
+
+          isStartOfLine = false;
+
+          if (c == ' ' || c == '\t') continue; // Ignore noise
+
+          if (c == escapeChar)
+          {
+            // Peek at next char to check for escaped qualifier
+            int nextIdx = i + 1;
+            if (nextIdx < charsRead && readBuffer[nextIdx] == quoteChar)
+            {
+              res.EscapedQualifier = true;
+              i++; // Skip the escaped char
+            }
+            normalized = textPlaceholder;
+          }
+          else if (c == quoteChar)
+          {
+            // Check for duplicate quote (RFC 4180 style: "")
+            int nextIdx = i + 1;
+            if (nextIdx < charsRead && readBuffer[nextIdx] == quoteChar)
+            {
+              res.DuplicateQualifier = true;
+              i++; // Treat "" as text
+              normalized = textPlaceholder;
+            }
+            else
+            {
+              normalized = quoteChar;
+            }
+          }
+          else if (c == delimiterChar)
+          {
+            normalized = delimiterChar;
+          }
+          else
+          {
+            normalized = textPlaceholder;
+          }
+
+          // Only add to analysis buffer if it represents a state change (compression)
+          if (normalized != lastNormalized)
+          {
+            analysisBuffer[analysisPos++] = normalized;
+            lastNormalized = normalized;
+          }
+        }
+      }
+
+      return CalculateFinalScore(analysisBuffer, analysisPos, quoteChar, delimiterChar, res);
+    }
+    finally
+    {
+      ArrayPool<char>.Shared.Return(analysisBuffer);
+      ArrayPool<char>.Shared.Return(readBuffer);
+    }
   }
 
   /// <summary>
-  ///   Does check if quoting was actually used in the file
+  /// Checks if the specified qualifier is actually used at the start of fields in the file.
+  /// This is an optimized, zero-allocation scan.
   /// </summary>
-  /// <param name="stream">The stream to read data from</param>
-  /// <param name="codePageId">The code page identifier.</param>
-  /// <param name="skipRows">The number of lines at beginning to disregard</param>
-  /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
-  /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-  /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
   public static async Task<bool> HasUsedQualifierAsync(
     this Stream stream,
     int codePageId,
@@ -87,8 +184,8 @@ public static class DetectionQualifier
     if (fieldQualifierChar == char.MinValue || cancellationToken.IsCancellationRequested)
       return false;
 
-    using var streamReader =
-      await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
+    // Use the ImprovedTextReader to handle encoding and skipping rows efficiently
+    using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
 
     const int bufferSize = 4096;
     var buffer = ArrayPool<char>.Shared.Rent(bufferSize);
@@ -96,34 +193,30 @@ public static class DetectionQualifier
     try
     {
       bool isStartOfColumn = true;
-      char lastChar = '\0'; // carry across buffer boundaries
+      char lastChar = '\0';
 
       while (true)
       {
-        cancellationToken.ThrowIfCancellationRequested();
-
         int charsRead = await streamReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
-        if (charsRead == 0)
-          break;
+        if (charsRead == 0) break;
 
         for (int i = 0; i < charsRead; i++)
         {
           char c = buffer[i];
 
-          // Handle line breaks robustly (\r, \n, \r\n, \n\r)
+          // 1. Handle line breaks robustly to reset column state
           if (c is '\r' or '\n')
           {
-            // only count new line if not part of pair
+            // Reset column state on new lines (skipping CRLF pairs)
             if (!((c == '\n' && lastChar == '\r') || (c == '\r' && lastChar == '\n')))
             {
               isStartOfColumn = true;
             }
-
             lastChar = c;
             continue;
           }
 
-          // Field delimiter ? start of next column
+          // 2. Delimiter found? The next character is the start of a column
           if (c == fieldDelimiterChar)
           {
             isStartOfColumn = true;
@@ -131,28 +224,28 @@ public static class DetectionQualifier
             continue;
           }
 
-          if (!isStartOfColumn)
+          // 3. If we are at the start of a column, check for the qualifier
+          if (isStartOfColumn)
           {
-            lastChar = c;
-            continue;
-          }
+            // Skip leading whitespace before the qualifier
+            if (c is ' ' or '\t')
+            {
+              continue;
+            }
 
-          // Qualifier at start of column ? success
-          if (c == fieldQualifierChar)
-            return true;
+            // SUCCESS: We found the qualifier exactly where it's supposed to be
+            if (c == fieldQualifierChar)
+              return true;
 
-          // Whitespace handling (avoid expensive UnicodeCategory when possible)
-          if (c is '\t' or ' ')
-          {
-            isStartOfColumn = true;
-          }
-          else
-          {
-            isStartOfColumn = !char.IsWhiteSpace(c);
+            // If we find any other character first, it's not a quoted column
+            isStartOfColumn = false;
           }
 
           lastChar = c;
         }
+
+        // Safety check for long-running scans
+        cancellationToken.ThrowIfCancellationRequested();
       }
     }
     finally
@@ -163,193 +256,39 @@ public static class DetectionQualifier
     return false;
   }
 
-
-
-  /// <summary>
-  /// Determine a score for a quote between 0 and 99 in addition it determines if we have escaped quotes and duplicate quotes
-  /// </summary>
-  /// <param name="textReader">The opened TextReader</param>
-  /// <param name="delimiterChar">The char to be used as field delimiter</param>
-  /// <param name="escapeChar">Used to escape a delimiter or quoting char</param>
-  /// <param name="quoteChar">Possible quotes to test, usually its ' and "</param>
-  /// <param name="commentLine">The characters for a comment line.</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-  /// <returns>The score is between 0 and 99, 99 meaning almost certain, an only text with hardly any quotes will still have a low score</returns>
-  /// <exception cref="ArgumentNullException"></exception>
-  private static QuoteTestResult GetScoreForQuote(
-    in ImprovedTextReader textReader,
-    char delimiterChar,
-    char escapeChar,
-    char quoteChar,
-    string commentLine,
-    in CancellationToken cancellationToken)
+  private static QuoteTestResult CalculateFinalScore(char[] buffer, int length, char quoteChar, char delimiterChar, QuoteTestResult res)
   {
-    if (textReader is null) throw new ArgumentNullException(nameof(textReader));
+    int openAndText = 0;
+    int closeAndDelim = 0;
+    int totalQuotes = 0;
 
-    const int cBufferMax = 262144; // Defined constant for max length
-    const char placeHolderText = 't';
-    var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
+    // Add padding for safe look-ahead/behind
+    buffer[length] = delimiterChar;
+    buffer[length + 1] = delimiterChar;
 
-    var buffer = new char[cBufferMax+3];
-    // Start with delimiter
-    buffer[0]=delimiterChar;
-    var bufferPos = 0;
-    var lineStart = true;
-    var last = char.MinValue;
-    var res = new QuoteTestResult(quoteChar);
-    var commentLine0 = '\0';
-    var commentLine1 = '\0';
-
-    if (!string.IsNullOrEmpty(commentLine))
+    for (int i = 1; i < length; i++)
     {
-      commentLine0 = commentLine[0];
-      if (commentLine.Length>1)
-        commentLine1 = commentLine[1];
-      if (commentLine.Length>2)
-        Logger.Warning("Quote detection can only use two characters for line comment");
-    }
-    // Read simplified text from file
-    while (!textReaderPosition.AllRead() && bufferPos < cBufferMax && !cancellationToken.IsCancellationRequested)
-    {
-      var c = (char) textReader.Read();
-      if (lineStart && commentLine0 != '\0' && c == commentLine0)
-      {
-        if (commentLine1 == '\0' || commentLine1 == textReader.Peek())
-        {
-          // Eat everything till we reach next line
-          while (c != '\r' && c != '\n' && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
-            c = (char) textReader.Read();
-          // handle /r /n or /n /r
-          c = (char) textReader.Peek();
-          while (c == '\r' || c == '\n' && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
-          {
-            textReader.Read();
-            c =  (char) textReader.Peek();
-          }
-          continue;
-        }
-      }
-      switch (c)
-      {
-        case '\r':
-        case '\n':
-          lineStart = true;
-          continue;
+      if (buffer[i] != quoteChar) continue;
+      totalQuotes++;
 
-        // disregard spaces
-        case ' ':
-        case char.MinValue:
-          continue;
-        case var _ when c == escapeChar:
-          if (!textReader.EndOfStream && quoteChar == textReader.Read())
-            res.EscapedQualifier = true;
+      // Check if quote follows a delimiter (Potential Start)
+      if (buffer[i - 1] == delimiterChar && buffer[i + 1] == 't')
+        openAndText++;
 
-          // anything escaped is regarded as text
-          c = placeHolderText;
-          break;
-
-        case var _ when c == quoteChar:
-          // If we have a duplicate quote, and is not followed by delimiter and started by delimiter
-          // .e.G. "", is not a duplicate quote, it's an empty text
-          if (last == quoteChar)
-          {
-            if (textReader.EndOfStream || delimiterChar != textReader.Peek())
-            {
-              res.DuplicateQualifier = true;
-              // Regard a duplicate Quote as regular text
-              c = placeHolderText;
-            }
-
-            // It's safe to modify the StringBuilder length as last is '\0' in case nothing was added
-            bufferPos--;
-          }
-          break;
-
-
-        case var _ when c == delimiterChar:
-          c = delimiterChar; // Normalize new line or delimiter characters
-          break;
-
-        default:
-          c = placeHolderText; // Set to placeholder if none of the above
-          break;
-      }
-
-      // Add to filter only if current character differs from the last
-      if (last != c)
-        buffer[++bufferPos]=c;
-      lineStart = false;
-      last = c; // Update last character
+      // Check if quote precedes a delimiter (Potential End)
+      if (buffer[i + 1] == delimiterChar && buffer[i - 1] == 't')
+        closeAndDelim++;
     }
 
-    var counterTotal = 0;
-    var counterOpenAndText = 0;
-    var counterOpenSimple = 0;
-    var counterCloseSimple = 0;
-    var counterCloseAndDelimiter = 0;
+    if (totalQuotes == 0) return res;
 
-    // if there is no suitable text, exit
-    if (bufferPos > 3)
-    {
-      // normalize this, line should start and end with delimiter for out of range safety:
-      //  quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar -> ,quoteChar","quoteChar","quoteChar",quoteChar,quoteChar,quoteChar"quoteChar,quoteChar"quoteChar,quoteChar,
-      // End with delimiter
-      buffer[++bufferPos]=delimiterChar;
-      buffer[++bufferPos]=delimiterChar;
+    // Scoring: Heavily weight cases where quotes wrap text fields correctly
+    int rawScore = totalQuotes + (5 * (openAndText + closeAndDelim));
 
-      for (var index = 1; index < bufferPos-2; index++)
-      {
-        if (buffer[index] != quoteChar)
-          continue;
+    if (res.DuplicateQualifier || res.EscapedQualifier)
+      rawScore += 20;
 
-        counterTotal++;
-
-        if (buffer[index - 1] == delimiterChar)
-        {
-          // having a delimiter before is good, but it would be even better if it's followed by text
-          counterOpenSimple++;
-          if (buffer[index + 1] == placeHolderText || buffer[index + 1] == quoteChar && buffer[index + 2] != delimiterChar)
-            counterOpenAndText++;
-        }
-
-        // safe we made sure line has the needed length
-        if (buffer[index + 1] == delimiterChar)
-        {
-          counterCloseSimple++;
-          if (buffer[index - 1] == placeHolderText)
-            counterCloseAndDelimiter++;
-        }
-      }
-      if (counterTotal==0)
-        return res;
-
-      var totalScore = counterTotal;
-
-      // Very high rating for starting  of A column with text
-      // this is counted again in counterOpenSimple
-      if (counterOpenAndText > 0 && counterCloseAndDelimiter >0)
-        totalScore += 5 * (counterOpenAndText + counterCloseAndDelimiter);
-
-      // having roughly equal number opening and closing quotes before and after delimiter is adding to score        
-      if (counterOpenSimple > 0 && counterCloseSimple >0 && counterOpenSimple >= counterCloseSimple - 2 && counterOpenSimple <= counterCloseSimple + 2)
-        totalScore += 3 * counterOpenSimple + counterCloseSimple;
-
-      // If we hardly saw quotes assume DuplicateQualifier
-      if (!res.DuplicateQualifier && counterTotal < 50 && bufferPos > 100)
-        res.DuplicateQualifier = true;
-
-      // If we have escaped quote add some bonus
-      if (res.DuplicateQualifier || res.EscapedQualifier)
-        totalScore += 10;
-
-      // try to normalize the score, depending on the length of the filter build a percent score that  should indicate how sure
-      res.Score = totalScore > bufferPos ? 99 : Convert.ToInt32(totalScore / (double) bufferPos * 100) + 1;
-
-      // If we have a decent score but simply read a large volume adjust the resulting score
-      if (totalScore> 250 && res.Score<2)
-        res.Score = 10;
-    }
-
+    res.Score = Math.Min(99, (int) ((rawScore / (double) length) * 100) + 1);
     return res;
   }
 

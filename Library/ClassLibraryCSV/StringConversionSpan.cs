@@ -219,7 +219,6 @@ public static class StringConversionSpan
   ///   <c>Null</c> if the value is empty, otherwise <c>true</c> if identified as boolean or
   ///   <c>false</c> otherwise
   /// </returns>
-  [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
   public static bool? StringToBoolean(
     this ReadOnlySpan<char> value,
     ReadOnlySpan<char> trueValue,

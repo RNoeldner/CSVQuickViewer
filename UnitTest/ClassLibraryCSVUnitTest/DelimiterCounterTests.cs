@@ -23,8 +23,8 @@ public class DelimiterCounterTests
   public void DelimiterCounterCheckCharTest()
   {
     var i = new DetectionDelimiter.DelimiterCounter(50, Array.Empty<char>(), '"');
-    Assert.IsFalse(i.CheckChar('a', char.MinValue));
-    Assert.IsTrue(i.CheckChar(';', char.MinValue));
+    Assert.IsFalse(i.CheckChar('a', char.MinValue, char.MinValue));
+    Assert.IsTrue(i.CheckChar(';', char.MinValue, char.MinValue));
   }
 
   [TestMethod]
@@ -36,8 +36,8 @@ public class DelimiterCounterTests
     Assert.AreEqual(50, i.NumRows);
     Assert.AreEqual(0, i.FilledRows);
 
-    Assert.IsFalse(i.CheckChar('\t', char.MinValue));
-    Assert.IsTrue(i.CheckChar(';', ';'));
+    Assert.IsFalse(i.CheckChar('\t', char.MinValue, char.MinValue));
+    Assert.IsTrue(i.CheckChar(';', ';', char.MinValue));
   }
 
   [TestMethod]
@@ -45,7 +45,7 @@ public class DelimiterCounterTests
   {
     var i = new DetectionDelimiter.DelimiterCounter(2, Array.Empty<char>(), '"');
     Assert.AreEqual(0, i.LastRow);
-    i.CheckChar(';', char.MinValue);
+    i.CheckChar(';', char.MinValue, char.MinValue);
     Assert.IsTrue(i.LastRow >= 0);
   }
 
@@ -55,16 +55,25 @@ public class DelimiterCounterTests
     var i = new DetectionDelimiter.DelimiterCounter(100, Array.Empty<char>(), '"');
     Assert.AreEqual(100, i.NumRows);
 
-    i.CheckChar(';', ';');
-    i.CheckChar('\t', 'x');
-    i.CheckChar(',', '"');
-
     // there is no score if we repeat
+    i.CheckChar(';', ';', char.MinValue);
     Assert.AreEqual(0, i.SeparatorScore[i.Separators.IndexOf(';')]);
-    // there is a score if we follow a Text
-    Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf('\t')]);
-    Assert.AreEqual(2, i.SeparatorScore[i.Separators.IndexOf(',')]);
 
+    // there is a score if we follow a Text
+    i.CheckChar('\t', 'x', 'z');
+    Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf('\t')]);
+    // High score if wedged between quotes
+    i.CheckChar(',', '"', '"');
+    Assert.AreEqual(6, i.SeparatorScore[i.Separators.IndexOf(',')]);
+    // Penalty if possible grouping 
+    i.CheckChar(',', '0', '0');
+    Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf(',')]);
+    // Medium Score if leading or training Quote
+    i.CheckChar(',', '"', ' ');
+    Assert.AreEqual(4, i.SeparatorScore[i.Separators.IndexOf(',')]);
+    // Medium Score if leading or training Quote
+    i.CheckChar(',', ' ', '"');
+    Assert.AreEqual(7, i.SeparatorScore[i.Separators.IndexOf(',')]);
   }
 
   [TestMethod]
@@ -84,8 +93,8 @@ public class DelimiterCounterTests
     Assert.AreEqual(3, i.SeparatorsCount.GetLength(1), "");
     // Initially all counts should be zero
     for (int row = 0; row < 3; row++)
-    for (int col = 0; col < i.Separators.Length; col++)
-      Assert.AreEqual(0, i.SeparatorsCount[col, row]);
+      for (int col = 0; col < i.Separators.Length; col++)
+        Assert.AreEqual(0, i.SeparatorsCount[col, row]);
   }
 
   [TestMethod]

@@ -68,7 +68,8 @@ namespace CsvTools
       SuspendLayout();
       // 
       // m_BindingNavigator
-      //       
+      // 
+      m_BindingNavigator.AddNewItem = null;
       m_BindingNavigator.BindingSource = m_BindingSource;
       m_BindingNavigator.CountItem = m_ToolStripLabelCount;
       m_BindingNavigator.DeleteItem = null;
@@ -160,7 +161,7 @@ namespace CsvTools
       dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
       FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-      FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;      
+      FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
       dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
@@ -228,8 +229,10 @@ namespace CsvTools
       // 
       m_ToolStripComboBoxFilterType.DropDownHeight = 90;
       m_ToolStripComboBoxFilterType.DropDownWidth = 130;
+      m_ToolStripComboBoxFilterType.Enabled = false;
+      m_ToolStripComboBoxFilterType.Visible = false;
       m_ToolStripComboBoxFilterType.IntegralHeight = false;
-      m_ToolStripComboBoxFilterType.Items.AddRange(new object[] { "All Records", "Error or Warning", "Error Records", "Warning Records", "No Error or Warning" });
+      m_ToolStripComboBoxFilterType.Items.AddRange(new object[] { "All Records" });
       m_ToolStripComboBoxFilterType.Name = "m_ToolStripComboBoxFilterType";
       m_ToolStripComboBoxFilterType.Size = new System.Drawing.Size(150, 27);
       m_ToolStripComboBoxFilterType.Text = "All Records";
@@ -286,7 +289,7 @@ namespace CsvTools
       m_ToolStripTop.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
       m_ToolStripTop.Location = new System.Drawing.Point(3, 0);
       m_ToolStripTop.Name = "m_ToolStripTop";
-      m_ToolStripTop.Size = new System.Drawing.Size(654, 27);
+      m_ToolStripTop.Size = new System.Drawing.Size(685, 27);
       m_ToolStripTop.TabIndex = 1;
       // 
       // m_ToolStripButtonColumnLength

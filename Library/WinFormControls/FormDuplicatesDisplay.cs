@@ -93,9 +93,7 @@ public partial class FormDuplicatesDisplay : ResizeForm
       current++;
     }
     comboBoxID.SelectedIndex = index;
-
-    detailControl.DataTable = m_DataTable;
-    await detailControl.RefreshDisplayAsync(RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
+    await detailControl.LoadDataTableAsync(m_DataTable, RowFilterTypeEnum.All,  m_CancellationTokenSource.Token);
   }
 
   private void Work(string dataColumnName, bool ignoreNull)

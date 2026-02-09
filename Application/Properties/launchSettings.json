@@ -2,7 +2,7 @@
   "profiles": {
     "CSVQuickViewer": {
       "commandName": "Project",
-      "commandLineArgs": "c:\\Users\\rnoldner\\Downloads\\User 1.csv"
+      "commandLineArgs": "C:\\Users\\r_n\\Desktop\\Test\\CONTENT_2026-01-12T08-26-43Z_skippedRecords.csv"
     }
   }
 }

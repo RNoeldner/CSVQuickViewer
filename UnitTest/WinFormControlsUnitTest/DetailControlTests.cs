@@ -31,8 +31,7 @@ public class DetailControlTests
     using var dt = UnitTestStaticData.RandomDataTable(1000);
     UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
     {
-      ctrl.DataTable = dt;
-      await ctrl.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+      await ctrl.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
       ctrl.SearchText="212";
       await ctrl.FindNextAsync(true);
     });
@@ -46,8 +45,7 @@ public class DetailControlTests
 
     UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
     {
-      ctrl.DataTable = dt;
-      await ctrl.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+      await ctrl.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
       ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
     });
   }
@@ -78,9 +76,7 @@ public class DetailControlTests
     using var dc = new DetailControl();
     dc.HtmlStyle = HtmlStyle.Default;
     dc.Show();
-    dc.DataTable = dt;
-
-    await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+    await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
   }
 
   [TestMethod]
@@ -105,8 +101,8 @@ public class DetailControlTests
     using var dc = new DetailControl();
     dc.HtmlStyle = HtmlStyle.Default;
     dc.Show();
-    dc.DataTable = dt;
-    await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+    
+    await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
     dc.Sort("ID", ListSortDirection.Ascending);
   }
 }

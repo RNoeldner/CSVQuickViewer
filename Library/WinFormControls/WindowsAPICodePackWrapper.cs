@@ -53,7 +53,7 @@ public static class WindowsAPICodePackWrapper
     }
   }
 
-  public static string? Folder(string initialDirectory, string title)
+  public static string Folder(string initialDirectory, string title)
   {
     if (m_CommonFileDialogSupported)
     {
@@ -74,7 +74,7 @@ public static class WindowsAPICodePackWrapper
         return openFolderBrowserDialog.SelectedPath;
     }
 
-    return null;
+    return string.Empty;
   }
 
   private static void SetFilter(string filter, CommonFileDialogFilterCollection col)
@@ -91,7 +91,7 @@ public static class WindowsAPICodePackWrapper
 
   public static bool IsDialogOpen { get; private set; }
 
-  public static string? Open(string initialDirectory, string title, string filter,
+  public static string Open(string initialDirectory, string title, string filter,
     string? preselectFileName)
   {
     if (m_CommonFileDialogSupported)
@@ -139,7 +139,7 @@ public static class WindowsAPICodePackWrapper
       try
       {
         if (openFileDialogReference.ShowDialog() == DialogResult.OK)
-          return openFileDialogReference.FileName?.LongFileName();
+          return openFileDialogReference.FileName?.LongFileName() ?? string.Empty;
       }
       finally
       {
@@ -147,10 +147,10 @@ public static class WindowsAPICodePackWrapper
       }
     }
 
-    return null;
+    return string.Empty;
   }
 
-  public static string? Save(string initialDirectory, string title, string filter,
+  public static string Save(string initialDirectory, string title, string filter,
     string defaultExt, bool overwritePrompt = true,
     string? preselectFileName = null)
   {
@@ -207,7 +207,7 @@ public static class WindowsAPICodePackWrapper
       try
       {
         if (saveFileDialog.ShowDialog() != DialogResult.OK)
-          return saveFileDialog.FileName?.LongFileName();
+          return saveFileDialog.FileName?.LongFileName() ?? string.Empty;
       }
       finally
       {
@@ -215,6 +215,6 @@ public static class WindowsAPICodePackWrapper
       }
     }
 
-    return null;
+    return string.Empty;
   }
 }

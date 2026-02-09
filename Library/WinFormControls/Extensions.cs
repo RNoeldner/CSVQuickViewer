@@ -33,64 +33,6 @@ public static class Extensions
 {
   public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-  public static Image ResizeImage(this Image source, int width, int height)
-  {
-    var bmp = new Bitmap(width, height);
-    bmp.SetResolution(source.HorizontalResolution, source.VerticalResolution);
-
-    using (var g = Graphics.FromImage(bmp))
-    {
-      g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-      g.SmoothingMode = SmoothingMode.HighQuality;
-      g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-      g.DrawImage(source, 0, 0, width, height);
-    }
-
-    return bmp;
-  }
-
-  public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
-  {
-    Form? parentFrm = null;
-
-    if (ctrl != null)
-    {
-      parentFrm = ctrl.FindForm();
-      if (parentFrm !=null)
-        newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
-    }
-    if (dialog)
-      return newForm.ShowDialog(parentFrm);
-    newForm.Show(parentFrm);
-    return DialogResult.None;
-  }
-
-  public static void OpenDefaultApplication(string pathOrUrl)
-  {
-    if (!string.IsNullOrEmpty(pathOrUrl))
-    {
-      try
-      {
-        Process.Start(pathOrUrl);
-      }
-      catch
-      {
-        // hack because of this: https://github.com/dotnet/corefx/issues/10361
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-          pathOrUrl = pathOrUrl.Replace("&", "^&");
-          Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-          Process.Start("open", pathOrUrl);
-        }
-        else
-          throw;
-      }
-    }
-  }
-
   /// <summary>
   ///   Handles a CTRL-A select all in the form.
   /// </summary>
@@ -144,13 +86,29 @@ public static class Extensions
   }
 
   public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-    .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
+  /// <summary>
+  /// Executes a synchronous action while displaying the wait cursor.
+  /// </summary>
+  /// <param name="action">The synchronous logic to execute.</param>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="action"/> is null.</exception>
+  /// <remarks>
+  /// <para>
+  ///   <b>UI Blocking:</b> This is a synchronous method and will block the UI message loop. 
+  ///   For long-running tasks, consider <see cref="InvokeWithHourglassAsync(Func{Task})"/>.
+  /// </para>
+  /// <para>
+  ///   <b>Thread Safety:</b> Must be called from the UI thread. <see cref="Cursor.Current"/> 
+  ///   is thread-specific in Windows Forms.
+  /// </para>
+  /// </remarks>
   public static void InvokeWithHourglass(this Action action)
   {
     if (action is null)
       throw new ArgumentNullException(nameof(action));
-    var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+
+    var oldCursor = Cursor.Current;
     Cursor.Current = Cursors.WaitCursor;
     try
     {
@@ -162,16 +120,29 @@ public static class Extensions
     }
   }
 
+  /// <summary>
+  /// Executes an asynchronous task while displaying the wait cursor.
+  /// </summary>
+  /// <param name="action">The asynchronous task to execute.</param>
+  /// <returns>A task representing the ongoing operation.</returns>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="action"/> is null.</exception>
+  /// <remarks>
+  /// <para>
+  ///   <b>Threading:</b> This method does not use <c>ConfigureAwait(false)</c>. It captures 
+  ///   the UI <see cref="SynchronizationContext"/> to safely restore the cursor on the UI thread.
+  /// </para>
+  /// </remarks>
   public static async Task InvokeWithHourglassAsync(this Func<Task> action)
   {
     if (action is null)
       throw new ArgumentNullException(nameof(action));
-    var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+
+    var oldCursor = Cursor.Current;
     Cursor.Current = Cursors.WaitCursor;
     try
     {
-      // this should not use ConfigureAwait(false);
-      await action.Invoke().ConfigureAwait(true);
+      // Maintain UI context to ensure restoration happens on the correct thread
+      await action.Invoke();
     }
     finally
     {
@@ -179,11 +150,15 @@ public static class Extensions
     }
   }
 
+  /// <summary>
+  /// Restores a form's size, position, and state from a <see cref="WindowState"/> object.
+  /// Validates bounds against available screen real estate to prevent "off-screen" windows.
+  /// </summary>
   public static void LoadWindowState(
-    this Form form,
-    WindowState? windowPosition,
-    Action<int>? setCustomValue1 = null,
-    Action<string>? setCustomValue2 = null)
+      this Form form,
+      WindowState? windowPosition,
+      Action<int>? setCustomValue1 = null,
+      Action<string>? setCustomValue2 = null)
   {
     if (windowPosition is null || windowPosition.Width == 0 || windowPosition.Height == 0)
       return;
@@ -216,13 +191,42 @@ public static class Extensions
     {
       //Ignore
     }
-
   }
 
   /// <summary>
-  ///   Handles UI elements while waiting on something
+  /// Launches the default OS application for a given path or URL. 
+  /// Handles known .NET Core issues with shell execution on different platforms.
   /// </summary>
-  /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
+  public static void OpenDefaultApplication(string pathOrUrl)
+  {
+    if (!string.IsNullOrEmpty(pathOrUrl))
+    {
+      try
+      {
+        Process.Start(pathOrUrl);
+      }
+      catch
+      {
+        // hack because of this: https://github.com/dotnet/corefx/issues/10361
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+          pathOrUrl = pathOrUrl.Replace("&", "^&");
+          Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+          Process.Start("open", pathOrUrl);
+        }
+        else
+          throw;
+      }
+    }
+  }
+
+  /// <summary>
+  /// Flushes the UI message queue to keep the interface responsive during synchronous loops.
+  /// </summary>
+  /// <param name="milliseconds">Optional sleep duration after processing events.</param>
   public static void ProcessUIElements(int milliseconds = 0)
   {
     try
@@ -242,7 +246,30 @@ public static class Extensions
     }
   }
 
-  public static void RunStaThread(Action action, int timeoutMilliseconds = 20000)
+  /// <summary>
+  /// Resizes an image using high-quality bicubic interpolation.
+  /// </summary>
+  public static Image ResizeImage(this Image source, int width, int height)
+  {
+    var bmp = new Bitmap(width, height);
+    bmp.SetResolution(source.HorizontalResolution, source.VerticalResolution);
+
+    using (var g = Graphics.FromImage(bmp))
+    {
+      g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+      g.SmoothingMode = SmoothingMode.HighQuality;
+      g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+      g.DrawImage(source, 0, 0, width, height);
+    }
+
+    return bmp;
+  }
+
+  /// <summary>
+  /// Ensures an action is run on an STA (Single Threaded Apartment) thread, 
+  /// which is required for certain Windows features like the Clipboard or File Dialogs.
+  /// </summary>
+  public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
   {
     if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
       action.Invoke();
@@ -261,130 +288,62 @@ public static class Extensions
     }
   }
 
-  public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
-  {
-    if (item is null)
-      throw new ArgumentNullException(nameof(item));
-    if (action is null)
-      throw new ArgumentNullException(nameof(action));
-    try
-    {
-      item.Enabled = false;
-      action.InvokeWithHourglass();
-    }
-    catch (ObjectDisposedException)
-    {
-      // ignore
-    }
-    catch (Exception ex)
-    {
-      frm?.ShowError(ex);
-    }
-    finally
-    {
-      item.Enabled = true;
-    }
-  }
-
-  public static void RunWithHourglass(this Control control, Action action)
-  {
-    if (control is null)
-      throw new ArgumentNullException(nameof(control));
-    if (action is null)
-      throw new ArgumentNullException(nameof(action));
-    try
-    {
-      control.Enabled = false;
-      action.InvokeWithHourglass();
-    }
-    catch (ObjectDisposedException)
-    {
-      // ignore
-    }
-    catch (Exception ex)
-    {
-      if (!(control is Form frm))
-        frm = control.FindForm();
-      frm?.ShowError(ex);
-    }
-    finally
-    {
-      control.Enabled = true;
-    }
-  }
-
-  public static async Task RunWithHourglassAsync(
-  this ToolStripItem item,
-  Func<Task> action,
-  Form? frm)
+  /// <summary>
+  /// Disables a <see cref="ToolStripItem"/> and displays a wait cursor during a synchronous operation.
+  /// Includes automatic error handling via the provided form.
+  /// </summary>
+  /// <param name="item">The tool strip item to disable.</param>
+  /// <param name="action">The synchronous logic to execute.</param>
+  /// <param name="frm">The parent form used for error reporting.</param>
+  /// <remarks>
+  /// <b>Re-entrancy:</b> Disabling the item prevents duplicate triggers if the user clicks 
+  /// while the UI thread is processing.
+  /// </remarks>
+  public static void RunWithHourglass(this ToolStripItem item, Action action, Form frm)
   {
     if (item == null) throw new ArgumentNullException(nameof(item));
-
-    try
-    {
-      frm?.SafeInvoke(() => item.Enabled = false);
-      await action.InvokeWithHourglassAsync();
-    }
-    catch (ObjectDisposedException)
-    {
-      // shutdown race – ignore
-    }
-    catch (Exception ex)
-    {
-      frm?.ShowError(ex);
-    }
-    finally
-    {
-      try
-      {
-        frm?.SafeInvoke(() => item.Enabled = true);
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-    }
+    RunWithHourglassInternal(action, (val) => frm.SafeInvoke(() => item.Enabled = val), frm);
   }
 
   /// <summary>
-  /// Disabled the control wile an async process is execution, handled mouse pointer and error handling
+  /// Disables a <see cref="Control"/> and displays a wait cursor during a synchronous operation.
   /// </summary>
-  /// <param name="control"></param>
-  /// <param name="action"></param>
-  /// <returns></returns>
-  /// <exception cref="ArgumentNullException"></exception>
-  public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
+  /// <param name="control">The control to disable.</param>
+  /// <param name="action">The synchronous logic to execute.</param>
+  public static void RunWithHourglass(this Control control, Action action)
   {
-    if (control is null)
-      throw new ArgumentNullException(nameof(control));
-    if (action is null)
-      throw new ArgumentNullException(nameof(action));
-    try
-    {
-      control.SafeInvoke(() => control.Enabled = false);
-      // this should not use ConfigureAwait(false);
-      await action.InvokeWithHourglassAsync();
-    }
-    catch (ObjectDisposedException)
-    {
-      // ignore
-    }
-    catch (Exception ex)
-    {
-      var frm = control.FindForm();
-      frm?.ShowError(ex);
-    }
-    finally
-    {
-      control.SafeInvoke(() => control.Enabled = true);
-    }
+    if (control == null) throw new ArgumentNullException(nameof(control));
+    RunWithHourglassInternal(action, (val) => control.SafeInvoke(() => control.Enabled = val), control.FindForm());
   }
 
   /// <summary>
-  ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+  /// Disables a <see cref="ToolStripItem"/> and displays a wait cursor during an asynchronous operation.
   /// </summary>
-  /// <param name="uiElement">Type of the Object that will get the extension</param>
-  /// <param name="action">A delegate for the action</param>
+  /// <param name="item">The tool strip item to disable.</param>
+  /// <param name="action">The asynchronous task to execute.</param>
+  /// <param name="frm">The parent form used for error reporting.</param>
+  /// <returns>A task representing the operation.</returns>
+  public static Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form frm)
+  {
+    if (item == null) throw new ArgumentNullException(nameof(item));
+    return RunWithHourglassInternalAsync(action, (val) => frm.SafeInvoke(() => item.Enabled = val), frm);
+  }
+
+  /// <summary>
+  /// Disables a <see cref="Control"/> and displays a wait cursor during an asynchronous operation.
+  /// </summary>
+  /// <param name="control">The control to disable.</param>
+  /// <param name="action">The asynchronous task to execute.</param>
+  /// <returns>A task representing the operation.</returns>
+  public static Task RunWithHourglassAsync(this Control control, Func<Task> action)
+  {
+    if (control == null) throw new ArgumentNullException(nameof(control));
+    return RunWithHourglassInternalAsync(action, (val) => control.SafeInvoke(() => control.Enabled = val), control.FindForm());
+  }
+
+  /// <summary>
+  /// Safely executes an action on the UI thread using BeginInvoke (Asynchronous).
+  /// </summary>
   public static void SafeBeginInvoke(this Control uiElement, Action action)
   {
     if (uiElement.IsDisposed)
@@ -408,11 +367,9 @@ public static class Extensions
   }
 
   /// <summary>
-  /// Executes an action on the UI thread safely and synchronously.
-  /// If called from the UI thread, executes immediately.
+  /// Safely executes an action on the UI thread using Invoke (Synchronous).
+  /// Forces handle creation if necessary.
   /// </summary>
-  /// <param name="uiElement">The control on which to invoke the action.</param>
-  /// <param name="action">The action to execute.</param>
   public static void SafeInvoke(this Control uiElement, Action action)
   {
     if (uiElement.IsDisposed)
@@ -463,18 +420,17 @@ public static class Extensions
       // Control handle invalid or disposed
     }
   }
-
   public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-    => RunStaThread(() =>
-    {
-      Clipboard.Clear();
-      Clipboard.SetDataObject(dataObject, false, 5, 200);
-    }, timeoutMilliseconds);
+      => RunStaThread(() =>
+      {
+        Clipboard.Clear();
+        Clipboard.SetDataObject(dataObject, false, 5, 200);
+      }, timeoutMilliseconds);
 
   public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
 
   public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null)
-    where T : Enum
+      where T : Enum
   {
     cbo.SuspendLayout();
 
@@ -509,8 +465,24 @@ public static class Extensions
       timeout: timeout);
   }
 
+  public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
+  {
+    Form? parentFrm = null;
+
+    if (ctrl != null)
+    {
+      parentFrm = ctrl.FindForm();
+      if (parentFrm !=null)
+        newForm.FontConfig = new FontConfig(parentFrm.Font.Name, parentFrm.Font.Size);
+    }
+    if (dialog)
+      return newForm.ShowDialog(parentFrm);
+    newForm.Show(parentFrm);
+    return DialogResult.None;
+  }
+
   public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
-    string customText = "")
+      string customText = "")
   {
     var windowPosition = form.DesktopBounds;
     var windowState = form.WindowState;
@@ -528,5 +500,48 @@ public static class Extensions
 
     return new WindowState(windowPosition.Left, windowPosition.Top, windowPosition.Height, windowPosition.Width,
       windowState, customInt, customText);
+  }
+
+  /// <summary>
+  /// Core logic for synchronous UI state management and exception reporting.
+  /// </summary>
+  private static void RunWithHourglassInternal(Action action, Action<bool> setEnabled, Form frm)
+  {
+    try
+    {
+      setEnabled(false);
+      action.InvokeWithHourglass();
+    }
+    catch (ObjectDisposedException) { /* Component was closed; ignore */ }
+    catch (Exception ex)
+    {
+      frm.SafeInvoke(() => frm.ShowError(ex));
+    }
+    finally
+    {
+      setEnabled(true);
+    }
+  }
+
+  /// <summary>
+  /// Core logic for asynchronous UI state management and exception reporting.
+  /// </summary>
+  private static async Task RunWithHourglassInternalAsync(Func<Task> action, Action<bool> setEnabled, Form frm)
+  {
+    try
+    {
+      setEnabled(false);
+      await action.InvokeWithHourglassAsync();
+    }
+    catch (ObjectDisposedException) { /* UI was closed during await; ignore */ }
+    catch (Exception ex)
+    {
+      frm.ShowError(ex);
+    }
+    finally
+    {
+      // Defensive check as the UI might have been disposed during the async operation
+      try { setEnabled(true); } catch (ObjectDisposedException) { }
+    }
   }
 }

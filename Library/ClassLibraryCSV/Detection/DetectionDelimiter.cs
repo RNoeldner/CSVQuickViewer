@@ -176,7 +176,7 @@ public static class DetectionDelimiter
             variance += Math.Abs(delimiterCounter.SeparatorsCount[index, row] - avg);
           }
 
-          // now weigtin  the variance as well, if avg is high the variance is less important            
+          // now weighting  the variance as well, if avg is high the variance is less important            
           sums.Add(index, variance * 4 / avg);
 
           // handling on probability of delimiter
@@ -294,6 +294,8 @@ public static class DetectionDelimiter
         for (; i < charsRead; i++)
         {
           char readChar = buffer[i];
+          // Look ahead to the next char in the buffer, or null if at the very end
+          char nextChar = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
 
           // Skip escaped characters
           if (lastChar == escapeCharacter)
@@ -307,9 +309,15 @@ public static class DetectionDelimiter
           {
             if (quoted)
             {
-              if (i + 1 < charsRead)
+              if (i + 1 >= charsRead)
               {
-                if (buffer[i + 1] == quoteCharacter)
+                // The last char in the buffer is a quote,
+                // need to check next buffer
+                pendingQuoteCheck = true;
+              }
+              else
+              {
+                if (nextChar == quoteCharacter)
                 {
                   i++; // skip escaped quote
                 }
@@ -317,12 +325,6 @@ public static class DetectionDelimiter
                 {
                   quoted = false; // closing quote
                 }
-              }
-              else
-              {
-                // The last char in the buffer is a quote,
-                // need to check next buffer
-                pendingQuoteCheck = true;
               }
             }
             else
@@ -353,7 +355,7 @@ public static class DetectionDelimiter
           }
           else
           {
-            dc.CheckChar(readChar, lastChar);
+            dc.CheckChar(readChar, lastChar, nextChar);
           }
 
           lastChar = readChar;
@@ -478,27 +480,49 @@ public static class DetectionDelimiter
     }
 
     /// <summary>
-    /// Main method called with the current char and the last char
+    /// Evaluates the character's likelihood of being a delimiter based on its immediate context.
     /// </summary>
-    /// <param name="read">The character to check</param>
-    /// <param name="last">The previous char, this char allows scoring</param>
-    /// <returns><c>true</c> if the char was a delimiter</returns>
-    public bool CheckChar(char read, char last)
+    /// <param name="read">The current character under inspection.</param>
+    /// <param name="last">The previous character (for look-behind context).</param>
+    /// <param name="next">The next character (for look-ahead context).</param>
+    /// <returns><c>true</c> if the character is a registered separator.</returns>
+    /// <remarks>
+    ///   <b>Memory Efficiency:</b> This method uses no allocations and performs O(1) lookups 
+    ///   to maintain a low memory footprint during large file analysis.
+    /// </remarks>
+    public bool CheckChar(char read, char last, char next)
     {
       var index = Separators.IndexOf(read);
-      if (index == -1)
-        return false;
+      if (index == -1) return false;
 
+      // Register occurrence for variance and row-consistency statistics
       if (SeparatorsCount[index, LastRow] == 0)
         SeparatorRows[index]++;
 
       ++SeparatorsCount[index, LastRow];
-      // A separator its worth more if the previous char was the quote
-      if (last == m_FieldQualifier)
-        SeparatorScore[index] += 2;
-      else if (last != read && last!=' ' && last!='\r' && last!='\n')
-        // its also worth something if previous char appears to be a text
+
+      // --- Contextual Scoring Logic ---
+
+      // 1. Structural Bonus: Delimiters adjacent to qualifiers are highly reliable markers.
+      if (last == m_FieldQualifier || next == m_FieldQualifier)
+      {
+        SeparatorScore[index] += 3;
+        // Double bonus if the delimiter is perfectly sandwiched between qualifiers: "A","B"
+        if (last == m_FieldQualifier && next == m_FieldQualifier)
+          SeparatorScore[index] += 3;
+      }
+      // 2. Numeric Penalty: Protect against possible grouping characters (,) 
+      // appearing inside numeric strings (e.g., 1,000.00) ignoring . as this is not a separator
+      else if (read == ',' && char.IsDigit(last) && char.IsDigit(next))
+      {
+        // Significant penalty to ensure these do not win over structural delimiters.
+        SeparatorScore[index] -= 5;
+      }
+      // 3. Standard Score: Boost characters that appear to separate distinct text tokens.
+      else if (last != read && !char.IsWhiteSpace(last) && last != '\0')
+      {
         SeparatorScore[index]++;
+      }
 
       return true;
     }

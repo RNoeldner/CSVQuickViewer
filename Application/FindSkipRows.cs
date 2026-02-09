@@ -140,17 +140,20 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
   private void ButtonSkipLine_Click(object? sender, EventArgs e)
   {
-    using var formProgress = new FormProgress("Check", CancellationToken.None);
-    formProgress.Show(this);
-    formProgress.Report("Opening");
-    using var stream = FunctionalDI.GetStream(new SourceAccess(m_FileName));
-    using var streamReader = new ImprovedTextReader(stream, m_CodePageId);
-    formProgress.Report("Inspecting");
-    SkipRows = streamReader.InspectStartRow(charBoxDelimiter.Character, charBoxQuote.Character,
-      charBoxEscape.Character, textBoxComment.Text,
-      formProgress.CancellationToken);
+    this.RunWithHourglass(async () =>
+    {
+      using var formProgress = new FormProgress("Check", CancellationToken.None);
+      formProgress.Show(this);
+      formProgress.Report("Opening");
+      using var stream = FunctionalDI.GetStream(new SourceAccess(m_FileName));
+      using var streamReader = new ImprovedTextReader(stream, m_CodePageId);
+      formProgress.Report("Inspecting");
+      SkipRows = await streamReader.InspectStartRowAsync(charBoxDelimiter.Character, charBoxQuote.Character,
+        charBoxEscape.Character, textBoxComment.Text,
+        formProgress.CancellationToken).ConfigureAwait(false);
 
-    HighlightVisibleRange(SkipRows);
+      HighlightVisibleRange(SkipRows);
+    });
   }
 
   private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
@@ -163,9 +166,7 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
 
   private void FindSkipRows_Load(object? sender, EventArgs e)
   {
-    textBox.OpenFile(m_FileName,
-      Encoding.GetEncoding(m_CodePageId, new EncoderReplacementFallback("?"),
-        new DecoderReplacementFallback("?")));
+    textBox.OpenFile(m_FileName, Encoding.GetEncoding(m_CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
   }
 
   private void HighlightVisibleRange(int skipRows)

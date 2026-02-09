@@ -166,98 +166,51 @@ public static class DetectionHeader
 
       var tooLong = headers.Where(header => header.Length > 128).ToList();
       var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
-      var notUnique = headers.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
-        .Where(x => x.Count() > 1).ToList();
+      var notUnique = headers.GroupBy(x => x, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1).ToList();
       var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
       var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();
-      var boolHead = headers.Where(header => header.AsSpan().StringToBoolean(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty).HasValue)
-        .ToList();
-      var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue)
-        .ToList();
+      var bools = new HashSet<string>(new[] { "true", "false", "Wahr", "Falsch", "Vrai", "Faux", "Verdadero", "Falso", "Vero",
+        "yes", "no", "ja", "nein", "Sí", "Sì", "Oui"}, StringComparer.OrdinalIgnoreCase);
+      var boolHead = headers.Where(bools.Contains).ToList();
+      var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue).ToList();
 
       // allowed char are letters, digits and a predefined list of punctuation and symbols
-      var specials = headers.Where(header =>
-        Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
+      var specials = headers.Where(header => Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
 
-      var msg = new StringBuilder();
-
+      var msg = new List<string>();
       if (boolHead.Count > 0)
-      {
-        msg.Append("Header(s) ");
-        msg.Append(boolHead.Join(", "));
-        msg.Append(" boolean");
-      }
-
+        msg.Add($"Boolean values detected: {boolHead.Join(", ")}");
       if (guidHeaders.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(guidHeaders.Join(", "));
-
-
-        msg.Append(" Guid");
-      }
-
+        msg.Add($"Contains GUID identifiers: {guidHeaders.Join(", ")}");
       if (numeric.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(numeric.Join(", "));
-
-        msg.Append(" numeric");
-      }
-
+        msg.Add($"Contains numeric values: {numeric.Join(", ")}");
       if (dates.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(dates.Join(", "));
-        msg.Append(" dates");
-      }
-
+        msg.Add($"Contains date-formatted values: {dates.Join(", ")}");
       if (specials.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(specials.Join(", "));
-        msg.Append(" with uncommon characters");
-      }
-
+        msg.Add($"Unsupported special characters in: {specials.Join(", ")}");
       if (numEmpty > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append($"{numEmpty:N0} Header(s) empty");
-      }
-
+        msg.Add($"{numEmpty:N0} Header empty");
       if (notUnique.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(notUnique.Select(x => x.Key).Join(", "));
-        msg.Append(" duplicate");
-      }
-
+        msg.Add($"Duplicate column names: {notUnique.Select(x => x.Key).Join(", ")}");
       if (tooLong.Count > 0)
-      {
-        if (msg.Length > 0)
-          msg.Append('\n');
-        msg.Append("Header(s) ");
-        msg.Append(tooLong.Select(x => x.Substring(0, 128) + "…").Join(", "));
-        msg.Append(" too long");
-      }
+        msg.Add($"Column names exceed 128 characters: {tooLong.Select(x => x.Substring(0, 128) + "…").Join(", ")}");
 
+      // Evidence gathering: Sum of all indicators that this row is DATA rather than a HEADER
+      int totalIssues = numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count;
+
+      // Threshold logic: Scales strictness based on the average column count of the file.
       var border = (int) Math.Ceiling(fieldCount / 2.0 / counter) - specials.Count;
-      if (border < 3)
-        border=3;
+      if (border < 3) border = 3;
 
-      return (msg.ToString(),
-        tooLong.Count <= 0  && numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count < border);
+      // Decision: A header must have no excessively long names and stay under the issue threshold.
+      if (msg.Count >0)
+      {
+        // Format the message for a "Potential Data Row" warning using bullet points for scannability.
+        var finalMsg = new StringBuilder("Potential Data Row Detected:\n");
+        foreach (var line in msg)
+          finalMsg.AppendLine($" • {line}");
+        return (finalMsg.AppendLine($"\n(Reliability: {totalIssues} indicators found; limit is {border})").ToString(), tooLong.Count <= 0 && totalIssues < border);
+      }
     }
     return (string.Empty, true);
   }

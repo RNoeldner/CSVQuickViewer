@@ -203,9 +203,12 @@ public static class ClassLibraryCsvExtensionMethods
   public static string Description(this Enum value)
   {
     var fieldInfo = value.GetType().GetField(value.ToString());
-    DescriptionAttribute? attribute = null;
-    if (fieldInfo != null)
-      attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
+
+    // Safety check for dynamic/generated enums where fieldInfo might be null
+    if (fieldInfo == null) return value.ToString();
+
+    var attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
+
     return attribute?.Description ?? value.ToString();
   }
 
@@ -217,10 +220,14 @@ public static class ClassLibraryCsvExtensionMethods
   public static string ShortDescription(this Enum value)
   {
     var fieldInfo = value.GetType().GetField(value.ToString());
-    ShortDescriptionAttribute? attribute = null;
-    if (fieldInfo != null)
-      attribute = fieldInfo.GetCustomAttribute(typeof(ShortDescriptionAttribute)) as ShortDescriptionAttribute;
-    return attribute?.ShortDescription ?? string.Empty;
+
+    // Safety check for dynamic/generated enums where fieldInfo might be null
+    if (fieldInfo == null) return value.ToString();
+
+    var attribute = fieldInfo.GetCustomAttribute(typeof(ShortDescriptionAttribute)) as ShortDescriptionAttribute;
+
+    // Fallback to .ToString() instead of string.Empty to avoid blank UI items
+    return attribute?.ShortDescription ?? value.ToString();
   }
 
   /// <summary>

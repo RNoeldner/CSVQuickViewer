@@ -947,9 +947,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       if (inputTime != null)
         passedIn = Convert.ToString(inputTime).AsSpan();
 
-      HandleWarning(
-        column.ColumnOrdinal,
-        $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
+      HandleWarning(column.ColumnOrdinal,$"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
     }
 
     if (!dateTime.HasValue && !strInputDate.IsEmpty
@@ -967,9 +965,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
           '/', column.ValueFormat.DateSeparator,
           ':', column.ValueFormat.TimeSeparator);
-        HandleWarning(
-          column.ColumnOrdinal,
-          strInputTime.Length > 0
+        HandleWarning(column.ColumnOrdinal, strInputTime.Length > 0
             ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
             : $"'{strInputDate.ToString()}' is not a date of the format '{display1}', used '{inputDateNew.ToString()}' ");
       }

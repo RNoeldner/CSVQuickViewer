@@ -55,17 +55,8 @@ public static class Program
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
-
-    var frm = new FormMain(viewSettings);
+    var frm = new FormMain(viewSettings, fileName);
     frm.Show();
-
-    if (FileSystemUtils.FileExists(fileName))
-      // Start this but do not wait for completion.
-      // Can not use await as this need async main (not supported for Windows Form executable)
-      // If using GetAwaiter().GetResult() it gets stuck when opening the progress bar.
-#pragma warning disable CS4014
-      frm.LoadCsvOrZipFileAsync(FileSystemUtils.GetFullPath(fileName));
-#pragma warning restore CS4014
     Application.Run(frm);
   }
 

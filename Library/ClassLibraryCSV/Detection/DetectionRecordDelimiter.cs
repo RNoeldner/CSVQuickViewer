@@ -12,8 +12,10 @@
  *
  */
 using System;
+using System.Buffers;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools;
 
@@ -23,121 +25,116 @@ namespace CsvTools;
 public static class DetectionRecordDelimiter
 {
   /// <summary>
-  ///   Determine the new line sequence from TextReader
+  /// Determines the new line sequence from the text stream while respecting quoted fields.
   /// </summary>
-  /// <param name="textReader">The reader to read data from</param>
-  /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <returns>The NewLine Combination used</returns>
-  /// <returns>The NewLine Combination used</returns>
-  /// <exception cref="ArgumentNullException"></exception>
-  public static RecordDelimiterTypeEnum InspectRecordDelimiter(
+  /// <param name="textReader">The reader to read data from.</param>
+  /// <param name="fieldQualifierChar">Qualifier char to allow delimiters inside columns.</param>
+  /// <param name="cancellationToken">Cancellation token to stop the process.</param>
+  /// <returns>The detected <see cref="RecordDelimiterTypeEnum"/>.</returns>
+  public static async Task<RecordDelimiterTypeEnum> InspectRecordDelimiterAsync(
     this ImprovedTextReader textReader, char fieldQualifierChar, CancellationToken cancellationToken)
   {
     if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-    const int numChars = 8192;
 
-    var currentChar = 0;
-    var quoted = false;
+    // Limits the scan to 8KB of data
+    const int maxCharsToScan = 8192;
+    int charsProcessed = 0;
+    bool quoted = false;
 
-    const int cr = 0;
-    const int lf = 1;
-    const int crLf = 2;
-    const int lfCr = 3;
-    const int recSep = 4;
-    const int unitSep = 5;
-    const int nl = 5;
+    // Index constants for the count array
+    const int idxCr = 0, idxLf = 1, idxCrlf = 2, idxLfCr = 3, idxRs = 4, idxUs = 5, idxNl = 6;
+    int[] counts = new int[7];
 
-    int[] count = { 0, 0, 0, 0, 0, 0, 0 };
-
-    // \r = CR (Carriage Return) \n = LF (Line Feed)
-    var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-    while (currentChar < numChars && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
+    textReader.ToBeginning();
+    char[] buffer = ArrayPool<char>.Shared.Rent(4096);
+    try
     {
-      var readChar = textReader.Read();
-      if (readChar == fieldQualifierChar)
+      while (charsProcessed < maxCharsToScan && !cancellationToken.IsCancellationRequested)
       {
-        if (quoted)
+        int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+        if (charsRead == 0) break;
+
+        for (int i = 0; i < charsRead; i++)
         {
-          if (textReader.Peek() != fieldQualifierChar)
-            quoted = false;
-          else
-            textReader.MoveNext();
-        }
-        else
-        {
-          quoted = true;
+          char c = buffer[i];
+          charsProcessed++;
+
+          // 1. Handle Quoting State
+          if (c == fieldQualifierChar && fieldQualifierChar != char.MinValue)
+          {
+            // Check for escaped/double quote
+            char next = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
+            if (quoted && next == fieldQualifierChar)
+            {
+              i++; // Skip the second quote
+              continue;
+            }
+            quoted = !quoted;
+          }
+
+          if (quoted) continue;
+
+          // 2. Detect Record Separators
+          switch ((int) c)
+          {
+            case 21: // NAK / NL
+              counts[idxNl]++;
+              break;
+            case 30: // RS (Record Separator)
+              counts[idxRs]++;
+              break;
+            case 31: // US (Unit Separator)
+              counts[idxUs]++;
+              break;
+            case 10: // LF
+            {
+              char next = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
+              if (next == 13)
+              {
+                counts[idxLfCr]++;
+                i++; // Consume the CR
+              }
+              else
+              {
+                counts[idxLf]++;
+              }
+              break;
+            }
+            case 13: // CR
+            {
+              char next = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
+              if (next == 10)
+              {
+                counts[idxCrlf]++;
+                i++; // Consume the LF
+              }
+              else
+              {
+                counts[idxCr]++;
+              }
+              break;
+            }
+          }
+
+          if (charsProcessed >= maxCharsToScan) break;
         }
       }
-
-      if (quoted)
-        continue;
-
-      switch (readChar)
-      {
-        case 21:
-          count[nl]++;
-          continue;
-        case 30:
-          count[recSep]++;
-          continue;
-        case 31:
-          count[unitSep]++;
-          continue;
-        case 10:
-        {
-          if (textReader.Peek() == 13)
-          {
-            textReader.MoveNext();
-            count[lfCr]++;
-          }
-          else
-          {
-            count[lf]++;
-          }
-
-          currentChar++;
-          break;
-        }
-        case 13:
-        {
-          if (textReader.Peek() == 10)
-          {
-            textReader.MoveNext();
-            count[crLf]++;
-          }
-          else
-          {
-            count[cr]++;
-          }
-
-          break;
-        }
-      }
-
-      currentChar++;
+    }
+    finally
+    {
+      ArrayPool<char>.Shared.Return(buffer);
     }
 
-    var maxCount = count.Max();
-    if (maxCount == 0)
-      return RecordDelimiterTypeEnum.None;
+    int maxCount = counts.Max();
+    if (maxCount == 0) return RecordDelimiterTypeEnum.None;
+    if (counts[idxCrlf] == maxCount) return RecordDelimiterTypeEnum.Crlf; // Prioritize CRLF
+    if (counts[idxLf] == maxCount) return RecordDelimiterTypeEnum.Lf;
+    if (counts[idxCr] == maxCount) return RecordDelimiterTypeEnum.Cr;
+    if (counts[idxLfCr] == maxCount) return RecordDelimiterTypeEnum.Lfcr;
+    if (counts[idxRs] == maxCount) return RecordDelimiterTypeEnum.Rs;
+    if (counts[idxUs] == maxCount) return RecordDelimiterTypeEnum.Us;
+    if (counts[idxNl] == maxCount) return RecordDelimiterTypeEnum.Nl;
 
-    var res = RecordDelimiterTypeEnum.None;
-    if (count[nl] == maxCount)
-      res = RecordDelimiterTypeEnum.Nl;
-    else if (count[recSep] == maxCount)
-      res = RecordDelimiterTypeEnum.Rs;
-    else if (count[unitSep] == maxCount)
-      res = RecordDelimiterTypeEnum.Us;
-    else if (count[cr] == maxCount)
-      res = RecordDelimiterTypeEnum.Cr;
-    else if (count[lf] == maxCount)
-      res = RecordDelimiterTypeEnum.Lf;
-    else if (count[crLf] == maxCount)
-      res = RecordDelimiterTypeEnum.Crlf;
-    else if (count[lfCr] == maxCount)
-      res = RecordDelimiterTypeEnum.Lfcr;
-      
-    return res;
+    return RecordDelimiterTypeEnum.None;
   }
 }

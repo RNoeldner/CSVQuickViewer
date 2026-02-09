@@ -948,7 +948,7 @@ public class CsvFileReader : BaseFileReader
       // If more columns are present
       if (currentRow.Count > FieldCount)
       {
-        var text = $"Line {cMoreColumns} ({currentRow.Count}/{FieldCount}).";
+        var text = $"Line {cMoreColumns} ({currentRow.Count:N0}/{FieldCount:N0}).";
         // check if the additional columns have contents
         var hasContent = false;
         for (var extraCol = FieldCount; extraCol < currentRow.Count; extraCol++)
@@ -962,8 +962,7 @@ public class CsvFileReader : BaseFileReader
         if (!hasContent)
         {
           if (m_WarnEmptyTailingColumns)
-            HandleWarning(-1,
-              text + " All additional columns were empty.");
+            HandleWarning(-1, text + " All additional columns were empty.");
         }
         // there is something in the last columns
         else
@@ -1048,8 +1047,7 @@ public class CsvFileReader : BaseFileReader
               if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
               {
                 if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
-                  HandleWarning(columnNo,
-                    "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
+                  HandleWarning(columnNo, "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
                 break;
               }
 
@@ -1175,8 +1173,7 @@ public class CsvFileReader : BaseFileReader
     // ReSharper disable once UseIndexFromEndExpression
     if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
     {
-      HandleWarning(fields,
-        "The last column does not have a column name and seems to be empty, this column will be ignored."
+      HandleWarning(fields, "The last column does not have a column name and seems to be empty, this column will be ignored."
           .AddWarningId());
       return fields - 1;
     }
@@ -1349,9 +1346,7 @@ public class CsvFileReader : BaseFileReader
             // remove the char
             if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore &&
                 (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
-              HandleWarning(
-                columnNo,
-                m_TreatNbspAsSpace
+              HandleWarning(columnNo, m_TreatNbspAsSpace
                   ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
                   : "Character Non Breaking Space found in field".AddWarningId());
 
@@ -1491,9 +1486,7 @@ public class CsvFileReader : BaseFileReader
     }
 
     if (m_WarnUnknownCharacter && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
-      HandleWarning(
-        columnNo,
-        m_TreatUnknownCharacterAsSpace
+      HandleWarning(columnNo, m_TreatUnknownCharacterAsSpace
           ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
           : "Unknown Character '�' found in field".AddWarningId());
     if (m_TreatUnknownCharacterAsSpace)

@@ -23,16 +23,11 @@ using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Linq;
 
-
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
-
 namespace CsvTools;
 
 /// <summary>
 ///   Helper class
 /// </summary>
-// ReSharper disable once HollowTypeName
 public static class CsvHelper
 {
   private static readonly IReadOnlyCollection<char> m_QualifiersToTest = new[] { '"', '\'' };
@@ -59,24 +54,18 @@ public static class CsvHelper
   /// <param name="pgpKey">Private PGP key in case reading an encrypted file</param>
   /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
   /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-  public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName,
-    string identifierInContainer,
+  public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName, string identifierInContainer,
     bool guessJson, bool guessCodePage, bool guessEscapePrefix,
-    bool guessDelimiter, bool guessQualifier,
-    bool guessStartRow, bool guessHasHeader,
+    bool guessDelimiter, bool guessQualifier, bool guessStartRow, bool guessHasHeader,
     bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
     FillGuessSettings fillGuessSettings, string pgpKey, IProgressWithCancellation progress)
   {
-    if (string.IsNullOrEmpty(fileName))
-      throw new ArgumentException("File name can not be empty", nameof(fileName));
-
+    if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("File name can not be empty", nameof(fileName));
     inspectionResult.FileName = fileName;
     var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey, identifierInContainer: identifierInContainer);
-
     inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
     using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
     var disallowedDelimiter = new List<char>();
-
     var delimiterByExtension = DetectionDelimiter.GetDelimiterByExtension(!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName);
 
     do
@@ -92,7 +81,6 @@ public static class CsvHelper
 
       // if it's a delimited file, but we do not have fields,
       // the delimiter must have been wrong, pick another one, after 3 though give up
-
       if (!inspectionResult.IsJson && !inspectionResult.IsXml)
       {
         progress.Report("Checking field delimiter");
@@ -147,11 +135,21 @@ public static class CsvHelper
   }
 
   /// <summary>
-  /// Get a stream for the source access
+  ///   Retrieves a file stream and materializes it into a <see cref="MemoryStream"/> up to a 64MB cap.
   /// </summary>
-  /// <param name="sourceAccess">The access information like filename or file type</param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
+  /// <param name="sourceAccess">The access information (filename, PGP keys, or container details).</param>
+  /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+  /// <returns>
+  ///   A <see cref="Stream"/> containing the file data. Returns a <see cref="MemoryStream"/> for smaller files 
+  ///   to enable fast seek-based analysis, or the original file stream for very large files.
+  /// </returns>
+  /// <remarks>
+  ///   <para>
+  ///     <b>Architecture of Ownership:</b> By materializing the stream, we allow heuristic analysis 
+  ///     to detect delimiters and encodings accurately. This ensures that a user's data "identity" 
+  ///     is preserved even when moving between dealership environments with different file standards.
+  ///   </para>
+  /// </remarks>
   public static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess,
     CancellationToken cancellationToken)
   {
@@ -170,7 +168,7 @@ public static class CsvHelper
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await stream.DisposeAsync().ConfigureAwait(false);
 #else
-        stream.Dispose();
+      stream.Dispose();
 #endif
       return memoryStream;
     }
@@ -240,7 +238,7 @@ public static class CsvHelper
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), cancellationToken).ConfigureAwait(false);
 #else
-      int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), cancellationToken).ConfigureAwait(false);
+    int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), cancellationToken).ConfigureAwait(false);
 #endif
 
     // Check for BOM-based encoding
@@ -260,7 +258,7 @@ public static class CsvHelper
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), cancellationToken).ConfigureAwait(false);
 #else
-      int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, cancellationToken).ConfigureAwait(false);
+    int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, cancellationToken).ConfigureAwait(false);
 #endif
 
     int totalRead = bytesRead + additionalBytes;
@@ -277,25 +275,32 @@ public static class CsvHelper
   }
 
 
-  /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
-  /// <param name="fileName">Name of the file.</param>
-  /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
-  /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
-  /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
-  /// <param name="guessDelimiter">if <c>true</c>, try to determine the delimiter</param>
-  /// <param name="guessQualifier">if <c>true</c>, try to determine the qualifier for text</param>
-  /// <param name="guessStartRow">if <c>true</c>, try to determine the number of skipped rows</param>
-  /// <param name="guessHasHeader">if true, try to determine if the file does have a header row</param>
-  /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
-  /// <param name="guessCommentLine"></param>
-  /// <param name="fillGuessSettings">The fill guess settings.</param>
-  /// <param name="selectFile">Function to be called if a file needs to be picked</param>
-  /// <param name="defaultInspectionResult">Defaults in case some inspection are not wanted</param>
-  /// <param name="privateKey"></param>
-  /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
-  /// <returns>
-  ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
-  /// </returns>
+  /// <summary>
+  ///   Analyzes a file asynchronously to determine proper read options. 
+  ///   Designed for individual user ownership: allowing training and settings to persist 
+  ///   seamlessly even if a user switches dealership locations.
+  /// </summary>
+  /// <param name="fileName">Name of the file or pattern to analyze.</param>
+  /// <param name="guessJson">If <c>true</c>, attempts to determine if the file is JSON.</param>
+  /// <param name="guessCodePage">If <c>true</c>, attempts to detect character encoding.</param>
+  /// <param name="guessEscapePrefix">If <c>true</c>, attempts to determine the escape sequence.</param>
+  /// <param name="guessDelimiter">If <c>true</c>, attempts to determine the field separator.</param>
+  /// <param name="guessQualifier">If <c>true</c>, attempts to determine the text qualifier.</param>
+  /// <param name="guessStartRow">If <c>true</c>, attempts to determine rows to skip.</param>
+  /// <param name="guessHasHeader">If <c>true</c>, attempts to find a header row.</param>
+  /// <param name="guessNewLine">If <c>true</c>, determines the line ending style.</param>
+  /// <param name="guessCommentLine">If <c>true</c>, attempts to identify comment prefixes.</param>
+  /// <param name="fillGuessSettings">Settings used for data sampling and type detection.</param>
+  /// <param name="selectFile">Callback for UI interaction if a specific file must be picked from a container.</param>
+  /// <param name="defaultInspectionResult">Fallback results if specific inspections are skipped.</param>
+  /// <param name="privateKey">PGP private key for encrypted file handling.</param>
+  /// <param name="progress">Progress reporting and cancellation interface.</param>
+  /// <returns>An <see cref="InspectionResult" /> containing the detected file schema.</returns>
+  /// <remarks>
+  ///   <b>Threading Note:</b> This method uses <c>ConfigureAwait(false)</c>. 
+  ///   It does NOT return to the UI thread. The caller must use <c>SafeInvoke</c> or 
+  ///   similar marshalling to update UI components or restore the Hourglass cursor.
+  /// </remarks>
   public static async Task<InspectionResult> InspectFileAsync(
     this string fileName, bool guessJson,
     bool guessCodePage, bool guessEscapePrefix,
@@ -306,16 +311,12 @@ public static class CsvHelper
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("Argument can not be empty", nameof(fileName));
-
     if (fileName.IndexOf('~') != -1)
       fileName = fileName.LongFileName();
-
     var fileName2 = FileSystemUtils.ResolvePattern(fileName);
     if (fileName2 is null)
       throw new FileNotFoundException(fileName);
-
     var fileInfo = new FileSystemUtils.FileInfo(fileName2);
-
     progress.Report($"Examining file {fileName2.GetShortDisplayFileName(40)}");
     progress.Report($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
     var selectedFile = string.Empty;
@@ -416,8 +417,8 @@ public static class CsvHelper
     IProgressWithCancellation progress)
   {
     stream.Seek(0, SeekOrigin.Begin);
-    using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
-      using var jsonTextReader = new JsonTextReader(streamReader);
+    using var streamReader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, 4096, true);
+    using var jsonTextReader = new JsonTextReader(streamReader);
     jsonTextReader.CloseInput = false;
     try
     {
@@ -442,26 +443,40 @@ public static class CsvHelper
 
     return false;
   }
-
   /// <summary>
-  ///   Updates the InspectionResult from stream.
+  ///   Updates the <see cref="InspectionResult"/> by performing heuristic analysis on a stream.
   /// </summary>
-  /// <param name="stream">The stream to read data from</param>
-  /// <param name="inspectionResult">Passed is detection result</param>
-  /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
-  /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
-  /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
-  /// <param name="guessDelimiter">if <c>true</c>, try to determine the delimiter</param>
-  /// <param name="guessQualifier">if <c>true</c>, try to determine the qualifier for text</param>
-  /// <param name="guessStartRow">if <c>true</c>, try to determine the number of skipped rows</param>
-  /// <param name="guessHasHeader">
-  ///   if true, try to determine if the file does have a header row
-  /// </param>
-  /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
-  /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
-  /// <param name="probableDelimiter">Give this delimiter a higher score, commonly derived from file extension</param>
-  /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
-  /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
+  /// <param name="stream">The data stream to analyze.</param>
+  /// <param name="inspectionResult">The result object to populate with structural metadata.</param>
+  /// <param name="guessJson">If <c>true</c>, checks for XML/JSON formats first.</param>
+  /// <param name="guessCodePage">If <c>true</c>, detects file encoding and BOM.</param>
+  /// <param name="guessEscapePrefix">If <c>true</c>, identifies characters used to escape delimiters/qualifiers.</param>
+  /// <param name="guessDelimiter">If <c>true</c>, detects field separators (e.g., , ; | or Tab).</param>
+  /// <param name="guessQualifier">If <c>true</c>, detects text wrapping characters (e.g., quotes).</param>
+  /// <param name="guessStartRow">If <c>true</c>, identifies metadata headers that should be skipped.</param>
+  /// <param name="guessHasHeader">If <c>true</c>, determines if column names exist in the first data row.</param>
+  /// <param name="guessNewLine">If <c>true</c>, identifies the record termination style (CRLF/LF).</param>
+  /// <param name="guessCommentLine">If <c>true</c>, identifies prefixes for lines to be ignored.</param>
+  /// <param name="probableDelimiter">A hint delimiter (usually extension-based) to prioritize in scoring.</param>
+  /// <param name="disallowedDelimiter">Delimiters to ignore (e.g., those already tested and failed).</param>
+  /// <param name="progress">Progress-reporting interface for UI feedback and cancellation.</param>
+  /// <remarks>
+  ///   <para>
+  ///     <b>Architecture of Ownership:</b> Accurate detection is vital for portability. By 
+  ///     meticulously identifying these settings, we ensure a user's file is interpreted 
+  ///     identically across different dealership rooftops.
+  ///   </para>
+  ///   <para>
+  ///     <b>Cyclic Dependencies:</b> Detection follows an iterative "Retry" pattern because 
+  ///     finding a new Qualifier can change the detected Delimiter, which in turn might 
+  ///     reveal a different Start Row.
+  ///   </para>
+  ///   <para>
+  ///     <b>Threading Note:</b> Uses <c>ConfigureAwait(false)</c>. All work is performed on 
+  ///     the ThreadPool. UI updates via <paramref name="progress"/> are handled by the 
+  ///     caller's implementation of <see cref="IProgressWithCancellation"/>.
+  ///   </para>
+  /// </remarks>
   public static async Task UpdateInspectionResultAsync(this Stream stream,
     InspectionResult inspectionResult,
     bool guessJson,
@@ -479,31 +494,12 @@ public static class CsvHelper
   {
     if (stream is null)
       throw new ArgumentNullException(nameof(stream));
-
+    // Exit early if no analysis is requested
     if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
           guessCommentLine || guessNewLine))
       return;
-    /*
-     *  We have cyclic dependencies, so test are possibly repeated to get a better result:
-FieldDelimiter
-CommentLine
-FieldQualifier
-EscapePrefix
 
-FieldQualifier
-EscapePrefix
-FieldDelimiter
-NewLine
-
-EscapePrefix
-SkipRows
-FieldDelimiter
-HasHeader
-
-CommentLine
-HasHeader
-SkipRows
-     */
+    // 1. Detect Encoding/CodePage (Foundation for all text reading)
     if (guessCodePage)
     {
       progress.CancellationToken.ThrowIfCancellationRequested();
@@ -516,6 +512,8 @@ SkipRows
       inspectionResult.ByteOrderMark = bom;
     }
 
+    // 2. Structured Data Check (JSON/XML)
+    // If identified, we stop here as delimited logic (CSV) does not apply.
     if (guessJson)
     {
       progress.CancellationToken.ThrowIfCancellationRequested();
@@ -542,7 +540,8 @@ SkipRows
       }
     }
 
-    // --- Initialize loop for dependent properties ---
+    // 3. Iterative Delimited Analysis
+    // We loop up to 5 times to resolve dependencies between Delimiters, Qualifiers, and SkipRows.
     const int maxAttempts = 5;
     int attempt = 0;
     bool retry;
@@ -593,6 +592,7 @@ SkipRows
       bool changedFieldQualifier = false;
       bool changedSkipRows = false;
 
+      // --- Core Structural Markers (Qualifier, Delimiter, NewLine) ---
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
         using var textReader = await stream
@@ -658,8 +658,8 @@ SkipRows
           progress.Report("Checking Record Delimiter");
 
           stream.Seek(0, SeekOrigin.Begin);
-          inspectionResult.NewLine = textReader.InspectRecordDelimiter(
-            inspectionResult.FieldQualifier, progress.CancellationToken);
+          inspectionResult.NewLine = await textReader.InspectRecordDelimiterAsync(
+            inspectionResult.FieldQualifier, progress.CancellationToken).ConfigureAwait(false);
 
           progress.Report($"Record Delimiter: {inspectionResult.NewLine.Description()}");
         }
@@ -679,9 +679,8 @@ SkipRows
 
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
           .ConfigureAwait(false);
-        var newSkipRows = textReader.InspectStartRow(
-          inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
-          inspectionResult.CommentLine, progress.CancellationToken);
+        var newSkipRows = await textReader.InspectStartRowAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
+          inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
         progress.Report($"Start Row: {newSkipRows}");
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;

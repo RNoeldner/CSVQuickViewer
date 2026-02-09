@@ -261,13 +261,9 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       }
 
       if (keyValuePairs.Count < FieldCount)
-        HandleWarning(
-          -1,
-          $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
+        HandleWarning(-1, $"Line {StartLineNumber:N0} has fewer columns than expected ({keyValuePairs.Count:N0}/{FieldCount:N0}).");
       else if (keyValuePairs.Count > FieldCount)
-        HandleWarning(
-          -1,
-          $"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
+        HandleWarning(-1, $"Line {StartLineNumber:N0} has more columns than expected ({keyValuePairs.Count:N0}/{FieldCount:N0}). The data in extra columns is not read.");
 
       return keyValuePairs.Count>0;
     }

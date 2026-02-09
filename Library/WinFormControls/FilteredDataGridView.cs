@@ -634,12 +634,20 @@ public partial class FilteredDataGridView : DataGridView
 
       if (e.RowIndex < localView.Count && e.ColumnIndex < Columns.Count)
       {
+        var dataRow = localView[e.RowIndex].Row; // Get the actual DataRow        
         // Access via the View to respect active Sort and Filter settings
         var propertyName = Columns[e.ColumnIndex].DataPropertyName;
 
         if (!string.IsNullOrEmpty(propertyName))
         {
-          e.Value = localView[e.RowIndex][propertyName];
+          e.Value = dataRow[propertyName];
+
+          // Set the cell-specific error from the DataRow
+          Rows[e.RowIndex].Cells[e.ColumnIndex].ErrorText = dataRow.GetColumnError(propertyName);
+
+          // Set the row-level error
+          Rows[e.RowIndex].ErrorText = dataRow.RowError;
+
           if (e.Value is DateTime dateTime)
             e.Value = StringConversion.DisplayDateTime(dateTime, CultureInfo.CurrentCulture);
         }

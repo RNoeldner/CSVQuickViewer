@@ -161,5 +161,4 @@ public sealed class InspectionResult
       csvFile.NewLine = NewLine;
     }
   }
-
 }

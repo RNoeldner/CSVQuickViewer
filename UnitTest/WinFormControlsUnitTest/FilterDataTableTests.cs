@@ -79,8 +79,8 @@ public class FilterDataTableTests
   {
     var (dt, _, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    await test.FilterAsync(0, RowFilterTypeEnum.ShowWarning, UnitTestStatic.Token);
-    Assert.AreEqual(warn, test.FilterTable!.Rows.Count);
+    await test.FilterAsync(0, RowFilterTypeEnum.Warning, UnitTestStatic.Token);
+    Assert.AreEqual(warn, test.OriginalTable!.Rows.Count);
   }
 
   [TestMethod]
@@ -88,8 +88,8 @@ public class FilterDataTableTests
   {
     var (dt, err, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    await test.FilterAsync(0, RowFilterTypeEnum.ShowErrors, UnitTestStatic.Token);
-    Assert.AreEqual(err, test.FilterTable!.Rows.Count);
+    await test.FilterAsync(0, RowFilterTypeEnum.Errors, UnitTestStatic.Token);
+    Assert.AreEqual(err, test.OriginalTable!.Rows.Count);
   }
 
   [TestMethod]
@@ -97,7 +97,7 @@ public class FilterDataTableTests
   {
     var (dt, err, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = await test.FilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
+    var (res, _,_,_) = await test.FilterAsync(0, RowFilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
     Assert.AreEqual(err + warn, res.Rows.Count);
   }
 
@@ -106,7 +106,7 @@ public class FilterDataTableTests
   {
     var (dt, _, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = await test.FilterAsync(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
+    var (res, _, _, _) = await test.FilterAsync(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
     Assert.AreEqual(dt.Rows.Count, res.Rows.Count);
   }
 
@@ -115,7 +115,7 @@ public class FilterDataTableTests
   {
     var (dt, err, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var res = await test.FilterAsync(0, RowFilterTypeEnum.None, UnitTestStatic.Token);
+    var (res, _, _, _) = await test.FilterAsync(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
     Assert.AreEqual(dt.Rows.Count - err - warn, res.Rows.Count);
   }
 
@@ -128,11 +128,11 @@ public class FilterDataTableTests
 
     // not a good test, but its known how many columns will have errors
     Assert.AreEqual(4, test.GetColumns(RowFilterTypeEnum.All).Count);
-    Assert.IsTrue(test.GetColumns(RowFilterTypeEnum.None).Any(x => x == "ColID"), "Result does not contain ColID");
+    Assert.IsTrue(test.GetColumns(RowFilterTypeEnum.All).Any(x => x == "ColID"), "Result does not contain ColID");
 
     Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ErrorsAndWarning).Count, "ErrorsAndWarning");
-    Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ShowWarning).Count, "Warning");
-    Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.ShowErrors).Count, "Errors");
+    Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.Warning).Count, "Warning");
+    Assert.AreEqual(3, test.GetColumns(RowFilterTypeEnum.Errors).Count, "Errors");
   }
 
 

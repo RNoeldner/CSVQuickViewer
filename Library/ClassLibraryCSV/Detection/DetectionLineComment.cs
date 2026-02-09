@@ -11,113 +11,218 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
-using System.Linq;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools;
 
 /// <summary>
-/// Static class for LineComment detection
+/// Provides zero-allocation detection and validation for line-based comments.
 /// </summary>
 public static class DetectionLineComment
 {
-  /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
+  const int maxRows = 100;
+
+  /// <summary>
+  /// Validates a comment prefix by analyzing delimiter density without string allocations.
+  /// </summary>
   /// <param name="textReader">The text reader to read the data</param>
   /// <param name="commentLine">The characters for a comment line.</param>
   /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <returns>true if the comment line seems to be ok</returns>
   public static async Task<bool> InspectLineCommentIsValidAsync(
-    this ImprovedTextReader textReader,
-    string commentLine,
-    char fieldDelimiterChar,
-    CancellationToken cancellationToken)
+      this ImprovedTextReader textReader,
+      string commentLine,
+      char fieldDelimiterChar,
+      CancellationToken cancellationToken)
   {
-    // if there is no commentLine it can not be wrong if there is no delimiter it can not be wrong
-    if (string.IsNullOrEmpty(commentLine) || fieldDelimiterChar==char.MinValue)
+    if (string.IsNullOrEmpty(commentLine) || fieldDelimiterChar == char.MinValue)
       return true;
 
     if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-    const int maxRows = 100;
-    var row = 0;
-    var lineCommented = 0;
-    var parts = 0;
-    var partsComment = -1;
-    while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
-    {
-      var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).TrimStart();
-      if (string.IsNullOrEmpty(line))
-        continue;
+    int dataRowCount = 0;
+    int lineCommentedCount = 0;
+    int totalDataDelims = 0;
+    int firstCommentDelims = -1;
 
-      if (line.StartsWith(commentLine, StringComparison.Ordinal))
+    textReader.ToBeginning();
+    var buffer = ArrayPool<char>.Shared.Rent(4096);
+
+    try
+    {
+      bool isStartOfLine = true;
+      bool isCurrentLineComment = false;
+      int currentLineDelims = 0;
+      char lastChar = '\0';
+
+      while (dataRowCount < maxRows && !cancellationToken.IsCancellationRequested)
       {
-        lineCommented++;
-        if (partsComment == -1)
-          partsComment = line.Count(x => x == fieldDelimiterChar);
-      }
-      else
-      {
-        if (line.IndexOf(fieldDelimiterChar) != -1)
+        int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+        if (charsRead == 0) break;
+
+        for (int i = 0; i < charsRead; i++)
         {
-          parts += line.Count(x => x == fieldDelimiterChar);
-          row++;
+          char c = buffer[i];
+
+          // 1. Detect start of line (ignoring leading whitespace)
+          if (isStartOfLine && !char.IsWhiteSpace(c))
+          {
+            isCurrentLineComment = IsMatch(buffer, i, charsRead, commentLine);
+            isStartOfLine = false;
+          }
+
+          // 2. Count delimiters for density check
+          if (c == fieldDelimiterChar)
+          {
+            currentLineDelims++;
+          }
+
+          // 3. Handle Line Endings
+          if (c is '\n' or '\r')
+          {
+            // Avoid double-counting CRLF
+            if ((c == '\n' && lastChar != '\r') || (c == '\r'))
+            {
+              if (isCurrentLineComment)
+              {
+                lineCommentedCount++;
+                if (firstCommentDelims == -1) firstCommentDelims = currentLineDelims;
+              }
+              else if (currentLineDelims > 0)
+              {
+                totalDataDelims += currentLineDelims;
+                dataRowCount++;
+              }
+
+              // Reset state for next line
+              isStartOfLine = true;
+              isCurrentLineComment = false;
+              currentLineDelims = 0;
+              if (dataRowCount >= maxRows) break;
+            }
+          }
+          lastChar = c;
         }
       }
     }
-
-    return lineCommented switch
+    finally
     {
-      // if we could not find a commented line exit and assume the comment line is wrong.
-      0 => false,
-      // in case we have 3 or more commented lines assume the comment was ok
-      > 2 => true,
-      _ => partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row)
-    };
+      ArrayPool<char>.Shared.Return(buffer);
+    }
 
-    // since we did not properly parse the delimited text accounting for quoting (delimiter in
-    // column or newline splitting columns) apply some variance to it
+    return lineCommentedCount switch
+    {
+      0 => false,
+      > 2 => true,
+      _ => IsStatisticallyComment(firstCommentDelims, totalDataDelims, dataRowCount)
+    };
   }
 
-  /// <summary>Guesses the line comment</summary>
-  /// <param name="textReader">The text reader to read the data</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-  /// <returns>The determined comment</returns>
-  /// <exception cref="System.ArgumentNullException">textReader</exception>
+  /// <summary>
+  /// Guesses the line comment prefix by inspecting the start of the first maxRows lines.
+  /// This implementation is zero-allocation and avoids string materialization.
+  /// </summary>
+  /// <param name="textReader">The reader to analyze.</param>
+  /// <param name="cancellationToken">Cancellation token to stop the process.</param>
+  /// <returns>The most frequent comment prefix found, or an empty string.</returns>
   public static async Task<string> InspectLineCommentAsync(this ImprovedTextReader textReader,
     CancellationToken cancellationToken)
   {
     if (textReader is null)
       throw new ArgumentNullException(nameof(textReader));
 
-    var starts =
-      new[] { "<!--", "##", "//", "==", @"\\", "''", "#", "/", "\\", "'", }.ToDictionary(test => test, _ => 0);
+    // Common comment markers ordered by length descending.
+    // This order ensures "##" is checked before "#".
+    string[] candidates = { "<!--", "##", "//", "==", @"\\", "''", "#", "/", "\\", "'" };
+    int[] counts = new int[candidates.Length];
 
-    // Comments are mainly at the start of a file
     textReader.ToBeginning();
-    for (int current = 0; current<50 && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested; current++)
+
+    // Use ArrayPool to prevent Gen-0 heap allocations
+    char[] buffer = ArrayPool<char>.Shared.Rent(4096);
+
+    try
     {
-      var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).TrimStart();
-      if (line.Length == 0)
-        continue;
-      foreach (var test in starts.Keys.Where(test => line.StartsWith(test, StringComparison.Ordinal)))
+      int linesRead = 0;
+      bool isStartOfLine = true;
+
+      while (linesRead < maxRows && !cancellationToken.IsCancellationRequested)
       {
-        starts[test]++;
-        // do not check further once a line is counted, by having ## before # a line starting with
-        // ## will not be counted twice
-        break;
+        int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+        if (charsRead == 0) break;
+
+        for (int i = 0; i < charsRead; i++)
+        {
+          char c = buffer[i];
+
+          // Logic: If we are at the start of a line, find the first non-whitespace character
+          if (isStartOfLine && !char.IsWhiteSpace(c))
+          {
+            for (int j = 0; j < candidates.Length; j++)
+            {
+              // Check if the buffer at the current position matches the candidate
+              if (IsMatch(buffer, i, charsRead, candidates[j]))
+              {
+                counts[j]++;
+                break; // Found the longest match for this line
+              }
+            }
+            isStartOfLine = false; // Moved past the start of this line
+          }
+
+          // Monitor for line endings to reset the state
+          if (c is '\n' or '\r')
+          {
+            linesRead++;
+            isStartOfLine = true;
+            if (linesRead >= maxRows) break;
+          }
+        }
+      }
+    }
+    finally
+    {
+      ArrayPool<char>.Shared.Return(buffer);
+    }
+
+    // Identify the prefix with the highest occurrence count
+    int maxVal = 0;
+    int bestIdx = -1;
+    for (int k = 0; k < counts.Length; k++)
+    {
+      if (counts[k] > maxVal)
+      {
+        maxVal = counts[k];
+        bestIdx = k;
       }
     }
 
-    var maxCount = starts.Max(x => x.Value);
-    if (maxCount > 0)
-    {
-      var check = starts.First(x => x.Value == maxCount);
-      return check.Key;
-    }
+    return bestIdx != -1 ? candidates[bestIdx] : string.Empty;
+  }
 
-    return string.Empty;
+  /// <summary>
+  /// Performs a zero-allocation check to see if the buffer at index matches the pattern.
+  /// </summary>
+  private static bool IsMatch(char[] buffer, int index, int length, string pattern)
+  {
+    if (index + pattern.Length > length) return false;
+    for (int j = 0; j < pattern.Length; j++)
+    {
+      if (buffer[index + j] != pattern[j]) return false;
+    }
+    return true;
+  }
+
+  private static bool IsStatisticallyComment(int commentDelims, int totalDataDelims, int rows)
+  {
+    if (rows == 0) return true;
+    double avg = (double) totalDataDelims / rows;
+    // Comment is valid if its delimiter density is significantly different from data rows.
+    return commentDelims < avg * 0.9 || commentDelims > avg * 1.1;
   }
 }

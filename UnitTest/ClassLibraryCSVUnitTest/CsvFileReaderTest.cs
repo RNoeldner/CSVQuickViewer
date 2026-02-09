@@ -1927,7 +1927,7 @@ setting.IdentifierInContainer, TimeZoneAdjust, TimeZoneInfo.Local.Id, true, fals
     string escapePrefix = string.Empty;
     using var textReader =
       await improvedStream.GetTextReaderAsync(20127, 0, UnitTestStatic.Token).ConfigureAwait(false);
-    Assert.AreEqual(10, textReader.InspectStartRow('|', '"', (escapePrefix).FromText(), "#", UnitTestStatic.Token));
+    Assert.AreEqual(10, await textReader.InspectStartRowAsync('|', '"', (escapePrefix).FromText(), "#", UnitTestStatic.Token));
   }
 
   [TestMethod]

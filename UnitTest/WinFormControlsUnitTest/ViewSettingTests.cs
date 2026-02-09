@@ -80,8 +80,7 @@ public class ViewSettingTests
       using (var dc = new DetailControl())
       {
         dc.HtmlStyle = HtmlStyle.Default;
-        dc.DataTable = dt;
-        await dc.RefreshDisplayAsync(RowFilterTypeEnum.All, UnitTestStatic.Token);
+        await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
         dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
         var text = dc.GetViewStatus();
 

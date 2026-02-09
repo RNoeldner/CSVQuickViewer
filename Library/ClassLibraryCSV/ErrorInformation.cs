@@ -156,7 +156,7 @@ public static class ErrorInformation
   ///   Method to add the warning identifier to an error message
   /// </summary>
   /// <param name="message">The message that should get the ID</param>
-  /// <param name="buffer">The span that will be modifed</param>
+  /// <param name="buffer">The span that will be modified</param>
   /// <returns>The text with the leading WarningID</returns>
   public static int AddWarningId(ReadOnlySpan<char> message, Span<char> buffer)
   {
@@ -268,32 +268,50 @@ public static class ErrorInformation
   }
 
   /// <summary>
-  ///   String method to check if the text should is regarded as a warning in an error list text
+  ///   String method to check if the text is regarded as a warning in an error list text.
   /// </summary>
-  /// <param name="errorList">A text containing different types of messages that are concatenated</param>
+  /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
   /// <returns>
   ///   <c>true</c> if the text should be regarded as a warning message, <c>false</c> if it's an
-  ///   error message or empty
+  ///   error message or empty.
   /// </returns>
-  public static bool IsWarningMessage(this string errorList)
+  public static bool IsWarningMessage(this string? errorList)
   {
+    // Compiler flow analysis understands that errorList is non-null after this.
+    if (errorList == null || errorList.Length == 0)
+      return false;
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-  ReadOnlySpan<char> span = errorList.AsSpan();
+    ReadOnlySpan<char> span = errorList.AsSpan();
+    ReadOnlySpan<char> warnId = cWarningId.AsSpan();
 
-  if (span.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
-    return true;
+    // 1. Direct match at start
+    if (span.StartsWith(warnId, StringComparison.Ordinal))
+      return true;
 
-  var splitter = span.IndexOf(cClosingField);
-  return splitter != -1 && splitter < span.Length - 2
-                        && span.Slice(splitter + 2).StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal);
+    // 2. Match after first field (e.g., "[ColumnName]: [WARNING]")
+    var splitter = span.IndexOf(cClosingField);
+    if (splitter != -1)
+    {
+      var startIdx = splitter + 2;
+      // Safety check to ensure we don't slice out of bounds
+      if (startIdx <= span.Length - warnId.Length)
+        return span.Slice(startIdx).StartsWith(warnId, StringComparison.Ordinal);
+    }
 #else
+    // Legacy path: string.Compare avoids the heap allocations of .Substring()
     if (errorList.StartsWith(cWarningId, StringComparison.Ordinal))
       return true;
 
     var splitter = errorList.IndexOf(cClosingField);
-    return splitter != -1 && splitter < errorList.Length - 2
-                          && errorList.Substring(splitter + 2).StartsWith(cWarningId, StringComparison.Ordinal);
+    if (splitter != -1)
+    {
+      var startIdx = splitter + 2;
+      if (startIdx <= errorList.Length - cWarningId.Length)
+        return string.Compare(errorList, startIdx, cWarningId, 0, cWarningId.Length, StringComparison.Ordinal) == 0;
+    }
 #endif
+    return false;
   }
 
   /// <summary>
@@ -380,10 +398,10 @@ public static class ErrorInformation
   public static string WithoutWarningId(this string errorList)
   {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-  ReadOnlySpan<char> span = errorList.AsSpan();
-  return span.Length <= cWarningId.Length 
-    ? errorList 
-    : span.Slice(cWarningId.Length).ToString();
+    ReadOnlySpan<char> span = errorList.AsSpan();
+    return span.Length <= cWarningId.Length
+      ? errorList
+      : span.Slice(cWarningId.Length).ToString();
 #else
     return errorList.Length <= cWarningId.Length
       ? errorList
@@ -427,11 +445,11 @@ public static class ErrorInformation
     int start = 0;
     while (start < span.Length)
     {
-        int end = span.Slice(start + 1).IndexOf(cSeparator);
-        if (end == -1)
-            end = span.Length - start;
-        result.Add(SplitColumnAndMessage(span.Slice(start, end).ToString()));
-        start += end + 1;
+      int end = span.Slice(start + 1).IndexOf(cSeparator)+1;
+      if (end == 0)
+        end = span.Length - start;
+      result.Add(SplitColumnAndMessage(span.Slice(start, end )));
+      start += end + 1;
     }
 #else
     int start = 0;
@@ -476,6 +494,27 @@ public static class ErrorInformation
     }
   }
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  /// <summary>
+  ///   Splits column and error information
+  /// </summary>
+  /// <param name="span">Text span with the message</param>  
+  /// <returns></returns>
+  private static ColumnAndMessage SplitColumnAndMessage(ReadOnlySpan<char> span)
+  {
+    if (!span.IsEmpty && span[0] == cOpenField)
+    {
+      var close = span.Slice(1).IndexOf(cClosingField);
+      if (close == -1)
+        return new ColumnAndMessage(string.Empty, span.ToString());
+      var column = span.Slice(1, close).ToString();
+      var message = span.Slice(close + 3).ToString();
+      return new ColumnAndMessage(column, message);
+    }
+    return new ColumnAndMessage(string.Empty, span.ToString());
+  }
+#endif
+
   /// <summary>
   ///   Splits column and error information
   /// </summary>
@@ -484,18 +523,19 @@ public static class ErrorInformation
   private static ColumnAndMessage SplitColumnAndMessage(string text)
   {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-  ReadOnlySpan<char> span = text.AsSpan();
-  if (!span.IsEmpty && span[0] == cOpenField)
-  {
-    var close = span.Slice(1).IndexOf(cClosingField);
-    if (close == -1)
-      return new ColumnAndMessage(string.Empty, text);
-
-    var column = span.Slice(1, close).ToString();
-    var message = span.Slice(close + 2).ToString();
-    return new ColumnAndMessage(column, message);
-  }
-  return new ColumnAndMessage(string.Empty, text);
+    ReadOnlySpan<char> span = text.AsSpan();
+    if (!span.IsEmpty && span[0] == cOpenField)
+    {
+      var close = span.Slice(1).IndexOf(cClosingField);
+      if (close == -1)
+        return new ColumnAndMessage(string.Empty, text);
+      // TODO: There is possibly still an error  if we have two warning messages for two columns this seems to fails
+      // without the trim, this should not happen
+      var column = span.Slice(1, close).Trim().ToString();
+      var message = span.Slice(close + 3).Trim().ToString();
+      return new ColumnAndMessage(column, message);
+    }
+    return new ColumnAndMessage(string.Empty, text);
 #else
     if (text.Length <= 0 || text[0] != cOpenField) return new ColumnAndMessage(string.Empty, text);
     var close = text.IndexOf(cClosingField);

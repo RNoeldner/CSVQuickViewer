@@ -167,6 +167,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       formProgress.Show(this);
       formProgress.Report("Inspecting");
+
       var ir = await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
         m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
         m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -187,54 +188,56 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         string.Empty,
 #endif
         formProgress);
-      formProgress.Close();
+      this.SafeInvoke(() =>
+      {
+        formProgress.Close();
 
+        m_ReadSettings.FileName = newFileName;
+        m_ReadSettings.SkipRows = ir.SkipRows;
+        m_ReadSettings.CodePageId = ir.CodePageId;
+        m_ReadSettings.ByteOrderMark = ir.ByteOrderMark;
+        m_ReadSettings.IdentifierInContainer = ir.IdentifierInContainer;
+        m_ReadSettings.HasFieldHeader = ir.HasFieldHeader;
+        m_ReadSettings.ColumnCollection.Overwrite(ir.Columns);
+        m_ReadSettings.CommentLine = ir.CommentLine;
+        m_ReadSettings.EscapePrefixChar = ir.EscapePrefix;
+        m_ReadSettings.FieldDelimiterChar = ir.FieldDelimiter;
+        m_ReadSettings.FieldQualifierChar = ir.FieldQualifier;
+        m_ReadSettings.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
+        m_ReadSettings.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
+        m_ReadSettings.NewLine = ir.NewLine;
+        m_ReadSettings.IsJson = ir.IsJson;
+        m_ReadSettings.IsXml = ir.IsXml;
 
-      m_ReadSettings.FileName = newFileName;
-      m_ReadSettings.SkipRows = ir.SkipRows;
-      m_ReadSettings.CodePageId = ir.CodePageId;
-      m_ReadSettings.ByteOrderMark = ir.ByteOrderMark;
-      m_ReadSettings.IdentifierInContainer = ir.IdentifierInContainer;
-      m_ReadSettings.HasFieldHeader = ir.HasFieldHeader;
-      m_ReadSettings.ColumnCollection.Overwrite(ir.Columns);
-      m_ReadSettings.CommentLine = ir.CommentLine;
-      m_ReadSettings.EscapePrefixChar = ir.EscapePrefix;
-      m_ReadSettings.FieldDelimiterChar = ir.FieldDelimiter;
-      m_ReadSettings.FieldQualifierChar = ir.FieldQualifier;
-      m_ReadSettings.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
-      m_ReadSettings.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
-      m_ReadSettings.NewLine = ir.NewLine;
-      m_ReadSettings.IsJson = ir.IsJson;
-      m_ReadSettings.IsXml = ir.IsXml;
+        m_WriteSettings.CodePageId = ir.CodePageId;
+        m_WriteSettings.ByteOrderMark = ir.ByteOrderMark;
 
-      m_WriteSettings.CodePageId = ir.CodePageId;
-      m_WriteSettings.ByteOrderMark = ir.ByteOrderMark;
+        m_WriteSettings.ColumnCollection.Overwrite(ir.Columns);
 
-      m_WriteSettings.ColumnCollection.Overwrite(ir.Columns);
+        // Fix No Qualifier
+        if (m_WriteSettings.FieldQualifierChar == 0)
+          m_WriteSettings.FieldQualifierChar = '"';
 
-      // Fix No Qualifier
-      if (m_WriteSettings.FieldQualifierChar == 0)
-        m_WriteSettings.FieldQualifierChar = '"';
+        // Fix No DuplicateQualifier
+        if (!m_WriteSettings.DuplicateQualifierToEscape && m_WriteSettings.FieldQualifierChar == '"' &&
+            m_WriteSettings.EscapePrefixChar == char.MinValue)
+          m_WriteSettings.DuplicateQualifierToEscape = true;
 
-      // Fix No DuplicateQualifier
-      if (!m_WriteSettings.DuplicateQualifierToEscape && m_WriteSettings.FieldQualifierChar == '"' &&
-          m_WriteSettings.EscapePrefixChar == char.MinValue)
-        m_WriteSettings.DuplicateQualifierToEscape = true;
+        // Fix No Delimiter
+        if (m_WriteSettings.FieldDelimiterChar == 0)
+          m_WriteSettings.FieldDelimiterChar = ',';
 
-      // Fix No Delimiter
-      if (m_WriteSettings.FieldDelimiterChar == 0)
-        m_WriteSettings.FieldDelimiterChar = ',';
+        // NewLine depending on Environment
+        if (Environment.NewLine == "\r\n")
+          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Crlf;
+        else if (Environment.NewLine == "\n")
+          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Lf;
+        else if (Environment.NewLine == "\r")
+          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Cr;
 
-      // NewLine depending on Environment
-      if (Environment.NewLine == "\r\n")
-        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Crlf;
-      else if (Environment.NewLine == "\n")
-        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Lf;
-      else if (Environment.NewLine == "\r")
-        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Cr;
-
-      TextBoxFile_Validating(sender, new CancelEventArgs(false));
-      textBoxFileName.Focus();
+        TextBoxFile_Validating(sender, new CancelEventArgs(false));
+        textBoxFileName.Focus();
+      });
     }
     catch (Exception ex)
     {
@@ -259,8 +262,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void buttonFileInfo_Click(object sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     var html = new HtmlStyle(string.Empty);
     var stringBuilder = html.StartHtmlDoc(string.Empty);
     await buttonFileInfo.RunWithHourglassAsync(async () =>
@@ -278,8 +279,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonGuessCP_ClickAsync(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
         // ReSharper disable once UseAwaitUsing
@@ -292,8 +291,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonGuessDelimiter_ClickAsync(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
         // ReSharper disable once UseAwaitUsing
@@ -308,8 +305,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     await buttonGuessHeader.RunWithHourglassAsync(async () =>
     {
       // ReSharper disable once UseAwaitUsing
@@ -327,8 +322,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonGuessLineComment_Click(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     await buttonGuessLineComment.RunWithHourglassAsync(async () =>
     {
       // ReSharper disable once UseAwaitUsing
@@ -341,8 +334,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
     await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
     {
       // ReSharper disable once UseAwaitUsing
@@ -360,18 +351,19 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
-
-    using var frm = new FindSkipRows(m_ReadSettings.FileName, m_ReadSettings.CodePageId, m_ReadSettings.SkipRows, m_ReadSettings.FieldDelimiterChar, m_ReadSettings.EscapePrefixChar,
-      m_ReadSettings.FieldQualifierChar, m_ReadSettings.CommentLine);
-    if (frm.ShowDialog() == DialogResult.OK)
+    buttonInteractiveSettings.RunWithHourglass(() =>
     {
-      m_ReadSettings.SkipRows = frm.SkipRows;
-      m_ReadSettings.FieldDelimiterChar = frm.FieldDelimiterChar;
-      m_ReadSettings.EscapePrefixChar = frm.EscapePrefixChar;
-      m_ReadSettings.FieldQualifierChar = frm.FieldQualifierChar;
-      m_ReadSettings.CommentLine = frm.CommentLine;
-    }
+      using var frm = new FindSkipRows(m_ReadSettings.FileName, m_ReadSettings.CodePageId, m_ReadSettings.SkipRows, m_ReadSettings.FieldDelimiterChar, m_ReadSettings.EscapePrefixChar,
+      m_ReadSettings.FieldQualifierChar, m_ReadSettings.CommentLine);
+      if (frm.ShowDialog() == DialogResult.OK)
+      {
+        m_ReadSettings.SkipRows = frm.SkipRows;
+        m_ReadSettings.FieldDelimiterChar = frm.FieldDelimiterChar;
+        m_ReadSettings.EscapePrefixChar = frm.EscapePrefixChar;
+        m_ReadSettings.FieldQualifierChar = frm.FieldQualifierChar;
+        m_ReadSettings.CommentLine = frm.CommentLine;
+      }
+    });
   }
 
   private void ButtonKeyFileRead_Click(object sender, EventArgs e)
@@ -382,14 +374,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
   {
-    if (FileNameEmpty()) return;
     await buttonSkipLine.RunWithHourglassAsync(async () =>
     {
       // ReSharper disable once UseAwaitUsing
       using var improvedStream = GetStream();
-      using var textReader = await GetTextReaderAsync(improvedStream);
-      m_ReadSettings.SkipRows = textReader.InspectStartRow(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
-        m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token);
+      using var textReader = await GetTextReaderAsync(improvedStream).ConfigureAwait(false);
+      m_ReadSettings.SkipRows = await textReader.InspectStartRowAsync(m_ReadSettings.FieldDelimiterChar, m_ReadSettings.FieldQualifierChar,
+        m_ReadSettings.EscapePrefixChar, m_ReadSettings.CommentLine, m_CancellationTokenSource.Token).ConfigureAwait(false);
     });
   }
 
@@ -405,11 +396,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       m_WriteSettings.SkipRows = 0;
   }
 
-  private bool FileNameEmpty()
-  {
-    ValidateChildren();
-    return string.IsNullOrEmpty(m_ReadSettings.FileName);
-  }
   private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
   {
     ValidateChildren();
@@ -464,7 +450,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       using var improvedStream = GetStream();
       using var textReader = await GetTextReaderAsync(improvedStream);
       cboNewLine.SelectedValue =
-        textReader.InspectRecordDelimiter(m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token);
+        await textReader.InspectRecordDelimiterAsync(m_ReadSettings.FieldQualifierChar, m_CancellationTokenSource.Token);
     });
   }
 

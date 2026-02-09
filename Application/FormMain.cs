@@ -35,10 +35,13 @@ namespace CsvTools;
 public sealed partial class FormMain : ResizeForm
 {
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+  private readonly List<string> m_LoadWarnings = new List<string>();
   private readonly System.Windows.Forms.Timer m_SettingsChangedTimerChange = new System.Windows.Forms.Timer { Interval = 200 };
   private readonly ViewSettings m_ViewSettings;
   private bool m_AskOpenFile = true;
+  private int m_CheckRunning;
   private volatile bool m_FileChanged;
+  private string m_FileName;
   private CsvFileDummy? m_FileSetting;
   private bool m_RunDetection;
   private bool m_ShouldReloadData;
@@ -46,15 +49,15 @@ public sealed partial class FormMain : ResizeForm
   private int m_WarningCount;
   private int m_WarningMax = 100;
 
-  public FormMain() : this(new ViewSettings())
+  public FormMain() : this(new ViewSettings(), string.Empty)
   {
   }
 
-  public FormMain(in ViewSettings viewSettings)
+  public FormMain(ViewSettings viewSettings, in string fileName)
   {
     if (viewSettings==null)
       throw new ArgumentNullException(nameof(viewSettings));
-
+    m_FileName =fileName;
     m_ViewSettings = viewSettings;
     FontConfig = viewSettings;
     InitializeComponent();
@@ -119,7 +122,7 @@ public sealed partial class FormMain : ResizeForm
     detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
     detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
 
-    detailControl.WriteFileAsync = async (ct, reader) =>
+    detailControl.WriteFileAsync = async (token, reader) =>
     {
       if (m_FileSetting == null)
         return;
@@ -131,7 +134,7 @@ public sealed partial class FormMain : ResizeForm
           "Text file|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
           ".csv", true, split.FileName);
 
-        if (fileName is null || fileName.Length == 0)
+        if (string.IsNullOrEmpty(fileName))
           return;
         m_ViewSettings.WriteSetting.FileName = fileName;
 
@@ -142,10 +145,10 @@ public sealed partial class FormMain : ResizeForm
           using var iStream = FunctionalDI.GetStream(new SourceAccess(m_FileSetting.FullPath));
           using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
           for (var i = 0; i < m_FileSetting.SkipRows; i++)
-            skippedLines.AppendLine(await sr.ReadLineAsync(ct));
+            skippedLines.AppendLine(await sr.ReadLineAsync(token));
         }
 
-        using var formProgress = new FormProgress("Writing file", ct);
+        using var formProgress = new FormProgress("Writing file", token);
         formProgress.Show(this);
         fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
         fileSystemWatcher.EnableRaisingEvents = false;
@@ -227,11 +230,10 @@ public sealed partial class FormMain : ResizeForm
 #if !NETFRAMEWORK
   [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-  internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
-
   [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
   public DataTable DataTable => detailControl.DataTable;
 
+  internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
   private static string AssemblyTitle
   {
     get
@@ -246,163 +248,6 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private void ApplyViewSettings()
-  {
-    detailControl.MenuDown = m_ViewSettings.MenuDown;
-    detailControl.ShowButtonAtLength = m_ViewSettings.ShowButtonAtLength;
-    detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
-  }
-
-  private async Task RunDetection(IProgressWithCancellation progress)
-  {
-    if (m_FileSetting is null)
-      return;
-    m_RunDetection = false;
-    ShowTextPanel(true);
-    try
-    {
-      var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
-        m_ViewSettings.FillGuessSettings,
-        progress);
-      ChangeColumnsNoEvent(false, detected);
-
-      m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
-        x.ValueFormat.DataType != DataTypeEnum.String);
-    }
-    catch (Exception ex)
-    {
-      this.ShowError(ex, "Column Detection");
-    }
-  }
-
-  /// <summary>
-  ///   Initializes the file settings.
-  /// </summary>
-  /// <param name="fileName"></param>
-  /// ///
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <returns></returns>
-  public async Task LoadCsvOrZipFileAsync(string fileName)
-  {
-    if (IsDisposed || string.IsNullOrEmpty(fileName))
-      return;
-    await this.RunWithHourglassAsync(async () =>
-    {
-      using var progress = new FormProgress("Load File", m_CancellationTokenSource.Token);
-      progress.Show(this);
-      var split = FileSystemUtils.SplitPath(fileName);
-
-      if (FileSystemUtils.DirectoryExists(split.DirectoryName))
-        m_ViewSettings.InitialFolder = split.DirectoryName;
-
-      var fi = new FileSystemUtils.FileInfo(fileName);
-      if (fi.Length <= 4)
-      {
-        progress.Report($"Filename '{fileName}' only has {fi.Length} byte.");
-        return;
-      }
-      if (!fi.Exists)
-      {
-        progress.Report($"Filename '{fileName}' not found or not accessible.");
-        return;
-      }
-
-      progress.Report($"Loading {fileName}");
-      DetachPropertyChanged();
-
-      // make sure old columns are removed
-      m_ViewSettings.DefaultInspectionResult.Columns.Clear();
-
-      var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
-        m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
-        m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-        m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-        m_ViewSettings.FillGuessSettings, list =>
-        {
-          if (list.Count == 1)
-            return list.First();
-          var res = string.Empty;
-          this.SafeInvoke(() =>
-          {
-            using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
-            if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
-              throw new OperationCanceledException();
-            res = frm.SelectedText;
-          });
-          return res;
-        }, m_ViewSettings.DefaultInspectionResult,
-#if SupportPGP
-          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),
-#else
-        string.Empty,
-#endif
-        progress);
-      progress.Close();
-
-      m_FileSetting = new CsvFileDummy
-      {
-        FileName = fileName,
-        CommentLine = detection.CommentLine,
-        EscapePrefixChar = detection.EscapePrefix,
-        FieldDelimiterChar = detection.FieldDelimiter,
-        FieldQualifierChar = detection.FieldQualifier,
-        ContextSensitiveQualifier = detection.ContextSensitiveQualifier,
-        DuplicateQualifierToEscape = detection.DuplicateQualifierToEscape,
-        NewLine = detection.NewLine,
-        ByteOrderMark = detection.ByteOrderMark,
-        CodePageId = detection.CodePageId,
-        HasFieldHeader = detection.HasFieldHeader,
-        NoDelimitedFile = detection.NoDelimitedFile,
-        IdentifierInContainer = detection.IdentifierInContainer,
-        SkipRows = detection.SkipRows,
-        SkipRowsAfterHeader = detection.SkipRowsAfterHeader,
-        IsJson = detection.IsJson,
-        IsXml = detection.IsXml
-      };
-
-      m_FileSetting.ColumnCollection.AddRange(detection.Columns);
-      m_FileSetting.ColumnFile = detection.ColumnFile;
-
-#if SupportPGP
-        // If keyFile was set in the process it's not yet stored
-        m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
-#endif
-
-      if (m_FileSetting is null)
-        return;
-
-      m_ViewSettings.DeriveWriteSetting(m_FileSetting);
-
-      m_FileSetting.RootFolder = fileName.GetDirectoryName();
-      m_ViewSettings.PassOnConfiguration(m_FileSetting);
-
-      SetFileSystemWatcher(fileName);
-      var display = fileName;
-      if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-        display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
-
-      var title = new StringBuilder(display.GetShortDisplayFileName(50));
-
-      title.Append(" - ");
-      title.Append(EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark));
-      if (m_FileSetting.NumWarnings > 0)
-        m_WarningMax = m_FileSetting.NumWarnings;
-
-      title.Append(" - ");
-      title.Append(AssemblyTitle);
-
-      ToolStripButtonAsText(false);
-      Text = title.ToString();
-      m_ToolStripButtonSettings.Visible = m_FileSetting != null;
-      m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
-        x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
-      await OpenDataReaderAsync();
-
-    });
-  }
-
-  private readonly List<string> m_LoadWarnings = new List<string>();
-
   private void AddWarning(object? sender, WarningEventArgs args)
   {
     if (string.IsNullOrEmpty(args.Message))
@@ -415,6 +260,13 @@ public sealed partial class FormMain : ResizeForm
       try { Logger.Warning(display); } catch { }
       m_LoadWarnings.Add(display);
     }
+  }
+
+  private void ApplyViewSettings()
+  {
+    detailControl.MenuDown = m_ViewSettings.MenuDown;
+    detailControl.ShowButtonAtLength = m_ViewSettings.ShowButtonAtLength;
+    detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
   }
 
   /// <summary>
@@ -439,7 +291,16 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private int m_CheckRunning;
+  private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
+  {
+    if (m_FileSetting is null)
+      return;
+    this.SafeInvoke(() => ToolStripButtonAsText(asText));
+    m_FileSetting.ColumnCollection.Overwrite(asText
+      ? columns.Select(col =>
+        new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
+      : columns);
+  }
 
   private async Task CheckPossibleChange()
   {
@@ -480,7 +341,7 @@ public sealed partial class FormMain : ResizeForm
 
       if (m_FileSetting is null || m_FileSetting.FileName.Length == 0 || !m_FileChanged)
         return;
-
+      m_FileName = m_FileSetting.FileName;
       m_FileChanged = false;
 
       if (!m_AskOpenFile || MessageBox.Show(
@@ -489,13 +350,13 @@ public sealed partial class FormMain : ResizeForm
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Question,
             MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-        await LoadCsvOrZipFileAsync(m_FileSetting.FileName);
+        await LoadCsvOrZipFileAsync();
       else
         m_FileChanged = false;
 
       m_AskOpenFile = true;
       if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
-        FileSystemUtils.FileDelete(m_FileSetting.FileName + SerializedFilesLib.cSettingExtension);
+        FileSystemUtils.FileDelete(m_FileName + SerializedFilesLib.cSettingExtension);
     }
     catch (Exception exception)
     {
@@ -505,6 +366,12 @@ public sealed partial class FormMain : ResizeForm
     {
       Interlocked.Exchange(ref m_CheckRunning, 0);
     }
+  }
+
+  private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
+  {
+    m_ShouldReloadData = true;
+    await CheckPossibleChange();
   }
 
   /// <summary>
@@ -539,8 +406,8 @@ public sealed partial class FormMain : ResizeForm
       if (files.Length <= 0) return;
       if (WindowsAPICodePackWrapper.IsDialogOpen) return;
       await SaveIndividualFileSettingAsync();
-
-      await LoadCsvOrZipFileAsync(files[0]);
+      m_FileName = files[0];
+      await LoadCsvOrZipFileAsync();
     });
 
   /// <summary>
@@ -581,7 +448,6 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-
   /// <summary>
   ///   Handles the Activated event of the Display control.
   /// </summary>
@@ -589,25 +455,6 @@ public sealed partial class FormMain : ResizeForm
   /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
   private async void FormMain_Activated(object? sender, EventArgs e) =>
     await CheckPossibleChange();
-
-  private void FormMain_Loaded(object? sender, EventArgs e)
-  {
-    // Handle Events
-    m_ViewSettings.PropertyChanged += (_, args) =>
-    {
-      if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
-          args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
-        ApplyViewSettings();
-    };
-    ApplyViewSettings();
-
-    m_SettingsChangedTimerChange.Tick += async (_, _) =>
-    {
-      m_SettingsChangedTimerChange.Stop();
-      await OpenDataReaderAsync();
-    };
-    ShowTextPanel(false);
-  }
 
   private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
   {
@@ -634,6 +481,154 @@ public sealed partial class FormMain : ResizeForm
     await OpenDataReaderAsync();
   }
 
+  private async void FormMain_Loaded(object? sender, EventArgs e)
+  {
+    // Handle Events
+    m_ViewSettings.PropertyChanged += (_, args) =>
+    {
+      if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
+          args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
+        ApplyViewSettings();
+    };
+    ApplyViewSettings();
+
+    m_SettingsChangedTimerChange.Tick += async (_, _) =>
+    {
+      m_SettingsChangedTimerChange.Stop();
+      await OpenDataReaderAsync();
+    };
+
+    await LoadCsvOrZipFileAsync();
+    ShowTextPanel(false);
+  }
+
+  /// <summary>
+  ///   Initializes the file settings.
+  /// </summary>
+  private async Task LoadCsvOrZipFileAsync()
+  {
+    if (string.IsNullOrEmpty(m_FileName))
+      return;
+    await this.RunWithHourglassAsync(async () =>
+    {
+      using var progress = new FormProgress("Load File", m_CancellationTokenSource.Token);
+      progress.Show(this);
+      var split = FileSystemUtils.SplitPath(m_FileName);
+
+      if (FileSystemUtils.DirectoryExists(split.DirectoryName))
+        m_ViewSettings.InitialFolder = split.DirectoryName;
+
+      var fi = new FileSystemUtils.FileInfo(m_FileName);
+      if (fi.Length <= 4)
+      {
+        progress.Report($"Filename '{m_FileName}' only has {fi.Length} byte.");
+        return;
+      }
+      if (!fi.Exists)
+      {
+        progress.Report($"Filename '{m_FileName}' not found or not accessible.");
+        return;
+      }
+
+      progress.Report($"Loading {m_FileName}");
+      DetachPropertyChanged();
+
+      // make sure old columns are removed
+      m_ViewSettings.DefaultInspectionResult.Columns.Clear();
+
+      // InspectFileAsync will leave the UI thread
+      var detection = await m_FileName.InspectFileAsync(m_ViewSettings.AllowJson,
+        m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
+        m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+        m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+        m_ViewSettings.FillGuessSettings, list =>
+        {
+          if (list.Count == 1)
+            return list.First();
+          var res = string.Empty;
+          this.SafeInvoke(() =>
+          {
+            using var frm = new FormSelectInDropdown(list, list.FirstOrDefault(x => x.AssumeDelimited()));
+            if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
+              throw new OperationCanceledException();
+            res = frm.SelectedText;
+          });
+          return res;
+        }, m_ViewSettings.DefaultInspectionResult,
+#if SupportPGP
+          PgpHelper.GetKeyAndValidate(fileName, m_ViewSettings.KeyFileRead),
+#else
+        string.Empty,
+#endif
+        progress);
+
+      m_FileSetting = new CsvFileDummy
+      {
+        FileName = m_FileName,
+        CommentLine = detection.CommentLine,
+        EscapePrefixChar = detection.EscapePrefix,
+        FieldDelimiterChar = detection.FieldDelimiter,
+        FieldQualifierChar = detection.FieldQualifier,
+        ContextSensitiveQualifier = detection.ContextSensitiveQualifier,
+        DuplicateQualifierToEscape = detection.DuplicateQualifierToEscape,
+        NewLine = detection.NewLine,
+        ByteOrderMark = detection.ByteOrderMark,
+        CodePageId = detection.CodePageId,
+        HasFieldHeader = detection.HasFieldHeader,
+        NoDelimitedFile = detection.NoDelimitedFile,
+        IdentifierInContainer = detection.IdentifierInContainer,
+        SkipRows = detection.SkipRows,
+        SkipRowsAfterHeader = detection.SkipRowsAfterHeader,
+        IsJson = detection.IsJson,
+        IsXml = detection.IsXml
+      };
+
+      m_FileSetting.ColumnCollection.AddRange(detection.Columns);
+      m_FileSetting.ColumnFile = detection.ColumnFile;
+
+#if SupportPGP
+        // If keyFile was set in the process it's not yet stored
+        m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
+#endif
+
+      if (m_FileSetting is null)
+        return;
+
+      m_ViewSettings.DeriveWriteSetting(m_FileSetting);
+
+      m_FileSetting.RootFolder = m_FileName.GetDirectoryName();
+      m_ViewSettings.PassOnConfiguration(m_FileSetting);
+
+      SetFileSystemWatcher(m_FileName);
+      var display = m_FileName;
+      if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+        display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+
+      var title = new StringBuilder(display.GetShortDisplayFileName(50));
+
+      title.Append(" - ");
+      title.Append(EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark));
+      if (m_FileSetting.NumWarnings > 0)
+        m_WarningMax = m_FileSetting.NumWarnings;
+
+      title.Append(" - ");
+      title.Append(AssemblyTitle);
+
+      this.SafeInvoke(async () =>
+      {
+        progress.Close();
+
+        ToolStripButtonAsText(false);
+        Text = title.ToString();
+        m_ToolStripButtonSettings.Visible = m_FileSetting != null;
+        m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
+          x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
+
+        await OpenDataReaderAsync();
+      });
+    });
+  }
+
   /// <summary>
   ///   Opens the data reader.
   /// </summary>
@@ -648,62 +643,60 @@ public sealed partial class FormMain : ResizeForm
     try
     {
       m_ToolStripButtonAsText.Enabled = true;
-      await Extensions.InvokeWithHourglassAsync(async () =>
+
+      var fileNameShort = m_FileSetting.FileName.GetShortDisplayFileName(60);
+      ShowTextPanel(true);
+
+
+      try { Logger.Debug("Loading Batch"); } catch { }
+      using (var formProgress = new FormProgress(fileNameShort, m_CancellationTokenSource.Token))
       {
-        var fileNameShort = m_FileSetting.FileName.GetShortDisplayFileName(60);
-        ShowTextPanel(true);
+        formProgress.Show(this);
+        m_LoadWarnings.Clear();
 
+        detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+        detailControl.ShowInfoButtons = false;
 
-        try { Logger.Debug("Loading Batch"); } catch { }
-        using (var formProgress = new FormProgress(fileNameShort, m_CancellationTokenSource.Token))
+        await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
+      }
+
+      var keepVisible = new List<string>();
+      if (m_FileSetting.DisplayEndLineNo)
+        keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
+
+      if (m_FileSetting.DisplayStartLineNo)
+        keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
+
+      if (m_FileSetting.DisplayRecordNo)
+        keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
+
+      detailControl.UniqueFieldName = keepVisible;
+
+      try { Logger.Debug("Batch Loaded"); } catch { }
+      m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+      // TODO: Is this needed ? Is the column collection not already set ?
+      m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
+        .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
+          dataColumn.Ordinal)));
+
+      // Load View Settings from file
+      if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
+      {
+        try { Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile); } catch { }
+        detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
+      }
+      else
+      {
+        var index = m_FileSetting.FileName.LastIndexOf('.');
+        var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+        var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
+        if (FileSystemUtils.FileExists(fnView))
         {
-          formProgress.Show(this);
-          m_LoadWarnings.Clear();
-
-          detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-          detailControl.ShowInfoButtons = false;
-
-          await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
+          try { Logger.Information("Restoring view and filter setting {filename}...", fn); } catch { }
+          detailControl.ReStoreViewSetting(fnView);
         }
-
-        var keepVisible = new List<string>();
-        if (m_FileSetting.DisplayEndLineNo)
-          keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
-
-        if (m_FileSetting.DisplayStartLineNo)
-          keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
-
-        if (m_FileSetting.DisplayRecordNo)
-          keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
-
-        detailControl.UniqueFieldName = keepVisible;
-
-        try { Logger.Debug("Batch Loaded"); } catch { }
-        m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-        // TODO: Is this needed ? Is the column collection not already set ?
-        m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
-          .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
-            dataColumn.Ordinal)));
-
-        // Load View Settings from file
-        if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
-        {
-          try { Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile); } catch { }
-          detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
-        }
-        else
-        {
-          var index = m_FileSetting.FileName.LastIndexOf('.');
-          var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-          if (FileSystemUtils.FileExists(fnView))
-          {
-            try { Logger.Information("Restoring view and filter setting {filename}...", fn); } catch { }
-            detailControl.ReStoreViewSetting(fnView);
-          }
-        }
-      });
+      }
       m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
       ShowTextPanel(false);
       detailControl.ShowInfoButtons = true;
@@ -726,12 +719,27 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
+  private async Task RunDetection(IProgressWithCancellation progress)
   {
-    m_ShouldReloadData = true;
-    await CheckPossibleChange();
-  }
+    if (m_FileSetting is null)
+      return;
+    m_RunDetection = false;
+    ShowTextPanel(true);
+    try
+    {
+      var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
+        m_ViewSettings.FillGuessSettings,
+        progress);
+      ChangeColumnsNoEvent(false, detected);
 
+      m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
+        x.ValueFormat.DataType != DataTypeEnum.String);
+    }
+    catch (Exception ex)
+    {
+      this.ShowError(ex, "Column Detection");
+    }
+  }
   private async Task SaveIndividualFileSettingAsync()
   {
     try
@@ -864,22 +872,6 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private void ToolStripButtonAsText(bool asText)
-  {
-    m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
-    m_ToolStripButtonAsText.Image = asText ? Resources.AsValue : Resources.AsText;
-  }
-
-  private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
-  {
-    if (m_FileSetting is null)
-      return;
-    this.SafeInvoke(() => ToolStripButtonAsText(asText));
-    m_FileSetting.ColumnCollection.Overwrite(asText
-      ? columns.Select(col =>
-        new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
-      : columns);
-  }
   private async void ToggleDisplayAsText(object? sender, EventArgs e)
   {
     try { await ToggleDisplayAsTextAsync(); }
@@ -927,6 +919,11 @@ public sealed partial class FormMain : ResizeForm
 
   private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
+  private void ToolStripButtonAsText(bool asText)
+  {
+    m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
+    m_ToolStripButtonAsText.Image = asText ? Resources.AsValue : Resources.AsText;
+  }
   private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) =>
     await m_ToolStripButtonLoadFile.RunWithHourglassAsync(async () =>
     {
@@ -942,8 +939,7 @@ public sealed partial class FormMain : ResizeForm
 
       if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
         m_ViewSettings.InitialFolder = ".";
-      var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
-      if (!string.IsNullOrEmpty(fileName))
-        await LoadCsvOrZipFileAsync(fileName!);
+      m_FileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
+      await LoadCsvOrZipFileAsync();
     }, this);
 }

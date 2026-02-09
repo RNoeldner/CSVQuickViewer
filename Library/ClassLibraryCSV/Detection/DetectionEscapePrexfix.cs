@@ -12,6 +12,7 @@
  *
  */
  using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,72 +25,127 @@ namespace CsvTools;
 public static class DetectionEscapePrefix
 {
   /// <summary>
-  ///   Try to guess the used Escape Sequence, by looking at 500 lines 
+  /// Analyzes a text stream to determine the most likely escape character used in the CSV data.
   /// </summary>
-  /// <param name="textReader">The improved text reader.</param>
-  /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
-  /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-  /// <returns>The Escape Prefix used</returns>    
+  /// <param name="textReader">The custom reader used to access the file content.</param>
+  /// <param name="fieldDelimiterChar">The previously detected column separator.</param>
+  /// <param name="fieldQualifierChar">The character used to wrap fields (e.g., double quotes).</param>
+  /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+  /// <returns>
+  /// The detected escape character (often '\' or '"'). 
+  /// Returns <see cref="char.MinValue"/> if no prefix escape is found.
+  /// </returns>
+  /// <remarks>
+  /// This method uses an <see cref="ArrayPool{T}"/> for buffer management to avoid heap allocations
+  /// during the analysis of the first 500 lines. It employs a weighted scoring system that 
+  /// prioritizes escape sequences found inside quoted blocks.
+  /// </remarks>
   public static async Task<char> InspectEscapePrefixAsync(this ImprovedTextReader textReader,
     char fieldDelimiterChar, char fieldQualifierChar, CancellationToken cancellationToken)
   {
     if (textReader is null)
       throw new ArgumentNullException(nameof(textReader));
 
-    // The characters that could be an escape, most likely it's a \ 
     var checkedEscapeChars = StaticCollections.EscapePrefixChars;
-
-    // build a list of all characters that would indicate a sequence
     var possibleEscaped = new HashSet<char>(checkedEscapeChars);
 
-    if (fieldDelimiterChar != char.MinValue)
-      possibleEscaped.Add(fieldDelimiterChar);
-    if (fieldQualifierChar !=char.MinValue)
-      possibleEscaped.Add(fieldQualifierChar);
-    foreach (var escaped in StaticCollections.DelimiterChars)
-      possibleEscaped.Add(escaped);
-    foreach (var escaped in StaticCollections.PossibleQualifiers)
-      possibleEscaped.Add(escaped);
+    // Targets that make an escape "meaningful"
+    if (fieldDelimiterChar != char.MinValue) possibleEscaped.Add(fieldDelimiterChar);
+    if (fieldQualifierChar != char.MinValue) possibleEscaped.Add(fieldQualifierChar);
+    foreach (var c in StaticCollections.DelimiterChars) possibleEscaped.Add(c);
 
-    var score = new int[checkedEscapeChars.Length];
+    var scores = new int[checkedEscapeChars.Length];
+    const int bufferSize = 4096;
+    var buffer = ArrayPool<char>.Shared.Rent(bufferSize);
 
-    // Start where we are currently but wrap around
-    var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-    for (int current = 0; current< 500 && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested; current++)
+    bool isQuoted = false;
+    char lastChar = '\0';
+    int linesRead = 0;
+
+    try
     {
-      var line = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false));
-      // in case none of the possible escapes is in the line skip it...
-      if (line.IndexOfAny(checkedEscapeChars)==-1)
-        continue;
-      // otherwise check each escape 
-      for (int i = 0; i < checkedEscapeChars.Length; i++)
+      while (linesRead < 500 && !cancellationToken.IsCancellationRequested)
       {
-        var pos = line.IndexOf(checkedEscapeChars[i]);
-        while (pos != -1 && pos < line.Length-1)
+        int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
+        if (charsRead == 0) break;
+
+        for (int i = 0; i < charsRead; i++)
         {
-          if (possibleEscaped.Contains(line[pos+1]))
-            // points if being followed by a char that is usually escaped
-            score[i]+=2;
-          else
-            // minus point for not needed escape , is worth less than a proper sequence
-            score[i]--;
-          // look at next position
-          pos = line.IndexOf(checkedEscapeChars[i], pos+1);
+          char current = buffer[i];
+          char next = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
+
+          // --- 1. HANDLE QUALIFIER / QUOTED STATE ---
+          if (current == fieldQualifierChar)
+          {
+            // RFC 4180: If qualifier is escaped by itself ("")
+            if (isQuoted && next == fieldQualifierChar)
+            {
+              // This is an escaped quote. We skip the next char and stay in 'isQuoted'
+              i++;
+              lastChar = current;
+              continue;
+            }
+
+            isQuoted = !isQuoted;
+            lastChar = current;
+            continue;
+          }
+
+          // --- 2. EVALUATE PREFIX ESCAPES ---
+          for (int e = 0; e < checkedEscapeChars.Length; e++)
+          {
+            char candidate = checkedEscapeChars[e];
+
+            // We don't treat the qualifier as a prefix escape here 
+            // because we handled the "" case above.
+            if (current == candidate && candidate != fieldQualifierChar)
+            {
+              if (next != '\0' && possibleEscaped.Contains(next))
+              {
+                // High bonus for escapes used inside quoted fields
+                scores[e] += isQuoted ? 5 : 2;
+
+                // Consume the escaped character
+                i++;
+                current = next;
+              }
+              else if (next != '\0' && !char.IsWhiteSpace(next))
+              {
+                scores[e]--; // Penalty for noise (like C:\path)
+              }
+            }
+          }
+
+          // --- 3. LINE COUNTING ---
+          if (current is '\n' or '\r')
+          {
+            if (current == '\n' && lastChar != '\r') linesRead++;
+            else if (current == '\r') linesRead++;
+
+            if (linesRead >= 500) break;
+          }
+
+          lastChar = current;
         }
       }
     }
+    finally
+    {
+      ArrayPool<char>.Shared.Return(buffer);
+    }
 
-    var bestIndex = char.MinValue;
-    var bestScore = 0;
+    // Winner selection
+    char bestEscape = char.MinValue;
+    int bestScore = 0;
     for (int i = 0; i < checkedEscapeChars.Length; i++)
     {
-      if (bestScore<score[i] && score[i]>0)
+      if (scores[i] > bestScore)
       {
-        bestIndex = checkedEscapeChars[i];
-        bestScore=score[i];
+        bestScore = scores[i];
+        bestEscape = checkedEscapeChars[i];
       }
     }
-    return bestIndex;
+
+    return bestEscape;
   }
 }
