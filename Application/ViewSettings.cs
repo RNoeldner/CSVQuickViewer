@@ -26,7 +26,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
 {
   private bool m_AllowJson = true;
   private bool m_AllowRowCombining = false;
-  private bool m_AutoStartRemaining = true;
+  private bool m_AutoStartRemaining = false;
   private bool m_DetectFileChanges = true;
   private bool m_DisplayRecordNo;
   private bool m_DisplayStartLineNo = true;
@@ -104,7 +104,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     set => SetProperty(ref m_AllowRowCombining, value);
   }
 
-  [DefaultValue(true)]
+  [DefaultValue(false)]
   public bool AutoStartMode
   {
     get => m_AutoStartRemaining;

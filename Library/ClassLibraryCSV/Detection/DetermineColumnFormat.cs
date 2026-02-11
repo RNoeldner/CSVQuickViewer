@@ -582,165 +582,105 @@ public static class DetermineColumnFormat
   /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <returns>Dictionary: column index -> result object containing list of samples and records read</returns>
   public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(
-    IFileReader fileReader,
-    long maxRecords,
-    IEnumerable<int> columns,
-    string treatAsNull,
-    int maxChars,
+    IFileReader fileReader, long maxRecords, IEnumerable<int> columns, string treatAsNull, int maxChars,
     CancellationToken cancellationToken)
   {
-    // Argument checks
-    if (fileReader is null)
-      throw new ArgumentNullException(nameof(fileReader));
-    if (columns is null)
-      throw new ArgumentNullException(nameof(columns));
+    if (fileReader is null) throw new ArgumentNullException(nameof(fileReader));
+    if (columns is null) throw new ArgumentNullException(nameof(columns));
 
-    if (maxRecords < 1)
-      maxRecords = long.MaxValue;
-    if (string.IsNullOrWhiteSpace(treatAsNull))
-      treatAsNull = "NULL;n/a";
+    maxRecords = maxRecords < 1 ? long.MaxValue : maxRecords;
+    treatAsNull = string.IsNullOrWhiteSpace(treatAsNull) ? "NULL;n/a" : treatAsNull;
 
-    // Prepare dictionary to collect unique sample values per column
+    // Initialize storage
     var sampleDict = columns
       .Where(col => col >= 0 && col < fileReader.FieldCount)
       .Distinct()
       .ToDictionary(col => col, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-    // Return empty if no valid columns
-    if (sampleDict.Count == 0)
-      return new Dictionary<int, SampleResult>();
+    if (sampleDict.Count == 0) return new Dictionary<int, SampleResult>();
 
-    // Tracking state for warning events and limiting repeated warning logs
+    // Performance Optimization: Keep a list of columns that still need samples.
+    // We remove columns from this list once they hit 10,000 samples.
+    var activeColumns = sampleDict.Keys.ToList();
+
     var hasWarningOnRow = false;
     var warningLogsRemaining = 10;
 
-    // Attach warning event handler
     void OnWarning(object? sender, WarningEventArgs e)
     {
-      // Only process warnings from requested columns
-      if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber))
-        return;
-      // More Columns is ignored if the extra column is empty
-      if (e.Message.Contains(CsvFileReader.cMoreColumns) && e.Message.Contains("empty"))
-        return;
-      try
-      {
-        if (warningLogsRemaining > 0)
-        {
-          Logger.Debug("Row ignored during sample: " + e.Message);
-          warningLogsRemaining--;
-          if (warningLogsRemaining == 0)
-            Logger.Debug("No further warnings will be shown for sample extraction.");
-        }
-      }
-      catch
-      {
-        /* Logging shouldn't crash sampling */
-      }
+      if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber)) return;
+      if (e.Message.Contains(CsvFileReader.cMoreColumns) && e.Message.Contains("empty")) return;
 
+      if (warningLogsRemaining > 0)
+      {
+        Logger.Debug($"Skipping row {fileReader.RecordNumber} due to: {e.Message}");
+        if (--warningLogsRemaining == 0)
+          Logger.Debug("Further sampling warnings will be suppressed.");
+      }
       hasWarningOnRow = true;
     }
 
     fileReader.Warning += OnWarning;
-
     var recordsScanned = 0;
 
-    // If supported and already at EOF, restart
     if (fileReader is { EndOfFile: true, SupportsReset: true })
       fileReader.ResetPositionToFirstDataRow();
 
     var startingRow = fileReader.RecordNumber;
-    var startPercent = fileReader.Percent;
+    var action = new IntervalAction(.5);
 
-    // The repeated status-interval logger
-    var action = new IntervalAction(1);
     try
     {
-      action.Invoke(() => Logger.Information("Starting sample extraction..."));
-
-      while (recordsScanned < maxRecords && !cancellationToken.IsCancellationRequested)
+      action.Invoke(() => Logger.Information("Analyzing data patterns to optimize view..."));
+      while (recordsScanned < maxRecords && activeColumns.Count > 0)
       {
-        try
-        {
-          action.Invoke(() =>
-            Logger.Information(
-              $"Sampling progress: {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"
-            ));
-        }
-        catch
-        {
-          /* Ignore logging exceptions */
-        }
+        action.Invoke(() => Logger.Information($"Analyzing {activeColumns.Count} columns... (Record {recordsScanned:N0})"));
 
-        // Handle EOF and looping
         if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
-          if (!fileReader.SupportsReset)
-            break;
+          if (!fileReader.SupportsReset) break;
           fileReader.ResetPositionToFirstDataRow();
-          if (startingRow == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
-            break; // End of file: no more data
+          if (startingRow == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false)) break;
         }
-
         recordsScanned++;
+        if (hasWarningOnRow) { hasWarningOnRow = false; continue; }
 
-        // Ignore row if a warning occurred during reading
-        if (hasWarningOnRow)
+        // Iterate backwards so we can safely remove columns that are "full"
+        for (int i = activeColumns.Count - 1; i >= 0; i--)
         {
-          hasWarningOnRow = false;
-          continue;
-        }
+          int colIdx = activeColumns[i];
+          if (fileReader.IsDBNull(colIdx)) continue;
+          string value = fileReader.GetValue(colIdx)?.ToString()?.Trim() ?? string.Empty;
+          if (value.Length == 0 || StringUtils.ShouldBeTreatedAsNull(value, treatAsNull)) continue;
 
-        try
-        {
-          // Only process columns that still need more samples
-          foreach (var colIdx in sampleDict.Keys)
+          if (maxChars > 0 && value.Length > maxChars)
+            value = value.Substring(0, maxChars);
+
+          var set = sampleDict[colIdx];
+          set.Add(value);
+          if (set.Count >= 10000)
           {
-            if (fileReader.IsDBNull(colIdx))
-              continue;
-
-            var value = fileReader.GetValue(colIdx)?.ToString();
-            if (string.IsNullOrWhiteSpace(value))
-              continue;
-
-            value = value!.Trim();
-            if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-              continue;
-
-            // Truncate to maxChars if necessary
-            if (maxChars > 0 && value.Length > maxChars)
-              value = value.Substring(0, maxChars);
-
-            // Add new (case-insensitive) sample if not yet collected
-            if (sampleDict[colIdx].Count < 10000)
-              sampleDict[colIdx].Add(value);
+            var colName = fileReader.GetName(colIdx);
+            Logger.Debug("Profile complete for column '{name}'; skipping further samples.", colName);
+            activeColumns.RemoveAt(i);
           }
         }
-        catch (Exception ex)
-        {
-          Logger.Warning(ex, "Problem parsing a row during sample extraction at line {line}",
-            fileReader.StartLineNumber);
-        }
 
-        // Detect looped through data (e.g. after reset for non-eof sources)
-        if (fileReader.RecordNumber == startingRow)
-          break;
+        if (fileReader.RecordNumber == startingRow) break;
       }
     }
+    catch (OperationCanceledException) { throw; }
     catch (Exception ex)
     {
-      Logger.Warning(ex, "Exception thrown while extracting sample values");
+      Logger.Warning(ex, "Sampling encountered an unexpected issue.");
     }
     finally
     {
       fileReader.Warning -= OnWarning;
+      Logger.Debug("Analysis complete. Scanned {count:N0} records.", recordsScanned);
     }
 
-    // Construct results: column index => SampleResult
-    return sampleDict.ToDictionary(
-      kvp => kvp.Key,
-      kvp => new SampleResult(kvp.Value, recordsScanned)
-    );
+    return sampleDict.ToDictionary(kvp => kvp.Key, kvp => new SampleResult(kvp.Value, recordsScanned));
   }
 
   /// <summary>
@@ -778,12 +718,12 @@ public static class DetermineColumnFormat
 
     foreach (char sep in StaticCollections.DateSeparatorChars)
     {
-      if (sep==' ') 
+      if (sep==' ')
         continue;
       // Count how many samples contain this separator
       int count = samples.Count(s => s.Span.IndexOf(sep) >= 0);
-      if (count==0) 
-          continue; // ignore separators not present in any sample
+      if (count==0)
+        continue; // ignore separators not present in any sample
       if (count > maxCount)
       {
         // Found a better candidate: reset the list
@@ -797,7 +737,7 @@ public static class DetermineColumnFormat
         possibleDateSeparators.Add(sep);
       }
     }
-    
+
     foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(minLength, maxLength))
     {
       if (cancellationToken.IsCancellationRequested)

@@ -77,7 +77,7 @@ public sealed partial class DetailControl : UserControl
              })
       m_ToolStripItems.Add(item);
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
-
+    FilteredDataGridView.Scroll += OnDataGridViewScroll;
     // Wire up synchronization ONCE here
     m_BindingSource.PositionChanged += BindingSource_PositionChanged;
     FilteredDataGridView.SelectionChanged += FilteredDataGridView_SelectionChanged;
@@ -410,26 +410,23 @@ public sealed partial class DetailControl : UserControl
   /// </param>
   /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
   /// <param name="progress">A progress reporter to receive progress updates during loading.</param>
-  /// <param name="addWarning">
-  /// Optional event handler to receive warnings that may occur during loading.
-  /// </param>
   /// <remarks>
   /// The background load triggered by <paramref name="autoLoad"/> is asynchronous but intentionally not awaited,
   /// allowing it to run without blocking the UI. A 500ms delay ensures the UI is ready before starting the background load.
   /// </remarks>
-  public async Task LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
-    RowFilterTypeEnum filterType, IProgressWithCancellation progress,
-    EventHandler<WarningEventArgs>? addWarning)
+  public async Task<bool> LoadSettingAsync(IFileSetting fileSetting, TimeSpan durationInitial, bool autoLoad,
+    RowFilterTypeEnum filterType, IProgressWithCancellation progress)
   {
     // Need to set FileSetting so we can change Formats
     FilteredDataGridView.FileSetting = fileSetting;
     m_ToolStripComboBoxFilterType.Enabled = false;
     m_ToolStripLabelCount.Text = " loading...";
-    var dt = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress, addWarning);
-    await LoadDataTableAsync(dt, filterType, progress.CancellationToken);
+    var dataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress);
+    await LoadDataTableAsync(dataTable, filterType, progress.CancellationToken);
     // Set SelfOpenedDataTable only after LoadDataTableAsync
-    m_SelfOpenedDataTable=true;
-    timerLoadRemain.Enabled=autoLoad;
+    m_SelfOpenedDataTable = true;
+    timerLoadRemain.Enabled = !m_SteppedDataTableLoader.EndOfFile && autoLoad;
+    return m_SteppedDataTableLoader.EndOfFile;
   }
 
   private void BindingSource_PositionChanged(object? sender, EventArgs e)
@@ -884,6 +881,7 @@ public sealed partial class DetailControl : UserControl
 
     FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
 
+  private bool m_IsLoadingBatch = false;
   /// <summary>
   /// Asynchronously loads a new batch of data from the source file and merges it into the existing <see cref="DataTable"/>.
   /// </summary>
@@ -896,6 +894,7 @@ public sealed partial class DetailControl : UserControl
   /// This method performs the following actions:
   /// <list type="bullet">
   ///   <item>Clears the current search highlights to prevent index mismatches during data merging.</item>
+  ///   <item>Clears the current search highlights to prevent index mismatches during data merging.</item>
   ///   <item>Uses <see cref="m_ControlCancellation"/> to ensure the load operation is aborted if the control is disposed.</item>
   ///   <item>Invokes the <see cref="SteppedDataTableLoader"/> to fetch the next segment of data within a specific time limit.</item>
   ///   <item>Merges newly fetched rows into the main <see cref="DataTable"/> and refreshes the display filters.</item>
@@ -903,42 +902,54 @@ public sealed partial class DetailControl : UserControl
   /// </remarks>
   private async Task LoadNextBatch(bool backgroundLoad)
   {
-    if (IsDisposed)
+    if (IsDisposed || m_FilterDataTable is null || m_IsLoadingBatch)
       return;
-
-    // Cancel the current search
-    OnSearchClear(this, EventArgs.Empty);
-
-    var timeSpan = backgroundLoad ? TimeSpan.MaxValue : TimeSpan.FromSeconds(5);
-
-    // Pass in Control cancellation into the progress dialog so it can also
-    // trigger cancellation if the control is disposed while loading
-    using var progress = new FormProgress("Load more...", m_ControlCancellation.Token);
+    var frm = FindForm();
     try
     {
-      m_ToolStripButtonLoadRemaining.Enabled = false;
       if (backgroundLoad)
       {
-        // Show but one can go back to the main form
-        progress.Show();
-        progress.SendToBack();
+        using var frmProgress = new FormProgress("Reading all remaining data... Please wait.", m_ControlCancellation.Token);
+        frmProgress.Show(frm);
+        FilteredDataGridView.Focus();
+        await processLoad(frmProgress, TimeSpan.MaxValue);
       }
       else
-        // Show over the main form
-        progress.Show(FindForm());
+        await processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1));
+    }
+    catch (Exception ex) { frm.ShowError(ex, "Failed to load additional data rows."); }
 
-      var newDt = await m_SteppedDataTableLoader.GetNextBatch(timeSpan, progress);
-      if (newDt.Rows.Count > 0)
-      {
-        progress.Report($"Populating the data grid with the new {newDt.Rows.Count:N0} new records.\nThis may take a moment…");
-        FilteredDataGridView.DataTable.Merge(newDt, false, MissingSchemaAction.Error);
-        await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), progress.CancellationToken);
-      }
-    }
-    finally
+    async Task processLoad(IProgressWithCancellation progress, TimeSpan duration)
     {
-      m_ToolStripButtonLoadRemaining.Enabled = true;
+      m_IsLoadingBatch = true;
+      try
+      {
+        // Cancel the current search
+        OnSearchClear(this, EventArgs.Empty);
+
+        using var newData = await m_SteppedDataTableLoader.GetNextBatch(duration, progress);
+        if (newData.Rows.Count > 0)
+        {
+          m_FilterDataTable.OriginalTable.BeginLoadData();
+          try { m_FilterDataTable.OriginalTable.Merge(newData, false, MissingSchemaAction.Error); }
+          finally { m_FilterDataTable.OriginalTable.EndLoadData(); }
+          await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), progress.CancellationToken);
+        }
+      }
+      catch (OperationCanceledException) { }
+      finally { m_IsLoadingBatch = false; }
     }
+  }
+
+  private async void OnDataGridViewScroll(object? sender, ScrollEventArgs e)
+  {
+    // Only trigger if we aren't already loading and there is more data
+    if (m_SteppedDataTableLoader.EndOfFile || m_IsLoadingBatch)
+      return;
+
+    // Trigger when the user scrolls to 90% of the current bar
+    if (e.NewValue > (FilteredDataGridView.VerticalScrollingOffset * 0.9))
+      await LoadNextBatch(true);
   }
 
   /// <summary>
@@ -1069,8 +1080,6 @@ public sealed partial class DetailControl : UserControl
       toolStripButtonMoveLastItem.Enabled = hasData;
       FilteredDataGridView.DataLoaded = hasData;
 
-      m_ToolStripButtonLoadRemaining.Visible = !EndOfFile && (FilteredDataGridView.DataTable.Rows.Count > 0);
-
       m_ToolStripLabelCount.ForeColor = EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
       m_ToolStripLabelCount.ToolTipText = EndOfFile ? "Total number of records"
                                                     : "Total number of records (loaded so far)";
@@ -1090,12 +1099,6 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
-  private void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
-  {
-    if (EndOfFile)
-      return;
-    _ = LoadNextBatch(false);
-  }
   /// <summary>
   /// Asynchronously exports the current filtered and sorted view of the data to a CSV file.
   /// </summary>

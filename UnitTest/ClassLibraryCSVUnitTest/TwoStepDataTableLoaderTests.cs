@@ -25,8 +25,7 @@ public class TwoStepDataTableLoaderTests
   [TestMethod()]
   public async Task StartAsyncTestAsyncNoWarning()
   {
-    bool warningCalled = false;
-
+    
     // ReSharper disable once UseAwaitUsing
     using var tsde = new SteppedDataTableLoader();
     var csv = new CsvFileDummy
@@ -36,16 +35,13 @@ public class TwoStepDataTableLoaderTests
       CommentLine = "#"
     };
 
-    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
-    Assert.IsFalse(warningCalled);
+    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress);
     Assert.AreEqual(7, myDataTable.Columns.Count());
   }
 
   [TestMethod()]
   public async Task StartAsyncTestAsyncWarning()
   {
-    bool warningCalled = false;
-
     // ReSharper disable once UseAwaitUsing
     using var tsde = new SteppedDataTableLoader();
     var csv = new CsvFileDummy
@@ -54,8 +50,7 @@ public class TwoStepDataTableLoaderTests
       WarnQuotesInQuotes = true
     };
 
-    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress, (o, a) => { warningCalled = true; });
-    Assert.IsTrue(warningCalled);
+    var myDataTable = await tsde.StartAsync(csv, TimeSpan.FromMilliseconds(20), UnitTestStatic.TesterProgress);
     Assert.AreEqual(7, myDataTable.Columns.Count());
   }
 }

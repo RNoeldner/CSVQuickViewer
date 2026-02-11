@@ -165,45 +165,42 @@ public static class ReaderExtensionMethods
     IProgressWithCancellation progress)
   {
     // Shortcut if the wrapper is a DataTableWrapper
-    if (wrapper is DataTableWrapper dtw)
-      return dtw.DataTable;
+    if (wrapper is DataTableWrapper dataTableWrapper)
+      return dataTableWrapper.DataTable;
 
     var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
-    for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
-      dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+    var fieldCount = wrapper.FieldCount;
+    var columnTypes = new Type[fieldCount];
+    for (var colIndex = 0; colIndex < fieldCount; colIndex++)
+    {
+      columnTypes[colIndex] = wrapper.GetFieldType(colIndex);
+      dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), columnTypes[colIndex]));
+    }
 
-    if (wrapper.EndOfFile)
-      return dataTable;
-
+    if (wrapper.EndOfFile) return dataTable;
     var intervalAction = IntervalAction.ForProgress(progress);
 
+    var values = new object[fieldCount];
+    dataTable.BeginLoadData();
     try
     {
-
       if (maxDuration < TimeSpan.MaxValue)
         progress.Report($"Reading batch (Limit {maxDuration.TotalSeconds:F1}s)");
       else
         progress.Report($"Reading all data");
 
       var watch = Stopwatch.StartNew();
-      while (!progress.CancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
-                                                                 && await wrapper.ReadAsync(progress.CancellationToken)
-                                                                   .ConfigureAwait(false))
+      while (!progress.CancellationToken.IsCancellationRequested &&
+            (watch.Elapsed < maxDuration || wrapper.Percent >= 95) &&
+            await wrapper.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
       {
-        var dataRow = dataTable.NewRow();
-        dataTable.Rows.Add(dataRow);
-        for (var i = 0; i < wrapper.FieldCount; i++)
-          try
-          {
-            dataRow[i] = wrapper.GetValue(i);
-          }
-          catch (Exception ex)
-          {
-            dataRow.SetColumnError(i, ex.Message);
-          }
-
+        for (var i = 0; i < fieldCount; i++)
+          try { values[i] = wrapper.GetValue(i); }
+          catch { values[i] = DBNull.Value; }
+        var dataRow = dataTable.LoadDataRow(values, fAcceptChanges: true);
+        // Apply row-level metadata if necessary
+        if (wrapper.RowErrorInformation != null) dataRow.SetErrorInformation(wrapper.RowErrorInformation);
         intervalAction?.Invoke(progress, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
-        dataRow.SetErrorInformation(wrapper.RowErrorInformation);
       }
     }
     catch (Exception e)
@@ -212,9 +209,9 @@ public static class ReaderExtensionMethods
     }
     finally
     {
+      dataTable.EndLoadData();
       progress.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
     }
-
     return dataTable;
   }
 }

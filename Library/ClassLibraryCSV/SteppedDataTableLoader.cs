@@ -41,13 +41,11 @@ public sealed class SteppedDataTableLoader : DisposableBase
   /// <param name="fileSetting">The file setting.</param>
   /// <param name="durationInitial">The duration for the initial load</param>
   /// <param name="progress">Process display to pass on progress information</param>
-  /// <param name="addWarning">Add warnings.</param>    
   /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
   public async Task<DataTable> StartAsync(
     IFileSetting fileSetting,
     TimeSpan durationInitial,
-    IProgressWithCancellation progress,
-    EventHandler<WarningEventArgs>? addWarning)
+    IProgressWithCancellation progress)
   {
     progress.Report("Starting to load data");
     //m_Id = fileSetting.ID;
@@ -59,8 +57,6 @@ public sealed class SteppedDataTableLoader : DisposableBase
     {
       progress.Report("Opening reader");
       fileReader.ReportProgress = progress;
-      if (addWarning != null)
-        fileReader.Warning += addWarning;
 
       await fileReader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
 
@@ -85,43 +81,29 @@ public sealed class SteppedDataTableLoader : DisposableBase
   /// Loads the next batch of data from a file setting into the data table from Wrapper
   /// </summary>
   /// <param name="progress">Process display to pass on progress information</param>
-  /// <param name="duration">For maximum duration for the read process</param>        
+  /// <param name="duration">For maximum duration for the read process</param>
   public async Task<DataTable> GetNextBatch(TimeSpan duration, IProgressWithCancellation progress)
   {
     if (m_DataReaderWrapper is null)
       return new DataTable();
+    // TODO: Is this needed? we report in GetDataTableAsync... Possily setting percentage
+    m_DataReaderWrapper.ReportProgress = progress;
+    var dataTable = await m_DataReaderWrapper.GetDataTableAsync(duration, progress).ConfigureAwait(false);
 
-    try
-    {
-      m_DataReaderWrapper.ReportProgress = progress;
-      progress.Report("Getting batch");
-
-      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, progress)
-        .ConfigureAwait(false);
-
-      if (m_DataReaderWrapper.EndOfFile)
+    // If FINISHED dispose m_DataReaderWrapper already
+    if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-          await DisposeAsync().ConfigureAwait(false);
+      await DisposeAsync().ConfigureAwait(false);
 #else
-        Dispose();
+      Dispose();
 #endif
-      return dt;
-    }
-    catch (OperationCanceledException)
-    {
-      throw; // Let cancellation propagate
-    }
-    catch (Exception ex)
-    {
-      throw new FileReaderException("Error reading next batch of data", ex);
-    }
+    return dataTable;
   }
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
     if (!disposing) return;
-
     try
     {
       m_DataReaderWrapper?.Dispose();
