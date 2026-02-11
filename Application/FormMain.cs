@@ -32,10 +32,9 @@ namespace CsvTools;
 /// <summary>
 ///   Form to Display a CSV File
 /// </summary>
-public sealed partial class FormMain : ResizeForm
+public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 {
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-  private readonly List<string> m_LoadWarnings = new List<string>();
   private readonly System.Windows.Forms.Timer m_SettingsChangedTimerChange = new System.Windows.Forms.Timer { Interval = 200 };
   private readonly ViewSettings m_ViewSettings;
   private bool m_AskOpenFile = true;
@@ -46,8 +45,6 @@ public sealed partial class FormMain : ResizeForm
   private bool m_RunDetection;
   private bool m_ShouldReloadData;
   private IList<Column>? m_StoreColumns;
-  private int m_WarningCount;
-  private int m_WarningMax = 100;
 
   public FormMain() : this(new ViewSettings(), string.Empty)
   {
@@ -233,7 +230,6 @@ public sealed partial class FormMain : ResizeForm
   [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
   public DataTable DataTable => detailControl.DataTable;
 
-  internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
   private static string AssemblyTitle
   {
     get
@@ -248,19 +244,8 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private void AddWarning(object? sender, WarningEventArgs args)
-  {
-    if (string.IsNullOrEmpty(args.Message))
-      return;
-    if (++m_WarningCount == m_WarningMax)
-      try { Logger.Warning("No further warnings displayed"); } catch { }
-    else if (m_WarningCount < m_WarningMax)
-    {
-      var display = args.Display(true, true);
-      try { Logger.Warning(display); } catch { }
-      m_LoadWarnings.Add(display);
-    }
-  }
+  CancellationToken IProgressWithCancellation.CancellationToken => m_CancellationTokenSource.Token;
+  public void Report(ProgressInfo value) => Logger.Information(value.Text);
 
   private void ApplyViewSettings()
   {
@@ -324,11 +309,26 @@ public sealed partial class FormMain : ResizeForm
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
         {
-          if (m_RunDetection)
+          if (m_RunDetection && m_FileSetting!=null)
           {
+            m_RunDetection = false;
             using var progress = new FormProgress("Detection", m_CancellationTokenSource.Token);
             progress.Show(this);
-            await RunDetection(progress);
+            try
+            {
+              var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
+                m_ViewSettings.FillGuessSettings,
+                progress);
+              ChangeColumnsNoEvent(false, detected);
+
+              m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
+                x.ValueFormat.DataType != DataTypeEnum.String);
+            }
+            catch (Exception ex)
+            {
+              this.ShowError(ex, "Column Detection");
+            }
+
             m_RunDetection = false;
             progress.Close();
           }
@@ -389,7 +389,7 @@ public sealed partial class FormMain : ResizeForm
     }
     catch
     {
-      try { Logger.Warning("Disabling file system watcher failed"); } catch { }
+      Logger.Warning("Disabling file system watcher failed"); 
     }
   }
 
@@ -509,10 +509,9 @@ public sealed partial class FormMain : ResizeForm
   {
     if (string.IsNullOrEmpty(m_FileName))
       return;
+    ShowTextPanel(true);
     await this.RunWithHourglassAsync(async () =>
     {
-      using var progress = new FormProgress("Load File", m_CancellationTokenSource.Token);
-      progress.Show(this);
       var split = FileSystemUtils.SplitPath(m_FileName);
 
       if (FileSystemUtils.DirectoryExists(split.DirectoryName))
@@ -521,16 +520,16 @@ public sealed partial class FormMain : ResizeForm
       var fi = new FileSystemUtils.FileInfo(m_FileName);
       if (fi.Length <= 4)
       {
-        progress.Report($"Filename '{m_FileName}' only has {fi.Length} byte.");
+        Logger.Warning($"Filename '{m_FileName}' only has {fi.Length} byte.");
         return;
       }
       if (!fi.Exists)
       {
-        progress.Report($"Filename '{m_FileName}' not found or not accessible.");
+        Logger.Error($"Filename '{m_FileName}' not found or not accessible.");
         return;
       }
 
-      progress.Report($"Loading {m_FileName}");
+      Logger.Information($"Loading {m_FileName}");
       DetachPropertyChanged();
 
       // make sure old columns are removed
@@ -560,7 +559,7 @@ public sealed partial class FormMain : ResizeForm
 #else
         string.Empty,
 #endif
-        progress);
+        this);
 
       m_FileSetting = new CsvFileDummy
       {
@@ -608,16 +607,12 @@ public sealed partial class FormMain : ResizeForm
 
       title.Append(" - ");
       title.Append(EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark));
-      if (m_FileSetting.NumWarnings > 0)
-        m_WarningMax = m_FileSetting.NumWarnings;
 
       title.Append(" - ");
       title.Append(AssemblyTitle);
 
       this.SafeInvoke(async () =>
       {
-        progress.Close();
-
         ToolStripButtonAsText(false);
         Text = title.ToString();
         m_ToolStripButtonSettings.Visible = m_FileSetting != null;
@@ -639,26 +634,18 @@ public sealed partial class FormMain : ResizeForm
 
     // Stop Property changed events for the time this is processed we might store data in the FileSetting
     DetachPropertyChanged();
-
+    ShowTextPanel(true);
     try
     {
       m_ToolStripButtonAsText.Enabled = true;
 
       var fileNameShort = m_FileSetting.FileName.GetShortDisplayFileName(60);
-      ShowTextPanel(true);
 
+      Logger.Debug("Initializing data view for: {fileName}", fileNameShort);
+      detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+      detailControl.ShowInfoButtons = false;
 
-      try { Logger.Debug("Loading Batch"); } catch { }
-      using (var formProgress = new FormProgress(fileNameShort, m_CancellationTokenSource.Token))
-      {
-        formProgress.Show(this);
-        m_LoadWarnings.Clear();
-
-        detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-        detailControl.ShowInfoButtons = false;
-
-        await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, formProgress, AddWarning);
-      }
+      var allLoaded = await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, this);
 
       var keepVisible = new List<string>();
       if (m_FileSetting.DisplayEndLineNo)
@@ -669,11 +656,22 @@ public sealed partial class FormMain : ResizeForm
 
       if (m_FileSetting.DisplayRecordNo)
         keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
+      
+      m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
 
       detailControl.UniqueFieldName = keepVisible;
-
-      try { Logger.Debug("Batch Loaded"); } catch { }
-      m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
+      if (!allLoaded && m_ViewSettings.AutoStartMode)
+      {
+        Logger.Debug("Quick view ready; the rest of the file is loading in the background.");
+      }
+      else if (allLoaded)
+      {
+        Logger.Debug("File fully loaded successfully.");
+      }
+      else
+      {
+        Logger.Debug("Preview loaded. Click 'Load More' to fetch the remaining records.");
+      }
 
       // TODO: Is this needed ? Is the column collection not already set ?
       m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
@@ -719,27 +717,6 @@ public sealed partial class FormMain : ResizeForm
     }
   }
 
-  private async Task RunDetection(IProgressWithCancellation progress)
-  {
-    if (m_FileSetting is null)
-      return;
-    m_RunDetection = false;
-    ShowTextPanel(true);
-    try
-    {
-      var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
-        m_ViewSettings.FillGuessSettings,
-        progress);
-      ChangeColumnsNoEvent(false, detected);
-
-      m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
-        x.ValueFormat.DataType != DataTypeEnum.String);
-    }
-    catch (Exception ex)
-    {
-      this.ShowError(ex, "Column Detection");
-    }
-  }
   private async Task SaveIndividualFileSettingAsync()
   {
     try
@@ -785,12 +762,10 @@ public sealed partial class FormMain : ResizeForm
     var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
     await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
     {
-      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, m_LoadWarnings, detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);
-      // this.AllowDrop = false;
+      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);
       frm.ShowDialog(this);
-      // this.AllowDrop = true;
-      await m_ViewSettings.SaveViewSettingsAsync();
 
+      await m_ViewSettings.SaveViewSettingsAsync();
       var newFileSetting = frm.EditedSetting;
       m_ViewSettings.PassOnConfiguration(newFileSetting);
 
@@ -942,4 +917,5 @@ public sealed partial class FormMain : ResizeForm
       m_FileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
       await LoadCsvOrZipFileAsync();
     }, this);
+
 }

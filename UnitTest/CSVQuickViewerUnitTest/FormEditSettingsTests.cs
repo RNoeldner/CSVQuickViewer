@@ -24,6 +24,6 @@ public class FormEditSettingsTests
   public void FormEditSettings()
   {
     UnitTestStaticForms.ShowForm(() =>
-      new FormEditSettings(new ViewSettings(), new CsvFileDummy(), new List<string>(), (int?) null));
+      new FormEditSettings(new ViewSettings(), new CsvFileDummy(), (int?) null));
   }
 }

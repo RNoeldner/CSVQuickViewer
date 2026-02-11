@@ -474,7 +474,7 @@ public partial class FormColumnUiRead : ResizeForm
 
 
   private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
-    await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
+    await buttonDisplayValues.RunWithHourglassAsync(DisplayValues);
 
   /// <summary>
   ///   Handles the Click event of the buttonGuess control.

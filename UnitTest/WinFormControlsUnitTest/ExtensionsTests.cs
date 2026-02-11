@@ -43,7 +43,7 @@ public class ExtensionsTests
     frm.Controls.Add(lv);
     frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
   }
-       
+
 
   [TestMethod]
   [Timeout(2000)]
@@ -67,7 +67,7 @@ public class ExtensionsTests
   public void RunWithHourglassAsyncTest()
   {
     var done = false;
-    UnitTestStaticForms.ShowControl(() => new Button(), .1, async c => await c.RunWithHourglassAsync(async () => await Task.Run(() => done = true)));
+    UnitTestStaticForms.ShowControl(() => new Button(), .1, async c => await c.RunWithHourglassAsync(() => Task.Run(() => done = true)));
     Assert.IsTrue(done);
   }
 
@@ -87,7 +87,7 @@ public class ExtensionsTests
   public void ShowError()
   {
     CancellationTokenSource src = new CancellationTokenSource(TimeSpan.FromSeconds(1));
-    Task.Run(()=> Extensions.RunStaThread(() =>
+    Task.Run(() => Extensions.RunStaThread(() =>
     {
       using var frm = new Form();
       frm.Text = "Testing...";

@@ -14,7 +14,6 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -37,10 +36,6 @@ public partial class FormEditSettings : ResizeForm
   private readonly EditSettings m_WriteSettings;
   private readonly ViewSettings m_ViewSettings;
 
-  /// <summary>
-  /// Warnings are passed on to HTML Info
-  /// </summary>
-  private readonly IEnumerable<string> m_Warnings;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
@@ -50,13 +45,11 @@ public partial class FormEditSettings : ResizeForm
   /// <param name="warnings">The warnings to be listed in HTML Info</param>
   /// <param name="numRecords">The number records that have been read</param>
   /// <exception cref="System.ArgumentNullException">viewSettings</exception>
-  public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting,
-    IEnumerable<string> warnings, int? numRecords)
+  public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting, int? numRecords)
   {
     m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
     m_ReadSettings = new EditSettings(setting);
     m_WriteSettings  = new EditSettings(viewSettings.WriteSetting);
-    m_Warnings = warnings;
     m_NumRecords = numRecords;
 
     if (setting is null)
@@ -267,7 +260,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     await buttonFileInfo.RunWithHourglassAsync(async () =>
     {
       stringBuilder.Append(
-        await m_ReadSettings.ToCsvFile().GetFileInformationHtml(m_Warnings, m_NumRecords, !(m_ReadSettings.IsJson || m_ReadSettings.IsXml),
+        await m_ReadSettings.ToCsvFile().GetFileInformationHtml(Array.Empty<string>(), m_NumRecords, !(m_ReadSettings.IsJson || m_ReadSettings.IsXml),
           m_CancellationTokenSource.Token));
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");

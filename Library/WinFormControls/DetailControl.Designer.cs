@@ -18,7 +18,6 @@ namespace CsvTools
     private ToolStripButton toolStripButtonMovePreviousItem;
     private ToolStripButton m_ToolStripButtonStore;
     private ToolStripButton m_ToolStripButtonUniqueValues;
-    private ToolStripButton m_ToolStripButtonLoadRemaining;
     private ToolStripComboBox m_ToolStripComboBoxFilterType;
     private ToolStripContainer m_ToolStripContainer;
     private ToolStripLabel m_ToolStripLabelCount;
@@ -42,7 +41,6 @@ namespace CsvTools
       m_ToolStripTextBoxPos = new ToolStripTextBox();
       toolStripButtonMoveNextItem = new ToolStripButton();
       toolStripButtonMoveLastItem = new ToolStripButton();
-      m_ToolStripButtonLoadRemaining = new ToolStripButton();
       FilteredDataGridView = new FilteredDataGridView();
       m_ToolStripButtonDuplicates = new ToolStripButton();
       m_ToolStripButtonHierarchy = new ToolStripButton();
@@ -76,7 +74,7 @@ namespace CsvTools
       m_BindingNavigator.Dock = DockStyle.None;
       m_BindingNavigator.GripStyle = ToolStripGripStyle.Hidden;
       m_BindingNavigator.ImageScalingSize = new System.Drawing.Size(20, 20);
-      m_BindingNavigator.Items.AddRange(new ToolStripItem[] { toolStripButtonMoveFirstItem, toolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, toolStripButtonMoveNextItem, toolStripButtonMoveLastItem, m_ToolStripButtonLoadRemaining });
+      m_BindingNavigator.Items.AddRange(new ToolStripItem[] { toolStripButtonMoveFirstItem, toolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, toolStripButtonMoveNextItem, toolStripButtonMoveLastItem });
       m_BindingNavigator.Location = new System.Drawing.Point(3, 0);
       m_BindingNavigator.MoveFirstItem = toolStripButtonMoveFirstItem;
       m_BindingNavigator.MoveLastItem = toolStripButtonMoveLastItem;
@@ -138,17 +136,7 @@ namespace CsvTools
       toolStripButtonMoveLastItem.RightToLeftAutoMirrorImage = true;
       toolStripButtonMoveLastItem.Size = new System.Drawing.Size(24, 24);
       toolStripButtonMoveLastItem.Text = "Move last";
-      // 
-      // m_ToolStripButtonLoadRemaining
-      // 
-      m_ToolStripButtonLoadRemaining.DisplayStyle = ToolStripItemDisplayStyle.Image;
-      m_ToolStripButtonLoadRemaining.Image = (System.Drawing.Image) resources.GetObject("m_ToolStripButtonLoadRemaining.Image");
-      m_ToolStripButtonLoadRemaining.Name = "m_ToolStripButtonLoadRemaining";
-      m_ToolStripButtonLoadRemaining.Size = new System.Drawing.Size(24, 24);
-      m_ToolStripButtonLoadRemaining.Text = "Load More...";
-      m_ToolStripButtonLoadRemaining.TextImageRelation = TextImageRelation.TextBeforeImage;
-      m_ToolStripButtonLoadRemaining.ToolTipText = "File is not read completely, load another set of records";
-      m_ToolStripButtonLoadRemaining.Click += ToolStripButtonLoadRemaining_Click;
+ 
       // 
       // FilteredDataGridView
       // 
