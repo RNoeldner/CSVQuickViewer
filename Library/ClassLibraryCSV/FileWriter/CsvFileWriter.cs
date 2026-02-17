@@ -93,7 +93,7 @@ public sealed class CsvFileWriter : BaseFileWriter
     bool qualifyAlways = false,
     bool qualifyOnlyIfNeeded = true,
     bool fixedLength = false,
-    in TimeZoneChangeDelegate? timeZoneAdjust = null,
+    TimeZoneChangeDelegate? timeZoneAdjust = null,
     string sourceTimeZone = "",
     string publicKey = "",
     bool unencrypted = false

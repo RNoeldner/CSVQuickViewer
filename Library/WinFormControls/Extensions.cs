@@ -86,7 +86,7 @@ public static class Extensions
   }
 
   public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+      .FirstOrDefault(bind => string.Equals(bind.PropertyName, "Text", StringComparison.OrdinalIgnoreCase)|| string.Equals(bind.PropertyName, "Value", StringComparison.OrdinalIgnoreCase));
 
   /// <summary>
   /// Executes a synchronous action while displaying the wait cursor.
@@ -142,7 +142,7 @@ public static class Extensions
     try
     {
       // Maintain UI context to ensure restoration happens on the correct thread
-      await action.Invoke();
+      await action.Invoke().ConfigureAwait(true);
     }
     finally
     {
@@ -505,7 +505,7 @@ public static class Extensions
   /// <summary>
   /// Core logic for synchronous UI state management and exception reporting.
   /// </summary>
-  private static void RunWithHourglassInternal(Action action, Action<bool> setEnabled, Form frm)
+  private static void RunWithHourglassInternal(Action action, Action<bool> setEnabled, Form? frm)
   {
     try
     {
@@ -515,7 +515,7 @@ public static class Extensions
     catch (ObjectDisposedException) { /* Component was closed; ignore */ }
     catch (Exception ex)
     {
-      frm.SafeInvoke(() => frm.ShowError(ex));
+      frm?.SafeInvoke(() => frm.ShowError(ex));
     }
     finally
     {
@@ -531,7 +531,7 @@ public static class Extensions
     try
     {
       setEnabled(false);
-      await action.InvokeWithHourglassAsync();
+      await action.InvokeWithHourglassAsync().ConfigureAwait(true);
     }
     catch (ObjectDisposedException) { /* UI was closed during await; ignore */ }
     catch (Exception ex)

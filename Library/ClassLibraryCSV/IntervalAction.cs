@@ -103,7 +103,10 @@ public sealed class IntervalAction
     {
       await asyncAction(cancellationToken).ConfigureAwait(false);
     }
-    catch (ObjectDisposedException) { }
+    catch (ObjectDisposedException)
+    {
+      //Ignore
+    }
     catch (Exception ex)
     {
       Logger.Warning(ex, "IntervalAction.InvokeAsync {Method} failed: {Message}", asyncAction.Method, ex.Message);

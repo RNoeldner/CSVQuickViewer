@@ -95,10 +95,10 @@ public class Search : UserControl
   }
 
   private void BtnNextClick(object? sender, EventArgs e)
-        => OnSearchNext?.Invoke(sender, e);
+        => OnSearchNext?.Invoke(this, e);
 
   private void BtnPreviousClick(object? sender, EventArgs e)
-      => OnSearchPrev?.Invoke(sender, e);
+      => OnSearchPrev?.Invoke(this, e);
 
   /// <summary>
   ///   Required method for Designer support - do not modify the contents of this method with the

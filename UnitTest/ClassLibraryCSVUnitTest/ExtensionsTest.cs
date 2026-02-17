@@ -45,8 +45,8 @@ public class ExtensionsTest
     var csv = new CsvFileDummy()
       { FileName= "fileName" };
 
-    Assert.AreEqual("This is fileName a test", "This is {FileName} a test".ReplacePlaceholderWithPropertyValues(csv));
-    Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
+    Assert.AreEqual("This is fileName a test", "This is {FileName} a test".PlaceholderReplaceWithPropertyValues(csv));
+    Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".PlaceholderReplaceWithPropertyValues(csv));
   }
 
   [TestMethod]
@@ -199,18 +199,6 @@ public class ExtensionsTest
     var ex = new Exception("Exception", inner3);
     Assert.AreEqual("InnerException3\nInnerException2", ex.InnerExceptionMessages());
   }
-
-  [TestMethod]
-  public void ReplaceCaseInsensitiveChar() =>
-    Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", '|'));
-
-  [TestMethod]
-  public void ReplaceCaseInsensitiveCharEqualLen() =>
-    Assert.AreEqual("Text1,Text2", "Text1|Text2".ReplaceCaseInsensitive("|", ','));
-
-  [TestMethod]
-  public void ReplaceCaseInsensitiveCharNotFound() =>
-    Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", '|'));
 
   [TestMethod]
   public void ReplaceCaseInsensitiveEqualLen() =>
@@ -410,12 +398,5 @@ public class ExtensionsTest
     dt.Columns.Add(dataColumn);
     Assert.AreEqual(1, dt.GetRealColumns().Count());
     Assert.AreEqual(dataColumn.ColumnName, dt.GetRealColumns().First().ColumnName);
-  }
-
-  [TestMethod]
-  public void ReplacePlaceholderWithText()
-  {
-    Assert.AreEqual("Die ist ein Test", "Die ist ein Test".ReplacePlaceholderWithText("Shiny"));
-    Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText("Shiny"));
-  }
+  } 
 }

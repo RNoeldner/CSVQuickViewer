@@ -131,7 +131,7 @@ public sealed record ManifestData
       e.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
     if (manifestEntry is null)
       return null;
-    try { Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name); } catch { }
+    Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name);
 
 
     return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,

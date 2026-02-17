@@ -88,10 +88,12 @@ public static class SerializedFilesLib
       case JTokenType.Object:
         var obj = (JObject) token;
         // copy property list to avoid modifying during enumeration
+#pragma warning disable S2971 // LINQ expressions should be simplified
         foreach (var prop in obj.Properties().ToList().Where(prop => RemoveEmptyTokens(prop.Value)))
         {
           prop.Remove();
         }
+#pragma warning restore S2971 // LINQ expressions should be simplified
 
         // Remove object if empty OR contains only "$type"
         return !obj.HasValues || (obj.Properties().Count() == 1 && obj.Property("$type") != null);
@@ -252,7 +254,7 @@ public static class SerializedFilesLib
     }
     catch (Exception ex)
     {
-      try { Logger.Error(ex, "Error writing json file {filename}", fileName); } catch { }
+      Logger.Error(ex, "Error writing json file {filename}", fileName);
     }
 
     return true;

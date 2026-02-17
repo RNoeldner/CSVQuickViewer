@@ -68,8 +68,8 @@ namespace CsvTools
           break;
       }
 
-      var startValue = values.First();
-      var endValue = values.Last();
+      var startValue = values[0];
+      var endValue = values[values.Count-1];
 
       List<double> startValues;
       // Ordered startValue values
@@ -145,10 +145,7 @@ namespace CsvTools
       foreach (var value in values)
       {
         CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
-        if (distinct.Count <= max)
-          distinct.Add(value);
-        else
-          break;
+        if (distinct.Count <= max) distinct.Add(value); else break;
       }
 
       // Use Integer filter
@@ -161,8 +158,8 @@ namespace CsvTools
       }
       else
       {
-        var startValue = values.First();
-        var endValue = values.Last();
+        var startValue = values[0];
+        var endValue = values[values.Count-1];
         // Dynamic Factor
         var digits = (long) Math.Log10(endValue - startValue);
         factor = Convert.ToInt64(Math.Pow(10, digits));
@@ -202,6 +199,7 @@ namespace CsvTools
     /// Builds clusters from a list of DateTime values.
     /// Clusters can be hourly, daily, monthly, yearly, or by decades depending on data.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static (int nullCount, List<ValueCluster> clusters) BuildValueClustersDate(
       this object[] objects, string escapedName,
         int max, bool combine, double maxSeconds, IProgressWithCancellation progress)
@@ -221,19 +219,19 @@ namespace CsvTools
       {
         CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
         if (clusterHour.Count<max)
-          clusterHour.Add(new DateTime(value.Year, value.Month, value.Day, value.Hour, (value.Minute / 15) * 15, 0));
+          clusterHour.Add(new DateTime(value.Year, value.Month, value.Day, value.Hour, (value.Minute / 15) * 15, 0, DateTimeKind.Local));
 
         if (clusterDay.Count<max)
           clusterDay.Add(value.Date);
 
         if (clusterMonth.Count<max)
-          clusterMonth.Add(new DateTime(value.Year, value.Month, 1));
+          clusterMonth.Add(new DateTime(value.Year, value.Month, 1,0,0,0,0, DateTimeKind.Local));
 
         if (clusterYear.Count<max)
-          clusterYear.Add(new DateTime(value.Year, 1, 1));
+          clusterYear.Add(new DateTime(value.Year, 1, 1, 0, 0, 0, 0, DateTimeKind.Local));
 
         if (clusterDecade.Count<max)
-          clusterDecade.Add(new DateTime((value.Year / 10) * 10, 1, 1));
+          clusterDecade.Add(new DateTime((value.Year / 10) * 10, 1, 1, 0, 0, 0, 0, DateTimeKind.Local));
         else
           throw new ArgumentOutOfRangeException(nameof(values));
       }
@@ -266,6 +264,8 @@ namespace CsvTools
     /// <summary>
     /// Processes sorted start values to build clusters, calling delegate functions for display, SQL formatting, and counting.
     /// </summary>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
     private static List<ValueCluster> FinishProcess<T>(
         List<T> allSortedValues,
         List<T> sortedStartValues,
@@ -281,8 +281,8 @@ namespace CsvTools
       if (desiredSize<1)
         desiredSize=1;
       if (sortedStartValues.Count==0)
-        throw new ArgumentOutOfRangeException("Need start values");
-      var lastStart = sortedStartValues.Last();
+        throw new ArgumentException("Cannot be empty", nameof(sortedStartValues));
+      var lastStart = sortedStartValues[sortedStartValues.Count-1];
       var lastEnd = nextEnd(lastStart);
       if (lastEnd.CompareTo(lastStart) <= 0)
         throw new InvalidOperationException("nextEnd must produce strictly increasing values.");

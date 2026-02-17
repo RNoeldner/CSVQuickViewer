@@ -261,7 +261,7 @@ public partial class FilteredDataGridView : DataGridView
   {
     foreach (DataColumn dataColumn in DataTable.Columns)
       foreach (DataGridViewColumn gridColumn in Columns)
-        if (gridColumn.DataPropertyName == dataColumn.ColumnName)
+        if (string.Equals(gridColumn.DataPropertyName, dataColumn.ColumnName, StringComparison.OrdinalIgnoreCase))
         {
           gridColumn.Width = GetColumnWith(dataColumn, DataTable.Rows) + 5;
           break;
@@ -523,8 +523,7 @@ public partial class FilteredDataGridView : DataGridView
   /// <param name="graphics">The graphics context used for text measurement.</param>
   /// <param name="font">The font used to render the cell text.</param>
   /// <param name="maxWidth">The maximum allowed width for the column.</param>
-  /// <param name="column">The DataColumn being measured.</param>
-  /// <param name="dataSource">The collection of rows to scan for content width.</param>
+  /// <param name="col">The DataColumn being measured.</param>  
   /// <param name="valueSelector">A function that extracts the display text from a cell value and indicates if scanning should stop.</param>
   /// <returns>The calculated width in pixels, clamped to <paramref name="maxWidth"/>.</returns>  
   private static int MeasureStrings(IDeviceContext graphics, Font font, int maxWidth, DataColumn col, DataRowCollection rows,

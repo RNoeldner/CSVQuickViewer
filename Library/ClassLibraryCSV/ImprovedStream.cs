@@ -176,9 +176,6 @@ public class ImprovedStream : Stream, IImprovedStream
   public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
     AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
-  /// <inheritdoc cref="IDisposable" />
-  public new void Dispose() => Dispose(true);
-
   /// <inheritdoc cref="Stream.Flush()"/>
   public override void Flush()
   {
@@ -602,7 +599,7 @@ public class ImprovedStream : Stream, IImprovedStream
 
       if (copyOtherFiles)
       {
-        try { Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier); } catch { }
+        Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);
         var tmpName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         try
         {
@@ -632,13 +629,7 @@ public class ImprovedStream : Stream, IImprovedStream
           File.Delete(tmpName);
         }
       }
-      try
-      {
-        Logger.Debug("Zipping {container} into {filename}",
-          SourceAccess.IdentifierInContainer,
-          SourceAccess.Identifier);
-      }
-      catch { }
+      Logger.Debug("Zipping {container} into {filename}", SourceAccess.IdentifierInContainer, SourceAccess.Identifier);
 
       zipOutputStream.PutNextEntry(new ZipEntry(cleanName));
       AccessStream = zipOutputStream;

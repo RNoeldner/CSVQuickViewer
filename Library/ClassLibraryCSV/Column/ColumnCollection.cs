@@ -161,7 +161,7 @@ public sealed class ColumnCollection : ObservableList<Column>
         if (existingIndex != -1)
           throw new ArgumentException(
               $"A column with the name '{column.Name}' already exists at index {existingIndex}.",
-              nameof(column));
+              nameof(columns));
       }
       base.InsertRange(index, list);
     }

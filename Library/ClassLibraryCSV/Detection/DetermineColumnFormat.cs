@@ -260,13 +260,8 @@ public static class DetermineColumnFormat
         // not enough
         if (colIndexCurrent != -1)
         {
-          if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
-          {
-            // if the date format does not match the last found date format reset the assumed
-            // correct format
-            if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
-              othersValueFormatDate = checkResult.FoundValueFormat;
-          }
+          if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime && !othersValueFormatDate.Equals(checkResult.FoundValueFormat))
+            othersValueFormatDate = checkResult.FoundValueFormat;
 
           var oldValueFormat = columnCollection[colIndexCurrent].GetTypeAndFormatDescription();
 
@@ -563,10 +558,7 @@ public static class DetermineColumnFormat
       if (lookup.TryGetValue(fileReader.GetName(i), out var col))
         ordered.Add(col);
     }
-
-    foreach (var col in columnCollection)
-      if (!ordered.Contains(col))
-        ordered.Add(col);
+    ordered.AddRange(columnCollection.Where(col => !ordered.Contains(col)));
     return ordered;
   }
 

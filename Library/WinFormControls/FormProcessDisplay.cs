@@ -143,7 +143,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
         base.Dispose(disposing);
       }
     }
-    catch (Exception)
+    catch
     {
       //Ignore
     }

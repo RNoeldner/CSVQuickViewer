@@ -25,9 +25,9 @@
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest" Version="4.0.2" />
-		<PackageReference Include="MSTest.TestAdapter" Version="4.0.2" />
-		<PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
+		<PackageReference Include="MSTest" Version="4.1.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="4.1.0" />
+		<PackageReference Include="MSTest.TestFramework" Version="4.1.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />

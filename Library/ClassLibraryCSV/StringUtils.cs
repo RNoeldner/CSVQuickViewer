@@ -252,7 +252,7 @@ public static class StringUtils
       candidate = prefix + counter++;
       if (hadEllipsis)
         candidate += "…"; // Re-add ellipsis
-    } while (previousColumns.Contains(candidate));
+    } while (previousColumns.Contains(candidate, StringComparer.OrdinalIgnoreCase));
 
     return candidate;
   }
@@ -430,10 +430,9 @@ public static class StringUtils
 
     var chars = new char[original.Length];
     var count = 0;
-    foreach (var c in original)
+    foreach (var c in original.Where(c => allowedChars.IndexOf(c) != -1))
     {
-      if (allowedChars.IndexOf(c) != -1)
-        chars[count++] = c;
+      chars[count++] = c;
     }
 
     return new string(chars, 0, count);
@@ -560,6 +559,11 @@ public static class StringUtils
   /// <param name="contents">The contents.</param>
   public static string SqlQuote(this string? contents) =>
     contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
+  /// <summary>
+  ///   Handles quotes in SQLs, does not include the outer quotes
+  /// </summary>
+  public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents) =>
+    contents.IsEmpty || contents.IndexOf('\'') == -1 ? contents : contents.ToString().Replace("'", "''").AsSpan();
 
   /// <summary>
   ///   Strings with the right substitution to be used as filter If a pattern in a LIKE clause
@@ -597,11 +601,7 @@ public static class StringUtils
     return returnVal.ToString();
   }
 
-  /// <summary>
-  ///   Handles quotes in SQLs, does not include the outer quotes
-  /// </summary>
-  public static ReadOnlySpan<char> SqlQuote(this ReadOnlySpan<char> contents) =>
-    contents.IsEmpty || contents.IndexOf('\'') == -1 ? contents : contents.ToString().Replace("'", "''").AsSpan();
+
 
   /// <summary>
   ///   Read the value and determine if this could be a constant value ( surrounded by " or ' ) or

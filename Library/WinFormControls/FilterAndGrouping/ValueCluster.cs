@@ -30,7 +30,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// <param name="count">The number of records that have this value.</param>
   /// <param name="start">The lower bound of the cluster range. Should be set if HasEnclosingCluster is used non string types</param>
   /// <param name="end">The upper bound of the cluster range. Can be <c>null</c> if unbounded.</param>
-  public ValueCluster(string display, string condition, int count, object start, object end)
+  public ValueCluster(string display, string condition, int count, object? start, object? end)
   {
     Display = display;
     SQLCondition = condition;
@@ -62,7 +62,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
     get;
   }
 
-  public object End { get; }
+  public object? End { get; }
 
   /// <summary>
   ///   Gets or sets the SQL condition to get a list of the records
@@ -73,7 +73,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
     get;
   }
 
-  public object Start { get; }
+  public object? Start { get; }
 
   /// <summary>
   ///   Indicates whether the current object is equal to another object of the same type.

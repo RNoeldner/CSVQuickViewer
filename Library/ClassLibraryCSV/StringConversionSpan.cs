@@ -322,7 +322,7 @@ public static class StringConversionSpan
     if (stringDateValue.IndexOf(dateSeparatorChar) != -1 || dateFormats.IndexOf('/') != -1) return null;
     var ts = StringToTimeSpan(stringDateValue, timeSeparatorChar, false);
     if (ts.HasValue)
-      return new DateTime(ts.Value.Ticks);
+      return new DateTime(ts.Value.Ticks, DateTimeKind.Local);
 
     return null;
   }
@@ -517,8 +517,8 @@ public static class StringConversionSpan
     if (Guid.TryParse(text, out var result))
       return result;
 #else
-      if (Guid.TryParse(text.ToString(), out var result))
-        return result;
+    if (Guid.TryParse(text.ToString(), out var result))
+      return result;
 #endif
     return null;
   }
@@ -624,13 +624,14 @@ public static class StringConversionSpan
       {
         buffer[k++] = c;
       }
-      else if (thousandSeparatorChar != '\0' && c == thousandSeparatorChar)
-      {
-        // skip group separator
-        continue;
-      }
       else
       {
+        if (thousandSeparatorChar != '\0' && c == thousandSeparatorChar)
+        {
+          // skip group separator
+          continue;
+        }
+
         break; // stop at first non-digit
       }
     }
@@ -643,7 +644,7 @@ public static class StringConversionSpan
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
     if (long.TryParse(digits, out var result))
 #else
-      if (long.TryParse(digits.ToString(), out var result))
+    if (long.TryParse(digits.ToString(), out var result))
 #endif
       return (roundBraces || hasMinus) ? -result : result;
 

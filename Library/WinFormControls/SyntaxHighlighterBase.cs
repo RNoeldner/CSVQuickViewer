@@ -21,7 +21,7 @@ public abstract class SyntaxHighlighterBase : FastColoredTextBoxNS.SyntaxHighlig
   protected readonly FastColoredTextBoxNS.TextStyle SkipStyle = new FastColoredTextBoxNS.TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
 #pragma warning restore CA1416
 
-  public SyntaxHighlighterBase(in FastColoredTextBoxNS.FastColoredTextBox currentTb) : base(currentTb)
+  protected SyntaxHighlighterBase(in FastColoredTextBoxNS.FastColoredTextBox currentTb) : base(currentTb)
   {
   }
 

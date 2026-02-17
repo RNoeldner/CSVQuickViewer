@@ -120,7 +120,6 @@ public partial class FormTextDisplay : ResizeForm
           radioButtonJson.Checked = true;
           break;
         }
-        case Language.Text:
         default:
           radioButtonText.Checked = true;
           break;
