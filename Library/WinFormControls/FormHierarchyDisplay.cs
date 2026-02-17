@@ -227,10 +227,13 @@ public class FormHierarchyDisplay : ResizeForm
     }
 
     // Generate a list of missing parents
-    var additionalRootNodes = new HashSet<string>();
-    foreach (var child in treeDataDictionary.Values)
-      if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
-        additionalRootNodes.Add(child.ParentID);
+    var additionalRootNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var child in from child in treeDataDictionary.Values
+                          where !string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID)
+                          select child)
+    {
+      additionalRootNodes.Add(child.ParentID);
+    }
 
     var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
 
@@ -260,8 +263,8 @@ public class FormHierarchyDisplay : ResizeForm
       cancellationToken.ThrowIfCancellationRequested();
       counter++;
       intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter);
-      if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
-                                               && child.ID != rootDataParentNotFound.ID)
+      if (string.IsNullOrEmpty(child.ParentID) && !string.Equals(child.ID, rootDataParentFound.ID, StringComparison.OrdinalIgnoreCase)
+                                               && !string.Equals(child.ID, rootDataParentNotFound.ID, StringComparison.OrdinalIgnoreCase))
         child.ParentID = rootDataParentFound.ID;
     }
 
@@ -579,9 +582,10 @@ public class FormHierarchyDisplay : ResizeForm
     }
 
     visitedEntries.Add(treeData);
-    foreach (var child in treeData.Children)
-      if (MarkInCycle(child, visitedEntries))
-        break;
+    foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
+    {
+      break;
+    }
 
     return false;
   }

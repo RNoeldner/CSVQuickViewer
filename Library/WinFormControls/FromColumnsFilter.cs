@@ -155,12 +155,12 @@ public sealed partial class FromColumnsFilter : ResizeForm
       foreach (var col in m_Columns)
       {
         col.Visible = m_Protected.Contains(col.DataPropertyName) ||
-                      listViewCluster.Items.OfType<ListViewItem>().First(x => x.Text == col.Name).Checked;
+                      listViewCluster.Items.OfType<ListViewItem>().First(x => string.Equals(x.Text, col.Name, StringComparison.OrdinalIgnoreCase)).Checked;
       }
 
       // if nothing is visible anymore unhide first column
       if (m_Columns.Count > 0 && !m_Columns.Any(x => x.Visible))
-        m_Columns.First().Visible = true;
+        m_Columns[0].Visible = true;
     });
   }
 

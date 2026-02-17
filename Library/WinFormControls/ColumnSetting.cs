@@ -86,8 +86,8 @@ public sealed class ColumnSetting
     {
       unchecked
       {
-        return (SQLCondition.GetHashCode() * 397) ^
-               Display.GetHashCode();
+        return (StringComparer.Ordinal.GetHashCode(SQLCondition)* 397) ^
+               StringComparer.OrdinalIgnoreCase.GetHashCode(Display);
       }
     }
   }

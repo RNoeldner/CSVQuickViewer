@@ -24,7 +24,7 @@ namespace CsvTools;
 ///   Column information like name, Type, Format etc.
 /// </summary>
 [DebuggerDisplay("Column {Name}")]
-public record Column 
+public record Column
 {
   /// <summary>
   /// Default Format for Time is 24 hrs clock with seconds
@@ -81,10 +81,10 @@ public record Column
   /// <summary>
   ///   Formatting option for values
   /// </summary>
-  public ValueFormat ValueFormat { get; protected set;}
+  public ValueFormat ValueFormat { get; protected set; }
 
   /// <summary>
-  /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
+  /// Identifier in collections, similar to a hash code based on a  properties that should be unique in a collection
   /// </summary>
   /// <remarks>
   /// In case a required property is not set, this should raise an error

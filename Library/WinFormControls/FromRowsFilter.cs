@@ -122,7 +122,7 @@ public sealed partial class FromRowsFilter : ResizeForm
 
       foreach (ListViewItem sel in listViewCluster.Items)
       {
-        var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => x.Display == sel.Text);
+        var vc = m_DataGridViewColumnFilter.ValueClusterCollection.First(x => string.Equals(x.Display, sel.Text, StringComparison.OrdinalIgnoreCase));
         m_DataGridViewColumnFilter.SetActiveStatus(vc, sel.Checked);
       }
 

@@ -56,10 +56,10 @@ public partial class FormUniqueDisplay : ResizeForm
     var listRem = new List<DataColumn>();
     foreach (DataColumn col in m_DataTable.Columns)
     {
-      if (col.ColumnName == ReaderConstants.cRecordNumberFieldName ||
-          col.ColumnName == ReaderConstants.cStartLineNumberFieldName ||
-          col.ColumnName == ReaderConstants.cErrorField ||
-          col.ColumnName == ReaderConstants.cEndLineNumberFieldName)
+      if (string.Equals(col.ColumnName, ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase)||
+          string.Equals(col.ColumnName, ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(col.ColumnName, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(col.ColumnName, ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         listRem.Add(col);
     }
 

@@ -48,6 +48,7 @@ public partial class FilteredDataGridView : DataGridView
   private IFileSetting? m_FileSetting;
   private int m_MenuItemColumnIndex;
   private int m_ShowButtonAtLength = 1000;
+
   /// <summary>
   /// Initializes a new instance of the <see cref="FilteredDataGridView"/> class.
   /// Sets up default behaviors for Virtual Mode and custom cell painting.
@@ -71,6 +72,8 @@ public partial class FilteredDataGridView : DataGridView
       tableLayoutSettings.ColumnCount = 3;
 
     ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+    ColumnHeaderMouseClick += FilteredDataGridView_ColumnHeaderMouseClick;
+
 
     CellMouseClick += FilteredDataGridView_CellMouseClick;
     CellPainting += HighlightCellPainting;
@@ -90,6 +93,35 @@ public partial class FilteredDataGridView : DataGridView
       SetRowHeight();
     };
   }
+
+  private void FilteredDataGridView_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+  {
+    if (e.Button != MouseButtons.Left || e.ColumnIndex < 0) return;
+
+    var columnName = Columns[e.ColumnIndex].DataPropertyName;
+    // 1. Determine direction: Toggle if already sorting this column
+    var direction = (DataTable.DefaultView.Sort.StartsWith("[" + columnName + "] ASC", StringComparison.Ordinal))
+        ? ListSortDirection.Descending : ListSortDirection.Ascending;
+
+    Sort(Columns[e.ColumnIndex], direction);
+  }
+
+  public override void Sort(DataGridViewColumn dataGridViewColumn, ListSortDirection directionSort)
+  {
+    // 1. Apply directly to the DataView to avoid InvalidOperationException
+    DataTable.DefaultView.Sort = $"[{dataGridViewColumn.DataPropertyName}] {(directionSort == ListSortDirection.Ascending ? "ASC" : "DESC")}";
+
+    // 2. Clear glyphs from ALL columns first
+    foreach (DataGridViewColumn col in Columns)
+      col.HeaderCell.SortGlyphDirection = SortOrder.None;
+
+    // 3. Set the Glyph for the active column only
+    dataGridViewColumn.HeaderCell.SortGlyphDirection = directionSort == ListSortDirection.Ascending ? SortOrder.Ascending : SortOrder.Descending;
+
+    // 4. Refresh the grid
+    Invalidate();
+  }
+
 
   /// <summary>
   /// Gets or sets the <see cref="CancellationToken"/> used to interrupt long-running operations like column width measurement.
@@ -261,7 +293,7 @@ public partial class FilteredDataGridView : DataGridView
   {
     foreach (DataColumn dataColumn in DataTable.Columns)
       foreach (DataGridViewColumn gridColumn in Columns)
-        if (gridColumn.DataPropertyName == dataColumn.ColumnName)
+        if (string.Equals(gridColumn.DataPropertyName, dataColumn.ColumnName, StringComparison.OrdinalIgnoreCase))
         {
           gridColumn.Width = GetColumnWith(dataColumn, DataTable.Rows) + 5;
           break;
@@ -523,8 +555,7 @@ public partial class FilteredDataGridView : DataGridView
   /// <param name="graphics">The graphics context used for text measurement.</param>
   /// <param name="font">The font used to render the cell text.</param>
   /// <param name="maxWidth">The maximum allowed width for the column.</param>
-  /// <param name="column">The DataColumn being measured.</param>
-  /// <param name="dataSource">The collection of rows to scan for content width.</param>
+  /// <param name="col">The DataColumn being measured.</param>  
   /// <param name="valueSelector">A function that extracts the display text from a cell value and indicates if scanning should stop.</param>
   /// <returns>The calculated width in pixels, clamped to <paramref name="maxWidth"/>.</returns>  
   private static int MeasureStrings(IDeviceContext graphics, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
@@ -765,6 +796,7 @@ public partial class FilteredDataGridView : DataGridView
       newColumn.ValueType = col.DataType;
       newColumn.Name = col.ColumnName;
       newColumn.DataPropertyName = col.ColumnName;
+      newColumn.SortMode = DataGridViewColumnSortMode.Programmatic;
 
       if (wrapColumns.Contains(col))
         newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -780,6 +812,7 @@ public partial class FilteredDataGridView : DataGridView
       m_FilterLogic[colIndex]= new ColumnFilterLogic(col.DataType, col.ColumnName);
     }
   }
+
 
   /// <summary>
   ///   Gets the column format.
@@ -1261,6 +1294,11 @@ public partial class FilteredDataGridView : DataGridView
     // Column was set on showing context menu
     Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
 
-  private void ToolStripMenuItemSortRemove_Click(object? sender, EventArgs e) => DataTable.DefaultView.Sort = string.Empty;
-
+  private void ToolStripMenuItemSortRemove_Click(object? sender, EventArgs e)
+  {
+    DataTable.DefaultView.Sort = string.Empty;
+    foreach (DataGridViewColumn col in Columns)
+      col.HeaderCell.SortGlyphDirection = SortOrder.None;
+    Invalidate(); 
+  } 
 }

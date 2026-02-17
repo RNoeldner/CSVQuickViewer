@@ -125,7 +125,8 @@ public sealed class ColumnFilterLogic : ObservableObject
     if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
     if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
 
-    DataPropertyName = dataPropertyName;
+    m_DataPropertyName = dataPropertyName;
+    ValidateDataPropertyName();
     DataType = columnDataType.GetDataType();
     if (DataType == DataTypeEnum.Double)
       DataType = DataTypeEnum.Numeric;
@@ -137,10 +138,6 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// a new cluster set based on the supplied values and clustering rules.
   /// </summary>
   /// <param name="values">The collection of raw values from which clusters are derived.</param>
-  /// <param name="keepActive">
-  /// If true, retains existing cluster activation states where possible; 
-  /// otherwise, all clusters are rebuilt without preserving previous state.
-  /// </param>
   /// <param name="maxNumber">The upper bound on the number of clusters to generate.</param>
   /// <param name="combine">
   /// Indicates whether small or low-density clusters should be merged to meet 
@@ -201,12 +198,11 @@ public sealed class ColumnFilterLogic : ObservableObject
 
         (var countNull, var newGroups) = even ? values.BuildValueClustersDateEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersDate(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
-
-        foreach (var newGroup in newGroups)
+        foreach (var newGroup in newGroups.Where(newGroup => !HasEnclosingCluster((DateTime) newGroup.Start, (DateTime) newGroup.End)))
         {
-          if (!HasEnclosingCluster((DateTime) newGroup.Start, (DateTime) newGroup.End))
-            AddOrUpdate(newGroup);
+          AddOrUpdate(newGroup);
         }
+
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -221,12 +217,13 @@ public sealed class ColumnFilterLogic : ObservableObject
             values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
             values.BuildValueClustersLong(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
-
-        foreach (var newGroup in newGroups)
+        foreach (var newGroup in from newGroup in newGroups
+                                 where !HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End)
+                                 select newGroup)
         {
-          if (!HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End))
-            AddOrUpdate(newGroup);
+          AddOrUpdate(newGroup);
         }
+
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -241,12 +238,9 @@ public sealed class ColumnFilterLogic : ObservableObject
             values.BuildValueClustersDoubleEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
             values.BuildValueClustersDouble(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
+        foreach (var newGroup in newGroups.Where(newGroup => !HasEnclosingCluster((double) newGroup.Start, (double) newGroup.End)))
+          AddOrUpdate(newGroup);
 
-        foreach (var newGroup in newGroups)
-        {
-          if (!HasEnclosingCluster((double) newGroup.Start, (double) newGroup.End))
-            AddOrUpdate(newGroup);
-        }
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
@@ -343,6 +337,19 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <value>The type of the column data.</value>
   public DataTypeEnum DataType { get; }
 
+  private void ValidateDataPropertyName()
+  {
+    // Unescape the name in case its escaped
+    if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
+        && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
+    {
+      m_DataPropertyName = m_DataPropertyName.Substring(1, m_DataPropertyName.Length - 2).Replace(@"\]", "]")
+        .Replace(@"\\", @"\");
+    }
+
+    m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
+  }
+
   public string DataPropertyName
   {
     get => m_DataPropertyName;
@@ -350,15 +357,7 @@ public sealed class ColumnFilterLogic : ObservableObject
     {
       if (!SetProperty(ref m_DataPropertyName, value))
         return;
-      // Unescape the name in case its escaped
-      if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
-          && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
-      {
-        m_DataPropertyName = m_DataPropertyName.Substring(1, m_DataPropertyName.Length - 2).Replace(@"\]", "]")
-          .Replace(@"\\", @"\");
-      }
-
-      m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
+      ValidateDataPropertyName();
     }
   }
 
@@ -465,7 +464,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   {
     if (string.IsNullOrEmpty(text))
       return false;
-    return text != cOperatorIsNotNull && text != OperatorIsNull;
+    return !string.Equals(text, cOperatorIsNotNull, StringComparison.OrdinalIgnoreCase)&& !string.Equals(text, OperatorIsNull, StringComparison.OrdinalIgnoreCase);
   }
 
   /// <summary>
@@ -581,7 +580,7 @@ public sealed class ColumnFilterLogic : ObservableObject
     }
     // Making sure end up with "col LIKE '% %'"
     m_ValueText = m_ValueText.Trim();
-    if (string.IsNullOrEmpty(m_ValueText) && (m_Operator == cOperatorContains || m_Operator == cOperatorLonger || m_Operator == cOperatorShorter|| m_Operator == cOperatorBegins || m_Operator == cOperatorEnds))
+    if (string.IsNullOrEmpty(m_ValueText) && (string.Equals(m_Operator, cOperatorContains, StringComparison.OrdinalIgnoreCase)|| string.Equals(m_Operator, cOperatorLonger, StringComparison.OrdinalIgnoreCase)|| string.Equals(m_Operator, cOperatorShorter, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorBegins, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorEnds, StringComparison.OrdinalIgnoreCase)))
     {
       return string.Empty;
     }

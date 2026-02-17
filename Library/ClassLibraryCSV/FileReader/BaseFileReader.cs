@@ -110,9 +110,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become 0.267</param>
   /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
   protected BaseFileReader(string fileName,
-    in IEnumerable<Column>? columnDefinition,
+    IEnumerable<Column>? columnDefinition,
     long recordLimit,
-    in TimeZoneChangeDelegate? timeZoneAdjust,
+    TimeZoneChangeDelegate? timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)

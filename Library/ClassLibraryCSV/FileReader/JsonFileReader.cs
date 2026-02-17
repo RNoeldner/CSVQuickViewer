@@ -59,7 +59,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    in TimeZoneChangeDelegate timeZoneAdjust,
+    TimeZoneChangeDelegate timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
@@ -88,7 +88,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     bool trim = false,
     string treatTextAsNull = "null",
     bool treatNbspAsSpace = false,
-    in TimeZoneChangeDelegate? timeZoneAdjust = null,
+    TimeZoneChangeDelegate? timeZoneAdjust = null,
     string returnedTimeZone = "",
     bool allowPercentage = true,
     bool removeCurrency = true)

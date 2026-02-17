@@ -497,7 +497,7 @@ public partial class FormColumnUiRead : ResizeForm
       return;
     {
       var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries));
-      var isInList = parts.Contains(format);
+      var isInList = parts.Contains(format, StringComparer.OrdinalIgnoreCase);
 
       if (e.NewValue == CheckState.Checked && !isInList)
       {
@@ -625,7 +625,7 @@ public partial class FormColumnUiRead : ResizeForm
       if (groupBoxBinary.Visible)
         height = groupBoxBinary.Height;
 
-      if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormat.Empty.DateFormat)
+      if (groupBoxBinary.Visible && string.Equals(m_ColumnEdit.ValueFormat.DateFormat, ValueFormat.Empty.DateFormat, StringComparison.Ordinal))
         m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
       flowLayoutPanel.Top = panelTop.Height;
       // Depending on OS and scaling a different value might be needed
@@ -691,7 +691,7 @@ public partial class FormColumnUiRead : ResizeForm
             goto retry;
           }
 
-          throw new ApplicationException($"Column {columnName} not found.");
+          throw new ArgumentException($"Column {columnName} not found.", nameof(columnName));
         }
 
         return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,

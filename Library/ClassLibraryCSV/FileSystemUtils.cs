@@ -185,7 +185,7 @@ public static class FileSystemUtils
       return string.Empty;
 
     // If a pattern is present in the folder this is not going to work
-    var newSet = new DateTime(0);
+    var newSet = new DateTime(0, DateTimeKind.Utc);
     var lastFile = string.Empty;
     foreach (var fileName in Directory.EnumerateFiles(
                folder.LongPathPrefix(),
@@ -662,17 +662,15 @@ public static class FileSystemUtils
   /// </summary>
   /// <param name="fileName"></param>
   /// <returns></returns>
-  public static string ResolvePattern(string fileName)
+  public static string ResolvePattern(this string fileName)
   {
     if (fileName is null || fileName.Length == 0)
       return string.Empty;
 
     // expand %AppData%, %LOCALAPPDATA% or %USERPROFILE% and alike
     var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName
-        .PlaceholderReplaceFormat("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
-        .PlaceholderReplaceFormat("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
-      //.PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-      //.PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now))        
+        .PlaceholderReplace("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
+        .PlaceholderReplace("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
     );
 
     // only if we have wild cards carry on
@@ -691,7 +689,7 @@ public static class FileSystemUtils
   /// </summary>
   /// <param name="path">The full path possibly with directories</param>
   /// <returns></returns>
-  public static string GetFileName(string? path)
+  public static string GetFileName(this string? path)
   {
     if (path is null || path.Length == 0)
       return string.Empty;

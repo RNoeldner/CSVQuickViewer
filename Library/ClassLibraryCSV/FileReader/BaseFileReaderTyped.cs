@@ -57,7 +57,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    in TimeZoneChangeDelegate? timeZoneAdjust,
+    TimeZoneChangeDelegate? timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage ,
     bool removeCurrency)

@@ -50,7 +50,7 @@ namespace CsvTools
 
     }
 
-    private class ClusterResolutionStrategyLong : IClusterResolutionStrategy<long>
+    private sealed class ClusterResolutionStrategyLong : IClusterResolutionStrategy<long>
     {
       public Func<object, long> Convert => System.Convert.ToInt64;
 
@@ -71,7 +71,7 @@ namespace CsvTools
       }
     }
 
-    private class ClusterResolutionStrategyDouble : IClusterResolutionStrategy<double>
+    private sealed class ClusterResolutionStrategyDouble : IClusterResolutionStrategy<double>
     {
       public Func<object, double> Convert => obj => Math.Floor(System.Convert.ToDouble(obj, CultureInfo.CurrentCulture) * 100d) / 100d;
       public Func<double, double> Round => number => Math.Floor(number * 10d) / 10d;
@@ -81,12 +81,12 @@ namespace CsvTools
       public string FormatSql(string escapedName, double startValue, double endValue) => endValue<double.MaxValue ? $"({escapedName} >= {startValue} AND {escapedName} < {endValue})" : $"({escapedName} >= {startValue})";
     }
 
-    private class ClusterResolutionStrategyDateTime : IClusterResolutionStrategy<DateTime>
+    private sealed class ClusterResolutionStrategyDateTime : IClusterResolutionStrategy<DateTime>
     {
       public Func<object, DateTime> Convert => System.Convert.ToDateTime;
 
       // 10:14 → 10:00; 10:32 → 10:30
-      public Func<DateTime, DateTime> Round => (dt => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute / 15 * 15, 0));
+      public Func<DateTime, DateTime> Round => (dt => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute / 15 * 15, 0, 0, DateTimeKind.Local));
 
       public string FormatDisplay(DateTime startValue, DateTime endValue)
       {
@@ -135,26 +135,32 @@ namespace CsvTools
     /// <summary>
     /// Converts items to typed values and counts how many could not be converted (NULL or invalid).
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="values">The objects to convert.</param>
-    /// <param name="unsortedList">The list to receive the typed results.</param>
     /// <param name="convert">Conversion delegate.</param>
     /// <param name="progress">Progress/cancellation handler.</param>
     /// <returns>Number of NULL or unconvertible values.</returns>
-    private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T> convert, IProgressWithCancellation progress)
+    private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T> convert, IProgressWithCancellation progress) where T : notnull
     {
       if (values is null) throw new ArgumentNullException(nameof(values));
       if (convert is null) throw new ArgumentNullException(nameof(convert));
       if (progress is null) throw new ArgumentNullException(nameof(progress));
       int total = values.Length;
+      // Start with a high capacity to avoid frequent re-allocations
       var typedList = new List<T>((int) (total * 0.9));
       var nullCount = 0;
 
       progress.SetMaximum(cMaxProgress);
       progress.Report($"Collecting values from {total:N0} rows");
+
+      // Track iterations to reduce cancellation check frequency
+      int count = 0;
       foreach (var obj in values)
       {
-        progress.CancellationToken.ThrowIfCancellationRequested();
+        // Check cancellation every 128 rows (using bitwise & for performance)
+        if ((count++ & 127) == 0)
+        {
+          progress.CancellationToken.ThrowIfCancellationRequested();
+        }
         try
         {
           if (obj is null or DBNull)
@@ -163,18 +169,14 @@ namespace CsvTools
           }
           else
           {
-            var value = convert(obj);
-            if (value is null && !typeof(T).IsValueType)
+            T value = convert(obj);
+            if (value is null)
               nullCount++;
             else
               typedList.Add(value);
           }
         }
-        catch (FormatException)
-        {
-          nullCount++;
-        }
-        catch (InvalidCastException)
+        catch (Exception ex) when (ex is FormatException or InvalidCastException)
         {
           nullCount++;
         }

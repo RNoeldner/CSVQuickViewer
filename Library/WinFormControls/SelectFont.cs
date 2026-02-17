@@ -71,7 +71,7 @@ public partial class SelectFont : UserControl
 #pragma warning disable CA1416
       var newValue = string.IsNullOrEmpty(value) ? SystemFonts.DefaultFont.FontFamily.Name : value;
 #pragma warning restore CA1416
-      if (comboBoxFont.Text == newValue)
+      if (string.Equals(comboBoxFont.Text, newValue, StringComparison.Ordinal))
         return;
       m_UiChange = false;
       comboBoxFont.Text = newValue;
@@ -89,9 +89,13 @@ public partial class SelectFont : UserControl
 
     comboBoxFont.BeginUpdate();
     using var col = new InstalledFontCollection();
-    foreach (FontFamily fa in col.Families)
+    for (var i = 0; i<col.Families.Length; i++)
+    {
+      var fa = col.Families[i];
       if (fa.IsStyleAvailable(FontStyle.Regular))
         comboBoxFont.Items.Add(fa.Name);
+    }
+
     comboBoxFont.EndUpdate();
 
     comboBoxSize.BeginUpdate();

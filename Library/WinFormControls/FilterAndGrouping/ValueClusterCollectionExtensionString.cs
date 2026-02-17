@@ -81,8 +81,9 @@ namespace CsvTools
       // -----------------------------
       foreach (var text in values)
       {
+        if (string.IsNullOrEmpty(text))
+          continue;
         CheckTimeout(stopwatch, maxSeconds, progress.CancellationToken);
-
         if (clusters[1].Count > max)
           break;
 
@@ -146,8 +147,8 @@ namespace CsvTools
 
         // Get Suiting Groups 
         var allClusters = allowedLengths
-            .OrderByDescending(l => l)
-            .Where(x => clusters[x].Count >= 1 && clusters[x].Count < max);
+            .Where(x => clusters[x].Count >= 1 && clusters[x].Count < max)
+            .OrderByDescending(l => l);
 
         var counterEntries = 0;
         foreach (var clusterLength in allClusters)
@@ -157,8 +158,7 @@ namespace CsvTools
         var filtered = 0;
         foreach (var prefixLength in allClusters)
         {
-          var bestCluster = clusters[prefixLength];
-          foreach (var prefix in bestCluster)
+          foreach (var prefix in clusters[prefixLength])
           {
             Report($"Building common beginning '{prefix}…'");
 

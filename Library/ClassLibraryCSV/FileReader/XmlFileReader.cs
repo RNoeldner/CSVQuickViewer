@@ -43,7 +43,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    in TimeZoneChangeDelegate timeZoneAdjust,
+    TimeZoneChangeDelegate timeZoneAdjust,
     string destTimeZone,
     bool allowPercentage,
     bool removeCurrency)
@@ -57,7 +57,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    in TimeZoneChangeDelegate timeZoneAdjust,
+    TimeZoneChangeDelegate timeZoneAdjust,
     string destTimeZone,
     bool allowPercentage,
     bool removeCurrency)

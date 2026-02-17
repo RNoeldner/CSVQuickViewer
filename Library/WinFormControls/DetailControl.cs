@@ -56,13 +56,13 @@ public sealed partial class DetailControl : UserControl
   private FormShowMaxLength? m_FormShowMaxLength;
   private FormUniqueDisplay? m_FormUniqueDisplay;
   private FormHierarchyDisplay? m_HierarchyDisplay;
-  private bool m_IsSearching = false;
-  private bool m_IsSyncing = false;
+  private bool m_IsSearching;
+  private bool m_IsSyncing;
   private bool m_MenuDown;
   private bool m_ShowButtons = true;
   private bool m_ShowFilter = true;
   private bool m_UpdateVisibility = true;
-  private bool m_IsLoadingBatch = false;
+  private bool m_IsLoadingBatch;
 
   public DetailControl()
   {
@@ -488,6 +488,11 @@ public sealed partial class DetailControl : UserControl
 
       // 3. Apply New Data
       FilteredDataGridView.DataTable = newDt;
+
+      // 3b. Clear all visual glyphs from headers
+      foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
+        col.HeaderCell.SortGlyphDirection = SortOrder.None;
+
       m_BindingSource.DataSource = newDt;
 
       // 4. Update Column Visibility (Precise logic based on GetColumns)
@@ -975,7 +980,10 @@ public sealed partial class DetailControl : UserControl
           await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), progress.CancellationToken);
         }
       }
-      catch (OperationCanceledException) { }
+      catch (OperationCanceledException)
+      {
+        // ignore
+      }
       finally { m_IsLoadingBatch = false; }
     }
   }

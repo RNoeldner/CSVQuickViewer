@@ -158,7 +158,7 @@ public class ResizeForm : Form
   private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
   {
     if (sender is IFontConfig conf &&
-        (e.PropertyName == nameof(IFontConfig.Font) || e.PropertyName == nameof(IFontConfig.FontSize)))
+        (string.Equals(e.PropertyName, nameof(IFontConfig.Font), StringComparison.OrdinalIgnoreCase) || string.Equals(e.PropertyName, nameof(IFontConfig.FontSize), StringComparison.OrdinalIgnoreCase)))
     {
       var newFont = new Font(conf.Font, conf.FontSize);
       m_CurrentFont?.Dispose();
@@ -194,7 +194,7 @@ public class ResizeForm : Form
     AutoScaleDimensions = new SizeF(96F, 96F);
     AutoScaleMode = AutoScaleMode.Dpi;
     AutoSize = true;
-    ClientSize = new Size(514, 350);
+    ClientSize = new Size(500, 369);
     Icon = (Icon) resources.GetObject("$this.Icon");
     Name = "ResizeForm";
     DpiChanged += OnDpiChanged;

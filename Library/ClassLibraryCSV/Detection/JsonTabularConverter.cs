@@ -548,13 +548,9 @@ public static class JsonTabularConverter
               // Exact match in NamePriority
               if (NamePriority.TryGetValue(p.Property.Name, out var exactPriority))
                 return exactPriority;
-
               // Suffix match: _id, _code, _name, _title in NamePriority
-              foreach (var kvp in NamePriority)
-              {
-                if (p.Property.Name.EndsWith("_" + kvp.Key, StringComparison.OrdinalIgnoreCase))
-                  return kvp.Value + 50;
-              }
+              foreach (var kvp in NamePriority.Where(kvp => p.Property.Name.EndsWith("_" + kvp.Key, StringComparison.OrdinalIgnoreCase)))
+                return kvp.Value + 50;
 
               // All others
               return 100;

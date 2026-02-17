@@ -207,7 +207,7 @@ public sealed class DataGridViewCopyPaste
     foreach (DataGridViewColumn c in columns)
 
       // Do not include the error field it will be retrieved from the error collection with nice coloring
-      if (c.Visible && c.HeaderText != ReaderConstants.cErrorField)
+      if (c.Visible && !string.Equals(c.HeaderText, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase))
         visibleColumns.Add(c.DisplayIndex, c);
     var hasRowError = HasRowErrors(0, rows.Count, rows);
     foreach (var headerText in from col in visibleColumns.Values

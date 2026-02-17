@@ -102,7 +102,7 @@ public sealed record ValueFormat
   /// <param name="overwrite">if set to <c>true</c> if we should overwrite file when writing.</param>
   [JsonConstructor]
   public ValueFormat(
-    in DataTypeEnum? dataType = DataTypeEnum.String,
+    DataTypeEnum? dataType = DataTypeEnum.String,
     string? dateFormat = cDateFormatDefault,
     string? dateSeparator = cDateSeparatorDefault,
     string? timeSeparator = cTimeSeparatorDefault,

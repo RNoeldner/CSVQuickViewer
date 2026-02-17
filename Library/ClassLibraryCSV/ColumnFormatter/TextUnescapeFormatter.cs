@@ -45,12 +45,9 @@ public class TextUnescapeFormatter : BaseColumnFormatter
       pos++;
     }
 
-    if (hex.Length > 0)
-      // get the hex number         
-      if (int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue))
-        return new Tuple<int, int>(pos, charValue);
-
-    return new Tuple<int, int>(-1, -1);
+    return hex.Length > 0&& int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue)
+      ? new Tuple<int, int>(pos, charValue)
+      : new Tuple<int, int>(-1, -1);
   }
 
   /// <summary>

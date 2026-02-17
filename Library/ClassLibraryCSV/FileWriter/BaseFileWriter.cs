@@ -91,7 +91,7 @@ public abstract class BaseFileWriter : IFileWriter
     string? header,
     in IEnumerable<Column>? columnDefinition,
     string fileSettingDisplay,
-    in TimeZoneChangeDelegate? timeZoneAdjust,
+    TimeZoneChangeDelegate? timeZoneAdjust,
     string sourceTimeZone,
     string publicKey,
     bool unencrypted
@@ -374,7 +374,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
   /// <remarks>It can only be DBNull, long, bool, double, decimal, DateTime, Guid  or string</remarks>
   public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
-    in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
+    TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
   {
     if (dataObject is null or DBNull)
       return DBNull.Value;

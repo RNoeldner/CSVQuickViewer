@@ -73,7 +73,7 @@ public class FormShowMaxLength : ResizeForm
     m_DataGridView.AllowUserToAddRows = false;
     m_DataGridView.AllowUserToDeleteRows = false;
     m_DataGridView.AllowUserToOrderColumns = true;
-    dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(  224,   224,   224);
+    dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(224, 224, 224);
     m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
     dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
     dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
@@ -157,14 +157,18 @@ public class FormShowMaxLength : ResizeForm
       }
 
       if (colIndex.Count > 0)
+      {
         foreach (var row in m_DataRow)
-        foreach (var col in checkCols)
         {
-          var cl = row[col.Value] == DBNull.Value || row[col.Value] is null
-            ? 0
-            : row[col.Value].ToString()?.Length ?? 0;
-          if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
+          foreach (var col in checkCols)
+          {
+            var cl = row[col.Value] == DBNull.Value || row[col.Value] is null
+              ? 0
+              : row[col.Value].ToString()?.Length ?? 0;
+            if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
+          }
         }
+      }
 
       var colNo = 1;
       foreach (var len in maxLength)

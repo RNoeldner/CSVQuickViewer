@@ -83,28 +83,24 @@ public static class DetectionLineComment
           }
 
           // 3. Handle Line Endings
-          if (c is '\n' or '\r')
+          if (c is '\n' or '\r' && ((c == '\n' && lastChar != '\r') || (c == '\r')))
           {
-            // Avoid double-counting CRLF
-            if ((c == '\n' && lastChar != '\r') || (c == '\r'))
+            if (isCurrentLineComment)
             {
-              if (isCurrentLineComment)
-              {
-                lineCommentedCount++;
-                if (firstCommentDelims == -1) firstCommentDelims = currentLineDelims;
-              }
-              else if (currentLineDelims > 0)
-              {
-                totalDataDelims += currentLineDelims;
-                dataRowCount++;
-              }
-
-              // Reset state for next line
-              isStartOfLine = true;
-              isCurrentLineComment = false;
-              currentLineDelims = 0;
-              if (dataRowCount >= maxRows) break;
+              lineCommentedCount++;
+              if (firstCommentDelims == -1) firstCommentDelims = currentLineDelims;
             }
+            else if (currentLineDelims > 0)
+            {
+              totalDataDelims += currentLineDelims;
+              dataRowCount++;
+            }
+
+            // Reset state for next line
+            isStartOfLine = true;
+            isCurrentLineComment = false;
+            currentLineDelims = 0;
+            if (dataRowCount >= maxRows) break;
           }
           lastChar = c;
         }

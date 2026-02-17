@@ -399,23 +399,23 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
     if (other is null) return false;
 
     return DataType == other.DataType
-           && DateFormat == other.DateFormat
-           && DateSeparator == other.DateSeparator
-           && DecimalSeparator == other.DecimalSeparator
-           && DisplayNullAs == other.DisplayNullAs
-           && False == other.False
-           && GroupSeparator == other.GroupSeparator
-           && NumberFormat == other.NumberFormat
+           && string.Equals(DateFormat, other.DateFormat, StringComparison.Ordinal)
+           && string.Equals(DateSeparator, other.DateSeparator, StringComparison.Ordinal)
+           && string.Equals(DecimalSeparator, other.DecimalSeparator, StringComparison.Ordinal)
+           && string.Equals(DisplayNullAs, other.DisplayNullAs, StringComparison.Ordinal)
+           && string.Equals(False, other.False, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(GroupSeparator, other.GroupSeparator, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(NumberFormat, other.NumberFormat, StringComparison.OrdinalIgnoreCase)
            && Part == other.Part
-           && PartSplitter == other.PartSplitter
+           && string.Equals(PartSplitter, other.PartSplitter, StringComparison.OrdinalIgnoreCase)
            && PartToEnd == other.PartToEnd
-           && TimeSeparator == other.TimeSeparator
-           && True == other.True
-           && RegexSearchPattern == other.RegexSearchPattern
-           && RegexReplacement == other.RegexReplacement
-           && ReadFolder == other.ReadFolder
-           && WriteFolder == other.WriteFolder
-           && FileOutPutPlaceholder == other.FileOutPutPlaceholder
+           && string.Equals(TimeSeparator, other.TimeSeparator, StringComparison.Ordinal)
+           && string.Equals(True, other.True, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(RegexSearchPattern, other.RegexSearchPattern, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(RegexReplacement, other.RegexReplacement, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(ReadFolder, other.ReadFolder, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(WriteFolder, other.WriteFolder, StringComparison.OrdinalIgnoreCase)
+           && string.Equals(FileOutPutPlaceholder, other.FileOutPutPlaceholder, StringComparison.OrdinalIgnoreCase)
            && Overwrite == other.Overwrite;
   }
 

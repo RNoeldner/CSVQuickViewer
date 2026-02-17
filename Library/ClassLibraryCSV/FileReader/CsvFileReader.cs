@@ -311,7 +311,7 @@ public class CsvFileReader : BaseFileReader
                        bool warnNbsp = false, bool warnQuotes = false, bool warnUnknownCharacter = false,
                        bool warnEmptyTailingColumns = true, bool treatNbspAsSpace = false,
                        string treatTextAsNull = "null", bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 5,
-                       in TimeZoneChangeDelegate? timeZoneAdjust = null, string destinationTimeZone = "",
+                       TimeZoneChangeDelegate? timeZoneAdjust = null, string destinationTimeZone = "",
                        bool allowPercentage = true, bool removeCurrency = true)
     : this(codePageId, skipRows, skipRowsAfterHeader,
            hasFieldHeader, columnDefinition,
@@ -495,7 +495,7 @@ public class CsvFileReader : BaseFileReader
                        bool warnNbsp = false, bool warnQuotes = false, bool warnUnknownCharacter = false,
                        bool warnEmptyTailingColumns = true, bool treatNbspAsSpace = false,
                        string treatTextAsNull = "null", bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 5,
-                       string identifierInContainer = "", in TimeZoneChangeDelegate? timeZoneAdjust = null,
+                       string identifierInContainer = "", TimeZoneChangeDelegate? timeZoneAdjust = null,
                        string destinationTimeZone = "", bool allowPercentage = true, bool removeCurrency = true)
     : this(codePageId, skipRows, skipRowsAfterHeader,
            hasFieldHeader, columnDefinition,
@@ -531,7 +531,7 @@ public class CsvFileReader : BaseFileReader
                         bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
                         bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
                         int consecutiveEmptyRowsMax, string identifierInContainer, string fileName,
-                        in TimeZoneChangeDelegate? timeZoneAdjust, string destinationTimeZone, bool allowPercentage,
+                        TimeZoneChangeDelegate? timeZoneAdjust, string destinationTimeZone, bool allowPercentage,
                         bool removeCurrency)
     : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destinationTimeZone, allowPercentage, removeCurrency)
   {
@@ -1016,9 +1016,9 @@ public class CsvFileReader : BaseFileReader
         // Handle replacements and warnings etc.
         var adjustedSpan = HandleTextSpecials(
           CurrentRowColumnText[columnNo]
-            .ReplaceCaseInsensitive(m_NewLinePlaceholder, '\n')
-            .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter)
-            .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier).AsSpan(),
+            .ReplaceCaseInsensitive(m_NewLinePlaceholder, "\n")
+            .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0())
+            .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier.ToStringHandle0()).AsSpan(),
           columnNo);
 
         if (adjustedSpan.Length > 0)

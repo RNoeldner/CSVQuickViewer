@@ -74,13 +74,21 @@
     <EmbeddedResource Include="DateTimeFormats.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.285">
+    <PackageReference Include="Meziantou.Analyzer" Version="3.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.19.0.132793">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="TimeZoneConverter" Version="7.2.0" />
     <PackageReference Include="UTF.Unknown" Version="2.6.0" />
   </ItemGroup>

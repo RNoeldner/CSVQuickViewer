@@ -301,15 +301,11 @@ public sealed class CsvColumnMerger
       }
 
       int score = ScoreCandidate(candidate, expected);
-      if (expected.Count>colNo-1)
-      {
-        // If the column that is going to get the content added was text column give it a bonus
-        if (!expected[colNo-1].HasFlag(ColumnCharacteristic.NumbersOnly)
+      if (expected.Count>colNo-1 && !expected[colNo-1].HasFlag(ColumnCharacteristic.NumbersOnly)
             && !expected[colNo-1].HasFlag(ColumnCharacteristic.DecimalChars)
             && !expected[colNo-1].HasFlag(ColumnCharacteristic.DateTimeChars)
             && !expected[colNo-1].HasFlag(ColumnCharacteristic.NoSpace))
-          score += 4;
-      }
+        score += 4;
       if (score > bestScore)
       {
         bestScore = score;
