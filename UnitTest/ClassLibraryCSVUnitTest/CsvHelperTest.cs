@@ -565,7 +565,7 @@ test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, te
       test.WarnEmptyTailingColumns,
 test.TreatNBSPAsSpace, test.TreatTextAsNull,
 test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer,
-StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
+TimeZoneInfo.Local.Id, true, false);
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("RecordNumber", reader.GetName(0));
     await reader.ReadAsync(UnitTestStatic.Token);

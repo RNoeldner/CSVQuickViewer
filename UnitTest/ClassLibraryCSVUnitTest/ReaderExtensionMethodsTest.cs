@@ -48,8 +48,7 @@ public class ReaderExtensionMethodsTest
     using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001, 0, 0, true, null,
                                        TrimmingOptionEnum.Unquoted, ',', '"', char.MinValue, 0, false, false, "#", 0,
                                        true, "", "", "", true, false, false, true, true, false, true, true, true, true,
-                                       false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone,
-                                       TimeZoneInfo.Local.Id, true, false);
+                                       false, "NULL", true, 4, "", TimeZoneInfo.Local.Id, true, false);
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual(6, test.GetColumnsOfReader().Count());
   }
@@ -71,7 +70,7 @@ setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpac
 setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
       setting.WarnEmptyTailingColumns,
 setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
+setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
 
     await test.OpenAsync(UnitTestStatic.Token);
 
@@ -96,7 +95,7 @@ test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLfAsSpace, tes
 test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter,
       test3.WarnEmptyTailingColumns,
 test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows,
-test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
+test3.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
     await test.OpenAsync(UnitTestStatic.Token);
 
     using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,

@@ -20,7 +20,6 @@ namespace CsvTools.Tests;
 [TestClass()]
 public class PagedFileReaderTest
 {
-  private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
   [TestMethod()]
   public async Task MoveToLastPageFirstPageAsync()
@@ -37,7 +36,7 @@ true, "", "",
 true, false, false,
 false, false, false, false,
 false, false, "",
-true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+true, 1, "ID", System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -65,7 +64,7 @@ true, "", "",
 true, false, false,
 false, false, false, false,
 false, false, "",
-true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+true, 1, "ID", System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -93,7 +92,7 @@ true, "", "",
 true, false, false,
 false, false, false, false,
 false, false, "",
-true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
+true, 1, "ID", System.TimeZoneInfo.Local.Id, true, false))
     {
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
@@ -118,7 +117,7 @@ true, "", "",
 true, false, false,
 false, false, false, false,
 false, false, "",
-true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, true))
+true, 1, "ID", System.TimeZoneInfo.Local.Id, true, true))
     {
       var test = new PagedFileReader(reader, 20);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);

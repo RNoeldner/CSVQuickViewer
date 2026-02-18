@@ -23,12 +23,11 @@ namespace CsvTools.Tests;
 [TestClass]
 public class JsonFileReaderTest
 {
-  private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
   [TestMethod]
   public async Task OpenJsonArrayLevel2()
   {
-    using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Array.json"), null, 0, false, "null", false, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+    using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Array.json"), null, 0, false, "null", false, TimeZoneInfo.Local.Id, false, false);
     await jfr.OpenAsync(UnitTestStatic.Token);
 
     await jfr.ReadAsync(UnitTestStatic.Token);
@@ -58,7 +57,7 @@ public class JsonFileReaderTest
   {
     using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("LogFile.json"));
     using var jfr = new JsonFileReader(stream, Array.Empty<Column>(), 5000, false, "<nil>", true,
-      m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+      TimeZoneInfo.Local.Id, false, false);
     await jfr.OpenAsync(UnitTestStatic.Token);
     await jfr.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("level", jfr.GetColumn(1).Name);
@@ -79,7 +78,7 @@ public class JsonFileReaderTest
 
     using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), setting.ColumnCollection, setting.RecordLimit,
       setting.TrimmingOption == TrimmingOptionEnum.All,
-      setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+      setting.TreatTextAsNull, setting.TreatNBSPAsSpace, TimeZoneInfo.Local.Id, false, false);
     await jfr.OpenAsync(UnitTestStatic.Token);
     await jfr.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual(0, jfr.GetByte(21));
@@ -119,7 +118,7 @@ public class JsonFileReaderTest
   public async Task ReadJSonTypes()
   {
     using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
-      StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false, false);
+       TimeZoneInfo.Local.Id, false, false);
     await jfr.OpenAsync(UnitTestStatic.Token);
     try
     {
@@ -223,7 +222,7 @@ public class JsonFileReaderTest
   {
     var dpd = new Progress<ProgressInfo>();
     using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
-      StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false, false);
+       TimeZoneInfo.Local.Id, false, false);
     jfr.ReportProgress = dpd;
 
     await jfr.OpenAsync(UnitTestStatic.Token);

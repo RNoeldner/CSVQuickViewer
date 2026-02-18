@@ -38,7 +38,6 @@ public class CsvColumnMergerTests
                                        warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true,
                                        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL",
                                        skipEmptyLines: false, consecutiveEmptyRowsMax: 4, identifierInContainer: "",
-                                       timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
                                        destinationTimeZone: System.TimeZoneInfo.Local.Id, allowPercentage: true,
                                        removeCurrency: true);
     await test.OpenAsync(UnitTestStatic.Token);

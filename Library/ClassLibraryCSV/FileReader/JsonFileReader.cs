@@ -26,11 +26,12 @@ namespace CsvTools;
 
 /// <inheritdoc cref="CsvTools.IFileReader" />
 /// <summary>
-///   Json text file reader, this reader is a synchonous reader
+///   Json text file reader, this reader is a synchronous reader
 /// </summary>
 public sealed class JsonFileReader : BaseFileReaderTyped
 {
   private Stream? m_Stream;
+  private readonly StreamProviderDelegate m_StreamProvider;
 
   private IEnumerator<JObject>? m_EnumeratorJson = null;
   // Storage for already read columns 
@@ -48,7 +49,6 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   /// <param name="trim">Trim all read text</param>
   /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
   /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
-  /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
   /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
   /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
   /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
@@ -59,13 +59,14 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    TimeZoneChangeDelegate timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
-    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
-      returnedTimeZone, allowPercentage, removeCurrency) =>
+    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency)
+  {
     m_Stream = stream;
+    m_StreamProvider= FunctionalDI.GetStream;
+  }
 
   /// <summary>
   /// Constructor for Json Reader
@@ -75,8 +76,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   /// <param name="recordLimit">Number of records that should be read</param>
   /// <param name="trim">Trim all read text</param>
   /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
-  /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
-  /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
+  /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>  
   /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
   /// <param name="allowPercentage">Allow percentage symbols and adjust read value accordingly 25% is .25</param>
   /// <param name="removeCurrency">Read numeric values even if it contains a currency symbol, the symbol is lost though</param>
@@ -88,12 +88,10 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     bool trim = false,
     string treatTextAsNull = "null",
     bool treatNbspAsSpace = false,
-    TimeZoneChangeDelegate? timeZoneAdjust = null,
     string returnedTimeZone = "",
     bool allowPercentage = true,
     bool removeCurrency = true)
-    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
-      returnedTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency)
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("File can not be null or empty", nameof(fileName));
@@ -101,6 +99,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
       throw new FileNotFoundException(
         $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
         fileName);
+    m_StreamProvider= FunctionalDI.GetStream;
   }
 
   /// <inheritdoc />
@@ -237,7 +236,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     if (SelfOpenedStream)
     {
       m_Stream?.Dispose();
-      m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
+      m_Stream = m_StreamProvider(new SourceAccess(FullPath));
     }
     else
     {

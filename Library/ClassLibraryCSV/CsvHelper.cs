@@ -763,11 +763,11 @@ public static class CsvHelper
       memStream.Seek(0, SeekOrigin.Begin);
       if (inspectionResult.IsJson)
         return new JsonFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, false, false);
+          TimeZoneInfo.Local.Id, false, false);
 
       if (inspectionResult.IsXml)
         return new XmlFileReader(memStream, inspectionResult.Columns, 0L, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
+          TimeZoneInfo.Local.Id, true, true);
 
       return new CsvFileReader(memStream, codePageId: inspectionResult.CodePageId,
                                skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
@@ -786,17 +786,16 @@ public static class CsvHelper
                                warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
                                warnUnknownCharacter: false, warnEmptyTailingColumns: true, treatNbspAsSpace: false,
                                treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-                               timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
                                destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
     }
 
     if (inspectionResult.IsJson)
       return new JsonFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+         TimeZoneInfo.Local.Id);
 
     if (inspectionResult.IsXml)
       return new XmlFileReader(inspectionResult.FileName, inspectionResult.Columns, 0L, false, string.Empty, false,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
+        TimeZoneInfo.Local.Id, true, true);
 
     return new CsvFileReader(inspectionResult.FileName, inspectionResult.CodePageId,
                              skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
@@ -816,7 +815,6 @@ public static class CsvHelper
                              warnUnknownCharacter: false, warnEmptyTailingColumns: true, treatNbspAsSpace: false,
                              treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
                              identifierInContainer: inspectionResult.IdentifierInContainer,
-                             timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
                              destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
   }
 }

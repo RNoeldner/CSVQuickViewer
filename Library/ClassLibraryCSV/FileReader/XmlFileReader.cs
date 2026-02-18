@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -33,7 +32,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   private readonly XmlDocument m_Doc = new XmlDocument();
   private XmlNode? m_CurrentNode;
   private Stream? m_Stream;
-
+  private readonly StreamProviderDelegate m_StreamProvider;
 
   /// <inheritdoc/>
   public XmlFileReader(
@@ -43,12 +42,14 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    TimeZoneChangeDelegate timeZoneAdjust,
     string destTimeZone,
     bool allowPercentage,
     bool removeCurrency)
-    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency) =>
+    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
+  {
     m_Stream = stream;
+    m_StreamProvider= FunctionalDI.GetStream;
+  }
 
   /// <inheritdoc />
   public XmlFileReader(string fileName,
@@ -57,11 +58,10 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    TimeZoneChangeDelegate timeZoneAdjust,
     string destTimeZone,
     bool allowPercentage,
     bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("File can not be null or empty", nameof(fileName));
@@ -69,6 +69,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       throw new FileNotFoundException(
         $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
         fileName);
+    m_StreamProvider= FunctionalDI.GetStream;
   }
 
   /// <inheritdoc />
@@ -101,13 +102,13 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   public new void Dispose() => Dispose(true);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <inheritdoc />
-    public new async ValueTask DisposeAsync()
-    {
-      if (m_Stream != null)
-        await m_Stream.DisposeAsync().ConfigureAwait(false);
-      Dispose(false);
-    }
+  /// <inheritdoc />
+  public new async ValueTask DisposeAsync()
+  {
+    if (m_Stream != null)
+      await m_Stream.DisposeAsync().ConfigureAwait(false);
+    Dispose(false);
+  }
 #endif
 
   /// <inheritdoc cref="IFileReader" />
@@ -133,12 +134,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       List<string> columnNames = [];
       for (int i = 0; i<10 && m_CurrentNode !=null; i++)
       {
-        var values = ReadNode(m_CurrentNode);
-        foreach (var column in values)
-        {
-          if (!columnNames.Contains(column.Key, StringComparer.OrdinalIgnoreCase))
-            columnNames.Add(column.Key);
-        }
+        columnNames.AddRange(ReadNode(m_CurrentNode).Where(column => !columnNames.Contains(column.Key, StringComparer.OrdinalIgnoreCase)).Select(column => column.Key));
         m_CurrentNode = m_CurrentNode.NextSibling;
       }
       m_CurrentNode  = GetStartNode();

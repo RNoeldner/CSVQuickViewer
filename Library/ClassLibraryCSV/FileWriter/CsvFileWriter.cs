@@ -69,7 +69,6 @@ public sealed class CsvFileWriter : BaseFileWriter
   /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
   /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
   /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
-  /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
   /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
   /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
   public CsvFileWriter(
@@ -93,15 +92,13 @@ public sealed class CsvFileWriter : BaseFileWriter
     bool qualifyAlways = false,
     bool qualifyOnlyIfNeeded = true,
     bool fixedLength = false,
-    TimeZoneChangeDelegate? timeZoneAdjust = null,
     string sourceTimeZone = "",
     string publicKey = "",
     bool unencrypted = false
   )
     : base(fullPath, valueFormat, identifierInContainer,
       footer, header, columnDefinition,
-      fileSettingDisplay, timeZoneAdjust,
-      sourceTimeZone, publicKey, unencrypted)
+      fileSettingDisplay, sourceTimeZone, publicKey, unencrypted)
   {
     m_CodePageId = codePageId;
     m_ColumnHeader = hasFieldHeader;

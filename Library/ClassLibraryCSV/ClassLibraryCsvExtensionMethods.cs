@@ -28,20 +28,6 @@ using System.Text.RegularExpressions;
 namespace CsvTools;
 
 /// <summary>
-/// Delegate for a routine that handles time zone conversion between two identifiers.
-/// </summary>
-/// <param name="input">The <see cref="DateTime"/> value to be converted.</param>
-/// <param name="sourceTimeZone">The source time zone identifier.</param>
-/// <param name="destinationTimeZone">The target time zone identifier.</param>
-/// <param name="handleWarning">
-/// Optional action invoked to report warnings, such as unknown or invalid time zones.
-/// </param>
-/// <returns>The converted <see cref="DateTime"/> value in the target time zone.</returns>
-#pragma warning disable MA0048 // File name must match type name
-public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string sourceTimeZone, string destinationTimeZone, Action<string>? handleWarning);
-#pragma warning restore MA0048 // File name must match type name
-
-/// <summary>
 /// Provides extension methods used within the CSV Class Library.
 /// </summary>
 public static class ClassLibraryCsvExtensionMethods

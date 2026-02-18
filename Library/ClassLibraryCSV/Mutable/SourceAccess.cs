@@ -233,7 +233,7 @@ public sealed class SourceAccess
     if (fileName.AssumeGZip())
       return FileTypeEnum.GZip;
     if (fileName.AssumeDeflate())
-      return FileTypeEnum.Deflate;      
+      return FileTypeEnum.Deflate;
     if (fileName.AssumePgp())
       return FileTypeEnum.Pgp;
     return fileName.AssumeZip() ? FileTypeEnum.Zip : FileTypeEnum.Plain;

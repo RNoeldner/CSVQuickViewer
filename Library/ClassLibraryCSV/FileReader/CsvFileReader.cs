@@ -144,6 +144,7 @@ public class CsvFileReader : BaseFileReader
   private IReadOnlyList<string> m_HeaderRow;
 
   private Stream? m_Stream;
+  private readonly StreamProviderDelegate m_StreamProvider;
 
   /// <summary>
   ///   Number of records in the source file; set only when the entire file has been read.
@@ -275,9 +276,6 @@ public class CsvFileReader : BaseFileReader
   /// <param name="consecutiveEmptyRowsMax">
   ///   Maximum number of consecutive empty rows before assuming end-of-file.
   /// </param>
-  /// <param name="timeZoneAdjust">
-  ///   Delegate used to adjust date-time values based on a time-zone field in the source data.
-  /// </param>
   /// <param name="destinationTimeZone">
   ///   Target time zone to which date-time values should be converted.
   /// </param>
@@ -311,8 +309,7 @@ public class CsvFileReader : BaseFileReader
                        bool warnNbsp = false, bool warnQuotes = false, bool warnUnknownCharacter = false,
                        bool warnEmptyTailingColumns = true, bool treatNbspAsSpace = false,
                        string treatTextAsNull = "null", bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 5,
-                       TimeZoneChangeDelegate? timeZoneAdjust = null, string destinationTimeZone = "",
-                       bool allowPercentage = true, bool removeCurrency = true)
+                       string destinationTimeZone = "", bool allowPercentage = true, bool removeCurrency = true)
     : this(codePageId, skipRows, skipRowsAfterHeader,
            hasFieldHeader, columnDefinition,
            trimmingOption, fieldDelimiterChar,
@@ -325,10 +322,11 @@ public class CsvFileReader : BaseFileReader
            warnNbsp, warnQuotes, warnUnknownCharacter,
            warnEmptyTailingColumns, treatNbspAsSpace,
            treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
-           string.Empty, string.Empty, timeZoneAdjust, destinationTimeZone,
+           string.Empty, string.Empty, destinationTimeZone,
            allowPercentage, removeCurrency)
   {
     m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
+    m_StreamProvider = FunctionalDI.GetStream;
   }
 
   /// <summary>
@@ -449,11 +447,7 @@ public class CsvFileReader : BaseFileReader
   /// </param>
   /// <param name="identifierInContainer">
   ///   Identifier of the file within a container (e.g. an entry name inside a ZIP archive).
-  /// </param>
-  /// <param name="timeZoneAdjust">
-  ///   Delegate used to adjust date-time values based on a time-zone field in the source data.
-  ///   Example: combining <c>"24/01/2024 07:56"</c> with <c>"UTC"</c> to compute local time.
-  /// </param>
+  /// </param>  
   /// <param name="destinationTimeZone">
   ///   Target time zone to which date-time values should be converted.
   /// </param>
@@ -495,8 +489,7 @@ public class CsvFileReader : BaseFileReader
                        bool warnNbsp = false, bool warnQuotes = false, bool warnUnknownCharacter = false,
                        bool warnEmptyTailingColumns = true, bool treatNbspAsSpace = false,
                        string treatTextAsNull = "null", bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 5,
-                       string identifierInContainer = "", TimeZoneChangeDelegate? timeZoneAdjust = null,
-                       string destinationTimeZone = "", bool allowPercentage = true, bool removeCurrency = true)
+                       string identifierInContainer = "", string destinationTimeZone = "", bool allowPercentage = true, bool removeCurrency = true)
     : this(codePageId, skipRows, skipRowsAfterHeader,
            hasFieldHeader, columnDefinition,
            trimmingOption, fieldDelimiterChar,
@@ -509,7 +502,7 @@ public class CsvFileReader : BaseFileReader
            warnNbsp, warnQuotes, warnUnknownCharacter,
            warnEmptyTailingColumns, treatNbspAsSpace,
            treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
-           identifierInContainer, fileName, timeZoneAdjust, destinationTimeZone, allowPercentage, removeCurrency)
+           identifierInContainer, fileName, destinationTimeZone, allowPercentage, removeCurrency)
   {
     if (fileName is null)
       throw new ArgumentNullException(nameof(fileName));
@@ -531,11 +524,12 @@ public class CsvFileReader : BaseFileReader
                         bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
                         bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
                         int consecutiveEmptyRowsMax, string identifierInContainer, string fileName,
-                        TimeZoneChangeDelegate? timeZoneAdjust, string destinationTimeZone, bool allowPercentage,
+                        string destinationTimeZone, bool allowPercentage,
                         bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destinationTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, destinationTimeZone, allowPercentage, removeCurrency)
   {
     SelfOpenedStream = !string.IsNullOrEmpty(fileName);
+    m_StreamProvider = FunctionalDI.GetStream;
     m_HeaderRow = [];
     m_EscapePrefix = escapeCharacterChar;
     m_FieldDelimiter = fieldDelimiterChar;
@@ -691,7 +685,7 @@ public class CsvFileReader : BaseFileReader
       if (SelfOpenedStream)
       {
         m_Stream?.Dispose();
-        m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath)
+        m_Stream = m_StreamProvider(new SourceAccess(FullPath)
         {
           IdentifierInContainer = m_IdentifierInContainer
         });
@@ -1593,7 +1587,7 @@ public class CsvFileReader : BaseFileReader
       // TextReader Dispose will take care of the stream
       m_TextReader?.Dispose();
 
-      m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath)
+      m_Stream = m_StreamProvider(new SourceAccess(FullPath)
       {
         IdentifierInContainer = m_IdentifierInContainer
       });

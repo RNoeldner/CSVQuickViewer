@@ -150,7 +150,7 @@ Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
 '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
 "", true, false, false, true, true, false, true, true, true, true, false,
 treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
+identifierInContainer: string.Empty, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
     {
       await reader.OpenAsync(CancellationToken.None);
       var columns = await CsvTools.DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
@@ -248,7 +248,7 @@ Array.Empty<Column>(), CsvTools.TrimmingOptionEnum.All,
 '\t', '"', char.MinValue, 0, false, false, "", 0, true, "", "",
 "", true, false, false, true, true, false, true, true, true, true, false,
 treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-identifierInContainer: string.Empty, timeZoneAdjust: CsvTools.StandardTimeZoneAdjust.ChangeTimeZone, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
+identifierInContainer: string.Empty, destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true))
         {
           await reader.OpenAsync(CancellationToken.None);
 

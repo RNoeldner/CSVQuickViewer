@@ -129,12 +129,11 @@ public static class FileSettingsExtensionMethods
           rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.FieldDelimiterChar,
             csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
-        }
 
-        using (var stream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
-        {
+          improvedStream.Position = 0;
+
           using var streamReader =
-            new StreamReader(stream, Encoding.GetEncoding(csvFile.CodePageId),
+            new StreamReader(improvedStream, Encoding.GetEncoding(csvFile.CodePageId),
               false, 4096, false);
           var numLines = 0;
           while (!streamReader.EndOfStream)

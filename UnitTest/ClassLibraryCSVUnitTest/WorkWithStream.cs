@@ -42,7 +42,7 @@ public class WorkWithStream
 new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
 result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
 string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -57,7 +57,7 @@ StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
 determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
 result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
 string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, reader.FieldCount);
@@ -80,7 +80,7 @@ StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
 new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
 result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
 string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       var columns = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -95,7 +95,7 @@ StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
 determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
 result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
 string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
+TimeZoneInfo.Local.Id, true, false))
     {
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, reader.FieldCount);

@@ -26,7 +26,6 @@ namespace CsvTools.Tests;
 public class DataReaderWrapperTests
 {
   private static readonly ICsvFile m_Setting;
-  private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
   static DataReaderWrapperTests()
   {
@@ -161,7 +160,7 @@ setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpac
 setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
 setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
 setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
-setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
+setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
   }
 
   [TestMethod()]

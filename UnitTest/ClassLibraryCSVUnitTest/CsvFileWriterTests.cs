@@ -83,7 +83,7 @@ public class CsvFileWriterTests
     var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
       col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
       string.Empty, string.Empty,
-      string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      string.Empty, false, true, false, TimeZoneInfo.Local.Id, string.Empty, false);
 
     var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress);
 
@@ -107,7 +107,7 @@ public class CsvFileWriterTests
     var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
       col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
       string.Empty, string.Empty,
-      string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      string.Empty, false, true, false, TimeZoneInfo.Local.Id, string.Empty, false);
 
 
     using var reader = new DataTableWrapper(UnitTestStaticData.GetDataTable(100));
@@ -154,7 +154,7 @@ public class CsvFileWriterTests
     var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
       col, string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, '|', '"', '\0',
       string.Empty, string.Empty,
-      string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      string.Empty, false, true, false, TimeZoneInfo.Local.Id, string.Empty, false);
 
     var res = await writer.WriteAsync(reader, UnitTestStatic.TesterProgress);
     Assert.IsTrue(FileSystemUtils.FileExists(fileName));
@@ -181,7 +181,7 @@ public class CsvFileWriterTests
     var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
       Array.Empty<Column>(), string.Empty, string.Empty, string.Empty, string.Empty, RecordDelimiterTypeEnum.Crlf, ',', '"', '\0',
       string.Empty, string.Empty,
-      string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      string.Empty, false, true, false, TimeZoneInfo.Local.Id, string.Empty, false);
 
 
     using var reader = new DataTableWrapper(dataTable);
@@ -212,7 +212,7 @@ public class CsvFileWriterTests
     var writer = new CsvFileWriter(fileName, true, ValueFormat.Empty, 65001, true,
       new Column[] { new Column("Text", new ValueFormat(DataTypeEnum.Integer)) }, string.Empty, "##This is a header for {FileName}", "##This is a Footer\r\n{Records} in file", string.Empty, RecordDelimiterTypeEnum.Crlf, ',', '"', '\0',
       string.Empty, string.Empty,
-      string.Empty, false, true, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, string.Empty, false);
+      string.Empty, false, true, false, TimeZoneInfo.Local.Id, string.Empty, false);
 
     writer.Warning += (o, a) => { count++; };
 

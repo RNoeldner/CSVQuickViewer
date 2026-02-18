@@ -22,7 +22,6 @@ namespace CsvTools.Tests;
 [TestClass]
 public class XmlFileReaderTest
 {
-  private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
   [TestMethod]
   public async Task XmlFileAsync()
@@ -31,7 +30,7 @@ public class XmlFileReaderTest
 
     using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
       setting.TrimmingOption == TrimmingOptionEnum.All,
-      setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+      setting.TreatTextAsNull, setting.TreatNBSPAsSpace, TimeZoneInfo.Local.Id, false, false);
     await xml.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("COMMON", xml.GetName(0));
     Assert.AreEqual("BOTANICAL", xml.GetName(1));
@@ -50,7 +49,7 @@ public class XmlFileReaderTest
 
     using var xml = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), setting.ColumnCollection, setting.RecordLimit,
       setting.TrimmingOption == TrimmingOptionEnum.All,
-      setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, false);
+      setting.TreatTextAsNull, setting.TreatNBSPAsSpace,  TimeZoneInfo.Local.Id, false, false);
     await xml.OpenAsync(UnitTestStatic.Token);
 
     Assert.AreEqual("COMMON", xml.GetName(0));
@@ -69,7 +68,7 @@ public class XmlFileReaderTest
   {
     using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("PlantSample.xml"));
     using var xmlReader = new XmlFileReader(stream, Array.Empty<Column>(), 5000, false, "<nil>", true,
-      m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, true);
+     TimeZoneInfo.Local.Id, false, true);
     await xmlReader.OpenAsync(UnitTestStatic.Token);
     await xmlReader.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("Bloodroot", xmlReader.GetString(0));
@@ -83,7 +82,7 @@ public class XmlFileReaderTest
   {
     using var xmlReader = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), Array.Empty<Column>(),
       5000, false, "<nil>", true,
-      m_TimeZoneAdjust, TimeZoneInfo.Local.Id, false, true);
+      TimeZoneInfo.Local.Id, false, true);
     await xmlReader.OpenAsync(UnitTestStatic.Token);
     await xmlReader.ReadAsync(UnitTestStatic.Token);
     try

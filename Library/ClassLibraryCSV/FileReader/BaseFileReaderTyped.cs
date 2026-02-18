@@ -46,7 +46,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <param name="trim">Trim read text</param>
   /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
   /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
-  /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
   /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
   /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
   /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
@@ -57,11 +56,10 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     bool trim,
     string treatTextAsNull,
     bool treatNbspAsSpace,
-    TimeZoneChangeDelegate? timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage ,
     bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, returnedTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, returnedTimeZone, allowPercentage, removeCurrency)
   {
     m_TreatNbspAsSpace = treatNbspAsSpace;
     m_Trim = trim;

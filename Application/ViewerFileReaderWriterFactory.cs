@@ -25,8 +25,8 @@ public class ViewerFileReaderWriterFactory : ClassLibraryCsvFileReaderWriterFact
 {
   /// <summary>Initializes a new instance of the <see cref="ViewerFileReaderWriterFactory" /> class.</summary>
   /// <inheritdoc />
-  public ViewerFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings) :
-    base(timeZoneAdjust, fillGuessSettings)
+  public ViewerFileReaderWriterFactory(FillGuessSettings fillGuessSettings) :
+    base(fillGuessSettings)
   {
   }
 
@@ -37,11 +37,11 @@ public class ViewerFileReaderWriterFactory : ClassLibraryCsvFileReaderWriterFact
     {
       if (csv.IsJson)
         return new JsonFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
-          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneInfo.Local.Id,
           FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
       if (csv.IsXml)
         return new XmlFileReader(fileName: csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.Trim,
-          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneAdjust, TimeZoneInfo.Local.Id,
+          csv.TreatTextAsNull, csv.TreatNBSPAsSpace, TimeZoneInfo.Local.Id,
           FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols);
 
       return new CsvFileReader(fileName: csv.FullPath, codePageId: csv.CodePageId, skipRows: csv.SkipRows, skipRowsAfterHeader: csv.SkipRowsAfterHeader, hasFieldHeader: csv.HasFieldHeader,
@@ -52,7 +52,7 @@ duplicateQualifierToEscape: csv.DuplicateQualifierToEscape, newLinePlaceholder: 
 quotePlaceholder: csv.QualifierPlaceholder, skipDuplicateHeader: csv.SkipDuplicateHeader, treatLinefeedAsSpace: csv.TreatLfAsSpace, treatUnknownCharacterAsSpace: csv.TreatUnknownCharacterAsSpace,
 tryToSolveMoreColumns: csv.TryToSolveMoreColumns, warnDelimiterInValue: csv.WarnDelimiterInValue, warnLineFeed: csv.WarnLineFeed, warnNbsp: csv.WarnNBSP, warnQuotes: csv.WarnQuotes,
 warnUnknownCharacter: csv.WarnUnknownCharacter, warnEmptyTailingColumns: csv.WarnEmptyTailingColumns, treatNbspAsSpace: csv.TreatNBSPAsSpace, treatTextAsNull: csv.TreatTextAsNull,
-skipEmptyLines: csv.SkipEmptyLines, consecutiveEmptyRowsMax: csv.ConsecutiveEmptyRows, identifierInContainer: csv.IdentifierInContainer, timeZoneAdjust: TimeZoneAdjust,
+skipEmptyLines: csv.SkipEmptyLines, consecutiveEmptyRowsMax: csv.ConsecutiveEmptyRows, identifierInContainer: csv.IdentifierInContainer, 
 destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: FillGuessSettings.DetectPercentage, removeCurrency: FillGuessSettings.RemoveCurrencySymbols);
     }
     else

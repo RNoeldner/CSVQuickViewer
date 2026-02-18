@@ -61,8 +61,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     Text = AssemblyTitle;
     WinAppLogging.AddLog(loggerDisplay);
 
-    FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone,
-      m_ViewSettings.FillGuessSettings);
+    FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(m_ViewSettings.FillGuessSettings);
 #if SupportPGP
       FunctionalDI.GetKeyAndPassphraseForFile = fileName =>
         fileName.GetKeyAndPassphraseForFile(
@@ -164,7 +163,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
           m_ViewSettings.WriteSetting.DelimiterPlaceholder,
           m_ViewSettings.WriteSetting.QualifierPlaceholder, m_ViewSettings.WriteSetting.QualifyAlways,
           m_ViewSettings.WriteSetting.QualifyOnlyIfNeeded,
-          m_ViewSettings.WriteSetting.WriteFixedLength, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
+          m_ViewSettings.WriteSetting.WriteFixedLength, TimeZoneInfo.Local.Id,
           FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, m_ViewSettings.WriteSetting.KeepUnencrypted);
 
         // can not use filteredDataGridView.Columns directly

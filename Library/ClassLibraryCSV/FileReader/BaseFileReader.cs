@@ -103,7 +103,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="fileName">Path to a physical file (if used)</param>
   /// <param name="columnDefinition">List of column definitions</param>
   /// <param name="recordLimit">Number of records that should be read</param>
-  /// <param name="timeZoneAdjust">Class to modify date time for time zones</param>
   /// <param name="returnedTimeZone">
   ///   Name of the time zone datetime values that have a source time zone should be converted to
   /// </param>
@@ -112,12 +111,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected BaseFileReader(string fileName,
     IEnumerable<Column>? columnDefinition,
     long recordLimit,
-    TimeZoneChangeDelegate? timeZoneAdjust,
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
   {
-    TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
+    TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
     ReturnedTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
     m_ColumnDefinition = columnDefinition is null
       ? []
@@ -947,7 +945,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       if (inputTime != null)
         passedIn = Convert.ToString(inputTime).AsSpan();
 
-      HandleWarning(column.ColumnOrdinal,$"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
+      HandleWarning(column.ColumnOrdinal, $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
     }
 
     if (!dateTime.HasValue && !strInputDate.IsEmpty

@@ -58,6 +58,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// Delegate for converting DateTime values between time zones.
   /// </summary>
   protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
+  protected readonly StreamProviderDelegate m_StreamProvider;
 
   /// <summary>The header written before the records are stored</summary>
   protected string Header;
@@ -77,8 +78,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <param name="footer">Footer to be written after all rows are written</param>
   /// <param name="header">Header to be written before data and/or Header is written</param>
   /// <param name="columnDefinition">Individual column definitions for formatting</param>
-  /// <param name="fileSettingDisplay">Info text for logging and process report</param>
-  /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
+  /// <param name="fileSettingDisplay">Info text for logging and process report</param>  
   /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
   /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
   /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
@@ -91,14 +91,14 @@ public abstract class BaseFileWriter : IFileWriter
     string? header,
     in IEnumerable<Column>? columnDefinition,
     string fileSettingDisplay,
-    TimeZoneChangeDelegate? timeZoneAdjust,
     string sourceTimeZone,
     string publicKey,
     bool unencrypted
   )
   {
     SourceTimeZone = sourceTimeZone;
-    TimeZoneAdjust = timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone;
+    TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
+    m_StreamProvider = FunctionalDI.GetStream;
     m_PublicKey = publicKey;
     m_KeepUnencrypted = unencrypted;
     FullPath = fullPath;
@@ -368,7 +368,6 @@ public abstract class BaseFileWriter : IFileWriter
   ///   Data Record in case additional columns are needed e.G. for TimeZone
   ///   adjustment based off ColumnOrdinalTimeZone or handling placeholders
   /// </param>
-  /// <param name="timeZoneAdjust">Class that does provide means to convert between timezones</param>
   /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
   /// <param name="handleWarning">Method to pass on warnings</param>
   /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
