@@ -22,6 +22,6 @@ public class UnitTestInitialize
   public static void AssemblyInitialize(TestContext context)
   {
     Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
-    FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));
+    FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(new FillGuessSettings(true));
   }
 }

@@ -24,7 +24,7 @@ public class ViewerFileReaderWriterFactoryTests
   public void GetFileReaderTestJson()
   {
     var setting = new CsvFileDummy() { FileName= UnitTestStatic.GetTestPath("AllFormatsPipe.csv"), IsJson= true, };
-    var fact = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));
+    var fact = new ViewerFileReaderWriterFactory(new FillGuessSettings(true));
     using var test2 = fact.GetFileReader(setting, UnitTestStatic.Token);
     Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
   }
@@ -33,7 +33,7 @@ public class ViewerFileReaderWriterFactoryTests
   public void GetFileReaderTestXml()
   {
     var setting = new CsvFileDummy() { FileName= UnitTestStatic.GetTestPath("AllFormatsPipe.csv"), IsXml= true, };
-    var fact = new ViewerFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, new FillGuessSettings(true));
+    var fact = new ViewerFileReaderWriterFactory(new FillGuessSettings(true));
     using var test2 = fact.GetFileReader(setting, UnitTestStatic.Token);
     Assert.IsInstanceOfType(test2, typeof(XmlFileReader));
   }

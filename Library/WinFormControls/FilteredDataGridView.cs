@@ -61,7 +61,7 @@ public partial class FilteredDataGridView : DataGridView
     Scroll += (o, e) => SetRowHeight();
 
     var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-    m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItemFilterAdd.Image") as Image) ??
+    m_ImgFilterIndicator = (resources.GetObject("filter_small") as Image) ??
                            throw new InvalidOperationException("Resource not found");
 
     VirtualMode = true;
@@ -886,7 +886,7 @@ public partial class FilteredDataGridView : DataGridView
 
         // Display a Filter Symbol
         var pt = e.CellBounds.Location;
-        var offset = e.CellBounds.Width - 22;
+        var offset = e.CellBounds.Width - 26;
         pt.X += offset;
         pt.Y = (e.CellBounds.Height / 2) - 4;
         e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);

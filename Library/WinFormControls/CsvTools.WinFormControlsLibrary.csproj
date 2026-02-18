@@ -33,8 +33,14 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\error.png" />
+    <None Remove="Resources\filter.png" />
+    <None Remove="Resources\filter_new.png" />
+    <None Remove="Resources\filter_remove.png" />
+    <None Remove="Resources\filter_small.png" />
     <None Remove="Resources\info.png" />
     <None Remove="Resources\question.png" />
+    <None Remove="Resources\sort_ascending.png" />
+    <None Remove="Resources\sort_descending.png" />
     <None Remove="Resources\warning.png" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +78,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <Content Include="Resources\filter.png" />
+    <Content Include="Resources\filter_new.png" />
+    <Content Include="Resources\filter_remove.png" />
+    <Content Include="Resources\filter_small.png" />
+    <Content Include="Resources\sort_ascending.png" />
+    <Content Include="Resources\sort_descending.png" />
     <ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -142,7 +142,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemFilter
       // 
-      this.toolStripMenuItemFilter.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilter.Image")));
+      this.toolStripMenuItemFilter.Image = ((System.Drawing.Image)(resources.GetObject("filter")));
       this.toolStripMenuItemFilter.Name = "toolStripMenuItemFilter";
       this.toolStripMenuItemFilter.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemFilter.Text = "Filter";
@@ -151,7 +151,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemFilterThisValue
       // 
-      this.toolStripMenuItemFilterThisValue.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterThisValue.Image")));
+      this.toolStripMenuItemFilterThisValue.Image = ((System.Drawing.Image)(resources.GetObject("filter_new")));
       this.toolStripMenuItemFilterThisValue.Name = "toolStripMenuItemFilterThisValue";
       this.toolStripMenuItemFilterThisValue.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemFilterThisValue.Text = "Filter for this value";
@@ -160,7 +160,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemFilterRemove
       // 
-      this.toolStripMenuItemFilterRemove.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterRemove.Image")));
+      this.toolStripMenuItemFilterRemove.Image = ((System.Drawing.Image)(resources.GetObject("filter_remove")));
       this.toolStripMenuItemFilterRemove.Name = "toolStripMenuItemFilterRemove";
       this.toolStripMenuItemFilterRemove.Size = new System.Drawing.Size(319, 30);
       this.toolStripMenuItemFilterRemove.Text = "Remove all Filter";
@@ -183,7 +183,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemFilterAdd
       // 
-      this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
+      this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("filter")));
       this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
       this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
       this.toolStripMenuItemFilterAdd.Text = "Filter";
@@ -233,7 +233,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemRemoveOne
       // 
-      this.toolStripMenuItemRemoveOne.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemRemoveOne.Image")));
+      this.toolStripMenuItemRemoveOne.Image = ((System.Drawing.Image)(resources.GetObject("filter_remove")));
       this.toolStripMenuItemRemoveOne.Name = "toolStripMenuItemRemoveOne";
       this.toolStripMenuItemRemoveOne.ShortcutKeys = System.Windows.Forms.Keys.Delete;
       this.toolStripMenuItemRemoveOne.Size = new System.Drawing.Size(268, 30);
@@ -243,7 +243,7 @@ namespace CsvTools
       // toolStripMenuItemFilterRemoveAllFilter
       // 
       this.toolStripMenuItemFilterRemoveAllFilter.Enabled = false;
-      this.toolStripMenuItemFilterRemoveAllFilter.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterRemoveAllFilter.Image")));
+      this.toolStripMenuItemFilterRemoveAllFilter.Image = ((System.Drawing.Image)(resources.GetObject("filter_remove")));
       this.toolStripMenuItemFilterRemoveAllFilter.Name = "toolStripMenuItemFilterRemoveAllFilter";
       this.toolStripMenuItemFilterRemoveAllFilter.Size = new System.Drawing.Size(268, 30);
       this.toolStripMenuItemFilterRemoveAllFilter.Text = "Remove all Filter";
@@ -252,7 +252,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemSortAscending
       // 
-      this.toolStripMenuItemSortAscending.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemSortAscending.Image")));
+      this.toolStripMenuItemSortAscending.Image = ((System.Drawing.Image)(resources.GetObject("sort_ascending")));
       this.toolStripMenuItemSortAscending.Name = "toolStripMenuItemSortAscending";
       this.toolStripMenuItemSortAscending.Size = new System.Drawing.Size(268, 30);
       this.toolStripMenuItemSortAscending.Tag = "Sort ascending by \'{0}\'";
@@ -261,7 +261,7 @@ namespace CsvTools
       // 
       // toolStripMenuItemSortDescending
       // 
-      this.toolStripMenuItemSortDescending.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemSortDescending.Image")));
+      this.toolStripMenuItemSortDescending.Image = ((System.Drawing.Image)(resources.GetObject("sort_descending")));
       this.toolStripMenuItemSortDescending.Name = "toolStripMenuItemSortDescending";
       this.toolStripMenuItemSortDescending.Size = new System.Drawing.Size(268, 30);
       this.toolStripMenuItemSortDescending.Tag = "Sort descending by \'{0}\'";

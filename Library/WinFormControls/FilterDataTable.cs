@@ -37,19 +37,14 @@ public sealed class FilterDataTable : DisposableBase
   private readonly Dictionary<DataColumn, bool> m_CacheColumns = new Dictionary<DataColumn, bool>();
 
   /// <summary>
-  ///   The original unfiltered data source.
-  /// </summary>
-  private readonly DataTable m_SourceTable;
-
-  /// <summary>
   ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
   /// </summary>
   /// <param name="init">The initial DataTable to be monitored and filtered.</param>
   /// <exception cref="ArgumentNullException">Thrown when init is null.</exception>
   public FilterDataTable(DataTable init)
   {
-    m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
-    foreach (DataColumn col in m_SourceTable.Columns)
+    OriginalTable = init ?? throw new ArgumentNullException(nameof(init));
+    foreach (DataColumn col in OriginalTable.Columns)
       m_CacheColumns.Add(col, true);
   }
 
@@ -62,7 +57,7 @@ public sealed class FilterDataTable : DisposableBase
   /// <summary>
   ///   Gets the most original unfiltered DataTable.
   /// </summary>
-  public DataTable OriginalTable => m_SourceTable;
+  public DataTable OriginalTable { get; }
 
   /// <summary>
   ///   Gets the most recently generated filtered DataTable.
@@ -103,17 +98,12 @@ public sealed class FilterDataTable : DisposableBase
     FilterAsync(int limit, RowFilterTypeEnum newFilterType, CancellationToken token)
   {
     // 1. Guard against invalid limits and "All" shortcut
-    int effectiveLimit = limit < 1 ? int.MaxValue : limit;
-    var numWarnings = 0;
-    var numErrors = 0;
-    var numWarningOrError = 0;
-    foreach (DataColumn col in m_SourceTable.Columns)
+    int numWarnings = 0, numErrors = 0, numWarningOrError = 0, effectiveLimit = limit < 1 ? int.MaxValue : limit;
+    foreach (DataColumn col in OriginalTable.Columns)
       m_CacheColumns[col] = true;
 
     if (newFilterType == RowFilterTypeEnum.All)
-    {
-      (numWarnings, numErrors, numWarningOrError) = await ParseTableAsync(m_SourceTable, (col) => m_CacheColumns[col] = false, null, token).ConfigureAwait(false);
-    }
+      (numWarnings, numErrors, numWarningOrError) = await ParseTableAsync(OriginalTable, (col) => m_CacheColumns[col] = false, null, token).ConfigureAwait(false);
     else
     {
       try
@@ -122,7 +112,7 @@ public sealed class FilterDataTable : DisposableBase
         // Use a list as a buffer. List<T> is faster to add to than a DataTable index.
         var buffer = new List<DataRow>();
 
-        (numWarnings, numErrors, numWarningOrError) =await ParseTableAsync(m_SourceTable,
+        (numWarnings, numErrors, numWarningOrError) =await ParseTableAsync(OriginalTable,
           (col) => m_CacheColumns[col] = false,
           (rowIssues, row) =>
             {
@@ -132,7 +122,7 @@ public sealed class FilterDataTable : DisposableBase
             }, token).ConfigureAwait(false);
 
         // 4. Critical Section: Bulk Import
-        var resultTable = m_SourceTable.Clone();
+        var resultTable = OriginalTable.Clone();
         resultTable.BeginLoadData();
         try
         {
@@ -154,13 +144,14 @@ public sealed class FilterDataTable : DisposableBase
       }
       catch (OperationCanceledException)
       {
+        // ignore
       }
       catch (Exception ex)
       {
         Logger.Warning($"FilterAsync {newFilterType}", ex);
       }
     }
-    return (m_SourceTable, numWarnings, numErrors, numWarningOrError);
+    return (OriginalTable, numWarnings, numErrors, numWarningOrError);
   }
 
   /// <summary>
@@ -200,10 +191,7 @@ public sealed class FilterDataTable : DisposableBase
           Action<DataColumn>? actionColumn,
     Func<RowFilterTypeEnum, DataRow, bool>? actionRow, CancellationToken token)
   {
-    int numErrors = 0;
-    int numWarnings = 0;
-    int numWarningOrError = 0;
-
+    int numErrors = 0, numWarnings = 0, numWarningOrError = 0;
     await Task.Run(() =>
     {
       for (var i = 0; i < table.Rows.Count; i++)
@@ -257,7 +245,7 @@ public sealed class FilterDataTable : DisposableBase
         if (actionRow?.Invoke(rowIssues, row) ?? false)
           break;
       }
-    }, token);
+    }, token).ConfigureAwait(true);
 
     return new(numWarnings, numErrors, numWarningOrError);
   }

@@ -48,40 +48,39 @@ public sealed partial class DetailControl : UserControl
 
   // Storing foundCells cells for search next / previous  
   private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
-  private readonly List<ToolStripItem> m_ToolStripItems = new List<ToolStripItem>();
+  private readonly IList<ToolStripItem> m_ToolStripItemsToMove;
   private readonly ICollection<string> m_UniqueFieldName = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
   private FilterDataTable? m_FilterDataTable;
-  private bool m_SelfOpenedDataTable;
   private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
   private FormShowMaxLength? m_FormShowMaxLength;
   private FormUniqueDisplay? m_FormUniqueDisplay;
   private FormHierarchyDisplay? m_HierarchyDisplay;
+  private bool m_IsLoadingBatch;
   private bool m_IsSearching;
-  private bool m_IsSyncing;
   private bool m_MenuDown;
+  private bool m_SelfOpenedDataTable;
   private bool m_ShowButtons = true;
   private bool m_ShowFilter = true;
   private bool m_UpdateVisibility = true;
-  private bool m_IsLoadingBatch;
 
   public DetailControl()
   {
     InitializeComponent();
     m_SteppedDataTableLoader = new SteppedDataTableLoader();
-    foreach (var item in new ToolStripItem[] {m_ToolStripComboBoxFilterType,
-               m_ToolStripButtonUniqueValues,
-               m_ToolStripButtonDuplicates,
-               m_ToolStripButtonHierarchy,
-               m_ToolStripButtonColumnLength,
-               m_ToolStripButtonSource,
-               m_ToolStripButtonStore
-             })
-      m_ToolStripItems.Add(item);
+
+    m_ToolStripItemsToMove = new List<ToolStripItem>()
+    {
+      m_ToolStripComboBoxFilterType,
+      m_ToolStripButtonUniqueValues,
+      m_ToolStripButtonDuplicates,
+      m_ToolStripButtonHierarchy,
+      m_ToolStripButtonColumnLength,
+      m_ToolStripButtonSource,
+      m_ToolStripButtonStore
+    };
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
     FilteredDataGridView.Scroll += OnDataGridViewScroll;
-    // Wire up synchronization ONCE here
-    m_BindingSource.PositionChanged += BindingSource_PositionChanged;
-    FilteredDataGridView.SelectionChanged += FilteredDataGridView_SelectionChanged;
+    FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
   }
 
   /// <summary>
@@ -118,7 +117,6 @@ public sealed partial class DetailControl : UserControl
       else
         FilteredDataGridView.DataTable= value;
       m_SelfOpenedDataTable =false;
-      m_BindingSource.DataSource = value;
       m_FilterDataTable?.Dispose();
       m_FilterDataTable = new FilterDataTable(value);
     }
@@ -269,12 +267,12 @@ public sealed partial class DetailControl : UserControl
   {
     if (item is null)
       throw new ArgumentNullException(nameof(item));
-    if (!m_ToolStripItems.Contains(item))
+    if (!m_ToolStripItemsToMove.Contains(item))
     {
-      if (index >= m_ToolStripItems.Count)
-        m_ToolStripItems.Add(item);
+      if (index >= m_ToolStripItemsToMove.Count)
+        m_ToolStripItemsToMove.Add(item);
       else
-        m_ToolStripItems.Insert(index, item);
+        m_ToolStripItemsToMove.Insert(index, item);
       m_UpdateVisibility = true;
     }
   }
@@ -347,13 +345,13 @@ public sealed partial class DetailControl : UserControl
 
           // Get the text that is displayed in the cell,
           // applying formatting for DateTime and IFormattable types
-          var formattedValue = (rawValue is DateTime dateTime)
-            ? StringConversion.DisplayDateTime(dateTime, CultureInfo.CurrentCulture)
-              : (rawValue is IFormattable formattable && !string.IsNullOrWhiteSpace(colInfo.Format))
-              // Handles Numeric based on the Grid's Column Format
-              ? formattable.ToString(colInfo.Format, null)
-              // Handles Guids and plain strings or any other type by calling ToString without format
-              : rawValue.ToString() ?? string.Empty;
+          string formattedValue;
+          if (rawValue is DateTime dateTime)
+            formattedValue=StringConversion.DisplayDateTime(dateTime, CultureInfo.CurrentCulture);
+          else if (rawValue is IFormattable formattable && !string.IsNullOrWhiteSpace(colInfo.Format))
+            formattedValue=formattable.ToString(colInfo.Format, null);
+          else
+            formattedValue=rawValue.ToString() ?? string.Empty;
 
           // 6. Check for match
           if (formattedValue.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) != -1)
@@ -422,188 +420,13 @@ public sealed partial class DetailControl : UserControl
     FilteredDataGridView.FileSetting = fileSetting;
     m_ToolStripComboBoxFilterType.Enabled = false;
     m_ToolStripLabelCount.Text = " loading...";
+    m_ToolStripTextBoxTotal.Visible=false;
     var dataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress);
     await LoadDataTableAsync(dataTable, filterType, progress.CancellationToken);
     // Set SelfOpenedDataTable only after LoadDataTableAsync
     m_SelfOpenedDataTable = true;
     timerLoadRemain.Enabled = !m_SteppedDataTableLoader.EndOfFile && autoLoad;
     return m_SteppedDataTableLoader.EndOfFile;
-  }
-
-  private void BindingSource_PositionChanged(object? sender, EventArgs e)
-  {
-    if (m_IsSyncing || m_BindingSource.Position < 0) return;
-
-    m_IsSyncing = true;
-    try
-    {
-      // Sync BindingSource -> Grid
-      if (FilteredDataGridView.CurrentRow?.Index != m_BindingSource.Position)
-      {
-        var oldColIndex = FilteredDataGridView.CurrentCell?.ColumnIndex ?? 0;
-        SetCurrentCell(FilteredDataGridView.Rows[m_BindingSource.Position].Cells[oldColIndex]);
-      }
-    }
-    finally { m_IsSyncing = false; }
-  }
-
-  private void FilteredDataGridView_SelectionChanged(object? sender, EventArgs e)
-  {
-    if (m_IsSyncing || FilteredDataGridView.CurrentRow == null) return;
-
-    m_IsSyncing = true;
-    try
-    {
-      // Sync Grid -> BindingSource
-      if (m_BindingSource.Position != FilteredDataGridView.CurrentRow.Index)
-        m_BindingSource.Position = FilteredDataGridView.CurrentRow.Index;
-    }
-    finally { m_IsSyncing = false; }
-  }
-
-  /// <summary>
-  /// Makes sure the data is displayed according to the filter type, e.g. show only errors or warnings
-  /// </summary>
-  /// <param name="filterType">The type of filter we want to see</param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  private async Task RefreshDisplayAndFilterAsync(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
-  {
-    if (IsDisposed || m_FilterDataTable is null)
-      return;
-
-    // 1. Run the background filter
-    var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, cancellationToken);
-
-    this.RunWithHourglass(() =>
-    {
-      // 1. Store State
-      var oldColIndex = FilteredDataGridView.CurrentCell?.ColumnIndex ?? 0;
-      var oldRowIndex = FilteredDataGridView.CurrentCell?.RowIndex ?? 0;
-      var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
-      var oldOrder = FilteredDataGridView.SortOrder;
-
-      // 2. Sync UI Filter Dropdown
-      UpdateFilterTypeItems(filterType, warnings, errors, warningOrErrors, newDt.Rows.Count);
-
-      // 3. Apply New Data
-      FilteredDataGridView.DataTable = newDt;
-
-      // 3b. Clear all visual glyphs from headers
-      foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
-        col.HeaderCell.SortGlyphDirection = SortOrder.None;
-
-      m_BindingSource.DataSource = newDt;
-
-      // 4. Update Column Visibility (Precise logic based on GetColumns)
-      var m_ColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
-      foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
-        dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName) || m_ColumnsInView.Contains(dgCol.DataPropertyName);
-
-      // 5. Restore Sorting
-      if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
-        Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-
-      // 6. Restore Position
-      try
-      {
-        // Ensure we have rows and a valid column index
-        if (FilteredDataGridView.RowCount > 0 && FilteredDataGridView.ColumnCount > 0)
-        {
-          // Clamp the row index to the new total (in case the new filter has fewer rows)
-          int targetRow = Math.Min(oldRowIndex, FilteredDataGridView.RowCount - 1);
-          if (targetRow < 0) targetRow = 0;
-
-          // Clamp the column index
-          int targetCol = (oldColIndex >= 0 && oldColIndex < FilteredDataGridView.ColumnCount)
-              ? oldColIndex
-              : 0;
-
-          // Ensure the column we are jumping to is actually visible
-          if (!FilteredDataGridView.Columns[targetCol].Visible)
-          {
-            // Fallback to the first visible column
-            var firstVisible = FilteredDataGridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible);
-            targetCol = firstVisible?.Index ?? targetCol;
-          }
-
-          // Set current cell and ensure it's visible to the user
-          SetCurrentCell(FilteredDataGridView[targetCol, targetRow]);
-          m_BindingSource.PositionChanged -= BindingSource_PositionChanged;
-          m_BindingSource.Position = targetRow;
-          m_BindingSource.PositionChanged += BindingSource_PositionChanged;
-        }
-      }
-      catch (Exception ex)
-      {
-        // Refocusing is "nice to have," don't let a failure here crash the load
-        Logger.Debug("Could not restore cell focus: " + ex.Message);
-      }
-    });
-
-    m_UpdateVisibility = true;
-  }
-
-  private void UpdateFilterTypeItems(RowFilterTypeEnum filterType, int warnings, int errors, int warningOrErrors, int total)
-  {
-    m_ToolStripComboBoxFilterType.BeginUpdate();
-    try
-    {
-      m_ToolStripComboBoxFilterType.Items.Clear();
-
-      // 1. Always add "All" (The base state)
-      m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.All));
-
-      // 2. Conditionally add issue-based filters
-      // Logic: Add if the count > 0 OR if it is the currently active filter
-      if (warnings > 0 || filterType == RowFilterTypeEnum.Warning)
-        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Warning));
-
-      if (errors > 0 || filterType == RowFilterTypeEnum.Errors)
-        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Errors));
-
-      if ((warningOrErrors > 0 && warningOrErrors != warnings && warningOrErrors != errors) ||
-          filterType == RowFilterTypeEnum.ErrorsAndWarning)
-        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.ErrorsAndWarning));
-
-      // 3. Add "Clean Records" only if there are clean and NOT clean
-      // This keeps the UI tidy for perfectly clean files
-      if ((total - warningOrErrors > 0 && warningOrErrors != 0) || filterType == RowFilterTypeEnum.Clean)
-        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Clean));
-
-      // 4. Update UI State
-      // Only enable/show if there's actually a choice to be made
-      bool hasOptions = m_ToolStripComboBoxFilterType.Items.Count > 1;
-      m_ToolStripComboBoxFilterType.Enabled = EndOfFile && hasOptions;
-      m_ToolStripComboBoxFilterType.Visible = m_ShowFilter && hasOptions;
-
-      // 5. Synchronize Selection
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
-      m_ToolStripComboBoxFilterType.SelectedItem = FormatItem(filterType);
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
-    }
-    finally
-    {
-      m_ToolStripComboBoxFilterType.EndUpdate();
-    }
-
-    // Local Helper: Closures make this very efficient as it captures warnings/errors/total
-    string FormatItem(RowFilterTypeEnum type)
-    {
-      if (type == RowFilterTypeEnum.All)
-        return type.ShortDescription();
-
-      int count = type switch
-      {
-        RowFilterTypeEnum.Clean => total - warningOrErrors,
-        RowFilterTypeEnum.Warning => warnings,
-        RowFilterTypeEnum.Errors => errors,
-        RowFilterTypeEnum.ErrorsAndWarning => warningOrErrors,
-        _ => total
-      };
-
-      return $"{type.ShortDescription()} - {count:N0}";
-    }
   }
 
   public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
@@ -809,8 +632,9 @@ public sealed partial class DetailControl : UserControl
     this.SafeInvoke(() =>
     {
       FilteredDataGridView.Font = Font;
-      m_BindingNavigator.Font = Font;
+      m_ToolStripNavigation.Font = Font;
       m_ToolStripTop.Font = Font;
+      ToolStripTextBoxTotal_TextChanged(this, EventArgs.Empty);
     });
   }
 
@@ -890,7 +714,6 @@ public sealed partial class DetailControl : UserControl
     }, ParentForm!);
   }
 
-
   /// <summary>
   /// Retrieves the current filter expression applied to the data view.
   /// </summary>
@@ -923,8 +746,16 @@ public sealed partial class DetailControl : UserControl
 
   private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
 
-    FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
+      FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
 
+  private void JumpToRow(int rowIndex)
+  {
+    if (rowIndex < 0 || rowIndex >= FilteredDataGridView.RowCount) return;
+
+    var colIndex = FilteredDataGridView.CurrentCell?.ColumnIndex ?? 0;
+    // Reuse your existing SetCurrentCell logic which handles scrolling visibility
+    SetCurrentCell(FilteredDataGridView.Rows[rowIndex].Cells[colIndex]);
+  }
 
   /// <summary>
   /// Asynchronously loads a new batch of data from the source file and merges it into the existing <see cref="DataTable"/>.
@@ -988,6 +819,24 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
+  private void MoveFirst_Click(object sender, EventArgs e) => JumpToRow(0);
+
+  private void MoveLast_Click(object sender, EventArgs e) => JumpToRow(FilteredDataGridView.RowCount - 1);
+
+  private void MoveNext_Click(object sender, EventArgs e)
+  {
+    int nextIndex = (FilteredDataGridView.CurrentRow?.Index ?? -1) + 1;
+    if (nextIndex < FilteredDataGridView.RowCount)
+      JumpToRow(nextIndex);
+  }
+
+  private void MovePrevious_Click(object sender, EventArgs e)
+  {
+    int prevIndex = (FilteredDataGridView.CurrentRow?.Index ?? 1) - 1;
+    if (prevIndex >= 0)
+      JumpToRow(prevIndex);
+  }
+
   private async void OnDataGridViewScroll(object? sender, ScrollEventArgs e)
   {
     // Only trigger if we aren't already loading and there is more data
@@ -1024,10 +873,91 @@ public sealed partial class DetailControl : UserControl
   }
 
   /// <summary>
+  /// Makes sure the data is displayed according to the filter type, e.g. show only errors or warnings
+  /// </summary>
+  /// <param name="filterType">The type of filter we want to see</param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  private async Task RefreshDisplayAndFilterAsync(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
+  {
+    if (IsDisposed || m_FilterDataTable is null)
+      return;
+
+    // 1. Run the background filter
+    var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, cancellationToken);
+
+    this.RunWithHourglass(() =>
+    {
+      // 1. Store State
+      var oldColIndex = FilteredDataGridView.CurrentCell?.ColumnIndex ?? 0;
+      var oldRowIndex = FilteredDataGridView.CurrentCell?.RowIndex ?? 0;
+      var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
+      var oldOrder = FilteredDataGridView.SortOrder;
+
+      // 2. Sync UI Filter Dropdown
+      UpdateFilterTypeItems(filterType, warnings, errors, warningOrErrors, newDt.Rows.Count);
+
+      // 3. Apply New Data
+      FilteredDataGridView.DataTable = newDt;
+
+      // 3b. Clear all visual glyphs from headers
+      foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
+        col.HeaderCell.SortGlyphDirection = SortOrder.None;
+
+      // 4. Update Column Visibility (Precise logic based on GetColumns)
+      var m_ColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
+      foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
+#pragma warning disable MA0002 // IEqualityComparer<string> or IComparer<string> is missing
+        dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName) || m_ColumnsInView.Contains(dgCol.DataPropertyName);
+#pragma warning restore MA0002 // IEqualityComparer<string> or IComparer<string> is missing
+
+      // 5. Restore Sorting
+      if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
+        Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+
+      // 6. Restore Position
+      try
+      {
+        // Ensure we have rows and a valid column index
+        if (FilteredDataGridView.RowCount > 0 && FilteredDataGridView.ColumnCount > 0)
+        {
+          // Clamp the row index to the new total (in case the new filter has fewer rows)
+          int targetRow = Math.Min(oldRowIndex, FilteredDataGridView.RowCount - 1);
+          if (targetRow < 0) targetRow = 0;
+
+          // Clamp the column index
+          int targetCol = (oldColIndex >= 0 && oldColIndex < FilteredDataGridView.ColumnCount)
+              ? oldColIndex
+              : 0;
+
+          // Ensure the column we are jumping to is actually visible
+          if (!FilteredDataGridView.Columns[targetCol].Visible)
+          {
+            // Fallback to the first visible column
+            var firstVisible = FilteredDataGridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible);
+            targetCol = firstVisible?.Index ?? targetCol;
+          }
+
+          // Set current cell and ensure it's visible to the user
+          SetCurrentCell(FilteredDataGridView[targetCol, targetRow]);
+        }
+      }
+      catch (Exception ex)
+      {
+        // Refocusing is "nice to have," don't let a failure here crash the load
+        Logger.Debug("Could not restore cell focus: " + ex.Message);
+      }
+    });
+
+    m_UpdateVisibility = true;
+  }
+
+  /// <summary>
   /// Selects the specified cell and ensures it is scrolled into prominent view.
   /// </summary>
   private void SetCurrentCell(DataGridViewCell cell)
   {
+    FilteredDataGridView.SelectionChanged -= UpdateNavigationUI;
     FilteredDataGridView.CurrentCell = cell;
 
     // --- Vertical Scrolling (Center the row) ---
@@ -1036,10 +966,7 @@ public sealed partial class DetailControl : UserControl
 
     // Use a small buffer (e.g., 2 rows) so it doesn't wait until the very last pixel to scroll
     if (cell.RowIndex <= firstRow || cell.RowIndex >= (firstRow + visibleRows - 1))
-    {
-      int targetRow = Math.Max(0, cell.RowIndex - (visibleRows / 2));
-      FilteredDataGridView.FirstDisplayedScrollingRowIndex = targetRow;
-    }
+      FilteredDataGridView.FirstDisplayedScrollingRowIndex = Math.Max(0, cell.RowIndex - (visibleRows / 2));
 
     // --- Horizontal Scrolling (The "Far Right" Fix) ---
     // Get the display rectangle of the cell relative to the grid's client area
@@ -1058,11 +985,13 @@ public sealed partial class DetailControl : UserControl
         // Set this column as the first visible one to ensure it's fully on screen
         FilteredDataGridView.FirstDisplayedScrollingColumnIndex = cell.ColumnIndex;
       }
-      catch (Exception)
+      catch
       {
         // Fallback for frozen columns or index errors
       }
     }
+    UpdateNavigationUI(this, EventArgs.Empty);
+    FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
   }
 
   private void timerLoadRemain_Tick(object? sender, EventArgs e)
@@ -1075,6 +1004,7 @@ public sealed partial class DetailControl : UserControl
   {
     if (!m_UpdateVisibility)
       return;
+    m_UpdateVisibility = false;
 
     if (ActiveControl == m_ToolStripContainer)
       // Focus the grid to clear ToolStrip highlighting
@@ -1082,15 +1012,14 @@ public sealed partial class DetailControl : UserControl
 
     // do not do this again
     m_TimerVisibility.Enabled = false;
-    m_UpdateVisibility = false;
     try
     {
-      var source = (m_MenuDown) ? m_ToolStripTop : m_BindingNavigator;
-      var target = (m_MenuDown) ? m_BindingNavigator : m_ToolStripTop;
+      var source = (m_MenuDown) ? m_ToolStripTop : m_ToolStripNavigation;
+      var target = (m_MenuDown) ? m_ToolStripNavigation : m_ToolStripTop;
       target.SuspendLayout();
       source.SuspendLayout();
       target.Font = Font;
-      foreach (var item in m_ToolStripItems)
+      foreach (var item in m_ToolStripItemsToMove)
       {
         item.DisplayStyle = (m_MenuDown)
           ? ToolStripItemDisplayStyle.Image
@@ -1102,11 +1031,9 @@ public sealed partial class DetailControl : UserControl
       }
 
       var hasData = EndOfFile && (FilteredDataGridView.DataTable.Rows.Count > 0);
-      foreach (var item in m_ToolStripItems)
+      foreach (var item in m_ToolStripItemsToMove)
       {
-        item.DisplayStyle = (m_MenuDown)
-          ? ToolStripItemDisplayStyle.Image
-          : ToolStripItemDisplayStyle.ImageAndText;
+        item.DisplayStyle = m_MenuDown ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
         target.Items.Add(item);
       }
 
@@ -1127,10 +1054,6 @@ public sealed partial class DetailControl : UserControl
       toolStripButtonMoveLastItem.Enabled = hasData;
       FilteredDataGridView.DataLoaded = hasData;
 
-      m_ToolStripLabelCount.ForeColor = EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
-      m_ToolStripLabelCount.ToolTipText = EndOfFile ? "Total number of records"
-                                                    : "Total number of records (loaded so far)";
-
       m_ToolStripTop.Visible = m_ShowButtons;
     }
     catch (InvalidOperationException ex)
@@ -1143,6 +1066,7 @@ public sealed partial class DetailControl : UserControl
     {
       // now you could run this again
       m_TimerVisibility.Enabled = true;
+      UpdateNavigationUI(this, EventArgs.Empty);
     }
   }
 
@@ -1179,4 +1103,106 @@ public sealed partial class DetailControl : UserControl
   /// </summary>
   private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     => await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), m_ControlCancellation.Token);
+
+  private void ToolStripTextBoxTotal_TextChanged(object sender, EventArgs e)
+  {
+    var text = m_ToolStripTextBoxTotal.Text;
+    // 2. Calculate and set widths based on the font and content
+    // We use the "total" string as the baseline for the width to keep both boxes consistent
+    using Graphics g = m_ToolStripTextBoxTotal.Control.CreateGraphics();
+    // If the count is very small (e.g., < 100), ensure a minimum visible width
+    if (text.Length < 3)
+      text = "0000";
+    var size = TextRenderer.MeasureText(g, text, m_ToolStripTextBoxTotal.Font).Width + 12;// 12px for internal margins and cursor space
+    m_ToolStripTextBoxTotal.Width = size;
+    m_ToolStripTextBoxPos.Width = size;
+  }
+
+  private void UpdateFilterTypeItems(RowFilterTypeEnum filterType, int warnings, int errors, int warningOrErrors, int total)
+  {
+    m_ToolStripComboBoxFilterType.BeginUpdate();
+    try
+    {
+      m_ToolStripComboBoxFilterType.Items.Clear();
+
+      // 1. Always add "All" (The base state)
+      m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.All));
+
+      // 2. Conditionally add issue-based filters
+      // Logic: Add if the count > 0 OR if it is the currently active filter
+      if (warnings > 0 || filterType == RowFilterTypeEnum.Warning)
+        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Warning));
+
+      if (errors > 0 || filterType == RowFilterTypeEnum.Errors)
+        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Errors));
+
+      if ((warningOrErrors > 0 && warningOrErrors != warnings && warningOrErrors != errors) ||
+          filterType == RowFilterTypeEnum.ErrorsAndWarning)
+        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.ErrorsAndWarning));
+
+      // 3. Add "Clean Records" only if there are clean and NOT clean
+      // This keeps the UI tidy for perfectly clean files
+      if ((total - warningOrErrors > 0 && warningOrErrors != 0) || filterType == RowFilterTypeEnum.Clean)
+        m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Clean));
+
+      // 4. Update UI State
+      // Only enable/show if there's actually a choice to be made
+      bool hasOptions = m_ToolStripComboBoxFilterType.Items.Count > 1;
+      m_ToolStripComboBoxFilterType.Enabled = EndOfFile && hasOptions;
+      m_ToolStripComboBoxFilterType.Visible = m_ShowFilter && hasOptions;
+
+      // 5. Synchronize Selection
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+      m_ToolStripComboBoxFilterType.SelectedItem = FormatItem(filterType);
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+    }
+    finally
+    {
+      m_ToolStripComboBoxFilterType.EndUpdate();
+    }
+
+    // Local Helper: Closures make this very efficient as it captures warnings/errors/total
+    string FormatItem(RowFilterTypeEnum type)
+    {
+      if (type == RowFilterTypeEnum.All)
+        return type.ShortDescription();
+
+      int count = type switch
+      {
+        RowFilterTypeEnum.Clean => total - warningOrErrors,
+        RowFilterTypeEnum.Warning => warnings,
+        RowFilterTypeEnum.Errors => errors,
+        RowFilterTypeEnum.ErrorsAndWarning => warningOrErrors,
+        _ => total
+      };
+
+      return $"{type.ShortDescription()} - {count:N0}";
+    }
+  }
+
+  /// <summary>
+  /// Manually updates the position label and button states based on the Grid's current state.
+  /// </summary>
+  private void UpdateNavigationUI(object? sender, EventArgs eventArgs)
+  {
+    int current = (FilteredDataGridView.CurrentRow?.Index ?? 0) + 1;
+    int total = FilteredDataGridView.RowCount;
+
+    var text = total.ToString(CultureInfo.InvariantCulture);
+    m_ToolStripTextBoxPos.Text = current.ToString(CultureInfo.InvariantCulture);
+    m_ToolStripLabelCount.Text = "of";
+    m_ToolStripTextBoxTotal.Visible=true;
+    if (!m_ToolStripTextBoxTotal.Text.Equals(text, StringComparison.Ordinal))
+      m_ToolStripTextBoxTotal.Text = text;
+    m_ToolStripTextBoxTotal.ForeColor = EndOfFile ? SystemColors.WindowText : SystemColors.Highlight;
+    m_ToolStripTextBoxTotal.ToolTipText = "Total number of records";
+    if (!EndOfFile)
+      m_ToolStripTextBoxTotal.ToolTipText += " (loaded so far)";
+
+    // Update button states manually
+    toolStripButtonMoveFirstItem.Enabled = current > 1;
+    toolStripButtonMovePreviousItem.Enabled = current > 1;
+    toolStripButtonMoveNextItem.Enabled = current < total;
+    toolStripButtonMoveLastItem.Enabled = current < total;
+  }
 }

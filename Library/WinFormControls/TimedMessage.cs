@@ -206,13 +206,13 @@ public class TimedMessage : ResizeForm
 
     string resourceName = icon switch
     {
-      MessageBoxIcon.Information => "info",
-      MessageBoxIcon.Warning => "warning",
-      MessageBoxIcon.Question => "question",
-      MessageBoxIcon.Error => "error",
+      MessageBoxIcon.Information => "info.png",
+      MessageBoxIcon.Warning => "warning.png",
+      MessageBoxIcon.Question => "question.png",
+      MessageBoxIcon.Error => "error.png",
       MessageBoxIcon.None => string.Empty
     };
-    string fullName = $"CsvTools.Resources.{resourceName}.png";
+    string fullName = $"CsvTools.Resources.{resourceName}";
     using var stream = m_ResourceAssembly.GetManifestResourceStream(fullName);
     if (stream == null)
       return null;
@@ -221,8 +221,8 @@ public class TimedMessage : ResizeForm
     m_IconCache[icon] = img; // cache for future use
     return img;
   }
-  
-  
+
+
   private void HideColumn(int colNumber, bool visible)
   {
     var styles = m_TableLayoutPanel.ColumnStyles;
