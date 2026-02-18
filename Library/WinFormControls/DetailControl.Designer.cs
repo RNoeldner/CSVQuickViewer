@@ -28,9 +28,9 @@ namespace CsvTools
     {
       components = new Container();
       var resources = new ComponentResourceManager(typeof(DetailControl));
-      var dataGridViewCellStyle4 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle5 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle6 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle3 = new DataGridViewCellStyle();
       m_ToolStripLabelCount = new ToolStripLabel();
       toolStripButtonMoveFirstItem = new ToolStripButton();
       toolStripButtonMovePreviousItem = new ToolStripButton();
@@ -52,6 +52,8 @@ namespace CsvTools
       m_ToolStripButtonSource = new ToolStripButton();
       m_TimerVisibility = new Timer(components);
       timerLoadRemain = new Timer(components);
+      m_NavRepeatTimer = new Timer(components);
+      m_NavInputTimer = new Timer(components);
       ((ISupportInitialize) FilteredDataGridView).BeginInit();
       m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
       m_ToolStripContainer.ContentPanel.SuspendLayout();
@@ -85,7 +87,9 @@ namespace CsvTools
       toolStripButtonMovePreviousItem.RightToLeftAutoMirrorImage = true;
       toolStripButtonMovePreviousItem.Size = new System.Drawing.Size(23, 22);
       toolStripButtonMovePreviousItem.Text = "Move previous";
-      toolStripButtonMovePreviousItem.Click += MovePrevious_Click;
+      toolStripButtonMovePreviousItem.MouseDown += NavButton_MouseDown;
+      toolStripButtonMovePreviousItem.MouseLeave += NavButton_MouseLeave;
+      toolStripButtonMovePreviousItem.MouseUp += NavButton_MouseUp;
       // 
       // m_ToolStripTextBoxPos
       // 
@@ -105,7 +109,9 @@ namespace CsvTools
       toolStripButtonMoveNextItem.RightToLeftAutoMirrorImage = true;
       toolStripButtonMoveNextItem.Size = new System.Drawing.Size(23, 22);
       toolStripButtonMoveNextItem.Text = "Move next";
-      toolStripButtonMoveNextItem.Click += MoveNext_Click;
+      toolStripButtonMoveNextItem.MouseDown += NavButton_MouseDown;
+      toolStripButtonMoveNextItem.MouseLeave += NavButton_MouseLeave;
+      toolStripButtonMoveNextItem.MouseUp += NavButton_MouseUp;
       // 
       // toolStripButtonMoveLastItem
       // 
@@ -121,34 +127,34 @@ namespace CsvTools
       // 
       FilteredDataGridView.AllowUserToAddRows = false;
       FilteredDataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+      dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
       FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
-      dataGridViewCellStyle5.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle5.WrapMode = DataGridViewTriState.False;
-      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle5;
+      dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point,  0);
+      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
+      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+      FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
       FilteredDataGridView.Dock = DockStyle.Fill;
       FilteredDataGridView.HighlightText = "";
       FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
       FilteredDataGridView.Margin = new Padding(0);
       FilteredDataGridView.Name = "FilteredDataGridView";
-      dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
-      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+      dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+      dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+      dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+      FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
       FilteredDataGridView.RowHeadersWidth = 51;
       FilteredDataGridView.ShowButtonAtLength = 1000;
       FilteredDataGridView.Size = new System.Drawing.Size(719, 366);
@@ -237,7 +243,7 @@ namespace CsvTools
       m_ToolStripNavigation.Items.AddRange(new ToolStripItem[] { toolStripButtonMoveFirstItem, toolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, m_ToolStripTextBoxTotal, toolStripButtonMoveNextItem, toolStripButtonMoveLastItem });
       m_ToolStripNavigation.Location = new System.Drawing.Point(6, 0);
       m_ToolStripNavigation.Name = "m_ToolStripNavigation";
-      m_ToolStripNavigation.Size = new System.Drawing.Size(228, 25);
+      m_ToolStripNavigation.Size = new System.Drawing.Size(197, 25);
       m_ToolStripNavigation.TabIndex = 1;
       // 
       // m_ToolStripTextBoxTotal
@@ -310,6 +316,14 @@ namespace CsvTools
       timerLoadRemain.Interval = 500;
       timerLoadRemain.Tick += timerLoadRemain_Tick;
       // 
+      // m_NavRepeatTimer
+      // 
+      m_NavRepeatTimer.Tick += NavRepeatTimer_Tick;
+      // 
+      // m_NavInputTimer
+      // 
+      m_NavInputTimer.Enabled = true;
+      // 
       // DetailControl
       // 
       Controls.Add(m_ToolStripContainer);
@@ -342,5 +356,7 @@ namespace CsvTools
     private Timer timerLoadRemain;
     private ToolStrip m_ToolStripNavigation;
     private ToolStripTextBox m_ToolStripTextBoxTotal;
+    private Timer m_NavRepeatTimer;
+    private Timer m_NavInputTimer;
   }
 }

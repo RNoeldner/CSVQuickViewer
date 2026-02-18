@@ -462,6 +462,7 @@ public static class StringUtils
 
     return new string(chars, 0, count);
   }
+
   /// <summary>Processes each char by category, if the test function return false,
   /// the charter is omitted</summary>
   /// <param name="original">The original text as span</param>
@@ -540,10 +541,17 @@ public static class StringUtils
   }
 
   /// <summary>
-  ///   Escapes SQL names; does not include the brackets or quotes
+  ///   Escapes a string for use inside T-SQL square brackets by doubling closing brackets.
   /// </summary>
-  /// <param name="contents">The column or table name.</param>
-  /// <returns>The names as it can be placed into brackets</returns>
+  /// <param name="contents">The raw column or table name to escape.</param>
+  /// <returns>
+  ///   The escaped string safe for placement between <c>[</c> and <c>]</c> delimiters. 
+  ///   Returns an empty string if the input is null or empty.
+  /// </returns>
+  /// <remarks>
+  ///   Following T-SQL rules, any literal <c>]</c> character within an identifier must be escaped 
+  ///   as <c>]]</c> when using bracket delimiters. This method does NOT add the outer brackets themselves.
+  /// </remarks>
   public static string SqlName(this string? contents) =>
     contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 

@@ -41,6 +41,12 @@ public sealed partial class DetailControl : UserControl
   /// Async Action to be invoked when Write File Button is pressed
   /// </summary>
   public Func<CancellationToken, IFileReader, Task>? WriteFileAsync;
+  // 0.4s pause before auto-acceleration
+  private const int InitialDelay = 400;
+  // Cap the jump size at 400 rows
+  private const int MaxJumpDistance = 400;
+  // ~6.6 jumps per second (150ms)
+  private const int RepeatInterval = 150;
 
   // Token source for managing cancellation of longer running search operations to ensure
   // responsiveness when users initiate new searches or close the control.
@@ -50,6 +56,7 @@ public sealed partial class DetailControl : UserControl
   private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
   private readonly IList<ToolStripItem> m_ToolStripItemsToMove;
   private readonly ICollection<string> m_UniqueFieldName = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  private ToolStripButton? m_ActiveNavButton;
   private FilterDataTable? m_FilterDataTable;
   private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
   private FormShowMaxLength? m_FormShowMaxLength;
@@ -57,6 +64,7 @@ public sealed partial class DetailControl : UserControl
   private FormHierarchyDisplay? m_HierarchyDisplay;
   private bool m_IsLoadingBatch;
   private bool m_IsSearching;
+  private int m_JumpDistance = 1;
   private bool m_MenuDown;
   private bool m_SelfOpenedDataTable;
   private bool m_ShowButtons = true;
@@ -81,6 +89,13 @@ public sealed partial class DetailControl : UserControl
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
     FilteredDataGridView.Scroll += OnDataGridViewScroll;
     FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
+
+    // Configure the debounce timer (1000ms = 1 second)
+    m_NavInputTimer.Interval = 1000;
+    m_NavInputTimer.Tick += (s, e) => { m_NavInputTimer.Stop(); ProcessManualNavigation(); };
+    // Wire up events for the position textbox
+    m_ToolStripTextBoxPos.TextChanged += (s, e) => { m_NavInputTimer.Stop(); m_NavInputTimer.Start(); };
+    m_ToolStripTextBoxPos.KeyDown += ToolStripTextBoxPos_KeyDown;
   }
 
   /// <summary>
@@ -799,7 +814,10 @@ public sealed partial class DetailControl : UserControl
       m_IsLoadingBatch = true;
       try
       {
-        // Cancel the current search
+        // 1. Stop any active auto-navigation jumps
+        StopNavigation();
+
+        // 2. Cancel the current search highlights
         OnSearchClear(this, EventArgs.Empty);
 
         using var newData = await m_SteppedDataTableLoader.GetNextBatch(duration, progress);
@@ -809,6 +827,7 @@ public sealed partial class DetailControl : UserControl
           try { m_FilterDataTable.OriginalTable.Merge(newData, false, MissingSchemaAction.Error); }
           finally { m_FilterDataTable.OriginalTable.EndLoadData(); }
           await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), progress.CancellationToken);
+          System.Media.SystemSounds.Beep.Play();
         }
       }
       catch (OperationCanceledException)
@@ -823,18 +842,48 @@ public sealed partial class DetailControl : UserControl
 
   private void MoveLast_Click(object sender, EventArgs e) => JumpToRow(FilteredDataGridView.RowCount - 1);
 
-  private void MoveNext_Click(object sender, EventArgs e)
+  private void NavButton_MouseDown(object sender, MouseEventArgs e)
   {
-    int nextIndex = (FilteredDataGridView.CurrentRow?.Index ?? -1) + 1;
-    if (nextIndex < FilteredDataGridView.RowCount)
-      JumpToRow(nextIndex);
+    if (e.Button != MouseButtons.Left) return;
+
+    m_ActiveNavButton = sender as ToolStripButton;
+    if (m_ActiveNavButton == null || !m_ActiveNavButton.Enabled) return;
+
+    // 1. Instant response: Always move exactly 1 row on the first click
+    m_JumpDistance = 1;
+    PerformNavigation(m_ActiveNavButton, m_JumpDistance);
+
+    // 2. Setup the "Hold" behavior
+    m_NavRepeatTimer.Interval = InitialDelay;
+    m_NavRepeatTimer.Start();
   }
 
-  private void MovePrevious_Click(object sender, EventArgs e)
+  private void NavButton_MouseLeave(object sender, EventArgs e) =>
+    // Safety: stop if the user slides the mouse off the button
+    StopNavigation();
+
+  private void NavButton_MouseUp(object sender, MouseEventArgs e) =>
+    StopNavigation();
+
+  private void NavRepeatTimer_Tick(object sender, EventArgs e)
   {
-    int prevIndex = (FilteredDataGridView.CurrentRow?.Index ?? 1) - 1;
-    if (prevIndex >= 0)
-      JumpToRow(prevIndex);
+    if (m_ActiveNavButton == null || !m_ActiveNavButton.Enabled)
+    {
+      StopNavigation();
+      return;
+    }
+
+    // Set repeat interval to a steady, readable speed
+    if (m_NavRepeatTimer.Interval != RepeatInterval)
+      m_NavRepeatTimer.Interval = RepeatInterval;
+
+    // 3. Perform the jump
+    PerformNavigation(m_ActiveNavButton, m_JumpDistance);
+
+    if (m_JumpDistance == 1)
+      m_JumpDistance = 2;
+    else if (m_JumpDistance < MaxJumpDistance)
+      m_JumpDistance = (int) (m_JumpDistance * 1.5);
   }
 
   private async void OnDataGridViewScroll(object? sender, ScrollEventArgs e)
@@ -870,6 +919,48 @@ public sealed partial class DetailControl : UserControl
     if (m_IsSearching)
       return;
     await FindNextAsync(false);
+  }
+
+  private void PerformNavigation(ToolStripButton button, int stepSize)
+  {
+    int currentIndex = FilteredDataGridView.CurrentRow?.Index ?? 0;
+    int targetIndex = currentIndex;
+
+    // Only handle Next/Previous for the acceleration timer
+    if (button == toolStripButtonMoveNextItem)
+      targetIndex = Math.Min(FilteredDataGridView.RowCount - 1, currentIndex + stepSize);
+    else if (button == toolStripButtonMovePreviousItem)
+      targetIndex = Math.Max(0, currentIndex - stepSize);
+
+    JumpToRow(targetIndex);
+
+    // Stop the timer if we hit the top or bottom of the list
+    if (targetIndex <= 0 || targetIndex >= FilteredDataGridView.RowCount - 1)
+      StopNavigation();
+  }
+
+  private void ProcessManualNavigation()
+  {
+    if (int.TryParse(m_ToolStripTextBoxPos.Text, out int targetRecord))
+    {
+      // Convert 1-based user input to 0-based index
+      int targetIndex = targetRecord - 1;
+
+      // Clamp values to valid row range
+      if (targetIndex < 0) targetIndex = 0;
+      if (targetIndex >= FilteredDataGridView.RowCount)
+        targetIndex = FilteredDataGridView.RowCount - 1;
+
+      if (FilteredDataGridView.RowCount > 0)
+      {
+        JumpToRow(targetIndex);
+      }
+    }
+    else
+    {
+      // Revert to actual position if input is invalid
+      UpdateNavigationUI(this, EventArgs.Empty);
+    }
   }
 
   /// <summary>
@@ -994,6 +1085,12 @@ public sealed partial class DetailControl : UserControl
     FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
   }
 
+  private void StopNavigation()
+  {
+    m_NavRepeatTimer.Stop();
+    m_ActiveNavButton = null;
+  }
+
   private void timerLoadRemain_Tick(object? sender, EventArgs e)
   {
     timerLoadRemain.Enabled=false;
@@ -1104,6 +1201,16 @@ public sealed partial class DetailControl : UserControl
   private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     => await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), m_ControlCancellation.Token);
 
+  private void ToolStripTextBoxPos_KeyDown(object? sender, KeyEventArgs e)
+  {
+    if (e.KeyCode == Keys.Enter)
+    {
+      e.Handled = true;
+      e.SuppressKeyPress = true; // Prevents Windows 'ding'
+      m_NavInputTimer.Stop();    // Cancel the delay timer since we are acting immediately
+      ProcessManualNavigation();
+    }
+  }
   private void ToolStripTextBoxTotal_TextChanged(object sender, EventArgs e)
   {
     var text = m_ToolStripTextBoxTotal.Text;
