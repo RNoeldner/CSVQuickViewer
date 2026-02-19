@@ -77,7 +77,9 @@ public class ExtensionsTests
   {
     using var ctrl = new ToolStripButton();
     var done = false;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
     ctrl.RunWithHourglass(() => done = true, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     Assert.IsTrue(done);
   }
 
@@ -89,11 +91,7 @@ public class ExtensionsTests
     CancellationTokenSource src = new CancellationTokenSource(TimeSpan.FromSeconds(1));
     Task.Run(() => Extensions.RunStaThread(() =>
     {
-      using var frm = new Form();
-      frm.Text = "Testing...";
-      frm.Show();
-      frm.ShowError(new Exception("Exception Message"), "Text", 0.1);
-      frm.Close();
+      Extensions.ShowError(new Exception("Exception Message"), "Text", 0.1);
     }), src.Token);
   }
 
