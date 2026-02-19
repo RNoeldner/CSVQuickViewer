@@ -286,7 +286,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex, "File Location");
+      Extensions.ShowError(ex, "File Location");
     }
   }
 
@@ -305,7 +305,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex, "Drag Drop");
+      Extensions.ShowError(ex, "Drag Drop");
     }
   }
 
@@ -325,7 +325,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex, "Drag Drop");
+      Extensions.ShowError(ex, "Drag Drop");
     }
   }
 

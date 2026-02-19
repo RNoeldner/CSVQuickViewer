@@ -216,7 +216,7 @@ public class Search : UserControl
     }
     catch (Exception ex)
     {
-      ParentForm!.ShowError(ex, "Error during search");
+      Extensions.ShowError(ex, "Error during search");
     }
     finally
     {

@@ -234,7 +234,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -455,7 +455,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -474,7 +474,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -541,7 +541,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
 #endif
   }

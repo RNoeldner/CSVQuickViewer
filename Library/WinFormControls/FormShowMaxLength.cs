@@ -205,7 +205,7 @@ public class FormShowMaxLength : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 }

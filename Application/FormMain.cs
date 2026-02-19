@@ -176,7 +176,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       }
       catch (Exception ex)
       {
-        this.ShowError(ex);
+        Extensions.ShowError(ex);
       }
     };
 
@@ -325,7 +325,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
             }
             catch (Exception ex)
             {
-              this.ShowError(ex, "Column Detection");
+              Extensions.ShowError(ex, "Column Detection");
             }
 
             m_RunDetection = false;
@@ -702,7 +702,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     {
       if (!m_CancellationTokenSource.Token.IsCancellationRequested)
       {
-        this.ShowError(ex, "Reading data");
+        Extensions.ShowError(ex, "Reading data");
         ShowTextPanel(true);
       }
     }
@@ -732,7 +732,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     }
     catch (Exception ex)
     {
-      this.ShowError(ex, "Storing Settings");
+      Extensions.ShowError(ex, "Storing Settings");
     }
   }
 

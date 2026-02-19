@@ -568,7 +568,7 @@ public partial class FormColumnUiRead : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -634,7 +634,7 @@ public partial class FormColumnUiRead : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -702,7 +702,7 @@ public partial class FormColumnUiRead : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex, "Getting Sample Values");
+      Extensions.ShowError(ex, "Getting Sample Values");
     }
 
     return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
@@ -860,7 +860,7 @@ public partial class FormColumnUiRead : ResizeForm
     }
     catch (Exception ex)
     {
-      this.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 

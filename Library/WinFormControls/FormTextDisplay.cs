@@ -76,7 +76,7 @@ public partial class FormTextDisplay : ResizeForm
     catch (Exception ex)
     {
       // ignore
-      FindForm().ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -132,7 +132,7 @@ public partial class FormTextDisplay : ResizeForm
       textBox.Visible=true;
       radioButtonText.Checked = true;
       // fastColoredTextBoxRO.Text =historyDisplay.Text;
-      FindForm().ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");
+      Extensions.ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");
     }
   }
 

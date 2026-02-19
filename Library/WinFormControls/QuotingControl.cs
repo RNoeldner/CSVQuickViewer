@@ -1173,7 +1173,7 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
     }
     catch (Exception exception)
     {
-      ParentForm?.ShowError(exception, "Quoting Control");
+      Extensions.ShowError(exception, "Quoting Control");
     }
   }
 }

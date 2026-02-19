@@ -1060,7 +1060,7 @@ public partial class FilteredDataGridView : DataGridView
     }
     catch (Exception ex)
     {
-      FindForm().ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 

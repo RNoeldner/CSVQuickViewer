@@ -449,14 +449,12 @@ public static class Extensions
   /// <summary>
   ///   Show error information to a user, and logs the message
   /// </summary>
-  /// <param name="from">The current Form</param>
   /// <param name="ex">the Exception</param>
   /// <param name="additionalTitle">Title Bar information</param>
   /// <param name="timeout">Timeout in Seconds</param>
-  public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
+  public static void ShowError(Exception ex, string? additionalTitle = "", double timeout = 60.0)
   {
     Cursor.Current = Cursors.Default;
-
     MessageBox.Show(
       ex.ExceptionMessages(),
       string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
@@ -507,41 +505,74 @@ public static class Extensions
   /// </summary>
   private static void RunWithHourglassInternal(Action action, Action<bool> setEnabled, Form? frm)
   {
+    // Capture the current cursor state
+    var previousCursor = Cursor.Current;
     try
     {
       setEnabled(false);
+      frm?.SafeInvoke(() => Cursor.Current=Cursors.WaitCursor);
       action.InvokeWithHourglass();
     }
     catch (ObjectDisposedException) { /* Component was closed; ignore */ }
     catch (Exception ex)
     {
-      frm?.SafeInvoke(() => frm.ShowError(ex));
+      // Restore previous state
+      frm?.SafeInvoke(() =>
+      {
+        Cursor.Current=previousCursor ?? Cursors.Default;
+        ShowError(ex);
+      });
     }
     finally
     {
-      setEnabled(true);
+      try
+      {
+        // Restore previous state
+        frm?.SafeInvoke(() => Cursor.Current=previousCursor ?? Cursors.Default);
+        setEnabled(true);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
     }
   }
 
   /// <summary>
   /// Core logic for asynchronous UI state management and exception reporting.
   /// </summary>
-  private static async Task RunWithHourglassInternalAsync(Func<Task> action, Action<bool> setEnabled, Form frm)
+  private static async Task RunWithHourglassInternalAsync(Func<Task> action, Action<bool> setEnabled, Form? frm)
   {
+    // Capture the current cursor state
+    var previousCursor = Cursor.Current;
     try
     {
       setEnabled(false);
+      frm?.SafeInvoke(() => Cursor.Current=Cursors.WaitCursor);
       await action.InvokeWithHourglassAsync().ConfigureAwait(true);
     }
     catch (ObjectDisposedException) { /* UI was closed during await; ignore */ }
     catch (Exception ex)
     {
-      frm.ShowError(ex);
+      // Restore previous state
+      frm?.SafeInvoke(() =>
+      {
+        Cursor.Current = previousCursor ?? Cursors.Default;
+        ShowError(ex);
+      });
     }
     finally
     {
-      // Defensive check as the UI might have been disposed during the async operation
-      try { setEnabled(true); } catch (ObjectDisposedException) { }
+      try
+      {
+        // Restore previous state
+        frm?.SafeInvoke(() => Cursor.Current=previousCursor ?? Cursors.Default);
+        setEnabled(true);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
     }
   }
 }

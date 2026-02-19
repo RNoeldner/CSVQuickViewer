@@ -807,7 +807,7 @@ public sealed partial class DetailControl : UserControl
       else
         await this.RunWithHourglassAsync(() => processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
     }
-    catch (Exception ex) { frm.ShowError(ex, "Failed to load additional data rows."); }
+    catch (Exception ex) { Extensions.ShowError(ex, "Failed to load additional data rows."); }
 
     async Task processLoad(IProgressWithCancellation progress, TimeSpan duration)
     {
@@ -967,8 +967,10 @@ public sealed partial class DetailControl : UserControl
   /// Makes sure the data is displayed according to the filter type, e.g. show only errors or warnings
   /// </summary>
   /// <param name="filterType">The type of filter we want to see</param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
+  /// <param name="cancellationToken">
+  /// A token that can be used to cancel the read operation.
+  /// Implementations should observe this token and stop reading promptly when cancellation is requested.
+  /// </param>
   private async Task RefreshDisplayAndFilterAsync(RowFilterTypeEnum filterType, CancellationToken cancellationToken)
   {
     if (IsDisposed || m_FilterDataTable is null)
@@ -1037,6 +1039,10 @@ public sealed partial class DetailControl : UserControl
       {
         // Refocusing is "nice to have," don't let a failure here crash the load
         Logger.Debug("Could not restore cell focus: " + ex.Message);
+      }
+      finally
+      {
+        UpdateNavigationUI(this, EventArgs.Empty);
       }
     });
 
@@ -1156,8 +1162,6 @@ public sealed partial class DetailControl : UserControl
     catch (InvalidOperationException ex)
     {
       Debug.WriteLine($"Issue updating UI: {ex.Message}");
-      // ignore error in regard to cross thread issues, SafeBeginInvoke should have handled
-      // this though
     }
     finally
     {

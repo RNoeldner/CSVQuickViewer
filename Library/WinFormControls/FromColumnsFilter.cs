@@ -96,7 +96,7 @@ public sealed partial class FromColumnsFilter : ResizeForm
     }
     catch (Exception e)
     {
-      ParentForm.ShowError(e);
+      Extensions.ShowError(e);
     }
   }
 

@@ -106,7 +106,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     }
     catch (Exception ex)
     {
-      ParentForm.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -130,7 +130,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     }
     catch (Exception exception)
     {
-      ParentForm.ShowError(exception);
+      Extensions.ShowError(exception);
     }
   }
 
@@ -199,7 +199,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     }
     catch (Exception ex)
     {
-      ParentForm.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -251,7 +251,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     }
     catch (Exception ex)
     {
-      ParentForm.ShowError(ex);
+      Extensions.ShowError(ex);
     }
   }
 
@@ -301,7 +301,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     catch (Exception ex)
     {
       frm.Close();
-      this.ShowError(ex, "Filter");
+      Extensions.ShowError(ex, "Filter");
     }
   }
 
