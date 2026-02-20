@@ -106,17 +106,17 @@ public partial class FilteredDataGridView : DataGridView
     Sort(Columns[e.ColumnIndex], direction);
   }
 
-  public override void Sort(DataGridViewColumn dataGridViewColumn, ListSortDirection directionSort)
+  public override void Sort(DataGridViewColumn dataGridViewColumn, ListSortDirection direction)
   {
     // 1. Apply directly to the DataView to avoid InvalidOperationException
-    DataTable.DefaultView.Sort = $"[{dataGridViewColumn.DataPropertyName}] {(directionSort == ListSortDirection.Ascending ? "ASC" : "DESC")}";
+    DataTable.DefaultView.Sort = $"[{dataGridViewColumn.DataPropertyName}] {(direction == ListSortDirection.Ascending ? "ASC" : "DESC")}";
 
     // 2. Clear glyphs from ALL columns first
     foreach (DataGridViewColumn col in Columns)
       col.HeaderCell.SortGlyphDirection = SortOrder.None;
 
     // 3. Set the Glyph for the active column only
-    dataGridViewColumn.HeaderCell.SortGlyphDirection = directionSort == ListSortDirection.Ascending ? SortOrder.Ascending : SortOrder.Descending;
+    dataGridViewColumn.HeaderCell.SortGlyphDirection = direction == ListSortDirection.Ascending ? SortOrder.Ascending : SortOrder.Descending;
 
     // 4. Refresh the grid
     Invalidate();

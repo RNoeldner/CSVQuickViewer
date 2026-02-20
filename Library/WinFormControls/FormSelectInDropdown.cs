@@ -45,7 +45,7 @@ public partial class FormSelectInDropdown : ResizeForm
 
     comboBox.EndUpdate();
     if (comboBox.Items.Count == 0)
-      throw new ArgumentException($"No value to Select in {nameof(dropdownTexts)}");
+      throw new ArgumentException($"No value to select", nameof(dropdownTexts));
     comboBox.SelectedIndex = preIndex;
   }
 

@@ -70,13 +70,12 @@ public static class Extensions
   /// <param name="owner">
   ///   The owner form, in case the owner is minimized or closed this progress will do the same
   /// </param>
-  /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// 
   /// <returns>A process display, if the stetting want a process</returns>
   public static FormProgress GetProgress(
     this IFileSetting fileSetting,
     Form? owner,
-    bool withLogger,
     CancellationToken cancellationToken)
   {
     var formProgress = new FormProgress(fileSetting.GetDisplay(), cancellationToken);
@@ -434,8 +433,8 @@ public static class Extensions
   {
     cbo.SuspendLayout();
 
-    cbo.DisplayMember = nameof(DisplayItem<T>.Display);
-    cbo.ValueMember = nameof(DisplayItem<T>.ID);
+    cbo.DisplayMember = nameof(DisplayItem<>.Display);
+    cbo.ValueMember = nameof(DisplayItem<>.ID);
 
     cbo.DataSource = Enum.GetValues(typeof(T))
       .Cast<T>()

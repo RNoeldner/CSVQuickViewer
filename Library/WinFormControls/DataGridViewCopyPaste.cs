@@ -211,8 +211,8 @@ public sealed class DataGridViewCopyPaste
         visibleColumns.Add(c.DisplayIndex, c);
     var hasRowError = HasRowErrors(0, rows.Count, rows);
     foreach (var headerText in from col in visibleColumns.Values
-             let headerText = col.HeaderText
-             select headerText)
+                               let headerText = col.HeaderText
+                               select headerText)
     {
       sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, headerText));
       if (!first)
@@ -254,9 +254,10 @@ public sealed class DataGridViewCopyPaste
       AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
       sbHtml.AppendLine(HtmlStyle.TrClose);
       buffer.AppendLine();
-      if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
+      var now = DateTime.Now;
+      if ((now - lastRefresh).TotalSeconds <= 0.2)
         continue;
-      lastRefresh = DateTime.Now;
+      lastRefresh = now;
       Extensions.ProcessUIElements();
     }
 
@@ -379,9 +380,10 @@ public sealed class DataGridViewCopyPaste
 
       sbHtml.AppendLine(HtmlStyle.TrClose);
       buffer.AppendLine();
-      if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
+      var now = DateTime.Now;
+      if ((now- lastRefresh).TotalSeconds <= 0.2)
         continue;
-      lastRefresh = DateTime.Now;
+      lastRefresh = now;
       Extensions.ProcessUIElements();
     }
 

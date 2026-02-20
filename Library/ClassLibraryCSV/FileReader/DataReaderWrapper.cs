@@ -72,8 +72,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
     m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
 
-    if (m_FileReader != null)
-      m_FileReader.Warning += HandleSourceWarning;
+    m_FileReader?.Warning += HandleSourceWarning;
   }
 
   /// <inheritdoc />
@@ -92,8 +91,8 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   public override int Depth => FieldCount;
 
   /// <inheritdoc />
-  public void HandleReadFinished() =>  ReadFinished?.SafeInvoke(this);
-    
+  public void HandleReadFinished() => ReadFinished?.SafeInvoke(this);
+
   /// <inheritdoc />
   public long EndLineNumber => m_FileReader?.EndLineNumber ?? RecordNumber;
 
@@ -138,11 +137,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   public IProgress<ProgressInfo> ReportProgress
   {
-    set
-    {
-      if (m_FileReader != null)
-        m_FileReader.ReportProgress = value;
-    }
+    set => m_FileReader?.ReportProgress = value;
   }
 
   /// <summary>
@@ -304,7 +299,8 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       return StartLineNumber;
     if (ordinal == m_ReaderMapping.ColNumEndLine)
       return EndLineNumber;
-    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : throw new IndexOutOfRangeException($"Column {ordinal} not found");
+    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber :
+      throw new IndexOutOfRangeException($"Column {ordinal} not found");
   }
 
   /// <inheritdoc />
@@ -337,15 +333,14 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
   /// <inheritdoc />
   [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
-  public Task OpenAsync(CancellationToken token)
+  public Task OpenAsync(CancellationToken cancellationToken)
   {
-    if (m_FileReader != null) return m_FileReader.OpenAsync(token);
-    OnOpenAsync?.Invoke();
-    ResetPositionToFirstDataRow();        
+    if (m_FileReader != null) return m_FileReader.OpenAsync(cancellationToken);
+    _ = OnOpenAsync?.Invoke();
+    ResetPositionToFirstDataRow();
     OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
-        
-    return Task.CompletedTask;
 
+    return Task.CompletedTask;
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -427,7 +422,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
     {
       m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
-      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));        
+      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));
     }
   }
 }

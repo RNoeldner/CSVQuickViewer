@@ -35,13 +35,13 @@ public abstract class BaseFileWriter : IFileWriter
   /// </summary>
   protected readonly IReadOnlyCollection<Column> ColumnDefinition;
 
-
   /// <summary>
   /// Display text for the writer used in logs and progress reporting.
   /// </summary>
   protected readonly string FileSettingDisplay;
 
   private readonly string m_Footer;
+
   /// <summary>
   /// Fully qualified file path to write.
   /// </summary>
@@ -58,6 +58,11 @@ public abstract class BaseFileWriter : IFileWriter
   /// Delegate for converting DateTime values between time zones.
   /// </summary>
   protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
+
+  /// <summary>
+  /// Delegate used to create or provide the target <see cref="Stream"/>
+  /// for writing output.
+  /// </summary>
   protected readonly StreamProviderDelegate m_StreamProvider;
 
   /// <summary>The header written before the records are stored</summary>
@@ -286,7 +291,13 @@ public abstract class BaseFileWriter : IFileWriter
       var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
       if (!string.IsNullOrEmpty(m_IdentifierInContainer))
         sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      var stream = FunctionalDI.GetStream(sourceAccess);
+      await using (stream.ConfigureAwait(false))
+#else
       using var stream = FunctionalDI.GetStream(sourceAccess);
+#endif
       await WriteReaderAsync(reader, stream, progress).ConfigureAwait(false);
     }
     catch (Exception exc)
@@ -337,8 +348,9 @@ public abstract class BaseFileWriter : IFileWriter
   protected void NextRecord()
   {
     Records++;
-    if ((DateTime.Now - m_LastNotification).TotalSeconds <= .15) return;
-    m_LastNotification = DateTime.Now;
+    var now = DateTime.Now;
+    if ((now - m_LastNotification).TotalSeconds <= .15) return;
+    m_LastNotification = now;
     HandleProgress($"Record {Records:N0}");
   }
 
@@ -360,43 +372,61 @@ public abstract class BaseFileWriter : IFileWriter
     Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
   /// <summary>
-  ///   Value conversion of a FileWriter
+  /// Converts a database value into the target .NET type defined by the column configuration.
   /// </summary>
-  /// <param name="dataObject">The actual data of the column</param>
-  /// <param name="columnInfo">Information on ValueConversion</param>
-  /// <param name="dataRecord">
-  ///   Data Record in case additional columns are needed e.G. for TimeZone
-  ///   adjustment based off ColumnOrdinalTimeZone or handling placeholders
+  /// <param name="dataObject">
+  /// The raw value retrieved from the data source.
   /// </param>
-  /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
-  /// <param name="handleWarning">Method to pass on warnings</param>
-  /// <returns>Value of the .Net Data type matching the ValueFormat.DataType: </returns>
-  /// <remarks>It can only be DBNull, long, bool, double, decimal, DateTime, Guid  or string</remarks>
+  /// <param name="columnInfo">
+  /// Column metadata describing the target data type and formatting behavior.
+  /// </param>
+  /// <param name="dataRecord">
+  /// Optional data record used for additional column access 
+  /// (e.g., dynamic time zone resolution or placeholder handling).
+  /// </param>
+  /// <param name="timeZoneAdjust">
+  /// Delegate used to convert DateTime values between time zones.
+  /// </param>
+  /// <param name="sourceTimeZone">
+  /// The assumed source time zone for DateTime values.
+  /// </param>
+  /// <param name="handleWarning">
+  /// Optional callback used to report conversion warnings 
+  /// (column name, message).
+  /// </param>
+  /// <returns>
+  /// A value compatible with the configured <see cref="DataTypeEnum"/>.  
+  /// Possible return types: <see cref="DBNull"/>, <see cref="long"/>, 
+  /// <see cref="bool"/>, <see cref="double"/>, <see cref="decimal"/>, 
+  /// <see cref="DateTime"/>, <see cref="Guid"/>, or <see cref="string"/>.
+  /// </returns>
   public static object ValueConversion(in object? dataObject, WriterColumn columnInfo, in IDataRecord? dataRecord,
     TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
   {
     if (dataObject is null or DBNull)
       return DBNull.Value;
-
+    var culture = CultureInfo.InvariantCulture;
     switch (columnInfo.ValueFormat.DataType)
     {
       case DataTypeEnum.Integer:
-        return Convert.ToInt64(dataObject);
+        return Convert.ToInt64(dataObject, culture);
 
       case DataTypeEnum.Boolean:
-        return Convert.ToBoolean(dataObject);
+        return Convert.ToBoolean(dataObject, culture);
 
       case DataTypeEnum.Double:
-        return Convert.ToDouble(dataObject);
+        return Convert.ToDouble(dataObject, culture);
 
       case DataTypeEnum.Numeric:
-        return Convert.ToDecimal(dataObject);
+        return Convert.ToDecimal(dataObject, culture);
 
       case DataTypeEnum.DateTime:
-        var dtm = Convert.ToDateTime(dataObject);
+        var dtm = Convert.ToDateTime(dataObject, culture);
         if (columnInfo.OutputTimeZone.Length > 0)
+        {
           return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.OutputTimeZone,
             msg => handleWarning?.Invoke(columnInfo.Name, msg));
+        }
 
         if (dataRecord is null || columnInfo.ColumnOrdinalTimeZone <= -1)
           return dtm;
@@ -439,8 +469,11 @@ public abstract class BaseFileWriter : IFileWriter
       var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, SourceTimeZone,
         HandleWarning);
       if (convertedValue == DBNull.Value)
+      {
         displayAs = columnInfo.ValueFormat.DisplayNullAs;
+      }
       else
+      {
         displayAs = convertedValue switch
         {
           long aLong => StringConversion.LongToString(aLong, columnInfo.ValueFormat),
@@ -450,6 +483,7 @@ public abstract class BaseFileWriter : IFileWriter
           DateTime aDTm => aDTm.DateTimeToString(columnInfo.ValueFormat),
           _ => convertedValue.ToString() ?? string.Empty
         };
+      }
     }
     catch (Exception ex)
     {

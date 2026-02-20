@@ -21,13 +21,13 @@ namespace CsvTools;
 public sealed class SyntaxHighlighterJson : SyntaxHighlighterBase
 {
   private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:",
-    RegexOptions.Singleline | RegexCompiledOption);
+    RegexOptions.Singleline | RegexCompiledOption, TimeSpan.FromSeconds(1));
 
   private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b",
-    RegexOptions.Singleline | RegexCompiledOption);
+    RegexOptions.Singleline | RegexCompiledOption, TimeSpan.FromSeconds(1));
 
   private readonly Regex m_JsonStringRegex =
-    new Regex("\\\"((?:\\\\\\\"|(?:(?!\\\")).)*)\\\"", RegexOptions.Singleline | RegexCompiledOption);
+    new Regex("\\\"((?:\\\\\\\"|(?:(?!\\\")).)*)\\\"", RegexOptions.Singleline | RegexCompiledOption, TimeSpan.FromSeconds(1));
 
   public SyntaxHighlighterJson(FastColoredTextBox fastColoredTextBox) : base(fastColoredTextBox)
   {

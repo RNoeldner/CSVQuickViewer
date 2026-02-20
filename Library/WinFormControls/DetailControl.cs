@@ -1189,9 +1189,12 @@ public sealed partial class DetailControl : UserControl
           .ToArray();
       // Create the snapshot of the filtered/sorted data
       using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(false, columnsToExport);
-
-      using var wrapper = new DataTableWrapper(exportTable);
-
+#if NET5_0_OR_GREATER
+      var wrapper = new DataTableWrapper(exportTable);
+      await using (wrapper.ConfigureAwait(false))
+#else
+        using var wrapper = new DataTableWrapper(exportTable);
+#endif
       // Use the wrapper to satisfy the ICsvReader requirement
       await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
 

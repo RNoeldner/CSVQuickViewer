@@ -127,7 +127,7 @@ public interface IFileReader : IDataReader
   /// </summary>
   /// <param name="token">The cancellation token.</param>
   /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
-  Task OpenAsync(CancellationToken token);
+  Task OpenAsync(CancellationToken cancellationToken);
 
   /// <summary>
   ///   Advances the <see cref="T:System.Data.IDataReader" /> to the next record.

@@ -33,7 +33,7 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
   private readonly Style m_EscapedQuoteStyle = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
   private readonly Style m_PilcrowStyle = new TextStyle(Brushes.Orange, null, FontStyle.Bold);
   private readonly Style m_QuoteStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
-  private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
+  private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
   private readonly Style m_SpaceStyle = new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
   private PunctuationTextBox charBoxFieldQualifierChar;
   private CheckBox checkBoxContextSensitiveQualifier;

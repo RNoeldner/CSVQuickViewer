@@ -375,9 +375,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   ///   Gets the column format.
   /// </summary>
-  /// <param name="ordinal">The column.</param>
+  /// <param name="column">The column.</param>
   /// <returns></returns>
-  public virtual Column GetColumn(int ordinal) => Column[ordinal];
+  public virtual Column GetColumn(int column) => Column[column];
 
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
@@ -626,7 +626,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         DataTypeEnum.Numeric => GetDecimal(ordinal),
         DataTypeEnum.Boolean => GetBoolean(ordinal),
         DataTypeEnum.Guid => GetGuid(ordinal),
-        _ => GetString(ordinal)
+        _ => GetString(ordinal),
       };
     }
     catch (FormatException)
@@ -1133,7 +1133,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected virtual void InitColumn(int fieldCount)
   {
     if (fieldCount > 1000)
-      throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000");
+      throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000", nameof(fieldCount));
     m_FieldCount = fieldCount;
     m_ColumnIndexMap.Clear();
     CurrentRowColumnText = new string[fieldCount];
@@ -1255,7 +1255,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="ex">The exception.</param>
   /// <param name="token">The cancellation token.</param>
   /// <returns></returns>
-  protected bool ShouldRetry(in Exception ex, in CancellationToken token)
+  protected bool ShouldRetry(in Exception ex, CancellationToken token)
   {
     if (token.IsCancellationRequested) return false;
 

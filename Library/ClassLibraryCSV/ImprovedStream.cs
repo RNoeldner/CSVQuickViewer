@@ -193,7 +193,7 @@ public class ImprovedStream : Stream, IImprovedStream
   }
 
 #if WithBuffer
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   /// <inheritdoc cref="Stream.ReadAsync(Memory{byte}, CancellationToken)"/>
   public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
   {
@@ -338,7 +338,7 @@ public class ImprovedStream : Stream, IImprovedStream
   }
 #else
 
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <inheritdoc cref="Stream.ReadAsync(Memory{byte}, CancellationToken)"/>
     public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) => AccessStream!.ReadAsync(buffer, cancellationToken);
 #endif

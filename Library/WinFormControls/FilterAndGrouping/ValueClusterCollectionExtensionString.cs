@@ -43,7 +43,7 @@ namespace CsvTools
     IProgressWithCancellation progress)
     {
       var stopwatch = Stopwatch.StartNew();
-      (int nullCount, var values) = MakeTypedValues(objects, Convert.ToString, progress);
+      (var nullCount, var values) = MakeTypedValues(objects, Convert.ToString, progress);
 
       var valueClusters = new List<ValueCluster>();
       if (values.Count == 0)
@@ -193,9 +193,9 @@ namespace CsvTools
         if (count > 0)
         {
           var sb = new System.Text.StringBuilder("(", 60);
-          sb.Append($"SUBSTRING({escapedName},1,1) >= '{From}' AND SUBSTRING({escapedName},1,1) <= '{To}' OR ");
+          sb.Append("SUBSTRING(").Append(escapedName).Append(",1,1) >= '").Append(From).Append("' AND SUBSTRING(").Append(escapedName).Append(",1,1) <= '").Append(To).Append("' OR ");
           foreach (var c in nonLatin)
-            sb.Append($"SUBSTRING({escapedName},1,1) = '{c}' OR ");
+            sb.Append("SUBSTRING(").Append(escapedName).Append(",1,1) = '").Append(c).Append("' OR ");
           sb.Length-= 4; // remove last OR
           sb.Append(')');
           valueClusters.Add(
@@ -222,7 +222,7 @@ namespace CsvTools
         var stringBuilder = new System.Text.StringBuilder("(");
         foreach (var x in foundChar)
         {
-          stringBuilder.Append($"SUBSTRING({escapedName},1,1) = '");
+          stringBuilder.Append("SUBSTRING(").Append(escapedName).Append(",1,1) = '");
           stringBuilder.Append(x == '\'' ? "''" : x.ToString());
           stringBuilder.Append("' OR ");
         }
@@ -263,11 +263,11 @@ namespace CsvTools
               if (merged.Count > 0 && merged[merged.Count - 1].Key < g.Key)
               {
                 // merge into previous
-                var prev = merged[merged.Count - 1];
-                var combined = prev.Items.Concat(items).ToList();
+                var (Key, Items)= merged[merged.Count - 1];
+                var combined = Items.Concat(items).ToList();
 
                 // Keep the key of the larger contributor (simple heuristic)
-                int newLen = prev.Items.Count >= items.Count ? prev.Key : g.Key;
+                int newLen = Items.Count >= items.Count ? Key : g.Key;
 
                 // Replace the previous entry
                 merged[merged.Count - 1] = (newLen, combined);
@@ -285,15 +285,14 @@ namespace CsvTools
           }
 
           // Build ValueCluster list using safe SQL
-          foreach (var entry in merged)
+          foreach (var (Key, Items) in merged)
           {
-            int len = entry.Key;
-            int count = entry.Items.Count;
+            int count = Items.Count;
 
             // NOTE: adjust LEN -> LENGTH if your SQL dialect requires it
-            var sql = $"(LEN({escapedName}) = {len})";
+            var sql = $"(LEN({escapedName}) = {Key})";
 
-            valueClusters.Add(new ValueCluster($"Length {len}", sql, count)
+            valueClusters.Add(new ValueCluster($"Length {Key}", sql, count)
             );
           }
         }

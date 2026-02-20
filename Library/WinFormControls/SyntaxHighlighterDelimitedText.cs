@@ -29,8 +29,8 @@ public sealed class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
   private readonly Style m_Space = new SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
   private readonly Style m_Tab2 = new SyntaxHighlightStyleTab(Pens.LightGray, Brushes.AntiqueWhite);
 #pragma warning restore CA1416
-  private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
-  private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled);
+  private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+  private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
   public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, char qualifier, char delimiter, char escape,
     string comment) : base(textBox)
@@ -39,7 +39,7 @@ public sealed class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
       delimiter = '\t';
 
     m_DelimiterRegex = new Regex(escape == char.MinValue ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
-      RegexOptions.Singleline | RegexOptions.Compiled);
+      RegexOptions.Singleline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     if (qualifier != char.MinValue)
     {
@@ -47,11 +47,11 @@ public sealed class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
         escape == char.MinValue
           ? $"\\{qualifier}((?:\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}"
           : $"\\{qualifier}((?:\\{escape}\\{qualifier}|\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}",
-        RegexOptions.Multiline | RegexOptions.Compiled);
+        RegexOptions.Multiline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
     }
 
     if (!string.IsNullOrEmpty(comment))
-      m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
+      m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
   }
 
   // ReSharper disable once RedundantNameQualifier

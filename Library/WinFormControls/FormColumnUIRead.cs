@@ -447,7 +447,7 @@ public partial class FormColumnUiRead : ResizeForm
 
     if (!string.IsNullOrEmpty(header))
 #pragma warning disable CS8604 // Possible null reference argument.
-      stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
+      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header));
 #pragma warning restore CS8604 // Possible null reference argument.
 
     FormColumnUiRead.ListSamples(stringBuilder, headerList1, values1, col1, rows);
@@ -455,7 +455,7 @@ public partial class FormColumnUiRead : ResizeForm
 
     if (!string.IsNullOrEmpty(footer))
 #pragma warning disable CS8604 // Possible null reference argument.
-      stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
+      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer));
 #pragma warning restore CS8604 // Possible null reference argument.
 
     stringBuilder.AppendLine("</BODY>");
@@ -711,7 +711,7 @@ public partial class FormColumnUiRead : ResizeForm
   {
     if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
       return;
-    stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
+    stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList));
     stringBuilder.AppendLine(HtmlStyle.TableOpen);
     var texts = values.Take(col * rows).ToArray();
     stringBuilder.AppendLine(HtmlStyle.TrOpen);
@@ -841,7 +841,7 @@ public partial class FormColumnUiRead : ResizeForm
     errorProvider.SetError(textBoxRegexSearchPattern, string.Empty);
     try
     {
-      _ = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled);
+      _ = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled, TimeSpan.FromSeconds(1));
     }
     catch (Exception ex)
     {

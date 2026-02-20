@@ -222,7 +222,7 @@ public sealed partial class FromRowsFilter : ResizeForm
     var buffer = new StringBuilder();
     var dataObject = new DataObject();
     foreach (ListViewItem sel in listViewCluster.SelectedItems)
-      buffer.AppendLine($"{sel.Text}\t{sel.SubItems[1].Text}");
+      buffer.Append(sel.Text).Append('\t').Append(sel.SubItems[1].Text).AppendLine();
     dataObject.SetData(DataFormats.Text, true, buffer.ToString());
     dataObject.SetClipboard();
     e.Handled = true;
