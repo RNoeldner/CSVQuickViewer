@@ -316,8 +316,9 @@ public sealed class DataGridViewCopyPaste
     sbHtml.Append(HtmlStyle.TrOpenAlt);
     for (var col = leftCol; col <= rightCol; col++)
       foreach (DataGridViewColumn displayCol in columns)
+      {
         if (displayCol.DisplayIndex == col && displayCol.Visible &&
-            displayCol.HeaderText != ReaderConstants.cErrorField)
+            !string.Equals(displayCol.HeaderText, ReaderConstants.cErrorField, StringComparison.Ordinal))
         {
           visibleColumns.Add(col);
           sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, displayCol.HeaderText));
@@ -327,6 +328,7 @@ public sealed class DataGridViewCopyPaste
           buffer.Append(EscapeTab(displayCol.HeaderText));
           break;
         }
+      }
 
     if (hasRowError && addErrorInfo)
     {

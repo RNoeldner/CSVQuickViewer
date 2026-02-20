@@ -22,7 +22,9 @@ namespace CsvTools
   /// <summary>
   /// Provides extension methods to build groups of numeric, long, date and string values
   /// </summary>
+#pragma warning disable MA0048 // File name must match type name
   public static partial class ValueClustersExtension
+#pragma warning restore MA0048 // File name must match type name
   {
     private static readonly (string Display, char From, char To, char[] NonLatin)[] CharacterBlocks =
     {
@@ -120,14 +122,13 @@ namespace CsvTools
       {
         progress.Report("Creating groups from individual values…");
 
-        var distinctValues = clusterIndividual.OrderBy(x => x).ToArray();
-        foreach (var dv in distinctValues)
+        foreach (var dv in clusterIndividual.OrderBy(x => x, StringComparer.CurrentCultureIgnoreCase))
         {
           if (stopwatch.Elapsed.TotalSeconds > maxSeconds)
             throw new TimeoutException("Building groups took too long.");
           progress.CancellationToken.ThrowIfCancellationRequested();
 
-          int count = CountBlockFullText(values, dv);
+          int count = CountBlockFullText(values!, dv);
           if (count > 0)
           {
             valueClusters.Add(
@@ -162,7 +163,7 @@ namespace CsvTools
           {
             Report($"Building common beginning '{prefix}…'");
 
-            int count = CountPrefixBlock(values, prefix.AsSpan(), prefixLength);
+            int count = CountPrefixBlock(values!, prefix.AsSpan(), prefixLength);
             filtered+=count;
             percent += step;
             // Switch fromIncluding Lke Statement toIncluding SUBSTRING for better performance
@@ -180,24 +181,25 @@ namespace CsvTools
       }
 
       // ------------------------------------------------------
-      // CASE 3: fallback toIncluding character ranges
+      // CASE 3: fallback to Including character ranges
       // ------------------------------------------------------
       var step2 = (1.0 - cTypedProgress) / (CharacterBlocks.Length + 1);
-      foreach (var block in CharacterBlocks)
+      for (var i = 0; i<CharacterBlocks.Length; i++)
       {
+        var (Display, From, To, NonLatin)= CharacterBlocks[i];
         percent += step2;
-        Report($"Grouping values for {block.Display}");
-        (int count, var nonLatin) = CountCharRange(values, block.From, block.To, block.NonLatin);
+        Report($"Grouping values for {Display}");
+        (int count, var nonLatin) = CountCharRange(values!, From, To, NonLatin);
         if (count > 0)
         {
           var sb = new System.Text.StringBuilder("(", 60);
-          sb.Append($"SUBSTRING({escapedName},1,1) >= '{block.From}' AND SUBSTRING({escapedName},1,1) <= '{block.To}' OR ");
+          sb.Append($"SUBSTRING({escapedName},1,1) >= '{From}' AND SUBSTRING({escapedName},1,1) <= '{To}' OR ");
           foreach (var c in nonLatin)
             sb.Append($"SUBSTRING({escapedName},1,1) = '{c}' OR ");
           sb.Length-= 4; // remove last OR
           sb.Append(')');
           valueClusters.Add(
-              new ValueCluster(block.Display, sb.ToString(), count));
+              new ValueCluster(Display, sb.ToString(), count));
         }
       }
 
@@ -208,13 +210,11 @@ namespace CsvTools
       var countP = 0;
       foreach (var x in values)
       {
-        var c = x[0];
+        var c = x![0];
         if (char.IsPunctuation(c) || char.IsSymbol(c) || extraSymbols.Contains(c))
         {
-          {
-            foundChar.Add(c);
-            countP++;
-          }
+          foundChar.Add(c);
+          countP++;
         }
       }
       if (countP> 0)
@@ -245,9 +245,8 @@ namespace CsvTools
       {
         if (valueClusters.Count < 2 && values.Count > 2)
         {
-          var groups = values.GroupBy(s => s.Length).OrderBy(g => g.Key).ToList();
+          var groups = values.GroupBy(s => s!.Length).OrderBy(g => g.Key).ToList();
           // In case we wo not get a suitable number of groups do nothing
-          // TODO: possibly combine length in groups of length like 1-4, 5-10, more than 10 
           if (groups.Count==1 || groups.Count > 10)
             return;
           Report("Grouping did not create meaningful distinctions; adding length-based groups…");
@@ -257,12 +256,13 @@ namespace CsvTools
 
           foreach (var g in groups)
           {
-            var items = g.ToList();
-            if (items.Count < minGroupSize)
+            var items = g.Cast<string>().ToList();
+            if (items.Count < minGroupSize  && merged.Count > 0)
             {
               // try merge with previous
               if (merged.Count > 0 && merged[merged.Count - 1].Key < g.Key)
               {
+                // merge into previous
                 var prev = merged[merged.Count - 1];
                 var combined = prev.Items.Concat(items).ToList();
 

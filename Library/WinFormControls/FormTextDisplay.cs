@@ -131,7 +131,6 @@ public partial class FormTextDisplay : ResizeForm
       webBrowser.Visible=false;
       textBox.Visible=true;
       radioButtonText.Checked = true;
-      // fastColoredTextBoxRO.Text =historyDisplay.Text;
       Extensions.ShowError(exception, $"Error trying to parse {newLang}: {exception.Message}");
     }
   }

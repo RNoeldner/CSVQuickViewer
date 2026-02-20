@@ -170,7 +170,6 @@ public partial class FilteredDataGridView : DataGridView
       m_DataTable = value ?? new DataTable();
       GenerateDataGridViewColumn();
       base.RowCount = m_DataTable?.Rows.Count ?? 0; // Update the UI engine here!
-      // OnDataSourceChanged(EventArgs.Empty);
     }
   }
 
@@ -459,7 +458,6 @@ public partial class FilteredDataGridView : DataGridView
       {
         toolStripMenuItemFreeze.Text = Columns[columnIndex].Frozen ? "Unfreeze" : "Freeze";
 
-        // toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
         toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
         toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
@@ -1157,7 +1155,7 @@ public partial class FilteredDataGridView : DataGridView
   [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
 
-  private void SystemEvents_UserPreferenceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+  private static void SystemEvents_UserPreferenceChanged(object? sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
   {
     if (e.Category == Microsoft.Win32.UserPreferenceCategory.Locale)
       CultureInfo.CurrentCulture.ClearCachedData();

@@ -67,7 +67,6 @@ public sealed class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
       range.SetStyle(GrayStyle, m_CommentRegex);
 
     range.SetStyle(m_Space, m_SpaceRegex);
-    // range.SetStyle(m_Tab, m_TabRegex1);
     range.SetStyle(m_Tab2, m_TabRegex2);
   }
 

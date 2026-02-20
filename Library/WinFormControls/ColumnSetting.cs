@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace CsvTools;
 
-public sealed class ColumnSetting
+public sealed record ColumnSetting
 {
   public string DataPropertyName { get; }
   public bool Visible { get; }
@@ -40,11 +40,6 @@ public sealed class ColumnSetting
   /// <summary>
   /// Storage for information on columns needed for ViewSettings
   /// </summary>
-  /// <param name="dataPropertyName"></param>
-  /// <param name="visible"></param>
-  /// <param name="sorted"></param>
-  /// <param name="displayIndex"></param>
-  /// <param name="width"></param>
   public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
   {
     DataPropertyName = dataPropertyName;
@@ -54,24 +49,7 @@ public sealed class ColumnSetting
     Width = width;
   }
 
-  public override int GetHashCode()
-  {
-    unchecked
-    {
-      var hashCode = DataPropertyName.GetHashCode();
-      hashCode = (hashCode * 397) ^ Visible.GetHashCode();
-      hashCode = (hashCode * 397) ^ Sort;
-      hashCode = (hashCode * 397) ^ Width;
-      hashCode = (hashCode * 397) ^ DisplayIndex;
-      //hashCode = (hashCode * 397) ^ Operator.GetHashCode();
-      //hashCode = (hashCode * 397) ^ ValueText.GetHashCode();
-      //hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
-      hashCode = (hashCode * 397) ^ ValueFilters.Count;
-      return hashCode;
-    }
-  }
-
-  public sealed class ValueFilter
+  public sealed record ValueFilter
   {
     public ValueFilter(string sQlCondition, string display)
     {
@@ -81,14 +59,5 @@ public sealed class ColumnSetting
 
     public string SQLCondition { get; }
     public string Display { get; }
-
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        return (StringComparer.Ordinal.GetHashCode(SQLCondition)* 397) ^
-               StringComparer.OrdinalIgnoreCase.GetHashCode(Display);
-      }
-    }
   }
 }

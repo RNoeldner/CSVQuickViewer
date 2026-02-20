@@ -23,7 +23,9 @@ namespace CsvTools
   /// <summary>
   /// Provides extension methods to build groups of numeric, long, date and string values
   /// </summary>
+#pragma warning disable MA0048 // File name must match type name
   public static partial class ValueClustersExtension
+#pragma warning restore MA0048 // File name must match type name
   {
     /// <summary>
     /// Builds evenly distributed clusters of <see cref="DateTime"/> values from the provided list. 
@@ -121,7 +123,6 @@ namespace CsvTools
       var percent = cTypedProgress * 2;
       var step = (1.0 - percent) / orderedKeys.Count;
       var start = orderedKeys[0];
-      var bucketStart = orderedKeys[0];
       var end = orderedKeys[0];
       for (var i = 0; i < orderedKeys.Count; i++)
       {

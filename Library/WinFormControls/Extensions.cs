@@ -77,7 +77,7 @@ public static class Extensions
     this IFileSetting fileSetting,
     Form? owner,
     bool withLogger,
-    in CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
     var formProgress = new FormProgress(fileSetting.GetDisplay(), cancellationToken);
     formProgress.Show(owner);
@@ -240,7 +240,7 @@ public static class Extensions
         Thread.Sleep(milliseconds);
 #endif
     }
-    catch (Exception)
+    catch
     {
       // ignore
     }

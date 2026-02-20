@@ -144,7 +144,7 @@ public partial class FormColumnUiRead : ResizeForm
     else
     {
       MessageBox.ShowBigHtml(
-        FormColumnUiRead.BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
+        BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
         comboBoxColumnName.Text,
         MessageBoxButtons.OK,
         MessageBoxIcon.Information);
@@ -154,7 +154,6 @@ public partial class FormColumnUiRead : ResizeForm
   /// <summary>
   ///   Examine the column and guess the format
   /// </summary>
-  /// <returns></returns>
   private async Task Guess()
   {
     var columnName = comboBoxColumnName.Text;
@@ -168,108 +167,118 @@ public partial class FormColumnUiRead : ResizeForm
     {
       using var formProgress = new FormProgress("Guess Value", m_CancellationTokenSource.Token);
       formProgress.Show(this);
-      {
-        var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
-        // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
-        // 4 - Last - 1
 
-        if (samples.Values.Count == 0)
+      var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
+      // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
+      // 4 - Last - 1
+
+      if (samples.Values.Count == 0)
+      {
+        MessageBox.Show(
+          string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
+          "Information",
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Information);
+      }
+      else
+      {
+
+        // detect all (except Serial dates) and be content with 1 records if need be
+        var checkResult = DetermineColumnFormat.GuessValueFormat(
+          samples: samples.Values,
+          minRequiredSamples: 1,
+          trueValue: m_FillGuessSettings.TrueValue.AsSpan(),
+          falseValue: m_FillGuessSettings.FalseValue.AsSpan(),
+          guessBoolean: true,
+          guessGuid: true,
+          guessNumeric: true,
+          guessDateTime: true,
+          guessPercentage: m_FillGuessSettings.DetectPercentage,
+          serialDateTime: m_FillGuessSettings.SerialDateTime,
+          removeCurrencySymbols: m_FillGuessSettings.RemoveCurrencySymbols,
+          othersValueFormatDate: DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection, m_FillGuessSettings.DateFormat),
+          cancellationToken: formProgress.CancellationToken);
+        formProgress.Hide();
+        if (checkResult.FoundValueFormat is null)
         {
-          MessageBox.Show(
-            string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
-            "Information",
+          MessageBox.ShowBigHtml(
+            BuildHtmlText(
+              $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
+              null, 4, "Examples", samples.Values, 4),
+            $"Column: {columnName}",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
         }
         else
         {
-
-          // detect all (except Serial dates) and be content with 1 records if need be
-          var checkResult = DetermineColumnFormat.GuessValueFormat(
-            samples: samples.Values,
-            minRequiredSamples: 1,
-            trueValue: m_FillGuessSettings.TrueValue.AsSpan(),
-            falseValue: m_FillGuessSettings.FalseValue.AsSpan(),
-            guessBoolean: true,
-            guessGuid: true,
-            guessNumeric: true,
-            guessDateTime: true,
-            guessPercentage: m_FillGuessSettings.DetectPercentage,
-            serialDateTime: m_FillGuessSettings.SerialDateTime,
-            removeCurrencySymbols: m_FillGuessSettings.RemoveCurrencySymbols,
-            othersValueFormatDate: DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection, m_FillGuessSettings.DateFormat),
-            cancellationToken: formProgress.CancellationToken);
-          formProgress.Hide();
-          if (checkResult.FoundValueFormat is null)
+          if (checkResult.ValueFormatPossibleMatch != null &&
+              (checkResult.FoundValueFormat != null || checkResult.PossibleMatch))
           {
-            MessageBox.ShowBigHtml(
-              FormColumnUiRead.BuildHtmlText(
-                $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
-                null, 4, "Examples", samples.Values, 4),
-              $"Column: {columnName}",
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
-          }
-          else
-          {
-            if (checkResult.ValueFormatPossibleMatch != null &&
-                (checkResult.FoundValueFormat != null || checkResult.PossibleMatch))
+            if (checkResult.FoundValueFormat != null)
             {
-              if (checkResult.FoundValueFormat != null)
-              {
-                m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
-                if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
-                  AddDateFormat(checkResult.FoundValueFormat.DateFormat);
+              m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
+              if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
+                AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
-                // In case possible match has the same information as FoundValueFormat, disregard
-                // the possible match
-                if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
-                  checkResult.PossibleMatch = false;
-              }
+              // In case possible match has the same information as FoundValueFormat, disregard
+              // the possible match
+              if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
+                checkResult.PossibleMatch = false;
+            }
 
-              if (checkResult.ValueFormatPossibleMatch.DataType == DataTypeEnum.DateTime)
-                AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+            if (checkResult.ValueFormatPossibleMatch.DataType == DataTypeEnum.DateTime)
+              AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
 
-              var header1 = string.Empty;
-              var suggestClosestMatch = checkResult.PossibleMatch
-                                        && (checkResult.FoundValueFormat is null
-                                            || checkResult.FoundValueFormat.DataType == DataTypeEnum.String);
-              header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
+            var header1 = string.Empty;
+            var suggestClosestMatch = checkResult.PossibleMatch
+                                      && (checkResult.FoundValueFormat is null
+                                          || checkResult.FoundValueFormat.DataType == DataTypeEnum.String);
+            header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
-              if (checkResult.PossibleMatch)
-                header1 +=
-                  $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
+            if (checkResult.PossibleMatch)
+              header1 +=
+                $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
 
-              if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
-              {
-                if (MessageBox.ShowBigHtml(
-                      FormColumnUiRead.BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
-                        "Not matching:", checkResult.ExampleNonMatch),
-                      $"Column: {columnName}",
-                      MessageBoxButtons.YesNo,
-                      MessageBoxIcon.Question) == DialogResult.Yes)
-                  // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
-                  // is quite specific and need it to be set,
-                  m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.ValueFormatPossibleMatch);
-              }
-              else
-              {
-                MessageBox.ShowBigHtml(
-                  FormColumnUiRead.BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
-                    checkResult.ExampleNonMatch),
-                  $"Column: {columnName}",
-                  MessageBoxButtons.OK, MessageBoxIcon.Information);
-              }
-
-              RefreshData();
+            if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
+            {
+              if (MessageBox.ShowBigHtml(
+                    BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
+                      "Not matching:", checkResult.ExampleNonMatch),
+                    $"Column: {columnName}",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
+                // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
+                // is quite specific and need it to be set,
+                m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.ValueFormatPossibleMatch);
             }
             else
             {
-              // add the regular samples to the invalids that are first
-              var displayMsg =
-                $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Select(x => x.Span.ToString()).Join("\t")}";
+              MessageBox.ShowBigHtml(
+                BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
+                  checkResult.ExampleNonMatch),
+                $"Column: {columnName}",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
 
-              if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
+            RefreshData();
+          }
+          else
+          {
+            // add the regular samples to the invalids that are first
+            var displayMsg =
+              $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Select(x => x.Span.ToString()).Join("\t")}";
+
+            if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
+            {
+              MessageBox.ShowBig(
+                displayMsg,
+                $"Column: {columnName}",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            }
+            else
+            {
+              if (m_ColumnEdit.ValueFormatMut.DataType == DataTypeEnum.String)
               {
                 MessageBox.ShowBig(
                   displayMsg,
@@ -279,27 +288,17 @@ public partial class FormColumnUiRead : ResizeForm
               }
               else
               {
-                if (m_ColumnEdit.ValueFormatMut.DataType == DataTypeEnum.String)
-                {
-                  MessageBox.ShowBig(
-                    displayMsg,
-                    $"Column: {columnName}",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                }
-                else
-                {
-                  if (MessageBox.ShowBig(
-                        displayMsg + "\n\nShould this be set to text?",
-                        $"Column: {columnName}",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question) == DialogResult.Yes)
-                    m_ColumnEdit.ValueFormatMut.DataType = DataTypeEnum.String;
-                }
+                if (MessageBox.ShowBig(
+                      displayMsg + "\n\nShould this be set to text?",
+                      $"Column: {columnName}",
+                      MessageBoxButtons.YesNo,
+                      MessageBoxIcon.Question) == DialogResult.Yes)
+                  m_ColumnEdit.ValueFormatMut.DataType = DataTypeEnum.String;
               }
             }
           }
         }
+
       }
     });
   }
@@ -357,7 +356,7 @@ public partial class FormColumnUiRead : ResizeForm
         toolTip.SetToolTip(textBoxTimeSeparator, timeSeparator.Description());
 
         // using HashSet to get rid of duplicates
-        var text = new HashSet<string>();
+        var text = new HashSet<string>(StringComparer.Ordinal);
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
@@ -448,7 +447,7 @@ public partial class FormColumnUiRead : ResizeForm
 
     if (!string.IsNullOrEmpty(header))
 #pragma warning disable CS8604 // Possible null reference argument.
-      stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
+      stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
 #pragma warning restore CS8604 // Possible null reference argument.
 
     FormColumnUiRead.ListSamples(stringBuilder, headerList1, values1, col1, rows);
@@ -456,7 +455,7 @@ public partial class FormColumnUiRead : ResizeForm
 
     if (!string.IsNullOrEmpty(footer))
 #pragma warning disable CS8604 // Possible null reference argument.
-      stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
+      stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
 #pragma warning restore CS8604 // Possible null reference argument.
 
     stringBuilder.AppendLine("</BODY>");
@@ -495,21 +494,21 @@ public partial class FormColumnUiRead : ResizeForm
     var format = checkedListBoxDateFormats.Items[e.Index].ToString();
     if (string.IsNullOrEmpty(format))
       return;
+
+    var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries));
+    var isInList = parts.Contains(format, StringComparer.OrdinalIgnoreCase);
+
+    if (e.NewValue == CheckState.Checked && !isInList)
     {
-      var parts = new List<string>(m_ColumnEdit.ValueFormatMut.DateFormat.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries));
-      var isInList = parts.Contains(format, StringComparer.OrdinalIgnoreCase);
-
-      if (e.NewValue == CheckState.Checked && !isInList)
-      {
-        parts.Add(format);
-        m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(';');
-      }
-
-      if (e.NewValue == CheckState.Checked || !isInList)
-        return;
-      parts.Remove(format);
+      parts.Add(format);
       m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(';');
     }
+
+    if (e.NewValue == CheckState.Checked || !isInList)
+      return;
+    parts.Remove(format);
+    m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(';');
+
   }
 
 #if !NETFRAMEWORK
@@ -587,7 +586,6 @@ public partial class FormColumnUiRead : ResizeForm
       if (comboBoxDataType.SelectedValue is null)
         return;
       var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-      //m_ColumnEdit.ValueFormatMut.DataType = selType;
       var height = 10;
 
       groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;
@@ -713,7 +711,7 @@ public partial class FormColumnUiRead : ResizeForm
   {
     if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
       return;
-    stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
+    stringBuilder.Append(string.Format(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
     stringBuilder.AppendLine(HtmlStyle.TableOpen);
     var texts = values.Take(col * rows).ToArray();
     stringBuilder.AppendLine(HtmlStyle.TrOpen);
@@ -722,7 +720,7 @@ public partial class FormColumnUiRead : ResizeForm
       if (string.IsNullOrEmpty(texts[index - 1].Span.ToString()))
         stringBuilder.AppendLine(HtmlStyle.TdEmpty);
       else
-        stringBuilder.AppendLine(string.Format(HtmlStyle.Td,
+        stringBuilder.AppendLine(string.Format(CultureInfo.InvariantCulture, HtmlStyle.Td,
           HtmlStyle.TextToHtmlEncode(texts[index - 1].Span.ToString())));
       if (index % col == 0)
         stringBuilder.AppendLine(HtmlStyle.TrClose);

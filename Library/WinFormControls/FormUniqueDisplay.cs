@@ -126,8 +126,7 @@ public partial class FormUniqueDisplay : ResizeForm
 
     try
     {
-      DataColumn dataColumnId = m_DataTable.Columns[dataColumnName] ??
-                                throw new Exception($"Column {dataColumnName} not found");
+      DataColumn dataColumnId = m_DataTable.Columns[dataColumnName]  ?? throw new KeyNotFoundException($"Column '{dataColumnName}' not found in the data table.");
 
       this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 

@@ -39,7 +39,10 @@ public partial class FormCsvTextDisplay : ResizeForm
     m_FullPath = fullPath;
     m_GetContent = getContent;
     InitializeComponent();
+
+#pragma warning disable MA0056 // Do not call overridable members in constructor
     base.Text = (m_FullPath ?? "Source").GetShortDisplayFileName();
+#pragma warning restore MA0056 // Do not call overridable members in constructor
   }
 
   private void HighlightVisibleRange()

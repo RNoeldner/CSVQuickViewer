@@ -430,24 +430,24 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   {
     var hashCode = -373284191;
     hashCode = hashCode * -1521134295 + DataType.GetHashCode();
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DateFormat);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DateSeparator);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DecimalSeparator);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(DisplayNullAs);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(False);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FileOutPutPlaceholder);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GroupSeparator);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(NumberFormat);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(DateFormat);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(DateSeparator);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(DecimalSeparator);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(DisplayNullAs);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(False);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(FileOutPutPlaceholder);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(GroupSeparator);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(NumberFormat);
     hashCode = hashCode * -1521134295 + Overwrite.GetHashCode();
     hashCode = hashCode * -1521134295 + Part.GetHashCode();
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PartSplitter);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(PartSplitter);
     hashCode = hashCode * -1521134295 + PartToEnd.GetHashCode();
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ReadFolder);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(RegexReplacement);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(RegexSearchPattern);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TimeSeparator);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(True);
-    hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(WriteFolder);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(ReadFolder);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(RegexReplacement);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(RegexSearchPattern);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(TimeSeparator);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(True);
+    hashCode = hashCode * -1521134295 + StringComparer.Ordinal.GetHashCode(WriteFolder);
     return hashCode;
   }
 

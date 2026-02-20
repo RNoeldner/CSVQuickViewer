@@ -120,7 +120,9 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// </summary>
   /// <param name="columnDataType">Type of the column data.</param>
   /// <param name="dataPropertyName">Name of the data property.</param>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
   public ColumnFilterLogic(Type columnDataType, string dataPropertyName)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
   {
     if (columnDataType is null) throw new ArgumentNullException(nameof(columnDataType));
     if (string.IsNullOrEmpty(dataPropertyName)) throw new ArgumentException($"'{nameof(dataPropertyName)}' cannot be null or empty.", nameof(dataPropertyName));
@@ -198,10 +200,8 @@ public sealed class ColumnFilterLogic : ObservableObject
 
         (var countNull, var newGroups) = even ? values.BuildValueClustersDateEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : values.BuildValueClustersDate(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
-        foreach (var newGroup in newGroups.Where(newGroup => !HasEnclosingCluster((DateTime) newGroup.Start, (DateTime) newGroup.End)))
-        {
+        foreach (var newGroup in newGroups.Where(newGroup => newGroup.Start is DateTime start && newGroup.End is DateTime end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
-        }
 
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
@@ -213,16 +213,12 @@ public sealed class ColumnFilterLogic : ObservableObject
       {
         ValueClusterCollection.Clear();
 
-        (var countNull, var newGroups) = even ? 
-            values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
+        (var countNull, var newGroups) = even ?
+            values.BuildValueClustersLongEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) :
             values.BuildValueClustersLong(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
-        foreach (var newGroup in from newGroup in newGroups
-                                 where !HasEnclosingCluster((long) newGroup.Start, (long) newGroup.End)
-                                 select newGroup)
-        {
+        foreach (var newGroup in newGroups.Where(g => g.Start is long start && g.End is long end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
-        }
 
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
@@ -234,11 +230,11 @@ public sealed class ColumnFilterLogic : ObservableObject
       {
         ValueClusterCollection.Clear();
 
-        (var countNull, var newGroups) = even ? 
-            values.BuildValueClustersDoubleEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) : 
+        (var countNull, var newGroups) = even ?
+            values.BuildValueClustersDoubleEven(m_DataPropertyNameEscape, maxNumber, maxSeconds, progress) :
             values.BuildValueClustersDouble(m_DataPropertyNameEscape, maxNumber, combine, maxSeconds, progress);
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
-        foreach (var newGroup in newGroups.Where(newGroup => !HasEnclosingCluster((double) newGroup.Start, (double) newGroup.End)))
+        foreach (var newGroup in newGroups.Where(newGroup => newGroup.Start is double start && newGroup.End is double end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
 
         return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
@@ -287,7 +283,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   }
 
   public void AddValueClusterNull(string escapedName, int count) =>
-    AddOrUpdate(new ValueCluster(OperatorIsNull, string.Format($"({escapedName} IS NULL)"), count));
+    AddOrUpdate(new ValueCluster(OperatorIsNull, $"({escapedName} IS NULL)", count));
 
   /// <summary>
   /// Determines whether any cluster in the collection fully encloses the specified range.
@@ -306,10 +302,7 @@ public sealed class ColumnFilterLogic : ObservableObject
     for (int i = 0; i < ActiveValueClusterCollection.Count; i++)
     {
       var cluster = ActiveValueClusterCollection[i];
-      var start = (T) cluster.Start;
-      var end = (T) cluster.End;
-
-      if (start.CompareTo(minValue) <= 0 && end.CompareTo(maxValue) >= 0)
+      if (cluster.Start is T start && cluster.End is T end && start.CompareTo(minValue) <= 0 && end.CompareTo(maxValue) >= 0)
         return true;
     }
     return false;
@@ -350,16 +343,7 @@ public sealed class ColumnFilterLogic : ObservableObject
     m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
   }
 
-  public string DataPropertyName
-  {
-    get => m_DataPropertyName;
-    private set
-    {
-      if (!SetProperty(ref m_DataPropertyName, value))
-        return;
-      ValidateDataPropertyName();
-    }
-  }
+  public string DataPropertyName=> m_DataPropertyName;
 
   public string DataPropertyNameEscaped => m_DataPropertyNameEscape;
 
@@ -432,7 +416,7 @@ public sealed class ColumnFilterLogic : ObservableObject
 
     BuildFilterExpressionValues();
 
-    static void MoveItem(ValueCluster cluster, List<ValueCluster> source, List<ValueCluster> target)
+    static void MoveItem(ValueCluster cluster, ICollection<ValueCluster> source, ICollection<ValueCluster> target)
     {
       if (source.Remove(cluster) && !target.Contains(cluster))
         target.Add(cluster);

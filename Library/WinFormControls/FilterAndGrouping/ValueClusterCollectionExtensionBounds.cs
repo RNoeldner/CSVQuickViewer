@@ -23,7 +23,9 @@ namespace CsvTools
   /// Provides extension methods to build clusters of numeric, long, and date values
   /// with bounds based on value distribution.
   /// </summary>
+#pragma warning disable MA0048 // File name must match type name
   public static partial class ValueClustersExtension
+#pragma warning restore MA0048 // File name must match type name
   {
 
     private static (int nullCount, List<T> sortedList) StartProcess<T>(object[] objects, IClusterResolutionStrategy<T> strategy, IProgressWithCancellation progress) where T : struct, IComparable<T>
@@ -233,7 +235,7 @@ namespace CsvTools
         if (clusterDecade.Count<max)
           clusterDecade.Add(new DateTime((value.Year / 10) * 10, 1, 1, 0, 0, 0, 0, DateTimeKind.Local));
         else
-          throw new ArgumentOutOfRangeException(nameof(values));
+          throw new InvalidOperationException($"Cannot create more than {max} decade clusters from {values.Count} values.");
       }
 
       var desiredSize = combine ? Math.Max(5, values.Count * 3 / (max * 2)) : 1;
@@ -293,27 +295,30 @@ namespace CsvTools
         throw new InvalidOperationException("Progress percent exceeded 100%.");
       var step = (1-percent) / sortedStartValues.Count;
 
-      for (var i = 0; i<sortedStartValues.Count; i++)
+      for (int i = 0; i < sortedStartValues.Count; i++)
       {
         var start = sortedStartValues[i];
         CheckTimeout(stopwatch, maxRemainingSeconds, progress.CancellationToken);
-        // Determine bucket end
+
+        // Determine initial bucket end
         var end = nextEnd(start);
 
-        // Count items in this bucket (time intensive)        
-        var count = CountOptimized(allSortedValues, start, end);
-        if (count ==0)
+        // Count items in this bucket
+        int count = CountOptimized(allSortedValues, start, end);
+        if (count == 0)
           continue;
 
-
-        while (count < desiredSize && i + 1 < sortedStartValues.Count - 1)
+        // Expand bucket until desired size is reached using a nested loop
+        for (int j = i + 1; count < desiredSize && j < sortedStartValues.Count; j++)
         {
-          i++;
-          end = nextEnd(sortedStartValues[i]);
+          end = nextEnd(sortedStartValues[j]);
           count = CountOptimized(allSortedValues, start, end);
         }
+
         percent += step;
+
         var info = strategy.FormatDisplay(start, end);
+
         // Progress reporting
         progress.Report(new ProgressInfo($"Adding group {info}", (long) (percent * cMaxProgress)));
 
@@ -324,30 +329,31 @@ namespace CsvTools
             count,
             start,
             end));
+      }
 
-        static int LowerBound<T>(List<T> list, T value) where T : IComparable<T>
+      // Helper methods remain the same
+      static int LowerBound(List<T> list, T value)
+      {
+        int left = 0;
+        int right = list.Count;
+
+        while (left < right)
         {
-          int left = 0;
-          int right = list.Count;
-
-          while (left < right)
-          {
-            int mid = (left + right) / 2;
-            if (list[mid].CompareTo(value) < 0)
-              left = mid + 1;
-            else
-              right = mid;
-          }
-          return left;
+          int mid = (left + right) / 2;
+          if (list[mid].CompareTo(value) < 0)
+            left = mid + 1;
+          else
+            right = mid;
         }
+        return left;
+      }
 
-        static int CountOptimized<T>(List<T> list, T start, T end) where T : IComparable<T>
-        {
-          int startIndex = LowerBound(list, start); // first index where value >= start
-          int endIndex = LowerBound(list, end);   // first index where value >= end
+      static int CountOptimized(List<T> list, T start, T end)
+      {
+        int startIndex = LowerBound(list, start); // first index where value >= start
+        int endIndex = LowerBound(list, end);     // first index where value >= end
 
-          return Math.Max(0, endIndex - startIndex);
-        }
+        return Math.Max(0, endIndex - startIndex);
       }
 
       return valueClusterCollection;

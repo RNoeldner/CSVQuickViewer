@@ -51,7 +51,9 @@ public static class ViewSetting
             doSort?.Invoke(col, ListSortDirection.Descending);
         }
 
+#pragma warning disable S1854 // Unused assignments should be removed
         col.DisplayIndex = displayIndex++;
+#pragma warning restore S1854 // Unused assignments should be removed
 
         var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
 

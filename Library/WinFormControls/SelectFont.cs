@@ -43,9 +43,8 @@ public partial class SelectFont : UserControl
     }
     set
     {
-      if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent)
-        if (Math.Abs(value - diCurrent.ID) < .1)
-          return;
+      if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent && Math.Abs(value - diCurrent.ID) < .1)
+        return;
       m_UiChange = false;
 
       comboBoxSize.SelectedItem = comboBoxSize.Items.OfType<DisplayItem<float>>().OrderBy(x => Math.Abs(x.ID - value))

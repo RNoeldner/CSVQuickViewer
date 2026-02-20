@@ -941,7 +941,7 @@ public sealed partial class DetailControl : UserControl
 
   private void ProcessManualNavigation()
   {
-    if (int.TryParse(m_ToolStripTextBoxPos.Text, out int targetRecord))
+    if (int.TryParse(m_ToolStripTextBoxPos.Text, NumberStyles.Integer, CultureInfo.CurrentCulture, out var targetRecord))
     {
       // Convert 1-based user input to 0-based index
       int targetIndex = targetRecord - 1;

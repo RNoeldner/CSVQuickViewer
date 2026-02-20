@@ -13,8 +13,6 @@
  */
 #nullable enable
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace CsvTools;
 
 using System;
@@ -39,7 +37,9 @@ public class Search : UserControl
   /// <summary>
   ///   Initializes a new instance of the <see cref="Search" /> class.
   /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
   public Search()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
   {
     InitializeComponent();
   }
@@ -47,7 +47,9 @@ public class Search : UserControl
   /// <summary>
   ///   Occurs when the search should be cleared.
   /// </summary>
+#pragma warning disable S3264 // Events should be invoked
   public event EventHandler? OnSearchClear;
+#pragma warning restore S3264 // Events should be invoked
 
   /// <summary>
   ///   Occurs when the search text is changed.

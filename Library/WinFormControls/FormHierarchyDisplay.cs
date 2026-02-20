@@ -25,7 +25,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
-using Timer = System.Timers.Timer;
 
 namespace CsvTools;
 
@@ -40,9 +39,9 @@ public class FormHierarchyDisplay : ResizeForm
 
   private readonly DataTable m_DataTable;
 
-  private readonly Timer m_TimerDisplay = new Timer();
+  private readonly System.Timers.Timer m_TimerDisplay = new System.Timers.Timer();
 
-  private readonly Timer m_TimerSearch = new Timer();
+  private readonly System.Timers.Timer m_TimerSearch = new System.Timers.Timer();
   private System.ComponentModel.IContainer? components;
 
   private ComboBox m_ComboBoxDisplay1;
@@ -128,7 +127,7 @@ public class FormHierarchyDisplay : ResizeForm
   /// <param name="rootNode">The root node.</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
   private void AddTreeDataNodeWithChild(in TreeData root, in TreeNode? rootNode,
-    in CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
     root.Visited = true;
     var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
@@ -146,7 +145,7 @@ public class FormHierarchyDisplay : ResizeForm
   /// <param name="parent">The parent ID.</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
   /// <returns></returns>
-  private TreeNode[] BuildSubNodes(in TreeData parent, in CancellationToken cancellationToken)
+  private TreeNode[] BuildSubNodes(in TreeData parent, CancellationToken cancellationToken)
   {
     var treeNodes = new List<TreeNode>();
     foreach (var child in parent.Children)
@@ -173,12 +172,10 @@ public class FormHierarchyDisplay : ResizeForm
   ///   Builds the tree data.
   /// </summary>
   private void BuildTreeData(string parentCol, string idCol, string? display1, string? display2,
-    IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
+    IProgress<ProgressInfo> process, CancellationToken cancellationToken)
   {
-    DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ??
-                                  throw new ArgumentException($"Could not find column {parentCol}");
-    DataColumn dataColumnID =
-      m_DataTable.Columns[idCol] ?? throw new ArgumentException($"Could not find column {idCol}");
+    DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ?? throw new KeyNotFoundException($"Column '{parentCol}' not found in the data table.");
+    DataColumn dataColumnID = m_DataTable.Columns[idCol] ?? throw new KeyNotFoundException($"Column '{idCol}' not found in the data table.");
 
     DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
     DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
@@ -583,14 +580,14 @@ public class FormHierarchyDisplay : ResizeForm
 
     visitedEntries.Add(treeData);
     foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
-    {
+      {
       break;
     }
 
     return false;
   }
 
-  private void Search(string text, ICollection nodes, in CancellationToken token)
+  private void Search(string text, ICollection nodes, CancellationToken token)
   {
     if (nodes is null || nodes.Count == 0)
       return;
@@ -611,7 +608,7 @@ public class FormHierarchyDisplay : ResizeForm
   /// <summary>
   ///   Shows the tree.
   /// </summary>
-  private void ShowTree(in CancellationToken cancellationToken)
+  private void ShowTree(CancellationToken cancellationToken)
   {
     if (m_TreeView is null)
       return;
@@ -690,7 +687,7 @@ public class FormHierarchyDisplay : ResizeForm
           m_ComboBoxDisplay1.Text = m_ComboBoxDisplay2.Text;
       }
     );
-    Task.Run(() =>
+    _ = Task.Run(() =>
     {
       m_TimerDisplay.Stop();
       this.SafeBeginInvoke(

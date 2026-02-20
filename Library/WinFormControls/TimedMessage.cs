@@ -204,13 +204,13 @@ public class TimedMessage : ResizeForm
     if (m_IconCache.TryGetValue(icon, out var cached))
       return cached;
 
-    string resourceName = icon switch
+    var resourceName = icon switch
     {
       MessageBoxIcon.Information => "info.png",
       MessageBoxIcon.Warning => "warning.png",
       MessageBoxIcon.Question => "question.png",
       MessageBoxIcon.Error => "error.png",
-      MessageBoxIcon.None => string.Empty
+      _ => string.Empty
     };
     string fullName = $"CsvTools.Resources.{resourceName}";
     using var stream = m_ResourceAssembly.GetManifestResourceStream(fullName);

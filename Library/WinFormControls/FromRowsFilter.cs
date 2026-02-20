@@ -77,13 +77,13 @@ public sealed partial class FromRowsFilter : ResizeForm
     listViewCluster.Items.Clear();
     foreach (var item in filtered)
     {
-      var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0"), }));
+      var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0", CultureInfo.InvariantCulture), }));
       lvItem.Checked = true;
     }
 
     foreach (var item in m_DataGridViewColumnFilter.ValueClusterCollection.Where(x => !filtered.Contains(x)))
     {
-      var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0"), }));
+      var lvItem = listViewCluster.Items.Add(new ListViewItem(new[] { item.Display, item.Count.ToString("N0", CultureInfo.InvariantCulture), }));
       lvItem.ForeColor = System.Drawing.SystemColors.GrayText;
     }
 

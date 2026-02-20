@@ -130,7 +130,7 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
       tableLayout.Controls.Add(ctrl, column, row);
       if (span>1)
         tableLayout.SetColumnSpan(ctrl, span);
-      
+
       tableLayout.ResumeLayout(false);
       tableLayout.PerformLayout();
     }
@@ -271,7 +271,7 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
     set
     {
       var newValue = value?.Trim() ?? string.Empty;
-      if (m_QualifierPlaceholder == newValue)
+      if (string.Equals(m_QualifierPlaceholder, newValue, StringComparison.Ordinal))
         return;
 
       m_QualifierPlaceholder = newValue;
@@ -336,7 +336,10 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    catch { }
+    catch
+    {
+      // ignore
+    }
     finally
     {
       m_HasChanges = true;
@@ -1012,11 +1015,10 @@ public class QuotingControl : UserControl, INotifyPropertyChanged
       checkBoxContextSensitiveQualifier.Enabled = FieldQualifierChar !=char.MinValue;
 
       var trimming = TrimmingOptionEnum.All;
-      if (!m_IsWriteSetting)
+      if (!m_IsWriteSetting && comboBoxTrimmingOption.SelectedIndex != -1)
       {
-        if (comboBoxTrimmingOption.SelectedIndex != -1)
 #pragma warning disable CS8605
-          trimming = (TrimmingOptionEnum) comboBoxTrimmingOption.SelectedValue;
+        trimming = (TrimmingOptionEnum) comboBoxTrimmingOption.SelectedValue;
 #pragma warning restore CS8605        
       }
 

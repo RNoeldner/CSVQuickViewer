@@ -60,7 +60,7 @@ public static class MessageBox
 
     using var tm = new TimedMessage();
     var result = tm.ShowDialog(
-      message, title,           // add a third button in case we expect followup dialogs
+      message, title,           // add a third button in case we expect follow up dialogs
       massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
       MessageBoxIcon.Question,
 

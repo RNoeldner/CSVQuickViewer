@@ -63,7 +63,7 @@ public partial class FormSelectInDropdown : ResizeForm
     SetCombobox(comboBox, dropdownTexts, preselect);
 
     if (comboBox.Items.Count ==0)
-      throw new ArgumentException($"No value to Select in {nameof(dropdownTexts)}");
+      throw new InvalidOperationException($"Cannot initialize combobox: {nameof(dropdownTexts)} contains no items.");
   }
 
   /// <summary>

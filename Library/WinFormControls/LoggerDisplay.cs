@@ -35,8 +35,10 @@ public class LoggerDisplay : TextBox, ILogger
   public LoggerDisplay()
   {
     // Make the control suitable for multi-line log output.
+#pragma warning disable MA0056 // Do not call overridable members in constructor
     Multiline = true;
     AllowDrop = false;
+#pragma warning restore MA0056 // Do not call overridable members in constructor
   }
 
   /// <summary>
@@ -59,13 +61,10 @@ public class LoggerDisplay : TextBox, ILogger
       int pos = text.IndexOf('–');
       if (pos < 0)
         pos = text.IndexOf('-');
-      if (pos > 1)
+      if (pos > 1 && m_LastMessage.StartsWith(text.Substring(0, pos - 1).Trim(), StringComparison.Ordinal))
       {
-        if (m_LastMessage.StartsWith(text.Substring(0, pos - 1).Trim(), StringComparison.Ordinal))
-        {
-          AppendText(text.Substring(pos - 1).TrimStart());
-          return;
-        }
+        AppendText(text.Substring(pos - 1).TrimStart());
+        return;
       }
       // New log entry
       if (Text.Length>0)
@@ -73,7 +72,7 @@ public class LoggerDisplay : TextBox, ILogger
       AppendText($"{DateTime.Now:HH:mm:ss} {text.TrimStart()}");
       m_LastMessage = text;
     }
-    catch (Exception)
+    catch
     {
       // Fail silently – ensures UI logging never breaks application flow
     }

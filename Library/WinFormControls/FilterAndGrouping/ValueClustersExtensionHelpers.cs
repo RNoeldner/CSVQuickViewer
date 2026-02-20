@@ -23,7 +23,9 @@ namespace CsvTools
   /// <summary>
   /// Provides extension methods to build groups of numeric, long, date and string values
   /// </summary>
+#pragma warning disable MA0048 // File name must match type name
   public static partial class ValueClustersExtension
+#pragma warning restore MA0048 // File name must match type name
   {
     private const int cMaxProgress = 10000;
     private const double cTypedProgress = 0.25;
@@ -139,6 +141,7 @@ namespace CsvTools
     /// <param name="convert">Conversion delegate.</param>
     /// <param name="progress">Progress/cancellation handler.</param>
     /// <returns>Number of NULL or unconvertible values.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
     private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T> convert, IProgressWithCancellation progress) where T : notnull
     {
       if (values is null) throw new ArgumentNullException(nameof(values));

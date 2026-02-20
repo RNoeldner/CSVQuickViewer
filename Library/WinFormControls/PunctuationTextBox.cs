@@ -66,7 +66,7 @@ public sealed class PunctuationTextBox : TextBox
     }
   }
 
-  private char[] m_Common = new char[] { };
+  private char[] m_Common = System.Array.Empty<char>();
   private char m_Character;
 
   [Browsable(true)]
