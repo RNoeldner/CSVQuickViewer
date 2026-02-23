@@ -248,7 +248,7 @@ namespace CsvTools
         (() => clusterDay.Count < max, dt => dt.AddDays(1), clusterDay),
         (() => clusterMonth.Count < max, dt => dt.AddMonths(1), clusterMonth),
         (() => clusterYear.Count < max, dt => dt.AddYears(1), clusterYear),
-        (() => true, dt => dt.AddYears(10), clusterDecade) // fallback
+        (() => true, dt => dt.AddYears(10), clusterDecade), // fallback
       };
       var selected = clusterOptions.First(opt => opt.Condition());
 
