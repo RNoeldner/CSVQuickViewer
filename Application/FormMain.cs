@@ -288,14 +288,13 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async Task CheckPossibleChange()
   {
-    if (Interlocked.Exchange(ref m_CheckRunning, 1) == 1)
-      return;
     // In case the file was deleted we can not reload it...
     if (m_FileChanged && m_FileSetting != null && m_FileSetting.FileName.Length > 0 && !File.Exists(m_FileSetting.FileName))
       m_FileChanged=false;
     if (!m_ShouldReloadData && !m_FileChanged)
       return;
-
+    if (Interlocked.Exchange(ref m_CheckRunning, 1) == 1)
+      return;
     try
     {
       if (m_ShouldReloadData)

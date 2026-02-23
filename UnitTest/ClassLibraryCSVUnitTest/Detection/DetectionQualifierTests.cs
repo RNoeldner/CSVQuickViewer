@@ -65,6 +65,18 @@ public class DetectionQualifierTests
   }
 
   [TestMethod]
+  public async Task GuessQualifier_SingleAndDouble()
+  {
+    using var improvedStream =
+      new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Properties_User.csv")));
+
+    using var textReader =
+      await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
+    var quoteTestResult = textReader.InspectQualifier(',', '\0', string.Empty, StaticCollections.PossibleQualifiers, UnitTestStatic.Token);
+    Assert.AreEqual('"', quoteTestResult.QuoteChar);
+  }
+
+  [TestMethod]
   public async Task GuessQualifier_QuotingComments()
   {
     using var improvedStream =

@@ -32,11 +32,7 @@ public static class DetectionQualifier
   /// </summary>
   public static QuoteTestResult InspectQualifier(
       this ImprovedTextReader textReader,
-      char fieldDelimiterChar,
-      char escapePrefixChar,
-      string commentLine,
-      IEnumerable<char> possibleQuotes,
-      CancellationToken cancellationToken)
+      char fieldDelimiterChar, char escapePrefixChar, string commentLine, IEnumerable<char> possibleQuotes, CancellationToken cancellationToken)
   {
     if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
@@ -53,7 +49,7 @@ public static class DetectionQualifier
         bestResult = currentResult;
 
       // Short-circuit: If double-quote looks very solid, don't waste time on other candidates
-      if (quoteChar == '"' && currentResult.Score >= 45)
+      if (currentResult.QuoteChar == '"' && currentResult.Score >= 45)
         break;
     }
 
@@ -62,12 +58,11 @@ public static class DetectionQualifier
 
   private static QuoteTestResult GetScoreForQuote(
       ImprovedTextReader textReader,
-      char delimiterChar,
-      char escapeChar,
-      char quoteChar,
-      string commentLine,
-      CancellationToken cancellationToken)
+      char delimiterChar, char escapeChar, char quoteChar, string commentLine, CancellationToken cancellationToken)
   {
+    if (commentLine.Length > 2)
+      throw new ArgumentException("Comment line marker too long; only 1- or 2-character markers are supported.", nameof(commentLine));
+
     const int cBufferMax = 262144;
     const char textPlaceholder = 't';
 
@@ -83,6 +78,8 @@ public static class DetectionQualifier
       char lastNormalized = '\0';
       bool isStartOfLine = true;
       var res = new QuoteTestResult(quoteChar);
+      char otherQuote = quoteChar == '"' ? '\'' : '"';
+      bool hasComment = !string.IsNullOrEmpty(commentLine);
 
       // Analysis state
       analysisBuffer[analysisPos++] = delimiterChar; // Seed with delimiter
@@ -96,9 +93,13 @@ public static class DetectionQualifier
         {
           char c = readBuffer[i];
 
-          // 1. Skip Comments
-          if (isStartOfLine && !string.IsNullOrEmpty(commentLine) && c == commentLine[0])
+          // 1. Skip Comments 
+          if (isStartOfLine && hasComment && c == commentLine[0] && (commentLine.Length==1 || (i + 1 < charsRead && readBuffer[i+1] ==commentLine[1])))
           {
+            // Skip the comment marker itself
+            if (commentLine.Length == 2)
+              i++; // consume second char of comment
+
             // Optimization: Simple skip to end of line
             while (i < charsRead && readBuffer[i] != '\n' && readBuffer[i] != '\r') i++;
             isStartOfLine = true;
@@ -111,11 +112,8 @@ public static class DetectionQualifier
             isStartOfLine = true;
             continue;
           }
-
           isStartOfLine = false;
-
           if (c == ' ' || c == '\t') continue; // Ignore noise
-
           if (c == escapeChar)
           {
             // Peek at next char to check for escaped qualifier
@@ -138,18 +136,10 @@ public static class DetectionQualifier
               normalized = textPlaceholder;
             }
             else
-            {
               normalized = quoteChar;
-            }
-          }
-          else if (c == delimiterChar)
-          {
-            normalized = delimiterChar;
           }
           else
-          {
-            normalized = textPlaceholder;
-          }
+            normalized =c == delimiterChar || c == otherQuote ? c : textPlaceholder;
 
           // Only add to analysis buffer if it represents a state change (compression)
           if (normalized != lastNormalized)
@@ -265,17 +255,29 @@ public static class DetectionQualifier
     // Add padding for safe look-ahead/behind
     buffer[length] = delimiterChar;
     buffer[length + 1] = delimiterChar;
+    char otherQuote = quoteChar == '"' ? '\'' : '"';
+    bool insideOtherQuote = false;
 
     for (int i = 1; i < length; i++)
     {
-      if (buffer[i] != quoteChar) continue;
+      char c = buffer[i];
+
+      // Toggle when encountering the competing quote
+      if (c == otherQuote)
+      {
+        insideOtherQuote = !insideOtherQuote;
+        continue;
+      }
+
+      // Only score candidate quote when NOT inside other quote
+      if (c != quoteChar || insideOtherQuote)
+        continue;
+
       totalQuotes++;
 
-      // Check if quote follows a delimiter (Potential Start)
       if (buffer[i - 1] == delimiterChar && buffer[i + 1] == 't')
         openAndText++;
 
-      // Check if quote precedes a delimiter (Potential End)
       if (buffer[i + 1] == delimiterChar && buffer[i - 1] == 't')
         closeAndDelim++;
     }
@@ -285,8 +287,9 @@ public static class DetectionQualifier
     // Scoring: Heavily weight cases where quotes wrap text fields correctly
     int rawScore = totalQuotes + (5 * (openAndText + closeAndDelim));
 
+    int bonus = (int) (0.1 * totalQuotes); // 10% of the number of quotes
     if (res.DuplicateQualifier || res.EscapedQualifier)
-      rawScore += 20;
+      rawScore += bonus;
 
     res.Score = Math.Min(99, (int) ((rawScore / (double) length) * 100) + 1);
     return res;
@@ -321,10 +324,6 @@ public static class DetectionQualifier
     /// <summary>
     /// Constructor
     /// </summary>
-    /// <param name="quoteChar"></param>
-    /// <param name="score"></param>
-    /// <param name="duplicateQualifier"></param>
-    /// <param name="escapedQualifier"></param>
     public QuoteTestResult(char quoteChar, int score = 0, bool duplicateQualifier = false,
       bool escapedQualifier = false)
     {
