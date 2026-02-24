@@ -382,8 +382,13 @@ public static class JsonTabularConverter
 
     IEnumerable<JObject> Enumerate()
     {
+#if DEBUG
+      var txt = reader.ReadToEnd();
+      using var sr = new StringReader(txt);
+      var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
+#else
       var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
-
+#endif
       // There is no async method for this so all keeps synchronous
       while (jsonReader.Read())
       {
@@ -536,7 +541,7 @@ public static class JsonTabularConverter
       return new
       {
         Property = p,
-        FirstSeenIndex = firstSeen[p.Name]
+        FirstSeenIndex = firstSeen[p.Name],
       };
     })
     .ToList();
