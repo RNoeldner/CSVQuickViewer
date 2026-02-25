@@ -35,23 +35,14 @@ public interface IFileWriter
   event EventHandler? WriteFinished;
 
   /// <summary>
-  /// Writes data from a source to the target file.
+  /// Writes data from the specified <see cref="IFileReader"/> to the target file.
   /// </summary>
-  /// <param name="source">The data source to write from. Returns -1 if <c>null</c>.</param>
-  /// <param name="progress">
-  /// Provides progress reporting and cancellation support. 
-  /// <see cref="ProgressInfo.Value"/> represents the current record written.
-  /// Use <see cref="IProgressWithCancellation.CancellationToken"/> to observe cancellation requests.
-  /// Can be <c>null</c> if neither progress nor cancellation support is needed.
-  /// </param>
+  /// <param name="source">The data source containing records to be written.</param>
+  /// <param name="progress">Provides progress reporting and cancellation support.</param>
   /// <returns>
-  /// The number of records written.
-  /// Returns -1 if <paramref name="source"/> is <c>null</c>.
-  /// Returns -2 if the operation was canceled.
+  /// A task containing the number of records written. 
+  /// Returns -1 if source is null; -2 if the operation was canceled.
   /// </returns>
-  /// <remarks>
-  /// Implementations may internally call <see cref="WriteReaderAsync"/> for the actual writing logic.
-  /// </remarks>
   Task<long> WriteAsync(IFileReader? source, IProgressWithCancellation progress);
 
   /// <summary>

@@ -413,18 +413,16 @@ public static class JsonTabularConverter
               if (prop.Value is JValue jValue)
                 metadata[prop.Name] = jValue;
             }
-
             bool yieldedArrayObjects = false;
-
-            foreach (var prop in obj.Properties())
+            foreach (var propToken in obj.Properties().Select(prop => prop.Value))
             {
-              if (prop.Value is JArray arr)
+              if (propToken is JArray arr)
               {
                 foreach (var item in arr.OfType<JObject>())
                   yield return item;
                 yieldedArrayObjects = true;
               }
-              else if (prop.Value is JObject childObj)
+              else if (propToken is JObject childObj)
               {
                 // Yield top-level child objects (e.g., collection, collection2)
                 yield return childObj;
@@ -435,9 +433,7 @@ public static class JsonTabularConverter
             // If nothing yielded (scalar-only root object), yield root itself
             if (!yieldedArrayObjects)
               yield return obj;
-
             break;
-
           case JsonToken.Comment:
           case JsonToken.None:
             continue;

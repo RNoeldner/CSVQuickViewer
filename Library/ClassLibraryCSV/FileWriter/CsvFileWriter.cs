@@ -17,14 +17,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools;
 
-/// <inheritdoc cref="IFileWriter" />
 /// <summary>
-///   A Class to write CSV Files
+/// A specialized implementation of <see cref="BaseFileWriter"/> for generating CSV files.
+/// Supports configurable delimiters, qualifiers, and fixed-length field constraints.
 /// </summary>
 public sealed class CsvFileWriter : BaseFileWriter
 {
@@ -34,7 +33,6 @@ public sealed class CsvFileWriter : BaseFileWriter
   private readonly char m_FieldDelimiter;
   private readonly char m_FieldQualifier;
   private readonly bool m_IsFixedLength;
-  private readonly bool m_HasEscapePrefix;
   private readonly string m_FieldDelimiterEscaped;
   private readonly string m_FieldQualifierEscaped;
   private readonly string m_NewLine;
@@ -46,31 +44,31 @@ public sealed class CsvFileWriter : BaseFileWriter
   private readonly bool m_QualifyOnlyIfNeeded;
 
   /// <summary>
-  ///   Constructor for a delimited Text / fixed length text writer
+  /// Initializes a new instance of the <see cref="CsvFileWriter"/> class for writing delimited text or fixed-length files.
   /// </summary>
-  /// <param name="fullPath">Fully qualified path of the file to write</param>
-  /// <param name="hasFieldHeader">Determine if a header row should be created</param>
-  /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
-  /// <param name="codePageId">The Code Page for encoding of characters</param>
-  /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
-  /// <param name="columnDefinition">Individual definitions of columns and formats</param>
-  /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
-  /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
-  /// <param name="footer">Footer to be written after all rows are written</param>
-  /// <param name="header">Header to be written before data and/or Header is written</param>
-  /// <param name="fileSettingDisplay">Info text for logging and process report</param>
-  /// <param name="newLine"><see cref="RecordDelimiterTypeEnum"/> written after each record</param>
-  /// <param name="fieldDelimiterChar">The delimiter to separate columns, if empty the text will be written as fixed length</param>
-  /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
-  /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
-  /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
-  /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the delimiter this text will be written</param>
-  /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the qualifier this text will be written</param>
-  /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
-  /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> fieldQualifierChar is ignored</param>
-  /// <param name="fixedLength">If set <c>true</c> do not use delimiter but make column in all rows having the same character length</param>
-  /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
-  /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
+  /// <param name="fullPath">The fully qualified path of the file to be written.</param>
+  /// <param name="hasFieldHeader">Indicates whether a header row containing column names should be created.</param>
+  /// <param name="valueFormat">The fallback value format for typed values that do not have a specific column configuration.</param>
+  /// <param name="codePageId">The Code Page ID used for character encoding (default is 65001 for UTF-8).</param>
+  /// <param name="byteOrderMark">If <c>true</c>, a Byte Order Mark (BOM) will be added to the beginning of the file.</param>
+  /// <param name="columnDefinition">A collection of individual column definitions and formatting rules.</param>
+  /// <param name="identifierInContainer">The name of the file within the archive, if writing to a container that supports multiple files.</param>
+  /// <param name="header">The header text to be written before the data records or column headers.</param>
+  /// <param name="footer">The footer text to be written after all records have been processed.</param>
+  /// <param name="fileSettingDisplay">Descriptive text used for logging and progress reporting.</param>
+  /// <param name="newLine">The <see cref="RecordDelimiterTypeEnum"/> to be used as a line terminator after each record.</param>
+  /// <param name="fieldDelimiterChar">The character used to separate columns. If empty, the file is treated as fixed-length.</param>
+  /// <param name="fieldQualifierChar">The character used to enclose fields that contain delimiters or line breaks.</param>
+  /// <param name="escapePrefixChar">The character used to escape qualifiers or delimiters within a text field.</param>
+  /// <param name="newLinePlaceholder">A string that replaces any actual new line characters found within the data text.</param>
+  /// <param name="delimiterPlaceholder">A string that replaces any actual delimiter characters found within the data text.</param>
+  /// <param name="qualifierPlaceholder">A string that replaces any actual qualifier characters found within the data text.</param>
+  /// <param name="qualifyAlways">If <c>true</c>, encloses every field in qualifiers regardless of content.</param>
+  /// <param name="qualifyOnlyIfNeeded">If <c>true</c>, encloses fields in qualifiers only when they contain special characters.</param>
+  /// <param name="fixedLength">If <c>true</c>, writes columns with a fixed character width instead of using a delimiter.</param>
+  /// <param name="sourceTimeZone">The time zone ID representing the current state of the source data.</param>
+  /// <param name="publicKey">The public key used for encrypting the output file (if supported by the writer).</param>
+  /// <param name="unencrypted">If <c>true</c>, the unencrypted version of the file is preserved for reference when encryption is used.</param>
   public CsvFileWriter(
     string fullPath,
     bool hasFieldHeader = true,
@@ -109,8 +107,8 @@ public sealed class CsvFileWriter : BaseFileWriter
     m_FieldDelimiter = fieldDelimiterChar;
     m_FieldDelimiterEscaped = m_FieldDelimiter.ToString();
 
-    m_HasEscapePrefix = escapePrefixChar != char.MinValue;
-    if (m_HasEscapePrefix)
+    var hasEscapePrefix = escapePrefixChar != char.MinValue;
+    if (hasEscapePrefix)
     {
       m_FieldQualifierEscaped = $"{escapePrefixChar}{m_FieldQualifier}";
       m_FieldDelimiterEscaped = $"{escapePrefixChar}{m_FieldDelimiter}";
@@ -130,13 +128,13 @@ public sealed class CsvFileWriter : BaseFileWriter
     // check the validity of placeholders
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
     if (m_DelimiterPlaceholder.IndexOfAny(illegal)!=-1)
-      throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'");
+      throw new ArgumentException($"{nameof(delimiterPlaceholder)} invalid characters in '{m_DelimiterPlaceholder}'", nameof(delimiterPlaceholder));
 
     if (m_QualifierPlaceholder.IndexOfAny(illegal)!=-1)
-      throw new ArgumentException($"{nameof(qualifierPlaceholder)} invalid characters in  '{m_QualifierPlaceholder}'");
+      throw new ArgumentException($"{nameof(qualifierPlaceholder)} invalid characters in  '{m_QualifierPlaceholder}'", nameof(qualifierPlaceholder));
 
     if (m_NewLinePlaceholder.IndexOfAny(illegal)!=-1)
-      throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'");
+      throw new ArgumentException($"{nameof(newLinePlaceholder)} invalid characters in '{m_NewLinePlaceholder}'", nameof(newLinePlaceholder));
 
     var qualifyList = new List<char>(4);
 
@@ -148,13 +146,11 @@ public sealed class CsvFileWriter : BaseFileWriter
     }
 
     // need quoting in case of a not escaped delimiter
-    if (!m_HasEscapePrefix)
+    if (!hasEscapePrefix)
     {
       qualifyList.Add(m_FieldQualifier);
       qualifyList.Add(m_FieldDelimiter);
     }
-
-
     m_QualifyCharArray = qualifyList.ToArray();
   }
 
@@ -162,7 +158,6 @@ public sealed class CsvFileWriter : BaseFileWriter
   public override async Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress)
   {
     var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
-
     if (columns.Count == 0)
       throw new FileWriterException("No columns defined to be written.");
 
@@ -209,9 +204,7 @@ public sealed class CsvFileWriter : BaseFileWriter
         else
         {
           var textValue = TextEncodeField(col, columnInfo, reader);
-          await writer.WriteAsync(
-              HandleText(textValue, columnInfo.FieldLength, msg => HandleWarning(columnInfo.Name, msg))
-          ).ConfigureAwait(false);
+          await writer.WriteAsync(HandleText(textValue, columnInfo.FieldLength, msg => HandleWarning(columnInfo.Name, msg))).ConfigureAwait(false);
         }
 
         if (m_FieldDelimiter != char.MinValue && i != columns.Count() - 1)
@@ -221,13 +214,13 @@ public sealed class CsvFileWriter : BaseFileWriter
       if (emptyColumns == columns.Count())
         break;
 
-      NextRecord();
+      Records++;
       await writer.WriteAsync(m_NewLine).ConfigureAwait(false);
 
       // Progress reporting
-      intervalAction?.Invoke(progress!, "Writing", reader.RecordNumber);
+      intervalAction?.Invoke(progress, $"Record {reader.RecordNumber:N0}", reader.Percent);
     }
-    progress.Report(new ProgressInfo("Writing", reader.RecordNumber));
+    progress.Report(new ProgressInfo($"Record {reader.RecordNumber:N0}", reader.Percent));
 
     // --- Write footer ---
     var footer = Footer();
@@ -243,6 +236,7 @@ public sealed class CsvFileWriter : BaseFileWriter
 #else
     await writer.FlushAsync().ConfigureAwait(false);
 #endif
+    HandleWriteEnd();
   }
 
   /// <summary>
@@ -319,5 +313,4 @@ public sealed class CsvFileWriter : BaseFileWriter
 
     return m_FieldQualifier + processed.Replace(m_FieldQualifier.ToString(), m_FieldQualifierEscaped) + m_FieldQualifier;
   }
-
 }

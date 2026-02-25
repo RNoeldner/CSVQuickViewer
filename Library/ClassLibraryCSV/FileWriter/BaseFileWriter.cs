@@ -19,19 +19,19 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools;
 
 /// <summary>
-/// Base class with methods used by all <see cref="IFileWriter"/> implementations.
-/// Provides infrastructure for column definitions, value formatting, time zone conversion, progress reporting, and error handling.
+/// Provides a base implementation for file writers, handling shared logic for 
+/// column formatting, data type conversion, and time zone adjustments.
 /// </summary>
 public abstract class BaseFileWriter : IFileWriter
 {
   /// <summary>
-  /// The column definitions for the file being written.
+  /// The collection of column metadata defining the schema, data types, 
+  /// and formatting rules for the output file.
   /// </summary>
   protected readonly IReadOnlyCollection<Column> ColumnDefinition;
 
@@ -68,26 +68,25 @@ public abstract class BaseFileWriter : IFileWriter
   /// <summary>The header written before the records are stored</summary>
   protected string Header;
 
-  /// <summary>The source time zone, used in time zone conversion; is assumed the date time of the read is in this timezone</summary>
+  /// <summary>
+  /// The source time zone of the data. Used in conjunction with 
+  /// <see cref="TimeZoneAdjust"/> to normalize date/time values.
+  /// </summary>
   protected readonly string SourceTimeZone;
-
-  private DateTime m_LastNotification = DateTime.Now;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
-  /// Abstract implementation of all FileWriters.
   /// </summary>
-  /// <param name="fullPath">Fully qualified path of the file to write</param>
-  /// <param name="valueFormatGeneral">Fall back value format for typed values that do not have a column setup</param>
-  /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of the file in the archive.</param>
-  /// <param name="footer">Footer to be written after all rows are written</param>
-  /// <param name="header">Header to be written before data and/or Header is written</param>
-  /// <param name="columnDefinition">Individual column definitions for formatting</param>
-  /// <param name="fileSettingDisplay">Info text for logging and process report</param>  
-  /// <param name="sourceTimeZone">Identified for the timezone the values are currently stored as</param>
-  /// <param name="publicKey">Key used for encryption of the written data (not implemented in all Libraries)</param>
-  /// <param name="unencrypted">If <c>true</c> the not pgp encrypted file is kept for reference</param>
-  /// 
+  /// <param name="fullPath">The fully qualified path of the file to write.</param>
+  /// <param name="valueFormatGeneral">The fallback value format for columns without specific formatting.</param>
+  /// <param name="identifierInContainer">The name of the file within an archive (e.g., ZIP).</param>
+  /// <param name="footer">The template for the footer written after data records.</param>
+  /// <param name="header">The template for the header written before data records.</param>
+  /// <param name="columnDefinition">The collection of individual column definitions for formatting.</param>
+  /// <param name="fileSettingDisplay">The descriptive text used for logging and progress reporting.</param>
+  /// <param name="sourceTimeZone">The ID of the time zone in which the source values are stored.</param>
+  /// <param name="publicKey">The key used for encrypting the output data.</param>
+  /// <param name="unencrypted">If <c>true</c>, keeps the unencrypted file as a reference when encryption is used.</param>
   protected BaseFileWriter(
     string fullPath,
     in ValueFormat? valueFormatGeneral,
@@ -118,33 +117,31 @@ public abstract class BaseFileWriter : IFileWriter
     m_IdentifierInContainer = identifierInContainer ?? string.Empty;
   }
 
-  /// <summary>Gets or sets the number of records written</summary>
-  /// <value>The records.</value>
+  /// <summary>
+  /// Gets the number of records successfully written to the file.
+  /// </summary>
   public long Records { get; protected set; }
 
   /// <summary>
-  ///   Event handler called if a warning or error occurred
+  /// Occurs when a non-critical error or warning is encountered during the write process.
   /// </summary>
   public event EventHandler<WarningEventArgs>? Warning;
 
   /// <summary>
-  ///   Event to be raised if writing is finished
+  /// Occurs when the file writing operation has successfully concluded.
   /// </summary>
   public event EventHandler? WriteFinished;
 
   private static readonly char[] timeIdentifiers = new[] { 'h', 'H', 'm', 's' };
 
   /// <summary>
-  ///   Gets the column information based on the SQL Source, but overwritten with the definitions
+  /// Retrieves column metadata by merging source reader information with explicit column definitions.
   /// </summary>
-  /// <param name="generalFormat">
-  ///   general value format for not explicitly specified columns format
-  /// </param>
-  /// <param name="columnDefinitions"></param>
-  /// <param name="reader"></param>
-  /// <exception cref="ArgumentOutOfRangeException"></exception>
-  /// <returns></returns>
-  /// <exception cref="ArgumentNullException">reader</exception>
+  /// <param name="generalFormat">The default format for columns not explicitly defined.</param>
+  /// <param name="columnDefinitions">The set of predefined column configurations.</param>
+  /// <param name="reader">The data reader providing the source schema.</param>
+  /// <returns>A collection of <see cref="WriterColumn"/> objects defining the output structure.</returns>
+  /// <exception cref="ArgumentNullException">Thrown when <paramref name="reader"/> is null.</exception>
   public static IReadOnlyCollection<WriterColumn> GetColumnInformation(in ValueFormat generalFormat,
     in IReadOnlyCollection<Column> columnDefinitions,
     in IDataReader reader)
@@ -260,8 +257,7 @@ public abstract class BaseFileWriter : IFileWriter
         continue;
 
       if (ci.ValueFormat.DateFormat.IndexOfAny(timeIdentifiers) != -1)
-        Logger.Warning(
-          $"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
+        Logger.Warning($"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
 
       // In case we have a split column, add the second column (unless the column is also present
       result.Add(
@@ -280,9 +276,9 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter" />
-  public virtual async Task<long> WriteAsync(IFileReader? reader, IProgressWithCancellation progress)
+  public virtual async Task<long> WriteAsync(IFileReader? source, IProgressWithCancellation progress)
   {
-    if (reader is null)
+    if (source is null)
       return -1;
     HandleWriteStart();
 
@@ -298,7 +294,7 @@ public abstract class BaseFileWriter : IFileWriter
 #else
       using var stream = FunctionalDI.GetStream(sourceAccess);
 #endif
-      await WriteReaderAsync(reader, stream, progress).ConfigureAwait(false);
+      await WriteReaderAsync(source, stream, progress).ConfigureAwait(false);
     }
     catch (Exception exc)
     {
@@ -318,45 +314,37 @@ public abstract class BaseFileWriter : IFileWriter
 
     return Records;
   }
-
-  /// <summary>Footers added once all records are processed, placeholder "Records" is replaced with the number of records processed
-  /// "FileName" is replaced with current filename without folder. "CDate" is replaced with current date in "dd-MMM-yyyy" </summary>
+  /// <summary>
+  /// Generates the footer string, replacing placeholders such as {Records}, {FileName}, and {CDate}.
+  /// </summary>
+  /// <returns>The formatted footer string.</returns>
   protected string Footer() =>
     m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:N0}", Records));
 
   /// <summary>
-  ///   Handles an error message by raising it as event
+  /// Raises a warning event for a specific column.
   /// </summary>
-  /// <param name="columnName">The column name.</param>
-  /// <param name="message">The message.</param>
+  /// <param name="columnName">The name of the column where the error occurred.</param>
+  /// <param name="message">The error message.</param>
   protected void HandleError(string columnName, string message) =>
     Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
-
-  /// <summary>Is called whenever there is progress to report</summary>
-  /// <param name="text">The text.</param>
-  protected static void HandleProgress(string text) => Logger.Information(text);
-
-  /// <summary>Should be called whenever the writing starts</summary>
+  /// <summary>
+  /// Resets record counters and prepares the writer for a new operation.
+  /// </summary>
   protected void HandleWriteStart() => Records = 0;
 
-  /// <summary>Should be called whenever the writer finished</summary>
+  /// <summary>
+  /// Finalizes the writing process and invokes the <see cref="WriteFinished"/> event.
+  /// </summary>
   protected void HandleWriteEnd() => WriteFinished?.SafeInvoke(this);
-
-
-  /// <summary>Called when the next record is written, handles counters and progress</summary>
-  protected void NextRecord()
-  {
-    Records++;
-    var now = DateTime.Now;
-    if ((now - m_LastNotification).TotalSeconds <= .15) return;
-    m_LastNotification = now;
-    HandleProgress($"Record {Records:N0}");
-  }
 
   /// <inheritdoc cref="IFileWriter"/>
   public abstract Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress);
 
+  /// <summary>
+  /// Replaces standardized placeholders in a string with current file and date information.
+  /// </summary>
   private static string ReplacePlaceHolder(string? input, string fileName) =>
     input?.PlaceholderReplace("FileName", fileName)
       .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
@@ -364,39 +352,25 @@ public abstract class BaseFileWriter : IFileWriter
         string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;
 
   /// <summary>
-  ///   Calls the event handler for warnings
+  /// Invokes the warning event handler with formatted metadata.
   /// </summary>
-  /// <param name="columnName">The column.</param>
-  /// <param name="message">The message.</param>
+  /// <param name="columnName">The name of the column associated with the warning.</param>
+  /// <param name="message">The warning message.</param>
   protected void HandleWarning(string columnName, string message) =>
     Warning?.SafeInvoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
   /// <summary>
-  /// Converts a database value into the target .NET type defined by the column configuration.
+  /// Converts a raw database value into the target .NET type defined by the column configuration.
   /// </summary>
-  /// <param name="dataObject">
-  /// The raw value retrieved from the data source.
-  /// </param>
-  /// <param name="columnInfo">
-  /// Column metadata describing the target data type and formatting behavior.
-  /// </param>
-  /// <param name="dataRecord">
-  /// Optional data record used for additional column access 
-  /// (e.g., dynamic time zone resolution or placeholder handling).
-  /// </param>
-  /// <param name="timeZoneAdjust">
-  /// Delegate used to convert DateTime values between time zones.
-  /// </param>
-  /// <param name="sourceTimeZone">
-  /// The assumed source time zone for DateTime values.
-  /// </param>
-  /// <param name="handleWarning">
-  /// Optional callback used to report conversion warnings 
-  /// (column name, message).
-  /// </param>
+  /// <param name="dataObject">The raw value retrieved from the data source.</param>
+  /// <param name="columnInfo">Column metadata describing the target data type and formatting behavior.</param>
+  /// <param name="dataRecord">Optional record used for dynamic column access (e.g., time zone lookups).</param>
+  /// <param name="timeZoneAdjust">Delegate used to convert DateTime values between time zones.</param>
+  /// <param name="sourceTimeZone">The assumed source time zone for DateTime values.</param>
+  /// <param name="handleWarning">Optional callback used to report conversion warnings.</param>
   /// <returns>
   /// A value compatible with the configured <see cref="DataTypeEnum"/>.  
-  /// Possible return types: <see cref="DBNull"/>, <see cref="long"/>, 
+  /// Possible return types include <see cref="DBNull"/>, <see cref="long"/>, 
   /// <see cref="bool"/>, <see cref="double"/>, <see cref="decimal"/>, 
   /// <see cref="DateTime"/>, <see cref="Guid"/>, or <see cref="string"/>.
   /// </returns>
@@ -450,14 +424,14 @@ public abstract class BaseFileWriter : IFileWriter
     }
   }
 
-  /// <summary>Converts a typed field the text written</summary>
-  /// <param name="dataObject">The data object.</param>
-  /// <param name="columnInfo">The column information.</param>
-  /// <param name="dataRecord">The data record.</param>
-  /// <returns>
-  ///   <br />
-  /// </returns>
-  /// <exception cref="System.ArgumentNullException">columnInfo</exception>
+  /// <summary>
+  /// Converts a typed object into its string representation based on column formatting rules.
+  /// </summary>
+  /// <param name="dataObject">The object to encode.</param>
+  /// <param name="columnInfo">The formatting and type metadata for the column.</param>
+  /// <param name="dataRecord">The source data record for contextual formatting.</param>
+  /// <returns>A formatted string ready for file output.</returns>
+  /// <exception cref="ArgumentNullException">Thrown when <paramref name="columnInfo"/> is null.</exception>
   protected string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
   {
     if (columnInfo is null)
@@ -494,11 +468,7 @@ public abstract class BaseFileWriter : IFileWriter
       if (string.IsNullOrEmpty(displayAs))
         HandleError(columnInfo.Name, ex.Message);
       else
-        HandleWarning(
-          columnInfo.Name,
-          "Value stored as: " + displayAs
-                              + $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}"
-                              + ex.Message);
+        HandleWarning(columnInfo.Name, $"Value stored as: {displayAs}\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()} {ex.Message}");
     }
 
     // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
