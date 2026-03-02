@@ -132,11 +132,14 @@ public sealed class JsonFileReader : BaseFileReaderTyped
 #endif
 
   /// <inheritdoc cref="IFileReader" />
-  public override async Task OpenAsync(CancellationToken token)
+  public override async Task OpenAsync(CancellationToken cancellationToken)
   {
     // Make sure to free old resources
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    await CloseAsync().ConfigureAwait(false);
+#else
     Close();
-
+#endif
     await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
     Retry:
@@ -149,7 +152,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
       // Discover columns from first N rows
       for (int i = 0; i < 5 && m_EnumeratorJson.MoveNext(); i++)
         m_SampleRows.Add(m_EnumeratorJson.Current);
-      m_JsonColumns = m_SampleRows.DiscoverColumns(4, token);
+      m_JsonColumns = m_SampleRows.DiscoverColumns(4, cancellationToken);
       InitColumn(m_JsonColumns.Count);
       ParseColumnName(m_JsonColumns.Select(x => x.HeaderName), m_JsonColumns.Select(x => x.PropertyType.GetDataType()));
 
@@ -157,9 +160,13 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     }
     catch (Exception ex)
     {
-      if (ShouldRetry(ex, token))
+      if (ShouldRetry(ex, cancellationToken))
         goto Retry;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      await CloseAsync().ConfigureAwait(false);
+#else      
       Close();
+#endif
       var appEx = new FileReaderException(
         "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
         ex);

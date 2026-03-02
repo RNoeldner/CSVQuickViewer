@@ -36,15 +36,10 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 
   /// <inheritdoc/>
   public XmlFileReader(
-    in Stream stream,
-    in IEnumerable<Column>? columnDefinition,
-    long recordLimit,
-    bool trim,
-    string treatTextAsNull,
-    bool treatNbspAsSpace,
-    string destTimeZone,
-    bool allowPercentage,
-    bool removeCurrency)
+    in Stream stream,    in IEnumerable<Column>? columnDefinition,
+    long recordLimit,    bool trim,
+    string treatTextAsNull,    bool treatNbspAsSpace,
+    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
     : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     m_Stream = stream;
@@ -54,13 +49,9 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   /// <inheritdoc />
   public XmlFileReader(string fileName,
     in IEnumerable<Column>? columnDefinition,
-    long recordLimit,
-    bool trim,
-    string treatTextAsNull,
-    bool treatNbspAsSpace,
-    string destTimeZone,
-    bool allowPercentage,
-    bool removeCurrency)
+    long recordLimit,    bool trim,
+    string treatTextAsNull,    bool treatNbspAsSpace,
+    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
     : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     if (string.IsNullOrEmpty(fileName))
@@ -112,7 +103,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 #endif
 
   /// <inheritdoc cref="IFileReader" />
-  public override async Task OpenAsync(CancellationToken token)
+  public override async Task OpenAsync(CancellationToken cancellationToken)
   {
     HandleShowProgress($"Opening XML file {FileName}", 0);
     await BeforeOpenAsync($"Opening XML file {FileName.GetShortDisplayFileName()}")
@@ -147,9 +138,13 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     }
     catch (Exception ex)
     {
-      if (ShouldRetry(ex, token))
+      if (ShouldRetry(ex, cancellationToken))
         goto Retry;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      await CloseAsync().ConfigureAwait(false);
+#else
       Close();
+#endif
       var appEx = new FileReaderException(
         "Error opening XML text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
         ex);

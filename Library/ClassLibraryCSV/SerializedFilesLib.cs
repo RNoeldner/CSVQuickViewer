@@ -100,11 +100,13 @@ public static class SerializedFilesLib
 
       case JTokenType.Array:
         var arr = (JArray) token;
-        // copy items to avoid modifying during enumeration
-        foreach (var item in arr.ToList().Where(item => RemoveEmptyTokens(item)))
+        // Remove items where RemoveEmptyTokens returns true
+        for (int i = arr.Count - 1; i >= 0; i--)
         {
-          item.Remove();
+            if (RemoveEmptyTokens(arr[i]))
+                arr[i].Remove();
         }
+        
         // if array has no items left it's empty
         return !arr.HasValues;
 

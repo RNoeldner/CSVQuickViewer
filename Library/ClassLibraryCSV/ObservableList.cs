@@ -61,14 +61,14 @@ namespace CsvTools
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>
-    /// <param name="other">The object to compare with the current object.</param>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object? other)
+    public override bool Equals(object? obj)
     {
-      if (!(other is List<T> coll))
+      if (obj is not List<T> coll)
         return false;
       return Equals(coll);
     }

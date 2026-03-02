@@ -64,8 +64,7 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
   {
     if (field.CollectionEqualWithOrder(value))
       return false;
-
-    //NotifyPropertyChanging(propertyName);
+    
     field.Clear();
     if (value != null)
     {
@@ -93,7 +92,7 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
   {
     if (value.Equals(field))
       return false;
-    //NotifyPropertyChanging(propertyName);
+    
     value.CopyTo(field);
     NotifyPropertyChanged(propertyName);
     return true;
@@ -113,7 +112,6 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
     comparison ??= EqualityComparer<T>.Default;
     if (comparison.Equals(field, value))
       return false;
-    //NotifyPropertyChanging(propertyName);
     field = value;
     NotifyPropertyChanged(propertyName);
     return true;
