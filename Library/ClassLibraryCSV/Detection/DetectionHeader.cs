@@ -205,7 +205,7 @@ public static class DetectionHeader
       // Decision: A header must have no excessively long names and stay under the issue threshold.
       if (msg.Count >0)
       {
-        // Format the message for a "Potential Data Row" warning using bullet points for scannability.
+        // Format the message for a "Potential Data Row" warning using bullet points for scan ability.
         var finalMsg = new StringBuilder("Potential Data Row Detected:\n");
         foreach (var line in msg)
           finalMsg.AppendLine($" • {line}");
