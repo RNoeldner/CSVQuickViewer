@@ -249,9 +249,9 @@ public static class StringUtils
     string candidate;
     do
     {
-      candidate = prefix + counter++;
+      candidate = prefix + (counter++).ToString(CultureInfo.InvariantCulture);
       if (hadEllipsis)
-        candidate += "…"; // Re-add ellipsis
+        candidate += '…'; // Re-add ellipsis
     } while (previousColumns.Contains(candidate, StringComparer.OrdinalIgnoreCase));
 
     return candidate;

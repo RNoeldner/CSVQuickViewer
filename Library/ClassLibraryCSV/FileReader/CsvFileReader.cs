@@ -684,7 +684,8 @@ public class CsvFileReader : BaseFileReader
     {
       if (SelfOpenedStream)
       {
-        m_Stream?.Dispose();
+        if (m_Stream is not null)
+          await m_Stream.DisposeAsync().ConfigureAwait(false);
         m_Stream = m_StreamProvider(new SourceAccess(FullPath)
         {
           IdentifierInContainer = m_IdentifierInContainer
@@ -695,8 +696,8 @@ public class CsvFileReader : BaseFileReader
         if (m_Stream is null)
           throw new FileReaderException("Stream for reading is not provided");
       }
-
-      m_TextReader?.Dispose();
+      if (m_TextReader is not null)
+        await m_TextReader.DisposeAsync().ConfigureAwait(false);
       m_TextReader = await m_Stream.GetTextReaderAsync(m_CodePageId, m_SkipRows, token).ConfigureAwait(false);
 
       EndLineNumber = 1 + m_SkipRows;
@@ -722,8 +723,8 @@ public class CsvFileReader : BaseFileReader
       if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
         m_ColumnMerger = new CsvColumnMerger(FieldCount, m_FieldDelimiter);
 
-      if (m_TextReader.CanSeek)
-        // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on teh first data row
+      // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on the first data row
+      if (m_TextReader.CanSeek)        
         ResetPositionToFirstDataRow();
 
       FinishOpen();
@@ -736,7 +737,7 @@ public class CsvFileReader : BaseFileReader
         return;
       }
 
-      Close();
+      await CloseAsync().ConfigureAwait(false);
       var appEx = new FileReaderException(
         "Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
         ex);

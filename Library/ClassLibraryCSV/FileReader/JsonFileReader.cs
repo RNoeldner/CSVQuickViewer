@@ -135,7 +135,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   public override async Task OpenAsync(CancellationToken token)
   {
     // Make sure to free old resources
-    Close();
+    await CloseAsync().ConfigureAwait(false);
 
     await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
@@ -159,7 +159,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     {
       if (ShouldRetry(ex, token))
         goto Retry;
-      Close();
+      await CloseAsync().ConfigureAwait(false);
       var appEx = new FileReaderException(
         "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
         ex);

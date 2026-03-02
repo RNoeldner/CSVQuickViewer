@@ -36,15 +36,10 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 
   /// <inheritdoc/>
   public XmlFileReader(
-    in Stream stream,
-    in IEnumerable<Column>? columnDefinition,
-    long recordLimit,
-    bool trim,
-    string treatTextAsNull,
-    bool treatNbspAsSpace,
-    string destTimeZone,
-    bool allowPercentage,
-    bool removeCurrency)
+    in Stream stream,    in IEnumerable<Column>? columnDefinition,
+    long recordLimit,    bool trim,
+    string treatTextAsNull,    bool treatNbspAsSpace,
+    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
     : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     m_Stream = stream;
@@ -54,13 +49,9 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   /// <inheritdoc />
   public XmlFileReader(string fileName,
     in IEnumerable<Column>? columnDefinition,
-    long recordLimit,
-    bool trim,
-    string treatTextAsNull,
-    bool treatNbspAsSpace,
-    string destTimeZone,
-    bool allowPercentage,
-    bool removeCurrency)
+    long recordLimit,    bool trim,
+    string treatTextAsNull,    bool treatNbspAsSpace,
+    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
     : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     if (string.IsNullOrEmpty(fileName))
@@ -149,7 +140,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     {
       if (ShouldRetry(ex, token))
         goto Retry;
-      Close();
+      await CloseAsync().ConfigureAwait(false);
       var appEx = new FileReaderException(
         "Error opening XML text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
         ex);

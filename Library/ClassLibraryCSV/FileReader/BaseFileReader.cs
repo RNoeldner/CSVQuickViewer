@@ -924,20 +924,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
   /// <returns></returns>
   protected DateTime? GetDateTimeNull(
-    in object? inputDate,
-    ReadOnlySpan<char> strInputDate,
-    in object? inputTime,
-    ReadOnlySpan<char> strInputTime,
-    Column column,
-    bool serialDateTime)
+    in object? inputDate,    ReadOnlySpan<char> strInputDate,
+    in object? inputTime,    ReadOnlySpan<char> strInputTime,
+    Column column,    bool serialDateTime)
   {
     var dateTime = StringConversionSpan.CombineObjectsToDateTime(
-      inputDate,
-      strInputDate,
-      inputTime,
-      strInputTime,
-      serialDateTime,
-      column.ValueFormat,
+      inputDate,      strInputDate,
+      inputTime,      strInputTime,
+      serialDateTime,      column.ValueFormat,
       out var timeSpanLongerThanDay);
     if (timeSpanLongerThanDay)
     {
@@ -954,10 +948,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     {
       var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
       dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
-        strInputTime,
-        column.ValueFormat.DateSeparator,
-        column.ValueFormat.TimeSeparator,
-        serialDateTime);
+        strInputTime,        column.ValueFormat.DateSeparator,        column.ValueFormat.TimeSeparator,        serialDateTime);
       if (dateTime.HasValue)
       {
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
@@ -973,16 +964,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
     {
       // get the time zone either from constant or from other column
-      if (!column.TimeZonePart.TryGetConstant(out var timeZone) &&
-          m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+      if (!column.TimeZonePart.TryGetConstant(out var timeZone) && m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
         timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
 
       return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(
-      '/', column.ValueFormat.DateSeparator,
-      ':', column.ValueFormat.TimeSeparator);
+    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(      '/', column.ValueFormat.DateSeparator,      ':', column.ValueFormat.TimeSeparator);
 
     HandleError(
       column.ColumnOrdinal,
@@ -1157,9 +1145,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="dataType">Type of the data.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
   protected virtual void ParseColumnName(
-    in IEnumerable<string> headerRow,
-    in IEnumerable<DataTypeEnum>? dataType = null,
-    bool hasFieldHeader = true)
+    in IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
     var adjustedNames = new List<string>();
     if (hasFieldHeader)
@@ -1167,7 +1153,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     else
       for (var colIndex = 0; colIndex < Column.Length; colIndex++)
       {
-        if (GetColumn(colIndex).Name.Equals(GetDefaultName(colIndex)))
+        if (GetColumn(colIndex).Name.Equals(GetDefaultName(colIndex), StringComparison.OrdinalIgnoreCase))
         {
           // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
           // accompanying a file without header)
@@ -1200,17 +1186,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     {
       var defined =
         m_ColumnDefinition.FirstOrDefault(
-          x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? new Column(
-          adjustedNames[colIndex],
-          new ValueFormat(dataTypeL[colIndex]),
-          colIndex);
+          x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? 
+          new Column(          adjustedNames[colIndex],          new ValueFormat(dataTypeL[colIndex]),          colIndex);
       Column[colIndex] = new Column(
-        adjustedNames[colIndex],
-        defined.ValueFormat,
-        colIndex,
-        defined.Ignore,
-        defined.Convert,
-        defined.DestinationName,
+        adjustedNames[colIndex],        defined.ValueFormat,
+        colIndex,        defined.Ignore,        defined.Convert,        defined.DestinationName,
         defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
     }
 
