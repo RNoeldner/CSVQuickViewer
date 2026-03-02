@@ -702,11 +702,11 @@ public class CsvFileReader : BaseFileReader
           throw new FileReaderException("Stream for reading is not provided");
       }
 
-      if (m_TextReader is not null)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      if (m_TextReader is not null)
         await m_TextReader.DisposeAsync().ConfigureAwait(false);
 #else
-      m_TextReader.Dispose();
+      m_TextReader?.Dispose();
 #endif
       m_TextReader = await m_Stream.GetTextReaderAsync(m_CodePageId, m_SkipRows, cancellationToken).ConfigureAwait(false);
 

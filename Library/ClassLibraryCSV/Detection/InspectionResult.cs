@@ -73,31 +73,31 @@ public sealed class InspectionResult
 
   /// <summary>
   /// Flag to indicate that it's a Json file
-  /// </summary>    
+  /// </summary>
   [DefaultValue(false)]
   public bool IsJson { get; set; }
 
   /// <summary>
   /// Flag to indicate that it's an XML file
-  /// </summary>    
+  /// </summary>
   [DefaultValue(false)]
   public bool IsXml { get; set; }
 
   /// <summary>
   /// Flag to indicate that it's not a delimiter, Json or XMl file
-  /// </summary>    
+  /// </summary>
   [DefaultValue(false)]
   public bool NoDelimitedFile { get; set; }
 
   /// <summary>
   /// File containing Column definitions
-  /// </summary>    
+  /// </summary>
   [DefaultValue("")]
   public string ColumnFile { get; } = string.Empty;
 
   /// <summary>
   /// The identified columns
-  /// </summary>    
+  /// </summary>
   public ColumnCollection Columns { get; } = new ColumnCollection();
 
   /// <summary>
