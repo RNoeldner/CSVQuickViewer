@@ -165,7 +165,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
         m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
         m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-        m_ViewSettings.FillGuessSettings,
+        m_ViewSettings.FillGuessSettings, true,
         list =>
         {
           if (list.Count == 1)
@@ -174,12 +174,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
             throw new OperationCanceledException();
           return frm.SelectedText;
-        }, m_ViewSettings.DefaultInspectionResult,
+        }, m_ViewSettings.DefaultInspectionResult, 
 #if SupportPGP
             PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead),
 #else
         string.Empty,
 #endif
+        
         formProgress);
       this.SafeInvoke(() =>
       {

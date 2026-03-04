@@ -19,7 +19,8 @@ using System.Threading;
 namespace CsvTools;
 
 /// <summary>
-///   Static class to deal with sample conversion detection, dealing with text to determine if a sample format can be used
+///   Static class to deal with sample conversion detection, dealing with text to determine 
+///   if a sample format can be used
 /// </summary>
 public static class CheckTexts
 {

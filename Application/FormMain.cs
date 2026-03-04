@@ -348,7 +348,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Question,
             MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-        await LoadCsvOrZipFileAsync();
+        await LoadCsvOrZipFileAsync(false);
       else
         m_FileChanged = false;
 
@@ -387,7 +387,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     }
     catch
     {
-      Logger.Warning("Disabling file system watcher failed"); 
+      Logger.Warning("Disabling file system watcher failed");
     }
   }
 
@@ -405,7 +405,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       if (WindowsAPICodePackWrapper.IsDialogOpen) return;
       await SaveIndividualFileSettingAsync();
       m_FileName = files[0];
-      await LoadCsvOrZipFileAsync();
+      await LoadCsvOrZipFileAsync(false);
     });
 
   /// <summary>
@@ -496,14 +496,14 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       await OpenDataReaderAsync();
     };
 
-    await LoadCsvOrZipFileAsync();
+    await LoadCsvOrZipFileAsync(false);
     ShowTextPanel(false);
   }
 
   /// <summary>
   ///   Initializes the file settings.
   /// </summary>
-  private async Task LoadCsvOrZipFileAsync()
+  private async Task LoadCsvOrZipFileAsync(bool detectValues)
   {
     if (string.IsNullOrEmpty(m_FileName))
       return;
@@ -538,7 +538,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
         m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
         m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-        m_ViewSettings.FillGuessSettings, list =>
+        m_ViewSettings.FillGuessSettings, detectValues, list =>
         {
           if (list.Count == 1)
             return list.First();
@@ -654,7 +654,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
       if (m_FileSetting.DisplayRecordNo)
         keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
-      
+
       m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
 
       detailControl.UniqueFieldName = keepVisible;
@@ -913,7 +913,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
         m_ViewSettings.InitialFolder = ".";
       m_FileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
-      await LoadCsvOrZipFileAsync();
+      await LoadCsvOrZipFileAsync(false);
     }, this);
 
 }

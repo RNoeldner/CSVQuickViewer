@@ -74,7 +74,7 @@ public class CsvHelperTest
   {
     var inspectionResult = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt")
       .InspectFileAsync(false, true, true,
-        true, true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(),
+        true, true, true, true, true, true, FillGuessSettings.Default, true, x => x.First(), new InspectionResult(),
         string.Empty, UnitTestStatic.TesterProgress);
 
     Assert.IsNotNull(inspectionResult);
@@ -85,7 +85,7 @@ public class CsvHelperTest
   public async Task AnalyzeFileAsyncZip()
   {
     var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").InspectFileAsync(false, true, true, true,
-      true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty,
+      true, true, true, true, true, FillGuessSettings.Default, true, x => x.First(), new InspectionResult(), string.Empty,
       UnitTestStatic.TesterProgress);
 
     Assert.IsNotNull(tuple);
@@ -99,7 +99,7 @@ public class CsvHelperTest
       .GetInspectionResultFromFileAsync(string.Empty, true, true,
         true, true, true, true, true,
         true, true, new InspectionResult(), new FillGuessSettings(false),
-        string.Empty, UnitTestStatic.TesterProgress);
+        true, string.Empty, UnitTestStatic.TesterProgress);
     //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
     Assert.AreEqual(RecordDelimiterTypeEnum.Crlf, det.NewLine);
   }
@@ -117,7 +117,7 @@ public class CsvHelperTest
   public async Task GetCsvFileSettingAsync()
   {
     var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").InspectFileAsync(true, true, true, true,
-      true, true, true, true, true, FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty,
+      true, true, true, true, true, FillGuessSettings.Default, true, x => x.First(), new InspectionResult(), string.Empty,
       UnitTestStatic.TesterProgress);
     Assert.IsNotNull(tuple);
     Assert.AreEqual(1200, tuple.CodePageId);
@@ -287,7 +287,7 @@ public class CsvHelperTest
     var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").InspectFileAsync(true, true, true, true, true, true,
       true,
       false, true,
-      FillGuessSettings.Default, x => x.First(), new InspectionResult(), string.Empty, UnitTestStatic.TesterProgress);
+      FillGuessSettings.Default, true, x => x.First(), new InspectionResult(), string.Empty, UnitTestStatic.TesterProgress);
     Assert.IsNotNull(result);
     Assert.IsTrue(result.HasFieldHeader);
     Assert.AreEqual(1200, result.CodePageId);
@@ -504,7 +504,7 @@ public class CsvHelperTest
   {
     var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
       .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-        new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.TesterProgress);
+        new InspectionResult(), new FillGuessSettings(false), true, string.Empty, UnitTestStatic.TesterProgress);
     Assert.AreEqual(0, det.SkipRows);
     Assert.AreEqual(',', det.FieldDelimiter);
     Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
@@ -515,7 +515,7 @@ public class CsvHelperTest
   {
     var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt")
       .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-        new InspectionResult(), new FillGuessSettings(false), string.Empty, UnitTestStatic.TesterProgress);
+        new InspectionResult(), new FillGuessSettings(false), true, string.Empty, UnitTestStatic.TesterProgress);
     Assert.AreEqual(0, det.SkipRows);
   }
 
@@ -526,7 +526,7 @@ public class CsvHelperTest
 
     var det = await UnitTestStatic.GetTestPath("BasicCSV.txt")
       .GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true, true,
-        new InspectionResult(), fgs, string.Empty, UnitTestStatic.TesterProgress);
+        new InspectionResult(), fgs, true, string.Empty, UnitTestStatic.TesterProgress);
     Assert.AreEqual(1200, det.CodePageId);
     Assert.AreEqual(',', det.FieldDelimiter);
 
@@ -535,7 +535,7 @@ public class CsvHelperTest
     {
       await fileName.GetInspectionResultFromFileAsync(string.Empty, false, true, true, true, true, true, true, true,
         true, new InspectionResult(), fgs,
-        string.Empty, UnitTestStatic.TesterProgress);
+        true, string.Empty, UnitTestStatic.TesterProgress);
     }
   }
 

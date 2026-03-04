@@ -111,13 +111,10 @@ public static class DetermineColumnFormat
   /// ///
   /// <param name="progress">Cancellation and progress reporting to stop a possibly long running process</param>
   /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
+  /// <exception cref="ArgumentNullException">if fileReader or fillGuessSettings is null</exception>
   public static async Task<IReadOnlyCollection<Column>> FillGuessColumnFormatReaderAsyncReader(
-    this IFileReader fileReader,
-    FillGuessSettings fillGuessSettings,
-    IEnumerable<Column>? columnCollectionInput,
-    bool addTextColumns,
-    bool checkDoubleToBeInteger,
-    string treatTextAsNull,
+    this IFileReader fileReader, FillGuessSettings fillGuessSettings,
+    IEnumerable<Column>? columnCollectionInput, bool addTextColumns, bool checkDoubleToBeInteger, string treatTextAsNull,
     IProgressWithCancellation progress)
   {
     if (fileReader is null)
@@ -193,21 +190,18 @@ public static class DetermineColumnFormat
     }
 
     var sampleList = await GetSampleValuesAsync(
-      fileReader,
-      fillGuessSettings.CheckedRecords,
-      getSamples,
-      treatTextAsNull,
-      100, progress.CancellationToken).ConfigureAwait(false);
+      fileReader, fillGuessSettings.CheckedRecords,
+      getSamples, treatTextAsNull, 100, progress.CancellationToken).ConfigureAwait(false);
 
     // In case there are not enough distinct records do not validate
     if (sampleList.Count == 0 || sampleList.Max(x => x.Value.Values.Count) < fillGuessSettings.MinSamples)
     {
       progress.Report("Not enough records to determine types");
-      var allcolumns = new List<Column>();
+      var allColumns = new List<Column>();
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        allcolumns.Add(columnCache[colIndex]);
+        allColumns.Add(columnCache[colIndex]);
 
-      return allcolumns;
+      return allColumns;
     }
 
     // Add all columns that will not be guessed
@@ -238,19 +232,11 @@ public static class DetermineColumnFormat
       {
         progress.Report($"{readerColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead} rows.");
         var checkResult = GuessValueFormat(
-          samples.Values,
-          fillGuessSettings.MinSamples,
-          fillGuessSettings.TrueValue.AsSpan(),
-          fillGuessSettings.FalseValue.AsSpan(),
-          fillGuessSettings.DetectBoolean,
-          fillGuessSettings.DetectGuid,
-          fillGuessSettings.DetectNumbers,
-          fillGuessSettings.DetectDateTime,
-          fillGuessSettings.DetectPercentage,
-          fillGuessSettings.SerialDateTime,
-          fillGuessSettings.RemoveCurrencySymbols,
-          othersValueFormatDate,
-          progress.CancellationToken);
+          samples.Values, fillGuessSettings.MinSamples, 
+          fillGuessSettings.TrueValue.AsSpan(), fillGuessSettings.FalseValue.AsSpan(),
+          fillGuessSettings.DetectBoolean, fillGuessSettings.DetectGuid, fillGuessSettings.DetectNumbers, 
+          fillGuessSettings.DetectDateTime, fillGuessSettings.DetectPercentage, fillGuessSettings.SerialDateTime, 
+          fillGuessSettings.RemoveCurrencySymbols, othersValueFormatDate, progress.CancellationToken);
 
         // if nothing is found take what was configured before, as the reader could possibly
         // provide typed data (Json, Excel...)
@@ -573,6 +559,7 @@ public static class DetermineColumnFormat
   /// <param name="maxChars">Trim samples to at most this many characters (0=no trim)</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <returns>Dictionary: column index -> result object containing list of samples and records read</returns>
+  /// <exception cref="ArgumentNullException">fileReader or columns</exception>
   public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(
     IFileReader fileReader, long maxRecords, IEnumerable<int> columns, string treatAsNull, int maxChars,
     CancellationToken cancellationToken)
@@ -601,7 +588,7 @@ public static class DetermineColumnFormat
     void OnWarning(object? sender, WarningEventArgs e)
     {
       if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber)) return;
-      if (e.Message.Contains(CsvFileReader.cMoreColumns) && e.Message.Contains("empty")) return;
+      if (e.Message.Contains(CsvFileReader.cMoreColumns, StringComparison.OrdinalIgnoreCase) && e.Message.Contains("empty", StringComparison.OrdinalIgnoreCase)) return;
 
       if (warningLogsRemaining > 0)
       {
@@ -627,7 +614,7 @@ public static class DetermineColumnFormat
       while (recordsScanned < maxRecords && activeColumns.Count > 0)
       {
         action.Invoke(() => Logger.Information($"Analyzing {activeColumns.Count} columns... (Record {recordsScanned:N0})"));
-
+        // Rollover to the beginning if we hit the end of file
         if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           if (!fileReader.SupportsReset) break;
@@ -648,9 +635,10 @@ public static class DetermineColumnFormat
           if (maxChars > 0 && value.Length > maxChars)
             value = value.Substring(0, maxChars);
 
-          var set = sampleDict[colIdx];
-          set.Add(value);
-          if (set.Count >= 10000)
+          var hashSetWithValues = sampleDict[colIdx];
+          // Set is a hashset OrdinalIgnoreCase, it will automatically handle duplicates and ignore them
+          hashSetWithValues.Add(value);
+          if (hashSetWithValues.Count >= 20000)
           {
             var colName = fileReader.GetName(colIdx);
             Logger.Debug("Profile complete for column '{name}'; skipping further samples.", colName);

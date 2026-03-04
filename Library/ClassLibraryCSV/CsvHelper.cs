@@ -33,32 +33,36 @@ public static class CsvHelper
   private static readonly IReadOnlyCollection<char> m_QualifiersToTest = new[] { '"', '\'' };
 
   /// <summary>
-  ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
-  ///   Row and Header
+  /// Asynchronously analyzes a file to detect its structural properties (delimiter, encoding, header, etc.) 
+  /// and infer column data types by sampling content.
   /// </summary>
-  /// <param name="fileName">Name of the file.</param>
-  /// <param name="identifierInContainer"></param>
-  /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
-  /// <param name="guessCodePage">if true, try to determine the code page</param>
-  /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
-  /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
-  /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
-  /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
-  /// <param name="guessHasHeader">
-  ///   if true, try to determine if the file does have a header row
-  /// </param>
-  /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
-  /// <param name="guessCommentLine"></param>
-  /// <param name="inspectionResult">Default in case inspection is wanted</param>
-  /// <param name="fillGuessSettings"></param>
-  /// <param name="pgpKey">Private PGP key in case reading an encrypted file</param>
-  /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
-  /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
+  /// <param name="fileName">The full path to the file to be inspected.</param>
+  /// <param name="identifierInContainer">An optional identifier if the file is part of a container (e.g., a specific file within a ZIP archive).</param>
+  /// <param name="guessJson">If <see langword="true"/>, the method will attempt to detect if the file format is JSON.</param>
+  /// <param name="guessCodePage">If <see langword="true"/>, attempts to detect the character encoding (CodePage) of the file.</param>
+  /// <param name="guessEscapePrefix">If <see langword="true"/>, attempts to identify characters used as escape prefixes within the data.</param>
+  /// <param name="guessDelimiter">If <see langword="true"/>, analyzes the file to determine the field separator (e.g., comma, semicolon, or tab).</param>
+  /// <param name="guessQualifier">If <see langword="true"/>, attempts to identify the text qualifier (e.g., double quotes).</param>
+  /// <param name="guessStartRow">If <see langword="true"/>, detects the first row containing actual data, skipping potential metadata or empty headers.</param>
+  /// <param name="guessHasHeader">If <see langword="true"/>, determines if the first data row contains column names.</param>
+  /// <param name="guessNewLine">If <see langword="true"/>, detects the line-ending sequence (e.g., CRLF or LF).</param>
+  /// <param name="guessCommentLine">If <see langword="true"/>, identifies characters that signify a comment or ignored line.</param>
+  /// <param name="inspectionResult">An existing <see cref="InspectionResult"/> object to populate or update with detected properties.</param>
+  /// <param name="fillGuessSettings">Settings that control the column-level type inference, such as minimum samples and specific types to detect (Dates, GUIDs, etc.).</param>
+  /// <param name="detectFormat">If <see langword="true"/>, enables deeper inspection of data formats (Dates, Numbers, etc.) during sampling.</param>
+  /// <param name="pgpKey">An optional PGP key used for decrypting the file if it is encrypted.</param>
+  /// <returns>
+  /// A task representing the asynchronous operation, returning an <see cref="InspectionResult"/> 
+  /// containing the detected file settings and inferred column collection.
+  /// </returns>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="fileName"/> or <paramref name="fillGuessSettings"/> is null.</exception>
+  /// <exception cref="OperationCanceledException">Thrown if the process is canceled via the <paramref name="progress"/> token.</exception>
+  /// <param name="progress">An interface to report status updates and handle task cancellation.</param>
   public static async Task<InspectionResult> GetInspectionResultFromFileAsync(this string fileName, string identifierInContainer,
     bool guessJson, bool guessCodePage, bool guessEscapePrefix,
     bool guessDelimiter, bool guessQualifier, bool guessStartRow, bool guessHasHeader,
     bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
-    FillGuessSettings fillGuessSettings, string pgpKey, IProgressWithCancellation progress)
+    FillGuessSettings fillGuessSettings, bool detectFormat, string pgpKey, IProgressWithCancellation progress)
   {
     if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("File name can not be empty", nameof(fileName));
     inspectionResult.FileName = fileName;
@@ -92,7 +96,10 @@ public static class CsvHelper
           {
             progress.Report($"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative");
           }
-          catch { }
+          catch
+          {
+            // ignore
+          }
           disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
           // in case Delimiter is re-checked some test are less important
           guessCodePage = false;
@@ -119,7 +126,7 @@ public static class CsvHelper
         Array.Empty<char>(), progress).ConfigureAwait(false);
     }
 
-    if (fillGuessSettings.Enabled)
+    if (fillGuessSettings.Enabled && detectFormat)
     {
       progress.Report("Determining column format by reading samples");
       using var reader2 = GetFileReader(inspectionResult, usedStream);
@@ -293,6 +300,7 @@ public static class CsvHelper
   /// <param name="fillGuessSettings">Settings used for data sampling and type detection.</param>
   /// <param name="selectFile">Callback for UI interaction if a specific file must be picked from a container.</param>
   /// <param name="defaultInspectionResult">Fallback results if specific inspections are skipped.</param>
+  /// <param name="detectFormat">If <see langword="true"/>, enables deeper inspection of data formats (Dates, Numbers, etc.) during sampling.</param>
   /// <param name="privateKey">PGP private key for encrypted file handling.</param>
   /// <param name="progress">Progress reporting and cancellation interface.</param>
   /// <returns>An <see cref="InspectionResult" /> containing the detected file schema.</returns>
@@ -306,14 +314,14 @@ public static class CsvHelper
     bool guessCodePage, bool guessEscapePrefix,
     bool guessDelimiter, bool guessQualifier, bool guessStartRow,
     bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
-    FillGuessSettings fillGuessSettings, Func<IReadOnlyCollection<string>, string>? selectFile,
+    FillGuessSettings fillGuessSettings, bool detectFormat, Func<IReadOnlyCollection<string>, string>? selectFile,
     InspectionResult defaultInspectionResult, string privateKey, IProgressWithCancellation progress)
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("Argument can not be empty", nameof(fileName));
     if (fileName.IndexOf('~') != -1)
       fileName = fileName.LongFileName();
-    var fileName2 = FileSystemUtils.ResolvePattern(fileName);
+    var fileName2 = fileName.ResolvePattern();
     if (fileName2 is null)
       throw new FileNotFoundException(fileName);
     var fileInfo = new FileSystemUtils.FileInfo(fileName2);
@@ -369,14 +377,17 @@ public static class CsvHelper
       {
         progress.Report($"Trying to read manifest: {e2.Message}");
       }
-      catch { }
+      catch
+      {
+        // ignore 
+      }
 
 
     // Determine from file
     return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage,
       guessEscapePrefix, guessDelimiter,
       guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-      defaultInspectionResult, fillGuessSettings, privateKey, progress).ConfigureAwait(false);
+      defaultInspectionResult, fillGuessSettings, detectFormat, privateKey, progress).ConfigureAwait(false);
   }
 
   /// <summary>
@@ -726,7 +737,7 @@ public static class CsvHelper
         CommentLine = csvFile.CommentLine
       },
       fillGuessSettings: new FillGuessSettings(false),
-      pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key,
+      detectFormat: true, pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key,
       progress: progress).ConfigureAwait(false);
     csvFile.CodePageId = det.CodePageId;
     csvFile.ByteOrderMark = det.ByteOrderMark;
