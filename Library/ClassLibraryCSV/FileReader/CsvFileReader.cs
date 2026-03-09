@@ -890,10 +890,7 @@ public class CsvFileReader : BaseFileReader
         var isRepeatedHeader = true;
         for (var col = 0; col < FieldCount; col++)
           if (!m_HeaderRow[col].Equals(currentRow[col], StringComparison.OrdinalIgnoreCase))
-          {
-            isRepeatedHeader = false;
-            break;
-          }
+            { isRepeatedHeader = false; break; }
 
         if (!isRepeatedHeader) continue;
         HandleWarning(-1, "Repeated Header row is ignored");
@@ -987,8 +984,8 @@ public class CsvFileReader : BaseFileReader
                 bool eol = false;
                 long ignored = 0;
 
+                // Need to add quoting so parse does not stop with the included delimiter
                 if (m_FieldQualifier!=0 && raw[0] != m_FieldQualifier)
-                  // Need to add quoting so parse does not stop with the included delimiter
                   raw = $"{m_FieldQualifier}{raw}{m_FieldQualifier}";
 
                 return ParseColumn(
@@ -1546,8 +1543,7 @@ public class CsvFileReader : BaseFileReader
       else if (m_CommentLine.Length > 0 && item != null && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment
-        if (m_EndOfLine)
-          m_EndOfLine = false;
+        if (m_EndOfLine) m_EndOfLine = false;
         else
           // it might happen that the comment line contains a Delimiter
           while (!EndOfFile)

@@ -123,7 +123,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
     FullPath = fileName;
     SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
-    FileName = FileSystemUtils.GetFileName(fileName);
+    FileName = fileName.GetFileName();
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
   }
@@ -265,10 +265,10 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override object this[string columnName] => GetValue(GetOrdinal(columnName));
 
-  /// <inheritdoc />    
+  /// <inheritdoc />
   public override object this[int ordinal] => GetValue(ordinal);
 
-  /// <inheritdoc />   
+  /// <inheritdoc />
   public override void Close()
   {
     if (!EndOfFile)
@@ -376,7 +376,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the column format.
   /// </summary>
   /// <param name="column">The column.</param>
-  /// <returns></returns>
   public virtual Column GetColumn(int column) => Column[column];
 
   /// <inheritdoc />
@@ -924,14 +923,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
   /// <returns></returns>
   protected DateTime? GetDateTimeNull(
-    in object? inputDate,    ReadOnlySpan<char> strInputDate,
-    in object? inputTime,    ReadOnlySpan<char> strInputTime,
-    Column column,    bool serialDateTime)
+    in object? inputDate, ReadOnlySpan<char> strInputDate,
+    in object? inputTime, ReadOnlySpan<char> strInputTime,
+    Column column, bool serialDateTime)
   {
     var dateTime = StringConversionSpan.CombineObjectsToDateTime(
-      inputDate,      strInputDate,
-      inputTime,      strInputTime,
-      serialDateTime,      column.ValueFormat,
+      inputDate, strInputDate,
+      inputTime, strInputTime,
+      serialDateTime, column.ValueFormat,
       out var timeSpanLongerThanDay);
     if (timeSpanLongerThanDay)
     {
@@ -948,7 +947,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     {
       var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
       dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
-        strInputTime,        column.ValueFormat.DateSeparator,        column.ValueFormat.TimeSeparator,        serialDateTime);
+        strInputTime, column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime);
       if (dateTime.HasValue)
       {
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
@@ -970,7 +969,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(      '/', column.ValueFormat.DateSeparator,      ':', column.ValueFormat.TimeSeparator);
+    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults('/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);
 
     HandleError(
       column.ColumnOrdinal,
@@ -1137,38 +1136,35 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Parses the name of the columns and sets the data types, it will handle TimePart and
-  ///   TimeZone. Column must be set beforehand
-  ///   TODO: Handing in two Lists, better would be to have a combined list so the order does not matter much any more
+  /// Parses the column names and sets their data types. Handles TimePart and TimeZone associations.
+  /// Column array must be initialized beforehand.
   /// </summary>
   /// <param name="headerRow">The header row.</param>
-  /// <param name="dataType">Type of the data.</param>
+  /// <param name="dataType">Optional provided data types.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
   protected virtual void ParseColumnName(
     in IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
-    var adjustedNames = new List<string>();
-    if (hasFieldHeader)
-      adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length));
-    else
-      for (var colIndex = 0; colIndex < Column.Length; colIndex++)
-      {
-        if (GetColumn(colIndex).Name.Equals(GetDefaultName(colIndex), StringComparison.OrdinalIgnoreCase))
-        {
-          // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
-          // accompanying a file without header)
-          var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
-          if (newDef != null && !string.IsNullOrEmpty(newDef.Name))
-          {
-            HandleError(colIndex, "Using column name from definition");
-            adjustedNames.Add(newDef.Name);
-            continue;
-          }
-        }
-
-        adjustedNames.Add(GetColumn(colIndex).Name);
-      }
-
+    // Step 1: Adjust column names
+    var adjustedNames = hasFieldHeader
+        ? AdjustColumnName(headerRow, Column.Length).ToList()
+        : Enumerable.Range(0, Column.Length)
+            .Select(colIndex =>
+            {
+              var colName = GetColumn(colIndex).Name;
+              if (colName.Equals(GetDefaultName(colIndex), StringComparison.OrdinalIgnoreCase))
+              {
+                var def = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
+                if (def != null && !string.IsNullOrEmpty(def.Name))
+                {
+                  HandleError(colIndex, "Using column name from definition");
+                  return def.Name;
+                }
+              }
+              return colName;
+            })
+            .ToList();
+    // Step 2: Initialize data types
     var dataTypeL = new DataTypeEnum[adjustedNames.Count];
     // Initialize as text
     for (var col = 0; col < adjustedNames.Count; col++) dataTypeL[col] = DataTypeEnum.String;
@@ -1181,52 +1177,53 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         dataTypeL[col++] = enumeratorType.Current;
     }
 
+    // Step 3: Update Column objects
     // set the data types, either using the definition, or the provided DataType with defaults
     for (var colIndex = 0; colIndex < adjustedNames.Count && colIndex < Column.Length; colIndex++)
     {
-      var defined =
-        m_ColumnDefinition.FirstOrDefault(
-          x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? 
-          new Column(          adjustedNames[colIndex],          new ValueFormat(dataTypeL[colIndex]),          colIndex);
-      Column[colIndex] = new Column(
-        adjustedNames[colIndex],        defined.ValueFormat,
-        colIndex,        defined.Ignore,        defined.Convert,        defined.DestinationName,
+      var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
+          new Column(adjustedNames[colIndex], new ValueFormat(dataTypeL[colIndex]), colIndex);
+      Column[colIndex] = new Column(adjustedNames[colIndex], defined.ValueFormat,
+        colIndex, defined.Ignore, defined.Convert, defined.DestinationName,
         defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
     }
 
     if (Column.Length == 0)
+    {
       HandleWarning(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
-    else
-      // Initialize the references for TimePart and TimeZone
-      for (var index = 0; index < Column.Length; index++)
-      {
-        var column = GetColumn(index);
-        // if the original column that reference other columns is ignored, skip it
-        if (column.Ignore) continue;
+      return;
+    }
 
-        var searchedTimePart = column.TimePart;
-        var searchedTimeZonePart = column.TimeZonePart;
+    // Step 4: Initialize TimePart and TimeZone associations
+    for (var index = 0; index < Column.Length; index++)
+    {
+      var column = GetColumn(index);
+      // if the original column that reference other columns is ignored, skip it
+      if (column.Ignore) continue;
 
-        if (!string.IsNullOrEmpty(searchedTimePart))
-          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
-          {
-            if (indexPoint == index) continue;
-            if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
-            AssociatedTimeCol[index] = indexPoint;
-            break;
-          }
+      var searchedTimePart = column.TimePart;
+      var searchedTimeZonePart = column.TimeZonePart;
 
-        if (string.IsNullOrEmpty(searchedTimeZonePart)) continue;
-
+      if (!string.IsNullOrEmpty(searchedTimePart))
         for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
         {
           if (indexPoint == index) continue;
-
-          if (!GetColumn(indexPoint).Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
-          m_AssociatedTimeZoneCol[index] = indexPoint;
+          if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
+          AssociatedTimeCol[index] = indexPoint;
           break;
         }
+
+      if (string.IsNullOrEmpty(searchedTimeZonePart)) continue;
+
+      for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+      {
+        if (indexPoint == index) continue;
+
+        if (!GetColumn(indexPoint).Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+        m_AssociatedTimeZoneCol[index] = indexPoint;
+        break;
       }
+    }
   }
 
   /// <summary>
