@@ -26,22 +26,37 @@ public static class Logger
   /// <summary>
   /// Gets or sets the logger instance.
   /// </summary>
-  public static ILogger? LoggerInstance
+  public static ILogger LoggerInstance
   {
     get;
     set;
-  }
+  } = Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance;
+
+
+  /// <summary>
+  /// Formats the message and creates a scope.
+  /// </summary>
+  /// <param name="name">Format string of the log message in message template format. Example: <c>"User {User} logged in from {Address}"</c>.</param>
+  /// <param name="args">An object array that contains zero or more objects to format.</param>
+  /// <returns>A disposable scope object. Can be null.</returns>
+  /// <example>
+  /// <code language="csharp">
+  /// using(logger.BeginScope("Processing request from {Address}", address)) { }
+  /// </code>
+  /// </example>
+  public static IDisposable? BeginScope(string name, params object[] args) =>
+    LoggerInstance.BeginScope(name, args);
 
   /// <summary>
   /// Logs a debug level message.
   /// </summary>
   /// <param name="message">The message.</param>
   /// <param name="args">The arguments.</param>
-  public static void Debug(string? message, params object[] args)
+  public static void Debug(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0)
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Debug))
       return;
-    LoggerInstance?.LogDebug(message, args);
+    LoggerInstance.LogDebug(message, args);
   }
 
   /// <summary>
@@ -49,56 +64,70 @@ public static class Logger
   /// </summary>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Error(string? message, params object[] args)
+  public static void Error(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0)
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Error))
       return;
-    LoggerInstance?.LogError(message, args);
+    LoggerInstance.LogError(message, args);
   }
-
 
   /// <summary>Logs a message on error level.</summary>
   /// <param name="exception">Exception that need to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Error(in Exception exception, string? message = null, params object[] args) =>
-    LoggerInstance?.LogError(exception, message ?? exception.ExceptionMessages(2), args);
+  public static void Error(in Exception exception, string? message = null, params object?[] args)
+  {
+    if (!IsEnabled(LogLevel.Error))
+      return;
+    LoggerInstance.LogError(exception, message ?? exception.ExceptionMessages(2), args);
+  }
 
   /// <summary>Logs a message on information level.</summary>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Information(string? message, params object[] args)
+  public static void Information(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0)
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Information))
       return;
-    LoggerInstance?.LogInformation(message, args);
+    LoggerInstance.LogInformation(message, args);
   }
 
   /// <summary>Logs a message on information level.</summary>
   /// <param name="exception">Exception that need to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Information(in Exception exception, string? message, params object[] args)
+  public static void Information(in Exception exception, string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0)
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Information))
       return;
-    LoggerInstance?.LogInformation(exception, message, args);
+    LoggerInstance.LogInformation(exception, message, args);
   }
+
+  /// <summary>
+  /// Checks if the given <paramref name="logLevel"/> is enabled.
+  /// </summary>
+  /// <param name="logLevel">Level to be checked.</param>
+  /// <returns><see langword="true" /> if enabled.</returns>
+  public static bool IsEnabled(LogLevel logLevel) => LoggerInstance.IsEnabled(logLevel);
 
   /// <summary>Logs a warning level message.</summary>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Warning(string? message, params object[] args)
+  public static void Warning(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0)
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Warning))
       return;
-    LoggerInstance?.LogWarning(message, args);
+    LoggerInstance.LogWarning(message, args);
   }
 
   /// <summary>Logs a warning level message.</summary>
   /// <param name="exception">Exception that need to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
-  public static void Warning(in Exception exception, string? message, params object[] args) =>
-    LoggerInstance?.LogWarning(exception, message ?? string.Empty, args);
+  public static void Warning(Exception exception, string? message, params object?[] args)
+  {
+    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Warning))
+      return;
+    LoggerInstance.LogWarning(exception, message, args);
+  }
 }
