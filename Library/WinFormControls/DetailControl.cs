@@ -89,6 +89,7 @@ public sealed partial class DetailControl : UserControl
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
     FilteredDataGridView.Scroll += OnDataGridViewScroll;
     FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
+    FilteredDataGridView.RowCountChanged +=  UpdateNavigationUI;
 
     // Configure the debounce timer (1000ms = 1 second)
     m_NavInputTimer.Interval = 1000;
@@ -959,7 +960,7 @@ public sealed partial class DetailControl : UserControl
     else
     {
       // Revert to actual position if input is invalid
-      UpdateNavigationUI(this, EventArgs.Empty);
+      RefreshToolStrip();
     }
   }
 
@@ -1040,12 +1041,8 @@ public sealed partial class DetailControl : UserControl
         // Refocusing is "nice to have," don't let a failure here crash the load
         Logger.Debug("Could not restore cell focus: " + ex.Message);
       }
-      finally
-      {
-        UpdateNavigationUI(this, EventArgs.Empty);
-      }
     });
-
+    RefreshToolStrip();
     m_UpdateVisibility = true;
   }
 
@@ -1087,7 +1084,7 @@ public sealed partial class DetailControl : UserControl
         // Fallback for frozen columns or index errors
       }
     }
-    UpdateNavigationUI(this, EventArgs.Empty);
+    RefreshToolStrip();
     FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
   }
 
@@ -1167,7 +1164,7 @@ public sealed partial class DetailControl : UserControl
     {
       // now you could run this again
       m_TimerVisibility.Enabled = true;
-      UpdateNavigationUI(this, EventArgs.Empty);
+      RefreshToolStrip();
     }
   }
 
@@ -1193,7 +1190,7 @@ public sealed partial class DetailControl : UserControl
       var wrapper = new DataTableWrapper(exportTable);
       await using (wrapper.ConfigureAwait(false))
 #else
-        using var wrapper = new DataTableWrapper(exportTable);
+      using var wrapper = new DataTableWrapper(exportTable);
 #endif
       // Use the wrapper to satisfy the ICsvReader requirement
       await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
@@ -1294,29 +1291,35 @@ public sealed partial class DetailControl : UserControl
     }
   }
 
+  private void RefreshToolStrip()
+  {
+    try
+    {
+      this.SafeInvoke(() =>
+      {
+        int current = (FilteredDataGridView.CurrentRow?.Index ?? 0) + 1;
+        int total = FilteredDataGridView.RowCount;
+
+        m_ToolStripTextBoxPos.Text = current.ToString(CultureInfo.InvariantCulture);
+        m_ToolStripTextBoxTotal.Text = total.ToString(CultureInfo.InvariantCulture);
+        m_ToolStripTextBoxTotal.ForeColor = EndOfFile ? SystemColors.WindowText : SystemColors.Highlight;
+        m_ToolStripTextBoxTotal.ToolTipText = EndOfFile ? "Total number of records" : "Number of records loaded so far";
+
+        toolStripButtonMoveFirstItem.Enabled = current > 1;
+        toolStripButtonMovePreviousItem.Enabled = current > 1;
+        toolStripButtonMoveNextItem.Enabled = current < total;
+        toolStripButtonMoveLastItem.Enabled = current < total;
+      });
+    }
+    catch
+    {
+      //ignore
+    }
+  }
+
   /// <summary>
   /// Manually updates the position label and button states based on the Grid's current state.
   /// </summary>
-  private void UpdateNavigationUI(object? sender, EventArgs eventArgs)
-  {
-    int current = (FilteredDataGridView.CurrentRow?.Index ?? 0) + 1;
-    int total = FilteredDataGridView.RowCount;
+  private void UpdateNavigationUI(object? sender, EventArgs eventArgs) => RefreshToolStrip();
 
-    var text = total.ToString(CultureInfo.InvariantCulture);
-    m_ToolStripTextBoxPos.Text = current.ToString(CultureInfo.InvariantCulture);
-    m_ToolStripLabelCount.Text = "of";
-    m_ToolStripTextBoxTotal.Visible=true;
-    if (!m_ToolStripTextBoxTotal.Text.Equals(text, StringComparison.Ordinal))
-      m_ToolStripTextBoxTotal.Text = text;
-    m_ToolStripTextBoxTotal.ForeColor = EndOfFile ? SystemColors.WindowText : SystemColors.Highlight;
-    m_ToolStripTextBoxTotal.ToolTipText = "Total number of records";
-    if (!EndOfFile)
-      m_ToolStripTextBoxTotal.ToolTipText += " (loaded so far)";
-
-    // Update button states manually
-    toolStripButtonMoveFirstItem.Enabled = current > 1;
-    toolStripButtonMovePreviousItem.Enabled = current > 1;
-    toolStripButtonMoveNextItem.Enabled = current < total;
-    toolStripButtonMoveLastItem.Enabled = current < total;
-  }
 }

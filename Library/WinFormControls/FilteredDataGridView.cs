@@ -48,6 +48,24 @@ public partial class FilteredDataGridView : DataGridView
   private IFileSetting? m_FileSetting;
   private int m_MenuItemColumnIndex;
   private int m_ShowButtonAtLength = 1000;
+  /// <summary>
+  /// Occurs when the number of visible rows in the grid changes.
+  /// This typically happens after filtering, sorting, or when the underlying
+  /// <see cref="DataTable"/> data changes.
+  /// </summary>
+  public event EventHandler? RowCountChanged;
+
+  /// <summary>
+  /// Raises the <see cref="RowCountChanged"/> event.
+  /// </summary>
+  /// <param name="newCount">The current number of visible rows.</param>
+  protected virtual void SetRowCount(int newCount)
+  {
+    if (RowCount== newCount)
+      return;
+    RowCount= newCount; // Ensure the DataGridView's RowCount is in sync with the actual data
+    RowCountChanged?.Invoke(this, EventArgs.Empty);
+  }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="FilteredDataGridView"/> class.
@@ -155,7 +173,6 @@ public partial class FilteredDataGridView : DataGridView
   [Browsable(false)]
   public bool DataLoaded { get; set; } = true;
 
-
   /// <summary>
   /// Gets or sets the <see cref="DataTable"/> that provides data for this control.
   /// Updating this property triggers column generation and row count synchronization.
@@ -169,7 +186,7 @@ public partial class FilteredDataGridView : DataGridView
     {
       m_DataTable = value ?? new DataTable();
       GenerateDataGridViewColumn();
-      base.RowCount = m_DataTable?.Rows.Count ?? 0; // Update the UI engine here!
+      SetRowCount(m_DataTable?.Rows.Count ?? 0); // Update the UI engine here!
     }
   }
 
@@ -266,23 +283,25 @@ public partial class FilteredDataGridView : DataGridView
   /// Synchronizes the <see cref="DataGridView.RowCount"/> and raises <see cref="DataViewChanged"/>.
   /// </summary>
   public void ApplyFilters() =>
-      this.RunWithHourglass(() =>
-      {
-        // 1. Generate the filter string from your ColumnFilterLogic dictionary
-        var bindingSourceFilter = GetFilterExpression(-1);
-        toolStripMenuItemFilterRemoveAllFilter.Enabled = bindingSourceFilter.Length > 0;
+    this.RunWithHourglass(() =>
+    {
+      var filterExpression = GetFilterExpression(-1);
+      var view = DataTable.DefaultView;
 
-        // 2. Apply the filter to the DataView
-        // Only update if the filter string has actually changed
-        if (!bindingSourceFilter.Equals(DataTable.DefaultView.RowFilter, StringComparison.Ordinal))
-        {
-          DataTable.DefaultView.RowFilter = bindingSourceFilter;
+      toolStripMenuItemFilterRemoveAllFilter.Enabled = filterExpression.Length > 0;
 
-          base.RowCount = DataTable.DefaultView.Count; // Sync count after filtering
-                                                       // 4. Force the grid to refresh its visible cells
-          Invalidate();
-        }
-      });
+      // No change → nothing to do
+      if (string.Equals(filterExpression, view.RowFilter, StringComparison.Ordinal))
+        return;
+
+      view.RowFilter = filterExpression;
+
+      // Sync count after filtering
+      SetRowCount(view.Count);
+
+      // Force the grid to refresh visible cells
+      Invalidate();
+    });
 
   /// <summary>
   /// Resizes column widths based on the actual content of the <see cref="DataTable"/> rather than just visible cells.
@@ -1297,6 +1316,6 @@ public partial class FilteredDataGridView : DataGridView
     DataTable.DefaultView.Sort = string.Empty;
     foreach (DataGridViewColumn col in Columns)
       col.HeaderCell.SortGlyphDirection = SortOrder.None;
-    Invalidate(); 
-  } 
+    Invalidate();
+  }
 }
