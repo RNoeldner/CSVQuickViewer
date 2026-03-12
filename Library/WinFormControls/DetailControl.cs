@@ -535,10 +535,18 @@ public sealed partial class DetailControl : UserControl
 
   protected override void OnHandleDestroyed(EventArgs e)
   {
-    // Trigger cancellation as soon as the UI handle is gone
-    // This stops FindNextAsync and LoadBatch immediately.
-    m_ControlCancellation.Cancel();
-    base.OnHandleDestroyed(e);
+    try
+    {
+      base.OnHandleDestroyed(e);
+      // Trigger cancellation as soon as the UI handle is gone
+      // This stops FindNextAsync and LoadBatch immediately.
+      m_ControlCancellation.Cancel();
+    }
+    catch
+    {
+      // ignore
+    }
+    
   }
 
   /// <summary>
