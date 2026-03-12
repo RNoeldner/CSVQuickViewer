@@ -216,7 +216,7 @@ public partial class FilteredDataGridView : DataGridView
   [Browsable(false)]
   public FillGuessSettings? FillGuessSettings
   {
-    private get;
+    internal get;
     set;
   }
 
@@ -225,17 +225,11 @@ public partial class FilteredDataGridView : DataGridView
   /// </summary>
   public int FrozenColumns
   {
+    get => Columns.Cast<DataGridViewColumn>().Count(col => col.Frozen);
     set
     {
       foreach (DataGridViewColumn col in Columns)
-        col.Frozen = false;
-
-      var max = value;
-      foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
-        if (max-- > 0)
-          col.Frozen = true;
-        else
-          break;
+        col.Frozen = col.DisplayIndex < value;
     }
   }
 

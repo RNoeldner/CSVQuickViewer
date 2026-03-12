@@ -158,11 +158,16 @@ public sealed partial class DetailControl : UserControl
   /// </summary>
   public FillGuessSettings? FillGuessSettings
   {
+    get => FilteredDataGridView.FillGuessSettings;
     set => FilteredDataGridView.FillGuessSettings = value;
   }
 
+  /// <summary>
+  /// Sets the number of columns to freeze at the left of the grid based on display order.
+  /// </summary>
   public int FrozenColumns
   {
+    get => FilteredDataGridView.FrozenColumns;
     set => FilteredDataGridView.FrozenColumns = value;
   }
 
@@ -200,6 +205,7 @@ public sealed partial class DetailControl : UserControl
   [Category("Behavior")]
   public bool ReadOnly
   {
+    get => FilteredDataGridView.ReadOnly;
     set
     {
       if (FilteredDataGridView.ReadOnly == value)
@@ -235,6 +241,7 @@ public sealed partial class DetailControl : UserControl
   [Category("Appearance")]
   public bool ShowFilter
   {
+    get => m_ShowFilter;
     set
     {
       if (m_ShowFilter == value)
@@ -253,6 +260,7 @@ public sealed partial class DetailControl : UserControl
   [Category("Appearance")]
   public bool ShowInfoButtons
   {
+    get => m_ShowButtons;
     set
     {
       if (m_ShowButtons == value)
@@ -268,6 +276,7 @@ public sealed partial class DetailControl : UserControl
   /// <value>The name of the unique field.</value>
   public IEnumerable<string>? UniqueFieldName
   {
+    get => m_UniqueFieldName;
     set
     {
       m_UniqueFieldName.Clear();
@@ -435,8 +444,7 @@ public sealed partial class DetailControl : UserControl
     // Need to set FileSetting so we can change Formats
     FilteredDataGridView.FileSetting = fileSetting;
     m_ToolStripComboBoxFilterType.Enabled = false;
-    m_ToolStripLabelCount.Text = " loading...";
-    m_ToolStripTextBoxTotal.Visible=false;
+    m_ToolStripTextBoxTotal.Text = " loading...";
     var dataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress);
     await LoadDataTableAsync(dataTable, filterType, progress.CancellationToken);
     // Set SelfOpenedDataTable only after LoadDataTableAsync
@@ -1192,8 +1200,8 @@ public sealed partial class DetailControl : UserControl
 #else
       using var wrapper = new DataTableWrapper(exportTable);
 #endif
-      // Use the wrapper to satisfy the ICsvReader requirement
-      await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
+        // Use the wrapper to satisfy the ICsvReader requirement
+        await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
 
 
     }, ParentForm!);

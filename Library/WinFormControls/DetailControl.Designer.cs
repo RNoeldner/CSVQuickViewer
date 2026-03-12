@@ -27,11 +27,11 @@ namespace CsvTools
     private void InitializeComponent()
     {
       components = new Container();
+      ToolStripLabel m_ToolStripLabelCount;
       var resources = new ComponentResourceManager(typeof(DetailControl));
       var dataGridViewCellStyle1 = new DataGridViewCellStyle();
       var dataGridViewCellStyle2 = new DataGridViewCellStyle();
       var dataGridViewCellStyle3 = new DataGridViewCellStyle();
-      m_ToolStripLabelCount = new ToolStripLabel();
       toolStripButtonMoveFirstItem = new ToolStripButton();
       toolStripButtonMovePreviousItem = new ToolStripButton();
       m_ToolStripTextBoxPos = new ToolStripTextBox();
@@ -54,6 +54,7 @@ namespace CsvTools
       timerLoadRemain = new Timer(components);
       m_NavRepeatTimer = new Timer(components);
       m_NavInputTimer = new Timer(components);
+      m_ToolStripLabelCount = new ToolStripLabel();
       ((ISupportInitialize) FilteredDataGridView).BeginInit();
       m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
       m_ToolStripContainer.ContentPanel.SuspendLayout();
@@ -243,7 +244,7 @@ namespace CsvTools
       m_ToolStripNavigation.Items.AddRange(new ToolStripItem[] { toolStripButtonMoveFirstItem, toolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, m_ToolStripTextBoxTotal, toolStripButtonMoveNextItem, toolStripButtonMoveLastItem });
       m_ToolStripNavigation.Location = new System.Drawing.Point(6, 0);
       m_ToolStripNavigation.Name = "m_ToolStripNavigation";
-      m_ToolStripNavigation.Size = new System.Drawing.Size(197, 25);
+      m_ToolStripNavigation.Size = new System.Drawing.Size(228, 25);
       m_ToolStripNavigation.TabIndex = 1;
       // 
       // m_ToolStripTextBoxTotal
