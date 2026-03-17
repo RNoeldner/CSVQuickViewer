@@ -48,21 +48,53 @@ public static class FileSystemUtils
   private const string cLongPathPrefix = @"\\?\";
 
   private const string cUncLongPathPrefix = @"\\?\UNC\";
-  private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+  private static readonly bool IsWindows =
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    OperatingSystem.IsWindows();
+#else
+  RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#endif
 
   /// <summary>
-  /// Returns the full path of a file name, resolving any wild cards or environment variables
+  /// Resolves a relative or patterned file path into a fully qualified absolute path.
   /// </summary>
-  /// <param name="fileName"></param>
-  /// <param name="root"></param>
-  /// <returns></returns>
+  /// <param name="fileName">
+  /// The file name, relative path, or pattern to resolve (e.g., "logs\app_%date%_*.log").
+  /// If null or empty, an empty string is returned.
+  /// </param>
+  /// <param name="root">
+  /// The base directory used to resolve <paramref name="fileName"/> if it is not already absolute.
+  /// If null, the current working directory or executable directory is typically used (depending on <c>GetAbsolutePath</c> implementation).
+  /// </param>
+  /// <returns>
+  /// A fully qualified absolute path with environment variables expanded and wildcards resolved 
+  /// to the latest matching file. Returns <see cref="string.Empty"/> if the resolution fails.
+  /// </returns>
+  /// <remarks>
+  /// This method performs three distinct steps:
+  /// <list type="number">
+  /// <item><description>Combines <paramref name="fileName"/> with <paramref name="root"/> to ensure a base anchor.</description></item>
+  /// <item><description>Expands Environment Variables (e.g., %TEMP%) and custom placeholders (e.g., {date}).</description></item>
+  /// <item><description>Evaluates wildcards (*, ?) to locate the most recent file matching the pattern.</description></item>
+  /// </list>
+  /// </remarks>
   public static string FullPath(this string? fileName, string? root) =>
     ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
   /// <summary>
-  /// Creates a directory if it does not exist
+  /// Ensures a directory exists by creating it and any missing parents. 
+  /// Supports extended-length paths (beyond 260 characters).
   /// </summary>
-  /// <param name="directoryName"></param>
+  /// <param name="directoryName">
+  /// The path of the directory to create. If <see langword="null"/> or empty, the method returns without action.
+  /// </param>
+  /// <remarks>
+  /// This method uses <c>LongPathPrefix()</c> to bypass the legacy Windows <c>MAX_PATH</c> 
+  /// limitation, allowing for directory structures deeper than 260 characters.
+  /// </remarks>
+  /// <exception cref="UnauthorizedAccessException">The caller does not have the required permission.</exception>
+  /// <exception cref="IOException">The directory cannot be created (e.g., a file with the same name exists).</exception>
   public static void CreateDirectory(string? directoryName)
   {
     if (directoryName is null || directoryName.Length == 0)
@@ -91,11 +123,11 @@ public static class FileSystemUtils
       {
         var psStart = name.LastIndexOf('V');
         var psEnd = name.LastIndexOf('.');
-        if (psStart != -1 && psEnd <= psStart + 5)
+        if (psStart != -1 && psEnd <= psStart + 5
+          && int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num)
+          && num > numBackup)
         {
-          if (int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num))
-            if (num > numBackup)
-              numBackup = num;
+          numBackup = num;
         }
       }
 
@@ -112,23 +144,45 @@ public static class FileSystemUtils
   /// <summary>
   /// Check if a directory exists.
   /// </summary>
-  /// <param name="directoryName">Name of the directory.</param>    
+  /// <param name="directoryName">Name of the directory.</param>
   public static bool DirectoryExists(string? directoryName) =>
     !(directoryName is null || directoryName.Length == 0) && Directory.Exists(directoryName.LongPathPrefix());
 
   /// <summary>
-  ///   Folder of the executing assembly, mainly used in Unit testing
+  /// Retrieves the absolute path to the directory containing the application's executable or main assembly.
   /// </summary>
-  /// <returns></returns>
+  /// <returns>
+  /// The directory path. Falls back to <see cref="Directory.GetCurrentDirectory"/> 
+  /// if the assembly location cannot be determined (e.g., in some unit test runners or single-file bundles).
+  /// </returns>
+  /// <remarks>
+  /// This method attempts to find the location in the following order:
+  /// <list type="number">
+  /// <item><description>The Executing Assembly (the library containing this method).</description></item>
+  /// <item><description>The Entry Assembly (the .exe or main process).</description></item>
+  /// <item><description>The current working directory as a final fallback.</description></item>
+  /// </list>
+  /// It automatically handles long path prefixes via <c>LongPathPrefix()</c>.
+  /// </remarks>
   public static string ExecutableDirectoryName()
   {
-    var directory = Assembly.GetExecutingAssembly().Location;
-    if (directory.Length == 0)
-      directory = Assembly.GetEntryAssembly()?.Location ?? string.Empty;
+    // Try Entry Assembly first (usually what you want: the .exe or Test project)
+    // Then try Executing Assembly (the DLL this code lives in)
+    var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+    var location = assembly.Location;
 
-    return (directory.Length == 0
-      ? Directory.GetCurrentDirectory()
-      : Path.GetDirectoryName(directory.LongPathPrefix()))!;
+    // In .NET Core/5+ Single-File apps, Location is empty. 
+    // AppContext.BaseDirectory is the recommended modern way to get the app folder.
+    if (string.IsNullOrEmpty(location))
+    {
+      return AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+    }
+
+    var directory = Path.GetDirectoryName(location.LongPathPrefix());
+
+    return string.IsNullOrEmpty(directory)
+        ? Directory.GetCurrentDirectory()
+        : directory;
   }
 
   /// <summary>
@@ -146,7 +200,7 @@ public static class FileSystemUtils
   /// <summary>
   /// Checks if a file exists
   /// </summary>
-  /// <param name="fileName">Name of the file.</param>    
+  /// <param name="fileName">Name of the file.</param>
   public static bool FileExists(string? fileName) =>
     !(fileName is null || fileName.Length == 0) && File.Exists(fileName.LongPathPrefix());
 
@@ -300,11 +354,19 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  /// Gets the relative path
+  /// Calculates the relative path from a base directory to a target directory.
   /// </summary>
-  /// <param name="otherDir">The directory to look for.</param>
-  /// <param name="basePath">The base path for be assumed for relative path.</param>
-  /// <returns>The relative folder, alway ending with \</returns>
+  /// <param name="otherDir">The target directory to which the relative path should point.</param>
+  /// <param name="basePath">The starting directory used as the reference point.</param>
+  /// <returns>
+  /// A relative path string (e.g., "..\..\Folder\"). 
+  /// Returns ".\" if the paths are identical.
+  /// </returns>
+  /// <remarks>
+  /// This method performs a case-insensitive comparison of path segments.
+  /// It is designed for directory-to-directory relativity and ensures the result 
+  /// always concludes with a directory separator.
+  /// </remarks>
   public static string GetRelativeFolder(this string otherDir, string basePath)
   {
     if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
@@ -344,27 +406,38 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  ///   Gets a shortened name to the display file.
+  /// Shortens a file path for display purposes by intelligently removing directory segments 
+  /// or truncating the string to fit within a specified length.
   /// </summary>
-  /// <param name="fileName">Name of the file.</param>
-  /// <param name="length">The length.</param>
-  /// <returns></returns>
+  /// <param name="fileName">The full file path or resource name to shorten.</param>
+  /// <param name="length">The maximum desired length of the resulting string. Defaults to 80.</param>
+  /// <returns>
+  /// A shortened string containing ellipses (…) where content was removed. 
+  /// Returns the original string (sans prefix) if it already fits the length.
+  /// </returns>
+  /// <remarks>
+  /// This method uses a multi-stage reduction strategy:
+  /// <list type="number">
+  /// <item><description>Retains the root and the last few directory levels.</description></item>
+  /// <item><description>Progressively drops intermediate directories.</description></item>
+  /// <item><description>Reduces to the filename only.</description></item>
+  /// <item><description>Performs a "middle-out" character truncation if the filename alone is too long.</description></item>
+  /// </list>
+  /// </remarks>
   public static string GetShortDisplayFileName(this string fileName, int length = 80)
   {
     var ret = fileName.RemovePrefix();
     if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
       return ret;
-    var parts = fileName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+    var parts = fileName.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
     var fileNameOnly = parts[parts.Length - 1];
 
     // try to cut out directories
     if (parts.Length > 5)
-      ret =
-        $"{parts[0]}{Path.DirectorySeparatorChar}{parts[1]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 3]}{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
+      ret = $"{parts[0]}{Path.DirectorySeparatorChar}{parts[1]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 3]}{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
 
     if (ret.Length > length && parts.Length > 3)
-      ret =
-        $"{parts[0]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
+      ret = $"{parts[0]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
 
     if (ret.Length > length && parts.Length > 3)
       ret = $"…{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
@@ -477,11 +550,23 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  /// Gets the shorter version of absolute and relative representation
+  /// Returns the most compact string representation of a path by comparing absolute, 
+  /// relative, and special-folder (environment variable) formats.
   /// </summary>
-  /// <param name="fileName">Name of the file.</param>
-  /// <param name="basePath">The base path.</param>
-  /// <returns></returns>
+  /// <param name="fileName">The path to be compressed.</param>
+  /// <param name="basePath">The reference directory used to calculate the relative path.</param>
+  /// <returns>
+  /// The shortest available string representation. 
+  /// Returns <see cref="string.Empty"/> if <paramref name="fileName"/> is null.
+  /// </returns>
+  /// <remarks>
+  /// This method evaluates three formats and returns the one with the minimum character count:
+  /// <list type="number">
+  /// <item><description>The fully qualified absolute path.</description></item>
+  /// <item><description>The path using special folders (e.g., "%AppData%\...").</description></item>
+  /// <item><description>The relative path from <paramref name="basePath"/> (e.g., "..\data\...").</description></item>
+  /// </list>
+  /// </remarks>
   public static string GetShortestPath(this string? fileName, string? basePath)
   {
     if (fileName == null)
@@ -535,21 +620,34 @@ public static class FileSystemUtils
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <summary>
-    /// Writes all text to the given file
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <param name="contents">The contents.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+/// Asynchronously creates a new file, writes the specified string to it, and then closes the file. 
+/// Supports extended-length paths (beyond 260 characters).
+/// </summary>
+/// <param name="fileName">The path of the file to write to.</param>
+/// <param name="contents">The string content to write to the file.</param>
+/// <param name="cancellationToken">A token that can be used to cancel the write operation.</param>
+/// <returns>A task that represents the asynchronous write operation.</returns>
+/// <remarks>
+/// This method uses <c>LongPathPrefix()</c> to ensure the file can be written even if the 
+/// directory structure exceeds the Windows <c>MAX_PATH</c> limitation. If the target file 
+/// already exists, it is overwritten.
+/// </remarks>
     public static System.Threading.Tasks.Task WriteAllTextAsync(string fileName, string contents, System.Threading.CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
 
   /// <summary>
-  /// Gets the full path of a file, taking case of Prefixes
+  /// Returns the absolute path for the specified path string, with support for paths exceeding 260 characters.
   /// </summary>
-  /// <param name="path">The path.</param>
-  /// <returns></returns>
+  /// <param name="path">The file or directory path to resolve.</param>
+  /// <returns>
+  /// The fully qualified absolute path, normalized and stripped of any internal long-path prefixes (e.g., \\?\).
+  /// </returns>
+  /// <remarks>
+  /// This method temporarily applies a long-path prefix to bypass Windows <c>MAX_PATH</c> limitations 
+  /// during resolution, but returns a "clean" path suitable for UI display or standard API usage.
+  /// </remarks>
+  /// <exception cref="ArgumentException"><paramref name="path"/> contains invalid characters.</exception>
   public static string GetFullPath(string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
 
   /// <summary>
@@ -569,15 +667,14 @@ public static class FileSystemUtils
   /// <summary>
   /// Gets the stream reader for a file or resource.
   /// </summary>
-  /// <param name="resourceName">The name of the resource</param>
-  /// <returns></returns>
+  /// <param name="resourceName">The name of the resource</param>  
   /// <exception cref="System.ArgumentException">Could not locate stream</exception>
   public static StreamReader GetStreamReaderForFileOrResource(string resourceName)
   {
     var fileName = Path.Combine(ExecutableDirectoryName(), resourceName);
 
     if (FileExists(fileName))
-      return new StreamReader(OpenRead(fileName), true);
+      return new StreamReader(OpenRead(fileName), detectEncodingFromByteOrderMarks: true);
 
     var executingAssembly = Assembly.GetExecutingAssembly();
     Stream? stream = null;
@@ -599,7 +696,9 @@ public static class FileSystemUtils
     if (stream != null)
       return new StreamReader(stream, true);
 
-    throw new ArgumentException($"Could not locate stream for {resourceName}");
+    throw new FileNotFoundException(
+        $"Could not locate '{resourceName}' as a physical file or an embedded resource.",
+        fileName);
   }
 
   /// <summary>
@@ -610,10 +709,11 @@ public static class FileSystemUtils
   {
     if (string.IsNullOrEmpty(shortPath))
       return shortPath;
-    if (!IsWindows)
-      return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
 
-    return shortPath.Contains('~') ? shortPath.LongFileNameKernel() : shortPath;
+    if (!IsWindows)
+      return !shortPath.Contains("." + Path.DirectorySeparatorChar) ? shortPath : Path.GetFullPath(shortPath);
+    else
+      return shortPath.Contains('~') ? shortPath.LongFileNameKernel() : shortPath;
   }
 
   /// <summary>
@@ -658,10 +758,22 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  /// Resolve placeholders in file names and find the latest field to match the pattern
+  /// Resolves a path by expanding environment variables, replacing custom placeholders, 
+  /// and evaluating wildcard patterns to find the most recent matching file.
   /// </summary>
-  /// <param name="fileName"></param>
-  /// <returns></returns>
+  /// <param name="fileName">The path or pattern to resolve (e.g., "%AppData%\Log_{date}_*.txt").</param>
+  /// <returns>
+  /// The path to the latest matching file if wildcards are present; 
+  /// otherwise, the expanded string. Returns <see cref="string.Empty"/> if input is null.
+  /// </returns>
+  /// <remarks>
+  /// Supported placeholders:
+  /// <list type="bullet">
+  /// <item><description><c>{date}</c>: Local date in yyyy-MM-dd format.</description></item>
+  /// <item><description><c>{utc}</c>: UTC date in yyyy-MM-dd format.</description></item>
+  /// </list>
+  /// Standard environment variables (e.g., %TEMP%) are also expanded.
+  /// </remarks>
   public static string ResolvePattern(this string fileName)
   {
     if (fileName is null || fileName.Length == 0)

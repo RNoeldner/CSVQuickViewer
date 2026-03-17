@@ -54,17 +54,12 @@ public static class DateTimeConstants
       .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator.FromText(), '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
       "MM/dd/yyyy",
       "MM/dd/yyyy HH:mm:ss",
-      "M/d/yyyy",
-      "M/d/yyyy h:mm tt",
-      "M/d/yyyy h:mm:ss tt",
       "dd/MM/yyyy",
       "dd/MM/yyyy HH:mm:ss",
-      "d/MM/yyyy",
       "yyyy/MM/dd",
+      "yyyy/MM/dd HH:mm:ss",
       "yyyy/MM/ddTHH:mm:ss",
-      "yyyy/MM/dd HH:mm:ss.fff",
-      "yyyyMMdd",
-      "yyyyMMddTHH:mm:ss.fff",
+      "yyyyMMdd"
     };
     foreach (var format in m_CommonTimeFormats)
       m_CommonDateTimeFormats.Add(format);
