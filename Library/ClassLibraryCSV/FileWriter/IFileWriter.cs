@@ -37,29 +37,38 @@ public interface IFileWriter
   /// <summary>
   /// Writes data from the specified <see cref="IFileReader"/> to the target file.
   /// </summary>
-  /// <param name="source">The data source containing records to be written.</param>
+  /// <param name="reader">The data source containing records to be written.</param>
+  /// <param name="sourceTimeZone">
+  /// The time zone ID of the date/time fields currently held in the <paramref name="reader"/>. 
+  /// This is used to ensure timestamps are correctly interpreted or converted before being written.
+  /// </param>
   /// <param name="progress">Provides progress reporting and cancellation support.</param>
   /// <returns>
   /// A task containing the number of records written. 
   /// Returns -1 if source is null; -2 if the operation was canceled.
   /// </returns>
-  Task<long> WriteAsync(IFileReader? source, IProgressWithCancellation progress);
+  Task<long> WriteAsync(IFileReader? reader, string sourceTimeZone, IProgressWithCancellation progress);
 
   /// <summary>
   /// Writes data from a source directly to a <see cref="Stream"/>.
   /// </summary>
   /// <param name="reader">The data source to read from.</param>
   /// <param name="output">The <see cref="Stream"/> to write the data to.</param>
+  /// <param name="sourceTimeZone">
+  /// The time zone ID of the date/time fields currently held in the <paramref name="reader"/>. 
+  /// This is used to ensure timestamps are correctly interpreted or converted before being written to the stream.
+  /// </param>
   /// <param name="progress">
   /// Provides progress reporting and cancellation support. 
   /// <see cref="ProgressInfo.Value"/> represents the current record written.
   /// Use <see cref="IProgressWithCancellation.CancellationToken"/> to observe cancellation requests.
   /// Can be <c>null</c> if neither progress nor cancellation support is needed.
   /// </param>
-  /// <returns>A task representing the asynchronous write operation.</returns>
+  /// <returns>A task representing the asynchronous write operation, returning the number of records processed.</returns>
   /// <remarks>
   /// Typically called by <see cref="WriteAsync"/>, but can also be used directly if writing
-  /// to a specific stream is required.
+  /// to a specific stream is required. The method assumes that any time-sensitive data 
+  /// aligns with the provided <paramref name="sourceTimeZone"/>.
   /// </remarks>
-  Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress);
+  Task WriteReaderAsync(IFileReader reader, Stream output, string sourceTimeZone, IProgressWithCancellation progress);
 }

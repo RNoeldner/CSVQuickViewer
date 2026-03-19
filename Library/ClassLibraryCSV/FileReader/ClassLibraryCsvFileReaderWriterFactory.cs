@@ -13,10 +13,8 @@
  */
 
 #nullable enable
-
 using System;
 using System.Threading;
-
 
 namespace CsvTools;
 
@@ -27,12 +25,6 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   /// Setting determining which value types are determined
   /// </summary>
   protected readonly FillGuessSettings FillGuessSettings;
-
-  /// <summary>
-  /// While reading converting to this timezone (if a timezone field is defined)
-  /// While writing the timezone that is assumed for columns with time
-  /// </summary>
-  protected string LocalTimeZone = TimeZoneInfo.Local.Id;
 
   /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
   /// <param name="fillGuessSettings">The guess settings</param>
@@ -47,11 +39,11 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
     return setting switch
     {
       IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim,
-                                           json.TreatTextAsNull, json.TreatNBSPAsSpace, LocalTimeZone,
+                                           json.TreatTextAsNull, json.TreatNBSPAsSpace, TimeZoneInfo.Local.Id,
                                            FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
 
       IXmlFile xml => new XmlFileReader(xml.FullPath, xml.ColumnCollection, xml.RecordLimit, xml.Trim,
-                                        xml.TreatTextAsNull, xml.TreatNBSPAsSpace, LocalTimeZone,
+                                        xml.TreatTextAsNull, xml.TreatNBSPAsSpace, TimeZoneInfo.Local.Id,
                                         FillGuessSettings.DetectPercentage, FillGuessSettings.RemoveCurrencySymbols),
 
       ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.SkipRowsAfterHeader,
@@ -65,7 +57,7 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
                                         csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter,
                                         csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull,
                                         csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer,
-                                        LocalTimeZone, FillGuessSettings.DetectPercentage,
+                                        TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage,
                                         FillGuessSettings.RemoveCurrencySymbols),
 
       _ => throw new FileReaderException($"Reader for {setting} not found")
@@ -76,7 +68,6 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   /// <inheritdoc />
   public virtual IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
   {
-
     var publicKey = string.Empty;
 
     return fileSetting switch
@@ -85,7 +76,7 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
         csv.ByteOrderMark, csv.ColumnCollection, csv.IdentifierInContainer, csv.Header,
         csv.Footer, csv.GetDisplay(), csv.NewLine, csv.FieldDelimiterChar, csv.FieldQualifierChar, csv.EscapePrefixChar,
         csv.NewLinePlaceholder, csv.DelimiterPlaceholder, csv.QualifierPlaceholder, csv.QualifyAlways,
-        csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, LocalTimeZone, publicKey, csv.KeepUnencrypted
+        csv.QualifyOnlyIfNeeded, csv.WriteFixedLength, publicKey, csv.KeepUnencrypted
       ),
        
       _ => throw new FileWriterException($"Writer for {fileSetting} not found")

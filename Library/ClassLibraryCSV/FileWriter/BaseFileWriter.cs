@@ -69,12 +69,6 @@ public abstract class BaseFileWriter : IFileWriter
   protected string Header;
 
   /// <summary>
-  /// The source time zone of the data. Used in conjunction with 
-  /// <see cref="TimeZoneAdjust"/> to normalize date/time values.
-  /// </summary>
-  protected readonly string SourceTimeZone;
-
-  /// <summary>
   /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
   /// </summary>
   /// <param name="fullPath">The fully qualified path of the file to write.</param>
@@ -84,9 +78,8 @@ public abstract class BaseFileWriter : IFileWriter
   /// <param name="header">The template for the header written before data records.</param>
   /// <param name="columnDefinition">The collection of individual column definitions for formatting.</param>
   /// <param name="fileSettingDisplay">The descriptive text used for logging and progress reporting.</param>
-  /// <param name="sourceTimeZone">The ID of the time zone in which the source values are stored.</param>
   /// <param name="publicKey">The key used for encrypting the output data.</param>
-  /// <param name="unencrypted">If <c>true</c>, keeps the unencrypted file as a reference when encryption is used.</param>
+  /// <param name="unencrypted">If <c>true</c>, keeps the unencrypted file as a reference when encryption is used.</param>  
   protected BaseFileWriter(
     string fullPath,
     in ValueFormat? valueFormatGeneral,
@@ -95,12 +88,10 @@ public abstract class BaseFileWriter : IFileWriter
     string? header,
     in IEnumerable<Column>? columnDefinition,
     string fileSettingDisplay,
-    string sourceTimeZone,
     string publicKey,
     bool unencrypted
   )
   {
-    SourceTimeZone = sourceTimeZone;
     TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
     m_StreamProvider = FunctionalDI.GetStream;
     m_PublicKey = publicKey;
@@ -276,12 +267,11 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter" />
-  public virtual async Task<long> WriteAsync(IFileReader? source, IProgressWithCancellation progress)
+  public virtual async Task<long> WriteAsync(IFileReader? source, string sourceTimeZone, IProgressWithCancellation progress)
   {
     if (source is null)
       return -1;
     HandleWriteStart();
-
     try
     {
       var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
@@ -294,7 +284,7 @@ public abstract class BaseFileWriter : IFileWriter
 #else
       using var stream = FunctionalDI.GetStream(sourceAccess);
 #endif
-      await WriteReaderAsync(source, stream, progress).ConfigureAwait(false);
+      await WriteReaderAsync(source, stream, sourceTimeZone, progress).ConfigureAwait(false);
     }
     catch (Exception exc)
     {
@@ -340,7 +330,7 @@ public abstract class BaseFileWriter : IFileWriter
   protected void HandleWriteEnd() => WriteFinished?.SafeInvoke(this);
 
   /// <inheritdoc cref="IFileWriter"/>
-  public abstract Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress);
+  public abstract Task WriteReaderAsync(IFileReader reader, Stream output, string sourceTimeZone, IProgressWithCancellation progress);
 
   /// <summary>
   /// Replaces standardized placeholders in a string with current file and date information.
@@ -432,7 +422,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <param name="dataRecord">The source data record for contextual formatting.</param>
   /// <returns>A formatted string ready for file output.</returns>
   /// <exception cref="ArgumentNullException">Thrown when <paramref name="columnInfo"/> is null.</exception>
-  protected string TextEncodeField(object? dataObject, in WriterColumn columnInfo, in IDataRecord? dataRecord)
+  protected string TextEncodeField(object? dataObject, in string sourceTimeZone, in WriterColumn columnInfo, in IDataRecord? dataRecord)
   {
     if (columnInfo is null)
       throw new ArgumentNullException(nameof(columnInfo));
@@ -440,7 +430,7 @@ public abstract class BaseFileWriter : IFileWriter
     string displayAs;
     try
     {
-      var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, SourceTimeZone,
+      var convertedValue = ValueConversion(dataObject, columnInfo, dataRecord, TimeZoneAdjust, sourceTimeZone,
         HandleWarning);
       if (convertedValue == DBNull.Value)
       {

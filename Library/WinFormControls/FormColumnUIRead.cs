@@ -44,6 +44,7 @@ public partial class FormColumnUiRead : ResizeForm
   private readonly ColumnMut m_ColumnEdit;
   private readonly IFileSetting m_FileSetting;
   private readonly FillGuessSettings m_FillGuessSettings;
+  private readonly bool IsWrite;
   public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
   /// <summary>
@@ -64,16 +65,15 @@ public partial class FormColumnUiRead : ResizeForm
   /// <param name="column">The column.</param>
   /// <param name="fileSetting">The file setting (need a setting to actually look into the source).</param>
   /// <param name="fillGuessSettings">The fill guess settings.</param>
-  /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-  /// <param name="showWriteNull">If set to true, the "write null" option will be shown.</param>
+  /// <param name="isWrite">If set to true, the "write null" option will be shown.</param>
   /// <param name="enableChangeColumn">Allow to choose a different column</param>
+  /// 
   /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
   public FormColumnUiRead(
     Column column,
     IFileSetting fileSetting,
     FillGuessSettings fillGuessSettings,
-    bool showIgnore,
-    bool showWriteNull,
+    bool isWrite,
     bool enableChangeColumn)
   {
     m_ColumnEdit = new ColumnMut(column);
@@ -86,18 +86,10 @@ public partial class FormColumnUiRead : ResizeForm
     // needed for Formats
     bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
     comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
-
+    IsWrite = isWrite;
     comboBoxColumnName.Enabled = enableChangeColumn;
-    checkBoxIgnore.Visible = showIgnore;
 
-    labelDisplayNullAs.Visible = showWriteNull;
-    textBoxDisplayNullAs.Visible = showWriteNull;
-
-    toolTip.SetToolTip(
-      comboBoxTimeZone,
-      showWriteNull
-        ? "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted."
-        : "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted.");
+    ChangeVisibility(!isWrite);
   }
 
   private void AddDateFormat(string format)
@@ -322,9 +314,16 @@ public partial class FormColumnUiRead : ResizeForm
 
   private void UpdateDateLabel()
   {
-    try
+
+
+    this.RunWithHourglass(() =>
     {
-      labelSampleDisplay.SafeInvoke(() =>
+      var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Unspecified);
+      var timeZone = comboBoxTimeZone.Text.Trim();
+      var dateSeparator = textBoxDateSeparator.Text.FromText();
+      var timeSeparator = textBoxTimeSeparator.Text.FromText();
+
+      if (!IsWrite)
       {
         var dateFormats = new List<string>();
         foreach (var item in checkedListBoxDateFormats.CheckedItems)
@@ -346,9 +345,7 @@ public partial class FormColumnUiRead : ResizeForm
 
         var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
         var timePartFormat = comboBoxTPFormat.Text;
-        var timeZone = comboBoxTimeZone.Text;
-        var dateSeparator = textBoxDateSeparator.Text.FromText();
-        var timeSeparator = textBoxTimeSeparator.Text.FromText();
+
 
         comboBoxTPFormat.Enabled = hasTimePart;
 
@@ -358,7 +355,7 @@ public partial class FormColumnUiRead : ResizeForm
         // using HashSet to get rid of duplicates
         var text = new HashSet<string>(StringComparer.Ordinal);
 
-        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+
 
         // if we have different formats, input could be different 
         foreach (var dateFormat in dateFormats)
@@ -396,39 +393,45 @@ public partial class FormColumnUiRead : ResizeForm
         }
 
         labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
-      });
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine($"Issue during UpdateDateLabel {ex.Message}");
-    }
+      }
+      else
+      {
+        if (timeZone.TryGetConstant(out var tz))
+        {
+          sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, StandardTimeZoneAdjust.cIdLocal, tz, null);
+          labelOutPutTZ.Text = tz;
+        }
+        else
+          labelOutPutTZ.Text = string.Empty;
+
+        labelDateOutputDisplay.Text = StringConversion.DateTimeToString(sourceDate, comboBoxDateFormat.Text, dateSeparator,
+            timeSeparator, CultureInfo.InvariantCulture);
+      }
+    });
   }
 
-  private void UpdateNumericLabel(char decimalSeparator, string numberFormat, char groupSeparator)
+  private void UpdateNumericLabel()
   {
-    try
+    this.RunWithHourglass(() =>
     {
-      if (decimalSeparator== char.MinValue)
-        return;
-      var vf = new ValueFormat(numberFormat: numberFormat,
-        groupSeparator: groupSeparator.Text(),
-        decimalSeparator: decimalSeparator.Text());
-      var sample = StringConversion.DoubleToString(1234.567, vf);
+      var vf = new ValueFormat(numberFormat: comboBoxNumberFormat.Text.Trim(),
+        groupSeparator: textBoxGroupSeparator.Text.Trim(),
+        decimalSeparator: textBoxDecimalSeparator.Text.Trim());
+      var sample = StringConversion.DoubleToString(81234.5672, vf);
 
-      labelNumber.SafeInvoke(() =>
+      toolTip.SetToolTip(textBoxDecimalSeparator, textBoxDecimalSeparator.Text.FromText().Description());
+      toolTip.SetToolTip(textBoxGroupSeparator, textBoxGroupSeparator.Text.FromText().Description());
+      if (IsWrite)
       {
-        toolTip.SetToolTip(textBoxDecimalSeparator, decimalSeparator.Description());
-        toolTip.SetToolTip(textBoxGroupSeparator, groupSeparator.Description());
-
+        labelNumberOutput.Text = $@"Output: ""{sample}""";
+      }
+      else
+      {
         labelNumber.Text = $@"Input: ""{sample}""";
         labelNumberOutput.Text =
           $@"Output: ""{sample.AsSpan().StringToDecimal(vf.DecimalSeparator, vf.GroupSeparator, false, false):N}""";
-      });
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine($"UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator} {ex.Message}");
-    }
+      }
+    });
   }
 
   [SuppressMessage("ReSharper", "StringLiteralTypo")]
@@ -736,8 +739,7 @@ public partial class FormColumnUiRead : ResizeForm
   /// </summary>
   /// <param name="sender">The sender.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void NumberFormatChanged(object? sender, EventArgs e) => UpdateNumericLabel(textBoxDecimalSeparator.Text.FromText(),
-    comboBoxNumberFormat.Text, textBoxDecimalSeparator.Text.FromText());
+  private void NumberFormatChanged(object? sender, EventArgs e) => UpdateNumericLabel();
 
   private void PartValidating(object? sender, CancelEventArgs e)
   {
@@ -758,8 +760,59 @@ public partial class FormColumnUiRead : ResizeForm
   private void RefreshData()
   {
     SetDateFormat();
-    comboBoxDataType.SetEnumDataSource(m_ColumnEdit.ValueFormatMut.DataType);
+    var doNotShow = new List<DataTypeEnum>();
+    if (IsWrite)
+    {
+      doNotShow.Add(DataTypeEnum.TextPart);
+      doNotShow.Add(DataTypeEnum.Markdown2Html);
+      doNotShow.Add(DataTypeEnum.TextToHtml);
+      doNotShow.Add(DataTypeEnum.TextToHtmlFull);
+      doNotShow.Add(DataTypeEnum.TextUnescape);
+      doNotShow.Add(DataTypeEnum.Binary);
+    }
+    comboBoxDataType.SetEnumDataSource(m_ColumnEdit.ValueFormatMut.DataType, doNotShow);
     ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
+  }
+
+  private void ChangeVisibility(bool isRead)
+  {
+    labelDisplayNullAs.Visible = !isRead;
+    textBoxDisplayNullAs.Visible = !isRead;
+
+    checkBoxIgnore.Visible = isRead;
+    labelTimeCol.Visible = isRead;
+    comboBoxTimePart.Visible = isRead;
+    labelTCFormat.Visible = isRead;
+    comboBoxTPFormat.Visible = isRead;
+    labelLessCommon.Visible = isRead;
+    textBoxDateFormat.Visible = isRead;
+    buttonAddFormat.Visible = isRead;
+    linkLabelRegion.Visible = isRead;
+    checkedListBoxDateFormats.Visible = isRead;
+    linkLabelRegionLanguage.Visible = isRead;
+    labelInput.Visible = isRead;
+    labelSampleDisplay.Visible = isRead;
+    labelInputTZ.Visible = isRead;
+    labelSamplePart.Visible = isRead;
+    labelNumber.Visible = isRead;
+    tableLayoutPanelDate.Controls.Remove(checkedListBoxDateFormats);
+    tableLayoutPanelDate.Controls.Remove(comboBoxDateFormat);
+    if (!isRead)
+    {
+      tableLayoutPanelDate.Controls.Add(comboBoxDateFormat, 1, 3);
+    }
+    else
+    {
+      tableLayoutPanelDate.Controls.Add(checkedListBoxDateFormats, 1, 3);
+      tableLayoutPanelDate.SetRowSpan(checkedListBoxDateFormats, 5);
+    }
+    buttonGuess.Visible = isRead;
+    buttonDisplayValues.Visible = isRead;
+    toolTip.SetToolTip(
+      comboBoxTimeZone,
+      isRead
+        ? "If a time zone column is specified the datetime is assumed to be in the time zone specified by the column (Converted from this time zone to local time zone). You can provide a constant value, then all records will be converted."
+        : "If a time zone column is specified the datetime will be stored in the time zone specified by the column (Converted from local time zone to this time zone). You can provide a constant value, then all records will be converted.");
   }
 
   private void SetDateFormat()
@@ -769,10 +822,14 @@ public partial class FormColumnUiRead : ResizeForm
     comboBoxTPFormat.Items.AddRange(DateTimeConstants.CommonTimeFormats().ToArray());
     comboBoxTPFormat.EndUpdate();
 
+    comboBoxDateFormat.BeginUpdate();
+    comboBoxDateFormat.Items.Clear();
+    comboBoxDateFormat.Items.AddRange(DateTimeConstants.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
+    comboBoxDateFormat.EndUpdate();
+
     checkedListBoxDateFormats.BeginUpdate();
     checkedListBoxDateFormats.Items.Clear();
     checkedListBoxDateFormats.Items.AddRange(DateTimeConstants.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
-
     checkedListBoxDateFormats.EndUpdate();
 
     // Check all items in parts

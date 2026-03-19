@@ -163,11 +163,11 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
           m_ViewSettings.WriteSetting.DelimiterPlaceholder,
           m_ViewSettings.WriteSetting.QualifierPlaceholder, m_ViewSettings.WriteSetting.QualifyAlways,
           m_ViewSettings.WriteSetting.QualifyOnlyIfNeeded,
-          m_ViewSettings.WriteSetting.WriteFixedLength, TimeZoneInfo.Local.Id,
-          FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile, m_ViewSettings.WriteSetting.KeepUnencrypted);
+          m_ViewSettings.WriteSetting.WriteFixedLength, FunctionalDI.GetKeyAndPassphraseForFile(fileName).keyFile,
+          m_ViewSettings.WriteSetting.KeepUnencrypted);
 
         // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(reader, formProgress);
+        await writer.WriteAsync(reader, TimeZoneInfo.Local.Id, formProgress);
 
         fileSystemWatcher.Changed += FileSystemWatcher_Changed;
         fileSystemWatcher.EnableRaisingEvents = true;

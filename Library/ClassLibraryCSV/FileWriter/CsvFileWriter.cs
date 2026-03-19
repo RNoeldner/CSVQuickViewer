@@ -66,7 +66,6 @@ public sealed class CsvFileWriter : BaseFileWriter
   /// <param name="qualifyAlways">If <c>true</c>, encloses every field in qualifiers regardless of content.</param>
   /// <param name="qualifyOnlyIfNeeded">If <c>true</c>, encloses fields in qualifiers only when they contain special characters.</param>
   /// <param name="fixedLength">If <c>true</c>, writes columns with a fixed character width instead of using a delimiter.</param>
-  /// <param name="sourceTimeZone">The time zone ID representing the current state of the source data.</param>
   /// <param name="publicKey">The public key used for encrypting the output file (if supported by the writer).</param>
   /// <param name="unencrypted">If <c>true</c>, the unencrypted version of the file is preserved for reference when encryption is used.</param>
   public CsvFileWriter(
@@ -90,13 +89,12 @@ public sealed class CsvFileWriter : BaseFileWriter
     bool qualifyAlways = false,
     bool qualifyOnlyIfNeeded = true,
     bool fixedLength = false,
-    string sourceTimeZone = "",
     string publicKey = "",
     bool unencrypted = false
   )
     : base(fullPath, valueFormat, identifierInContainer,
       footer, header, columnDefinition,
-      fileSettingDisplay, sourceTimeZone, publicKey, unencrypted)
+      fileSettingDisplay, publicKey, unencrypted)
   {
     m_CodePageId = codePageId;
     m_ColumnHeader = hasFieldHeader;
@@ -155,7 +153,7 @@ public sealed class CsvFileWriter : BaseFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter"/>
-  public override async Task WriteReaderAsync(IFileReader reader, Stream output, IProgressWithCancellation progress)
+  public override async Task WriteReaderAsync(IFileReader reader, Stream output, string sourceTimeZone, IProgressWithCancellation progress)
   {
     var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
     if (columns.Count == 0)
@@ -203,7 +201,7 @@ public sealed class CsvFileWriter : BaseFileWriter
         }
         else
         {
-          var textValue = TextEncodeField(col, columnInfo, reader);
+          var textValue = TextEncodeField(col, sourceTimeZone, columnInfo, reader);
           await writer.WriteAsync(HandleText(textValue, columnInfo.FieldLength, msg => HandleWarning(columnInfo.Name, msg))).ConfigureAwait(false);
         }
 
