@@ -55,28 +55,6 @@ public class ColumnCollectionTest
     }
   }
 
-  [TestMethod]
-  public void Replace()
-  {
-    var test = new ColumnCollection
-    {
-      new Column("ColA", ValueFormat.Empty, 1),
-      new Column("ColB", ValueFormat.Empty, 2),
-      new Column("ColC", ValueFormat.Empty, 3)
-    };
-    var colBnew = new Column("ColB", new ValueFormat(DataTypeEnum.Boolean), 2);
-    test.Replace(colBnew);
-    var colB = test.GetByName("ColB");
-    Assert.AreEqual(3, test.Count);
-    Assert.IsTrue(colB != null && colB.Equals(colBnew));
-    int oldColOrd = 0;
-    foreach (var col in test)
-    {
-      Assert.IsTrue(col.ColumnOrdinal > oldColOrd);
-      oldColOrd = col.ColumnOrdinal;
-    }
-  }
-
 
   [TestMethod]
   public void CopyTo()

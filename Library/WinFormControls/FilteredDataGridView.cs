@@ -1194,8 +1194,9 @@ public partial class FilteredDataGridView : DataGridView
         if (form.ShowWithFont(this, true) == DialogResult.Cancel)
           return;
 
-        // Update the  columns
-        m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
+        // Update the  columns        
+        m_FileSetting.ColumnCollection.Remove(columnFormat);
+        m_FileSetting.ColumnCollection.Add(form.UpdatedColumn);
 
         // Handle Filter in case of Type change
         if (form.UpdatedColumn.ValueFormat.DataType != columnFormat.ValueFormat.DataType)

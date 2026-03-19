@@ -232,10 +232,10 @@ public static class DetermineColumnFormat
       {
         progress.Report($"{readerColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead} rows.");
         var checkResult = GuessValueFormat(
-          samples.Values, fillGuessSettings.MinSamples, 
+          samples.Values, fillGuessSettings.MinSamples,
           fillGuessSettings.TrueValue.AsSpan(), fillGuessSettings.FalseValue.AsSpan(),
-          fillGuessSettings.DetectBoolean, fillGuessSettings.DetectGuid, fillGuessSettings.DetectNumbers, 
-          fillGuessSettings.DetectDateTime, fillGuessSettings.DetectPercentage, fillGuessSettings.SerialDateTime, 
+          fillGuessSettings.DetectBoolean, fillGuessSettings.DetectGuid, fillGuessSettings.DetectNumbers,
+          fillGuessSettings.DetectDateTime, fillGuessSettings.DetectPercentage, fillGuessSettings.SerialDateTime,
           fillGuessSettings.RemoveCurrencySymbols, othersValueFormatDate, progress.CancellationToken);
 
         // if nothing is found take what was configured before, as the reader could possibly
@@ -261,8 +261,10 @@ public static class DetermineColumnFormat
             if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
               continue;
             progress.Report($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
-            columnCollection.Replace(columnCollection[colIndexCurrent]
-              .ReplaceValueFormat(checkResult.FoundValueFormat));
+            var oldCol = columnCollection[colIndexCurrent];
+            var newCol = oldCol.ReplaceValueFormat(checkResult.FoundValueFormat);
+            columnCollection.Remove(oldCol);
+            columnCollection.Add(newCol);
           }
         }
         // new Column
@@ -310,19 +312,18 @@ public static class DetermineColumnFormat
               checkResult.FoundValueFormat.DataType == DataTypeEnum.Double) continue;
           var colIndexExisting = columnCollection.IndexOf(readerColumn);
 
+          var newCol = readerColumn.ReplaceValueFormat(checkResult.FoundValueFormat);
           if (colIndexExisting != -1)
           {
             var oldVf = columnCollection[colIndexExisting].ValueFormat;
             if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
 
             progress.Report($"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
-            columnCollection.Replace(
-              columnCollection[colIndexExisting].ReplaceValueFormat(checkResult.FoundValueFormat));
+            var oldCol = columnCollection[colIndexExisting];
+            newCol = oldCol.ReplaceValueFormat(checkResult.FoundValueFormat);
+            columnCollection.Remove(oldCol);
           }
-          else
-          {
-            columnCollection.Add(readerColumn.ReplaceValueFormat(checkResult.FoundValueFormat));
-          }
+          columnCollection.Add(newCol);
         }
       }
 
@@ -355,7 +356,7 @@ public static class DetermineColumnFormat
           // Mark it as UTC time zone
           if (endsWithZ)
           {
-            columnCollection.Replace(
+            columnCollection.Add(
             new Column(
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,
@@ -379,7 +380,7 @@ public static class DetermineColumnFormat
                 || (!string.Equals(colName, "TIMEZONE", StringComparison.Ordinal)&& !string.Equals(colName, "TIMEZONEID", StringComparison.Ordinal)&& !string.Equals(colName, "TIME ZONE", StringComparison.Ordinal)
                     && !string.Equals(colName, "TIME ZONE ID", StringComparison.Ordinal)))
               continue;
-            columnCollection.Replace(
+            columnCollection.Add(
               new Column(
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
@@ -413,7 +414,7 @@ public static class DetermineColumnFormat
                 columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
                 StringComparison.Ordinal))
             continue;
-          columnCollection.Replace(
+          columnCollection.Add(
             new Column(
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,
@@ -451,7 +452,7 @@ public static class DetermineColumnFormat
                     .Replace("TIME", string.Empty),
                   StringComparison.OrdinalIgnoreCase))
           {
-            columnCollection.Replace(
+            columnCollection.Add(
               new Column(
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
@@ -494,7 +495,7 @@ public static class DetermineColumnFormat
                   .Replace("TIME", string.Empty),
                 StringComparison.Ordinal))
           continue;
-        columnCollection.Replace(
+        columnCollection.Add(
           new Column(
             columnCollection[colIndexSetting].Name,
             columnCollection[colIndexSetting].ValueFormat,
@@ -511,7 +512,7 @@ public static class DetermineColumnFormat
             .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
         if (!firstValueNewColumn2.IsEmpty && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
         {
-          columnCollection.Replace(
+          columnCollection.Add(
             new Column(
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,

@@ -168,16 +168,6 @@ public sealed class ColumnCollection : ObservableList<Column>
   }
 
   /// <summary>
-  ///   Replaces an existing column with the same name, or adds it if no match is found.
-  /// </summary>
-  /// <param name="column">The column to replace or add.</param>
-  /// <remarks>
-  ///   Replacement is based on the column's <see cref="Column.Name"/>, independent of reference equality.
-  ///   Triggers <see cref="ObservableList{T}.CollectionChanged"/> after modification.
-  /// </remarks>
-  public void Replace(Column column) => Add(column);
-
-  /// <summary>
   ///   Validates that a column is not null and has a non-empty <see cref="Column.Name"/>.
   /// </summary>
   /// <param name="column">The column to validate.</param>
