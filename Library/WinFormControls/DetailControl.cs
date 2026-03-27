@@ -336,9 +336,8 @@ public sealed partial class DetailControl : UserControl
             {
               c.Index,
               c.DataPropertyName,
-              c.DefaultCellStyle.Format
-            })
-            .ToList();
+              c.DefaultCellStyle.Format,
+            }).ToList();
 
         if (columnMap.Count == 0) return;
 
@@ -517,20 +516,28 @@ public sealed partial class DetailControl : UserControl
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
-    if (disposing)
+    try
     {
-      m_ControlCancellation.Dispose();
-      components?.Dispose();
-      m_FilterDataTable?.Dispose();
-      m_FormShowMaxLength?.Dispose();
-      m_FormDuplicatesDisplay?.Dispose();
-      m_FormUniqueDisplay?.Dispose();
-      m_HierarchyDisplay?.Dispose();
-      m_SteppedDataTableLoader?.Dispose();
-      if (m_SelfOpenedDataTable)
-        FilteredDataGridView.DataTable.Dispose();
+      if (disposing)
+      {
+        m_ControlCancellation.Dispose();
+        components?.Dispose();
+        m_FilterDataTable?.Dispose();
+        m_FormShowMaxLength?.Dispose();
+        m_FormDuplicatesDisplay?.Dispose();
+        m_FormUniqueDisplay?.Dispose();
+        m_HierarchyDisplay?.Dispose();
+        m_SteppedDataTableLoader?.Dispose();
+        if (m_SelfOpenedDataTable)
+          FilteredDataGridView.DataTable.Dispose();
+      }
+      base.Dispose(disposing);
     }
-    base.Dispose(disposing);
+    catch
+    {
+      // ignore
+    }
+
   }
 
   protected override void OnHandleDestroyed(EventArgs e)
@@ -546,7 +553,6 @@ public sealed partial class DetailControl : UserControl
     {
       // ignore
     }
-    
   }
 
   /// <summary>
@@ -557,7 +563,6 @@ public sealed partial class DetailControl : UserControl
   private void ButtonColumnLength_Click(object? sender, EventArgs e)
   {
     if (CancelMissingData()) return;
-
     m_ToolStripButtonColumnLength.RunWithHourglass(() =>
     {
       var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
@@ -582,7 +587,6 @@ public sealed partial class DetailControl : UserControl
   private void ButtonDuplicates_Click(object? sender, EventArgs e)
   {
     if (CancelMissingData()) return;
-
     m_ToolStripButtonDuplicates.RunWithHourglass(() =>
     {
       var columnName = FilteredDataGridView.CurrentCell != null
@@ -718,7 +722,7 @@ public sealed partial class DetailControl : UserControl
   /// <param name="e">An <see cref="EventArgs"/> containing the event data.</param>
   private void DetailControl_ParentChanged(object sender, EventArgs e)
   {
-    var frm = this.ParentForm;
+    var frm = ParentForm;
     if (frm is null)
       return;
     if (!frm.KeyPreview)
@@ -739,11 +743,11 @@ public sealed partial class DetailControl : UserControl
   {
     if (DisplaySourceAsync == null)
       return;
-
-    await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
-    {
-      await DisplaySourceAsync.Invoke(m_ControlCancellation.Token);
-    }, ParentForm!);
+    var frm = ParentForm;
+    if (frm is null)
+      return;
+    await m_ToolStripButtonSource.RunWithHourglassAsync(async () => 
+      await DisplaySourceAsync.Invoke(m_ControlCancellation.Token), frm);
   }
 
   /// <summary>
@@ -777,8 +781,8 @@ public sealed partial class DetailControl : UserControl
   }
 
   private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
-
-      FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
+      FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+      .FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
 
   private void JumpToRow(int rowIndex)
   {
@@ -822,7 +826,7 @@ public sealed partial class DetailControl : UserControl
         await processLoad(frmProgress, TimeSpan.MaxValue);
       }
       else
-        await this.RunWithHourglassAsync(() => processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
+        await this.RunWithHourglassAsync(async () => await processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
     }
     catch (Exception ex) { Extensions.ShowError(ex, "Failed to load additional data rows."); }
 
@@ -1016,11 +1020,12 @@ public sealed partial class DetailControl : UserControl
 
       // 4. Update Column Visibility (Precise logic based on GetColumns)
       var m_ColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
-      foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
-#pragma warning disable MA0002 // IEqualityComparer<string> or IComparer<string> is missing
-        dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName) || m_ColumnsInView.Contains(dgCol.DataPropertyName);
-#pragma warning restore MA0002 // IEqualityComparer<string> or IComparer<string> is missing
 
+      // If we filter out all columns do not change visibility to avoid a blank grid
+      if (m_ColumnsInView.Count + m_UniqueFieldName.Count>0)
+        foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
+          dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName)
+                        || m_ColumnsInView.Contains(dgCol.DataPropertyName);
       // 5. Restore Sorting
       if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
         Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
@@ -1084,9 +1089,8 @@ public sealed partial class DetailControl : UserControl
     Rectangle gridRect = FilteredDataGridView.ClientRectangle;
 
     // Check if the cell's right edge is outside the grid's right edge
-    // OR if the cell's left edge is obscured by the row headers
-    bool isPartiallyHiddenRight = (cellRect.Right > gridRect.Right);
-    bool isPartiallyHiddenLeft = (cellRect.Left < FilteredDataGridView.RowHeadersWidth);
+    var isPartiallyHiddenRight = cellRect.Right > gridRect.Right;
+    var isPartiallyHiddenLeft = cellRect.Left < FilteredDataGridView.RowHeadersWidth;
 
     if (isPartiallyHiddenRight || isPartiallyHiddenLeft || !cell.OwningColumn.Displayed)
     {
@@ -1121,11 +1125,9 @@ public sealed partial class DetailControl : UserControl
     if (!m_UpdateVisibility)
       return;
     m_UpdateVisibility = false;
-
+    // Focus the grid to clear ToolStrip highlighting
     if (ActiveControl == m_ToolStripContainer)
-      // Focus the grid to clear ToolStrip highlighting
       FilteredDataGridView.Focus();
-
     // do not do this again
     m_TimerVisibility.Enabled = false;
     try
@@ -1152,10 +1154,8 @@ public sealed partial class DetailControl : UserControl
         item.DisplayStyle = m_MenuDown ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
         target.Items.Add(item);
       }
-
-      source.ResumeLayout(true);
-      target.ResumeLayout(true);
-
+      source.ResumeLayout(performLayout: true);
+      target.ResumeLayout(performLayout: true);
       m_ToolStripContainer.TopToolStripPanelVisible = !m_MenuDown;
 
       // Need to set the control containing the buttons to visible Regular
@@ -1165,11 +1165,9 @@ public sealed partial class DetailControl : UserControl
       m_ToolStripButtonStore.Visible = m_ShowButtons && (WriteFileAsync != null);
       m_ToolStripButtonSource.Visible = m_ShowButtons && (DisplaySourceAsync != null);
       m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-
       m_ToolStripButtonStore.Enabled = hasData;
       toolStripButtonMoveLastItem.Enabled = hasData;
       FilteredDataGridView.DataLoaded = hasData;
-
       m_ToolStripTop.Visible = m_ShowButtons;
     }
     catch (InvalidOperationException ex)
@@ -1210,9 +1208,7 @@ public sealed partial class DetailControl : UserControl
 #endif
         // Use the wrapper to satisfy the ICsvReader requirement
         await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
-
-
-    }, ParentForm!);
+    }, ParentForm);
   }
 
   /// <summary>

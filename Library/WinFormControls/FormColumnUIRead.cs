@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 // ReSharper disable CoVariantArrayConversion
-
 namespace CsvTools;
 
 /// <summary>
@@ -67,8 +66,6 @@ public partial class FormColumnUiRead : ResizeForm
   /// <param name="fillGuessSettings">The fill guess settings.</param>
   /// <param name="isWrite">If set to true, the "write null" option will be shown.</param>
   /// <param name="enableChangeColumn">Allow to choose a different column</param>
-  /// 
-  /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
   public FormColumnUiRead(
     Column column,
     IFileSetting fileSetting,
@@ -130,16 +127,14 @@ public partial class FormColumnUiRead : ResizeForm
       MessageBox.Show(
         string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
         comboBoxColumnName.Text,
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Information);
+        MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
     else
     {
       MessageBox.ShowBigHtml(
         BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
         comboBoxColumnName.Text,
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Information);
+        MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
   }
 
@@ -154,7 +149,6 @@ public partial class FormColumnUiRead : ResizeForm
       MessageBox.Show("Please select a column first", "Guess");
       return;
     }
-
     await buttonGuess.RunWithHourglassAsync(async () =>
     {
       using var formProgress = new FormProgress("Guess Value", m_CancellationTokenSource.Token);
@@ -169,8 +163,7 @@ public partial class FormColumnUiRead : ResizeForm
         MessageBox.Show(
           string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
           "Information",
-          MessageBoxButtons.OK,
-          MessageBoxIcon.Information);
+          MessageBoxButtons.OK, MessageBoxIcon.Information);
       }
       else
       {
@@ -181,10 +174,8 @@ public partial class FormColumnUiRead : ResizeForm
           minRequiredSamples: 1,
           trueValue: m_FillGuessSettings.TrueValue.AsSpan(),
           falseValue: m_FillGuessSettings.FalseValue.AsSpan(),
-          guessBoolean: true,
-          guessGuid: true,
-          guessNumeric: true,
-          guessDateTime: true,
+          guessBoolean: true, guessGuid: true,
+          guessNumeric: true, guessDateTime: true,
           guessPercentage: m_FillGuessSettings.DetectPercentage,
           serialDateTime: m_FillGuessSettings.SerialDateTime,
           removeCurrencySymbols: m_FillGuessSettings.RemoveCurrencySymbols,
@@ -198,8 +189,7 @@ public partial class FormColumnUiRead : ResizeForm
               $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
               null, 4, "Examples", samples.Values, 4),
             $"Column: {columnName}",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+            MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         else
         {
@@ -237,8 +227,7 @@ public partial class FormColumnUiRead : ResizeForm
                     BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
                       "Not matching:", checkResult.ExampleNonMatch),
                     $"Column: {columnName}",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) == DialogResult.Yes)
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
                 // is quite specific and need it to be set,
                 m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.ValueFormatPossibleMatch);
@@ -265,8 +254,7 @@ public partial class FormColumnUiRead : ResizeForm
               MessageBox.ShowBig(
                 displayMsg,
                 $"Column: {columnName}",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
@@ -275,16 +263,14 @@ public partial class FormColumnUiRead : ResizeForm
                 MessageBox.ShowBig(
                   displayMsg,
                   $"Column: {columnName}",
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Information);
+                  MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else
               {
                 if (MessageBox.ShowBig(
                       displayMsg + "\n\nShould this be set to text?",
                       $"Column: {columnName}",
-                      MessageBoxButtons.YesNo,
-                      MessageBoxIcon.Question) == DialogResult.Yes)
+                      MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                   m_ColumnEdit.ValueFormatMut.DataType = DataTypeEnum.String;
               }
             }
@@ -314,8 +300,6 @@ public partial class FormColumnUiRead : ResizeForm
 
   private void UpdateDateLabel()
   {
-
-
     this.RunWithHourglass(() =>
     {
       var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Unspecified);
@@ -332,7 +316,6 @@ public partial class FormColumnUiRead : ResizeForm
           if (!string.IsNullOrEmpty(itemStr))
             dateFormats.Add(itemStr);
         }
-
 
         if (dateFormats.Count==0 && checkedListBoxDateFormats.SelectedIndex!=-1)
         {
@@ -354,8 +337,6 @@ public partial class FormColumnUiRead : ResizeForm
 
         // using HashSet to get rid of duplicates
         var text = new HashSet<string>(StringComparer.Ordinal);
-
-
 
         // if we have different formats, input could be different 
         foreach (var dateFormat in dateFormats)
@@ -449,17 +430,13 @@ public partial class FormColumnUiRead : ResizeForm
       $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}");
 
     if (!string.IsNullOrEmpty(header))
-#pragma warning disable CS8604 // Possible null reference argument.
       stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header));
-#pragma warning restore CS8604 // Possible null reference argument.
 
-    FormColumnUiRead.ListSamples(stringBuilder, headerList1, values1, col1, rows);
-    FormColumnUiRead.ListSamples(stringBuilder, headerList2, values2, col2, rows);
+    ListSamples(stringBuilder, headerList1, values1, col1, rows);
+    ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
     if (!string.IsNullOrEmpty(footer))
-#pragma warning disable CS8604 // Possible null reference argument.
       stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer));
-#pragma warning restore CS8604 // Possible null reference argument.
 
     stringBuilder.AppendLine("</BODY>");
     stringBuilder.AppendLine("</HTML>");
@@ -473,7 +450,6 @@ public partial class FormColumnUiRead : ResizeForm
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
   private void ButtonAddFormat_Click(object? sender, EventArgs e) =>
     AddDateFormat(textBoxDateFormat.Text);
-
 
   private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
     await buttonDisplayValues.RunWithHourglassAsync(DisplayValues);
@@ -589,49 +565,31 @@ public partial class FormColumnUiRead : ResizeForm
       if (comboBoxDataType.SelectedValue is null)
         return;
       var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-      var height = 10;
 
       groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;
       if (groupBoxNumber.Visible)
-      {
-        height = groupBoxNumber.Height;
         NumberFormatChanged(sender, EventArgs.Empty);
-      }
 
       groupBoxDate.Visible = selType == DataTypeEnum.DateTime;
       if (groupBoxDate.Visible)
       {
-        height = groupBoxDate.Height;
         if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
           m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.Empty.DateFormat;
         UpdateDateLabel();
       }
 
       groupBoxBoolean.Visible = selType == DataTypeEnum.Boolean;
-      if (groupBoxBoolean.Visible)
-        height = groupBoxBoolean.Height;
       groupBoxSplit.Visible = selType == DataTypeEnum.TextPart;
       if (groupBoxSplit.Visible)
-      {
-        height = groupBoxSplit.Height;
         SetSamplePart(sender, EventArgs.Empty);
-      }
-
 
       groupBoxRegExReplace.Visible = selType == DataTypeEnum.TextReplace;
-      if (groupBoxRegExReplace.Visible)
-        height = groupBoxRegExReplace.Height;
-
       groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
-      if (groupBoxBinary.Visible)
-        height = groupBoxBinary.Height;
-
       if (groupBoxBinary.Visible && string.Equals(m_ColumnEdit.ValueFormat.DateFormat, ValueFormat.Empty.DateFormat, StringComparison.Ordinal))
         m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
-      flowLayoutPanel.Top = panelTop.Height;
+
       // Depending on OS and scaling a different value might be needed
-      Height = height + 10 + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height +
-               panelBottom.Height;
+      Height = tableLayoutPanel.Height + 10 + (SystemInformation.CaptionHeight * 175 / 100);
     }
     catch (Exception ex)
     {
@@ -647,10 +605,7 @@ public partial class FormColumnUiRead : ResizeForm
   /// </summary>
   /// <param name="sender">The sender.</param>
   /// <param name="args">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void DateFormatChanged(object? sender, EventArgs args)
-  {
-    UpdateDateLabel();
-  }
+  private void DateFormatChanged(object? sender, EventArgs args) => UpdateDateLabel();
 
   /// <summary>
   ///   Gets the sample values.
@@ -658,7 +613,6 @@ public partial class FormColumnUiRead : ResizeForm
   /// <param name="columnName">Name of the column.</param>
   /// <param name="progress">Process display to pass on progress information</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <returns></returns>
   /// <exception cref="FileException">
   ///   Column {columnName} not found. or Column {columnName} not found.
   /// </exception>
@@ -864,7 +818,6 @@ public partial class FormColumnUiRead : ResizeForm
     errorProvider.SetError(
       textBoxDecimalSeparator,
       string.IsNullOrEmpty(textBoxDecimalSeparator.Text) ? "Must be provided" : "");
-
 
   private void UpdateColumnList(ICollection<string> allColumns)
   {

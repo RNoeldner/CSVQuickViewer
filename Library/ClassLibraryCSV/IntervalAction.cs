@@ -73,7 +73,7 @@ public sealed class IntervalAction
     catch (ObjectDisposedException) { }
     catch (Exception ex)
     {
-      Logger.Warning(ex, "IntervalAction.Invoke {Method} failed: {Message}", action.Method, ex.Message);
+      Logger.Warning(ex, $"IntervalAction.Invoke {action.Method} failed: {ex.Message}");
     }
   }
 
@@ -109,7 +109,7 @@ public sealed class IntervalAction
     }
     catch (Exception ex)
     {
-      Logger.Warning(ex, "IntervalAction.InvokeAsync {Method} failed: {Message}", asyncAction.Method, ex.Message);
+      Logger.Warning(ex, $"IntervalAction.InvokeAsync {asyncAction.Method} failed: {ex.Message}");
     }
   }
 

@@ -73,27 +73,34 @@ namespace CsvTools
       labelNoteConversion = new System.Windows.Forms.Label();
       comboBoxDateFormat = new System.Windows.Forms.ComboBox();
       comboBoxDataType = new System.Windows.Forms.ComboBox();
-      buttonCancel = new System.Windows.Forms.Button();
       labelColName = new System.Windows.Forms.Label();
       comboBoxColumnName = new System.Windows.Forms.ComboBox();
-      buttonGuess = new System.Windows.Forms.Button();
       checkBoxIgnore = new System.Windows.Forms.CheckBox();
       textBoxColumnName = new System.Windows.Forms.TextBox();
       errorProvider = new System.Windows.Forms.ErrorProvider(components);
       toolTip = new System.Windows.Forms.ToolTip(components);
-      buttonDisplayValues = new System.Windows.Forms.Button();
       textBoxReadFolder = new System.Windows.Forms.TextBox();
       textBoxWriteFolder = new System.Windows.Forms.TextBox();
       textBoxPattern = new System.Windows.Forms.TextBox();
       textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
       textBoxDisplayNullAs = new System.Windows.Forms.TextBox();
-      buttonOK = new System.Windows.Forms.Button();
-      panelTop = new System.Windows.Forms.Panel();
-      tableLayoutPanelHeader = new System.Windows.Forms.TableLayoutPanel();
-      labelDisplayNullAs = new System.Windows.Forms.Label();
-      panelBottom = new System.Windows.Forms.Panel();
-      flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-      groupBoxDate = new System.Windows.Forms.GroupBox();
+      buttonGuess = new System.Windows.Forms.Button();
+      buttonDisplayValues = new System.Windows.Forms.Button();
+      tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
+      labelRegEx = new System.Windows.Forms.Label();
+      textBoxRegexReplacement = new System.Windows.Forms.TextBox();
+      groupBoxBinary = new System.Windows.Forms.GroupBox();
+      checkBoxOverwrite = new System.Windows.Forms.CheckBox();
+      groupBoxSplit = new System.Windows.Forms.GroupBox();
+      numericUpDownPart = new System.Windows.Forms.NumericUpDown();
+      labelSamplePart = new System.Windows.Forms.Label();
+      checkBoxPartToEnd = new System.Windows.Forms.CheckBox();
+      textBoxSplit = new System.Windows.Forms.TextBox();
+      labelResultPart = new System.Windows.Forms.Label();
+      groupBoxBoolean = new System.Windows.Forms.GroupBox();
+      textBoxTrue = new System.Windows.Forms.TextBox();
+      textBoxFalse = new System.Windows.Forms.TextBox();
       groupBoxNumber = new System.Windows.Forms.GroupBox();
       linkLabelRegionLanguage = new System.Windows.Forms.LinkLabel();
       comboBoxNumberFormat = new System.Windows.Forms.ComboBox();
@@ -103,20 +110,12 @@ namespace CsvTools
       textBoxDecimalSeparator = new System.Windows.Forms.TextBox();
       textBoxGroupSeparator = new System.Windows.Forms.TextBox();
       labelNumber = new System.Windows.Forms.Label();
-      groupBoxBoolean = new System.Windows.Forms.GroupBox();
-      textBoxTrue = new System.Windows.Forms.TextBox();
-      textBoxFalse = new System.Windows.Forms.TextBox();
-      groupBoxSplit = new System.Windows.Forms.GroupBox();
-      numericUpDownPart = new System.Windows.Forms.NumericUpDown();
-      labelSamplePart = new System.Windows.Forms.Label();
-      checkBoxPartToEnd = new System.Windows.Forms.CheckBox();
-      textBoxSplit = new System.Windows.Forms.TextBox();
-      labelResultPart = new System.Windows.Forms.Label();
-      groupBoxBinary = new System.Windows.Forms.GroupBox();
-      checkBoxOverwrite = new System.Windows.Forms.CheckBox();
-      groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
-      labelRegEx = new System.Windows.Forms.Label();
-      textBoxRegexReplacement = new System.Windows.Forms.TextBox();
+      groupBoxDate = new System.Windows.Forms.GroupBox();
+      labelDisplayNullAs = new System.Windows.Forms.Label();
+      panelBottom1 = new System.Windows.Forms.Panel();
+      panelBottom2 = new System.Windows.Forms.Panel();
+      buttonOK = new System.Windows.Forms.Button();
+      buttonCancel = new System.Windows.Forms.Button();
       labelGroup = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
       labelTrue = new System.Windows.Forms.Label();
@@ -137,17 +136,16 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize) bindingSourceValueFormat).BeginInit();
       ((System.ComponentModel.ISupportInitialize) columnBindingSource).BeginInit();
       ((System.ComponentModel.ISupportInitialize) errorProvider).BeginInit();
-      panelTop.SuspendLayout();
-      tableLayoutPanelHeader.SuspendLayout();
-      panelBottom.SuspendLayout();
-      flowLayoutPanel.SuspendLayout();
-      groupBoxDate.SuspendLayout();
-      groupBoxNumber.SuspendLayout();
-      groupBoxBoolean.SuspendLayout();
+      tableLayoutPanel.SuspendLayout();
+      groupBoxRegExReplace.SuspendLayout();
+      groupBoxBinary.SuspendLayout();
       groupBoxSplit.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize) numericUpDownPart).BeginInit();
-      groupBoxBinary.SuspendLayout();
-      groupBoxRegExReplace.SuspendLayout();
+      groupBoxBoolean.SuspendLayout();
+      groupBoxNumber.SuspendLayout();
+      groupBoxDate.SuspendLayout();
+      panelBottom1.SuspendLayout();
+      panelBottom2.SuspendLayout();
       SuspendLayout();
       // 
       // labelGroup
@@ -285,7 +283,7 @@ namespace CsvTools
       // 
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
-      labelTimeSep.Location = new System.Drawing.Point(153, 6);
+      labelTimeSep.Location = new System.Drawing.Point(205, 6);
       labelTimeSep.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(82, 13);
@@ -308,7 +306,7 @@ namespace CsvTools
       labelValue.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelValue.AutoSize = true;
       labelValue.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelValue.Location = new System.Drawing.Point(289, 83);
+      labelValue.Location = new System.Drawing.Point(390, 83);
       labelValue.Margin = new System.Windows.Forms.Padding(3);
       labelValue.Name = "labelValue";
       labelValue.Size = new System.Drawing.Size(37, 13);
@@ -320,7 +318,7 @@ namespace CsvTools
       labelSample.AutoSize = true;
       tableLayoutPanelDate.SetColumnSpan(labelSample, 2);
       labelSample.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelSample.Location = new System.Drawing.Point(332, 83);
+      labelSample.Location = new System.Drawing.Point(433, 83);
       labelSample.Margin = new System.Windows.Forms.Padding(3);
       labelSample.Name = "labelSample";
       labelSample.Size = new System.Drawing.Size(141, 13);
@@ -332,7 +330,7 @@ namespace CsvTools
       labelDateOutput.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelDateOutput.Location = new System.Drawing.Point(284, 115);
+      labelDateOutput.Location = new System.Drawing.Point(385, 115);
       labelDateOutput.Margin = new System.Windows.Forms.Padding(3);
       labelDateOutput.Name = "labelDateOutput";
       labelDateOutput.Size = new System.Drawing.Size(42, 13);
@@ -343,12 +341,12 @@ namespace CsvTools
       // 
       tableLayoutPanelDate.ColumnCount = 7;
       tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.0000019F));
+      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.0000019F));
       tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanelDate.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.9999962F));
       tableLayoutPanelDate.Controls.Add(labelDateSep, 0, 0);
       tableLayoutPanelDate.Controls.Add(textBoxDateSeparator, 1, 0);
       tableLayoutPanelDate.Controls.Add(buttonAddFormat, 4, 8);
@@ -376,7 +374,8 @@ namespace CsvTools
       tableLayoutPanelDate.Controls.Add(textBoxDateFormat, 1, 8);
       tableLayoutPanelDate.Controls.Add(labelNoteConversion, 4, 6);
       tableLayoutPanelDate.Controls.Add(comboBoxDateFormat, 1, 7);
-      tableLayoutPanelDate.Location = new System.Drawing.Point(0, 14);
+      tableLayoutPanelDate.Dock = System.Windows.Forms.DockStyle.Fill;
+      tableLayoutPanelDate.Location = new System.Drawing.Point(0, 13);
       tableLayoutPanelDate.Name = "tableLayoutPanelDate";
       tableLayoutPanelDate.RowCount = 9;
       tableLayoutPanelDate.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -388,7 +387,7 @@ namespace CsvTools
       tableLayoutPanelDate.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelDate.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelDate.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelDate.Size = new System.Drawing.Size(616, 220);
+      tableLayoutPanelDate.Size = new System.Drawing.Size(578, 229);
       tableLayoutPanelDate.TabIndex = 17;
       // 
       // textBoxDateSeparator
@@ -396,7 +395,7 @@ namespace CsvTools
       textBoxDateSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "DateSeparator", true));
       textBoxDateSeparator.Location = new System.Drawing.Point(113, 3);
       textBoxDateSeparator.Name = "textBoxDateSeparator";
-      textBoxDateSeparator.Size = new System.Drawing.Size(35, 20);
+      textBoxDateSeparator.Size = new System.Drawing.Size(54, 20);
       textBoxDateSeparator.TabIndex = 0;
       toolTip.SetToolTip(textBoxDateSeparator, "Separates the components of a date, that is, the year, month, and day");
       textBoxDateSeparator.TextChanged += DateFormatChanged;
@@ -408,10 +407,10 @@ namespace CsvTools
       // 
       // buttonAddFormat
       // 
-      tableLayoutPanelDate.SetColumnSpan(buttonAddFormat, 2);
-      buttonAddFormat.Location = new System.Drawing.Point(284, 195);
+      tableLayoutPanelDate.SetColumnSpan(buttonAddFormat, 3);
+      buttonAddFormat.Location = new System.Drawing.Point(385, 200);
       buttonAddFormat.Name = "buttonAddFormat";
-      buttonAddFormat.Size = new System.Drawing.Size(103, 21);
+      buttonAddFormat.Size = new System.Drawing.Size(103, 25);
       buttonAddFormat.TabIndex = 7;
       buttonAddFormat.Text = "Add to List";
       toolTip.SetToolTip(buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
@@ -432,11 +431,12 @@ namespace CsvTools
       // checkedListBoxDateFormats
       // 
       tableLayoutPanelDate.SetColumnSpan(checkedListBoxDateFormats, 3);
+      checkedListBoxDateFormats.Dock = System.Windows.Forms.DockStyle.Fill;
       checkedListBoxDateFormats.FormattingEnabled = true;
       checkedListBoxDateFormats.Location = new System.Drawing.Point(113, 83);
       checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       tableLayoutPanelDate.SetRowSpan(checkedListBoxDateFormats, 4);
-      checkedListBoxDateFormats.Size = new System.Drawing.Size(165, 79);
+      checkedListBoxDateFormats.Size = new System.Drawing.Size(266, 84);
       checkedListBoxDateFormats.TabIndex = 5;
       toolTip.SetToolTip(checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
       checkedListBoxDateFormats.ItemCheck += CheckedListBoxDateFormats_ItemCheck;
@@ -462,7 +462,7 @@ namespace CsvTools
       comboBoxTimePart.FormattingEnabled = true;
       comboBoxTimePart.Location = new System.Drawing.Point(113, 56);
       comboBoxTimePart.Name = "comboBoxTimePart";
-      comboBoxTimePart.Size = new System.Drawing.Size(165, 21);
+      comboBoxTimePart.Size = new System.Drawing.Size(266, 21);
       comboBoxTimePart.TabIndex = 1;
       toolTip.SetToolTip(comboBoxTimePart, "Combining a time column will result in a combination of the column and the selected time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
       comboBoxTimePart.TextChanged += DateFormatChanged;
@@ -475,9 +475,9 @@ namespace CsvTools
       // textBoxTimeSeparator
       // 
       textBoxTimeSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "TimeSeparator", true));
-      textBoxTimeSeparator.Location = new System.Drawing.Point(240, 3);
+      textBoxTimeSeparator.Location = new System.Drawing.Point(292, 3);
       textBoxTimeSeparator.Name = "textBoxTimeSeparator";
-      textBoxTimeSeparator.Size = new System.Drawing.Size(35, 20);
+      textBoxTimeSeparator.Size = new System.Drawing.Size(54, 20);
       textBoxTimeSeparator.TabIndex = 3;
       toolTip.SetToolTip(textBoxTimeSeparator, "Separates the components of time, that is, the hour, minutes, and seconds.");
       textBoxTimeSeparator.TextChanged += DateFormatChanged;
@@ -490,7 +490,7 @@ namespace CsvTools
       comboBoxTimeZone.FormattingEnabled = true;
       comboBoxTimeZone.Location = new System.Drawing.Point(113, 29);
       comboBoxTimeZone.Name = "comboBoxTimeZone";
-      comboBoxTimeZone.Size = new System.Drawing.Size(165, 21);
+      comboBoxTimeZone.Size = new System.Drawing.Size(266, 21);
       comboBoxTimeZone.TabIndex = 4;
       comboBoxTimeZone.TextChanged += DateFormatChanged;
       // 
@@ -498,7 +498,7 @@ namespace CsvTools
       // 
       labelLessCommon.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelLessCommon.AutoSize = true;
-      labelLessCommon.Location = new System.Drawing.Point(3, 197);
+      labelLessCommon.Location = new System.Drawing.Point(3, 202);
       labelLessCommon.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
       labelLessCommon.Name = "labelLessCommon";
       labelLessCommon.Size = new System.Drawing.Size(104, 13);
@@ -510,7 +510,7 @@ namespace CsvTools
       linkLabelRegion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRegion.AutoSize = true;
       tableLayoutPanelDate.SetColumnSpan(linkLabelRegion, 3);
-      linkLabelRegion.Location = new System.Drawing.Point(284, 172);
+      linkLabelRegion.Location = new System.Drawing.Point(385, 177);
       linkLabelRegion.Margin = new System.Windows.Forms.Padding(3);
       linkLabelRegion.Name = "linkLabelRegion";
       linkLabelRegion.Size = new System.Drawing.Size(130, 13);
@@ -524,7 +524,7 @@ namespace CsvTools
       labelInput.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
       labelInput.AutoSize = true;
       labelInput.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelInput.Location = new System.Drawing.Point(292, 99);
+      labelInput.Location = new System.Drawing.Point(393, 99);
       labelInput.Name = "labelInput";
       labelInput.Size = new System.Drawing.Size(34, 13);
       labelInput.TabIndex = 12;
@@ -534,7 +534,7 @@ namespace CsvTools
       // 
       labelSampleDisplay.AutoSize = true;
       labelSampleDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelSampleDisplay.Location = new System.Drawing.Point(332, 99);
+      labelSampleDisplay.Location = new System.Drawing.Point(433, 99);
       labelSampleDisplay.Name = "labelSampleDisplay";
       labelSampleDisplay.Size = new System.Drawing.Size(17, 13);
       labelSampleDisplay.TabIndex = 12;
@@ -544,7 +544,7 @@ namespace CsvTools
       // 
       labelDateOutputDisplay.AutoSize = true;
       labelDateOutputDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelDateOutputDisplay.Location = new System.Drawing.Point(332, 115);
+      labelDateOutputDisplay.Location = new System.Drawing.Point(433, 115);
       labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3);
       labelDateOutputDisplay.Name = "labelDateOutputDisplay";
       labelDateOutputDisplay.Size = new System.Drawing.Size(17, 13);
@@ -557,7 +557,7 @@ namespace CsvTools
       labelNote.AutoSize = true;
       tableLayoutPanelDate.SetColumnSpan(labelNote, 3);
       labelNote.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelNote.Location = new System.Drawing.Point(284, 33);
+      labelNote.Location = new System.Drawing.Point(385, 33);
       labelNote.Margin = new System.Windows.Forms.Padding(3);
       labelNote.Name = "labelNote";
       labelNote.Size = new System.Drawing.Size(187, 13);
@@ -568,7 +568,7 @@ namespace CsvTools
       // 
       labelInputTZ.AutoSize = true;
       labelInputTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelInputTZ.Location = new System.Drawing.Point(393, 99);
+      labelInputTZ.Location = new System.Drawing.Point(456, 99);
       labelInputTZ.Name = "labelInputTZ";
       labelInputTZ.Size = new System.Drawing.Size(17, 13);
       labelInputTZ.TabIndex = 12;
@@ -578,7 +578,7 @@ namespace CsvTools
       // 
       labelOutPutTZ.AutoSize = true;
       labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelOutPutTZ.Location = new System.Drawing.Point(393, 115);
+      labelOutPutTZ.Location = new System.Drawing.Point(456, 115);
       labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3);
       labelOutPutTZ.Name = "labelOutPutTZ";
       labelOutPutTZ.Size = new System.Drawing.Size(17, 13);
@@ -589,7 +589,7 @@ namespace CsvTools
       // 
       labelTCFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTCFormat.AutoSize = true;
-      labelTCFormat.Location = new System.Drawing.Point(284, 60);
+      labelTCFormat.Location = new System.Drawing.Point(385, 60);
       labelTCFormat.Margin = new System.Windows.Forms.Padding(3);
       labelTCFormat.Name = "labelTCFormat";
       labelTCFormat.Size = new System.Drawing.Size(42, 13);
@@ -602,9 +602,9 @@ namespace CsvTools
       comboBoxTPFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", columnBindingSource, "TimePartFormat", true));
       comboBoxTPFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       comboBoxTPFormat.FormattingEnabled = true;
-      comboBoxTPFormat.Location = new System.Drawing.Point(332, 56);
+      comboBoxTPFormat.Location = new System.Drawing.Point(433, 56);
       comboBoxTPFormat.Name = "comboBoxTPFormat";
-      comboBoxTPFormat.Size = new System.Drawing.Size(116, 21);
+      comboBoxTPFormat.Size = new System.Drawing.Size(141, 21);
       comboBoxTPFormat.TabIndex = 2;
       toolTip.SetToolTip(comboBoxTPFormat, "Format of the time column");
       comboBoxTPFormat.SelectedIndexChanged += ComboBoxTimePart_SelectedIndexChanged;
@@ -613,9 +613,9 @@ namespace CsvTools
       // 
       tableLayoutPanelDate.SetColumnSpan(textBoxDateFormat, 3);
       textBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
-      textBoxDateFormat.Location = new System.Drawing.Point(113, 195);
+      textBoxDateFormat.Location = new System.Drawing.Point(113, 200);
       textBoxDateFormat.Name = "textBoxDateFormat";
-      textBoxDateFormat.Size = new System.Drawing.Size(165, 20);
+      textBoxDateFormat.Size = new System.Drawing.Size(266, 20);
       textBoxDateFormat.TabIndex = 17;
       // 
       // labelNoteConversion
@@ -623,21 +623,23 @@ namespace CsvTools
       labelNoteConversion.AutoSize = true;
       labelNoteConversion.BackColor = System.Drawing.SystemColors.Control;
       tableLayoutPanelDate.SetColumnSpan(labelNoteConversion, 3);
+      labelNoteConversion.Dock = System.Windows.Forms.DockStyle.Fill;
       labelNoteConversion.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelNoteConversion.Location = new System.Drawing.Point(284, 131);
+      labelNoteConversion.Location = new System.Drawing.Point(385, 131);
       labelNoteConversion.Name = "labelNoteConversion";
-      labelNoteConversion.Size = new System.Drawing.Size(277, 26);
+      labelNoteConversion.Size = new System.Drawing.Size(190, 39);
       labelNoteConversion.TabIndex = 18;
-      labelNoteConversion.Text = "Note: Any timezone date will be converted and displayed \r\nin the current setup timezone";
+      labelNoteConversion.Text = "Note: Any timezone date will be converted and displayed in the current setup timezone";
       // 
       // comboBoxDateFormat
       // 
       tableLayoutPanelDate.SetColumnSpan(comboBoxDateFormat, 3);
       comboBoxDateFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "DateFormat", true));
+      comboBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxDateFormat.FormattingEnabled = true;
-      comboBoxDateFormat.Location = new System.Drawing.Point(113, 168);
+      comboBoxDateFormat.Location = new System.Drawing.Point(113, 173);
       comboBoxDateFormat.Name = "comboBoxDateFormat";
-      comboBoxDateFormat.Size = new System.Drawing.Size(165, 21);
+      comboBoxDateFormat.Size = new System.Drawing.Size(266, 21);
       comboBoxDateFormat.TabIndex = 5;
       comboBoxDateFormat.TextChanged += DateFormatChanged;
       // 
@@ -648,23 +650,12 @@ namespace CsvTools
       comboBoxDataType.Dock = System.Windows.Forms.DockStyle.Top;
       comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       comboBoxDataType.FormattingEnabled = true;
-      comboBoxDataType.Location = new System.Drawing.Point(357, 3);
+      comboBoxDataType.Location = new System.Drawing.Point(336, 3);
       comboBoxDataType.Name = "comboBoxDataType";
-      comboBoxDataType.Size = new System.Drawing.Size(267, 21);
+      comboBoxDataType.Size = new System.Drawing.Size(245, 21);
       comboBoxDataType.TabIndex = 2;
       comboBoxDataType.ValueMember = "ID";
       comboBoxDataType.SelectedIndexChanged += ComboBoxDataType_SelectedIndexChanged;
-      // 
-      // buttonCancel
-      // 
-      buttonCancel.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-      buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      buttonCancel.Location = new System.Drawing.Point(541, 3);
-      buttonCancel.Name = "buttonCancel";
-      buttonCancel.Size = new System.Drawing.Size(83, 25);
-      buttonCancel.TabIndex = 4;
-      buttonCancel.Text = "&Cancel";
-      buttonCancel.UseVisualStyleBackColor = true;
       // 
       // labelColName
       // 
@@ -684,22 +675,10 @@ namespace CsvTools
       comboBoxColumnName.FormattingEnabled = true;
       comboBoxColumnName.Location = new System.Drawing.Point(85, 3);
       comboBoxColumnName.Name = "comboBoxColumnName";
-      comboBoxColumnName.Size = new System.Drawing.Size(266, 21);
+      comboBoxColumnName.Size = new System.Drawing.Size(245, 21);
       comboBoxColumnName.TabIndex = 1;
       comboBoxColumnName.SelectedIndexChanged += ComboBoxColumnName_SelectedIndexChanged;
       comboBoxColumnName.TextUpdate += ComboBoxColumnName_TextUpdate;
-      // 
-      // buttonGuess
-      // 
-      buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonGuess.Location = new System.Drawing.Point(110, 3);
-      buttonGuess.Name = "buttonGuess";
-      buttonGuess.Size = new System.Drawing.Size(103, 25);
-      buttonGuess.TabIndex = 2;
-      buttonGuess.Text = "&Guess";
-      toolTip.SetToolTip(buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any column that has possible alignment issues will be ignored\r\n");
-      buttonGuess.UseVisualStyleBackColor = true;
-      buttonGuess.Click += ButtonGuessClick;
       // 
       // checkBoxIgnore
       // 
@@ -729,18 +708,6 @@ namespace CsvTools
       // errorProvider
       // 
       errorProvider.ContainerControl = this;
-      // 
-      // buttonDisplayValues
-      // 
-      buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      buttonDisplayValues.Location = new System.Drawing.Point(2, 3);
-      buttonDisplayValues.Name = "buttonDisplayValues";
-      buttonDisplayValues.Size = new System.Drawing.Size(104, 25);
-      buttonDisplayValues.TabIndex = 1;
-      buttonDisplayValues.Text = "Display &Values";
-      toolTip.SetToolTip(buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column that has possible alignment issues will be ignored\r\n");
-      buttonDisplayValues.UseVisualStyleBackColor = true;
-      buttonDisplayValues.Click += ButtonDisplayValues_ClickAsync;
       // 
       // textBoxReadFolder
       // 
@@ -785,111 +752,259 @@ namespace CsvTools
       // textBoxDisplayNullAs
       // 
       textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "DisplayNullAs", true));
-      textBoxDisplayNullAs.Location = new System.Drawing.Point(357, 30);
+      textBoxDisplayNullAs.Location = new System.Drawing.Point(336, 30);
       textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
       textBoxDisplayNullAs.Size = new System.Drawing.Size(93, 20);
       textBoxDisplayNullAs.TabIndex = 11;
       toolTip.SetToolTip(textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text \r\ne.G. <NULL>");
       // 
-      // buttonOK
+      // buttonGuess
       // 
-      buttonOK.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-      buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      buttonOK.Location = new System.Drawing.Point(454, 3);
-      buttonOK.Name = "buttonOK";
-      buttonOK.Size = new System.Drawing.Size(83, 25);
-      buttonOK.TabIndex = 3;
-      buttonOK.Text = "&Ok";
-      buttonOK.UseVisualStyleBackColor = true;
+      buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonGuess.Location = new System.Drawing.Point(111, 0);
+      buttonGuess.Name = "buttonGuess";
+      buttonGuess.Size = new System.Drawing.Size(103, 25);
+      buttonGuess.TabIndex = 2;
+      buttonGuess.Text = "&Guess";
+      toolTip.SetToolTip(buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any column that has possible alignment issues will be ignored\r\n");
+      buttonGuess.UseVisualStyleBackColor = true;
+      buttonGuess.Click += ButtonGuessClick;
       // 
-      // panelTop
+      // buttonDisplayValues
       // 
-      panelTop.BackColor = System.Drawing.SystemColors.Control;
-      panelTop.Controls.Add(tableLayoutPanelHeader);
-      panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-      panelTop.Location = new System.Drawing.Point(0, 0);
-      panelTop.Margin = new System.Windows.Forms.Padding(2);
-      panelTop.Name = "panelTop";
-      panelTop.Size = new System.Drawing.Size(627, 53);
-      panelTop.TabIndex = 6;
+      buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      buttonDisplayValues.Location = new System.Drawing.Point(4, 0);
+      buttonDisplayValues.Name = "buttonDisplayValues";
+      buttonDisplayValues.Size = new System.Drawing.Size(104, 27);
+      buttonDisplayValues.TabIndex = 1;
+      buttonDisplayValues.Text = "Display &Values";
+      toolTip.SetToolTip(buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column that has possible alignment issues will be ignored\r\n");
+      buttonDisplayValues.UseVisualStyleBackColor = true;
+      buttonDisplayValues.Click += ButtonDisplayValues_ClickAsync;
       // 
-      // tableLayoutPanelHeader
+      // tableLayoutPanel
       // 
-      tableLayoutPanelHeader.AutoSize = true;
-      tableLayoutPanelHeader.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      tableLayoutPanelHeader.ColumnCount = 3;
-      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-      tableLayoutPanelHeader.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-      tableLayoutPanelHeader.Controls.Add(labelColName, 0, 0);
-      tableLayoutPanelHeader.Controls.Add(textBoxDisplayNullAs, 2, 1);
-      tableLayoutPanelHeader.Controls.Add(labelDisplayNullAs, 1, 1);
-      tableLayoutPanelHeader.Controls.Add(comboBoxColumnName, 1, 0);
-      tableLayoutPanelHeader.Controls.Add(comboBoxDataType, 2, 0);
-      tableLayoutPanelHeader.Controls.Add(checkBoxIgnore, 0, 1);
-      tableLayoutPanelHeader.Dock = System.Windows.Forms.DockStyle.Fill;
-      tableLayoutPanelHeader.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanelHeader.Margin = new System.Windows.Forms.Padding(0);
-      tableLayoutPanelHeader.Name = "tableLayoutPanelHeader";
-      tableLayoutPanelHeader.RowCount = 2;
-      tableLayoutPanelHeader.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelHeader.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelHeader.Size = new System.Drawing.Size(627, 53);
-      tableLayoutPanelHeader.TabIndex = 13;
+      tableLayoutPanel.AutoSize = true;
+      tableLayoutPanel.ColumnCount = 3;
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      tableLayoutPanel.Controls.Add(groupBoxRegExReplace, 0, 7);
+      tableLayoutPanel.Controls.Add(groupBoxBinary, 0, 6);
+      tableLayoutPanel.Controls.Add(groupBoxSplit, 0, 5);
+      tableLayoutPanel.Controls.Add(groupBoxBoolean, 0, 4);
+      tableLayoutPanel.Controls.Add(groupBoxNumber, 0, 3);
+      tableLayoutPanel.Controls.Add(groupBoxDate, 0, 2);
+      tableLayoutPanel.Controls.Add(labelColName, 0, 0);
+      tableLayoutPanel.Controls.Add(textBoxDisplayNullAs, 2, 1);
+      tableLayoutPanel.Controls.Add(labelDisplayNullAs, 1, 1);
+      tableLayoutPanel.Controls.Add(comboBoxColumnName, 1, 0);
+      tableLayoutPanel.Controls.Add(comboBoxDataType, 2, 0);
+      tableLayoutPanel.Controls.Add(checkBoxIgnore, 0, 1);
+      tableLayoutPanel.Controls.Add(panelBottom1, 0, 8);
+      tableLayoutPanel.Controls.Add(panelBottom2, 2, 8);
+      tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
+      tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+      tableLayoutPanel.Name = "tableLayoutPanel";
+      tableLayoutPanel.RowCount = 9;
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.Size = new System.Drawing.Size(584, 778);
+      tableLayoutPanel.TabIndex = 13;
       // 
-      // labelDisplayNullAs
+      // groupBoxRegExReplace
       // 
-      labelDisplayNullAs.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      labelDisplayNullAs.AutoSize = true;
-      labelDisplayNullAs.Location = new System.Drawing.Point(271, 33);
-      labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
-      labelDisplayNullAs.Name = "labelDisplayNullAs";
-      labelDisplayNullAs.Size = new System.Drawing.Size(80, 13);
-      labelDisplayNullAs.TabIndex = 12;
-      labelDisplayNullAs.Text = "Write NULL as:";
+      groupBoxRegExReplace.AutoSize = true;
+      tableLayoutPanel.SetColumnSpan(groupBoxRegExReplace, 3);
+      groupBoxRegExReplace.Controls.Add(labelRegEx);
+      groupBoxRegExReplace.Controls.Add(textBoxRegexReplacement);
+      groupBoxRegExReplace.Controls.Add(labelReplace);
+      groupBoxRegExReplace.Controls.Add(textBoxRegexSearchPattern);
+      groupBoxRegExReplace.Controls.Add(labelSPattern);
+      groupBoxRegExReplace.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxRegExReplace.Location = new System.Drawing.Point(3, 661);
+      groupBoxRegExReplace.Name = "groupBoxRegExReplace";
+      groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(0);
+      groupBoxRegExReplace.Size = new System.Drawing.Size(578, 80);
+      groupBoxRegExReplace.TabIndex = 14;
+      groupBoxRegExReplace.TabStop = false;
+      groupBoxRegExReplace.Text = "Text Replace";
+      groupBoxRegExReplace.Visible = false;
       // 
-      // panelBottom
+      // labelRegEx
       // 
-      panelBottom.Controls.Add(buttonOK);
-      panelBottom.Controls.Add(buttonCancel);
-      panelBottom.Controls.Add(buttonGuess);
-      panelBottom.Controls.Add(buttonDisplayValues);
-      panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-      panelBottom.Location = new System.Drawing.Point(0, 629);
-      panelBottom.Margin = new System.Windows.Forms.Padding(2);
-      panelBottom.Name = "panelBottom";
-      panelBottom.Size = new System.Drawing.Size(627, 30);
-      panelBottom.TabIndex = 7;
+      labelRegEx.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      labelRegEx.AutoSize = true;
+      labelRegEx.ForeColor = System.Drawing.SystemColors.Highlight;
+      labelRegEx.Location = new System.Drawing.Point(364, 21);
+      labelRegEx.Margin = new System.Windows.Forms.Padding(3);
+      labelRegEx.Name = "labelRegEx";
+      labelRegEx.Size = new System.Drawing.Size(140, 13);
+      labelRegEx.TabIndex = 12;
+      labelRegEx.Text = "Note: RegEx Pattern Syntax";
       // 
-      // flowLayoutPanel
+      // textBoxRegexReplacement
       // 
-      flowLayoutPanel.Controls.Add(groupBoxDate);
-      flowLayoutPanel.Controls.Add(groupBoxNumber);
-      flowLayoutPanel.Controls.Add(groupBoxBoolean);
-      flowLayoutPanel.Controls.Add(groupBoxSplit);
-      flowLayoutPanel.Controls.Add(groupBoxBinary);
-      flowLayoutPanel.Controls.Add(groupBoxRegExReplace);
-      flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      flowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-      flowLayoutPanel.Location = new System.Drawing.Point(0, 53);
-      flowLayoutPanel.Name = "flowLayoutPanel";
-      flowLayoutPanel.Size = new System.Drawing.Size(627, 606);
-      flowLayoutPanel.TabIndex = 8;
-      flowLayoutPanel.WrapContents = false;
+      textBoxRegexReplacement.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "RegexReplacement", true));
+      textBoxRegexReplacement.Location = new System.Drawing.Point(113, 44);
+      textBoxRegexReplacement.Name = "textBoxRegexReplacement";
+      textBoxRegexReplacement.Size = new System.Drawing.Size(239, 20);
+      textBoxRegexReplacement.TabIndex = 9;
       // 
-      // groupBoxDate
+      // groupBoxBinary
       // 
-      groupBoxDate.Controls.Add(tableLayoutPanelDate);
-      groupBoxDate.Location = new System.Drawing.Point(3, 3);
-      groupBoxDate.Name = "groupBoxDate";
-      groupBoxDate.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxDate.Size = new System.Drawing.Size(619, 242);
-      groupBoxDate.TabIndex = 15;
-      groupBoxDate.TabStop = false;
-      groupBoxDate.Text = "Date";
+      tableLayoutPanel.SetColumnSpan(groupBoxBinary, 3);
+      groupBoxBinary.Controls.Add(checkBoxOverwrite);
+      groupBoxBinary.Controls.Add(textBoxReadFolder);
+      groupBoxBinary.Controls.Add(labelReadFolder);
+      groupBoxBinary.Controls.Add(textBoxWriteFolder);
+      groupBoxBinary.Controls.Add(labelWriteFolder);
+      groupBoxBinary.Controls.Add(textBoxPattern);
+      groupBoxBinary.Controls.Add(labelPatternWrite);
+      groupBoxBinary.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxBinary.Location = new System.Drawing.Point(3, 553);
+      groupBoxBinary.Name = "groupBoxBinary";
+      groupBoxBinary.Padding = new System.Windows.Forms.Padding(0);
+      groupBoxBinary.Size = new System.Drawing.Size(578, 102);
+      groupBoxBinary.TabIndex = 13;
+      groupBoxBinary.TabStop = false;
+      groupBoxBinary.Text = "Binary Data";
+      groupBoxBinary.Visible = false;
+      // 
+      // checkBoxOverwrite
+      // 
+      checkBoxOverwrite.AutoSize = true;
+      checkBoxOverwrite.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceValueFormat, "Overwrite", true));
+      checkBoxOverwrite.Location = new System.Drawing.Point(363, 74);
+      checkBoxOverwrite.Name = "checkBoxOverwrite";
+      checkBoxOverwrite.Size = new System.Drawing.Size(71, 17);
+      checkBoxOverwrite.TabIndex = 7;
+      checkBoxOverwrite.Text = "Overwrite";
+      checkBoxOverwrite.UseVisualStyleBackColor = true;
+      // 
+      // groupBoxSplit
+      // 
+      tableLayoutPanel.SetColumnSpan(groupBoxSplit, 3);
+      groupBoxSplit.Controls.Add(numericUpDownPart);
+      groupBoxSplit.Controls.Add(labelSamplePart);
+      groupBoxSplit.Controls.Add(checkBoxPartToEnd);
+      groupBoxSplit.Controls.Add(labelSepBy);
+      groupBoxSplit.Controls.Add(labelPart);
+      groupBoxSplit.Controls.Add(textBoxSplit);
+      groupBoxSplit.Controls.Add(labelResultPart);
+      groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxSplit.Location = new System.Drawing.Point(3, 477);
+      groupBoxSplit.Name = "groupBoxSplit";
+      groupBoxSplit.Padding = new System.Windows.Forms.Padding(0);
+      groupBoxSplit.Size = new System.Drawing.Size(578, 70);
+      groupBoxSplit.TabIndex = 9;
+      groupBoxSplit.TabStop = false;
+      groupBoxSplit.Text = "Text Part";
+      groupBoxSplit.Visible = false;
+      // 
+      // numericUpDownPart
+      // 
+      numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceValueFormat, "Part", true));
+      numericUpDownPart.Location = new System.Drawing.Point(113, 42);
+      numericUpDownPart.Maximum = new decimal(new int[] { 9, 0, 0, 0 });
+      numericUpDownPart.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+      numericUpDownPart.Name = "numericUpDownPart";
+      numericUpDownPart.Size = new System.Drawing.Size(41, 20);
+      numericUpDownPart.TabIndex = 7;
+      numericUpDownPart.Value = new decimal(new int[] { 1, 0, 0, 0 });
+      numericUpDownPart.ValueChanged += SetSamplePart;
+      numericUpDownPart.Validating += PartValidating;
+      // 
+      // labelSamplePart
+      // 
+      labelSamplePart.AutoSize = true;
+      labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
+      labelSamplePart.Location = new System.Drawing.Point(297, 19);
+      labelSamplePart.Name = "labelSamplePart";
+      labelSamplePart.Size = new System.Drawing.Size(47, 13);
+      labelSamplePart.TabIndex = 2;
+      labelSamplePart.Text = "Input: \"\"";
+      // 
+      // checkBoxPartToEnd
+      // 
+      checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceValueFormat, "PartToEnd", true));
+      checkBoxPartToEnd.Location = new System.Drawing.Point(160, 41);
+      checkBoxPartToEnd.Name = "checkBoxPartToEnd";
+      checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
+      checkBoxPartToEnd.TabIndex = 2;
+      checkBoxPartToEnd.Text = "To End";
+      checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+      checkBoxPartToEnd.UseVisualStyleBackColor = false;
+      checkBoxPartToEnd.CheckedChanged += SetSamplePart;
+      checkBoxPartToEnd.Validating += PartValidating;
+      // 
+      // textBoxSplit
+      // 
+      textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] { ":", ";", "|" });
+      textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "PartSplitter", true));
+      textBoxSplit.Location = new System.Drawing.Point(113, 16);
+      textBoxSplit.MaxLength = 1;
+      textBoxSplit.Name = "textBoxSplit";
+      textBoxSplit.Size = new System.Drawing.Size(25, 20);
+      textBoxSplit.TabIndex = 0;
+      textBoxSplit.Text = ":";
+      textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+      textBoxSplit.TextChanged += SetSamplePart;
+      textBoxSplit.Validating += PartValidating;
+      // 
+      // labelResultPart
+      // 
+      labelResultPart.AutoSize = true;
+      labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
+      labelResultPart.Location = new System.Drawing.Point(297, 44);
+      labelResultPart.Name = "labelResultPart";
+      labelResultPart.Size = new System.Drawing.Size(55, 13);
+      labelResultPart.TabIndex = 6;
+      labelResultPart.Text = "Output: \"\"";
+      // 
+      // groupBoxBoolean
+      // 
+      tableLayoutPanel.SetColumnSpan(groupBoxBoolean, 3);
+      groupBoxBoolean.Controls.Add(labelTrue);
+      groupBoxBoolean.Controls.Add(labelFalse);
+      groupBoxBoolean.Controls.Add(textBoxTrue);
+      groupBoxBoolean.Controls.Add(textBoxFalse);
+      groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxBoolean.Location = new System.Drawing.Point(3, 404);
+      groupBoxBoolean.Name = "groupBoxBoolean";
+      groupBoxBoolean.Padding = new System.Windows.Forms.Padding(0);
+      groupBoxBoolean.Size = new System.Drawing.Size(578, 67);
+      groupBoxBoolean.TabIndex = 8;
+      groupBoxBoolean.TabStop = false;
+      groupBoxBoolean.Text = "Boolean";
+      // 
+      // textBoxTrue
+      // 
+      textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "True", true));
+      textBoxTrue.Location = new System.Drawing.Point(113, 13);
+      textBoxTrue.Name = "textBoxTrue";
+      textBoxTrue.Size = new System.Drawing.Size(45, 20);
+      textBoxTrue.TabIndex = 0;
+      // 
+      // textBoxFalse
+      // 
+      textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "False", true));
+      textBoxFalse.Location = new System.Drawing.Point(113, 38);
+      textBoxFalse.Name = "textBoxFalse";
+      textBoxFalse.Size = new System.Drawing.Size(45, 20);
+      textBoxFalse.TabIndex = 1;
       // 
       // groupBoxNumber
       // 
+      tableLayoutPanel.SetColumnSpan(groupBoxNumber, 3);
       groupBoxNumber.Controls.Add(linkLabelRegionLanguage);
       groupBoxNumber.Controls.Add(comboBoxNumberFormat);
       groupBoxNumber.Controls.Add(labelNumValue);
@@ -900,10 +1015,11 @@ namespace CsvTools
       groupBoxNumber.Controls.Add(labelPoint);
       groupBoxNumber.Controls.Add(textBoxGroupSeparator);
       groupBoxNumber.Controls.Add(labelNumber);
-      groupBoxNumber.Location = new System.Drawing.Point(3, 251);
+      groupBoxNumber.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxNumber.Location = new System.Drawing.Point(3, 304);
       groupBoxNumber.Name = "groupBoxNumber";
       groupBoxNumber.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxNumber.Size = new System.Drawing.Size(616, 94);
+      groupBoxNumber.Size = new System.Drawing.Size(578, 94);
       groupBoxNumber.TabIndex = 7;
       groupBoxNumber.TabStop = false;
       groupBoxNumber.Text = "Number";
@@ -993,192 +1109,82 @@ namespace CsvTools
       labelNumber.TabIndex = 6;
       labelNumber.Text = "Input: \"\"";
       // 
-      // groupBoxBoolean
+      // groupBoxDate
       // 
-      groupBoxBoolean.Controls.Add(labelTrue);
-      groupBoxBoolean.Controls.Add(labelFalse);
-      groupBoxBoolean.Controls.Add(textBoxTrue);
-      groupBoxBoolean.Controls.Add(textBoxFalse);
-      groupBoxBoolean.Location = new System.Drawing.Point(3, 351);
-      groupBoxBoolean.Name = "groupBoxBoolean";
-      groupBoxBoolean.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxBoolean.Size = new System.Drawing.Size(616, 67);
-      groupBoxBoolean.TabIndex = 8;
-      groupBoxBoolean.TabStop = false;
-      groupBoxBoolean.Text = "Boolean";
+      tableLayoutPanel.SetColumnSpan(groupBoxDate, 3);
+      groupBoxDate.Controls.Add(tableLayoutPanelDate);
+      groupBoxDate.Dock = System.Windows.Forms.DockStyle.Top;
+      groupBoxDate.Location = new System.Drawing.Point(3, 56);
+      groupBoxDate.Name = "groupBoxDate";
+      groupBoxDate.Padding = new System.Windows.Forms.Padding(0);
+      groupBoxDate.Size = new System.Drawing.Size(578, 242);
+      groupBoxDate.TabIndex = 15;
+      groupBoxDate.TabStop = false;
+      groupBoxDate.Text = "Date";
       // 
-      // textBoxTrue
+      // labelDisplayNullAs
       // 
-      textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "True", true));
-      textBoxTrue.Location = new System.Drawing.Point(113, 13);
-      textBoxTrue.Name = "textBoxTrue";
-      textBoxTrue.Size = new System.Drawing.Size(45, 20);
-      textBoxTrue.TabIndex = 0;
+      labelDisplayNullAs.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDisplayNullAs.AutoSize = true;
+      labelDisplayNullAs.Location = new System.Drawing.Point(250, 33);
+      labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
+      labelDisplayNullAs.Name = "labelDisplayNullAs";
+      labelDisplayNullAs.Size = new System.Drawing.Size(80, 13);
+      labelDisplayNullAs.TabIndex = 12;
+      labelDisplayNullAs.Text = "Write NULL as:";
       // 
-      // textBoxFalse
+      // panelBottom1
       // 
-      textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "False", true));
-      textBoxFalse.Location = new System.Drawing.Point(113, 38);
-      textBoxFalse.Name = "textBoxFalse";
-      textBoxFalse.Size = new System.Drawing.Size(45, 20);
-      textBoxFalse.TabIndex = 1;
+      panelBottom1.AutoSize = true;
+      tableLayoutPanel.SetColumnSpan(panelBottom1, 2);
+      panelBottom1.Controls.Add(buttonGuess);
+      panelBottom1.Controls.Add(buttonDisplayValues);
+      panelBottom1.Location = new System.Drawing.Point(2, 746);
+      panelBottom1.Margin = new System.Windows.Forms.Padding(2);
+      panelBottom1.Name = "panelBottom1";
+      panelBottom1.Size = new System.Drawing.Size(217, 30);
+      panelBottom1.TabIndex = 16;
       // 
-      // groupBoxSplit
+      // panelBottom2
       // 
-      groupBoxSplit.Controls.Add(numericUpDownPart);
-      groupBoxSplit.Controls.Add(labelSamplePart);
-      groupBoxSplit.Controls.Add(checkBoxPartToEnd);
-      groupBoxSplit.Controls.Add(labelSepBy);
-      groupBoxSplit.Controls.Add(labelPart);
-      groupBoxSplit.Controls.Add(textBoxSplit);
-      groupBoxSplit.Controls.Add(labelResultPart);
-      groupBoxSplit.Location = new System.Drawing.Point(3, 424);
-      groupBoxSplit.Name = "groupBoxSplit";
-      groupBoxSplit.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxSplit.Size = new System.Drawing.Size(616, 70);
-      groupBoxSplit.TabIndex = 9;
-      groupBoxSplit.TabStop = false;
-      groupBoxSplit.Text = "Text Part";
-      groupBoxSplit.Visible = false;
+      panelBottom2.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      panelBottom2.Controls.Add(buttonOK);
+      panelBottom2.Controls.Add(buttonCancel);
+      panelBottom2.Location = new System.Drawing.Point(403, 747);
+      panelBottom2.Name = "panelBottom2";
+      panelBottom2.Size = new System.Drawing.Size(178, 27);
+      panelBottom2.TabIndex = 17;
       // 
-      // numericUpDownPart
+      // buttonOK
       // 
-      numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceValueFormat, "Part", true));
-      numericUpDownPart.Location = new System.Drawing.Point(113, 42);
-      numericUpDownPart.Maximum = new decimal(new int[] { 9, 0, 0, 0 });
-      numericUpDownPart.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-      numericUpDownPart.Name = "numericUpDownPart";
-      numericUpDownPart.Size = new System.Drawing.Size(41, 20);
-      numericUpDownPart.TabIndex = 7;
-      numericUpDownPart.Value = new decimal(new int[] { 1, 0, 0, 0 });
-      numericUpDownPart.ValueChanged += SetSamplePart;
-      numericUpDownPart.Validating += PartValidating;
+      buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+      buttonOK.Location = new System.Drawing.Point(3, 0);
+      buttonOK.Name = "buttonOK";
+      buttonOK.Size = new System.Drawing.Size(83, 25);
+      buttonOK.TabIndex = 3;
+      buttonOK.Text = "&Ok";
+      buttonOK.UseVisualStyleBackColor = true;
       // 
-      // labelSamplePart
+      // buttonCancel
       // 
-      labelSamplePart.AutoSize = true;
-      labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelSamplePart.Location = new System.Drawing.Point(297, 19);
-      labelSamplePart.Name = "labelSamplePart";
-      labelSamplePart.Size = new System.Drawing.Size(47, 13);
-      labelSamplePart.TabIndex = 2;
-      labelSamplePart.Text = "Input: \"\"";
-      // 
-      // checkBoxPartToEnd
-      // 
-      checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceValueFormat, "PartToEnd", true));
-      checkBoxPartToEnd.Location = new System.Drawing.Point(160, 41);
-      checkBoxPartToEnd.Name = "checkBoxPartToEnd";
-      checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
-      checkBoxPartToEnd.TabIndex = 2;
-      checkBoxPartToEnd.Text = "To End";
-      checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-      checkBoxPartToEnd.UseVisualStyleBackColor = false;
-      checkBoxPartToEnd.CheckedChanged += SetSamplePart;
-      checkBoxPartToEnd.Validating += PartValidating;
-      // 
-      // textBoxSplit
-      // 
-      textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] { ":", ";", "|" });
-      textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "PartSplitter", true));
-      textBoxSplit.Location = new System.Drawing.Point(113, 16);
-      textBoxSplit.MaxLength = 1;
-      textBoxSplit.Name = "textBoxSplit";
-      textBoxSplit.Size = new System.Drawing.Size(25, 20);
-      textBoxSplit.TabIndex = 0;
-      textBoxSplit.Text = ":";
-      textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-      textBoxSplit.TextChanged += SetSamplePart;
-      textBoxSplit.Validating += PartValidating;
-      // 
-      // labelResultPart
-      // 
-      labelResultPart.AutoSize = true;
-      labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelResultPart.Location = new System.Drawing.Point(297, 44);
-      labelResultPart.Name = "labelResultPart";
-      labelResultPart.Size = new System.Drawing.Size(55, 13);
-      labelResultPart.TabIndex = 6;
-      labelResultPart.Text = "Output: \"\"";
-      // 
-      // groupBoxBinary
-      // 
-      groupBoxBinary.Controls.Add(checkBoxOverwrite);
-      groupBoxBinary.Controls.Add(textBoxReadFolder);
-      groupBoxBinary.Controls.Add(labelReadFolder);
-      groupBoxBinary.Controls.Add(textBoxWriteFolder);
-      groupBoxBinary.Controls.Add(labelWriteFolder);
-      groupBoxBinary.Controls.Add(textBoxPattern);
-      groupBoxBinary.Controls.Add(labelPatternWrite);
-      groupBoxBinary.Location = new System.Drawing.Point(3, 500);
-      groupBoxBinary.Name = "groupBoxBinary";
-      groupBoxBinary.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxBinary.Size = new System.Drawing.Size(616, 102);
-      groupBoxBinary.TabIndex = 13;
-      groupBoxBinary.TabStop = false;
-      groupBoxBinary.Text = "Binary Data";
-      groupBoxBinary.Visible = false;
-      // 
-      // checkBoxOverwrite
-      // 
-      checkBoxOverwrite.AutoSize = true;
-      checkBoxOverwrite.DataBindings.Add(new System.Windows.Forms.Binding("Checked", bindingSourceValueFormat, "Overwrite", true));
-      checkBoxOverwrite.Location = new System.Drawing.Point(363, 74);
-      checkBoxOverwrite.Name = "checkBoxOverwrite";
-      checkBoxOverwrite.Size = new System.Drawing.Size(71, 17);
-      checkBoxOverwrite.TabIndex = 7;
-      checkBoxOverwrite.Text = "Overwrite";
-      checkBoxOverwrite.UseVisualStyleBackColor = true;
-      // 
-      // groupBoxRegExReplace
-      // 
-      groupBoxRegExReplace.AutoSize = true;
-      groupBoxRegExReplace.Controls.Add(labelRegEx);
-      groupBoxRegExReplace.Controls.Add(textBoxRegexReplacement);
-      groupBoxRegExReplace.Controls.Add(labelReplace);
-      groupBoxRegExReplace.Controls.Add(textBoxRegexSearchPattern);
-      groupBoxRegExReplace.Controls.Add(labelSPattern);
-      groupBoxRegExReplace.Location = new System.Drawing.Point(3, 608);
-      groupBoxRegExReplace.Name = "groupBoxRegExReplace";
-      groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(0);
-      groupBoxRegExReplace.Size = new System.Drawing.Size(616, 80);
-      groupBoxRegExReplace.TabIndex = 14;
-      groupBoxRegExReplace.TabStop = false;
-      groupBoxRegExReplace.Text = "Text Replace";
-      groupBoxRegExReplace.Visible = false;
-      // 
-      // labelRegEx
-      // 
-      labelRegEx.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      labelRegEx.AutoSize = true;
-      labelRegEx.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelRegEx.Location = new System.Drawing.Point(364, 21);
-      labelRegEx.Margin = new System.Windows.Forms.Padding(3);
-      labelRegEx.Name = "labelRegEx";
-      labelRegEx.Size = new System.Drawing.Size(140, 13);
-      labelRegEx.TabIndex = 12;
-      labelRegEx.Text = "Note: RegEx Pattern Syntax";
-      // 
-      // textBoxRegexReplacement
-      // 
-      textBoxRegexReplacement.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "RegexReplacement", true));
-      textBoxRegexReplacement.Location = new System.Drawing.Point(113, 44);
-      textBoxRegexReplacement.Name = "textBoxRegexReplacement";
-      textBoxRegexReplacement.Size = new System.Drawing.Size(239, 20);
-      textBoxRegexReplacement.TabIndex = 9;
+      buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      buttonCancel.Location = new System.Drawing.Point(92, 0);
+      buttonCancel.Name = "buttonCancel";
+      buttonCancel.Size = new System.Drawing.Size(83, 25);
+      buttonCancel.TabIndex = 4;
+      buttonCancel.Text = "&Cancel";
+      buttonCancel.UseVisualStyleBackColor = true;
       // 
       // FormColumnUiRead
       // 
       AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-      ClientSize = new System.Drawing.Size(627, 659);
-      Controls.Add(panelBottom);
-      Controls.Add(flowLayoutPanel);
-      Controls.Add(panelTop);
+      AutoSize = true;
+      ClientSize = new System.Drawing.Size(584, 778);
+      Controls.Add(tableLayoutPanel);
       DataBindings.Add(new System.Windows.Forms.Binding("Text", columnBindingSource, "Name", true));
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       MaximizeBox = false;
       MinimizeBox = false;
-      MinimumSize = new System.Drawing.Size(519, 186);
       Name = "FormColumnUiRead";
       ShowIcon = false;
       ShowInTaskbar = false;
@@ -1190,33 +1196,27 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize) bindingSourceValueFormat).EndInit();
       ((System.ComponentModel.ISupportInitialize) columnBindingSource).EndInit();
       ((System.ComponentModel.ISupportInitialize) errorProvider).EndInit();
-      panelTop.ResumeLayout(false);
-      panelTop.PerformLayout();
-      tableLayoutPanelHeader.ResumeLayout(false);
-      tableLayoutPanelHeader.PerformLayout();
-      panelBottom.ResumeLayout(false);
-      flowLayoutPanel.ResumeLayout(false);
-      flowLayoutPanel.PerformLayout();
-      groupBoxDate.ResumeLayout(false);
-      groupBoxNumber.ResumeLayout(false);
-      groupBoxNumber.PerformLayout();
-      groupBoxBoolean.ResumeLayout(false);
-      groupBoxBoolean.PerformLayout();
+      tableLayoutPanel.ResumeLayout(false);
+      tableLayoutPanel.PerformLayout();
+      groupBoxRegExReplace.ResumeLayout(false);
+      groupBoxRegExReplace.PerformLayout();
+      groupBoxBinary.ResumeLayout(false);
+      groupBoxBinary.PerformLayout();
       groupBoxSplit.ResumeLayout(false);
       groupBoxSplit.PerformLayout();
       ((System.ComponentModel.ISupportInitialize) numericUpDownPart).EndInit();
-      groupBoxBinary.ResumeLayout(false);
-      groupBoxBinary.PerformLayout();
-      groupBoxRegExReplace.ResumeLayout(false);
-      groupBoxRegExReplace.PerformLayout();
+      groupBoxBoolean.ResumeLayout(false);
+      groupBoxBoolean.PerformLayout();
+      groupBoxNumber.ResumeLayout(false);
+      groupBoxNumber.PerformLayout();
+      groupBoxDate.ResumeLayout(false);
+      panelBottom1.ResumeLayout(false);
+      panelBottom2.ResumeLayout(false);
       ResumeLayout(false);
+      PerformLayout();
     }
 
     private System.Windows.Forms.BindingSource bindingSourceValueFormat;
-    private System.Windows.Forms.Button buttonCancel;
-    private System.Windows.Forms.Button buttonDisplayValues;
-    private System.Windows.Forms.Button buttonGuess;
-    private System.Windows.Forms.Button buttonOK;
     private System.Windows.Forms.CheckBox checkBoxIgnore;
     private System.Windows.Forms.BindingSource columnBindingSource;
     private System.Windows.Forms.ComboBox comboBoxColumnName;
@@ -1227,10 +1227,6 @@ namespace CsvTools
     private System.Windows.Forms.ToolTip toolTip;
 
 #endregion
-    
-    private System.Windows.Forms.Panel panelBottom;
-    private System.Windows.Forms.Panel panelTop;
-    private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
     private System.Windows.Forms.GroupBox groupBoxNumber;
     private System.Windows.Forms.ComboBox comboBoxNumberFormat;
     private System.Windows.Forms.Label labelNumValue;
@@ -1277,7 +1273,7 @@ namespace CsvTools
     private System.Windows.Forms.TextBox textBoxDisplayNullAs;
     private System.Windows.Forms.TextBox textBoxDateFormat;
     private System.Windows.Forms.Label labelNoteConversion;
-    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelHeader;
+    private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
     private System.Windows.Forms.Label labelTimeCol;
     private System.Windows.Forms.Label labelTCFormat;
     private System.Windows.Forms.Label labelLessCommon;
@@ -1285,5 +1281,11 @@ namespace CsvTools
     private System.Windows.Forms.ComboBox comboBoxDateFormat;
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanelDate;
     private System.Windows.Forms.Label labelDateOutput;
+    private System.Windows.Forms.Button buttonCancel;
+    private System.Windows.Forms.Button buttonOK;
+    private System.Windows.Forms.Panel panelBottom1;
+    private System.Windows.Forms.Button buttonGuess;
+    private System.Windows.Forms.Button buttonDisplayValues;
+    private System.Windows.Forms.Panel panelBottom2;
   }
 }

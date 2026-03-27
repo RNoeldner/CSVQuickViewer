@@ -108,7 +108,7 @@ public sealed record ManifestData
       throw new FileNotFoundException(manifest);
 
     var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
-    Logger.Information("Configuration read from manifest file {filename}", manifest);
+    Logger.Information($"Configuration read from manifest file {manifest}");
 
     if (FileSystemUtils.FileExists(dataFile))
       return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
@@ -131,7 +131,7 @@ public sealed record ManifestData
       e.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
     if (manifestEntry is null)
       return null;
-    Logger.Information("Configuration read from manifest file {filename}", manifestEntry.Name);
+    Logger.Information($"Configuration read from manifest file {manifestEntry.Name}" );
 
 
     return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,

@@ -40,7 +40,7 @@ public static class EventExtensions
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Event handler threw an exception: {Error}", ex.Message);
+        Logger.Warning(ex, $"Event handler threw an exception: {ex.Message}");
       }
     }
   }
@@ -62,7 +62,7 @@ public static class EventExtensions
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Event handler threw an exception: {Error}", ex.Message);
+        Logger.Warning(ex, $"Event handler threw an exception: {ex.Message}");
       }
     }
   }

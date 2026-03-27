@@ -679,7 +679,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       // Load View Settings from file
       if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
       {
-        try { Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile); } catch { }
+        try { Logger.Information($"Restoring view and filter setting {m_FileSetting.ColumnFile}..."); } catch { }
         detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
       }
       else
@@ -689,7 +689,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
         if (FileSystemUtils.FileExists(fnView))
         {
-          try { Logger.Information("Restoring view and filter setting {filename}...", fn); } catch { }
+          try { Logger.Information($"Restoring view and filter setting {fn}..."); } catch { }
           detailControl.ReStoreViewSetting(fnView);
         }
       }

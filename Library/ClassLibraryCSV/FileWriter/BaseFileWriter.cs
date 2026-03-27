@@ -288,7 +288,7 @@ public abstract class BaseFileWriter : IFileWriter
     }
     catch (Exception exc)
     {
-      Logger.Error(exc, "Could not write file {filename}", FullPath.GetShortDisplayFileName());
+      Logger.Error(exc, $"Could not write file {FullPath.GetShortDisplayFileName()}" );
 
       throw new FileWriterException(
         $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
@@ -296,7 +296,7 @@ public abstract class BaseFileWriter : IFileWriter
     }
     finally
     {
-      Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);
+      Logger.Debug($"Finished writing {FileSettingDisplay} Records: {Records}");
 
 
       HandleWriteEnd();

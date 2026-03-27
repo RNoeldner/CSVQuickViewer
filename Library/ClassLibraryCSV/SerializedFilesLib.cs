@@ -256,7 +256,7 @@ public static class SerializedFilesLib
     }
     catch (Exception ex)
     {
-      Logger.Error(ex, "Error writing json file {filename}", fileName);
+      Logger.Error(ex, $"Error writing json file {fileName}");
     }
 
     return true;

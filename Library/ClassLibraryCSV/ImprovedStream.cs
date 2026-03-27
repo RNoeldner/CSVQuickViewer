@@ -512,7 +512,7 @@ public class ImprovedStream : Stream, IImprovedStream
   /// </remarks>
   public static IOrderedEnumerable<ZipEntry> SuitableZipEntries(ICSharpCode.SharpZipLib.Zip.ZipFile zipFile)
   {
-    Logger.Information("Getting suitable delimited text file in {zipFile}", zipFile.Name);
+    Logger.Information($"Getting suitable delimited text file in {zipFile.Name}" );
     return zipFile.Cast<ZipEntry>().Where(e => e.IsFile)
       .OrderBy(e => e.Name.AssumeDelimited1() ? 0 : e.Name.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ? 1 : 2)
       .ThenByDescending(x => x.Size)
@@ -557,7 +557,7 @@ public class ImprovedStream : Stream, IImprovedStream
       if (m_ZipEntryIndex == -1)
       {
         m_ZipEntryIndex = m_ZipFile.FindEntry(SourceAccess.IdentifierInContainer, true);
-        Logger.Information("Using {container}", SourceAccess.IdentifierInContainer);
+        Logger.Information($"Using {SourceAccess.IdentifierInContainer}" );
       }
 
       if (m_ZipEntryIndex == -1)

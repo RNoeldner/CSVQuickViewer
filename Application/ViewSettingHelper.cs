@@ -40,7 +40,7 @@ public static class ViewSettingHelper
     }
     catch (Exception ex)
     {
-      try { Logger.Error(ex, "Loading ViewSettings {path}", SettingPath); } catch { }
+      Logger.Error(ex, $"Loading ViewSettings {SettingPath}"); 
     }
     return new ViewSettings();
   }

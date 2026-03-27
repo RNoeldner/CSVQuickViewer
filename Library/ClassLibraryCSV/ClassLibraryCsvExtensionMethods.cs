@@ -195,6 +195,7 @@ public static class ClassLibraryCsvExtensionMethods
     }
 
     foreach (var ot in other)
+    {
       // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
       if (ot is null)
       {
@@ -202,11 +203,9 @@ public static class ClassLibraryCsvExtensionMethods
         if (!selfCol.Any(x => x is null))
           return false;
       }
-      else
-      {
-        if (!selfCol.Any(st => ot.Equals(st)))
-          return false;
-      }
+      else if (!selfCol.Any(ot.Equals))
+        return false;
+    }
 
     return true;
   }

@@ -305,7 +305,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
           {
             // Update progress bar
             if (TimeToCompletion.Value > 0 && TimeToCompletion.Value <= Maximum)
-              m_ProgressBar.Value = TimeToCompletion.Value.ToInt();
+              try { m_ProgressBar.Value = TimeToCompletion.Value.ToInt(); } catch { }
 
             // Build ETA text
             var sb = new StringBuilder();
