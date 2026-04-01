@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -53,6 +54,8 @@ public class FormHierarchyDisplay : ResizeForm
   private TextBox m_TextBoxValue;
   private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
   private ToolTip m_ToolTip;
+  private ToolStripSeparator toolStripSeparator1;
+  private ToolStripMenuItem copyPathToolStripMenuItem;
   private MultiSelectTreeView m_TreeView = new MultiSelectTreeView();
 
   /// <summary>
@@ -77,7 +80,6 @@ public class FormHierarchyDisplay : ResizeForm
     m_TimerDisplay.AutoReset = false;
 
     m_TreeView.HtmlStyle = hTmlStyle;
-
   }
 
   /// <summary>
@@ -114,7 +116,6 @@ public class FormHierarchyDisplay : ResizeForm
       m_ToolTip?.Dispose();
       m_CancellationTokenSource.Dispose();
       components?.Dispose();
-
     }
 
     base.Dispose(disposing);
@@ -318,21 +319,28 @@ public class FormHierarchyDisplay : ResizeForm
       Extensions.ShowError(ex);
     }
   }
-
-  private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs e)
-    => m_TextBoxValue!.SafeInvoke(() => m_TextBoxValue!.RunWithHourglass(() =>
+  private void SearchNext()
+  {
+    m_TextBoxValue!.SafeInvoke(() =>
     {
-      try
+      var search = m_TextBoxValue?.Text.Trim() ?? string.Empty;
+      if (search.Length<2)
+        return;
+      m_TextBoxValue!.RunWithHourglass(() =>
       {
-        using var formProgress = new FormProgress("Searching", m_CancellationTokenSource.Token);
-        formProgress.Show(this);
-        Search(m_TextBoxValue!.Text, m_TreeView.Nodes, formProgress.CancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Extensions.ShowError(ex);
-      }
-    }));
+        try
+        {
+          Search(search);
+        }
+        catch (Exception ex)
+        {
+          Extensions.ShowError(ex);
+        }
+      });
+    });
+  }
+
+  private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs? e) => SearchNext();
 
   private void FormHierarchyDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
     m_CancellationTokenSource.Cancel();
@@ -379,6 +387,8 @@ public class FormHierarchyDisplay : ResizeForm
     ToolStripMenuItem expandAllToolStripMenuItem;
     ToolStripMenuItem closeAllToolStripMenuItem;
     Label labelFind;
+    toolStripSeparator1 = new ToolStripSeparator();
+    copyPathToolStripMenuItem = new ToolStripMenuItem();
     m_TableLayoutPanel1 = new TableLayoutPanel();
     m_ComboBoxId = new ComboBox();
     m_ComboBoxParentId = new ComboBox();
@@ -431,9 +441,9 @@ public class FormHierarchyDisplay : ResizeForm
     // contextMenuStrip
     // 
     contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-    contextMenuStrip.Items.AddRange(new ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
+    contextMenuStrip.Items.AddRange(new ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem, toolStripSeparator1, copyPathToolStripMenuItem });
     contextMenuStrip.Name = "contextMenuStrip";
-    contextMenuStrip.Size = new System.Drawing.Size(130, 48);
+    contextMenuStrip.Size = new System.Drawing.Size(130, 76);
     // 
     // expandAllToolStripMenuItem
     // 
@@ -448,6 +458,18 @@ public class FormHierarchyDisplay : ResizeForm
     closeAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
     closeAllToolStripMenuItem.Text = "Close All";
     closeAllToolStripMenuItem.Click += CloseAllToolStripMenuItem_Click;
+    // 
+    // toolStripSeparator1
+    // 
+    toolStripSeparator1.Name = "toolStripSeparator1";
+    toolStripSeparator1.Size = new System.Drawing.Size(126, 6);
+    // 
+    // copyPathToolStripMenuItem
+    // 
+    copyPathToolStripMenuItem.Name = "copyPathToolStripMenuItem";
+    copyPathToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+    copyPathToolStripMenuItem.Text = "Copy Path";
+    copyPathToolStripMenuItem.Click += copyPathToolStripMenuItem_Click;
     // 
     // labelFind
     // 
@@ -522,6 +544,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_TreeView.Name = "m_TreeView";
     m_TreeView.Size = new System.Drawing.Size(496, 255);
     m_TreeView.TabIndex = 9;
+    m_TreeView.KeyUp += FormHierarchyDisplay_KeyUp;
     // 
     // m_TextBoxValue
     // 
@@ -530,7 +553,9 @@ public class FormHierarchyDisplay : ResizeForm
     m_TextBoxValue.Name = "m_TextBoxValue";
     m_TextBoxValue.Size = new System.Drawing.Size(208, 20);
     m_TextBoxValue.TabIndex = 2;
+    m_ToolTip.SetToolTip(m_TextBoxValue, "Search does support wildcards like * or ?");
     m_TextBoxValue.TextChanged += TimerSearchRestart;
+    m_TextBoxValue.KeyDown += m_TextBoxValue_KeyDown;
     // 
     // m_ComboBoxDisplay2
     // 
@@ -556,6 +581,7 @@ public class FormHierarchyDisplay : ResizeForm
     // 
     // FormHierarchyDisplay
     // 
+    AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
     ClientSize = new System.Drawing.Size(502, 368);
     Controls.Add(m_TableLayoutPanel1);
     FormBorderStyle = FormBorderStyle.SizableToolWindow;
@@ -564,6 +590,7 @@ public class FormHierarchyDisplay : ResizeForm
     Text = "Hierarchy";
     FormClosing += FormHierarchyDisplay_FormClosing;
     Load += FormHierarchyDisplay_Load;
+    KeyUp += FormHierarchyDisplay_KeyUp;
     contextMenuStrip.ResumeLayout(false);
     m_TableLayoutPanel1.ResumeLayout(false);
     m_TableLayoutPanel1.PerformLayout();
@@ -580,29 +607,48 @@ public class FormHierarchyDisplay : ResizeForm
 
     visitedEntries.Add(treeData);
     foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
-      {
+    {
       break;
     }
 
     return false;
   }
 
-  private void Search(string text, ICollection nodes, CancellationToken token)
+  private void Search(string text)
   {
-    if (nodes is null || nodes.Count == 0)
-      return;
-    token.ThrowIfCancellationRequested();
-    foreach (TreeNode node in nodes)
-      if (node.Text.Contains(text))
-      {
-        m_TreeView.Select();
-        node.EnsureVisible();
-        m_TreeView.SelectedNode = node;
-        return;
-      }
+    var validNode = new List<TreeNode>();
+    var findRegex = new Regex("^" + Regex.Escape(text.Replace('%', '*')).Replace(@"\*", ".*").Replace(@"\?", "."), RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    foreach (TreeNode node in nodes)
-      Search(text, node.Nodes, token);
+    CollectMatches(m_TreeView.Nodes);
+
+    if (validNode.Count == 0)
+      return;
+    var currentFound = validNode.IndexOf(m_TreeView.SelectedNode);
+    m_TreeView.BeginUpdate();
+    try
+    {
+      if (currentFound==validNode.Count-1)
+        currentFound=-1;
+      for (int i = validNode.Count- (currentFound+1); i>1; i--)
+        if (!(validNode[currentFound+i].Parent?.IsExpanded?? false))
+          validNode[currentFound+i].EnsureVisible();
+      validNode[currentFound+1].EnsureVisible();
+      m_TreeView.SelectedNode = validNode[currentFound+1];
+    }
+    finally
+    {
+      m_TreeView.EndUpdate();
+    }
+
+    void CollectMatches(TreeNodeCollection nodes)
+    {
+      foreach (TreeNode node in nodes)
+      {
+        if (findRegex.IsMatch(node.Text))
+          validNode.Add(node);
+        CollectMatches(node.Nodes);
+      }
+    }
   }
 
   /// <summary>
@@ -708,6 +754,35 @@ public class FormHierarchyDisplay : ResizeForm
     m_TimerSearch.Start();
   }
 
+  private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
+  {
+    // get the chain up till root for current node like Selected -> parent1 -> parent2
+    var sb = new StringBuilder();
+    foreach (TreeNode startNode in m_TreeView.SelectedTreeNode)
+    {
+      if (sb.Length> 0)
+        sb.AppendLine();
+      sb.Append(getNodeText(startNode));
+
+      var nextNode = startNode.Parent;
+      while (nextNode != null)
+      {
+        sb.Append(" → ");
+        sb.Append(getNodeText(nextNode));
+        nextNode = nextNode.Parent;
+      }
+    }
+    Clipboard.SetText(sb.ToString());
+    string getNodeText(TreeNode node)
+    {
+      var pos = node.Text.LastIndexOf(" - Direct ", StringComparison.Ordinal);
+      if (pos==-1)
+        return node.Text;
+      else
+        return node.Text.Substring(0, pos);
+    }
+  }
+
   public sealed class TreeData
   {
     public readonly ICollection<TreeData> Children = new List<TreeData>();
@@ -762,6 +837,27 @@ public class FormHierarchyDisplay : ResizeForm
 
       return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)
         .Sum(GetInDirectChildren);
+    }
+  }
+
+  private void m_TextBoxValue_KeyDown(object sender, KeyEventArgs e)
+  {
+    if (e.KeyValue == (char) Keys.Enter
+      ||  e.KeyValue == (char) Keys.F3)
+    {
+      e.Handled = true;
+      e.SuppressKeyPress = true;
+      SearchNext();
+    }
+  }
+
+  private void FormHierarchyDisplay_KeyUp(object sender, KeyEventArgs e)
+  {
+    if (e.KeyValue == (char) Keys.F3)
+    {
+      e.Handled = true;
+      e.SuppressKeyPress = true;
+      SearchNext();
     }
   }
 }
