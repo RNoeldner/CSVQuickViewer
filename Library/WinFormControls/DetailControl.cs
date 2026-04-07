@@ -84,7 +84,7 @@ public sealed partial class DetailControl : UserControl
       m_ToolStripButtonHierarchy,
       m_ToolStripButtonColumnLength,
       m_ToolStripButtonSource,
-      m_ToolStripButtonStore
+      m_ToolStripButtonStore,
     };
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
     FilteredDataGridView.Scroll += OnDataGridViewScroll;
@@ -113,7 +113,7 @@ public sealed partial class DetailControl : UserControl
   }
 
   /// <summary>
-  ///   Allows setting the data table, make sure you call 
+  ///   Allows setting the data table, make sure you call
   ///   RefreshDisplay after setting the DataTable to update the display
   /// </summary>
   [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -131,7 +131,10 @@ public sealed partial class DetailControl : UserControl
         oldDT.Dispose();
       }
       else
+      {
         FilteredDataGridView.DataTable= value;
+      }
+
       m_SelfOpenedDataTable =false;
       m_FilterDataTable?.Dispose();
       m_FilterDataTable = new FilterDataTable(value);
@@ -281,7 +284,7 @@ public sealed partial class DetailControl : UserControl
     {
       m_UniqueFieldName.Clear();
       // in case we do not have unique names and the table is not loaded, do nothing
-      if (value is null || !value.Any())
+      if (value?.Any() != true)
         return;
       foreach (var name in value)
         m_UniqueFieldName.Add(name);
@@ -373,7 +376,7 @@ public sealed partial class DetailControl : UserControl
           if (rawValue is DateTime dateTime)
             formattedValue=StringConversion.DisplayDateTime(dateTime, CultureInfo.CurrentCulture);
           else if (rawValue is IFormattable formattable && !string.IsNullOrWhiteSpace(colInfo.Format))
-            formattedValue=formattable.ToString(colInfo.Format, null);
+            formattedValue=formattable.ToString(colInfo.Format, formatProvider: null);
           else
             formattedValue=rawValue.ToString() ?? string.Empty;
 
@@ -407,7 +410,7 @@ public sealed partial class DetailControl : UserControl
   public string GetViewStatus() => FilteredDataGridView.GetViewStatus;
 
   /// <summary>
-  /// Asynchronously loads a data table into the detail control and updates the display.  
+  /// Asynchronously loads a data table into the detail control and updates the display.
   /// </summary>
   /// <param name="value">The dataTable to display</param>
   /// <param name="filterType">Specifies the filter type to apply when refreshing the display.</param>
@@ -676,7 +679,7 @@ public sealed partial class DetailControl : UserControl
 
   /// <summary>
   /// Handles control-level keyboard shortcuts for search navigation and visibility.
-  /// Supports Developer standards (F3/Shift+F3), Grid standards (Alt+N/Alt+P), 
+  /// Supports Developer standards (F3/Shift+F3), Grid standards (Alt+N/Alt+P),
   /// and common Find behaviors (Ctrl+F).
   /// </summary>
   /// <param name="sender">The source of the event.</param>
@@ -699,7 +702,7 @@ public sealed partial class DetailControl : UserControl
       else
       {
         // If already open and has text, jump to next occurrence
-        await FindNextAsync(true);
+        await FindNextAsync(forward: true);
       }
       return;
     }
@@ -710,7 +713,7 @@ public sealed partial class DetailControl : UserControl
     {
       e.Handled = true;
       e.SuppressKeyPress = true;
-      await FindNextAsync(false);
+      await FindNextAsync(forward: false);
     }
   }
 
@@ -746,7 +749,7 @@ public sealed partial class DetailControl : UserControl
     var frm = ParentForm;
     if (frm is null)
       return;
-    await m_ToolStripButtonSource.RunWithHourglassAsync(async () => 
+    await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       await DisplaySourceAsync.Invoke(m_ControlCancellation.Token), frm);
   }
 
@@ -754,11 +757,11 @@ public sealed partial class DetailControl : UserControl
   /// Retrieves the current filter expression applied to the data view.
   /// </summary>
   /// <returns>
-  /// A <see cref="string"/> representing the active filter expression; 
+  /// A <see cref="string"/> representing the active filter expression;
   /// returns an empty string or null if no filter is currently applied.
   /// </returns>
   /// <remarks>
-  /// This value is typically synchronized with the <see cref="DataTable.DefaultView"/>'s RowFilter 
+  /// This value is typically synchronized with the <see cref="DataTable.DefaultView"/>'s RowFilter
   /// property to ensure the UI and data layer remain consistent.
   /// </remarks>
   private RowFilterTypeEnum GetCurrentRowFilterType()
@@ -797,7 +800,7 @@ public sealed partial class DetailControl : UserControl
   /// Asynchronously loads a new batch of data from the source file and merges it into the existing <see cref="DataTable"/>.
   /// </summary>
   /// <param name="loadAllRemaining">
-  /// If <c>true</c>, the progress dialog is shown in the background (SendToBack) to allow continued UI interaction; 
+  /// If <c>true</c>, the progress dialog is shown in the background (SendToBack) to allow continued UI interaction;
   /// if <c>false</c>, the progress dialog is shown modally over the parent form.
   /// </param>
   /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
@@ -826,7 +829,9 @@ public sealed partial class DetailControl : UserControl
         await processLoad(frmProgress, TimeSpan.MaxValue);
       }
       else
+      {
         await this.RunWithHourglassAsync(async () => await processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
+      }
     }
     catch (Exception ex) { Extensions.ShowError(ex, "Failed to load additional data rows."); }
 
@@ -845,7 +850,7 @@ public sealed partial class DetailControl : UserControl
         if (newData.Rows.Count > 0)
         {
           m_FilterDataTable.OriginalTable.BeginLoadData();
-          try { m_FilterDataTable.OriginalTable.Merge(newData, false, MissingSchemaAction.Error); }
+          try { m_FilterDataTable.OriginalTable.Merge(newData, preserveChanges: false, MissingSchemaAction.Error); }
           finally { m_FilterDataTable.OriginalTable.EndLoadData(); }
           await RefreshDisplayAndFilterAsync(GetCurrentRowFilterType(), progress.CancellationToken);
           System.Media.SystemSounds.Beep.Play();
@@ -868,7 +873,7 @@ public sealed partial class DetailControl : UserControl
     if (e.Button != MouseButtons.Left) return;
 
     m_ActiveNavButton = sender as ToolStripButton;
-    if (m_ActiveNavButton == null || !m_ActiveNavButton.Enabled) return;
+    if (m_ActiveNavButton?.Enabled != true) return;
 
     // 1. Instant response: Always move exactly 1 row on the first click
     m_JumpDistance = 1;
@@ -888,7 +893,7 @@ public sealed partial class DetailControl : UserControl
 
   private void NavRepeatTimer_Tick(object sender, EventArgs e)
   {
-    if (m_ActiveNavButton == null || !m_ActiveNavButton.Enabled)
+    if (m_ActiveNavButton?.Enabled != true)
     {
       StopNavigation();
       return;
@@ -915,7 +920,7 @@ public sealed partial class DetailControl : UserControl
 
     // Trigger when the user scrolls to 90% of the current bar
     if (e.NewValue > (FilteredDataGridView.DataTable.Rows.Count * 0.9))
-      await LoadNextBatch(false);
+      await LoadNextBatch(loadAllRemaining: false);
   }
 
   /// <summary>
@@ -932,14 +937,14 @@ public sealed partial class DetailControl : UserControl
   {
     if (m_IsSearching)
       return;
-    await FindNextAsync(true);
+    await FindNextAsync(forward: true);
   }
 
   private async void OnSearchPrev(object? sender, EventArgs e)
   {
     if (m_IsSearching)
       return;
-    await FindNextAsync(false);
+    await FindNextAsync(forward: false);
   }
 
   private void PerformNavigation(ToolStripButton button, int stepSize)
@@ -1023,9 +1028,13 @@ public sealed partial class DetailControl : UserControl
 
       // If we filter out all columns do not change visibility to avoid a blank grid
       if (m_ColumnsInView.Count + m_UniqueFieldName.Count>0)
+      {
         foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
+        {
           dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase)
                         || m_ColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
+        }
+      }
       // 5. Restore Sorting
       if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
         Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
@@ -1076,7 +1085,7 @@ public sealed partial class DetailControl : UserControl
     FilteredDataGridView.CurrentCell = cell;
 
     // --- Vertical Scrolling (Center the row) ---
-    int visibleRows = FilteredDataGridView.DisplayedRowCount(false);
+    int visibleRows = FilteredDataGridView.DisplayedRowCount(includePartialRow: false);
     int firstRow = FilteredDataGridView.FirstDisplayedScrollingRowIndex;
 
     // Use a small buffer (e.g., 2 rows) so it doesn't wait until the very last pixel to scroll
@@ -1085,7 +1094,7 @@ public sealed partial class DetailControl : UserControl
 
     // --- Horizontal Scrolling (The "Far Right" Fix) ---
     // Get the display rectangle of the cell relative to the grid's client area
-    Rectangle cellRect = FilteredDataGridView.GetCellDisplayRectangle(cell.ColumnIndex, cell.RowIndex, false);
+    Rectangle cellRect = FilteredDataGridView.GetCellDisplayRectangle(cell.ColumnIndex, cell.RowIndex, cutOverflow: false);
     Rectangle gridRect = FilteredDataGridView.ClientRectangle;
 
     // Check if the cell's right edge is outside the grid's right edge
@@ -1117,7 +1126,7 @@ public sealed partial class DetailControl : UserControl
   private void timerLoadRemain_Tick(object? sender, EventArgs e)
   {
     timerLoadRemain.Enabled=false;
-    _ = LoadNextBatch(true);
+    _ = LoadNextBatch(loadAllRemaining: true);
   }
 
   private void TimerVisibility_Tick(object? sender, EventArgs e)
@@ -1199,7 +1208,7 @@ public sealed partial class DetailControl : UserControl
           .Select(col => col.DataPropertyName)
           .ToArray();
       // Create the snapshot of the filtered/sorted data
-      using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(false, columnsToExport);
+      using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(distinct: false, columnsToExport);
 #if NET5_0_OR_GREATER
       var wrapper = new DataTableWrapper(exportTable);
       await using (wrapper.ConfigureAwait(false))
@@ -1261,11 +1270,13 @@ public sealed partial class DetailControl : UserControl
 
       if ((warningOrErrors > 0 && warningOrErrors != warnings && warningOrErrors != errors) ||
           filterType == RowFilterTypeEnum.ErrorsAndWarning)
+      {
         m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.ErrorsAndWarning));
+      }
 
       // 3. Add "Clean Records" only if there are clean and NOT clean
       // This keeps the UI tidy for perfectly clean files
-      if ((total - warningOrErrors > 0 && warningOrErrors != 0) || filterType == RowFilterTypeEnum.Clean)
+      if ((total >warningOrErrors && warningOrErrors != 0) || filterType == RowFilterTypeEnum.Clean)
         m_ToolStripComboBoxFilterType.Items.Add(FormatItem(RowFilterTypeEnum.Clean));
 
       // 4. Update UI State
@@ -1296,7 +1307,7 @@ public sealed partial class DetailControl : UserControl
         RowFilterTypeEnum.Warning => warnings,
         RowFilterTypeEnum.Errors => errors,
         RowFilterTypeEnum.ErrorsAndWarning => warningOrErrors,
-        _ => total
+        _ => total,
       };
 
       return $"{type.ShortDescription()} - {count:N0}";

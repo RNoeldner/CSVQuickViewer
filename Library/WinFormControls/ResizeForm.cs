@@ -21,7 +21,6 @@ namespace CsvTools;
 
 /// <summary>
 /// Base form providing bounded, DPI-aware font scaling.
-///
 /// Responsibilities:
 /// - Enforce a logical font size range of 9–20 points
 /// - Apply font changes consistently to all child controls
@@ -39,7 +38,7 @@ public class ResizeForm : Form
   /// <summary>
   /// Current logical font size in points (clamped to the allowed range).
   /// This value represents the zoom level independent of DPI.
-  /// </summary>  
+  /// </summary>
   private int m_CurrentFontSize = 10; // or from FontConfig
   private const int MinFontSize = 9;
   private const int MaxFontSize = 20;
@@ -119,7 +118,7 @@ public class ResizeForm : Form
   /// </summary>
   private static void SetFonts(in Control control, in Font newFont)
   {
-    if ("NoFontChange".Equals(control.Tag?.ToString()))
+    if ("NoFontChange".Equals(control.Tag?.ToString(), StringComparison.Ordinal))
       return;
     if (!Equals(control.Font, newFont))
       control.Font = newFont;
@@ -136,11 +135,11 @@ public class ResizeForm : Form
   {
     using Graphics g = CreateGraphics();
     int bestSize = 0;
-    float bestDiff = Math.Abs((MinFontSize * 72f) / g.DpiX - value);
+    float bestDiff = Math.Abs(MinFontSize * 72f / g.DpiX - value);
 
     for (int frontSize = MinFontSize; frontSize <= MaxFontSize; frontSize++)
     {
-      float diff = Math.Abs((frontSize * 72f) / g.DpiX - value);
+      float diff = Math.Abs(frontSize * 72f / g.DpiX - value);
       if (diff < bestDiff)
       {
         bestDiff = diff;
@@ -177,7 +176,7 @@ public class ResizeForm : Form
         }
         finally
         {
-          ResumeLayout(true);
+          ResumeLayout(performLayout: true);
           Refresh();
         }
       });
@@ -198,7 +197,7 @@ public class ResizeForm : Form
     Icon = (Icon) resources.GetObject("$this.Icon");
     Name = "ResizeForm";
     DpiChanged += OnDpiChanged;
-    ResumeLayout(false);
+    ResumeLayout(performLayout: false);
   }
 
   /// <summary>
@@ -209,6 +208,6 @@ public class ResizeForm : Form
   {
     SuspendLayout();
     PerformLayout();
-    ResumeLayout(true);
+    ResumeLayout(performLayout: true);
   }
 }

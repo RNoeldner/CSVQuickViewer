@@ -14,3 +14,6 @@ dotnet_analyzer_diagnostic.category-Globalization.severity = none
 MA0051.maximum_lines_per_method = 160
 MA0051.maximum_statements_per_method = 60
 MA0051.skip_local_functions = true # skip local functions when counting statements
+
+# IDE0090: Use 'new(...)'
+dotnet_diagnostic.IDE0090.severity = none

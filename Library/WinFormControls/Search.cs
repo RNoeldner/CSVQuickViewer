@@ -199,7 +199,7 @@ public class Search : UserControl
     Controls.Add(m_SearchTextBoxText);
     Name = "Search";
     Size = new Size(204, 24);
-    ResumeLayout(false);
+    ResumeLayout(performLayout: false);
     PerformLayout();
   }
 
