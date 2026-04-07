@@ -18,7 +18,6 @@ namespace CsvTools
     private ToolStripButton m_ToolStripButtonUniqueValues;
     private ToolStripComboBox m_ToolStripComboBoxFilterType;
     private ToolStripContainer m_ToolStripContainer;
-    private ToolStripLabel m_ToolStripLabelCount;
     private ToolStripTextBox m_ToolStripTextBoxPos;
     private ToolStrip m_ToolStripTop;
     private Search m_Search;
@@ -315,7 +314,7 @@ namespace CsvTools
       // timerLoadRemain
       // 
       timerLoadRemain.Interval = 500;
-      timerLoadRemain.Tick += timerLoadRemain_Tick;
+      timerLoadRemain.Tick += TimerLoadRemain_Tick;
       // 
       // m_NavRepeatTimer
       // 

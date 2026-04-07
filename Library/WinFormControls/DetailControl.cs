@@ -202,7 +202,6 @@ public sealed partial class DetailControl : UserControl
   /// <summary>
   ///   Gets or sets a value indicating whether this is a read only.
   /// </summary>
-  /// <value><c>true</c> if read only; otherwise, <c>false</c>.</value>
   [Browsable(true)]
   [DefaultValue(false)]
   [Category("Behavior")]
@@ -238,7 +237,6 @@ public sealed partial class DetailControl : UserControl
   /// <summary>
   ///   Gets or sets a value indicating whether to allow filtering.
   /// </summary>
-  /// <value><c>true</c> if filter button should be shown; otherwise, <c>false</c>.</value>
   [Browsable(true)]
   [DefaultValue(true)]
   [Category("Appearance")]
@@ -257,7 +255,6 @@ public sealed partial class DetailControl : UserControl
   /// <summary>
   ///   Gets or sets a value indicating whether to show buttons.
   /// </summary>
-  /// <value><c>true</c> if buttons are to be shown; otherwise, <c>false</c>.</value>
   [Browsable(true)]
   [DefaultValue(true)]
   [Category("Appearance")]
@@ -800,8 +797,8 @@ public sealed partial class DetailControl : UserControl
   /// Asynchronously loads a new batch of data from the source file and merges it into the existing <see cref="DataTable"/>.
   /// </summary>
   /// <param name="loadAllRemaining">
-  /// If <c>true</c>, the progress dialog is shown in the background (SendToBack) to allow continued UI interaction;
-  /// if <c>false</c>, the progress dialog is shown modally over the parent form.
+  /// If true, the progress dialog is shown in the background (SendToBack) to allow continued UI interaction;
+  /// if false, the progress dialog is shown modally over the parent form.
   /// </param>
   /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
   /// <remarks>
@@ -1024,7 +1021,9 @@ public sealed partial class DetailControl : UserControl
         col.HeaderCell.SortGlyphDirection = SortOrder.None;
 
       // 4. Update Column Visibility (Precise logic based on GetColumns)
+#pragma warning disable IDE0301 // Simplify collection initialization
       var m_ColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
+#pragma warning restore IDE0301 // Simplify collection initialization
 
       // If we filter out all columns do not change visibility to avoid a blank grid
       if (m_ColumnsInView.Count + m_UniqueFieldName.Count>0)
@@ -1036,8 +1035,8 @@ public sealed partial class DetailControl : UserControl
         }
       }
       // 5. Restore Sorting
-      if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
-        Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+        Sort(oldSortedColumn!, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
 
       // 6. Restore Position
       try
@@ -1123,7 +1122,7 @@ public sealed partial class DetailControl : UserControl
     m_ActiveNavButton = null;
   }
 
-  private void timerLoadRemain_Tick(object? sender, EventArgs e)
+  private void TimerLoadRemain_Tick(object? sender, EventArgs e)
   {
     timerLoadRemain.Enabled=false;
     _ = LoadNextBatch(loadAllRemaining: true);
@@ -1202,13 +1201,12 @@ public sealed partial class DetailControl : UserControl
     await m_ToolStripButtonStore.RunWithHourglassAsync(async () =>
     {
       // Extract the column names first
-      string[] columnsToExport = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+      var columnsToExport = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
           .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
           .OrderBy(col => col.DisplayIndex)
-          .Select(col => col.DataPropertyName)
-          .ToArray();
+          .Select(col => col.DataPropertyName);
       // Create the snapshot of the filtered/sorted data
-      using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(distinct: false, columnsToExport);
+      using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(distinct: false, [.. columnsToExport]);
 #if NET5_0_OR_GREATER
       var wrapper = new DataTableWrapper(exportTable);
       await using (wrapper.ConfigureAwait(false))

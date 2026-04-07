@@ -280,7 +280,7 @@ public sealed class FormPasswordAndKey : ResizeForm
         "Key file (*.asc;*.key;*.ascii)|*.ascii;*.key;*.asc|All files (*.*)|*.*",
         split.FileName);
 
-      if (newFileName is null || newFileName.Length == 0)
+      if (string.IsNullOrEmpty(newFileName))
         return;
       m_TextBoxKeyFile.Text = newFileName;
     }

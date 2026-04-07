@@ -29,7 +29,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// <param name="condition">The SQL condition to be applied for filtering this value.</param>
   /// <param name="count">The number of records that have this value.</param>
   /// <param name="start">The lower bound of the cluster range. Should be set if HasEnclosingCluster is used non string types</param>
-  /// <param name="end">The upper bound of the cluster range. Can be <c>null</c> if unbounded.</param>
+  /// <param name="end">The upper bound of the cluster range. Can be null if unbounded.</param>
   public ValueCluster(string display, string condition, int count, object? start, object? end)
   {
     Display = display;

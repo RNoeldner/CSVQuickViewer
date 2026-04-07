@@ -142,11 +142,11 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <param name="values">The collection of raw values from which clusters are derived.</param>
   /// <param name="maxNumber">The upper bound on the number of clusters to generate.</param>
   /// <param name="combine">
-  /// Indicates whether small or low-density clusters should be merged to meet 
+  /// Indicates whether small or low-density clusters should be merged to meet
   /// the maximum cluster count or to improve distribution.
   /// </param>
   /// <param name="even">
-  /// If true, attempts to distribute values evenly across clusters; 
+  /// If true, attempts to distribute values evenly across clusters;
   /// otherwise, natural groupings are preserved.
   /// </param>
   /// <param name="maxSeconds">
@@ -156,7 +156,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// Provides progress updates and allows cancellation during cluster rebuilding.
   /// </param>
   /// <returns>
-  /// A <see cref="BuildValueClustersResult"/> containing the newly generated clusters 
+  /// A <see cref="BuildValueClustersResult"/> containing the newly generated clusters
   /// and associated metadata.
   /// </returns>
   public BuildValueClustersResult ReBuildValueClusters(object[] values, int maxNumber,
@@ -187,7 +187,7 @@ public sealed class ColumnFilterLogic : ObservableObject
         AddValueClusterNull(m_DataPropertyNameEscape, countNull);
         foreach (var newGroup in newGroups)
           AddOrUpdate(newGroup);
-        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+        return (newGroups.Count > 0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
       //----------------------------------------------------------------------
@@ -203,7 +203,7 @@ public sealed class ColumnFilterLogic : ObservableObject
         foreach (var newGroup in newGroups.Where(newGroup => newGroup.Start is DateTime start && newGroup.End is DateTime end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
 
-        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+        return (newGroups.Count > 0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
       //----------------------------------------------------------------------
@@ -220,7 +220,7 @@ public sealed class ColumnFilterLogic : ObservableObject
         foreach (var newGroup in newGroups.Where(g => g.Start is long start && g.End is long end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
 
-        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+        return (newGroups.Count > 0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
       //----------------------------------------------------------------------
@@ -237,7 +237,7 @@ public sealed class ColumnFilterLogic : ObservableObject
         foreach (var newGroup in newGroups.Where(newGroup => newGroup.Start is double start && newGroup.End is double end && !HasEnclosingCluster(start, end)))
           AddOrUpdate(newGroup);
 
-        return (newGroups.Count>0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
+        return (newGroups.Count > 0) ? BuildValueClustersResult.ListFilled : BuildValueClustersResult.NoValues;
       }
 
       return BuildValueClustersResult.WrongType;
@@ -271,15 +271,17 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <note>Not sure if we need this...</note>
   public void AddOrUpdate(ValueCluster item)
   {
-    var oldActive = ActiveValueClusterCollection.FirstOrDefault(x => x.Display.Equals(item.Display));
+    var oldActive = ActiveValueClusterCollection.Find(x => x.Display.Equals(item.Display, StringComparison.OrdinalIgnoreCase));
     if (oldActive != null)
     {
       ActiveValueClusterCollection.Remove(oldActive);
-      if (item.Count>0)
+      if (item.Count > 0)
         ActiveValueClusterCollection.Add(item);
     }
-    else if (item.Count>0)
+    else if (item.Count > 0)
+    {
       ValueClusterCollection.Add(item);
+    }
   }
 
   public void AddValueClusterNull(string escapedName, int count) =>
@@ -291,10 +293,9 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <typeparam name="T">A value type that implements <see cref="IComparable{T}"/>.</typeparam>
   /// <param name="minValue">The start of the range to check.</param>
   /// <param name="maxValue">The end of the range to check.</param>
-  /// 
   /// <returns>
-  /// <c>true</c> if at least one cluster starts at or before <paramref name="minValue"/> 
-  /// and ends at or after <paramref name="maxValue"/> (or is unbounded); otherwise, <c>false</c>.
+  /// true if at least one cluster starts at or before <paramref name="minValue"/>
+  /// and ends at or after <paramref name="maxValue"/> (or is unbounded); otherwise, false.
   /// </returns>
   public bool HasEnclosingCluster<T>(T minValue, T maxValue) where T : struct, IComparable<T>
   {
@@ -313,7 +314,6 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <summary>
   ///   Gets a value indicating whether this <see cref="ColumnFilterLogic" /> is oldActive.
   /// </summary>
-  /// <value><c>true</c> if oldActive; otherwise, <c>false</c>.</value>
   public bool Active
   {
     get => m_Active;
@@ -333,17 +333,16 @@ public sealed class ColumnFilterLogic : ObservableObject
   private void ValidateDataPropertyName()
   {
     // Unescape the name in case its escaped
-    if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
-        && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
+    if (m_DataPropertyName.Length > 2 && m_DataPropertyName[0] == '[' && m_DataPropertyName[m_DataPropertyName.Length - 1] == ']')
     {
       m_DataPropertyName = m_DataPropertyName.Substring(1, m_DataPropertyName.Length - 2).Replace(@"\]", "]")
         .Replace(@"\\", @"\");
     }
 
-    m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
+    m_DataPropertyNameEscape = $"[{m_DataPropertyName.SqlName()}]";
   }
 
-  public string DataPropertyName=> m_DataPropertyName;
+  public string DataPropertyName => m_DataPropertyName;
 
   public string DataPropertyNameEscaped => m_DataPropertyNameEscape;
 
@@ -383,8 +382,8 @@ public sealed class ColumnFilterLogic : ObservableObject
     get => m_ValueDateTime;
     set
     {
+      // in case the text is changed rebuild the filter
       if (SetProperty(ref m_ValueDateTime, value))
-        // in case the text is changed rebuild the filter
         ApplyFilter();
     }
   }
@@ -398,14 +397,18 @@ public sealed class ColumnFilterLogic : ObservableObject
     get => m_ValueText;
     set
     {
+      // in case the text is changed rebuild the filter
       if (SetProperty(ref m_ValueText, value))
-        // in case the text is changed rebuild the filter
         ApplyFilter();
     }
   }
 
+#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
+#pragma warning disable S3887 // Mutable, non-private fields should not be "readonly"
   public readonly List<ValueCluster> ValueClusterCollection = new List<ValueCluster>();
   public readonly List<ValueCluster> ActiveValueClusterCollection = new List<ValueCluster>();
+#pragma warning restore S3887 // Mutable, non-private fields should not be "readonly"
+#pragma warning restore MA0016 // Prefer using collection abstraction instead of implementation
 
   public void SetActiveStatus(ValueCluster cluster, bool active)
   {
@@ -433,11 +436,14 @@ public sealed class ColumnFilterLogic : ObservableObject
     retValues.AddRange(new[] { cOperatorEquals, cOperatorNotEqual });
 
     if (columnDataType == DataTypeEnum.String)
+    {
       retValues.AddRange(new[] { cOperatorLonger, cOperatorShorter, cOperatorSmallerEqual, cOperatorBiggerEqual });
-
+    }
     else if (columnDataType == DataTypeEnum.DateTime || columnDataType == DataTypeEnum.Numeric || columnDataType == DataTypeEnum.Integer)
+    {
       retValues.AddRange(
-        new[] { cOperatorSmaller, cOperatorSmallerEqual, cOperatorBiggerEqual, cOperatorBigger });
+            new[] { cOperatorSmaller, cOperatorSmallerEqual, cOperatorBiggerEqual, cOperatorBigger });
+    }
 
     // everyone gets NUll comparison
     retValues.AddRange(new[] { OperatorIsNull, cOperatorIsNotNull });
@@ -448,7 +454,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   {
     if (string.IsNullOrEmpty(text))
       return false;
-    return !string.Equals(text, cOperatorIsNotNull, StringComparison.OrdinalIgnoreCase)&& !string.Equals(text, OperatorIsNull, StringComparison.OrdinalIgnoreCase);
+    return !string.Equals(text, cOperatorIsNotNull, StringComparison.OrdinalIgnoreCase) && !string.Equals(text, OperatorIsNull, StringComparison.OrdinalIgnoreCase);
   }
 
   /// <summary>
@@ -484,10 +490,15 @@ public sealed class ColumnFilterLogic : ObservableObject
     else
     {
       if (DataType == DataTypeEnum.DateTime)
-        ValueDateTime = (DateTime) value;
+      {
+        ValueDateTime = (DateTime)value;
+      }
       else
+      {
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         ValueText = Convert.ToString(value) ?? string.Empty;
+      }
+
       Operator = cOperatorEquals;
     }
 
@@ -515,22 +526,25 @@ public sealed class ColumnFilterLogic : ObservableObject
       case DataTypeEnum.Numeric:
         var decValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
                          CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                         false, false) ??
+                        allowPercentage: false, currencyRemoval: false) ??
                        value.StringToDecimal('.', char.MinValue, false, false);
-        if (decValue.HasValue)
-          return string.Format(CultureInfo.InvariantCulture, "{0}", decValue.Value);
-        else
+        {
+          if (decValue.HasValue)
+            return string.Format(CultureInfo.InvariantCulture, "{0}", decValue.Value);
+
           return "0";
+        }
 
       case DataTypeEnum.Integer:
         var lngValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),
                          CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.FromText(),
-                         false, false) ??
+allowPercentage: false, currencyRemoval: false) ??
                        value.StringToDecimal('.', char.MinValue, false, false);
-        if (lngValue.HasValue)
-          return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue.Value.ToInt64());
-        else
+        {
+          if (lngValue.HasValue)
+            return string.Format(CultureInfo.InvariantCulture, "{0}", lngValue.Value.ToInt64());
           return "0";
+        }
 
       case DataTypeEnum.Boolean:
         var boolValue = value.StringToBoolean("x".AsSpan(), ReadOnlySpan<char>.Empty);
@@ -567,7 +581,7 @@ public sealed class ColumnFilterLogic : ObservableObject
     }
     // Making sure end up with "col LIKE '% %'"
     m_ValueText = m_ValueText.Trim();
-    if (string.IsNullOrEmpty(m_ValueText) && (string.Equals(m_Operator, cOperatorContains, StringComparison.OrdinalIgnoreCase)|| string.Equals(m_Operator, cOperatorLonger, StringComparison.OrdinalIgnoreCase)|| string.Equals(m_Operator, cOperatorShorter, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorBegins, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorEnds, StringComparison.OrdinalIgnoreCase)))
+    if (string.IsNullOrEmpty(m_ValueText) && (string.Equals(m_Operator, cOperatorContains, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorLonger, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorShorter, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorBegins, StringComparison.OrdinalIgnoreCase) || string.Equals(m_Operator, cOperatorEnds, StringComparison.OrdinalIgnoreCase)))
     {
       return string.Empty;
     }
@@ -578,28 +592,22 @@ public sealed class ColumnFilterLogic : ObservableObject
         if (!string.IsNullOrEmpty(m_ValueText))
         {
           if (DataType == DataTypeEnum.String)
-            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape,
-              m_ValueText.StringEscapeLike());
-          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'",
-            m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+            return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+          return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '%{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
         }
 
         break;
 
       case cOperatorLonger:
-        return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape,
-          FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
+        return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
       case cOperatorShorter:
-        return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape,
-          FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
+        return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, FormatValue(m_ValueText.AsSpan(), DataTypeEnum.Integer));
 
       case cOperatorBegins:
         if (DataType == DataTypeEnum.String)
-          return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape,
-            m_ValueText.StringEscapeLike());
-        return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'",
-          m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+          return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
+        return string.Format(CultureInfo.InvariantCulture, "Convert({0},'System.String') LIKE '{1}%'", m_DataPropertyNameEscape, m_ValueText.StringEscapeLike());
 
       case cOperatorEnds:
         if (DataType == DataTypeEnum.String)
@@ -616,13 +624,11 @@ public sealed class ColumnFilterLogic : ObservableObject
           return m_Operator switch
           {
             cOperatorEquals => string.Format(CultureInfo.InvariantCulture,
-              "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue,
-              m_ValueDateTime.AddDays(1)),
+              "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1)),
             cOperatorNotEqual => string.Format(CultureInfo.InvariantCulture,
-              "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue,
-              m_ValueDateTime.AddDays(1)),
+              "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1)),
             _ => string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator,
-              filterValue)
+              filterValue),
           };
         }
 

@@ -55,7 +55,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
   /// Exposes the cancellation token for the running operation.
   /// </summary>
   public CancellationToken CancellationToken =>
-    m_IsDisposed ? new CancellationToken(true) : CancellationTokenSource.Token;
+    m_IsDisposed ? new CancellationToken(canceled: true) : CancellationTokenSource.Token;
 
   /// <summary>
   /// Maximum value of the progress bar.
@@ -238,9 +238,9 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
     ShowInTaskbar = false;
     Text = "Process";
     FormClosing += Progress_FormClosing;
-    m_TableLayoutPanel.ResumeLayout(false);
+    m_TableLayoutPanel.ResumeLayout(performLayout: false);
     m_TableLayoutPanel.PerformLayout();
-    ResumeLayout(false);
+    ResumeLayout(performLayout: false);
   }
 
   /// <summary>

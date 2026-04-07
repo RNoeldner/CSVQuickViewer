@@ -86,7 +86,9 @@ public static class WindowsAPICodePackWrapper
         col.Add(new CommonFileDialogFilter(parts[part], parts[part + 1]));
     }
     else
+    {
       col.Add(new CommonFileDialogFilter(filter, filter));
+    }
   }
 
   public static bool IsDialogOpen { get; private set; }

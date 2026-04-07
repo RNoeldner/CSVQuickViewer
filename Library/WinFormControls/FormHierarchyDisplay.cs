@@ -128,8 +128,7 @@ public class FormHierarchyDisplay : ResizeForm
     var pos = node.Text.LastIndexOf(" - Direct ", StringComparison.Ordinal);
     if (pos==-1)
       return node.Text;
-    else
-      return node.Text.Substring(0, pos);
+    return node.Text.Substring(0, pos);
   }
 
   /// <summary>
@@ -249,7 +248,7 @@ public class FormHierarchyDisplay : ResizeForm
       counter++;
       intervalAction.Invoke(process, $"Parent found {counter:N0}/{max:N0} ", counter);
       var id = dataRow[dataColumnID.Ordinal].ToString();
-      if (id is null || id.Length == 0)
+      if (string.IsNullOrEmpty(id))
         continue;
 
       var title = new StringBuilder();
@@ -351,7 +350,7 @@ public class FormHierarchyDisplay : ResizeForm
     }
   }
 
-  private void copyPathToolStripMenuItem_Click(object? sender, EventArgs e)
+  private void CopyPathToolStripMenuItem_Click(object? sender, EventArgs e)
   {
     // get the chain up till root for current node like Selected -> parent1 -> parent2
     var sb = new StringBuilder();
@@ -373,7 +372,7 @@ public class FormHierarchyDisplay : ResizeForm
     sb.ToString().SetClipboard();
   }
 
-  private void copyPathTreeToolStripMenuItem_Click(object sender, EventArgs e)
+  private void CopyPathTreeToolStripMenuItem_Click(object? sender, EventArgs e)
   {
     var relevant = new HashSet<TreeNode>();
 
@@ -553,7 +552,7 @@ public class FormHierarchyDisplay : ResizeForm
     copyPathUpToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.Shift | Keys.C;
     copyPathUpToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
     copyPathUpToolStripMenuItem.Text = "Copy Paths (Selected Nodes)";
-    copyPathUpToolStripMenuItem.Click += copyPathToolStripMenuItem_Click;
+    copyPathUpToolStripMenuItem.Click += CopyPathToolStripMenuItem_Click;
     // 
     // copyPathTreeToolStripMenuItem
     // 
@@ -561,7 +560,7 @@ public class FormHierarchyDisplay : ResizeForm
     copyPathTreeToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.C;
     copyPathTreeToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
     copyPathTreeToolStripMenuItem.Text = "Copy Hierarchy (Selected Nodes)";
-    copyPathTreeToolStripMenuItem.Click += copyPathTreeToolStripMenuItem_Click;
+    copyPathTreeToolStripMenuItem.Click += CopyPathTreeToolStripMenuItem_Click;
     // 
     // labelFind
     // 
@@ -647,7 +646,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_TextBoxValue.TabIndex = 2;
     m_ToolTip.SetToolTip(m_TextBoxValue, "Search text. Supports wildcards (* and ?).");
     m_TextBoxValue.TextChanged += TimerSearchRestart;
-    m_TextBoxValue.KeyDown += m_TextBoxValue_KeyDown;
+    m_TextBoxValue.KeyDown += TextBoxValue_KeyDown;
     // 
     // m_ComboBoxDisplay2
     // 
@@ -691,7 +690,7 @@ public class FormHierarchyDisplay : ResizeForm
     ResumeLayout(false);
   }
 
-  private void m_TextBoxValue_KeyDown(object? sender, KeyEventArgs e)
+  private void TextBoxValue_KeyDown(object? sender, KeyEventArgs e)
   {
     if (e.KeyValue == (char) Keys.Enter
       ||  e.KeyValue == (char) Keys.F3)
@@ -704,20 +703,27 @@ public class FormHierarchyDisplay : ResizeForm
 
   private bool MarkInCycle(TreeData treeData, HashSet<TreeData> visitedEntries)
   {
+    // If the node is already in the set, we've looped back to an ancestor.
     if (visitedEntries.Contains(treeData))
     {
       treeData.InCycle = true;
       return true;
     }
 
+    // Add to current path
     visitedEntries.Add(treeData);
-    foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
-    {
-      treeData.InCycle = true; // Propagate cycle up the tree
-      return true;             // Stop further processing once a cycle is found
-    }
 
-    return false;
+    try
+    {
+      // Check if any child leads to a cycle
+      treeData.InCycle = treeData.Children.Exists(child => MarkInCycle(child, visitedEntries));
+      return treeData.InCycle;
+    }
+    finally
+    {
+      // BACKTRACK: Remove the node so it doesn't interfere with other branches
+      visitedEntries.Remove(treeData);
+    }
   }
 
   private void Search(string text)
@@ -736,8 +742,11 @@ public class FormHierarchyDisplay : ResizeForm
       if (currentFound==validNode.Count-1)
         currentFound=-1;
       for (int i = validNode.Count- (currentFound+1); i>1; i--)
+      {
         if (!(validNode[currentFound+i].Parent?.IsExpanded?? false))
           validNode[currentFound+i].EnsureVisible();
+      }
+
       validNode[currentFound+1].EnsureVisible();
       m_TreeView.SelectedNode = validNode[currentFound+1];
     }
@@ -795,7 +804,7 @@ public class FormHierarchyDisplay : ResizeForm
       // Add top-level nodes 
       foreach (var rootData in m_TreeData.Where(td => string.IsNullOrEmpty(td.ParentID) && td.Children.Count>0))
       {
-        foreach(var nodes in rootData.Children)
+        foreach (var nodes in rootData.Children)
           m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
       }
 
@@ -808,14 +817,14 @@ public class FormHierarchyDisplay : ResizeForm
       m_TreeView.Nodes.Add(rootNode);
 
       foreach (var treeData in m_TreeData.Where(td => !td.Visited))
-          MarkInCycle(treeData, new HashSet<TreeData>());
+        MarkInCycle(treeData, new HashSet<TreeData>());
 
       cancellationToken.ThrowIfCancellationRequested();
       Extensions.ProcessUIElements();
 
       // Add nodes that are in cycles
       foreach (var root in m_TreeData.Where(td => !td.Visited && td.InCycle))
-          AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
+        AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
 
       Extensions.ProcessUIElements();
     }
@@ -851,10 +860,7 @@ public class FormHierarchyDisplay : ResizeForm
         () =>
         {
           if (m_ComboBoxId!.SelectedItem != null && m_ComboBoxParentId!.SelectedItem != null)
-            BuildTree(m_ComboBoxParentId.Text,
-              m_ComboBoxId.Text,
-              m_ComboBoxDisplay1.Text,
-              m_ComboBoxDisplay2.Text);
+            BuildTree(m_ComboBoxParentId.Text, m_ComboBoxId.Text, m_ComboBoxDisplay1.Text, m_ComboBoxDisplay2.Text);
         });
     }, m_CancellationTokenSource.Token);
   }
@@ -867,7 +873,9 @@ public class FormHierarchyDisplay : ResizeForm
 
   public sealed class TreeData
   {
+#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
     public readonly List<TreeData> Children = new List<TreeData>();
+#pragma warning restore MA0016 // Prefer using collection abstraction instead of implementation
     public readonly string ID;
     public readonly string Title;
     public bool InCycle;
@@ -879,9 +887,9 @@ public class FormHierarchyDisplay : ResizeForm
     public TreeData(string id, string title, string? parentID = null)
     {
       if (string.IsNullOrEmpty(id))
-        throw new ArgumentException(@"ID can not be empty", nameof(id));
+        throw new ArgumentException("ID can not be empty", nameof(id));
       if (string.IsNullOrEmpty(title))
-        throw new ArgumentException(@"Title can not be empty", nameof(title));
+        throw new ArgumentException("Title can not be empty", nameof(title));
       ID = id;
       Title = title;
       ParentID = parentID ?? string.Empty;

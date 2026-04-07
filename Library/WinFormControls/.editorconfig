@@ -17,3 +17,6 @@ MA0051.skip_local_functions = true # skip local functions when counting statemen
 
 # IDE0090: Use 'new(...)'
 dotnet_diagnostic.IDE0090.severity = none
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = none

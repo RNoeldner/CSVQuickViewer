@@ -32,7 +32,7 @@ public static class MessageBox
     double timeout = 4.0)
   {
     using var tm = new TimedMessage();
-    return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
+    return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, button1Text: null, button2Text: null, button3Text: null);
   }
 
   /// <summary>
@@ -96,7 +96,7 @@ public static class MessageBox
     using var tm = new TimedMessage();
     tm.Html = html;
     tm.Size = new Size(600, 450);
-    return tm.ShowDialog(string.Empty, title, buttons, icon, defaultButton, timeout, null, null, null);
+    return tm.ShowDialog(string.Empty, title, buttons, icon, defaultButton, timeout, button1Text: null, button2Text: null, button3Text: null);
   }
 
   public static DialogResult ShowBig(

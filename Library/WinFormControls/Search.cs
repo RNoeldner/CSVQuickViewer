@@ -26,13 +26,16 @@ using System.Windows.Forms;
 public class Search : UserControl
 {
   private IContainer components;
+#pragma warning disable S1450 // Private fields only used as local variables in methods should become local variables
   private Button m_BtnCancel = new Button();
   private Button m_BtnNext = new Button();
   private Button m_BtnPrevious = new Button();
+  private ToolTip toolTip;
+#pragma warning restore S1450 // Private fields only used as local variables in methods should become local variables
   private string m_SearchText = string.Empty;
   private TextBox m_SearchTextBoxText;
   private Timer m_TimerChange;
-  private ToolTip toolTip;
+  
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="Search" /> class.

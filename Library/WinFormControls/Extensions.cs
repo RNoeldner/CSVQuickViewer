@@ -31,7 +31,13 @@ namespace CsvTools;
 /// </summary>
 public static class Extensions
 {
-  public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+  public static readonly bool IsWindows =
+#if NET5_0_OR_GREATER
+      OperatingSystem.IsWindows();
+#else
+      RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#endif
 
   /// <summary>
   ///   Handles a CTRL-A select all in the form.
@@ -57,7 +63,7 @@ public static class Extensions
     if (sender == frm)
       lv = frm.ActiveControl as ListView;
 
-    if (lv is null || !lv.MultiSelect)
+    if (lv?.MultiSelect != true)
       return;
     foreach (ListViewItem item in lv.Items)
       item.Selected = true;
@@ -71,7 +77,6 @@ public static class Extensions
   ///   The owner form, in case the owner is minimized or closed this progress will do the same
   /// </param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// 
   /// <returns>A process display, if the stetting want a process</returns>
   public static FormProgress GetProgress(
     this IFileSetting fileSetting,
@@ -94,11 +99,11 @@ public static class Extensions
   /// <exception cref="ArgumentNullException">Thrown if <paramref name="action"/> is null.</exception>
   /// <remarks>
   /// <para>
-  ///   <b>UI Blocking:</b> This is a synchronous method and will block the UI message loop. 
+  ///   <b>UI Blocking:</b> This is a synchronous method and will block the UI message loop.
   ///   For long-running tasks, consider <see cref="InvokeWithHourglassAsync(Func{Task})"/>.
   /// </para>
   /// <para>
-  ///   <b>Thread Safety:</b> Must be called from the UI thread. <see cref="Cursor.Current"/> 
+  ///   <b>Thread Safety:</b> Must be called from the UI thread. <see cref="Cursor.Current"/>
   ///   is thread-specific in Windows Forms.
   /// </para>
   /// </remarks>
@@ -127,7 +132,7 @@ public static class Extensions
   /// <exception cref="ArgumentNullException">Thrown if <paramref name="action"/> is null.</exception>
   /// <remarks>
   /// <para>
-  ///   <b>Threading:</b> This method does not use <c>ConfigureAwait(false)</c>. It captures 
+  ///   <b>Threading:</b> This method does not use <c>ConfigureAwait(false)</c>. It captures
   ///   the UI <see cref="SynchronizationContext"/> to safely restore the cursor on the UI thread.
   /// </para>
   /// </remarks>
@@ -193,7 +198,7 @@ public static class Extensions
   }
 
   /// <summary>
-  /// Launches the default OS application for a given path or URL. 
+  /// Launches the default OS application for a given path or URL.
   /// Handles known .NET Core issues with shell execution on different platforms.
   /// </summary>
   public static void OpenDefaultApplication(string pathOrUrl)
@@ -213,7 +218,7 @@ public static class Extensions
         Process.Start(new ProcessStartInfo
         {
           FileName = pathOrUrl,
-          UseShellExecute = true
+          UseShellExecute = true,
         });
       }
 #if NET5_0_OR_GREATER
@@ -299,18 +304,20 @@ public static class Extensions
   }
 
   /// <summary>
-  /// Ensures an action is run on an STA (Single Threaded Apartment) thread, 
+  /// Ensures an action is run on an STA (Single Threaded Apartment) thread,
   /// which is required for certain Windows features like the Clipboard or File Dialogs.
   /// </summary>
   public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
   {
     if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+    {
       action.Invoke();
+    }
     else
     {
       var thread = new Thread(action.Invoke)
       {
-        IsBackground = true
+        IsBackground = true,
       };
       thread.SetApartmentState(ApartmentState.STA);
       thread.Start();
@@ -329,7 +336,7 @@ public static class Extensions
   /// <param name="action">The synchronous logic to execute.</param>
   /// <param name="frm">The parent form used for error reporting.</param>
   /// <remarks>
-  /// <b>Re-entrancy:</b> Disabling the item prevents duplicate triggers if the user clicks 
+  /// <b>Re-entrance:</b> Disabling the item prevents duplicate triggers if the user clicks
   /// while the UI thread is processing.
   /// </remarks>
   public static void RunWithHourglass(this ToolStripItem item, Action action, Form frm)
@@ -410,12 +417,15 @@ public static class Extensions
 
     // Ensure control handle is created (lazy creation)
     if (!uiElement.IsHandleCreated)
+    {
       try { _ = uiElement.Handle; }
       catch
       {
         // Any exception while checking handle => skip
         return;
       }
+    }
+
     SafeInvokeNoHandleNeeded(uiElement, action);
 
     ProcessUIElements();
@@ -457,7 +467,7 @@ public static class Extensions
       => RunStaThread(() =>
       {
         Clipboard.Clear();
-        Clipboard.SetDataObject(dataObject, false, 5, 200);
+        Clipboard.SetDataObject(dataObject, copy: false, 5, 200);
       }, timeoutMilliseconds);
 
   public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
@@ -472,7 +482,7 @@ public static class Extensions
 
     cbo.DataSource = Enum.GetValues(typeof(T))
       .Cast<T>()
-      .Where(item => doNotShow is null || !doNotShow.Contains(item))
+      .Where(item => doNotShow?.Contains(item) != true)
       .Select(item => new DisplayItem<T>(item, item.Display()))
       .ToList();
     cbo.SelectedValue = currentValue;

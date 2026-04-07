@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace CsvTools
@@ -51,12 +52,12 @@ namespace CsvTools
       values.Sort(StringComparer.OrdinalIgnoreCase);
 
       progress.Report(new ProgressInfo("Preparing value overview…", (long) (cTypedProgress * cMaxProgress)));
-      int[] clusterLengths = { 1, 2, 3, 4, 5, 8, 12 };
+      int[] clusterLengths = [1, 2, 3, 4, 5, 8, 12];
 
       // Prepare cluster-prefix collections
       var clusters = clusterLengths.ToDictionary(
           length => length,
-          length => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+          _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
       var clusterIndividual = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -290,9 +291,9 @@ namespace CsvTools
             int count = Items.Count;
 
             // NOTE: adjust LEN -> LENGTH if your SQL dialect requires it
-            var sql = $"(LEN({escapedName}) = {Key})";
+            var sql = $"(LEN({escapedName}) = {Key.ToString(CultureInfo.InvariantCulture)})";
 
-            valueClusters.Add(new ValueCluster($"Length {Key}", sql, count)
+            valueClusters.Add(new ValueCluster($"Length {Key.ToString(CultureInfo.CurrentCulture)}", sql, count)
             );
           }
         }
@@ -343,7 +344,10 @@ namespace CsvTools
               {
                 count++; j++;
               }
-              else break;
+              else
+              {
+                break;
+              }
             }
             break;
           }

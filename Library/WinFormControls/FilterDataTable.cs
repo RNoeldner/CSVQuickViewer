@@ -73,8 +73,8 @@ public sealed class FilterDataTable : DisposableBase
   /// <param name="newFilterType">The <see cref="RowFilterTypeEnum"/> criteria used to identify matching rows.</param>
   /// <param name="token">A <see cref="CancellationToken"/> used to abort the filtering process (e.g., if the control is disposed or a new filter is requested).</param>
   /// <returns>
-  /// A <see cref="Task{DataTable}"/> containing the filtered rows. 
-  /// Returns the original source table if <paramref name="newFilterType"/> is <see cref="RowFilterTypeEnum.All"/>.
+  /// A <see cref="Task{DataTable}"/> containing the filtered rows.
+  /// Returns the original source table if <paramref name="newFilterType"/> is <see cref="RowFilterTypeEnum.All"/>
   /// </returns>
   /// <remarks>
   /// This method is optimized for large datasets through several key strategies:
@@ -103,7 +103,9 @@ public sealed class FilterDataTable : DisposableBase
       m_CacheColumns[col] = true;
 
     if (newFilterType == RowFilterTypeEnum.All)
+    {
       (numWarnings, numErrors, numWarningOrError) = await ParseTableAsync(OriginalTable, (col) => m_CacheColumns[col] = false, null, token).ConfigureAwait(false);
+    }
     else
     {
       try
@@ -118,7 +120,7 @@ public sealed class FilterDataTable : DisposableBase
             {
               if ((rowIssues & newFilterType) != 0)
                 buffer.Add(row);
-              return (buffer.Count >= effectiveLimit);
+              return buffer.Count >= effectiveLimit;
             }, token).ConfigureAwait(false);
 
         // 4. Critical Section: Bulk Import

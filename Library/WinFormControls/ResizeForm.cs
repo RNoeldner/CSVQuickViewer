@@ -95,6 +95,7 @@ public class ResizeForm : Form
   /// </summary>
   protected override void OnMouseWheel(MouseEventArgs e)
   {
+#pragma warning disable MA0099 // Use Explicit enum value instead of 0
     if ((ModifierKeys & Keys.Control) != 0)
     {
       var newSize = m_CurrentFontSize + (e.Delta > 0 ? 1 : -1);
@@ -109,6 +110,7 @@ public class ResizeForm : Form
         FontConfig.FontSize = (m_CurrentFontSize * 72f) / g.DpiX;
       }
     }
+#pragma warning restore MA0099 // Use Explicit enum value instead of 0
     base.OnMouseWheel(e);
   }
 
@@ -135,11 +137,11 @@ public class ResizeForm : Form
   {
     using Graphics g = CreateGraphics();
     int bestSize = 0;
-    float bestDiff = Math.Abs(MinFontSize * 72f / g.DpiX - value);
+    float bestDiff = Math.Abs((MinFontSize * 72f / g.DpiX) - value);
 
     for (int frontSize = MinFontSize; frontSize <= MaxFontSize; frontSize++)
     {
-      float diff = Math.Abs(frontSize * 72f / g.DpiX - value);
+      float diff = Math.Abs((frontSize * 72f / g.DpiX) - value);
       if (diff < bestDiff)
       {
         bestDiff = diff;

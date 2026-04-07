@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -216,13 +217,13 @@ public class MultiSelectTreeView : TreeView
 
     var minLevel = int.MaxValue;
     var maxLevel = int.MinValue;
-    foreach (var item in SelectedTreeNode)
+    foreach (var itemLevel in SelectedTreeNode.Select(x=>x.Level))
     {
-      if (minLevel > item.Level)
-        minLevel = item.Level;
+      if (minLevel > itemLevel)
+        minLevel = itemLevel;
 
-      if (maxLevel < item.Level)
-        maxLevel = item.Level;
+      if (maxLevel < itemLevel)
+        maxLevel = itemLevel;
     }
 
     var buffer = new StringBuilder();
