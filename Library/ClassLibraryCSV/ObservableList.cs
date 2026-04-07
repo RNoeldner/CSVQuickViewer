@@ -12,7 +12,9 @@ namespace CsvTools
   /// <typeparam name="T">The type of elements in the collection.</typeparam>
   /// <remarks>Unlike ObservableCollection, this class provides range methods that raise 
   /// CollectionChanged only after actual changes.</remarks>
+#pragma warning disable S4035 // Classes implementing "IEquatable<T>" should be sealed
   public class ObservableList<T> : List<T>
+#pragma warning restore S4035 // Classes implementing "IEquatable<T>" should be sealed
   {
     /// <summary>
     ///   Occurs whenever the collection content changes, 

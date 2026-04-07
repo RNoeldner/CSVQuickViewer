@@ -851,7 +851,7 @@ public partial class FormColumnUiRead : ResizeForm
     errorProvider.SetError(textBoxRegexSearchPattern, string.Empty);
     try
     {
-      _ = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+      _ = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
     }
     catch (Exception ex)
     {

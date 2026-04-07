@@ -42,13 +42,11 @@ public sealed class CsvColumnMerger
   private static readonly HashSet<char> DecimalCharsSet = new(".,-+ 0123456789");
   private static readonly HashSet<char> DateTimeCharsSet = new(":/\\.-T 0123456789");
 
-  private static readonly Regex EmailRegex = new Regex(
-    @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-    RegexOptions.Compiled | RegexOptions.IgnoreCase);
+  private static readonly Regex EmailRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(200));
 
-  private static readonly Regex UrlRegex = new Regex(
-    @"^(https?://)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(/[\w\-.~:/?#[\]@!$&'()*+,;=%]*)?$",
-    RegexOptions.Compiled | RegexOptions.IgnoreCase);
+  private static readonly Regex UrlRegex = new Regex(@"^(https?://)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(/[\w\-.~:/?#[\]@!$&'()*+,;=%]*)?$",
+    RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(200));
 
   private readonly int m_ExpectedColumns;
 

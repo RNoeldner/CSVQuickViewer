@@ -46,7 +46,7 @@ public static class ClassLibraryCsvExtensionMethods
           @"<:\s*(?<content>.*?)(?:\s*:\s*(?<format>[^>]+))?\s*>|" +        // <:key:fmt>
           @"#\s*(?<content>.*?)(?:\s*:\s*(?<format>[^#\s]+))?\s*(?:#|(?=\s|$))" + // #key:fmt# or #key
       @")",
-      RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+      RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
 
   /// <summary>
   /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
@@ -385,14 +385,14 @@ public static class ClassLibraryCsvExtensionMethods
         fileName,
         $"{dateSep}(?:{year}{dateSep}{month}{dateSep}{day}|{month}{dateSep}{day}{dateSep}{year}|{day}{dateSep}{month}{dateSep}{year})",
         string.Empty,
-        RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+        RegexOptions.Singleline | RegexOptions.ExplicitCapture, TimeSpan.FromMilliseconds(200));
 
     // Strip Times: e.g., 3_53_34_AM
     fileName = Regex.Replace(
         fileName,
         $"{dateSep}{hour}{timeSep}{minSec}(?:{timeSep}{minSec})?{amPm}",
         string.Empty,
-        RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+        RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.ExplicitCapture, TimeSpan.FromMilliseconds(200));
 
     // 3. Remove all other special characters, keeping only letters, numbers, and basic connectors
     fileName = fileName.ProcessByCategory(x =>
@@ -407,7 +407,7 @@ public static class ClassLibraryCsvExtensionMethods
     // Pattern explanation:
     // ([\p{P}\p{S}\s]) : Match any Punctuation, Symbol, or Whitespace and group it
     // \1+              : Match the same character found in group 1, one or more times
-    fileName = Regex.Replace(fileName, @"([\p{P}\p{S}\s])\1+", "$1");
+    fileName = Regex.Replace(fileName, @"([\p{P}\p{S}\s])\1+", "$1", RegexOptions.None, TimeSpan.FromMilliseconds(200));
 
     // 4. Final Sanitize: Remove specific problematic chars and trim
     // Now that duplicates are gone, we can safely trim or replace specific leftovers

@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CsvTools;
 
@@ -267,9 +266,9 @@ public static class StringUtils
     var chars = new char[original.Length];
     var count = 0;
     foreach (var c in from c in original
-             let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-             where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
-             select c)
+                      let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                      where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+                      select c)
       chars[count++] = c;
 
     return new string(chars, 0, count);
@@ -455,9 +454,9 @@ public static class StringUtils
     var chars = new char[normalizedString.Length];
     var count = 0;
     foreach (var c in from c in normalizedString
-             let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-             where testFunction(oc)
-             select c)
+                      let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                      where testFunction(oc)
+                      select c)
       chars[count++] = c;
 
     return new string(chars, 0, count);
@@ -621,23 +620,17 @@ public static class StringUtils
   public static bool TryGetConstant(this string entry, out string result)
   {
     result = string.Empty;
-    if (entry.Length == 0)
-      return false;
-    if (entry.Length > 2
-#pragma warning disable IDE0056
-        && ((entry[0] == '"' && entry[entry.Length-1]=='"')
-            || (entry[0] == '\'' && entry[entry.Length-1]=='\'')))
-#pragma warning restore IDE0056
+    if (string.IsNullOrEmpty(entry)) return false;
+
+    // Call the Span-based overload
+    if (TryGetConstant(entry.AsSpan(), out ReadOnlySpan<char> spanResult))
     {
-      result = entry.Substring(1, entry.Length - 2);
+      // Convert the slice back to string only if we found a constant
+      result = spanResult.ToString();
       return true;
     }
 
-    if (!Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*"))
-      return false;
-
-    result = entry;
-    return true;
+    return false;
   }
 
   /// <summary>
@@ -647,23 +640,56 @@ public static class StringUtils
   public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
   {
     result = entry;
-    switch (entry.Length)
+    int length = entry.Length;
+
+    if (length == 0)
+      return false;
+
+    // 1. Handle Quoted Constants (Strings)
+    if (length >= 2)
     {
-      case 0:
-        return false;
-      case > 2
-        when ((entry[0] == '"' && entry[entry.Length-1]=='"')
-              || (entry[0] == '\'' && entry[entry.Length-1]=='\'')):
-        result = entry.Slice(1, entry.Length - 2);
+      char first = entry[0];
+      char last = entry[length - 1];
+      if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
+      {
+        result = entry.Slice(1, length - 2);
         return true;
-      default:
-        // Should be a English number
-#if NET7_0_OR_GREATER
-        return Regex.IsMatch(entry, @"[+\-]?[0-9]+\.?[0-9]*");
-#else
-      return Regex.IsMatch(entry.ToString(), @"[+\-]?[0-9]+\.?[0-9]*");
-#endif
+      }
     }
+
+    // 2. Handle Numeric Constants (Manual Parse)
+    // Validates: Optional sign, at least one digit, optional single decimal point
+    int i = (entry[0] == '+' || entry[0] == '-') ? 1 : 0;
+
+    // If it's just "+" or "-", or empty after the sign, it's not a number
+    if (i == length) return false;
+
+    bool hasDecimal = false;
+    bool hasDigits = false;
+
+    for (; i < length; i++)
+    {
+      char c = entry[i];
+      if (c >= '0' && c <= '9')
+      {
+        hasDigits = true;
+      }
+      else if (c == '.' && !hasDecimal)
+      {
+        hasDecimal = true;
+      }
+      else
+      {
+        // Found a non-numeric character (e.g., a letter or second dot)
+        return false;
+      }
+    }
+
+    // Ensure it's not just a "." and actually contains digits
+    if (!hasDigits) return false;
+
+    // It's a number, result is already set to entry
+    return true;
   }
 
 }

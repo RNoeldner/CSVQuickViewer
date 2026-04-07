@@ -155,7 +155,7 @@ public static class DetectionHeader
       if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
         return new($"Control Characters in Column {headerLine}", false);
 
-      if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$")))
+      if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$", RegexOptions.None, TimeSpan.FromMilliseconds(200))))
         return new($"Only one column: {headerLine}", false);
     }
     else
@@ -167,15 +167,15 @@ public static class DetectionHeader
       var tooLong = headers.Where(header => header.Length > 128).ToList();
       var numEmpty = headers.Count(string.IsNullOrWhiteSpace);
       var notUnique = headers.GroupBy(x => x, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1).ToList();
-      var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$")).ToList();
-      var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$")).ToList();
+      var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$", RegexOptions.None, TimeSpan.FromMilliseconds(200))).ToList();
+      var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$", RegexOptions.None, TimeSpan.FromMilliseconds(200))).ToList();
       var bools = new HashSet<string>(new[] { "true", "false", "Wahr", "Falsch", "Vrai", "Faux", "Verdadero", "Falso", "Vero",
         "yes", "no", "ja", "nein", "Sí", "Sì", "Oui"}, StringComparer.OrdinalIgnoreCase);
       var boolHead = headers.Where(bools.Contains).ToList();
       var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue).ToList();
 
       // allowed char are letters, digits and a predefined list of punctuation and symbols
-      var specials = headers.Where(header => Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]")).ToList();
+      var specials = headers.Where(header => Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$€£¥[]()+-=#'""<>@.!?") + "]", RegexOptions.None, TimeSpan.FromMilliseconds(200))).ToList();
 
       var msg = new List<string>();
       if (boolHead.Count > 0)

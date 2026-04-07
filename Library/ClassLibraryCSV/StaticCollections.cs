@@ -82,7 +82,7 @@ public static class StaticCollections
 
   // used to get rid of numeric suffixes like 12th or 3rd
   internal static readonly Lazy<Regex> RegExNumberSuffixEnglish =
-    new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
+    new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b", RegexOptions.Compiled, TimeSpan.FromMilliseconds(200)));
 
   /// <summary>
   ///   The possible length of a date for a given format

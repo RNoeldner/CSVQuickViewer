@@ -727,7 +727,7 @@ public class FormHierarchyDisplay : ResizeForm
   private void Search(string text)
   {
     var validNode = new List<TreeNode>();
-    var findRegex = new Regex("^" + Regex.Escape(text.Replace('%', '*')).Replace(@"\*", ".*").Replace(@"\?", "."), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    var findRegex = new Regex("^" + Regex.Escape(text.Replace('%', '*')).Replace(@"\*", ".*").Replace(@"\?", "."), RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
 
     CollectMatches(m_TreeView.Nodes);
 

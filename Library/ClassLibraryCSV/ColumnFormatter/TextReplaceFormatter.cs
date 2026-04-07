@@ -29,7 +29,7 @@ public sealed class TextReplaceFormatter : BaseColumnFormatter
   {
     if (string.IsNullOrWhiteSpace(searchPattern))
       return;
-    m_Regex = new Regex(searchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    m_Regex = new Regex(searchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(200));
     m_Replacement = replace;
   }
 
