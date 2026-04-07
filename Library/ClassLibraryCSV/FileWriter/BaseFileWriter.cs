@@ -415,13 +415,17 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <summary>
-  /// Converts a typed object into its string representation based on column formatting rules.
+  /// Formats a data field into a string based on specific column metadata, handling type conversions and time zone adjustments.
   /// </summary>
-  /// <param name="dataObject">The object to encode.</param>
-  /// <param name="columnInfo">The formatting and type metadata for the column.</param>
-  /// <param name="dataRecord">The source data record for contextual formatting.</param>
-  /// <returns>A formatted string ready for file output.</returns>
-  /// <exception cref="ArgumentNullException">Thrown when <paramref name="columnInfo"/> is null.</exception>
+  /// <param name="dataObject">The raw value to be encoded; can be <see langword="null"/> or <see cref="DBNull"/>.</param>
+  /// <param name="sourceTimeZone">The IANA or Windows ID of the source time zone for <see cref="DateTime"/> adjustments.</param>
+  /// <param name="columnInfo">The metadata containing formatting rules, null-value overrides, and target data types.</param>
+  /// <param name="dataRecord">The optional source record used for contextual value resolution during conversion.</param>
+  /// <returns>
+  /// A string representation of the field. Returns FormatInfo.DisplayNullAs for null values, 
+  /// or a raw string conversion as a fallback if specific type-formatting fails.
+  /// </returns>
+  /// <exception cref="ArgumentNullException">Thrown when <paramref name="columnInfo"/> is <see langword="null"/>.</exception>
   protected string TextEncodeField(object? dataObject, in string sourceTimeZone, in WriterColumn columnInfo, in IDataRecord? dataRecord)
   {
     if (columnInfo is null)

@@ -590,38 +590,39 @@ public static class StringConversionSpan
     if (text.IsEmpty)
       return null;
 
-    // Handle parentheses for negatives
-    var roundBraces = text[0] == '(' && text[text.Length - 1] == ')';
-    if (roundBraces)
+    bool isNegative = false;
+    // 1. Handle Parentheses (Accounting for potential inner signs like '(-123)')
+    if (text[0] == '(' && text[text.Length - 1] == ')')
     {
+      isNegative = true;
       text = text.Slice(1, text.Length - 2).Trim();
-      if (text.IsEmpty)
-        return null;
     }
 
-    // Handle optional sign
-    bool hasMinus = false;
+    // Handle optional sign    
     if (text[0] == '+')
     {
       text = text.Slice(1).TrimStart();
     }
     else if (text[0] == '-')
     {
-      hasMinus = true;
+      isNegative = !isNegative; // Flips if already negative from braces
       text = text.Slice(1).TrimStart();
     }
 
     if (text.IsEmpty)
       return null;
 
-    // Collect digits only (skip group separators)
-    Span<char> buffer = stackalloc char[text.Length];
+    // 2. Buffer for digits only. 
+    // A long.MaxValue is 9,223,372,036,854,775,807 (19 digits). 
+    // 32 is more than enough and safe for stackalloc.
+    Span<char> buffer = stackalloc char[32];
     int k = 0;
     for (int i = 0; i < text.Length; i++)
     {
       char c = text[i];
       if (char.IsDigit(c))
       {
+        if (k >= buffer.Length) return null; // Overflow: string too long for a long
         buffer[k++] = c;
       }
       else
@@ -636,17 +637,21 @@ public static class StringConversionSpan
       }
     }
 
-    if (k == 0)
+    // If we only have a minus sign and no digits, it's invalid
+    if (k == 0 || (k == 1 && isNegative))
       return null;
 
-    var digits = buffer.Slice(0, k);
+    var finalSpan = buffer.Slice(0, k);
 
+    // 4. Final Parse using Span-based TryParse where available
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-    if (long.TryParse(digits, out var result))
+    if (long.TryParse(finalSpan, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #else
-    if (long.TryParse(digits.ToString(), out var result))
+    if (long.TryParse(finalSpan.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #endif
-      return (roundBraces || hasMinus) ? -result : result;
+    {
+      return result;
+    }
 
     return null;
   }

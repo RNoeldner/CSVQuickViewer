@@ -36,7 +36,7 @@ public static class DateTimeConstants
 
   static DateTimeConstants()
   {
-    FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
+    FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0, DateTimeKind.Local);
     m_CommonTimeFormats = new HashSet<string>(StringComparer.Ordinal)
     {
       CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern

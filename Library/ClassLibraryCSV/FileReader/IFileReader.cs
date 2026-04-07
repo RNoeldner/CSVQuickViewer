@@ -125,7 +125,7 @@ public interface IFileReader : IDataReader
   /// <summary>
   ///   Opens the text file and begins to read the metadata, like columns
   /// </summary>
-  /// <param name="token">The cancellation token.</param>
+  /// <param name="cancellationToken">The cancellation token.</param>
   /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
   Task OpenAsync(CancellationToken cancellationToken);
 

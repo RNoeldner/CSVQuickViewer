@@ -433,18 +433,15 @@ public static class CsvHelper
     jsonTextReader.CloseInput = false;
     try
     {
-      if (await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
-      {
-        // ReSharper disable once MergeIntoLogicalPattern
-        if (jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
+      if (await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false) 
+        &&(jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
                                                               || jsonTextReader.TokenType
-                                                              == JsonToken.StartConstructor)
-        {
-          await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
-          await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
-          progress.Report("Detected Json file");
-          return true;
-        }
+                                                              == JsonToken.StartConstructor))
+      {
+        await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+        await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+        progress.Report("Detected Json file");
+        return true;
       }
     }
     catch (JsonReaderException)

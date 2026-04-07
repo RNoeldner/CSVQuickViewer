@@ -1009,7 +1009,7 @@ public static class DetermineColumnFormat
     public SampleResult(IEnumerable<string> items, int records)
     {
       RecordsRead = records;
-#if NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       var random = Random.Shared;
 #else
       var random = new Random(Environment.TickCount);

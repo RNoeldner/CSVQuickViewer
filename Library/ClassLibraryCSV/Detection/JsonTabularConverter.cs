@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -320,10 +321,10 @@ public static class JsonTabularConverter
       {
         return type switch
         {
-          var dt when dt == typeof(DateTime) => t.Value<DateTime>().ToString("s"),
-          var b when b == typeof(bool) => t.Value<bool>().ToString().ToLower(),
-          var n when n == typeof(double) => t.Value<double>().ToString("G"),
-          var l when l == typeof(long) => t.Value<long>().ToString(),
+          var dt when dt == typeof(DateTime) => t.Value<DateTime>().ToString("s", CultureInfo.CurrentCulture),
+          var b when b == typeof(bool) => t.Value<bool>().ToString(CultureInfo.CurrentCulture).ToLower(CultureInfo.CurrentCulture),
+          var n when n == typeof(double) => t.Value<double>().ToString("G", CultureInfo.CurrentCulture),
+          var l when l == typeof(long) => t.Value<long>().ToString(CultureInfo.CurrentCulture),
           _ => t.ToString()?.Trim() ?? string.Empty
         };
       }

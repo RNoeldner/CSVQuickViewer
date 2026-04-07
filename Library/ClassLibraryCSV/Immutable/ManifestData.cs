@@ -22,22 +22,22 @@ using System.Threading.Tasks;
 namespace CsvTools;
 
 /// <summary>
-/// Information describing an entity in Json data
+/// Represents the root structure of a JSON manifest file used to describe CSV or text data entities.
 /// </summary>
 public sealed record ManifestData
 {
   internal const string cCsvManifestExtension = ".manifest.json";
 
   /// <summary>
-  /// Manifest for Json files
+  /// Initializes a new instance of the <see cref="ManifestData"/> record.
   /// </summary>
-  /// <param name="pubName">Public Name</param>
-  /// <param name="heading">Long Name</param>
-  /// <param name="desc">Description</param>
-  /// <param name="delta">Does support delta</param>
-  /// <param name="hydration">Hydration</param>
-  /// <param name="hasUserDefinedFields"></param>
-  /// <param name="fields">Fields</param>
+  /// <param name="pubName">The public-facing name of the entity.</param>
+  /// <param name="heading">A descriptive display heading or long name.</param>
+  /// <param name="desc">A detailed description of the entity's purpose or content.</param>
+  /// <param name="delta">Indicates whether the entity supports delta (incremental) updates.</param>
+  /// <param name="hydration">A string defining the hydration strategy or state for the entity.</param>
+  /// <param name="hasUserDefinedFields">Indicates if the entity allows or contains custom, user-defined fields.</param>
+  /// <param name="fields">An array of field definitions describing the data structure.</param>
   [JsonConstructor]
   public ManifestData(
     string? pubName,
@@ -56,48 +56,49 @@ public sealed record ManifestData
     HasUserDefinedFields = hasUserDefinedFields ?? false;
     Delta = delta;
   }
-
+  
   /// <summary>
-  /// <c>true</c> if the entity does support delta
+  /// Gets a value indicating whether the entity supports delta (incremental) processing.
   /// </summary>
   public bool Delta { get; }
 
   /// <summary>
-  /// Description for entity
+  /// Gets the detailed description of the entity.
   /// </summary>
   public string Desc { get; }
 
   /// <summary>
-  /// Fields
+  /// Gets the collection of fields associated with this entity.
   /// </summary>
   public ManifestField[] Fields { get; }
 
   /// <summary>
-  /// Has CustomFields
+  /// Gets a value indicating whether user-defined (custom) fields are present.
   /// </summary>
   public bool HasUserDefinedFields { get; }
 
   /// <summary>
-  /// Heading
+  /// Gets the display heading or formal name of the entity.
   /// </summary>
   public string Heading { get; }
 
   /// <summary>
-  /// Hydration
+  /// Gets the hydration context or metadata string.
   /// </summary>
   public string Hydration { get; }
 
   /// <summary>
-  /// Public Name
+  /// Gets the short public name used to identify the entity.
   /// </summary>
   public string PubName { get; }
 
   /// <summary>
-  /// Reads the manifest data from a file
+  /// Reads and parses manifest data from the local file system.
   /// </summary>
-  /// <param name="fileName"></param>
-  /// <returns></returns>
-  /// <exception cref="FileNotFoundException"></exception>
+  /// <param name="fileName">The path to the manifest file or the associated data file.</param>
+  /// <returns>An <see cref="InspectionResult"/> containing the parsed columns and configuration.</returns>
+  /// <exception cref="FileNotFoundException">Thrown when the manifest or the corresponding data file (.csv/.txt) cannot be located.</exception>
+  /// <exception cref="InvalidOperationException">Thrown if the JSON content is malformed or cannot be deserialized.</exception>
   public static Task<InspectionResult> ReadManifestFileSystem(string fileName)
   {
     var posExt = fileName.LastIndexOf('.');
@@ -118,10 +119,12 @@ public sealed record ManifestData
   }
 
   /// <summary>
-  /// Reads the manifest data from a zip file, looking for the first file that matches teh extension
+  /// Reads and parses manifest data from a compressed ZIP archive.
   /// </summary>
-  /// <param name="fileName"></param>
-  /// <returns></returns>
+  /// <param name="fileName">The path to the .zip archive containing the manifest and data.</param>
+  /// <returns>
+  /// An <see cref="InspectionResult"/> if a manifest is found; otherwise, <see langword="null"/>.
+  /// </returns>
   public static async Task<InspectionResult?> ReadManifestZip(string fileName)
   {
     using var archive = new ICSharpCode.SharpZipLib.Zip.ZipFile(fileName.LongPathPrefix());
@@ -131,7 +134,7 @@ public sealed record ManifestData
       e.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
     if (manifestEntry is null)
       return null;
-    Logger.Information($"Configuration read from manifest file {manifestEntry.Name}" );
+    Logger.Information($"Configuration read from manifest file {manifestEntry.Name}");
 
 
     return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,
@@ -185,18 +188,18 @@ public sealed record ManifestData
   }
 
   /// <summary>
-  /// Field in a Manifest Json
+  /// Represents the metadata for an individual field within a <see cref="ManifestData"/> definition.
   /// </summary>
   public record ManifestField
   {
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="ManifestField"/> record.
     /// </summary>
-    /// <param name="pubName">Public Name</param>
-    /// <param name="heading">Long Name</param>
-    /// <param name="desc">Description</param>
-    /// <param name="type">Data Type</param>
-    /// <param name="ordinal">Ordinal number</param>
+    /// <param name="pubName">The public-facing name of the field.</param>
+    /// <param name="heading">The formal display heading or long name.</param>
+    /// <param name="desc">A description of the field's data.</param>
+    /// <param name="type">The raw string representation of the data type (e.g., "int", "datetime").</param>
+    /// <param name="ordinal">The zero-based index or position of the field in the data source.</param>
     [JsonConstructor]
     public ManifestField(string? pubName, string? heading, string? desc, string? type, int ordinal)
     {
@@ -208,12 +211,12 @@ public sealed record ManifestData
     }
 
     /// <summary>
-    /// Description for field
+    /// Gets the description of the field.
     /// </summary>
     public string Desc { get; }
 
     /// <summary>
-    /// Long Name 
+    /// Gets the zero-based position of the field within the record.
     /// </summary>
     public string Heading { get; }
 
@@ -223,12 +226,12 @@ public sealed record ManifestData
     public int Ordinal { get; }
 
     /// <summary>
-    /// Public Name
+    /// Gets the public name used to identify the field.
     /// </summary>
     public string PubName { get; }
 
     /// <summary>
-    /// Data Type
+    /// Gets the raw data type string defined in the manifest.
     /// </summary>
     public string Type { get; }
   }

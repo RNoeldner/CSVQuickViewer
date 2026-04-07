@@ -13,6 +13,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,12 +31,12 @@ public static class DetectionHeader
   /// <summary>
   ///   The carriage return character. Escape code is <c>\r</c>.
   /// </summary>
-  private const char cCr = (char) 0x0d;
+  private const char cCr = (char)0x0d;
 
   /// <summary>
   ///   The line-feed character. Escape code is <c>\n</c>.
   /// </summary>
-  private const char cLf = (char) 0x0a;
+  private const char cLf = (char)0x0a;
 
   /// <summary>
   /// Helper method to read columns from the file, taking care of commented Lines
@@ -138,7 +139,7 @@ public static class DetectionHeader
     var headers = DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment);
 
     // Get rid of all trailing empty headers
-    while (headers.Count >0 && string.IsNullOrEmpty(headers[headers.Count - 1]))
+    while (headers.Count > 0 && string.IsNullOrEmpty(headers[headers.Count - 1]))
       headers.RemoveAt(headers.Count - 1);
 
     // get the average field count looking at the header and 12 additional valid lines
@@ -199,17 +200,25 @@ public static class DetectionHeader
       int totalIssues = numeric.Count + dates.Count + boolHead.Count + numEmpty + guidHeaders.Count + specials.Count;
 
       // Threshold logic: Scales strictness based on the average column count of the file.
-      var border = (int) Math.Ceiling(fieldCount / 2.0 / counter) - specials.Count;
+      var border = (int)Math.Ceiling(fieldCount / 2.0 / counter) - specials.Count;
       if (border < 3) border = 3;
 
       // Decision: A header must have no excessively long names and stay under the issue threshold.
-      if (msg.Count >0)
+      if (msg.Count > 0)
       {
         // Format the message for a "Potential Data Row" warning using bullet points for scan ability.
         var finalMsg = new StringBuilder("Potential Data Row Detected:\n");
         foreach (var line in msg)
           finalMsg.AppendLine($" • {line}");
-        return (finalMsg.AppendLine($"\n(Reliability: {totalIssues} indicators found; limit is {border})").ToString(), tooLong.Count <= 0 && totalIssues < border);
+        // Use the overload that accepts IFormatProvider (available in .NET 6+ and newer Framework versions)
+        finalMsg.AppendLine(
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+CultureInfo.InvariantCulture,
+#endif
+          $"\n(Reliability: {totalIssues} indicators found; limit is {border})");
+
+        bool isValid = tooLong.Count == 0 && totalIssues < border;
+        return (finalMsg.ToString(), isValid);
       }
     }
     return (string.Empty, true);
@@ -240,7 +249,7 @@ public static class DetectionHeader
     {
       // Read a character
       var character = reader.Read();
-      rawData.Append((char) character);
+      rawData.Append((char)character);
       if (character is cCr or cLf)
       {
         var nextChar = 0;
@@ -259,8 +268,8 @@ public static class DetectionHeader
 
         if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted)
         {
-          stringBuilder.Append((char) character);
-          stringBuilder.Append((char) nextChar);
+          stringBuilder.Append((char)character);
+          stringBuilder.Append((char)nextChar);
           continue;
         }
       }
@@ -318,14 +327,14 @@ public static class DetectionHeader
         continue;
       }
 
-      append:
+    append:
       if (escaped && (character == fieldQualifier || character == fieldDelimiter ||
                       character == escapePrefix))
         // remove the already added escape char
         stringBuilder.Length--;
 
       // all cases covered, character must be data
-      stringBuilder.Append((char) character);
+      stringBuilder.Append((char)character);
 
       escaped = !escaped && character == escapePrefix;
     } // While
