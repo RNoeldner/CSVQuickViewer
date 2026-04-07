@@ -14,10 +14,8 @@
 #nullable enable
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -45,6 +43,8 @@ public class FormHierarchyDisplay : ResizeForm
   private readonly System.Timers.Timer m_TimerSearch = new System.Timers.Timer();
   private System.ComponentModel.IContainer? components;
 
+  private ToolStripMenuItem copyPathTreeToolStripMenuItem;
+  private ToolStripMenuItem copyPathUpToolStripMenuItem;
   private ComboBox m_ComboBoxDisplay1;
   private ComboBox m_ComboBoxDisplay2;
   private ComboBox m_ComboBoxId;
@@ -52,12 +52,10 @@ public class FormHierarchyDisplay : ResizeForm
 
   private TableLayoutPanel m_TableLayoutPanel1;
   private TextBox m_TextBoxValue;
-  private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
   private ToolTip m_ToolTip;
-  private ToolStripSeparator toolStripSeparator1;
-  private ToolStripMenuItem copyPathToolStripMenuItem;
+  private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
   private MultiSelectTreeView m_TreeView = new MultiSelectTreeView();
-
+  private ToolStripSeparator toolStripSeparator1;
   /// <summary>
   ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
   /// </summary>
@@ -99,6 +97,10 @@ public class FormHierarchyDisplay : ResizeForm
     });
   }
 
+  public void CloseAll() => CloseAllToolStripMenuItem_Click(this, EventArgs.Empty);
+
+  public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, EventArgs.Empty);
+
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
@@ -121,6 +123,15 @@ public class FormHierarchyDisplay : ResizeForm
     base.Dispose(disposing);
   }
 
+  private static string GetNodeText(TreeNode node)
+  {
+    var pos = node.Text.LastIndexOf(" - Direct ", StringComparison.Ordinal);
+    if (pos==-1)
+      return node.Text;
+    else
+      return node.Text.Substring(0, pos);
+  }
+
   /// <summary>
   ///   Adds the tree data node with child's.
   /// </summary>
@@ -138,6 +149,46 @@ public class FormHierarchyDisplay : ResizeForm
       rootNode.Nodes.Add(treeNode);
     if (root.Children.Count > 0)
       treeNode.Nodes.AddRange(BuildSubNodes(root, cancellationToken));
+  }
+
+  private void AppendTreeNode(
+    StringBuilder sb,
+    TreeNode node,
+    HashSet<TreeNode> relevant,
+    List<bool> hasNextLevels)
+  {
+    if (!relevant.Contains(node))
+      return;
+
+    var parent = node.Parent;
+    var siblings = parent?.Nodes ?? m_TreeView.Nodes;
+
+    // determine if this node is last *among relevant siblings*
+    bool isLast = true;
+    for (int i = node.Index + 1; i < siblings.Count; i++)
+    {
+      if (relevant.Contains(siblings[i]))
+      {
+        isLast = false;
+        break;
+      }
+    }
+
+    // prefix from parent levels
+    for (int level = 0; level < hasNextLevels.Count; level++)
+      sb.Append(hasNextLevels[level] ? "│   " : "    ");
+
+    // node prefix
+    sb.Append(isLast ? "└── " : "├── ");
+    sb.AppendLine(GetNodeText(node)); // reuse your helper logic
+
+    // recurse into children
+    hasNextLevels.Add(!isLast);
+
+    foreach (TreeNode child in node.Nodes)
+      AppendTreeNode(sb, child, relevant, hasNextLevels);
+
+    hasNextLevels.RemoveAt(hasNextLevels.Count - 1);
   }
 
   /// <summary>
@@ -196,7 +247,7 @@ public class FormHierarchyDisplay : ResizeForm
     {
       cancellationToken.ThrowIfCancellationRequested();
       counter++;
-      intervalAction.Invoke(process, $"Parent found {counter}/{max} ", counter);
+      intervalAction.Invoke(process, $"Parent found {counter:N0}/{max:N0} ", counter);
       var id = dataRow[dataColumnID.Ordinal].ToString();
       if (id is null || id.Length == 0)
         continue;
@@ -275,7 +326,7 @@ public class FormHierarchyDisplay : ResizeForm
     {
       cancellationToken.ThrowIfCancellationRequested();
       counter++;
-      intervalAction.Invoke(process, $"Set children {counter}/{max} ", counter);
+      intervalAction.Invoke(process, $"Set children {counter:N0}/{max:N0} ", counter);
 
       if (!string.IsNullOrEmpty(child.ParentID))
         treeDataDictionary[child.ParentID].Children.Add(child);
@@ -283,8 +334,6 @@ public class FormHierarchyDisplay : ResizeForm
 
     m_TreeData = treeDataDictionary.Values;
   }
-
-  public void CloseAll() => CloseAllToolStripMenuItem_Click(this, EventArgs.Empty);
 
   private void CloseAllToolStripMenuItem_Click(object? sender, EventArgs e)
   {
@@ -302,7 +351,49 @@ public class FormHierarchyDisplay : ResizeForm
     }
   }
 
-  public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, EventArgs.Empty);
+  private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
+  {
+    // get the chain up till root for current node like Selected -> parent1 -> parent2
+    var sb = new StringBuilder();
+    foreach (TreeNode startNode in m_TreeView.SelectedTreeNode)
+    {
+      if (sb.Length> 0)
+        sb.AppendLine();
+      sb.Append(GetNodeText(startNode));
+
+      var nextNode = startNode.Parent;
+      while (nextNode != null)
+      {
+        sb.Append(" → ");
+        sb.Append(GetNodeText(nextNode));
+        nextNode = nextNode.Parent;
+      }
+    }
+
+    sb.ToString().SetClipboard();
+  }
+
+  private void copyPathTreeToolStripMenuItem_Click(object sender, EventArgs e)
+  {
+    var relevant = new HashSet<TreeNode>();
+
+    foreach (TreeNode selected in m_TreeView.SelectedTreeNode)
+    {
+      var current = selected;
+      while (current != null)
+      {
+        relevant.Add(current);
+        current = current.Parent;
+      }
+    }
+
+    var sb = new StringBuilder();
+
+    foreach (TreeNode root in m_TreeView.Nodes)
+      AppendTreeNode(sb, root, relevant, new List<bool>());
+
+    sb.ToString().SetClipboard();
+  }
 
   private void ExpandAllToolStripMenuItem_Click(object? sender, EventArgs e)
   {
@@ -319,31 +410,20 @@ public class FormHierarchyDisplay : ResizeForm
       Extensions.ShowError(ex);
     }
   }
-  private void SearchNext()
-  {
-    m_TextBoxValue!.SafeInvoke(() =>
-    {
-      var search = m_TextBoxValue?.Text.Trim() ?? string.Empty;
-      if (search.Length<2)
-        return;
-      m_TextBoxValue!.RunWithHourglass(() =>
-      {
-        try
-        {
-          Search(search);
-        }
-        catch (Exception ex)
-        {
-          Extensions.ShowError(ex);
-        }
-      });
-    });
-  }
-
   private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs? e) => SearchNext();
 
   private void FormHierarchyDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
     m_CancellationTokenSource.Cancel();
+
+  private void FormHierarchyDisplay_KeyUp(object? sender, KeyEventArgs e)
+  {
+    if (e.KeyValue == (char) Keys.F3)
+    {
+      e.Handled = true;
+      e.SuppressKeyPress = true;
+      SearchNext();
+    }
+  }
 
   /// <summary>
   ///   Handles the Load event of the HierarchyDisplay control.
@@ -388,7 +468,8 @@ public class FormHierarchyDisplay : ResizeForm
     ToolStripMenuItem closeAllToolStripMenuItem;
     Label labelFind;
     toolStripSeparator1 = new ToolStripSeparator();
-    copyPathToolStripMenuItem = new ToolStripMenuItem();
+    copyPathUpToolStripMenuItem = new ToolStripMenuItem();
+    copyPathTreeToolStripMenuItem = new ToolStripMenuItem();
     m_TableLayoutPanel1 = new TableLayoutPanel();
     m_ComboBoxId = new ComboBox();
     m_ComboBoxParentId = new ComboBox();
@@ -422,11 +503,11 @@ public class FormHierarchyDisplay : ResizeForm
     // 
     labelDisplay.Anchor = AnchorStyles.Right;
     labelDisplay.AutoSize = true;
-    labelDisplay.Location = new System.Drawing.Point(30, 34);
+    labelDisplay.Location = new System.Drawing.Point(6, 34);
     labelDisplay.Name = "labelDisplay";
-    labelDisplay.Size = new System.Drawing.Size(41, 13);
+    labelDisplay.Size = new System.Drawing.Size(65, 13);
     labelDisplay.TabIndex = 5;
-    labelDisplay.Text = "Display";
+    labelDisplay.Text = "Display Text";
     // 
     // labelParent
     // 
@@ -441,45 +522,56 @@ public class FormHierarchyDisplay : ResizeForm
     // contextMenuStrip
     // 
     contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-    contextMenuStrip.Items.AddRange(new ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem, toolStripSeparator1, copyPathToolStripMenuItem });
+    contextMenuStrip.Items.AddRange(new ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem, toolStripSeparator1, copyPathTreeToolStripMenuItem, copyPathUpToolStripMenuItem });
     contextMenuStrip.Name = "contextMenuStrip";
-    contextMenuStrip.Size = new System.Drawing.Size(130, 76);
+    contextMenuStrip.Size = new System.Drawing.Size(301, 98);
     // 
     // expandAllToolStripMenuItem
     // 
     expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-    expandAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+    expandAllToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.Alt | Keys.Right;
+    expandAllToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
     expandAllToolStripMenuItem.Text = "Expand All";
     expandAllToolStripMenuItem.Click += ExpandAllToolStripMenuItem_Click;
     // 
     // closeAllToolStripMenuItem
     // 
     closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-    closeAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
-    closeAllToolStripMenuItem.Text = "Close All";
+    closeAllToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.Alt | Keys.Left;
+    closeAllToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
+    closeAllToolStripMenuItem.Text = "Collapse All";
     closeAllToolStripMenuItem.Click += CloseAllToolStripMenuItem_Click;
     // 
     // toolStripSeparator1
     // 
     toolStripSeparator1.Name = "toolStripSeparator1";
-    toolStripSeparator1.Size = new System.Drawing.Size(126, 6);
+    toolStripSeparator1.Size = new System.Drawing.Size(187, 6);
     // 
-    // copyPathToolStripMenuItem
+    // copyPathUpToolStripMenuItem
     // 
-    copyPathToolStripMenuItem.Name = "copyPathToolStripMenuItem";
-    copyPathToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
-    copyPathToolStripMenuItem.Text = "Copy Path";
-    copyPathToolStripMenuItem.Click += copyPathToolStripMenuItem_Click;
+    copyPathUpToolStripMenuItem.Name = "copyPathUpToolStripMenuItem";
+    copyPathUpToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.Shift | Keys.C;
+    copyPathUpToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
+    copyPathUpToolStripMenuItem.Text = "Copy Paths (Selected Nodes)";
+    copyPathUpToolStripMenuItem.Click += copyPathToolStripMenuItem_Click;
+    // 
+    // copyPathTreeToolStripMenuItem
+    // 
+    copyPathTreeToolStripMenuItem.Name = "copyPathTreeToolStripMenuItem";
+    copyPathTreeToolStripMenuItem.ShortcutKeys =  Keys.Control | Keys.C;
+    copyPathTreeToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
+    copyPathTreeToolStripMenuItem.Text = "Copy Hierarchy (Selected Nodes)";
+    copyPathTreeToolStripMenuItem.Click += copyPathTreeToolStripMenuItem_Click;
     // 
     // labelFind
     // 
     labelFind.Anchor = AnchorStyles.Right;
     labelFind.AutoSize = true;
-    labelFind.Location = new System.Drawing.Point(44, 87);
+    labelFind.Location = new System.Drawing.Point(30, 87);
     labelFind.Name = "labelFind";
-    labelFind.Size = new System.Drawing.Size(27, 13);
+    labelFind.Size = new System.Drawing.Size(41, 13);
     labelFind.TabIndex = 5;
-    labelFind.Text = "Find";
+    labelFind.Text = "Search";
     // 
     // m_TableLayoutPanel1
     // 
@@ -506,7 +598,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-    m_TableLayoutPanel1.Size = new System.Drawing.Size(502, 368);
+    m_TableLayoutPanel1.Size = new System.Drawing.Size(323, 399);
     m_TableLayoutPanel1.TabIndex = 10;
     // 
     // m_ComboBoxId
@@ -517,9 +609,9 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxId.FormattingEnabled = true;
     m_ComboBoxId.Location = new System.Drawing.Point(77, 3);
     m_ComboBoxId.Name = "m_ComboBoxId";
-    m_ComboBoxId.Size = new System.Drawing.Size(422, 21);
+    m_ComboBoxId.Size = new System.Drawing.Size(243, 21);
     m_ComboBoxId.TabIndex = 0;
-    m_ToolTip.SetToolTip(m_ComboBoxId, "Unique identifier for counting and determining child entries");
+    m_ToolTip.SetToolTip(m_ComboBoxId, "Unique identifier for each node. Used to count and link child nodes.");
     m_ComboBoxId.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // m_ComboBoxParentId
@@ -530,9 +622,9 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxParentId.FormattingEnabled = true;
     m_ComboBoxParentId.Location = new System.Drawing.Point(77, 57);
     m_ComboBoxParentId.Name = "m_ComboBoxParentId";
-    m_ComboBoxParentId.Size = new System.Drawing.Size(422, 21);
+    m_ComboBoxParentId.Size = new System.Drawing.Size(243, 21);
     m_ComboBoxParentId.TabIndex = 1;
-    m_ToolTip.SetToolTip(m_ComboBoxParentId, "Column with the Parent, can be used for grouping as well");
+    m_ToolTip.SetToolTip(m_ComboBoxParentId, "References the parent node. Used to build the hierarchy or group related nodes.");
     m_ComboBoxParentId.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // m_TreeView
@@ -542,7 +634,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_TreeView.Dock = DockStyle.Fill;
     m_TreeView.Location = new System.Drawing.Point(3, 110);
     m_TreeView.Name = "m_TreeView";
-    m_TreeView.Size = new System.Drawing.Size(496, 255);
+    m_TreeView.Size = new System.Drawing.Size(317, 286);
     m_TreeView.TabIndex = 9;
     m_TreeView.KeyUp += FormHierarchyDisplay_KeyUp;
     // 
@@ -551,9 +643,9 @@ public class FormHierarchyDisplay : ResizeForm
     m_TextBoxValue.Dock = DockStyle.Top;
     m_TextBoxValue.Location = new System.Drawing.Point(77, 84);
     m_TextBoxValue.Name = "m_TextBoxValue";
-    m_TextBoxValue.Size = new System.Drawing.Size(208, 20);
+    m_TextBoxValue.Size = new System.Drawing.Size(118, 20);
     m_TextBoxValue.TabIndex = 2;
-    m_ToolTip.SetToolTip(m_TextBoxValue, "Search does support wildcards like * or ?");
+    m_ToolTip.SetToolTip(m_TextBoxValue, "Search text. Supports wildcards (* and ?).");
     m_TextBoxValue.TextChanged += TimerSearchRestart;
     m_TextBoxValue.KeyDown += m_TextBoxValue_KeyDown;
     // 
@@ -562,10 +654,11 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxDisplay2.Dock = DockStyle.Top;
     m_ComboBoxDisplay2.DropDownStyle = ComboBoxStyle.DropDownList;
     m_ComboBoxDisplay2.FormattingEnabled = true;
-    m_ComboBoxDisplay2.Location = new System.Drawing.Point(291, 30);
+    m_ComboBoxDisplay2.Location = new System.Drawing.Point(201, 30);
     m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
-    m_ComboBoxDisplay2.Size = new System.Drawing.Size(208, 21);
+    m_ComboBoxDisplay2.Size = new System.Drawing.Size(119, 21);
     m_ComboBoxDisplay2.TabIndex = 15;
+    m_ToolTip.SetToolTip(m_ComboBoxDisplay2, "Defines the text shown in the tree. Supports primary and secondary values (e.g. “Name – Details”).");
     m_ComboBoxDisplay2.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // m_ComboBoxDisplay1
@@ -575,19 +668,20 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxDisplay1.FormattingEnabled = true;
     m_ComboBoxDisplay1.Location = new System.Drawing.Point(77, 30);
     m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
-    m_ComboBoxDisplay1.Size = new System.Drawing.Size(208, 21);
+    m_ComboBoxDisplay1.Size = new System.Drawing.Size(118, 21);
     m_ComboBoxDisplay1.TabIndex = 16;
+    m_ToolTip.SetToolTip(m_ComboBoxDisplay1, "Defines the text shown in the tree. Supports primary and secondary values (e.g. “Name – Details”).");
     m_ComboBoxDisplay1.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // FormHierarchyDisplay
     // 
     AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-    ClientSize = new System.Drawing.Size(502, 368);
+    ClientSize = new System.Drawing.Size(323, 399);
     Controls.Add(m_TableLayoutPanel1);
     FormBorderStyle = FormBorderStyle.SizableToolWindow;
     MinimumSize = new System.Drawing.Size(339, 196);
     Name = "FormHierarchyDisplay";
-    Text = "Hierarchy";
+    Text = "Tree / Hierarchy";
     FormClosing += FormHierarchyDisplay_FormClosing;
     Load += FormHierarchyDisplay_Load;
     KeyUp += FormHierarchyDisplay_KeyUp;
@@ -597,7 +691,18 @@ public class FormHierarchyDisplay : ResizeForm
     ResumeLayout(false);
   }
 
-  private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)
+  private void m_TextBoxValue_KeyDown(object? sender, KeyEventArgs e)
+  {
+    if (e.KeyValue == (char) Keys.Enter
+      ||  e.KeyValue == (char) Keys.F3)
+    {
+      e.Handled = true;
+      e.SuppressKeyPress = true;
+      SearchNext();
+    }
+  }
+
+  private bool MarkInCycle(TreeData treeData, HashSet<TreeData> visitedEntries)
   {
     if (visitedEntries.Contains(treeData))
     {
@@ -606,9 +711,14 @@ public class FormHierarchyDisplay : ResizeForm
     }
 
     visitedEntries.Add(treeData);
-    foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
+
+    foreach (var child in treeData.Children)
     {
-      break;
+      if (MarkInCycle(child, visitedEntries))
+      {
+        treeData.InCycle = true; // Propagate cycle up the tree
+        return true;             // Stop further processing once a cycle is found
+      }
     }
 
     return false;
@@ -651,6 +761,26 @@ public class FormHierarchyDisplay : ResizeForm
     }
   }
 
+  private void SearchNext()
+  {
+    m_TextBoxValue!.SafeInvoke(() =>
+    {
+      var search = m_TextBoxValue?.Text.Trim() ?? string.Empty;
+      if (search.Length<2)
+        return;
+      m_TextBoxValue!.RunWithHourglass(() =>
+      {
+        try
+        {
+          Search(search);
+        }
+        catch (Exception ex)
+        {
+          Extensions.ShowError(ex);
+        }
+      });
+    });
+  }
   /// <summary>
   ///   Shows the tree.
   /// </summary>
@@ -665,48 +795,33 @@ public class FormHierarchyDisplay : ResizeForm
 
       foreach (var treeData in m_TreeData)
         treeData.Visited = false;
-      Debug.WriteLine("Adding Tree with children");
-      foreach (var treeData in m_TreeData)
+
+      // Add top-level nodes 
+      foreach (var rootData in m_TreeData.Where(td => string.IsNullOrEmpty(td.ParentID) && td.Children.Count>0))
       {
-        cancellationToken.ThrowIfCancellationRequested();
-        Extensions.ProcessUIElements();
-        if (string.IsNullOrEmpty(treeData.ParentID))
-          AddTreeDataNodeWithChild(treeData, null, cancellationToken);
-      }
-      Debug.WriteLine("Finding Cycles in Hierarchy");
-      var hasCycles = false;
-      foreach (var treeData in m_TreeData)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        Extensions.ProcessUIElements();
-        if (!treeData.Visited)
-        {
-          hasCycles = true;
-          break;
-        }
+        foreach(var nodes in rootData.Children)
+          m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
       }
 
-      if (!hasCycles)
+      cancellationToken.ThrowIfCancellationRequested();
+      Extensions.ProcessUIElements();
+      // If everything has been visited, exit early
+      if (m_TreeData.All(treeData => treeData.Visited))
         return;
-      Debug.WriteLine("Adding Cycles");
-      var rootNode = new TreeNode("Cycles in Hierarchy");
+      var rootNode = new TreeNode("-- Circular References --");
       m_TreeView.Nodes.Add(rootNode);
 
-      foreach (var treeData in m_TreeData)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        Extensions.ProcessUIElements();
-        if (!treeData.Visited)
+      foreach (var treeData in m_TreeData.Where(td => !td.Visited))
           MarkInCycle(treeData, new HashSet<TreeData>());
-      }
 
-      foreach (var root in m_TreeData)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        Extensions.ProcessUIElements();
-        if (!root.Visited && root.InCycle)
+      cancellationToken.ThrowIfCancellationRequested();
+      Extensions.ProcessUIElements();
+
+      // Add nodes that are in cycles
+      foreach (var root in m_TreeData.Where(td => !td.Visited && td.InCycle))
           AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
-      }
+
+      Extensions.ProcessUIElements();
     }
     catch
     {
@@ -754,45 +869,16 @@ public class FormHierarchyDisplay : ResizeForm
     m_TimerSearch.Start();
   }
 
-  private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
-  {
-    // get the chain up till root for current node like Selected -> parent1 -> parent2
-    var sb = new StringBuilder();
-    foreach (TreeNode startNode in m_TreeView.SelectedTreeNode)
-    {
-      if (sb.Length> 0)
-        sb.AppendLine();
-      sb.Append(getNodeText(startNode));
-
-      var nextNode = startNode.Parent;
-      while (nextNode != null)
-      {
-        sb.Append(" → ");
-        sb.Append(getNodeText(nextNode));
-        nextNode = nextNode.Parent;
-      }
-    }
-    Clipboard.SetText(sb.ToString());
-    string getNodeText(TreeNode node)
-    {
-      var pos = node.Text.LastIndexOf(" - Direct ", StringComparison.Ordinal);
-      if (pos==-1)
-        return node.Text;
-      else
-        return node.Text.Substring(0, pos);
-    }
-  }
-
   public sealed class TreeData
   {
-    public readonly ICollection<TreeData> Children = new List<TreeData>();
+    public readonly List<TreeData> Children = new List<TreeData>();
     public readonly string ID;
     public readonly string Title;
     public bool InCycle;
-    private int m_StoreIndirect = -1;
     public string ParentID;
     public string Tag;
     public bool Visited;
+    private int m_StoreIndirect = -1;
 
     public TreeData(string id, string title, string? parentID = null)
     {
@@ -825,39 +911,17 @@ public class FormHierarchyDisplay : ResizeForm
       get
       {
         if (m_StoreIndirect < 0)
-          m_StoreIndirect = GetInDirectChildren(this);
+          m_StoreIndirect = CalculateIndirectChildren(this);
         return m_StoreIndirect;
       }
     }
 
-    private static int GetInDirectChildren(TreeData root)
+    private static int CalculateIndirectChildren(TreeData node)
     {
-      if (root.InCycle)
+      if (node.InCycle)
         return 0;
 
-      return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)
-        .Sum(GetInDirectChildren);
-    }
-  }
-
-  private void m_TextBoxValue_KeyDown(object sender, KeyEventArgs e)
-  {
-    if (e.KeyValue == (char) Keys.Enter
-      ||  e.KeyValue == (char) Keys.F3)
-    {
-      e.Handled = true;
-      e.SuppressKeyPress = true;
-      SearchNext();
-    }
-  }
-
-  private void FormHierarchyDisplay_KeyUp(object sender, KeyEventArgs e)
-  {
-    if (e.KeyValue == (char) Keys.F3)
-    {
-      e.Handled = true;
-      e.SuppressKeyPress = true;
-      SearchNext();
+      return node.Children.Count + node.Children.Sum(c => c.Children.Count > 0 ? CalculateIndirectChildren(c) : 0);
     }
   }
 }

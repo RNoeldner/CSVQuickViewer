@@ -766,7 +766,7 @@
       // 
       numericUpDownSkipRows.Anchor = System.Windows.Forms.AnchorStyles.Left;
       numericUpDownSkipRows.AutoSize = true;
-      numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceRead, "SkipRows", true));
+      numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceRead, "SkipRows", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSkipRows.Location = new System.Drawing.Point(113, 149);
       numericUpDownSkipRows.Name = "numericUpDownSkipRows";
       numericUpDownSkipRows.Size = new System.Drawing.Size(41, 20);
@@ -937,7 +937,7 @@
       // 
       numericUpDownSkipRowsAfterHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
       numericUpDownSkipRowsAfterHeader.AutoSize = true;
-      numericUpDownSkipRowsAfterHeader.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceRead, "SkipRowsAfterHeader", true));
+      numericUpDownSkipRowsAfterHeader.DataBindings.Add(new System.Windows.Forms.Binding("Value", bindingSourceRead, "SkipRowsAfterHeader", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       numericUpDownSkipRowsAfterHeader.Location = new System.Drawing.Point(340, 149);
       numericUpDownSkipRowsAfterHeader.Name = "numericUpDownSkipRowsAfterHeader";
       numericUpDownSkipRowsAfterHeader.Size = new System.Drawing.Size(41, 20);
