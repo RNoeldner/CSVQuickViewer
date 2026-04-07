@@ -16,6 +16,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -230,22 +231,43 @@ public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
   /// </returns>
   public bool Equals(ColumnMut? other)
   {
-    if (other is null)
-      return false;      
+    if (other == null)
+      return false;
+    if (ReferenceEquals(this, other))
+      return true;
+    if (GetType() != other.GetType())
+      return false;
 
-    return ColumnOrdinal == other.ColumnOrdinal && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-                                                && string.Equals(DestinationName, other.DestinationName,
-                                                  StringComparison.OrdinalIgnoreCase)
-                                                && Ignore == other.Ignore
-                                                && string.Equals(TimePart, other.TimePart,
-                                                  StringComparison.OrdinalIgnoreCase)
-                                                && string.Equals(TimePartFormat, other.TimePartFormat,
-                                                  StringComparison.Ordinal)
-                                                && string.Equals(TimeZonePart, other.TimeZonePart,
-                                                  StringComparison.OrdinalIgnoreCase)
-                                                && Convert == other.Convert
-                                                && m_ValueFormatMut.Equals(new ValueFormatMut(other.ValueFormat));
+    return ColumnOrdinal == other.ColumnOrdinal
+      && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+      && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
+      && Ignore == other.Ignore
+      && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
+      && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
+      && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
+      && Convert == other.Convert
+      && m_ValueFormatMut.Equals(new ValueFormatMut(other.ValueFormat));
   }
+
+  /// <inheritdoc/>
+  public override bool Equals(object? obj) => Equals(obj as ColumnMut);
+
+  /// <inheritdoc/>
+  public override int GetHashCode()
+  {
+    var hashCode = -504942405;
+    hashCode=hashCode*-1521134295+ColumnOrdinal;
+    hashCode=hashCode*-1521134295+Convert.GetHashCode();
+    hashCode=hashCode*-1521134295+StringComparer.OrdinalIgnoreCase.GetHashCode(DestinationName);
+    hashCode=hashCode*-1521134295+Ignore.GetHashCode();
+    hashCode=hashCode*-1521134295+StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+    hashCode=hashCode*-1521134295+StringComparer.OrdinalIgnoreCase.GetHashCode(TimePart);
+    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(TimePartFormat);
+    hashCode=hashCode*-1521134295+StringComparer.OrdinalIgnoreCase.GetHashCode(TimeZonePart);
+    hashCode=hashCode*-1521134295+ValueFormat.GetHashCode();
+    return hashCode;
+  }
+
   /// <summary>
   /// Returns  an immutable column 
   /// </summary>
@@ -265,4 +287,5 @@ public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
   /// </summary>
   /// <returns>A <see cref="string" /> that represents this instance.</returns>
   public override string ToString() => $"{Name} ({this.ToImmutableColumn().GetTypeAndFormatDescription()})";
+  protected override void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => base.NotifyPropertyChanged(propertyName);
 }

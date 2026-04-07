@@ -351,7 +351,7 @@ public class FormHierarchyDisplay : ResizeForm
     }
   }
 
-  private void copyPathToolStripMenuItem_Click(object sender, EventArgs e)
+  private void copyPathToolStripMenuItem_Click(object? sender, EventArgs e)
   {
     // get the chain up till root for current node like Selected -> parent1 -> parent2
     var sb = new StringBuilder();
@@ -711,14 +711,10 @@ public class FormHierarchyDisplay : ResizeForm
     }
 
     visitedEntries.Add(treeData);
-
-    foreach (var child in treeData.Children)
+    foreach (var _ in treeData.Children.Where(child => MarkInCycle(child, visitedEntries)).Select(child => new { }))
     {
-      if (MarkInCycle(child, visitedEntries))
-      {
-        treeData.InCycle = true; // Propagate cycle up the tree
-        return true;             // Stop further processing once a cycle is found
-      }
+      treeData.InCycle = true; // Propagate cycle up the tree
+      return true;             // Stop further processing once a cycle is found
     }
 
     return false;

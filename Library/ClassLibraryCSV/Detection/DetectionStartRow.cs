@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CsvTools;
 
@@ -143,12 +144,8 @@ public static class DetectionStartRow
     if (allowed.Count==0)
       return 0;
     Logger.Warning($"Detected column count variants: {string.Join(", ", allowed)}.");
-
-    foreach (var row in structuralRows)
-    {
-      if (allowed.Contains(row.Count))
-        return row.OriginalIndex;
-    }
+    foreach (var row in structuralRows.Where(row => allowed.Contains(row.Count)))
+      return row.OriginalIndex;
 
     return 0;
   }

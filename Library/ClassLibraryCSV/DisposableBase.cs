@@ -20,7 +20,9 @@ using System.Threading.Tasks;
 namespace CsvTools;
 
 /// <inheritdoc />
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
 public abstract class DisposableBase : IDisposable
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
@@ -43,13 +45,15 @@ public abstract class DisposableBase : IDisposable
   public void Dispose()
   {
     if (!m_DisposedValue)
-      Dispose(true);
+      Dispose(disposing: true);
     m_DisposedValue = true;
     GC.SuppressFinalize(this);
   }
 
   /// <inheritdoc />
-  ~DisposableBase() => Dispose(false);
+#pragma warning disable MA0055 // Do not use finalizer
+  ~DisposableBase() => Dispose(disposing: false);
+#pragma warning restore MA0055 // Do not use finalizer
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <inheritdoc />

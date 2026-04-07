@@ -500,6 +500,7 @@ public sealed class ColumnFilterLogic : ObservableObject
   /// <param name="value">The value.</param>
   /// <param name="targetType">Type of the target.</param>
   /// <returns>A string with the formatted value</returns>
+  /// <exception cref="NotImplementedException">if targetType is DateTime </exception>
   private static string FormatValue(ReadOnlySpan<char> value, DataTypeEnum targetType)
   {
     if (value.IsEmpty)
@@ -507,7 +508,9 @@ public sealed class ColumnFilterLogic : ObservableObject
     switch (targetType)
     {
       case DataTypeEnum.DateTime:
+#pragma warning disable MA0025 // Implement the functionality instead of throwing NotImplementedException
         throw new NotImplementedException("ValueDateTime Time should be used, not ValueText");
+#pragma warning restore MA0025 // Implement the functionality instead of throwing NotImplementedException
 
       case DataTypeEnum.Numeric:
         var decValue = value.StringToDecimal(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.FromText(),

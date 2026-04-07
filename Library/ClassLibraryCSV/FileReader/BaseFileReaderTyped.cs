@@ -76,7 +76,8 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     EnsureTextFilled(ordinal);
     return base.GetBoolean(ordinal);
   }
-    
+
+  /// <inheritdoc />
   /// <exception cref="NotImplementedException"></exception>
   public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
@@ -256,8 +257,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <summary>
   /// Gets the current object stored in CurrentValues and does check
   /// </summary>
-  /// <param name="ordinal">The ordinal of the column</param>
-  /// <returns></returns>
+  /// <param name="ordinal">The ordinal of the column</param>  
   /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
   /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
   private object? GetCurrentValue(int ordinal)
@@ -266,7 +266,11 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       throw new ArgumentOutOfRangeException(nameof(ordinal), $"Value is out of range 0-{FieldCount}");
 
     if (CurrentValues is null || ordinal > CurrentValues.Length)
+#pragma warning disable MA0012 // Do not raise reserved exception type
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
       throw new NullReferenceException("CurrentValues is not set, please open the reader before accessing data");
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
+#pragma warning restore MA0012 // Do not raise reserved exception type
 
     return CurrentValues[ordinal];
   }

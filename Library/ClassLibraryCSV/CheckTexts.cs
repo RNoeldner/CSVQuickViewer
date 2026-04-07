@@ -285,11 +285,8 @@ public static class CheckTexts
       var span = text.Span;
 
       // HTML-like indicators
-      if (span.IndexOf(brSpan, OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, OrdinalIgnoreCase))
-      {
-        if (++foundHtml > minRequiredSamples)
-          return DataTypeEnum.TextToHtml;
-      }
+      if ((span.IndexOf(brSpan, OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, OrdinalIgnoreCase)) && ++foundHtml > minRequiredSamples)
+        return DataTypeEnum.TextToHtml;
 
       // C-style escape sequences
       foreach (var esc in escapeSequences)

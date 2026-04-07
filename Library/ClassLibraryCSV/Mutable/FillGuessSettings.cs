@@ -275,6 +275,9 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
       detectGuid: m_DetectGuid, serialDateTime: m_SerialDateTime, dateParts: m_DateParts, dateFormat: m_DateFormat, trueValue: m_TrueValue, falseValue: m_FalseValue, minSamples: m_MinSamples, sampleValues: m_SampleValues, checkedRecords: m_CheckedRecords, removeCurrencySymbols: m_RemoveCurrencySymbols);
   }
 
+  /// <inheritdoc/>
+  public override bool Equals(object? obj) => Equals(obj as FillGuessSettings);
+
   /// <summary>
   /// Determines whether the specified FillGuessSettings is equal to the current instance.
   /// </summary>
@@ -282,7 +285,11 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   /// <returns>True if the specified instance is equal; otherwise, false.</returns>
   public bool Equals(FillGuessSettings? other)
   {
-    if (other is null)
+    if (other == null)
+      return false;
+    if (ReferenceEquals(this, other))
+      return true;
+    if (GetType() != other.GetType())
       return false;
 
     return m_Enabled == other.Enabled &&
@@ -325,5 +332,28 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
     other.SerialDateTime = m_SerialDateTime;
     other.DateFormat = m_DateFormat;
     other.RemoveCurrencySymbols = m_RemoveCurrencySymbols;
+  }
+
+  /// <inheritdoc/>
+  public override int GetHashCode()
+  {
+    var hashCode = 824013017;
+    hashCode=hashCode*-1521134295+Enabled.GetHashCode();
+    hashCode=hashCode*-1521134295+RemoveCurrencySymbols.GetHashCode();
+    hashCode=hashCode*-1521134295+CheckedRecords.GetHashCode();
+    hashCode=hashCode*-1521134295+DateParts.GetHashCode();
+    hashCode=hashCode*-1521134295+DetectNumbers.GetHashCode();
+    hashCode=hashCode*-1521134295+DetectPercentage.GetHashCode();
+    hashCode=hashCode*-1521134295+DetectBoolean.GetHashCode();
+    hashCode=hashCode*-1521134295+DetectDateTime.GetHashCode();
+    hashCode=hashCode*-1521134295+DetectGuid.GetHashCode();
+    hashCode=hashCode*-1521134295+IgnoreIdColumns.GetHashCode();
+    hashCode=hashCode*-1521134295+MinSamples.GetHashCode();
+    hashCode=hashCode*-1521134295+SampleValues.GetHashCode();
+    hashCode=hashCode*-1521134295+SerialDateTime.GetHashCode();
+    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(TrueValue);
+    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(FalseValue);
+    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(DateFormat);
+    return hashCode;
   }
 }

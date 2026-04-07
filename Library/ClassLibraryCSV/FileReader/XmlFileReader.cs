@@ -32,26 +32,24 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   private readonly XmlDocument m_Doc = new XmlDocument();
   private XmlNode? m_CurrentNode;
   private Stream? m_Stream;
-  private readonly StreamProviderDelegate m_StreamProvider;
 
   /// <inheritdoc/>
   public XmlFileReader(
-    in Stream stream,    in IEnumerable<Column>? columnDefinition,
-    long recordLimit,    bool trim,
-    string treatTextAsNull,    bool treatNbspAsSpace,
-    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
+    in Stream stream, in IEnumerable<Column>? columnDefinition,
+    long recordLimit, bool trim,
+    string treatTextAsNull, bool treatNbspAsSpace,
+    string destTimeZone, bool allowPercentage, bool removeCurrency)
     : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     m_Stream = stream;
-    m_StreamProvider= FunctionalDI.GetStream;
   }
 
   /// <inheritdoc />
   public XmlFileReader(string fileName,
     in IEnumerable<Column>? columnDefinition,
-    long recordLimit,    bool trim,
-    string treatTextAsNull,    bool treatNbspAsSpace,
-    string destTimeZone,    bool allowPercentage,    bool removeCurrency)
+    long recordLimit, bool trim,
+    string treatTextAsNull, bool treatNbspAsSpace,
+    string destTimeZone, bool allowPercentage, bool removeCurrency)
     : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
   {
     if (string.IsNullOrEmpty(fileName))
@@ -60,7 +58,6 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       throw new FileNotFoundException(
         $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
         fileName);
-    m_StreamProvider= FunctionalDI.GetStream;
   }
 
   /// <inheritdoc />
@@ -108,27 +105,24 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     HandleShowProgress($"Opening XML file {FileName}", 0);
     await BeforeOpenAsync($"Opening XML file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
-    Retry:
+  Retry:
     try
     {
       ResetPositionToStartOrOpen();
-      // load the XML        
-      //m_XmlReader = XmlReader.Create(m_Stream!);
-      //m_XmlReader.ReadStartElement();
-
+      // load the XML
       m_Doc.Load(m_Stream!);
-      // Support a root node, or an array                
-      m_CurrentNode  = GetStartNode();
+      // Support a root node, or an array
+      m_CurrentNode = GetStartNode();
       if (m_CurrentNode != null)
         Logger.Information($"Start Node: {GetFullPath(m_CurrentNode)}");
 
       List<string> columnNames = [];
-      for (int i = 0; i<10 && m_CurrentNode !=null; i++)
+      for (int i = 0; i < 10 && m_CurrentNode != null; i++)
       {
         columnNames.AddRange(ReadNode(m_CurrentNode).Where(column => !columnNames.Contains(column.Key, StringComparer.OrdinalIgnoreCase)).Select(column => column.Key));
         m_CurrentNode = m_CurrentNode.NextSibling;
       }
-      m_CurrentNode  = GetStartNode();
+      m_CurrentNode = GetStartNode();
 
       // get column names for some time
       InitColumn(columnNames.Count);
@@ -202,7 +196,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     var columns = new DictionaryIgnoreCase<string>();
     if (check == null)
       return columns;
-    if (check.ChildNodes.Count>0)
+    if (check.ChildNodes.Count > 0)
     {
       foreach (XmlNode attributes in check.ChildNodes)
       {
@@ -256,7 +250,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       else if (keyValuePairs.Count > FieldCount)
         HandleWarning(-1, $"Line {StartLineNumber:N0} has more columns than expected ({keyValuePairs.Count:N0}/{FieldCount:N0}). The data in extra columns is not read.");
 
-      return keyValuePairs.Count>0;
+      return keyValuePairs.Count > 0;
     }
     catch (Exception ex)
     {
@@ -272,8 +266,8 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     var items = m_Doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.Element).ToList();
     // go deeper until we have some a list of child nodes
     while (items is { Count: 1 })
-      items = items.FirstOrDefault(x => x.ChildNodes.Count >1)?.ChildNodes.OfType<XmlNode>().ToList();
-    return (items?.Count ?? 0) >0 ? items?.First() : null;
+      items = items.Find(x => x.ChildNodes.Count > 1)?.ChildNodes.OfType<XmlNode>().ToList();
+    return (items?.Count ?? 0) > 0 ? items?[0] : null;
   }
 
   /// <summary>
@@ -300,6 +294,6 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 
     EndOfFile = false;
 
-    m_CurrentNode  = GetStartNode();
+    m_CurrentNode = GetStartNode();
   }
 }

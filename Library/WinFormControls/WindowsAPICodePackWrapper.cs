@@ -149,72 +149,83 @@ public static class WindowsAPICodePackWrapper
 
     return string.Empty;
   }
-
-  public static string Save(string initialDirectory, string title, string filter,
-    string defaultExt, bool overwritePrompt = true,
+  public static string Save(
+    string initialDirectory,
+    string title,
+    string filter,
+    string defaultExt,
+    bool overwritePrompt = true,
     string? preselectFileName = null)
   {
-    Retry:
-    if (m_CommonFileDialogSupported)
+    // Try CommonFileDialog first, fall back to standard Dialog if it fails or is unsupported
+    while (true)
     {
-      using var commonSaveFileDialog = new CommonSaveFileDialog(title);
-      SetFilter(filter, commonSaveFileDialog.Filters);
-      commonSaveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
-      commonSaveFileDialog.EnsurePathExists = true;
-      commonSaveFileDialog.EnsureValidNames = true;
-      commonSaveFileDialog.OverwritePrompt = overwritePrompt;
-      commonSaveFileDialog.RestoreDirectory = true;
-      if (!string.IsNullOrEmpty(preselectFileName))
+      if (m_CommonFileDialogSupported)
       {
-        commonSaveFileDialog.DefaultFileName = preselectFileName;
+        using var commonSaveFileDialog = new CommonSaveFileDialog(title);
+        SetFilter(filter, commonSaveFileDialog.Filters);
+        commonSaveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
+        commonSaveFileDialog.EnsurePathExists = true;
+        commonSaveFileDialog.EnsureValidNames = true;
+        commonSaveFileDialog.OverwritePrompt = overwritePrompt;
+        commonSaveFileDialog.RestoreDirectory = true;
         commonSaveFileDialog.DefaultExtension = defaultExt;
-      }
 
-      try
+        if (!string.IsNullOrEmpty(preselectFileName))
+          commonSaveFileDialog.DefaultFileName = preselectFileName;
+
+        try
+        {
+          IsDialogOpen = true;
+          if (commonSaveFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
+          {
+            // Use the ShellObject Path to ensure long file name support and correct extension handling
+            return commonSaveFileDialog.FileAsShellObject.ParsingName.LongFileName();
+          }
+
+          return string.Empty;
+        }
+        catch (Exception exception)
+        {
+          Debug.WriteLine($"CommonSaveFileDialog failed: {exception.Message}. Falling back.");
+          m_CommonFileDialogSupported = false;
+          // Loop continues and hits the 'else' block
+        }
+        finally
+        {
+          IsDialogOpen = false;
+        }
+      }
+      else
       {
+        using var saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = filter;
+        saveFileDialog.DefaultExt = defaultExt;
+        saveFileDialog.OverwritePrompt = overwritePrompt;
+        saveFileDialog.CheckPathExists = true;
+        saveFileDialog.RestoreDirectory = true;
+        saveFileDialog.Title = title;
+        saveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
+
+        if (!string.IsNullOrEmpty(preselectFileName))
+          saveFileDialog.FileName = preselectFileName;
+
         IsDialogOpen = true;
-        if (commonSaveFileDialog.ShowDialog() == CommonFileDialogResult.Ok &&
-            commonSaveFileDialog.FileAsShellObject.IsFileSystemObject)
-          // can not use commonSaveFileDialog.FileName the extension is wrong / first extension of
-          // filter is added no matter what is entered in dialog
-          return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonSaveFileDialog.FileAsShellObject).Path
-            .LongFileName();
-      }
-      catch (Exception exception)
-      {
-        Debug.WriteLine($"Using CommonSaveFileDialog {exception.Message}");
-        m_CommonFileDialogSupported = false;
-        goto Retry;
-      }
-      finally
-      {
-        IsDialogOpen = false;
-      }
-    }
-    else
-    {
-      using var saveFileDialog = new SaveFileDialog();
-      saveFileDialog.Filter = filter;
-      saveFileDialog.OverwritePrompt = overwritePrompt;
-      saveFileDialog.CheckFileExists = true;
-      saveFileDialog.CheckPathExists = true;
-      saveFileDialog.RestoreDirectory = true;
-      saveFileDialog.Title = title;
-      saveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
-      if (!string.IsNullOrEmpty(preselectFileName))
-        saveFileDialog.FileName = preselectFileName;
-      IsDialogOpen = true;
-      try
-      {
-        if (saveFileDialog.ShowDialog() != DialogResult.OK)
-          return saveFileDialog.FileName?.LongFileName() ?? string.Empty;
-      }
-      finally
-      {
-        IsDialogOpen = false;
-      }
-    }
+        try
+        {
+          // FIXED: Return the filename only if the result is OK
+          if (saveFileDialog.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(saveFileDialog.FileName))
+          {
+            return saveFileDialog.FileName!.LongFileName();
+          }
+        }
+        finally
+        {
+          IsDialogOpen = false;
+        }
 
-    return string.Empty;
+        return string.Empty;
+      }
+    }
   }
 }

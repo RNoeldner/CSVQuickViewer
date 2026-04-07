@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 
 namespace CsvTools;
 
@@ -38,16 +39,11 @@ public static class FileSettingsExtensionMethods
     IEnumerable<string> additionalInfo, int? numRecords, bool isDelimited,
     CancellationToken cancellationToken)
   {
-    var buffer = new StringBuilder();
     var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
     var fi = new FileInfo(fileSetting.FileName);
 
     void AddInfo(string label, string text)
     {
-      buffer.Append(label.Replace("\t", "  "));
-      buffer.Append('\t');
-      buffer.AppendLine(text.Replace("\t", "  "));
-
       sbHtml.Append(HtmlStyle.TrOpen);
       if (!string.IsNullOrEmpty(text))
       {
@@ -73,7 +69,7 @@ public static class FileSettingsExtensionMethods
       fileSetting.ByteOrderMark));
 
     if (fileSetting.SkipRows > 0)
-      AddInfo("Skip Rows", fileSetting.SkipRows.ToString());
+      AddInfo("Skip Rows", fileSetting.SkipRows.ToString(CultureInfo.CurrentCulture));
 
     var rawHeader = string.Empty;
     var join = ", ";
@@ -142,7 +138,7 @@ public static class FileSettingsExtensionMethods
             await streamReader.ReadLineAsync().ConfigureAwait(false);
           }
 
-          AddInfo("Number of Lines", numLines.ToString());
+          AddInfo("Number of Lines", numLines.ToString(CultureInfo.CurrentCulture));
         }
       }
       catch
@@ -154,7 +150,7 @@ public static class FileSettingsExtensionMethods
     }
 
     if (numRecords.HasValue)
-      AddInfo("Number of Records", numRecords.Value.ToString());
+      AddInfo("Number of Records", numRecords.Value.ToString(CultureInfo.CurrentCulture));
 
     using var fileReader =
       FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
@@ -164,7 +160,7 @@ public static class FileSettingsExtensionMethods
       fileReader.GetColumnsOfReader().Select(x => x.Name));
     fileReader.Close();
 
-    AddInfo("Number of Columns", fileReader.FieldCount.ToString());
+    AddInfo("Number of Columns", fileReader.FieldCount.ToString(CultureInfo.CurrentCulture));
     if (!string.IsNullOrEmpty(rawHeader) && !rawHeader.Equals(columnNames))
       AddInfo("Header", rawHeader);
     AddInfo("Column Names", columnNames);

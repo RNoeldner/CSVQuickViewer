@@ -267,9 +267,9 @@ public abstract class BaseFileWriter : IFileWriter
   }
 
   /// <inheritdoc cref="IFileWriter" />
-  public virtual async Task<long> WriteAsync(IFileReader? source, string sourceTimeZone, IProgressWithCancellation progress)
+  public virtual async Task<long> WriteAsync(IFileReader? reader, string sourceTimeZone, IProgressWithCancellation progress)
   {
-    if (source is null)
+    if (reader is null)
       return -1;
     HandleWriteStart();
     try
@@ -284,7 +284,7 @@ public abstract class BaseFileWriter : IFileWriter
 #else
       using var stream = FunctionalDI.GetStream(sourceAccess);
 #endif
-      await WriteReaderAsync(source, stream, sourceTimeZone, progress).ConfigureAwait(false);
+      await WriteReaderAsync(reader, stream, sourceTimeZone, progress).ConfigureAwait(false);
     }
     catch (Exception exc)
     {

@@ -608,58 +608,74 @@ public partial class FormColumnUiRead : ResizeForm
   private void DateFormatChanged(object? sender, EventArgs args) => UpdateDateLabel();
 
   /// <summary>
-  ///   Gets the sample values.
+  /// Retrieves a sample of values for a specific column to determine formatting or data types.
   /// </summary>
-  /// <param name="columnName">Name of the column.</param>
-  /// <param name="progress">Process display to pass on progress information</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <exception cref="FileException">
-  ///   Column {columnName} not found. or Column {columnName} not found.
-  /// </exception>
-  private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-    IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+  /// <param name="columnName">The name of the column to sample.</param>
+  /// <param name="progress">Progress reporter for UI updates.</param>
+  /// <param name="cancellationToken">Token to cancel the potentially long-running file read.</param>
+  /// <returns>A <see cref="DetermineColumnFormat.SampleResult"/> containing found values; returns empty result on failure.</returns>
+  private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(
+      string columnName,
+      IProgress<ProgressInfo>? progress,
+      CancellationToken cancellationToken)
   {
-    try
+    const int MaxRetries = 1;
+    int retryCount = 0;
+
+    while (retryCount <= MaxRetries)
     {
-      // must be file reader if this is reached
-      var hasRetried = false;
-
-      retry:
-
-      // ReSharper disable once ConvertToUsingDeclaration
-      // ReSharper disable once UseAwaitUsing
-      using (var fileReader = await GetReaderForDetectionAsync(m_FileSetting, cancellationToken))
+      try
       {
+        using var fileReader = await GetReaderForDetectionAsync(m_FileSetting, cancellationToken).ConfigureAwait(false);
+
         if (progress != null)
           fileReader.ReportProgress = progress;
 
-        var colIndex = fileReader.GetOrdinal(columnName);
+        int colIndex = fileReader.GetOrdinal(columnName);
+
+        // If column is missing, try updating the column list once
         if (colIndex < 0)
         {
-          if (!hasRetried)
+          if (retryCount < MaxRetries)
           {
-            var columns = new List<string>();
+            var columns = new List<string>(fileReader.FieldCount);
             for (var col = 0; col < fileReader.FieldCount; col++)
+            {
               columns.Add(fileReader.GetName(col));
+            }
+
             UpdateColumnList(columns);
-            hasRetried = true;
-            goto retry;
+            retryCount++;
+            continue; // Re-run the loop to get a fresh reader
           }
 
-          throw new ArgumentException($"Column {columnName} not found.", nameof(columnName));
+          throw new ArgumentException($"Column '{columnName}' not found in the file.", nameof(columnName));
         }
 
-        return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
+        var results = await DetermineColumnFormat.GetSampleValuesAsync(
+            fileReader,
+            m_FillGuessSettings.CheckedRecords,
             new[] { colIndex },
-            m_FileSetting.TreatTextAsNull, 500, cancellationToken)
-          .ConfigureAwait(false)).First().Value;
+            m_FileSetting.TreatTextAsNull,
+            500,
+            cancellationToken).ConfigureAwait(false);
+
+        return results.First().Value;
+
+      }
+      catch (OperationCanceledException)
+      {
+        // Don't show error dialog if the user simply cancelled
+        break;
+      }
+      catch (Exception ex)
+      {
+        Extensions.ShowError(ex, "Getting Sample Values");
+        break; // Exit loop on unexpected errors
       }
     }
-    catch (Exception ex)
-    {
-      Extensions.ShowError(ex, "Getting Sample Values");
-    }
 
+    // Return a default empty result instead of null to prevent NullReferenceExceptions downstream
     return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
   }
 

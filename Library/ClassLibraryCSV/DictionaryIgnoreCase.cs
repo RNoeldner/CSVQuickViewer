@@ -86,6 +86,8 @@ public class DictionaryIgnoreCase<TValue> : Dictionary<string, TValue>, IEquatab
   {
     if (other is null || Count != other.Count)
       return false;
+    if (ReferenceEquals(this, other))
+      return true;
 
     foreach (var kvp in this)
     {

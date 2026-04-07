@@ -83,8 +83,12 @@ namespace CsvTools
     ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public bool Equals(IEnumerable<T> other)
+    public bool Equals(IEnumerable<T>? other)
     {
+      if (other == null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return this.CollectionEqualWithOrder(other);
     }
 

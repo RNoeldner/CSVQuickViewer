@@ -305,7 +305,9 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
           {
             // Update progress bar
             if (TimeToCompletion.Value > 0 && TimeToCompletion.Value <= Maximum)
+#pragma warning disable S2486 // Generic exceptions should not be ignored
               try { m_ProgressBar.Value = TimeToCompletion.Value.ToInt(); } catch { }
+#pragma warning restore S2486 // Generic exceptions should not be ignored
 
             // Build ETA text
             var sb = new StringBuilder();

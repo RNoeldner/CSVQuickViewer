@@ -675,7 +675,7 @@ public static class DetermineColumnFormat
   /// </returns>
   /// <exception cref="ArgumentNullException">samples</exception>
   public static CheckResult GuessDateTime(IReadOnlyCollection<ReadOnlyMemory<char>> samples,
-    in CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
     if (samples is null || samples.Count == 0)
       throw new ArgumentNullException(nameof(samples));

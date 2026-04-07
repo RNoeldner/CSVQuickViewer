@@ -48,7 +48,7 @@ public class FontConfig : ObservableObject, IFontConfig
   /// <summary>
   /// Default Font
   /// </summary>
-  public static FontConfig Default = new();
+  public static readonly FontConfig Default = new();
 
   /// <summary>
   /// Initializes a new instance of FontConfig.

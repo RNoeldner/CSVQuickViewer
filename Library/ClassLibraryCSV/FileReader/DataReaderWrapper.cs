@@ -193,7 +193,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
 
   /// <inheritdoc />
-  public new IDataReader GetData(int ordinal) => DataReader.GetData(m_ReaderMapping.ResultToSource(ordinal));
+  public new IDataReader GetData(int i) => DataReader.GetData(m_ReaderMapping.ResultToSource(i));
 
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
@@ -237,7 +237,11 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       return StartLineNumber;
     if (ordinal == m_ReaderMapping.ColNumEndLine)
       return EndLineNumber;
+#pragma warning disable MA0012 // Do not raise reserved exception type
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
     return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : throw new IndexOutOfRangeException($"Column {ordinal} not found");
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
+#pragma warning restore MA0012 // Do not raise reserved exception type
   }
 
   /// <inheritdoc />
@@ -299,8 +303,12 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       return StartLineNumber;
     if (ordinal == m_ReaderMapping.ColNumEndLine)
       return EndLineNumber;
+#pragma warning disable MA0012 // Do not raise reserved exception type
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
     return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber :
       throw new IndexOutOfRangeException($"Column {ordinal} not found");
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
+#pragma warning restore MA0012 // Do not raise reserved exception type
   }
 
   /// <inheritdoc />

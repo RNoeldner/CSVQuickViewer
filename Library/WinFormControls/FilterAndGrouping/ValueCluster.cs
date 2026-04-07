@@ -85,7 +85,11 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   /// </returns>
   public bool Equals(ValueCluster? other)
   {
-    if (other is null)
+    if (other == null)
+      return false;
+    if (ReferenceEquals(this, other))
+      return true;
+    if (GetType() != other.GetType())
       return false;
 
     return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)

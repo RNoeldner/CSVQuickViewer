@@ -1024,8 +1024,8 @@ public sealed partial class DetailControl : UserControl
       // If we filter out all columns do not change visibility to avoid a blank grid
       if (m_ColumnsInView.Count + m_UniqueFieldName.Count>0)
         foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
-          dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName)
-                        || m_ColumnsInView.Contains(dgCol.DataPropertyName);
+          dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase)
+                        || m_ColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
       // 5. Restore Sorting
       if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
         Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);

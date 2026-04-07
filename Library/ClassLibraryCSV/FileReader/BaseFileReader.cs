@@ -524,7 +524,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           return i;
       }
 
+#pragma warning disable MA0012 // Do not raise reserved exception type
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
     throw new IndexOutOfRangeException($"The column name '{name}' was not found.");
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
+#pragma warning restore MA0012 // Do not raise reserved exception type
   }
 
   /// <inheritdoc />
@@ -609,7 +613,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override object GetValue(int ordinal)
   {
     if (ordinal < 0 || ordinal >= m_FieldCount)
+#pragma warning disable MA0012 // Do not raise reserved exception type
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
       throw new IndexOutOfRangeException($"The column ordinal {ordinal} is out of range.");
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
+#pragma warning restore MA0012 // Do not raise reserved exception type
     if (IsDBNull(ordinal))
       return DBNull.Value;
     var column = GetColumn(ordinal);

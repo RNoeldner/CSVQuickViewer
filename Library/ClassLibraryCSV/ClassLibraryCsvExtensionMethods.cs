@@ -183,6 +183,8 @@ public static class ClassLibraryCsvExtensionMethods
   {
     if (other is null || self is null)
       return false;
+    if (ReferenceEquals(self, other))
+      return true;
 
     ICollection<T> selfCol = self.ToArray();
     if (other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T>)

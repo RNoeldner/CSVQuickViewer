@@ -250,7 +250,9 @@ public static class StringUtils
     {
       candidate = prefix + (counter++).ToString(CultureInfo.InvariantCulture);
       if (hadEllipsis)
+#pragma warning disable S1643 // Strings should not be concatenated using '+' in a loop
         candidate += '…'; // Re-add ellipsis
+#pragma warning restore S1643 // Strings should not be concatenated using '+' in a loop
     } while (previousColumns.Contains(candidate, StringComparer.OrdinalIgnoreCase));
 
     return candidate;

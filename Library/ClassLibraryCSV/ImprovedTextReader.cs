@@ -48,7 +48,11 @@ public sealed class ImprovedTextReader : DisposableBase
       Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
       m_Stream.ReadExactly(bomBufferPass);
 #else
+#pragma warning disable MA0060 // The value returned by Stream.Read/Stream.ReadAsync is not used
+#pragma warning disable S2674 // The length returned from a stream read should be checked
     m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+#pragma warning restore S2674 // The length returned from a stream read should be checked
+#pragma warning restore MA0060 // The value returned by Stream.Read/Stream.ReadAsync is not used
 #endif
 
   }

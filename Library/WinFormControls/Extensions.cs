@@ -198,26 +198,60 @@ public static class Extensions
   /// </summary>
   public static void OpenDefaultApplication(string pathOrUrl)
   {
-    if (!string.IsNullOrEmpty(pathOrUrl))
+    if (string.IsNullOrWhiteSpace(pathOrUrl))
+      return;
+
+    try
     {
-      try
+      // Modern .NET 5+ way to check OS
+#if NET5_0_OR_GREATER
+        if (OperatingSystem.IsWindows())
+#else
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
+      {
+        Process.Start(new ProcessStartInfo
+        {
+          FileName = pathOrUrl,
+          UseShellExecute = true
+        });
+      }
+#if NET5_0_OR_GREATER
+        else if (OperatingSystem.IsLinux())
+#else
+      else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+#endif
+      {
+        Process.Start("xdg-open", pathOrUrl);
+      }
+#if NET5_0_OR_GREATER
+        else if (OperatingSystem.IsMacOS())
+#else
+      else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+#endif
+      {
+        Process.Start("open", pathOrUrl);
+      }
+      else
       {
         Process.Start(pathOrUrl);
       }
-      catch
+    }
+    catch
+    {
+      // 2. Fallback for Windows cmd escaping issues
+#if NET5_0_OR_GREATER
+        if (OperatingSystem.IsWindows())
+#else
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#endif
       {
-        // hack because of this: https://github.com/dotnet/corefx/issues/10361
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-          pathOrUrl = pathOrUrl.Replace("&", "^&");
-          Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-          Process.Start("open", pathOrUrl);
-        }
-        else
-          throw;
+        var escapedUrl = pathOrUrl.Replace("&", "^&");
+        Process.Start(new ProcessStartInfo("cmd", $"/c start {escapedUrl}") { CreateNoWindow = true });
+      }
+      else
+      {
+        throw;
       }
     }
   }

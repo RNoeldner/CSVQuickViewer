@@ -146,8 +146,13 @@ public record Column
     /// <inheritdoc />
     public bool Equals(Column? other)
     {
-      if (other is null) return false;
-      
+      if (other == null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      if (GetType() != other.GetType())
+        return false;
+
       return ColumnOrdinal == other.ColumnOrdinal
              && Convert == other.Convert
              && DestinationName == other.DestinationName && Ignore == other.Ignore

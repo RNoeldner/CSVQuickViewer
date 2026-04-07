@@ -396,7 +396,12 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <inheritdoc/>
   public bool Equals(ValueFormatMut? other)
   {
-    if (other is null) return false;
+    if (other == null)
+      return false;
+    if (ReferenceEquals(this, other))
+      return true;
+    if (GetType() != other.GetType())
+      return false;
 
     return DataType == other.DataType
            && string.Equals(DateFormat, other.DateFormat, StringComparison.Ordinal)

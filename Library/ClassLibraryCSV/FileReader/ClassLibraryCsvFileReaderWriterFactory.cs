@@ -34,9 +34,9 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   }
 
   /// <inheritdoc />
-  public virtual IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
+  public virtual IFileReader GetFileReader(IFileSetting fileSetting, CancellationToken cancellationToken)
   {
-    return setting switch
+    return fileSetting switch
     {
       IJsonFile json => new JsonFileReader(json.FullPath, json.ColumnCollection, json.RecordLimit, json.Trim,
                                            json.TreatTextAsNull, json.TreatNBSPAsSpace, TimeZoneInfo.Local.Id,
@@ -60,7 +60,7 @@ public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
                                         TimeZoneInfo.Local.Id, FillGuessSettings.DetectPercentage,
                                         FillGuessSettings.RemoveCurrencySymbols),
 
-      _ => throw new FileReaderException($"Reader for {setting} not found")
+      _ => throw new FileReaderException($"Reader for {fileSetting} not found")
 
     };
   }

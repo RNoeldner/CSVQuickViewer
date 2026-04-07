@@ -270,18 +270,26 @@ public static class StringConversionSpan
       foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
         if (value.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return (true, trueValue.Slice(start, length).ToString());
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
     foreach (var text in StaticCollections.TrueValues)
+    {
       if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
         return (true, text);
+    }
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
     if (!falseValue.IsEmpty)
       foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
         if (value.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return (false, falseValue.Slice(start, length).ToString());
 
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
     foreach (var text in StaticCollections.FalseValues)
+    {
       if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
         return (false, text);
+    }
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
     return (null, string.Empty);
   }
