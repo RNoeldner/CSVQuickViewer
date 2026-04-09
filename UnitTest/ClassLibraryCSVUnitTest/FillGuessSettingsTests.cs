@@ -20,28 +20,6 @@ namespace CsvTools.Tests;
 [TestClass]
 public class FillGuessSettingsTests
 {
-  [TestMethod]
-  public void CloneTest()
-  {
-    var a = new FillGuessSettings
-    {
-      CheckedRecords = 10,
-      DetectNumbers = true,
-      DetectPercentage = true,
-      DetectBoolean = true,
-      DetectDateTime = true,
-      DetectGuid = true,
-      FalseValue = "Never",
-      TrueValue = "Always",
-      IgnoreIdColumns = false,
-      MinSamples = 5,
-      SampleValues = 5,
-      SerialDateTime = true
-    };
-    var b = a.Clone();
-    Assert.AreNotSame(b, a);
-    a.CheckAllPropertiesEqual(b);
-  }
 
   [TestMethod]
   public void CopyToTest()

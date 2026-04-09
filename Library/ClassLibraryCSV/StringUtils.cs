@@ -209,53 +209,85 @@ public static class StringUtils
   /// </summary>
   /// <param name="previousColumns">
   /// A collection of already used names. Names in this collection will not be modified.
-  /// Typically, this should be case-insensitive if the caller wants uniqueness to ignore case.
+  /// This check is case-insensitive.
   /// </param>
   /// <param name="nameToAdd">The desired name to add to the collection.</param>
   /// <returns>
-  /// A name that is guaranteed to be unique in <paramref name="previousColumns"/>.  
-  /// If the original name already exists, a numeric suffix is appended (e.g., "Column1", "Column2", etc.).  
-  /// If the original name ended with a trailing ellipsis (…), the ellipsis is preserved in the returned name.
+  /// A name guaranteed to be unique in <paramref name="previousColumns"/>. 
+  /// If the name exists, a suffix is added (e.g., "Year2025" becomes "Year2025_1").
+  /// If an existing version suffix is detected (e.g., "Field_1"), it is incremented ("Field_2").
   /// </returns>
-  /// <exception cref="ArgumentNullException">Thrown if <paramref name="nameToAdd"/> is null.</exception>
+  /// <exception cref="ArgumentException">Thrown if <paramref name="nameToAdd"/> is null or empty.</exception>
   /// <remarks>
-  /// 1. Trailing ellipsis (… or Unicode U+2026) is temporarily removed to avoid interfering with numeric suffix logic, 
-  ///    and then re-added to the generated unique name if present.  
-  /// 2. Any existing numeric suffix in the name is removed before generating the counter to avoid conflicts.  
+  /// 1. Trailing ellipsis (Unicode … or "...") are preserved and re-applied after the numeric suffix.
+  /// 2. Smart Suffix Detection: Trailing digits are only treated as a version suffix if they are preceded 
+  ///    by a separator (space, underscore, or hyphen). This prevents names like "Year2025" from 
+  ///    being incorrectly stripped to "Year1".
+  /// 3. If no existing separator is found, an underscore ("_") is used by default for the new suffix.
   /// </remarks>
-  public static string MakeUniqueInCollection(this IReadOnlyCollection<string> previousColumns, string nameToAdd)
+  public static string MakeUniqueInCollection(this IEnumerable<string> previousColumns, string nameToAdd)
   {
-    if (nameToAdd is null)
-      throw new ArgumentNullException(nameof(nameToAdd));
+    if (string.IsNullOrEmpty(nameToAdd))
+      throw new ArgumentException("Name cannot be null or empty.", nameof(nameToAdd));
 
-    // Already unique
-    if (!previousColumns.Contains(nameToAdd, StringComparer.OrdinalIgnoreCase))
+    // Use a local list to avoid multiple enumerations if previousColumns is a LINQ query
+    var existing = previousColumns as ICollection<string> ?? previousColumns.ToList();
+
+    if (!existing.Contains(nameToAdd, StringComparer.OrdinalIgnoreCase))
       return nameToAdd;
 
-    // Detect and temporarily remove trailing ellipsis
-    bool hadEllipsis = nameToAdd.EndsWith("…", StringComparison.Ordinal);
-    string cleanName = hadEllipsis ? nameToAdd.Substring(0, nameToAdd.Length - 1) : nameToAdd;
-
-    // Remove numeric suffix if present
-    int lastIndex = cleanName.Length - 1;
-    while (lastIndex >= 0 && char.IsDigit(cleanName[lastIndex]))
-      lastIndex--;
-
-    var prefix = cleanName.Substring(0, lastIndex + 1);
-
-    // Generate unique name
-    int counter = 1;
-    string candidate;
-    do
+    // 1. Handle Ellipsis
+    string ellipsis = string.Empty;
+    string cleanName = nameToAdd;
+    if (nameToAdd.EndsWith("…", StringComparison.Ordinal))
     {
-      candidate = prefix + (counter++).ToString(CultureInfo.InvariantCulture);
-      if (hadEllipsis)
-#pragma warning disable S1643 // Strings should not be concatenated using '+' in a loop
-        candidate += '…'; // Re-add ellipsis
-#pragma warning restore S1643 // Strings should not be concatenated using '+' in a loop
-    } while (previousColumns.Contains(candidate, StringComparer.OrdinalIgnoreCase));
+      ellipsis = "…";
+      cleanName = nameToAdd.TrimEnd('…');
+    }
+    else if (nameToAdd.EndsWith("...", StringComparison.Ordinal))
+    {
+      ellipsis = "...";
+      cleanName = nameToAdd.Substring(0, nameToAdd.Length - 3);
+    }
 
-    return candidate;
+    // 2. Character-based Prefix/Separator Detection
+    string prefix = cleanName;
+    string separator = "_";
+    int lastIndex = cleanName.Length - 1;
+
+    if (lastIndex >= 0 && char.IsDigit(cleanName[lastIndex]))
+    {
+      int digitStart = lastIndex;
+      while (digitStart > 0 && char.IsDigit(cleanName[digitStart - 1]))
+      {
+        digitStart--;
+      }
+
+      if (digitStart > 0)
+      {
+        char c = cleanName[digitStart - 1];
+        if (c == ' ' || c == '_' || c == '-')
+        {
+          separator = c.ToString();
+          // TrimEnd ensures "Field _1" doesn't become "Field  _2"
+          prefix = cleanName.Substring(0, digitStart - 1).TrimEnd();
+        }
+      }
+    }
+
+    // 3. Increment logic
+    int counter = 1;
+    while (true)
+    {
+      // Construct candidate: {Prefix}{Separator}{Number}{Ellipsis}
+      string candidate = $"{prefix}{separator}{counter++}{ellipsis}";
+
+      // Clean up any accidental double spaces from the prefix trim
+      candidate = candidate.Replace("  ", " ").Trim();
+
+      if (!existing.Contains(candidate, StringComparer.OrdinalIgnoreCase))
+        return candidate;
+    }
   }
 
   /// <summary>

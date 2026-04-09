@@ -79,9 +79,12 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     {
       m_SuppressOnCollectionChanged = false;
       if (addedAny)
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items));
+      {
+        // Reset is the safest way to notify UI of bulk changes
+        // WPF/WinUI CollectionView will throw a NotSupportedException if you pass a list to a NotifyCollectionChangedAction.Add event
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      }
     }
-
   }
 
   /// <summary> Rewires all items in the collection to the <see cref="CollectionItemPropertyChanged"/> event. 
@@ -96,6 +99,30 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     }
   }
 
+  /// <summary>
+  /// Replaces all elements in the collection with the specified items.
+  /// </summary>
+  /// <param name="items">The sequence of items to populate the collection with.</param>
+  /// <remarks>
+  /// This method suppresses individual <see cref="INotifyPropertyChanged"/> and 
+  /// <see cref="INotifyCollectionChanged"/> events during the clearing and addition process. 
+  /// A single <see cref="NotifyCollectionChangedAction.Reset"/> event is raised upon completion 
+  /// to notify listeners that the entire collection has changed.
+  /// </remarks>
+  public void ReplaceAll(IEnumerable<T> items)
+  {
+    try
+    {
+      m_SuppressOnCollectionChanged = true;
+      ClearItems();
+      AddRange(items);
+    }
+    finally
+    {
+      m_SuppressOnCollectionChanged = false;
+      OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+  }
 
   /// <summary>
   /// Clears the collection and fully resets internal bookkeeping,
@@ -214,18 +241,21 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// </summary>
   private string MakeUnique(T item)
   {
-    var existingKeys = m_InternalDictionary.Keys.ToList();
     var key = item.GetUniqueKey();
-    var unique = existingKeys.MakeUniqueInCollection(key);
-    // Key was unique already
-    if (string.Equals(unique, key, StringComparison.OrdinalIgnoreCase))
-      return key;
 
-    // Item added twice
-    if (m_InternalDictionary.Any(p => ReferenceEquals(p.Value, item)))
+    // 1. Check if this specific INSTANCE is already in our collection
+    // This replaces the .Any() scan with an O(1) lookup if you know the key,
+    // or you can just rely on the dictionary's values.
+    if (m_InternalDictionary.TryGetValue(key, out var existingItem) && ReferenceEquals(existingItem, item))
       throw new InvalidOperationException("The same item instance cannot be added to the collection more than once.");
 
-    item.SetUniqueKey(unique);
+    // 2. Generate a unique name using the Dictionary Keys (O(1) lookups inside the extension)
+    var unique = m_InternalDictionary.Keys.MakeUniqueInCollection(key);
+
+    // 3. Apply and return
+    if (!string.Equals(unique, key, StringComparison.OrdinalIgnoreCase))
+      item.SetUniqueKey(unique);
+
     return unique;
   }
 
@@ -242,11 +272,11 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
 
     // React to key changes
     if (item.UniqueKeyPropertyName.Equals(e.PropertyName))
-    { 
+    {
       HandleKeyChange(item);
       return;
     }
-      
+
 
     CollectionItemPropertyChanged?.Invoke(this, e);
   }

@@ -757,7 +757,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async void ShowSettings(object? sender, EventArgs e)
   {
-    var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
+    var oldFillGuessSettings = new FillGuessSettings();
+    m_ViewSettings.FillGuessSettings.CopyTo(oldFillGuessSettings);
     await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
     {
       using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);

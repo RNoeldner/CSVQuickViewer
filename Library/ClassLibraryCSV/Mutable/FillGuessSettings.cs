@@ -18,14 +18,11 @@ using System;
 using System.ComponentModel;
 namespace CsvTools;
 
-/// <inheritdoc cref="System.ICloneable" />
 /// <summary>
 ///   Settings how the typed values should be determined
 /// </summary>
 [Serializable]
-#pragma warning disable CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
-public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable<FillGuessSettings>
-#pragma warning restore CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
+public sealed class FillGuessSettings : ObservableObject, IEquatable<FillGuessSettings>
 {
   private long m_CheckedRecords;
   private bool m_DetectBoolean;
@@ -265,16 +262,6 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
     set => SetProperty(ref m_DateFormat, value ?? string.Empty);
   }
 
-  /// <summary>
-  /// Creates a deep copy of the current FillGuessSettings instance.
-  /// </summary>
-  /// <returns>A new FillGuessSettings object with the same property values.</returns>
-  public object Clone()
-  {
-    return new FillGuessSettings(enabled: m_Enabled, ignoreIdColumns: m_IgnoreIdColumns, detectBoolean: m_DetectBoolean, detectDateTime: m_DetectDateTime, detectNumbers: m_DetectNumbers, detectPercentage: m_DetectPercentage,
-      detectGuid: m_DetectGuid, serialDateTime: m_SerialDateTime, dateParts: m_DateParts, dateFormat: m_DateFormat, trueValue: m_TrueValue, falseValue: m_FalseValue, minSamples: m_MinSamples, sampleValues: m_SampleValues, checkedRecords: m_CheckedRecords, removeCurrencySymbols: m_RemoveCurrencySymbols);
-  }
-
   /// <inheritdoc/>
   public override bool Equals(object? obj) => Equals(obj as FillGuessSettings);
 
@@ -285,12 +272,9 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   /// <returns>True if the specified instance is equal; otherwise, false.</returns>
   public bool Equals(FillGuessSettings? other)
   {
-    if (other == null)
-      return false;
-    if (ReferenceEquals(this, other))
-      return true;
-    if (GetType() != other.GetType())
-      return false;
+    if (other == null) return false;
+    if (ReferenceEquals(this, other)) return true;
+    if (GetType() != other.GetType()) return false;
 
     return m_Enabled == other.Enabled &&
            m_CheckedRecords == other.CheckedRecords &&
@@ -305,8 +289,8 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
            m_SampleValues == other.SampleValues &&
            m_SerialDateTime == other.SerialDateTime &&
            m_RemoveCurrencySymbols == other.RemoveCurrencySymbols &&
-           string.Equals(m_FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
-           string.Equals(m_TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase) &&
+           string.Equals(m_FalseValue, other.FalseValue, StringComparison.Ordinal) &&
+           string.Equals(m_TrueValue, other.TrueValue, StringComparison.Ordinal) &&
            string.Equals(m_DateFormat, other.DateFormat, StringComparison.Ordinal);
   }
 
@@ -316,6 +300,8 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   /// <param name="other">The target FillGuessSettings instance to copy values to.</param>
   public void CopyTo(FillGuessSettings other)
   {
+    // Prevent self-copy and unnecessary PropertyChanged notifications
+    if (ReferenceEquals(this, other)) return;
     other.Enabled = m_Enabled;
     other.CheckedRecords = m_CheckedRecords;
     other.DetectNumbers = m_DetectNumbers;
@@ -337,23 +323,27 @@ public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable
   /// <inheritdoc/>
   public override int GetHashCode()
   {
-    var hashCode = 824013017;
-    hashCode=hashCode*-1521134295+Enabled.GetHashCode();
-    hashCode=hashCode*-1521134295+RemoveCurrencySymbols.GetHashCode();
-    hashCode=hashCode*-1521134295+CheckedRecords.GetHashCode();
-    hashCode=hashCode*-1521134295+DateParts.GetHashCode();
-    hashCode=hashCode*-1521134295+DetectNumbers.GetHashCode();
-    hashCode=hashCode*-1521134295+DetectPercentage.GetHashCode();
-    hashCode=hashCode*-1521134295+DetectBoolean.GetHashCode();
-    hashCode=hashCode*-1521134295+DetectDateTime.GetHashCode();
-    hashCode=hashCode*-1521134295+DetectGuid.GetHashCode();
-    hashCode=hashCode*-1521134295+IgnoreIdColumns.GetHashCode();
-    hashCode=hashCode*-1521134295+MinSamples.GetHashCode();
-    hashCode=hashCode*-1521134295+SampleValues.GetHashCode();
-    hashCode=hashCode*-1521134295+SerialDateTime.GetHashCode();
-    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(TrueValue);
-    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(FalseValue);
-    hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(DateFormat);
-    return hashCode;
+    // .NET Standard 2.0 compatible HashCode combination
+    unchecked
+    {
+      var hashCode = 824013017;
+      hashCode=hashCode*-1521134295+Enabled.GetHashCode();
+      hashCode=hashCode*-1521134295+RemoveCurrencySymbols.GetHashCode();
+      hashCode=hashCode*-1521134295+CheckedRecords.GetHashCode();
+      hashCode=hashCode*-1521134295+DateParts.GetHashCode();
+      hashCode=hashCode*-1521134295+DetectNumbers.GetHashCode();
+      hashCode=hashCode*-1521134295+DetectPercentage.GetHashCode();
+      hashCode=hashCode*-1521134295+DetectBoolean.GetHashCode();
+      hashCode=hashCode*-1521134295+DetectDateTime.GetHashCode();
+      hashCode=hashCode*-1521134295+DetectGuid.GetHashCode();
+      hashCode=hashCode*-1521134295+IgnoreIdColumns.GetHashCode();
+      hashCode=hashCode*-1521134295+MinSamples.GetHashCode();
+      hashCode=hashCode*-1521134295+SampleValues.GetHashCode();
+      hashCode=hashCode*-1521134295+SerialDateTime.GetHashCode();
+      hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(TrueValue);
+      hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(FalseValue);
+      hashCode=hashCode*-1521134295+StringComparer.Ordinal.GetHashCode(DateFormat);
+      return hashCode;
+    }
   }
 }

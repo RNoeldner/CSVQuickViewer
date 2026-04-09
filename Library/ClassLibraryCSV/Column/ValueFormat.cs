@@ -25,7 +25,7 @@ namespace CsvTools;
 ///   Setting for a value format
 /// </summary>
 [DebuggerDisplay("{GetTypeAndFormatDescription(),nq}")]
-public sealed record ValueFormat 
+public sealed record ValueFormat
 {
   /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
   public const string cDateFormatDefault = "MM/dd/yyyy";
@@ -370,7 +370,6 @@ public sealed record ValueFormat
   /// <summary>
   ///   Gets the description of the Date or Number format
   /// </summary>
-  /// <returns></returns>
   public string GetFormatDescription() =>
     DataType switch
     {
@@ -387,7 +386,6 @@ public sealed record ValueFormat
   /// <summary>
   ///   Gets the description.
   /// </summary>
-  /// <returns></returns>
   public string GetTypeAndFormatDescription()
   {
     var sbText = new StringBuilder(DataType.Description());

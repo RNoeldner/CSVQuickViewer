@@ -155,6 +155,27 @@ public static class ClassLibraryCsvExtensionMethods
   }
 
   /// <summary>
+  /// Clears the target collection and populates it with new instances synchronized from the source.
+  /// </summary>
+  /// <typeparam name="T">The element type, which must have a parameterless constructor and implement synchronization logic.</typeparam>
+  /// <param name="self">The source sequence of items.</param>
+  /// <param name="other">The target collection to be updated.</param>
+  [DebuggerStepThrough]
+  public static void CollectionCopySync<T>(this IEnumerable<T> self, ICollection<T>? other)
+      where T : IWithCopyTo<T>, new()
+  {
+    if (other is null) return;
+
+    other.Clear();
+    foreach (var item in self)
+    {
+      var newItem = new T();
+      item.CopyTo(newItem);
+      other.Add(newItem);
+    }
+  }
+
+  /// <summary>
   /// Clears the target collection and copies value-type elements from the source.
   /// </summary>
   /// <typeparam name="T">The value type.</typeparam>

@@ -19,7 +19,6 @@ namespace CsvTools;
 /// <summary>
 ///   Interface to show that a calls supports copy to, along with Equals and Clone
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IWithCopyTo<T> : IEquatable<T>, ICloneable
 {
   /// <summary>
@@ -27,4 +26,6 @@ public interface IWithCopyTo<T> : IEquatable<T>, ICloneable
   /// </summary>
   /// <param name="other">Another instance class of the same type</param>
   void CopyTo(T other);
+
+  // T DeepClone(T other);
 }

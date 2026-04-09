@@ -13,12 +13,12 @@ namespace CsvTools
   /// <remarks>Unlike ObservableCollection, this class provides range methods that raise 
   /// CollectionChanged only after actual changes.</remarks>
 #pragma warning disable S4035 // Classes implementing "IEquatable<T>" should be sealed
-  public class ObservableList<T> : List<T>
+  public class ObservableList<T> : List<T> 
 #pragma warning restore S4035 // Classes implementing "IEquatable<T>" should be sealed
   {
     /// <summary>
-    ///   Occurs whenever the collection content changes, 
-    ///   such as when an item is added, inserted, removed, 
+    ///   Occurs whenever the collection content changes,
+    ///   such as when an item is added, inserted, removed,
     ///   or collection is cleared.
     ///   AddRange, InsertRange, Overwrite, RemoveRange all raise exactly one event.
     /// </summary>
@@ -33,6 +33,43 @@ namespace CsvTools
     {
       base.Add(item);
       OnCollectionChanged();
+    }
+
+    /// <summary>
+    /// Ensures the item is present in the collection, either by adding it or synchronizing the state of an existing match.
+    /// </summary>
+    /// <typeparam name="TField">A type derived from <typeparamref name="T"/> that implements synchronization and equality logic.</typeparam>
+    /// <param name="field">The source item to be added or used as the data source for the update.</param>
+    /// <remarks>
+    /// <para>
+    /// If no matching item is found, the <paramref name="field"/> is added directly.
+    /// </para>
+    /// <para>
+    /// If a match exists but is a different memory instance, the state is copied using <see cref="IWithCopyTo{T}.CopyTo"/>.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the existing item found in the collection cannot be cast to <typeparamref name="TField"/>.
+    /// </exception>
+    public void AddOrUpdate<TField>(TField field) where TField : T, IWithCopyTo<TField>, IEquatable<TField>
+    {
+      var index = IndexOf(field);
+      if (index == -1)
+      {
+        Add(field);
+      }
+      else if (!ReferenceEquals(field, this[index]))
+      {
+        if (this[index] is TField existingField)
+        {
+          field.CopyTo(existingField);
+        }
+        else
+        {
+          // This should not happen if the collection is used consistently, but we guard against it just in case.
+          throw new InvalidOperationException($"Existing item at index {index} is not of type {typeof(TField).FullName}");
+        }
+      }
     }
 
     /// <summary>
@@ -132,6 +169,7 @@ namespace CsvTools
       base.AddRange(items);
       OnCollectionChanged();
     }
+
     /// <summary>
     ///   Removes the specified item from the collection and raises <see cref="CollectionChanged"/> if the item was successfully removed.
     /// </summary>
@@ -188,6 +226,7 @@ namespace CsvTools
       if (removed)
         OnCollectionChanged();
     }
+
     /// <summary>
     ///   Raises the <see cref="CollectionChanged"/> event to notify subscribers that the collection has changed.
     /// </summary>

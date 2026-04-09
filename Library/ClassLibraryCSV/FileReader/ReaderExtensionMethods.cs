@@ -68,7 +68,7 @@ public static class ReaderExtensionMethods
   /// </summary>
   /// <param name="source">The initial source setting </param>
   /// <param name="cancellationToken">Token to cancel the long running async method</param>
-  /// <returns>The IFileReader to read the data as text</returns>   
+  /// <returns>The IFileReader to read the data as text</returns>
   /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
   public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,
     CancellationToken cancellationToken)
