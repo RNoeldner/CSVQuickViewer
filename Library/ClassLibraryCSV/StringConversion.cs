@@ -29,7 +29,7 @@ public static class StringConversion
   /// <param name="dateTime">The date time value</param>
   /// <param name="format">The ValueFormat</param>
   /// <returns>Formatted value</returns>
-  public static string DateTimeToString(this in DateTime dateTime, in ValueFormat format) =>
+  public static string DateTimeToString(this DateTime dateTime, ValueFormat format) =>
     DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
 
   /// <summary>
@@ -41,7 +41,7 @@ public static class StringConversion
   /// <param name="timeSeparator">The time separator.</param>
   /// <param name="cultureInfo"></param>
   /// <returns>Formatted value</returns>
-  public static string DateTimeToString(in DateTime dateTime, string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
+  public static string DateTimeToString(DateTime dateTime, string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
   {
     cultureInfo ??= CultureInfo.InvariantCulture;
 
@@ -93,7 +93,7 @@ public static class StringConversion
   /// <param name="dateTime">The date time.</param>
   /// <param name="culture">The culture.</param>
   /// <returns></returns>
-  public static string DisplayDateTime(in DateTime dateTime, in CultureInfo culture)
+  public static string DisplayDateTime(DateTime dateTime, CultureInfo culture)
   {
     // if we only have a time:
     if (IsTimeOnly(dateTime))
@@ -188,6 +188,6 @@ public static class StringConversion
   /// </summary>
   /// <param name="dateTime"></param>
   /// <returns><c>true</c> if it should be treated as Time without date</returns>
-  public static bool IsTimeOnly(this in DateTime dateTime) =>
+  public static bool IsTimeOnly(this DateTime dateTime) =>
     dateTime >= DateTimeConstants.FirstDateTime && dateTime < DateTimeConstants.FirstDateTime.AddDays(1);
 }

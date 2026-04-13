@@ -1215,7 +1215,7 @@ public sealed partial class DetailControl : UserControl
 #endif
         // Use the wrapper to satisfy the ICsvReader requirement
         await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
-    }, ParentForm);
+    }, ParentForm!);
   }
 
   /// <summary>

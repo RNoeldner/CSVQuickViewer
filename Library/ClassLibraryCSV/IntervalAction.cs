@@ -70,7 +70,9 @@ public sealed class IntervalAction
     {
       action();
     }
-    catch (ObjectDisposedException) { }
+    catch (ObjectDisposedException) 
+    { // ignore
+    }
     catch (Exception ex)
     {
       Logger.Warning(ex, $"IntervalAction.Invoke {action.Method} failed: {ex.Message}");

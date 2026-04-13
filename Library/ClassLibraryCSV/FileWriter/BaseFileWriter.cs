@@ -232,7 +232,9 @@ public abstract class BaseFileWriter : IFileWriter
         var tz = column.TimeZonePart;
         if (!string.IsNullOrEmpty(tz) && !tz.TryGetConstant(out constantTimeZone) &&
             colNames.TryGetByValue(tz, out var ordinal))
+        {
           columnOrdinalTimeZoneReader = ordinal;
+        }
       }
 
       // this is problematic, we need to apply timezone mapping here and on date

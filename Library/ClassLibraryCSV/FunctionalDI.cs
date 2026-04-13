@@ -46,7 +46,7 @@ public delegate IColumnFormatter ColumnFormatterDelegate(in ValueFormat valueFor
 /// Optional action invoked to report warnings, such as unknown or invalid time zones.
 /// </param>
 /// <returns>The converted <see cref="DateTime"/> value in the target time zone.</returns>
-public delegate DateTime TimeZoneChangeDelegate(in DateTime input, string sourceTimeZone, string destinationTimeZone, Action<string>? handleWarning);
+public delegate DateTime TimeZoneChangeDelegate(DateTime input, string sourceTimeZone, string destinationTimeZone, Action<string>? handleWarning);
 #pragma warning restore MA0048 // File name must match type name
 
 /// <summary>

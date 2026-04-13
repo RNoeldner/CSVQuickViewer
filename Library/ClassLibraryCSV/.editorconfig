@@ -12,3 +12,6 @@ MA0051.skip_local_functions = true # skip local functions when counting statemen
 
 # MA0016: Prefer using collection abstraction instead of implementation
 dotnet_diagnostic.MA0016.severity = none
+
+# RCS1037: Remove trailing white-space
+dotnet_diagnostic.RCS1037.severity = none

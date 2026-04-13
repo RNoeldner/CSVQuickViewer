@@ -15,13 +15,14 @@
 namespace CsvTools;
 
 /// <summary>
-///   Interface to show that a calls supports copy to, along with Equals and Clone
+/// Defines a generalized method that a value type or class implements to create a type-specific deep copy of an instance.
 /// </summary>
-public interface IWithCopyTo<in T>
+/// <typeparam name="T">The type of the object to be cloned.</typeparam>
+public interface IWithClone<out T> where T : class
 {
   /// <summary>
-  ///   Copy all properties from one instance to another instance
+  /// Creates a new instance that is a deep copy of the current instance.
   /// </summary>
-  /// <param name="other">Another instance class of the same type</param>
-  void CopyTo(T other);
+  /// <returns>A new instance of type <typeparamref name="T"/> with all properties and nested objects copied.</returns>
+  T Clone();
 }

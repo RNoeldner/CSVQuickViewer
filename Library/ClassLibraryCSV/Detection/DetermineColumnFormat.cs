@@ -766,7 +766,7 @@ public static class DetermineColumnFormat
     bool guessPercentage,
     bool allowStartingZero,
     bool removeCurrencySymbols,
-    in CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
     if (samples is null || samples.Count == 0)
       throw new ArgumentNullException(nameof(samples));
@@ -839,7 +839,7 @@ public static class DetermineColumnFormat
     bool serialDateTime,
     bool removeCurrencySymbols,
     in ValueFormat othersValueFormatDate,
-    in CancellationToken cancellationToken)
+    CancellationToken cancellationToken)
   {
     if (samples is null || samples.Count == 0)
       throw new ArgumentNullException(nameof(samples));

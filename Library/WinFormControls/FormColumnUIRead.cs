@@ -218,8 +218,10 @@ public partial class FormColumnUiRead : ResizeForm
             header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
             if (checkResult.PossibleMatch)
+            {
               header1 +=
                 $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
+            }
 
             if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
             {
@@ -228,9 +230,10 @@ public partial class FormColumnUiRead : ResizeForm
                       "Not matching:", checkResult.ExampleNonMatch),
                     $"Column: {columnName}",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+              {
                 // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
                 // is quite specific and need it to be set,
-                m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.ValueFormatPossibleMatch);
+              }
             }
             else
             {
@@ -271,7 +274,9 @@ public partial class FormColumnUiRead : ResizeForm
                       displayMsg + "\n\nShould this be set to text?",
                       $"Column: {columnName}",
                       MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
                   m_ColumnEdit.ValueFormatMut.DataType = DataTypeEnum.String;
+                }
               }
             }
           }
@@ -383,7 +388,9 @@ public partial class FormColumnUiRead : ResizeForm
           labelOutPutTZ.Text = tz;
         }
         else
+        {
           labelOutPutTZ.Text = string.Empty;
+        }
 
         labelDateOutputDisplay.Text = StringConversion.DateTimeToString(sourceDate, comboBoxDateFormat.Text, dateSeparator,
             timeSeparator, CultureInfo.InvariantCulture);
@@ -430,13 +437,13 @@ public partial class FormColumnUiRead : ResizeForm
       $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}");
 
     if (!string.IsNullOrEmpty(header))
-      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header));
+      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header!));
 
     ListSamples(stringBuilder, headerList1, values1, col1, rows);
     ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
     if (!string.IsNullOrEmpty(footer))
-      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer));
+      stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer!));
 
     stringBuilder.AppendLine("</BODY>");
     stringBuilder.AppendLine("</HTML>");
@@ -682,7 +689,7 @@ public partial class FormColumnUiRead : ResizeForm
   private static void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<ReadOnlyMemory<char>>? values, int col,
     int rows)
   {
-    if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
+    if (values is null || values.Count == 0 || headerList is null || headerList.Length == 0)
       return;
     stringBuilder.AppendFormat(CultureInfo.InvariantCulture, HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList));
     stringBuilder.AppendLine(HtmlStyle.TableOpen);
@@ -691,10 +698,15 @@ public partial class FormColumnUiRead : ResizeForm
     for (var index = 1; index <= texts.Length; index++)
     {
       if (string.IsNullOrEmpty(texts[index - 1].Span.ToString()))
+      {
         stringBuilder.AppendLine(HtmlStyle.TdEmpty);
+      }
       else
+      {
         stringBuilder.AppendLine(string.Format(CultureInfo.InvariantCulture, HtmlStyle.Td,
-          HtmlStyle.TextToHtmlEncode(texts[index - 1].Span.ToString())));
+                HtmlStyle.TextToHtmlEncode(texts[index - 1].Span.ToString())));
+      }
+
       if (index % col == 0)
         stringBuilder.AppendLine(HtmlStyle.TrClose);
     }

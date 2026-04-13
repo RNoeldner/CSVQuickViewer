@@ -125,53 +125,26 @@ public static class ClassLibraryCsvExtensionMethods
   /// <param name="fileName">The name or path of the file.</param>  
   public static bool AssumeZip(this string fileName) =>
     fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
-
-  /// <summary>
-  /// Creates a new list containing cloned copies of all items in the source collection.
-  /// </summary>
-  /// <param name="self">The source collection of cloneable items.</param>
-  /// <returns>A new <see cref="IReadOnlyCollection{T}"/> containing the cloned entries.</returns>
-  public static IReadOnlyCollection<T> Clone<T>(this IReadOnlyCollection<T> self) where T : ICloneable
-  {
-    var result = new List<T>(self.Count);
-    self.CollectionCopyClone(result);
-    return result;
-  }
-
+ 
   /// <summary>
   /// Clears the target collection and populates it with cloned copies of elements from the source.
   /// </summary>
   /// <typeparam name="T">The element type, which must implement <see cref="ICloneable"/>.</typeparam>
-  /// <param name="self">The source sequence of items to clone.</param>
+  /// <param name="self">The source sequence of items to cloneable.</param>
   /// <param name="other">The target collection to be updated. Does nothing if null.</param>
   [DebuggerStepThrough]
-  public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other)
-    where T : ICloneable
+  public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other)  where T : class
   {
-    if (other is null) return;
-    other.Clear();
-    foreach (var item in self)
-      other.Add((T) item.Clone());
-  }
-
-  /// <summary>
-  /// Clears the target collection and populates it with new instances synchronized from the source.
-  /// </summary>
-  /// <typeparam name="T">The element type, which must have a parameterless constructor and implement synchronization logic.</typeparam>
-  /// <param name="self">The source sequence of items.</param>
-  /// <param name="other">The target collection to be updated.</param>
-  [DebuggerStepThrough]
-  public static void CollectionCopySync<T>(this IEnumerable<T> self, ICollection<T>? other)
-      where T : IWithCopyTo<T>, new()
-  {
-    if (other is null) return;
-
+    if (other is null || self is null) return;
     other.Clear();
     foreach (var item in self)
     {
-      var newItem = new T();
-      item.CopyTo(newItem);
-      other.Add(newItem);
+      if (item is null)
+        continue;
+      if (item is IWithClone<T> cloneable)
+        other.Add(cloneable.Clone());
+      else
+        other.Add(item);
     }
   }
 

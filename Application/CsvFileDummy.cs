@@ -259,7 +259,7 @@ public sealed class CsvFileDummy : ICsvFile
   [DefaultValue(false)] public bool Trim { get; set; } = false;
 
   /// <inheritdoc />
-  public CsvFileDummy Clone()
+  public IFileSetting Clone()
   {
     var res = new CsvFileDummy();
     CopyTo(res);
@@ -404,7 +404,6 @@ public sealed class CsvFileDummy : ICsvFile
 
   /// <inheritdoc />
   public string GetDisplay() => "CSV";
-  object ICloneable.Clone() => Clone();
 
   #endregion IFileSetting
 }

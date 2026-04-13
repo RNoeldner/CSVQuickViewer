@@ -123,25 +123,29 @@ public sealed class ReaderMapping
     if (recNum)
     {
       if (orgRecNum>=0) m_Mapping.Add(orgRecNum, fieldCount);
-      m_ResultingColumns.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumRecNum = fieldCount++));
+      var columnOrdinal = ColNumRecNum = fieldCount++;
+      m_ResultingColumns.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
 
     if (endLine)
     {
       if (orgEndLine>=0) m_Mapping.Add(orgEndLine, fieldCount);
-      m_ResultingColumns.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumEndLine = fieldCount++));
+      var columnOrdinal = ColNumEndLine = fieldCount++;
+      m_ResultingColumns.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
 
     if (errorField)
     {
       if (ColNumErrorFieldSource>=0) m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
-      m_ResultingColumns.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, ColNumErrorField = fieldCount++));
+      var columnOrdinal = ColNumErrorField = fieldCount++;
+      m_ResultingColumns.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, columnOrdinal));
     }
 
     if (startLine)
     {
       if (orgStartLine>=0) m_Mapping.Add(orgStartLine, fieldCount);
-      m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), ColNumStartLine = fieldCount));
+      var columnOrdinal = ColNumStartLine = fieldCount++;
+      m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
   }
 

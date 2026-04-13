@@ -80,6 +80,7 @@ public static class StringConversionSpan
 
     TimeSpan? timeSpanValue = null;
     if (timeColumn != null)
+    {
       switch (timeColumn)
       {
         case double oaDate when serialDateTime:
@@ -106,6 +107,7 @@ public static class StringConversionSpan
           timeSpanValue = span;
           break;
       }
+    }
 
     timeSpanValue ??= StringToTimeSpan(timeColumnText, ':', serialDateTime);
 
@@ -122,7 +124,9 @@ public static class StringConversionSpan
     if (dateValue == DateTimeConstants.FirstDateTime && (dateColumnText.IsEmpty || !dateColumnText.Equals(
           DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat)
             .AsSpan(), StringComparison.Ordinal)))
+    {
       return null;
+    }
 
     return dateValue;
   }
@@ -196,7 +200,10 @@ public static class StringConversionSpan
                 stringDateValue.ToString()
 #endif
               , NumberStyles.Float, numberFormatProvider, out var timeSerial))
+        {
           continue;
+        }
+
         if (timeSerial >= -657435 && timeSerial < 2958466)
           return DateTime.FromOADate(timeSerial);
       }
@@ -228,22 +235,34 @@ public static class StringConversionSpan
       return null;
 
     if (!trueValue.IsEmpty)
+    {
       foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
+      {
         if (value.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return true;
+      }
+    }
+
     foreach (var text in StaticCollections.TrueValues)
+    {
       if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
         return true;
+    }
 
     if (!falseValue.IsEmpty)
+    {
       foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
+      {
         if (value.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return false;
+      }
+    }
 
     foreach (var text in StaticCollections.FalseValues)
+    {
       if (value.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
         return false;
-
+    }
     return null;
   }
 
@@ -268,8 +287,10 @@ public static class StringConversionSpan
 
     if (!trueValue.IsEmpty)
       foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
+      {
         if (value.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return (true, trueValue.Slice(start, length).ToString());
+      }
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
     foreach (var text in StaticCollections.TrueValues)
     {
@@ -279,9 +300,13 @@ public static class StringConversionSpan
 #pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
     if (!falseValue.IsEmpty)
+    {
       foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
+      {
         if (value.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return (false, falseValue.Slice(start, length).ToString());
+      }
+    }
 
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
     foreach (var text in StaticCollections.FalseValues)
@@ -455,8 +480,11 @@ public static class StringConversionSpan
       else if (text[pos] == groupSeparatorChar)
       {
         if (lastPos > 0 && pos != lastPos + 4)
+        {
           // Distance between group is not correct
           return null;
+        }
+
         lastPos = pos;
       }
     }
@@ -674,7 +702,7 @@ public static class StringConversionSpan
   /// <returns>
   ///   <c>Null</c> if the value is empty or the part can not be found. If the desired part is 1
   ///   and the splitter is not contained the whole value is returned.
-  /// </returns>    
+  /// </returns>
   public static ReadOnlySpan<char> StringToTextPart(
     this ReadOnlySpan<char> text,
     char splitter,
@@ -712,7 +740,7 @@ public static class StringConversionSpan
     var slices = text.GetSlices(new[] { timeSeparatorChar, ' ', '.' }).Where(x => x.length>0).ToList();
     // Either we only have one slice or its two slices but the two slices are separated by .
     if (slices.Count==1 ||
-        slices.Count==2 && text[slices[1].start-1] =='.')
+        (slices.Count==2 && text[slices[1].start-1] =='.'))
     {
       if (!serialDateTime)
         return null;
@@ -726,11 +754,11 @@ public static class StringConversionSpan
     var slice = text.Slice(slices[0].start, slices[0].length);
     int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-      slice
+      slice 
 #else
-            slice.ToString()
+            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif
-      , out var hours);
+      , CultureInfo.InvariantCulture, out var hours);
     var minutes = 0;
     if (slices.Count > 1)
     {
@@ -739,9 +767,9 @@ public static class StringConversionSpan
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         slice
 #else
-            slice.ToString()
+            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif
-        , out minutes);
+     , CultureInfo.InvariantCulture, out minutes);
     }
     var seconds = 0;
     if (slices.Count > 2)
@@ -751,9 +779,9 @@ public static class StringConversionSpan
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
         slice
 #else
-            slice.ToString()
+            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif
-        , out seconds);
+        , CultureInfo.InvariantCulture, out seconds);
     }
 
     var milliseconds = 0;
@@ -762,11 +790,11 @@ public static class StringConversionSpan
       slice = text.Slice(slices[3].start, slices[3].length);
       int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-        slice
+        slice 
 #else
-            slice.ToString()
+        slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif
-        , out milliseconds);
+        , CultureInfo.InvariantCulture, out milliseconds);
     }
     // Handle am / pm to adjust hours
     // 12:00 AM - 12:59 AM --> 00:00 - 00:59
@@ -787,8 +815,11 @@ public static class StringConversionSpan
     int start = 0)
   {
     for (int i = start; i < text.Length; i++)
+    {
       if (text[i] == charToFind)
         return i;
+    }
+
     return -1;
   }
   /// <summary>
@@ -851,7 +882,10 @@ public static class StringConversionSpan
               , formats: dateTimeFormats,
               provider: dateTimeFormatInfo,
               style: DateTimeStyles.NoCurrentDateDefault,
-              out result)) return result;
+              out result))
+        {
+          return result;
+        }
       }
 
       // In case a date with following time is passed in it would not be parsed, take the part of

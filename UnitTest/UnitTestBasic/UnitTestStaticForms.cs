@@ -211,7 +211,7 @@ public sealed class TestForm : Form
     base.Dispose(disposing);
   }
 
-  private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
+  private void TestForm_FormClosing(object? sender, FormClosingEventArgs e)
   {
     m_TimerAutoClose.Stop();
     m_CancellationTokenSource.Cancel();

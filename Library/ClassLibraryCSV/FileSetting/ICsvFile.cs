@@ -45,7 +45,7 @@ public interface ICsvFile : IFileSettingPhysicalFile
   string DelimiterPlaceholder { get; set; }
 
   /// <summary>
-  ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes 
+  ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes
   /// </summary>
   bool DuplicateQualifierToEscape { get; set; }
 

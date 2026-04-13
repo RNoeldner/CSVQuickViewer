@@ -81,7 +81,7 @@ public class ImprovedStream : Stream, IImprovedStream
       if (m_BufferPos < m_BufferLength)
         return true;
 #endif
-      return BaseStream.CanRead && AccessStream != null && AccessStream.CanRead;
+      return BaseStream.CanRead && AccessStream?.CanRead == true;
     }
   }
 
@@ -153,15 +153,16 @@ public class ImprovedStream : Stream, IImprovedStream
       }
 
       if (AccessStream != BaseStream)
+      {
         try
         {
-          // ReSharper disable once ConstantConditionalAccessQualifier
           AccessStream?.Close();
         }
         catch
         {
           // ignored
         }
+      }
 
       if (!SourceAccess.LeaveOpen)
         BaseStream.Close();
@@ -561,8 +562,7 @@ public class ImprovedStream : Stream, IImprovedStream
       }
 
       if (m_ZipEntryIndex == -1)
-        throw new FileNotFoundException(
-          $"Could not find {SourceAccess.IdentifierInContainer} in {SourceAccess.Identifier}");
+        throw new FileNotFoundException($"Could not find {SourceAccess.IdentifierInContainer} in {SourceAccess.Identifier}");
 
       AccessStream = m_ZipFile.GetInputStream(m_ZipEntryIndex);
     }

@@ -12,12 +12,14 @@
  *
  */
 #nullable enable
+using System;
+
 namespace CsvTools;
 
 /// <summary>
 ///   Interface for a FileSetting
 /// </summary>
-public interface IFileSetting : IWithCopyTo<IFileSetting>
+public interface IFileSetting : IWithCopyTo<IFileSetting>, IWithClone<IFileSetting>, IEquatable<IFileSetting>
 {
   /// <summary>
   ///   Gets or sets the column formats

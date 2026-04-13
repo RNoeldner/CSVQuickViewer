@@ -66,10 +66,14 @@ public sealed class ReAlignColumns
       newRow[i] = newRow[i]?.Trim() ?? string.Empty;
 
     if (m_GoodRows.Count < cMaxGoodRows)
+    {
       m_GoodRows.Add(newRow);
+    }
     else
+    {
       // Store the row in our list at some random location
       m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
+    }
   }
 
   /// <summary>
@@ -117,7 +121,7 @@ public sealed class ReAlignColumns
     for (int i = 0; i < row.Count; i++)
       columns.Add(row[i]?.Trim() ?? string.Empty);
 
-    if (columns.Count >= m_ExpectedColumns * 2 - 1)
+    if (columns.Count >= (m_ExpectedColumns * 2) - 1)
     {
       while (columns.Count > m_ExpectedColumns)
         columns.RemoveAt(m_ExpectedColumns);

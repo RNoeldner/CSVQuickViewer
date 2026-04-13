@@ -124,7 +124,7 @@ public static class FileSystemUtils
         var psStart = name.LastIndexOf('V');
         var psEnd = name.LastIndexOf('.');
         if (psStart != -1 && psEnd <= psStart + 5
-          && int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), out var num)
+          && int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), NumberStyles.None, CultureInfo.InvariantCulture,  out var num)
           && num > numBackup)
         {
           numBackup = num;
@@ -385,7 +385,10 @@ public static class FileSystemUtils
                                                && startPathParts[sameCounter].Equals(
                                                  destinationPathParts[sameCounter],
                                                  StringComparison.OrdinalIgnoreCase))
+    {
       sameCounter++;
+    }
+
     if (sameCounter == 0)
       return otherDir;
 
@@ -450,9 +453,7 @@ public static class FileSystemUtils
     if (ret.Length <= length)
       return ret;
     var cut = length * 2 / 3;
-    ret = ret.Substring(0, length - cut) + "…" + ret.Substring(ret.Length - cut + 1);
-
-    return ret;
+    return ret.Substring(0, length - cut) + "…" + ret.Substring(ret.Length - cut + 1);
   }
 
   /// <summary>
@@ -539,11 +540,13 @@ public static class FileSystemUtils
     {
       var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
       if (length > 0)
+      {
         return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
                   ? string.Empty
                   : Path.DirectorySeparatorChar.ToString()) +
                 fi.Name)
           .RemovePrefix();
+      }
     }
 
     throw new FileNotFoundException($"Could not get a short path for the file {longPath}");
@@ -725,7 +728,10 @@ public static class FileSystemUtils
     // In case the directory is 248 we need long path as well
     if (!IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
         path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+    {
       return path;
+    }
+
     return path.StartsWith(@"\\", StringComparison.Ordinal)
       ? cUncLongPathPrefix + path.Substring(2)
       : cLongPathPrefix + path;

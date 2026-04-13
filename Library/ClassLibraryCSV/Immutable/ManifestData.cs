@@ -169,7 +169,7 @@ public sealed record ManifestData
     foreach (var fld in jsonManifest.Fields)
     {
       ValueFormat vf =
-        fld.Type.ToLower().TrimEnd('?', ')', ',', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9') switch
+        fld.Type.ToLower(System.Globalization.CultureInfo.InvariantCulture).TrimEnd('?', ')', ',', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9') switch
         {
           "int" or "long" or "byte" or "short" => new ValueFormat(DataTypeEnum.Integer),
           "decimal" or "single" or "double" => new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."),

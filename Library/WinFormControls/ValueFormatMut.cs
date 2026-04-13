@@ -13,7 +13,6 @@
  */
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -45,14 +44,6 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   private char m_TimeSeparator;
   private string m_True;
   private string m_WriteFolder;
-
-  /// <summary>
-  ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
-  /// </summary>
-  [Obsolete("Only needed for XML Serialization")]
-  public ValueFormatMut() : this(DataTypeEnum.String)
-  {
-  }
 
   /// <summary>Initializes a new instance of the <see cref="ValueFormatMut" /> class from a immutable <see cref="ValueFormat"/>.</summary>
   /// <param name="source">The source <see cref="ValueFormat"/></param>
@@ -98,7 +89,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   ///   or regexReplacement or readFolder or writeFolder or fileOutPutPlaceholder
   /// </exception>
   public ValueFormatMut(
-    in DataTypeEnum dataType = DataTypeEnum.String,
+    DataTypeEnum dataType = DataTypeEnum.String,
     string? dateFormat = null,
     string? dateSeparator = null,
     string? timeSeparator = null,

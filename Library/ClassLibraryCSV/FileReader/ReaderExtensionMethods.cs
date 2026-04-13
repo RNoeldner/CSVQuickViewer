@@ -73,7 +73,7 @@ public static class ReaderExtensionMethods
   public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,
     CancellationToken cancellationToken)
   {
-    var fileSettingCopy = (IFileSetting) source.Clone();
+    var fileSettingCopy = source.Clone();
     // No column should be type converted 
     fileSettingCopy.ColumnCollection.Clear();
 
@@ -112,12 +112,19 @@ public static class ReaderExtensionMethods
   public static async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
     CancellationToken cancellationToken)
   {
-    var res = new List<Column>();
-    using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
-    await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-    for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-      res.Add(fileReader.GetColumn(colIndex));
-    return res;
+    var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    await using (fileReader.ConfigureAwait(false))
+#else
+    using (fileReader)
+#endif
+    {
+      var res = new List<Column>();
+      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        res.Add(fileReader.GetColumn(colIndex));
+      return res;
+    }
   }
 
   /// <summary>
@@ -149,7 +156,7 @@ public static class ReaderExtensionMethods
   /// <param name="progress">
   ///   Used to pass on progress information with number of records and percentage
   /// </param>
-  /// <returns>A Data Table with all records from the reader</returns>    
+  /// <returns>A Data Table with all records from the reader</returns>
   public static Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
     bool startLine, bool endLine, bool recNum, bool errorField, IProgressWithCancellation progress)
     => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress);

@@ -51,7 +51,7 @@ namespace CsvTools
     /// <exception cref="InvalidOperationException">
     /// Thrown if the existing item found in the collection cannot be cast to <typeparamref name="TField"/>.
     /// </exception>
-    public void AddOrUpdate<TField>(TField field) where TField : T, IWithCopyTo<TField>, IEquatable<TField>
+    public void AddOrUpdate<TField>(TField field) where TField : T, IWithCopyTo<TField>
     {
       var index = IndexOf(field);
       if (index == -1)

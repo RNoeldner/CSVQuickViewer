@@ -55,12 +55,15 @@ public static class StandardTimeZoneAdjust
   /// <returns>
   /// The <see cref="DateTime"/> converted to the destination time zone, or the original value if conversion fails.
   /// </returns>
-  public static DateTime ChangeTimeZone(in DateTime input, string sourceTimeZone, string destinationTimeZone,
+  public static DateTime ChangeTimeZone(DateTime input, string sourceTimeZone, string destinationTimeZone,
     Action<string>? handleWarning)
   {
     if (string.IsNullOrEmpty(sourceTimeZone) || string.IsNullOrEmpty(destinationTimeZone) ||
         destinationTimeZone.Equals(sourceTimeZone, StringComparison.OrdinalIgnoreCase))
+    {
       return input;
+    }
+
     try
     {
       return TimeZoneInfo.ConvertTime(input, FindTimeZoneInfo(sourceTimeZone), FindTimeZoneInfo(destinationTimeZone));
