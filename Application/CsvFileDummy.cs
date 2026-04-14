@@ -257,6 +257,7 @@ public sealed class CsvFileDummy : ICsvFile
 
   /// <inheritdoc />
   [DefaultValue(false)] public bool Trim { get; set; } = false;
+  public DateTime SourceTimeUtc { get; set; }
 
   /// <inheritdoc />
   public IFileSetting Clone()
@@ -404,6 +405,8 @@ public sealed class CsvFileDummy : ICsvFile
 
   /// <inheritdoc />
   public string GetDisplay() => "CSV";
+
+  public void RefreshSourceInfo() { }
 
   #endregion IFileSetting
 }

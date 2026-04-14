@@ -46,7 +46,7 @@ public sealed record ValueFormat
   public const string cGroupSeparatorDefault = "";
 
   /// <summary>The values to be assumed false</summary>
-  public const string cFalseDefault = "";
+  public const string cFalseDefault = "false";
 
   /// <summary>Default numeric format</summary>
   public const string cNumberFormatDefault = "0.#####";
@@ -68,7 +68,7 @@ public sealed record ValueFormat
   private const char cTimeSeparatorDefaultChar = ':';
 
   /// <summary> The text regarded as true</summary>
-  public const string cTrueDefault = "";
+  public const string cTrueDefault = "true";
 
   /// <summary>Default setting when writing files is to overwrite</summary>
   public const bool cOverwriteDefault = true;

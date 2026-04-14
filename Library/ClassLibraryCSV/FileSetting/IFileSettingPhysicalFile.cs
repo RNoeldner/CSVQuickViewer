@@ -64,10 +64,15 @@ public interface IFileSettingPhysicalFile : IFileSetting
   string RemoteFileName { get; set; }
 
   /// <summary>
-  /// When loading from file store the time of the file when it was read,
-  /// Mainly Important if getting the time does take more time, like from a sFTP server
+  /// Gets or sets the last modified time of the physical source (e.g., File System timestamp).
+  /// This value changes if the underlying source file is modified, independent of when it was processed.
   /// </summary>
-  DateTime? RemoteFileTimeUtc { get; set; }
+  DateTime SourceTimeUtc { get; set; }
+
+  /// <summary>
+  /// Refresh of the source information, e.g., to update the SourceTimeUtc and FileSize 
+  /// </summary>
+  void RefreshSourceInfo();
 
   /// <summary>
   ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.

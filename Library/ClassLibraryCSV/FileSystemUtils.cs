@@ -519,7 +519,7 @@ public static class FileSystemUtils
   /// Retrieves the short path form of the specified path, see 8.3 aliasing for FAT file system
   /// </summary>
   /// <param name="longPath">The long path.</param>
-  /// <returns>The abbreviated short name</returns>    
+  /// <returns>The abbreviated short name</returns>
   public static string ShortFileName(this string longPath)
   {
     if (!IsWindows || string.IsNullOrEmpty(longPath))
@@ -917,15 +917,15 @@ public static class FileSystemUtils
       if (fileName is null || fileName.Length == 0)
       {
         Name = string.Empty;
+        Exists=false;
         return;
       }
 
       Name = fileName.RemovePrefix();
       m_Info = new System.IO.FileInfo(fileName.LongPathPrefix());
+      Exists = m_Info.Exists;
       if (!m_Info.Exists)
         return;
-
-      Exists = true;
       Length = m_Info.Length;
       m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
     }
