@@ -227,9 +227,6 @@ public static class StringUtils
   /// </remarks>
   public static string MakeUniqueInCollection(this IEnumerable<string> previousColumns, string nameToAdd)
   {
-    if (string.IsNullOrEmpty(nameToAdd))
-      throw new ArgumentException("Name cannot be null or empty.", nameof(nameToAdd));
-
     // Use a local list to avoid multiple enumerations if previousColumns is a LINQ query
     var existing = previousColumns as ICollection<string> ?? previousColumns.ToList();
 
