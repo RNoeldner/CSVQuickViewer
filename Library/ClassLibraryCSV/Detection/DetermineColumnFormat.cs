@@ -304,8 +304,8 @@ public static class DetermineColumnFormat
           if (samples.Values.Count <= 0) continue;
           var checkResult = GuessNumeric(
             samples.Values,
-            false,
-            true,
+            guessPercentage: false,
+            allowStartingZero: true,
             fillGuessSettings.RemoveCurrencySymbols,
             progress.CancellationToken);
           if (checkResult.FoundValueFormat is null ||
@@ -343,16 +343,7 @@ public static class DetermineColumnFormat
         // Add fixed TimeZone for DateTime ending with z for Zulu / UTC time
         if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
         {
-          var endsWithZ = true;
-          foreach (var sample in sampleList[colIndex].Values.Take(20))
-          {
-            char last = sample.Span[sample.Length - 1];
-            if (last != 'z' && last != 'Z')
-            {
-              endsWithZ = false;
-              break;
-            }
-          }
+          var endsWithZ = sampleList[colIndex].Values.Take(20).Select(sample => sample.Span[sample.Length - 1]).All(last => last == 'z' || last == 'Z');
           // Mark it as UTC time zone
           if (endsWithZ)
           {
@@ -371,6 +362,7 @@ public static class DetermineColumnFormat
 
         // Possibly add Time Zone
         if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+        {
           for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
           {
             var columnTimeZone = fileReader.GetColumn(colTimeZone);
@@ -393,7 +385,7 @@ public static class DetermineColumnFormat
 
             progress.Report($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
           }
-
+        }
 
         if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                            || columnFormat.DateFormat.IndexOfAny(
@@ -410,9 +402,8 @@ public static class DetermineColumnFormat
                                                            || timeFormat.DateFormat.IndexOfAny(m_DateFormat) != -1)
             continue;
           // We now have a time column, checked if the names somehow make sense
-          if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
-                columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
-                StringComparison.Ordinal))
+          if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty)
+                .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty), StringComparison.Ordinal))
             continue;
           columnCollection.Add(
             new Column(
@@ -471,7 +462,7 @@ public static class DetermineColumnFormat
                 new[] { colIndex + 1 },
                 treatTextAsNull,
                 80, progress.CancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-            if (!firstValueNewColumn.IsEmpty && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
+            if (!firstValueNewColumn.IsEmpty && firstValueNewColumn.Length is 8 or 5)
             {
               columnCollection.Add(columnTime.ReplaceValueFormat(
                 new ValueFormat(DataTypeEnum.DateTime,
@@ -510,7 +501,7 @@ public static class DetermineColumnFormat
           ? sampleList[colIndex - 1]
           : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, progress.CancellationToken)
             .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-        if (!firstValueNewColumn2.IsEmpty && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
+        if (!firstValueNewColumn2.IsEmpty && firstValueNewColumn2.Length is 8 or 5)
         {
           columnCollection.Add(
             new Column(

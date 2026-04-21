@@ -66,8 +66,12 @@ public static class DetectionHeader
       }
 
       // Skip commented lines
-      if (commentLine.Length <= 0 ||
-          !columnText.TrimStart().StartsWith(commentLine, StringComparison.Ordinal)) continue;
+      if (commentLine.Length == 0 ||
+          !columnText.TrimStart().StartsWith(commentLine, StringComparison.Ordinal))
+      {
+        continue;
+      }
+
       restartLineCommented = true;
       // "Eat" the remaining columns of the commented line
       if (endOfLine) continue;
@@ -110,7 +114,7 @@ public static class DetectionHeader
   {
     var sb = new StringBuilder();
     using var imp = new ImprovedTextReader(stream, codePageId, skipLines);
-    var eol = false;
+    bool eol;
     do
     {
       sb.Append(ReadColumn(imp, fieldDelimiterChar, fieldQualifierChar, escapePrefix, out eol).raw);
@@ -288,7 +292,7 @@ CultureInfo.InvariantCulture,
       if (preData)
       {
         // whitespace preceding data
-        if (character == ' ' || character == '\t' && fieldDelimiter != '\t')
+        if (character == ' ' || (character == '\t' && fieldDelimiter != '\t'))
         {
           stringBuilder.Append(character);
           continue;

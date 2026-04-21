@@ -58,10 +58,6 @@ public class StringDictionaryConverter<TValue> : JsonConverter<IDictionary<strin
         case JTokenType.Null:
           // Null token → return empty
           break;
-
-        default:
-          // Anything else → ignore
-          break;
       }
 
       return dict;

@@ -133,8 +133,6 @@ public static class DetectionRecordDelimiter
     if (counts[idxLfCr] == maxCount) return RecordDelimiterTypeEnum.Lfcr;
     if (counts[idxRs] == maxCount) return RecordDelimiterTypeEnum.Rs;
     if (counts[idxUs] == maxCount) return RecordDelimiterTypeEnum.Us;
-    if (counts[idxNl] == maxCount) return RecordDelimiterTypeEnum.Nl;
-
-    return RecordDelimiterTypeEnum.None;
+    return counts[idxNl] == maxCount ? RecordDelimiterTypeEnum.Nl : RecordDelimiterTypeEnum.None;
   }
 }

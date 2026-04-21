@@ -197,10 +197,14 @@ public sealed class HtmlStyle
       return string.Empty;
 
     for (var i = 0; i < contents.Length; i++)
+    {
       if (contents[i] != null)
+      {
         contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace(
           "�",
           "<span style=\"color:Red; font-size:larger\">&diams;</span>");
+      }
+    }
 
     return string.Format(CultureInfo.CurrentCulture, template, contents);
   }
@@ -218,6 +222,7 @@ public sealed class HtmlStyle
     var sb = new StringBuilder(text.Length);
     var len = text.Length;
     for (var i = 0; i < len; i++)
+    {
       switch (text[i])
       {
         case '\n':
@@ -255,6 +260,7 @@ public sealed class HtmlStyle
 
           break;
       }
+    }
 
     return sb.ToString();
   }
@@ -273,6 +279,7 @@ public sealed class HtmlStyle
     var sb = new StringBuilder(text.Length);
 
     foreach (var oneChar in text)
+    {
       switch (oneChar)
       {
         case '\n':
@@ -299,6 +306,7 @@ public sealed class HtmlStyle
           sb.Append(oneChar);
           break;
       }
+    }
 
     return sb.ToString();
   }
@@ -311,14 +319,7 @@ public sealed class HtmlStyle
   public static string JsonElementName(string text)
   {
     var allowed = text.ProcessByCategory(
-      x => x == UnicodeCategory.TitlecaseLetter || x == UnicodeCategory.LowercaseLetter
-                                                || x == UnicodeCategory.UppercaseLetter
-                                                || x == UnicodeCategory.ModifierLetter
-                                                || x == UnicodeCategory.OtherLetter
-                                                || x == UnicodeCategory.LetterNumber
-                                                || x == UnicodeCategory.NonSpacingMark
-                                                || x == UnicodeCategory.DecimalDigitNumber
-                                                || x == UnicodeCategory.ConnectorPunctuation);
+      x => x is UnicodeCategory.TitlecaseLetter or UnicodeCategory.LowercaseLetter or UnicodeCategory.UppercaseLetter or UnicodeCategory.ModifierLetter or UnicodeCategory.OtherLetter or UnicodeCategory.LetterNumber or UnicodeCategory.NonSpacingMark or UnicodeCategory.DecimalDigitNumber or UnicodeCategory.ConnectorPunctuation);
     if (allowed.Length <= 0)
       return allowed;
     var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);

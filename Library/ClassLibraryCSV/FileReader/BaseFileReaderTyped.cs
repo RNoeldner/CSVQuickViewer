@@ -57,7 +57,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     string treatTextAsNull,
     bool treatNbspAsSpace,
     string returnedTimeZone,
-    bool allowPercentage ,
+    bool allowPercentage,
     bool removeCurrency)
     : base(fileName, columnDefinition, recordLimit, returnedTimeZone, allowPercentage, removeCurrency)
   {
@@ -101,18 +101,20 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       timePart = null;
       timePartText = string.Empty;
     }
-
+    var col = GetColumn(ordinal);
     var dt = GetDateTimeNull(
       val,
       CurrentRowColumnText[ordinal].AsSpan(),
       timePart,
       timePartText.AsSpan(),
-      GetColumn(ordinal),
+      col,
       false);
     if (dt.HasValue)
       return dt.Value;
-    // Warning was added by GetDecimalNull
-    throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a date time");
+    if (CurrentRowColumnText[ordinal].Length>0)
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a date time");
+
+    throw new FormatException($"Value in column '{col.Name}' is empty and cannot be converted to DateTime");
   }
 
   /// <inheritdoc />

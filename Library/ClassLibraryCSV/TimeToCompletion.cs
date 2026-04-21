@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace CsvTools;
 
 /// <summary>
-///   Extremely lightweight time-to-completion estimator using a fixed-size
+///  Extremely lightweight time-to-completion estimator using a fixed-size
 ///   circular buffer and high-resolution monotonic timestamps (<see cref="Stopwatch"/>).
 ///
 ///   This implementation:
@@ -227,21 +227,17 @@ public sealed class TimeToCompletion
 
     if (value.TotalSeconds < 2)
     {
-      if (cutBelowTwoSeconds)
-        return string.Empty;
-
-      return $"{value.TotalSeconds:F2} sec";
+      return cutBelowTwoSeconds ? string.Empty : $"{value.TotalSeconds:F2} sec";
     }
 
     if (value.TotalMinutes < 1)
       return $"{value.TotalSeconds:F0} sec";
 
-    if (value.TotalHours < 1)
-      return $"{value.Minutes}:{value.Seconds:00} min";
-
-    if (value.TotalHours < 24)
-      return $"{value.Hours}:{value.Minutes:00} hrs";
-
-    return $"{value.TotalDays:F2} days";
+    return value.TotalHours switch
+    {
+      < 1 => $"{value.Minutes}:{value.Seconds:00} min",
+      < 24 => $"{value.Hours}:{value.Minutes:00} hrs",
+      _ => $"{value.TotalDays:F2} days"
+    };
   }
 }

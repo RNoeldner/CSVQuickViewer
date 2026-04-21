@@ -31,7 +31,7 @@ public static class DetectionDelimiter
   /// <returns>
   /// Comma for .csv, Tab for .tsv or .tab, /0 otherwise
   /// </returns>
-  public static char GetDelimiterByExtension(this IFileSettingPhysicalFile phys) => GetDelimiterByExtension(string.IsNullOrEmpty(phys.IdentifierInContainer) ? phys.FileName : phys.IdentifierInContainer);
+  public static char GetDelimiterByExtension(this IFileSettingPhysicalFile phys) => (string.IsNullOrEmpty(phys.IdentifierInContainer) ? phys.FileName : phys.IdentifierInContainer).GetDelimiterByExtension();
 
   /// <summary>Gets the delimiter assuming the extension is "correct"</summary>
   /// <param name="name">The fileName</param>
@@ -40,13 +40,11 @@ public static class DetectionDelimiter
   /// </returns>
   public static char GetDelimiterByExtension(this string name)
   {
-    if (!string.IsNullOrEmpty(name))
-    {
-      if (name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-        return ',';
-      if (name.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".tab", StringComparison.OrdinalIgnoreCase))
-        return '\t';
-    }
+    if (string.IsNullOrEmpty(name)) return '\0';
+    if (name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+      return ',';
+    if (name.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".tab", StringComparison.OrdinalIgnoreCase))
+      return '\t';
     return '\0';
   }
 
@@ -190,10 +188,14 @@ public static class DetectionDelimiter
           {
             // in case the checked delimiter is in the header it's a good indication that its correct
             if (firstLine.Contains(delimiterCounter.Separators[index]))
+            {
               sums[index]++;
+            }
             else
+            {
               // otherwise its pretty save to say it's not good.
               sums[index]--;
+            }
           }
         }
 
@@ -208,14 +210,11 @@ public static class DetectionDelimiter
           int bestIndex = -1;
           long bestVariance = long.MaxValue;
           int bestScore = int.MinValue;
-          foreach (var kv in sums)
+          foreach (var kv in sums.Where(kv => kv.Value < bestVariance || (kv.Value == bestVariance && delimiterCounter.SeparatorScore[kv.Key] > bestScore)))
           {
-            if (kv.Value < bestVariance || (kv.Value == bestVariance && delimiterCounter.SeparatorScore[kv.Key] > bestScore))
-            {
-              bestIndex = kv.Key;
-              bestVariance = kv.Value;
-              bestScore = delimiterCounter.SeparatorScore[kv.Key];
-            }
+            bestIndex = kv.Key;
+            bestVariance = kv.Value;
+            bestScore = delimiterCounter.SeparatorScore[kv.Key];
           }
           match = delimiterCounter.Separators[bestIndex];
         }
@@ -224,10 +223,7 @@ public static class DetectionDelimiter
       }
     }
 
-    if (match == char.MinValue)
-      return new DelimiterDetection('\t', false, false);
-
-    return new DelimiterDetection(match, true, false);
+    return match == char.MinValue ? new DelimiterDetection('\t', isDetected: false, magicKeyword: false) : new DelimiterDetection(match, isDetected: true, magicKeyword: false);
   }
 
 
@@ -473,8 +469,11 @@ public static class DetectionDelimiter
 
         var res = 0;
         for (var line = 0; line < LastRow; line++)
+        {
           if (!RowEmpty(line))
             res++;
+        }
+
         return res;
       }
     }
@@ -530,8 +529,11 @@ public static class DetectionDelimiter
     private bool RowEmpty(int line)
     {
       for (var x = 0; x < Separators.Length; x++)
+      {
         if (SeparatorsCount[x, line] != 0)
           return false;
+      }
+
       return true;
     }
   }

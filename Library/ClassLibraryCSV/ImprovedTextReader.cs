@@ -117,7 +117,7 @@ public sealed class ImprovedTextReader : DisposableBase
       PositionAfterBom();
     }
 
-    StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId1), false, 4096, true);
+    StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId1), detectEncodingFromByteOrderMarks: false, 4096, leaveOpen: true);
     AdjustStartLine();
   }
 
@@ -146,7 +146,7 @@ public sealed class ImprovedTextReader : DisposableBase
   ///   Gets the stream reader.
   /// </summary>
   /// <value>The stream reader.</value>
-  private StreamReader StreamReader { get; set; }
+  private StreamReader StreamReader { get; }
 
   /// <summary>
   ///   Closes the <see cref="ImprovedTextReader" /> and the underlying stream, and releases any

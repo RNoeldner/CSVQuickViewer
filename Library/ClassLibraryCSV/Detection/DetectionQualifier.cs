@@ -49,7 +49,7 @@ public static class DetectionQualifier
         bestResult = currentResult;
 
       // Short-circuit: If double-quote looks very solid, don't waste time on other candidates
-      if (currentResult.QuoteChar == '"' && currentResult.Score >= 45)
+      if (currentResult is { QuoteChar: '"', Score: >= 45 })
         break;
     }
 

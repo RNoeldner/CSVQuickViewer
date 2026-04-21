@@ -105,12 +105,16 @@ public static class JsonTabularConverter
           lower.EndsWith("z", StringComparison.OrdinalIgnoreCase) ||
           lower.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
           lower.EndsWith("sh", StringComparison.OrdinalIgnoreCase))
+      {
         return name + "es";
+      }
 
       // consonant + y → ies
       if (lower.EndsWith("y", StringComparison.OrdinalIgnoreCase) && lower.Length > 1 &&
           !"aeiou".Contains(lower[lower.Length - 2]))
+      {
         return name.Substring(0, name.Length - 1) + "ies";
+      }
 
       // default
       return name + "s";
@@ -174,33 +178,37 @@ public static class JsonTabularConverter
         var name = prop.Name;
         if (string.IsNullOrWhiteSpace(name)) continue;
 
-        // Scalar values are added as columns directly
-        if (prop.Value is JValue)
-          AddUniqueColumn(name, string.Empty, GetDotNetType(prop.Value));
-        // Single object → pick identity properties
-        else if (prop.Value is JObject obj)
+        switch (prop.Value)
         {
-          foreach (var identityProp in PickObjectProperties(limitProperties, obj))
-            AddUniqueColumn(name, identityProp.Name, GetDotNetType(identityProp.Value));
-        }
-        // Arrays (primitive or objects)
-        else if (prop.Value is JArray arr && !processedArrayProperties.Contains(name))
-        {
-          // Array of primitives → concatenate values into a single cell
-          if (arr.Any(t => t is JValue))
+          // Scalar values are added as columns directly
+          case JValue:
+            AddUniqueColumn(name, string.Empty, GetDotNetType(prop.Value));
+            break;
+          // Single object → pick identity properties
+          case JObject obj:
           {
-            AddUniqueColumn(name, string.Empty, typeof(string));
-            processedArrayProperties.Add(name);
-            continue;
+            foreach (var identityProp in PickObjectProperties(limitProperties, obj))
+              AddUniqueColumn(name, identityProp.Name, GetDotNetType(identityProp.Value));
+            break;
           }
-
-          // Array of objects → pick identity-based properties
-          var objectSamples = arr.OfType<JObject>().Take(3).ToArray();
-          if (objectSamples.Length > 0)
+          // Arrays (primitive or objects)
+          case JArray arr when !processedArrayProperties.Contains(name):
           {
+            // Array of primitives → concatenate values into a single cell
+            if (arr.Any(t => t is JValue))
+            {
+              AddUniqueColumn(name, string.Empty, typeof(string));
+              processedArrayProperties.Add(name);
+              continue;
+            }
+
+            // Array of objects → pick identity-based properties
+            var objectSamples = arr.OfType<JObject>().Take(3).ToArray();
+            if (objectSamples.Length == 0) continue;
             foreach (var identityProp in PickObjectProperties(limitProperties, objectSamples))
               AddUniqueColumn(name, identityProp.Name, typeof(string));
             processedArrayProperties.Add(name);
+            break;
           }
         }
       }
@@ -211,15 +219,13 @@ public static class JsonTabularConverter
     // ------------------------------------------------------------
     // Local helper: add a column with a unique header
     // ------------------------------------------------------------
-    bool AddUniqueColumn(string propertyName, string objectProperty, Type type)
+    void AddUniqueColumn(string propertyName, string objectProperty, Type type)
     {
       var json = new JsonColumn(propertyName, objectProperty, type);
       if (columnNames.Add(json.HeaderName))
       {
         columns.Add(json);
-        return true;
       }
-      return false;
     }
 
     Type GetDotNetType(JToken token) => token.Type switch
@@ -260,7 +266,7 @@ public static class JsonTabularConverter
                                   // Iterate columns in discovery order to guarantee stable output layout
     foreach (var col in columns)
     {
-      string value = string.Empty;
+      string value;
       // Resolve the top-level JSON property for this column
       var tokenValue = currentObject[col.JsonProperty];
       if (tokenValue == null)
@@ -417,17 +423,20 @@ public static class JsonTabularConverter
             bool yieldedArrayObjects = false;
             foreach (var propToken in obj.Properties().Select(prop => prop.Value))
             {
-              if (propToken is JArray arr)
+              switch (propToken)
               {
-                foreach (var item in arr.OfType<JObject>())
-                  yield return item;
-                yieldedArrayObjects = true;
-              }
-              else if (propToken is JObject childObj)
-              {
-                // Yield top-level child objects (e.g., collection, collection2)
-                yield return childObj;
-                yieldedArrayObjects = true;
+                case JArray arr:
+                {
+                  foreach (var item in arr.OfType<JObject>())
+                    yield return item;
+                  yieldedArrayObjects = true;
+                  break;
+                }
+                case JObject childObj:
+                  // Yield top-level child objects (e.g., collection, collection2)
+                  yield return childObj;
+                  yieldedArrayObjects = true;
+                  break;
               }
             }
 

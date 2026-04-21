@@ -84,9 +84,13 @@ public static class DetectionStartRow
               firstCharOfLine = false;
             }
             else if (c is '\r' or '\n')
+            {
               HandleNewLine();
+            }
             else if (!char.IsWhiteSpace(c))
+            {
               firstCharOfLine = false;
+            }
           }
 
           lastChar = c;
@@ -144,10 +148,7 @@ public static class DetectionStartRow
     if (allowed.Count==0)
       return 0;
     Logger.Warning($"Detected column count variants: {string.Join(", ", allowed)}.");
-    foreach (var row in structuralRows.Where(row => allowed.Contains(row.Count)))
-      return row.OriginalIndex;
-
-    return 0;
+    return structuralRows.Where(row => allowed.Contains(row.Count)).Select(row => row.OriginalIndex).FirstOrDefault();
   }
 
   private static bool IsMatch(char[] buffer, int index, int length, string pattern)
