@@ -1164,17 +1164,17 @@ new Column[]
     await reader.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual(false, reader.IsClosed, "IsClosed");
     Assert.AreEqual(1, reader.Percent, "Percent");
-    Assert.AreEqual(10 - 2, reader.VisibleFieldCount);
+    Assert.AreEqual(10 - 2, reader.VisibleFieldCount, "VisibleFieldCount");
 #pragma warning disable CS0618
-    Assert.IsTrue(reader.Read());
+    Assert.IsTrue(reader.Read(), "Read");
 #pragma warning restore CS0618
 
-    Assert.AreEqual(true, reader.HasRows);
+    Assert.AreEqual(true, reader.HasRows, "HasRows");
     while (await reader.ReadAsync(UnitTestStatic.Token))
     {
     }
 
-    Assert.AreEqual(100, reader.Percent);
+    Assert.AreEqual(100, reader.Percent, "Percent");
   }
 
   [TestMethod]

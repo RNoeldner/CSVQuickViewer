@@ -162,11 +162,6 @@ public class CsvFileReader : BaseFileReader
   private ImprovedTextReader? m_TextReader;
 
   /// <summary>
-  ///   Tracks typical column lengths during parsing, avoiding repeated allocations.
-  /// </summary>
-  private int[] MaxColumnLengths = [];
-
-  /// <summary>
   ///   Initializes a new instance of the <see cref="CsvFileReader"/> class from a <see cref="Stream"/>.
   /// </summary>
   /// <param name="stream">
@@ -730,9 +725,10 @@ public class CsvFileReader : BaseFileReader
 
       // Turn off un-escaped warning based on WarnLineFeed
       if (!m_WarnLineFeed)
-        foreach (var col in Column)
-          if (col.ColumnFormatter is TextUnescapeFormatter unescapedFormatter)
-            unescapedFormatter.RaiseWarning = false;
+      {
+        foreach (var fmt in Column.Select(x => x.ColumnFormatter).OfType<TextUnescapeFormatter>())
+          fmt.RaiseWarning = false;
+      }
 
       if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
         m_ColumnMerger = new CsvColumnMerger(FieldCount, m_FieldDelimiter);
@@ -808,15 +804,7 @@ public class CsvFileReader : BaseFileReader
     return base.GetRelativePosition();
   }
 
-  /// <inheritdoc  />
-  protected override void InitColumn(int fieldCount)
-  {
-    base.InitColumn(fieldCount);
 
-    MaxColumnLengths = new int[fieldCount];
-    for (int i = 0; i < fieldCount; i++)
-      MaxColumnLengths[i] = 32;
-  }
   /// <inheritdoc cref="BaseFileReader" />
   protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
@@ -937,7 +925,7 @@ public class CsvFileReader : BaseFileReader
           if (m_CurrentRowColumns.Count > 0 && m_CurrentRowColumns.Count + previousRowParts.Length < FieldCount + 4)
           {
             m_CurrentRowColumns.Clear();
-            for (int i = 0; i < previousRowParts.Length - 1; i++) 
+            for (int i = 0; i < previousRowParts.Length - 1; i++)
               m_CurrentRowColumns.Add(previousRowParts[i]);
             m_CurrentRowColumns.Add(previousRowParts[previousRowParts.Length-1] + '\n' + m_CurrentRowColumns[0]);
             // the first column belongs to the last column of the previous ignore
@@ -1083,17 +1071,6 @@ public class CsvFileReader : BaseFileReader
 
       RecordNumber++;
       m_ColumnMerger?.AddAlignedRow(CurrentRowColumnText);
-      for (int i = 0; i < FieldCount; i++)
-      {
-        int currentLength = CurrentRowColumnText[i]?.Length ?? 0;
-        int prevMax = MaxColumnLengths[i];
-
-        // Weighted average update
-        int newMax = (prevMax * 3 + currentLength) / 4 + 16;
-
-        // Minimum buffer length
-        MaxColumnLengths[i] = Math.Max(32, newMax);
-      }
       return true;
     }
     catch (Exception ex)
@@ -1181,127 +1158,181 @@ public class CsvFileReader : BaseFileReader
     // At the top of the method
     bool isValidColumn = columnNo < FieldCount;
     bool isIgnored = isValidColumn && GetColumn(columnNo).Ignore;
-    bool canWarn = isValidColumn && !isIgnored;
     while (!endOfFile())
     {
       // Read a character
       char character = readChar();
 
-      // 1. Structural Break Check (The most frequent exit condition)
-      if (!escaped)
+      // in case we have a single LF
+      if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted)
       {
-        if (character == m_FieldDelimiter && (postData || !quoted))
-          break;
-
-        if (character is cCr or cLf && (preData || postData || !quoted))
-        {
-          endOfLine = true;
-          break;
-        }
-      }
-
-      // 2. FAST-PATH (The "Happy Path" for 90% of characters)
-      // Avoids all complex logic for standard alphanumeric data.
-      if (character > m_SafeBorder && character < cNbsp)
-      {
-        Append(character);
-        preData = false;
-        continue;
-      }
-
-      // 3. SLOW-PATH (Special Characters & Logic)
-      if (character >= cNbsp)
-      {
-        if (character == cNbsp && !postData)
-        {
-          if (m_WarnNbsp && canWarn && (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
-            HandleWarning(columnNo, m_TreatNbspMessage);
-          if (m_TreatNbspAsSpace) character = ' ';
-        }
-        else if (character == cUnknownChar && !postData)
-        {
-          if (m_WarnUnknownCharacter && canWarn && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
-            HandleWarning(columnNo, m_TreatUnknownCharacterMessage);
-          if (m_TreatUnknownCharacterAsSpace) character = ' ';
-        }
-        else
-        {
-          Append(character);
-          preData = false;
-          continue;
-        }
-      }
-
-      // Linefeed Handling
-      if (character is cCr or cLf)
-      {
-        if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted && (endOfFile() || peekChar() != cCr))
-        {
-          character = ' ';
-          if (m_WarnLineFeed) WarnLinefeed(columnNo);
-        }
-        endLineNumber++;
-
+        var singleLf = true;
         if (!endOfFile())
         {
-          char nextChar = peekChar();
-          if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
+          var nextChar = peekChar();
+          if (nextChar == cCr)
+            singleLf = false;
+        }
+
+        if (singleLf)
+        {
+          character = ' ';
+          endLineNumber++;
+          if (m_WarnLineFeed)
+            WarnLinefeed(columnNo);
+        }
+      }
+
+      switch (character)
+      {
+        case cNbsp:
+          if (!postData)
           {
-            moveNext(nextChar);
-            if (character == cLf && nextChar == cCr) endLineNumber++;
-            if (quoted && !postData)
+            if (m_WarnNbsp && isValidColumn && !isIgnored &&
+                (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
+              HandleWarning(columnNo, m_TreatNbspMessage);
+
+            if (m_TreatNbspAsSpace)
+              character = ' ';
+          }
+
+          break;
+        case cUnknownChar:
+          if (!postData)
+          {
+            if (m_WarnUnknownCharacter && isValidColumn && !isIgnored &&
+                (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
+              HandleWarning(columnNo, m_TreatUnknownCharacterMessage);
+
+            if (m_TreatNbspAsSpace)
+              character = ' ';
+          }
+
+          break;
+        case cCr:
+        case cLf:
+          endLineNumber++;
+
+          var nextChar = char.MinValue;
+          if (!endOfFile())
+          {
+            nextChar = peekChar();
+            if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
             {
-              Append(character);
-              Append(nextChar);
-              continue;
+              nextChar = char.MinValue;
+            }
+            else
+            {
+              moveNext(nextChar);
+
+              if (character == cLf && nextChar == cCr)
+                endLineNumber++;
             }
           }
-        }
+
+          if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
+          {
+            Append(character);
+            Append(nextChar);
+            continue;
+          }
+
+          break;
       }
 
-      if (postData) continue;
+      // Finished with reading the column by Delimiter or EOF
+      if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || endOfFile())
+        break;
 
-      // 4. Quoting and Leading Whitespace Trimming
+      // Finished with reading the column by Linefeed
+      if (character is cCr or cLf && (preData || postData || !quoted))
+      {
+        endOfLine = true;
+        break;
+      }
+
+      // Only check the characters if not past end of data
+      if (postData)
+        continue;
+
       if (preData)
       {
-        // Faster check than char.IsWhiteSpace for common ASCII spaces
-        if (character == ' ' || character == '\t' || char.IsWhiteSpace(character))
+        // whitespace preceding data
+        if (IsWhiteSpace(character))
         {
-          if (m_TrimmingOption == TrimmingOptionEnum.None) Append(character);
+          // Store the white spaces if we do any kind of trimming
+          if (m_TrimmingOption == TrimmingOptionEnum.None)
+            // Values will be trimmed later, but we need to find out, if the filed is quoted first
+            Append(character);
           continue;
         }
+
+        // data is starting
         preData = false;
-        if (character == m_FieldQualifier && !escaped) { quoted = true; continue; }
+
+        // Can not be escaped here
+        if (character == m_FieldQualifier && !escaped)
+        {
+          if (m_TrimmingOption != TrimmingOptionEnum.None)
+            charCount = 0;
+
+          // quoted data is starting
+          quoted = true;
+          continue;
+        }
+
+        goto append;
       }
-      else if (character == m_FieldQualifier && quoted && !escaped)
+
+      if (character == m_FieldQualifier && quoted && !escaped)
       {
-        char peekNextChar = peekChar();
+        var peekNextChar = peekChar();
+
+        // a "" should be regarded as " if the text is quoted
         if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier)
         {
+          // double quotes within quoted string means add a quote
           Append(m_FieldQualifier);
           moveNext(peekNextChar);
+
+          // handling for "" that is not only representing a " but also closes the text
+          if (m_ContextSensitiveQualifier)
+          {
+            peekNextChar = peekChar();
+            if (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf)
+              postData = true;
+          }
+
           continue;
         }
-        if (!m_ContextSensitiveQualifier || (peekNextChar == m_FieldDelimiter || peekNextChar is cCr or cLf))
+
+        switch (m_ContextSensitiveQualifier)
         {
-          postData = true;
-          continue;
+          // a single " should be regarded as closing when it's followed by the delimiter
+          case true when
+            (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf):
+          // a single " should be regarded as closing if we do not have alternate qualifier
+          case false:
+            postData = true;
+            continue;
         }
       }
 
-      // 5. Escape handling
-      if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter || character == m_EscapePrefix))
-      {
-        charCount--; // Overwrite the prefix in the buffer
-      }
+      append:
+      if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter ||
+                      character == m_EscapePrefix))
+        // remove the already added escape char
+        charCount--;
 
+      // all cases covered, character must be data
       Append(character);
+
       escaped = !escaped && character == m_EscapePrefix;
-    }
+    } // While
 
     // Return null immediately if the column is ignored
     if (isIgnored)
-      return null;
+      return string.Empty;
 
     // 2. Virtual Trimming: Find the start and end within our buffer
     int start = 0;
@@ -1312,10 +1343,6 @@ public class CsvFileReader : BaseFileReader
       while (start < end && char.IsWhiteSpace(m_ProcessingBuffer[start])) start++;
       while (end > start && char.IsWhiteSpace(m_ProcessingBuffer[end - 1])) end--;
     }
-
-    // Update historical length
-    if (columnNo < MaxColumnLengths.Length)
-      MaxColumnLengths[columnNo] = Math.Max(MaxColumnLengths[columnNo], end - start);
 
     // Optimization: Return the constant for empty strings
     if (start >= end)
