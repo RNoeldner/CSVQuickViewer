@@ -20,6 +20,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -376,6 +377,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the column format.
   /// </summary>
   /// <param name="column">The column.</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public virtual Column GetColumn(int column) => Column[column];
 
   /// <inheritdoc />
@@ -421,6 +423,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
 
   /// <inheritdoc />
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public override Type GetFieldType(int ordinal) => GetColumn(ordinal).ValueFormat.DataType.GetNetType();
 
   /// <inheritdoc />
@@ -503,6 +506,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <inheritdoc />
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public override string GetName(int ordinal) => GetColumn(ordinal).Name;
 
 
@@ -580,8 +584,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <inheritdoc />
-  public override string GetString(int ordinal) =>
-    CurrentRowColumnText[ordinal];
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public override string GetString(int ordinal) => CurrentRowColumnText[ordinal];
 
   /// <summary>
   /// Retrieves data as a <see cref="TextReader"/> for the specified column.
@@ -833,8 +837,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     return newNames;
   }
 
-
-
   /// <summary>
   /// Processes a text span by optionally trimming, converting non-breaking spaces to normal spaces,
   /// and checking if the text should be treated as null.
@@ -929,7 +931,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="strInputTime">The text representation of the time</param>
   /// <param name="column">Column information</param>
   /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
-  /// <returns></returns>
   protected DateTime? GetDateTimeNull(
     in object? inputDate, ReadOnlySpan<char> strInputDate,
     in object? inputTime, ReadOnlySpan<char> strInputTime,
@@ -1239,7 +1240,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="ex">The exception.</param>
   /// <param name="token">The cancellation token.</param>
-  /// <returns></returns>
   protected bool ShouldRetry(in Exception ex, CancellationToken token)
   {
     if (token.IsCancellationRequested) return false;

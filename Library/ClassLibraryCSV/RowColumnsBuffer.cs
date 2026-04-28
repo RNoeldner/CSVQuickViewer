@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace CsvTools;
@@ -13,20 +12,23 @@ namespace CsvTools;
 /// </summary>
 public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
 {
+  public static readonly RowColumnsBuffer Empty = new RowColumnsBuffer(0);
+  private readonly int[] m_EndOffsets;
   private char[] m_ArrayPool;
-  private int[] m_EndOffsets;
   private int m_ColumnCount;
+  private bool m_IsDisposed;
   private int m_TotalLength;
-
   /// <summary>
   /// Initializes a new instance of the <see cref="RowColumnsBuffer"/> class.
   /// </summary>
   /// <param name="initialColumnCount">Initial capacity for the number of columns.</param>
-  /// <param name="initialBufferCapacity">Initial capacity for the total character length of a row.</param>
-  public RowColumnsBuffer(int initialColumnCount = 32, int initialBufferCapacity = 2048)
+  public RowColumnsBuffer(int initialColumnCount)
   {
-    m_ArrayPool = ArrayPool<char>.Shared.Rent(initialBufferCapacity);
-    m_EndOffsets = ArrayPool<int>.Shared.Rent(initialColumnCount);
+    if (initialColumnCount < 0) 
+      throw new ArgumentOutOfRangeException(nameof(initialColumnCount));
+    m_ArrayPool = ArrayPool<char>.Shared.Rent(256);
+    m_IsDisposed = false;
+    m_EndOffsets = new int[initialColumnCount];
   }
 
   /// <inheritdoc/>
@@ -34,11 +36,6 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
 
   /// <inheritdoc/>
   public bool IsReadOnly => false;
-
-  /// <summary>
-  /// Gets the current total character length written to the internal buffer.
-  /// </summary>
-  public int Position => m_TotalLength;
 
   /// <summary>
   /// Gets the string representation of the column at the specified index.
@@ -53,32 +50,28 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
   /// <param name="value">The text to add as a new column.</param>
   public void Add(ReadOnlySpan<char> value)
   {
+    ThrowMaxCapacity();
+    CheckDisposed();
     EnsureBufferCapacity(value.Length);
     value.CopyTo(m_ArrayPool.AsSpan(m_TotalLength));
     m_TotalLength += value.Length;
-    NextColumn();
+    AddEmpty();
   }
 
   /// <inheritdoc/>
-  public void Add(string? item) => Add(item.AsSpan());
+  public void Add(string item) => Add(item.AsSpan());
 
-  /// <summary>
-  /// Appends a single character to the current field being parsed.
-  /// </summary>
-  /// <param name="c">The character to append.</param>
-  [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public void Append(char c)
+
+  /// <inheritdoc/>
+  public void Clear()
   {
-    if (m_TotalLength >= m_ArrayPool.Length)
-      EnsureBufferCapacity(1);
-    m_ArrayPool[m_TotalLength++] = c;
+    m_ColumnCount = 0;
+    m_TotalLength = 0;
   }
 
   /// <inheritdoc/>
-  public void Clear() => Reset();
-
-  /// <inheritdoc/>
-  public bool Contains(string item) => Enumerable.Range(0, m_ColumnCount).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
+  public bool Contains(string item) => throw new NotSupportedException();
+  // => Enumerable.Range(0, m_ColumnCount).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
 
   /// <inheritdoc/>
   public void CopyTo(string[] array, int arrayIndex)
@@ -89,16 +82,9 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
   /// <inheritdoc/>
   public void Dispose()
   {
-    if (m_ArrayPool != null)
-    {
-      ArrayPool<char>.Shared.Return(m_ArrayPool);
-      m_ArrayPool = null!;
-    }
-    if (m_EndOffsets != null)
-    {
-      ArrayPool<int>.Shared.Return(m_EndOffsets);
-      m_EndOffsets = null!;
-    }
+    if (m_IsDisposed) return;
+    ArrayPool<char>.Shared.Return(m_ArrayPool);
+    m_IsDisposed = true;
   }
 
   /// <inheritdoc/>
@@ -116,43 +102,16 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
   /// <param name="index">The zero-based index of the column.</param>
   /// <returns>A span representing the column text.</returns>
   public ReadOnlySpan<char> GetSpan(int index)
-  {
+  {    
     if (index < 0 || index >= m_ColumnCount) return ReadOnlySpan<char>.Empty;
+
     int start = (index == 0) ? 0 : m_EndOffsets[index - 1];
     int length = m_EndOffsets[index] - start;
     return m_ArrayPool.AsSpan(start, length);
   }
 
-  /// <summary>
-  /// Finalizes the characters appended via <see cref="Append"/> as a new column.
-  /// </summary>
-  public void NextColumn()
-  {
-    if (m_ColumnCount >= m_EndOffsets.Length)
-      EnsureOffsetCapacity();
-    m_EndOffsets[m_ColumnCount++] = m_TotalLength;
-  }
-
-  /// <summary>
-  /// Removes the last specified number of characters from the current field.
-  /// </summary>
-  /// <param name="count">The number of characters to remove.</param>
-  public void RawBackup(int count)
-  {
-    m_TotalLength = Math.Max(0, m_TotalLength - count);
-  }
-
   /// <inheritdoc/>
   public bool Remove(string item) => throw new NotSupportedException();
-
-  /// <summary>
-  /// Resets the buffer for a new row. Does not release internal arrays to the pool.
-  /// </summary>
-  public void Reset()
-  {
-    m_ColumnCount = 0;
-    m_TotalLength = 0;
-  }
 
   /// <summary>
   /// Updates an existing column or inserts new columns at the specified index, filling gaps with empty fields.
@@ -162,12 +121,13 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
   /// <param name="value">The text value to place in that column.</param>
   public void Upsert(int index, ReadOnlySpan<char> value)
   {
-    if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
+    CheckDisposed();
+    if (index < 0 || index >= m_EndOffsets.Length) throw new ArgumentOutOfRangeException(nameof(index));
 
     if (index >= m_ColumnCount)
     {
       while (m_ColumnCount < index)
-        NextColumn();
+        AddEmpty();
       Add(value);
       return;
     }
@@ -203,13 +163,20 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
   /// </summary>
   /// <param name="index">The zero-based index of the column to set.</param>
   /// <param name="value">The string value to place in that column.</param>
-  public void Upsert(int index, string? value) => Upsert(index, value.AsSpan());
+  public void Upsert(int index, string value) => Upsert(index, value.AsSpan());
+
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  private void CheckDisposed()
+  {
+    if (m_IsDisposed) throw new ObjectDisposedException(nameof(RowColumnsBuffer));
+  }
 
   private void EnsureBufferCapacity(int additionalLength)
   {
-    if (m_TotalLength + additionalLength > m_ArrayPool.Length)
+    int minCapacity = m_TotalLength + additionalLength;
+    if (minCapacity > m_ArrayPool.Length)
     {
-      int newSize = Math.Max(m_ArrayPool.Length * 2, m_TotalLength + additionalLength);
+      int newSize = Math.Max(m_ArrayPool.Length * 2, minCapacity);
       char[] newBuffer = ArrayPool<char>.Shared.Rent(newSize);
       Array.Copy(m_ArrayPool, newBuffer, m_TotalLength);
       ArrayPool<char>.Shared.Return(m_ArrayPool);
@@ -217,11 +184,16 @@ public sealed class RowColumnsBuffer : ICollection<string>, IDisposable
     }
   }
 
-  private void EnsureOffsetCapacity()
+  /// <summary>
+  /// Finalizes the characters appended as new column.
+  /// </summary>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public void AddEmpty()
+      => m_EndOffsets[m_ColumnCount++] = m_TotalLength;
+
+  private void ThrowMaxCapacity()
   {
-    int[] newOffsets = ArrayPool<int>.Shared.Rent(m_EndOffsets.Length * 2);
-    Array.Copy(m_EndOffsets, newOffsets, m_ColumnCount);
-    ArrayPool<int>.Shared.Return(m_EndOffsets);
-    m_EndOffsets = newOffsets;
+    if (m_ColumnCount >= m_EndOffsets.Length)
+      throw new InvalidOperationException($"Maximum column capacity ({m_EndOffsets.Length}) reached.");
   }
 }
