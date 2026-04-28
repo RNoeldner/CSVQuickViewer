@@ -64,33 +64,19 @@ public class CsvFileReader : BaseFileReader
   private const char cUnknownChar = (char) 0xFFFD;
 
   private readonly bool m_AllowRowCombining;
-
   private readonly int m_CodePageId;
-
   private readonly string m_CommentLine;
-
   private readonly int m_ConsecutiveEmptyRowsMax;
-
   private readonly bool m_ContextSensitiveQualifier;
-
   private readonly string m_DelimiterPlaceholder;
-
   private readonly bool m_DuplicateQualifierToEscape;
-
   private readonly char m_EscapePrefix;
-
   private readonly char m_FieldDelimiter;
-
   private readonly char m_FieldQualifier;
-
   private readonly bool m_HasFieldHeader;
-
   private readonly string m_IdentifierInContainer;
-
   private readonly string m_NewLinePlaceholder;
-
-  private readonly int m_NumWarning;
-
+  private readonly int m_NumMaxWarning;
   private readonly string m_QuotePlaceholder;
 
   /// <summary>
@@ -98,37 +84,27 @@ public class CsvFileReader : BaseFileReader
   ///   Cleared for each new row; used only when <see cref="m_ColumnMerger"/> is active.
   /// </summary>
   private readonly StringBuilder m_RecordSource = new StringBuilder(100);
-
-  private readonly char m_SafeBorder;
   private readonly bool m_SkipDuplicateHeader;
-
   private readonly bool m_SkipEmptyLines;
-
   private readonly int m_SkipRows;
-
   private readonly int m_SkipRowsAfterHeader;
-
   private readonly StreamProviderDelegate m_StreamProvider;
   private readonly bool m_TreatLinefeedAsSpace;
-
   private readonly bool m_TreatNbspAsSpace;
   private readonly string m_TreatNbspMessage;
-
   private readonly string m_TreatTextAsNull;
-
   private readonly bool m_TreatUnknownCharacterAsSpace;
   private readonly string m_TreatUnknownCharacterMessage;
-
   private readonly TrimmingOptionEnum m_TrimmingOption;
-
   private readonly bool m_TryToSolveMoreColumns;
   private readonly bool m_WarnDelimiterInValue;
   private readonly bool m_WarnEmptyTailingColumns;
   private readonly bool m_WarnLineFeed;
+  private readonly string m_WarnLineFeedMessage;
   private readonly bool m_WarnNbsp;
   private readonly bool m_WarnQuotes;
   private readonly bool m_WarnUnknownCharacter;
-  private readonly List<string> m_CurrentRowColumns = new List<string>();
+  private readonly List<string> m_CurrentRowColumns = [];
 
   /// <summary>
   ///   Supports column realignment when enabled.  
@@ -147,12 +123,7 @@ public class CsvFileReader : BaseFileReader
   /// <summary>
   ///   Number of records in the source file; set only when the entire file has been read.
   /// </summary>
-  private ushort m_NumWarningsDelimiter;
-
-  private ushort m_NumWarningsLinefeed;
-  private ushort m_NumWarningsNbspChar;
-  private ushort m_NumWarningsQuote;
-  private ushort m_NumWarningsUnknownChar;
+  private ushort m_NumWarnings;
   private char[] m_ProcessingBuffer;
   private Stream? m_Stream;
 
@@ -558,7 +529,7 @@ public class CsvFileReader : BaseFileReader
 
     m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
 
-    m_NumWarning = numWarning;
+    m_NumMaxWarning = numWarning;
     m_QuotePlaceholder = quotePlaceholder;
     m_SkipDuplicateHeader = skipDuplicateHeader;
     m_SkipRows = skipRows<0 ? 0 : skipRows;
@@ -567,35 +538,33 @@ public class CsvFileReader : BaseFileReader
       Logger.Warning("Detected unusually high skip-row values; please verify the configuration.");
     m_TreatLinefeedAsSpace = treatLinefeedAsSpace;
     m_TreatUnknownCharacterAsSpace = treatUnknownCharacterAsSpace;
-    m_TreatUnknownCharacterMessage = m_TreatUnknownCharacterAsSpace
-          ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-          : "Unknown Character '�' found in field".AddWarningId();
     m_TryToSolveMoreColumns = tryToSolveMoreColumns;
     m_WarnDelimiterInValue = warnDelimiterInValue;
     m_WarnLineFeed = warnLineFeed;
+    m_WarnLineFeedMessage = m_WarnLineFeed ? "Line feed found in field".AddWarningId(): string.Empty;
     m_WarnNbsp = warnNbsp;
     m_WarnQuotes = warnQuotes;
     m_WarnUnknownCharacter = warnUnknownCharacter;
+    m_TreatUnknownCharacterMessage = m_WarnUnknownCharacter
+      ? m_TreatUnknownCharacterAsSpace
+            ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+            : "Unknown Character '�' found in field".AddWarningId()
+      : string.Empty;
+
     m_HasFieldHeader = hasFieldHeader;
     m_SkipEmptyLines = skipEmptyLines;
     m_ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax<1 ? int.MaxValue : consecutiveEmptyRowsMax;
     m_TreatNbspAsSpace = treatNbspAsSpace;
-    m_TreatNbspMessage = treatNbspAsSpace ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
-                  : "Character Non Breaking Space found in field".AddWarningId();
+    m_TreatNbspMessage = m_WarnNbsp
+      ? treatNbspAsSpace ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
+                         : "Character Non Breaking Space found in field".AddWarningId()
+      : string.Empty;
+
     m_TrimmingOption = trimmingOption;
     m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
     m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
 
-    // Init with space which is after cr lf
-    int structuralMax = 32;
-    if (m_FieldDelimiter>structuralMax)
-      structuralMax = m_FieldDelimiter;
-    if (m_FieldQualifier>structuralMax)
-      structuralMax = m_FieldQualifier;
-    if (m_EscapePrefix>structuralMax)
-      structuralMax = m_EscapePrefix;
-    m_SafeBorder = (char) structuralMax;
     m_ProcessingBuffer = ArrayPool<char>.Shared.Rent(1024);
   }
 
@@ -616,10 +585,7 @@ public class CsvFileReader : BaseFileReader
   public override void Close()
   {
     base.Close();
-    m_NumWarningsQuote = 0;
-    m_NumWarningsDelimiter = 0;
-    m_NumWarningsUnknownChar = 0;
-    m_NumWarningsNbspChar = 0;
+    m_NumWarnings = 0;
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -930,7 +896,7 @@ public class CsvFileReader : BaseFileReader
             m_CurrentRowColumns.Add(previousRowParts[previousRowParts.Length-1] + '\n' + m_CurrentRowColumns[0]);
             // the first column belongs to the last column of the previous ignore
             // NumWarningsLinefeed otherwise as this is important information
-            m_NumWarningsLinefeed++;
+            m_NumWarnings++;
             HandleWarning(previousRowParts.Length - 1, $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
           }
 
@@ -1025,11 +991,11 @@ public class CsvFileReader : BaseFileReader
         if (adjustedSpan.Length > 0)
         {
           if (m_WarnQuotes && adjustedSpan.IndexOf(m_FieldQualifier) != -1 &&
-              (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
+              (m_NumMaxWarning < 1 || m_NumWarnings++ < m_NumMaxWarning))
             HandleWarning(columnNo, $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
 
           if (m_WarnDelimiterInValue && adjustedSpan.IndexOf(m_FieldDelimiter) != -1 &&
-              (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
+              (m_NumMaxWarning < 1 || m_NumWarnings++ < m_NumMaxWarning))
             HandleWarning(columnNo, $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
           if (m_WarnUnknownCharacter)
@@ -1047,7 +1013,7 @@ public class CsvFileReader : BaseFileReader
               // characters, or 4+ in 16 characters
               if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
               {
-                if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
+                if (m_NumMaxWarning < 1 || m_NumWarnings++ < m_NumMaxWarning)
                   HandleWarning(columnNo, "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
                 break;
               }
@@ -1056,14 +1022,14 @@ public class CsvFileReader : BaseFileReader
             }
           }
 
-          if (m_WarnLineFeed && (adjustedSpan.IndexOfAny(new[] { '\r', '\n' }) != -1))
-            WarnLinefeed(columnNo);
+          if (adjustedSpan.IndexOfAny(new[] { '\r', '\n' }) != -1)
+            WarnLinefeed(columnNo, false);
 
           if (adjustedSpan.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
             adjustedSpan = Array.Empty<char>();
         }
 #if NET7_0_OR_GREATER
-          CurrentRowColumnText[columnNo] = new string(adjustedSpan);
+        CurrentRowColumnText[columnNo] = new string(adjustedSpan);
 #else
         CurrentRowColumnText[columnNo] = adjustedSpan.ToString();
 #endif
@@ -1076,7 +1042,6 @@ public class CsvFileReader : BaseFileReader
     catch (Exception ex)
     {
       HandleError(-1, ex.Message);
-
       EndOfFile = true;
       return false;
     }
@@ -1084,20 +1049,27 @@ public class CsvFileReader : BaseFileReader
 
   /// <summary>
   ///   Indicates whether the specified Unicode character is categorized as white space.
+  ///   A NonBreaking space is not considers as white space
   /// </summary>
   /// <param name="c">A Unicode character.</param>
   /// <returns><character>true</character> if the character is a whitespace</returns>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   private bool IsWhiteSpace(char c)
   {
     // Handle cases where the delimiter is a whitespace (e.g. tab)
     if (c == m_FieldDelimiter)
       return false;
 
-    // See char.IsLatin1(char character) in Reflector
-    if (c <= '\x00ff')
-      // ReSharper disable once MergeIntoLogicalPattern
-      return c == ' ' || c == '\t';
+    // Fast Path: ASCII/Latin1 Space and Tab
+    // This covers almost all real-world CSV scenarios.
+    if (c == ' ' || c == '\t')
+      return true;
 
+    // Slow Path: Higher Unicode characters
+    if (c <= '\x00ff')
+      return false;
+
+    // Only call the expensive Globalization method if absolutely necessary
     return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
   }
 
@@ -1155,9 +1127,8 @@ public class CsvFileReader : BaseFileReader
     // Allocate builder with historical capacity to prevent internal array resizing
     int charCount = 0;
     bool quoted = false, preData = true, postData = false, escaped = false;
-    // At the top of the method
-    bool isValidColumn = columnNo < FieldCount;
-    bool isIgnored = isValidColumn && GetColumn(columnNo).Ignore;
+    bool isIgnored = columnNo < FieldCount && GetColumn(columnNo).Ignore;
+
     while (!endOfFile())
     {
       // Read a character
@@ -1178,8 +1149,7 @@ public class CsvFileReader : BaseFileReader
         {
           character = ' ';
           endLineNumber++;
-          if (m_WarnLineFeed)
-            WarnLinefeed(columnNo);
+          WarnLinefeed(columnNo, isIgnored);
         }
       }
 
@@ -1188,10 +1158,7 @@ public class CsvFileReader : BaseFileReader
         case cNbsp:
           if (!postData)
           {
-            if (m_WarnNbsp && isValidColumn && !isIgnored &&
-                (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
-              HandleWarning(columnNo, m_TreatNbspMessage);
-
+            WarnNbsp(columnNo, isIgnored);
             if (m_TreatNbspAsSpace)
               character = ' ';
           }
@@ -1200,11 +1167,8 @@ public class CsvFileReader : BaseFileReader
         case cUnknownChar:
           if (!postData)
           {
-            if (m_WarnUnknownCharacter && isValidColumn && !isIgnored &&
-                (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
-              HandleWarning(columnNo, m_TreatUnknownCharacterMessage);
-
-            if (m_TreatNbspAsSpace)
+            WarnUnknownCharacter(columnNo, isIgnored);
+            if (m_TreatUnknownCharacterAsSpace)
               character = ' ';
           }
 
@@ -1321,48 +1285,42 @@ public class CsvFileReader : BaseFileReader
       append:
       if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter ||
                       character == m_EscapePrefix))
-        // remove the already added escape char
-        charCount--;
+        charCount--; // Remove escape char
 
       // all cases covered, character must be data
       Append(character);
-
       escaped = !escaped && character == m_EscapePrefix;
     } // While
 
-    // Return null immediately if the column is ignored
-    if (isIgnored)
-      return string.Empty;
+    if (isIgnored || charCount == 0) return string.Empty;
 
-    // 2. Virtual Trimming: Find the start and end within our buffer
+    // Virtual Trimming: Find the start and end within our buffer
     int start = 0;
     int end = charCount;
-
     if (m_TrimmingOption == TrimmingOptionEnum.All || (!quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted))
     {
-      while (start < end && char.IsWhiteSpace(m_ProcessingBuffer[start])) start++;
-      while (end > start && char.IsWhiteSpace(m_ProcessingBuffer[end - 1])) end--;
+      while (start < end && IsWhiteSpace(m_ProcessingBuffer[start])) start++;
+      while (end > start && IsWhiteSpace(m_ProcessingBuffer[end - 1])) end--;
     }
 
-    // Optimization: Return the constant for empty strings
-    if (start >= end)
-      return string.Empty;
-
-    return new string(m_ProcessingBuffer, start, end - start);
+    return start >= end ? string.Empty : new string(m_ProcessingBuffer, start, end - start);
 
     // local method that will appendto buffer and resize if needed
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void Append(char character)
     {
       if (isIgnored)
         return;
-      if (charCount == m_ProcessingBuffer.Length)
-      {
-        char[] newBuffer = ArrayPool<char>.Shared.Rent(m_ProcessingBuffer.Length * 2);
-        Array.Copy(m_ProcessingBuffer, newBuffer, m_ProcessingBuffer.Length);
-        ArrayPool<char>.Shared.Return(m_ProcessingBuffer);
-        m_ProcessingBuffer = newBuffer;
-      }
+      if (charCount == m_ProcessingBuffer.Length) GrowBuffer();
       m_ProcessingBuffer[charCount++] = character;
+    }
+
+    void GrowBuffer()
+    {
+      char[] newBuffer = ArrayPool<char>.Shared.Rent(m_ProcessingBuffer.Length * 2);
+      Array.Copy(m_ProcessingBuffer, newBuffer, m_ProcessingBuffer.Length);
+      ArrayPool<char>.Shared.Return(m_ProcessingBuffer);
+      m_ProcessingBuffer = newBuffer;
     }
   }
 
@@ -1583,17 +1541,22 @@ public class CsvFileReader : BaseFileReader
     EndOfFile = false;
   }
 
-
-  /// <summary>
-  ///   Add warnings for Linefeed.
-  /// </summary>
-  /// <param name="column">The column.</param>
-  private void WarnLinefeed(int column)
+  private void WarnLinefeed(int column, bool isIgnored)
   {
-    m_NumWarningsLinefeed++;
-    if (m_NumWarning >= 1 && m_NumWarningsLinefeed > m_NumWarning)
-      return;
-    HandleWarning(column, "Linefeed found in field".AddWarningId());
+    if (m_WarnLineFeed && !isIgnored && (m_NumMaxWarning < 1 || m_NumWarnings++ <= m_NumMaxWarning))
+      HandleWarning(column, m_WarnLineFeedMessage);
+  }
+
+  private void WarnNbsp(int columnNo, bool isIgnored)
+  {
+    if (m_WarnNbsp && !isIgnored && (m_NumMaxWarning< 1 || m_NumWarnings++ < m_NumMaxWarning))
+      HandleWarning(columnNo, m_TreatNbspMessage);
+  }
+
+  private void WarnUnknownCharacter(int columnNo, bool isIgnored)
+  {
+    if (m_WarnUnknownCharacter && !isIgnored && (m_NumMaxWarning< 1 || m_NumWarnings++ < m_NumMaxWarning))
+      HandleWarning(columnNo, m_TreatUnknownCharacterMessage);
   }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
