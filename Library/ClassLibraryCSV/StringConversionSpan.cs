@@ -686,7 +686,7 @@ public static class StringConversionSpan
     if (long.TryParse(finalSpan.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #endif
     {
-      return result;
+      return isNegative ? -result : result;
     }
 
     return null;

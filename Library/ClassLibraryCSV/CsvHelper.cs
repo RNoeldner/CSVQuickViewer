@@ -629,8 +629,6 @@ public static class CsvHelper
 
           if (inspectionResult.DuplicateQualifierToEscape)
             newPrefix = char.MinValue;
-
-
         }
 
         // Delimiter
@@ -778,7 +776,7 @@ public static class CsvHelper
           TimeZoneInfo.Local.Id, true, true);
 
       return new CsvFileReader(memStream, codePageId: inspectionResult.CodePageId,
-                               skipRows: inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
+                               skipRows: inspectionResult.SkipRows,
                                skipRowsAfterHeader: 0, hasFieldHeader: inspectionResult.HasFieldHeader,
                                columnDefinition: inspectionResult.Columns, trimmingOption: TrimmingOptionEnum.Unquoted,
                                fieldDelimiterChar: inspectionResult.FieldDelimiter,
@@ -792,8 +790,8 @@ public static class CsvHelper
                                quotePlaceholder: string.Empty, skipDuplicateHeader: true, treatLinefeedAsSpace: false,
                                treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: false,
                                warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
-                               warnUnknownCharacter: false, warnEmptyTailingColumns: true, treatNbspAsSpace: false,
-                               treatTextAsNull: string.Empty, skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
+                               warnUnknownCharacter: false, warnEmptyTailingColumns: false, treatNbspAsSpace: false,
+                               treatTextAsNull: string.Empty, skipEmptyLines: false, consecutiveEmptyRowsMax: 5,
                                destinationTimeZone: TimeZoneInfo.Local.Id, allowPercentage: true, removeCurrency: true);
     }
 

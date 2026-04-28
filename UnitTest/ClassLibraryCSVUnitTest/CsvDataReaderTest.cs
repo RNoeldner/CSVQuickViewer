@@ -961,7 +961,7 @@ setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
       setting.ConsecutiveEmptyRows,
 setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
     await test.OpenAsync(UnitTestStatic.Token);
-    Assert.Throws<NotImplementedException>(() => test.GetData(0));
+    Assert.Throws<NotSupportedException>(() => test.GetData(0));
   }
 
   [TestMethod]

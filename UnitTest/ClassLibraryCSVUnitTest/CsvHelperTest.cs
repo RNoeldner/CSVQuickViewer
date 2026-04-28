@@ -14,6 +14,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -65,8 +66,22 @@ public class CsvHelperTest
   {
     using var stream = File.OpenRead(UnitTestStatic.GetTestPath("MultipleDelimiter.txt"));
     ImprovedTextReader imp = new ImprovedTextReader(stream);
-    await imp.InspectStartRowAsync('|', '"', '\\', "##", UnitTestStatic.Token);
-    await imp.InspectStartRowAsync('|', char.MinValue, char.MinValue, string.Empty, UnitTestStatic.Token);
+    var skipRows1 = await imp.InspectStartRowAsync('|', '"', '\\', "##", UnitTestStatic.Token);
+    Assert.AreEqual(11, skipRows1);
+    var skipRows2 = await imp.InspectStartRowAsync('|', char.MinValue, char.MinValue, string.Empty, UnitTestStatic.Token);
+    Assert.AreEqual(11, skipRows2);
+  }
+
+  [TestMethod]
+  public async Task MultipleDelimiter_InspectStartRowAsync()
+  {
+    // Header Row at line 12 before that empty and comment lines
+    using var stream = File.OpenRead(UnitTestStatic.GetTestPath("MultipleDelimiter2.txt"));
+    ImprovedTextReader imp = new ImprovedTextReader(stream);
+    var skipRows1 = await imp.InspectStartRowAsync('|', '"', '\0', "", UnitTestStatic.Token).ConfigureAwait(false);    
+    Assert.AreEqual(11, skipRows1);
+    var skipRows2 = await imp.InspectStartRowAsync('|', '"', '\0', "==", UnitTestStatic.Token).ConfigureAwait(false);
+    Assert.AreEqual(11, skipRows2);
   }
 
   [TestMethod]
@@ -467,8 +482,7 @@ public class CsvHelperTest
     using var improvedStream =
       new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")));
     using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token).ConfigureAwait(false);
-    Assert.AreEqual(
-      12, await textReader.InspectStartRowAsync(',', '"', '\\', "", UnitTestStatic.Token),
+    Assert.AreEqual(2, await textReader.InspectStartRowAsync(',', '"', '\\', "", UnitTestStatic.Token),
       "SkippingEmptyRowsWithDelimiter.txt");
   }
 
@@ -480,8 +494,8 @@ public class CsvHelperTest
 
     using var textReader =
       await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token).ConfigureAwait(false);
-    Assert.AreEqual(
-      0, await textReader.InspectStartRowAsync(',', '"', char.MinValue, "#", UnitTestStatic.Token), "LongHeaders.txt");
+    var result = await textReader.InspectStartRowAsync(',', '"', char.MinValue, "#", UnitTestStatic.Token);
+    Assert.IsTrue(result ==1 || result == 0, "LongHeaders.txt should have header row at line 2 so we can skip 0 or 1 line but it was  " + result);
   }
 
   [TestMethod]

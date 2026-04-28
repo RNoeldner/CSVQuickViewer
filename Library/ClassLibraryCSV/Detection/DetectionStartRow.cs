@@ -8,14 +8,43 @@ using System.Linq;
 namespace CsvTools;
 
 /// <summary>
-/// Analyzes file structure to identify the first row of actual data, skipping metadata or malformed headers.
+/// Provides heuristics to detect the first data row in a delimited text file.
 /// </summary>
+/// <remarks>
+/// The detection analyzes:
+/// <list type="bullet">
+///   <item><description>Column count consistency across early rows</description></item>
+///   <item><description>Comment lines at the beginning of the file</description></item>
+///   <item><description>Structural stability in the tail of inspected rows</description></item>
+/// </list>
+/// The result is the number of lines to skip before the actual data section starts.
+/// </remarks>
 public static class DetectionStartRow
 {
   /// <summary>
-  /// Guesses the start row by analyzing column consistency across the first 50 rows.
+  /// Analyzes the beginning of a delimited text file and determines the number of lines
+  /// that should be skipped before reaching the first valid data row.
   /// </summary>
-  /// <returns>The number of rows to skip to reach the data body.</returns>
+  /// <param name="textReader">Reader providing sequential access to the input file.</param>
+  /// <param name="fieldDelimiterChar">Character used to separate fields (e.g. comma or semicolon).</param>
+  /// <param name="fieldQualifierChar">Character used for quoting fields (e.g. ").</param>
+  /// <param name="escapePrefixChar">Character used to escape special characters inside fields.</param>
+  /// <param name="commentLine">
+  /// Prefix that identifies a comment line (e.g. "#", "//"). Lines starting with this
+  /// prefix are excluded from structural analysis.
+  /// </param>
+  /// <param name="cancellationToken">Cancellation token for interrupting processing.</param>
+  /// <returns>
+  /// The number of leading lines to skip in order to reach the first valid data row.
+  /// </returns>
+  /// <remarks>
+  /// The method processes up to 50 logical rows and accounts for:
+  /// <list type="bullet">
+  ///   <item>Multiline quoted fields</item>
+  ///   <item>Escaped delimiter and quote characters</item>
+  ///   <item>Comment-only rows</item>
+  /// </list>
+  /// </remarks>
   public static async Task<int> InspectStartRowAsync(this ImprovedTextReader textReader,
     char fieldDelimiterChar, char fieldQualifierChar, char escapePrefixChar, string commentLine,
     CancellationToken cancellationToken)
@@ -25,17 +54,21 @@ public static class DetectionStartRow
 
     const int maxRows = 50;
     var colCounts = new int[maxRows];
-    var isComment = new bool[maxRows];
-
+    var isCommentRow = false;
+    var rowStartLine = new int[maxRows];
     int currentRow = 0;
+    int currentLine = 1;
     bool quoted = false;
-    bool firstCharOfLine = true;
-    char lastChar = '\0';
+    bool escaped = false;
+    bool startOfNewRow = true;
+    char currentChar = '\0';
     bool hasFieldQualifier = fieldQualifierChar != char.MinValue;
-
+    rowStartLine[currentRow] = currentLine;
     textReader.ToBeginning();
     char[] buffer = ArrayPool<char>.Shared.Rent(4096);
-
+    // This is not quite correct, we want to determine the skip lines
+    // but a row should spread over multiple lines, a row is not necessarily a line, it can be multiple
+    // lines if there are line breaks in quoted fields
     try
     {
       while (currentRow < maxRows && !cancellationToken.IsCancellationRequested)
@@ -45,65 +78,60 @@ public static class DetectionStartRow
 
         for (int i = 0; i < charsRead && currentRow < maxRows; i++)
         {
-          char c = buffer[i];
-
+          var lastChar = currentChar;
+          currentChar = buffer[i];
+          if (lastChar == '\r' && currentChar == '\n')
+            continue;
+          if (startOfNewRow && currentChar==' ')
+            continue;
           // 1. Handle Comment Detection
-          if (firstCharOfLine && !char.IsWhiteSpace(c) && commentLine.Length > 0&&IsMatch(buffer, i, charsRead, commentLine))
-            isComment[currentRow] = true;
-
-          if (isComment[currentRow])
+          if (startOfNewRow && commentLine.Length > 0 && IsMatch(buffer, i, charsRead, commentLine))
+            isCommentRow = true;
+          startOfNewRow = false;
+          if (currentChar is '\r' or '\n')
           {
-            if (c is '\r' or '\n') HandleNewLine();
+            HandleCRLF();
+            isCommentRow = false;
             continue;
           }
-
-          // 2. Escape Logic
-          if (c == escapePrefixChar && escapePrefixChar != char.MinValue)
+          if (isCommentRow)
+            continue;
+          if (escaped)
           {
-            i++; // Skip the escaped character
-            firstCharOfLine = false;
+            escaped = false;
+            continue;
+          }
+          // 2. Escape Logic
+          if (currentChar == escapePrefixChar && escapePrefixChar != char.MinValue)
+          {
+            escaped = true;
             continue;
           }
 
           // 3. Quoting Logic
-          if (hasFieldQualifier && c == fieldQualifierChar)
+          if (hasFieldQualifier && currentChar == fieldQualifierChar)
           {
             char next = (i + 1 < charsRead) ? buffer[i + 1] : '\0';
             if (quoted && next == fieldQualifierChar) i++; // Handle ""
             else quoted = !quoted;
-            firstCharOfLine = false;
             continue;
           }
 
           // 4. Structural Delimiters
-          if (!quoted)
-          {
-            if (c == fieldDelimiterChar)
-            {
-              colCounts[currentRow]++;
-              firstCharOfLine = false;
-            }
-            else if (c is '\r' or '\n')
-            {
-              HandleNewLine();
-            }
-            else if (!char.IsWhiteSpace(c))
-            {
-              firstCharOfLine = false;
-            }
-          }
+          if (!quoted && currentChar == fieldDelimiterChar)
+            colCounts[currentRow]++;
+        } // for / buffer
+      } // while
 
-          lastChar = c;
-
-          void HandleNewLine()
-          {
-            // Handle CRLF / LFCR pairs
-            if (!((c == '\n' && lastChar == '\r') || (c == '\r' && lastChar == '\n')))
-            {
-              currentRow++;
-              firstCharOfLine = true;
-            }
-          }
+      void HandleCRLF()
+      {
+        currentLine++;
+        if (!quoted)
+        {
+          currentRow++;
+          startOfNewRow = true;
+          if (currentRow < maxRows)
+            rowStartLine[currentRow] = currentLine;
         }
       }
     }
@@ -111,46 +139,48 @@ public static class DetectionStartRow
     {
       ArrayPool<char>.Shared.Return(buffer);
     }
-
-    return CalculateStartRow(colCounts, isComment, currentRow);
+    return CalculateSkipLine(colCounts, rowStartLine, currentRow);
   }
 
-  private static int CalculateStartRow(int[] colCounts, bool[] isComment, int totalRows)
+  /// <summary>
+  /// Determines the first meaningful data row based on column consistency and comment filtering,
+  /// then converts it into a line index.
+  /// </summary>
+  /// <param name="colCounts">Detected column counts per row.</param>
+  /// <param name="rowStartLine">Mapping from row index to physical line index.</param>
+  /// <param name="totalRows">Number of analyzed rows.</param>
+  /// <returns>Line index to start reading actual data from.</returns>
+  private static int CalculateSkipLine(int[] colCounts, int[] rowStartLine, int totalRows)
   {
     // Filter out comments to find structural rows
-    var structuralRows = new List<(int OriginalIndex, int Count)>();
-    var commonCount = -1;
-    var hasDifferences = false;
-    for (int i = 0; i < totalRows; i++)
-      if (!isComment[i])
-      {
-        structuralRows.Add((i, colCounts[i]));
-        if (commonCount!=-1 && commonCount!=colCounts[i])
-          hasDifferences=true;
-        commonCount=colCounts[i];
-      }
+    var structuralRows = new List<(int RowIndex, int Count)>();
 
-    if (structuralRows.Count < 2 || !hasDifferences)
+    for (int i = 0; i < totalRows; i++)
+    {
+      int count = colCounts[i];
+      if (count > 0)
+        structuralRows.Add((i, count));
+    }
+    if (structuralRows.Count < 2)
       return 0;
 
     int take = Math.Min(15, structuralRows.Count);
     int start = structuralRows.Count - take;
 
     // Determine common column count in the tail
-    var allowed = new List<int>();
+    var allowed = new HashSet<int>();
     for (int i = structuralRows.Count - 1; i >= start; i--)
-    {
-      var count = structuralRows[i].Count;
-      if (count > 0 && !allowed.Contains(count))
-        allowed.Add(count); // later rows first
-    }
-
-    if (allowed.Count==0)
-      return 0;
-    Logger.Warning($"Detected column count variants: {string.Join(", ", allowed)}.");
-    return structuralRows.Where(row => allowed.Contains(row.Count)).Select(row => row.OriginalIndex).FirstOrDefault();
+      allowed.Add(structuralRows[i].Count);
+    var firstRow = structuralRows.Where(row => allowed.Contains(row.Count)).Select(row => row.RowIndex).FirstOrDefault();
+    return rowStartLine[firstRow]-1;
   }
 
+  /// <summary>
+  /// Compares a buffer segment with a fixed string pattern.
+  /// </summary>
+  /// <remarks>
+  /// Used for fast detection of comment prefixes at the beginning of a row.
+  /// </remarks>
   private static bool IsMatch(char[] buffer, int index, int length, string pattern)
   {
     if (index + pattern.Length > length) return false;
