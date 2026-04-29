@@ -163,9 +163,9 @@ public class ImprovedStreamTests
     var fullname = UnitTestStatic.GetTestPath(fileName);
 
     var encoding = EncodingHelper.GetEncoding(65001, true);
-    const string line1 = "This is a test of compressed data written to a file";
-    const string line2 = "Yet another line to be written";
-    const string line3 = "A text with non ASCII characters: Raphael Nöldner";
+    string line1 = "This is a test of compressed data written to a file - " + internalName;
+    string line2 = "Yet another line to be written - " + internalName;
+    string line3 = "A text with non ASCII characters: Raphael Nöldner - " + internalName;
 
     var sourceAccess = new SourceAccess(fullname, false);
     if (!string.IsNullOrEmpty(internalName))
@@ -173,7 +173,7 @@ public class ImprovedStreamTests
 
     using (var improvedStream = new ImprovedStream(sourceAccess))
     {
-      using (var writer = new StreamWriter(improvedStream, encoding, 8192))
+      using (var writer = new StreamWriter(improvedStream, encoding, 4096))
       {
         writer.WriteLine(line1);
         writer.WriteLine(line2);

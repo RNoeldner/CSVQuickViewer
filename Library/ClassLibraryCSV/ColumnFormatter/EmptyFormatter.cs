@@ -29,7 +29,4 @@ public sealed class EmptyFormatter : BaseColumnFormatter
 
   /// <inheritdoc/>
   public override string FormatInputText(string inputString, Action<string>? handleWarning) => inputString;
-
-  /// <inheritdoc/>
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString) => inputString;
 }

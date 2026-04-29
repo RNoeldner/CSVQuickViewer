@@ -44,8 +44,4 @@ public class TextToHtmlFormatter : BaseColumnFormatter
       handleWarning?.Invoke($"HTML encoding removed from {inputString}");
     return output;
   }
-
-  /// <inheritdoc/>
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();    
 }

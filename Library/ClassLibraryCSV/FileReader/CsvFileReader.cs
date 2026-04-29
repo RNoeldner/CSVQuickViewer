@@ -68,17 +68,13 @@ public class CsvFileReader : BaseFileReader
   private readonly string m_CommentLine;
   private readonly int m_ConsecutiveEmptyRowsMax;
   private readonly bool m_ContextSensitiveQualifier;
-  private readonly string m_DelimiterPlaceholder;
   private readonly bool m_DuplicateQualifierToEscape;
   private readonly char m_EscapePrefix;
   private readonly char m_FieldDelimiter;
   private readonly char m_FieldQualifier;
   private readonly bool m_HasFieldHeader;
   private readonly string m_IdentifierInContainer;
-  private readonly string m_NewLinePlaceholder;
   private readonly int m_NumMaxWarning;
-  private readonly string m_QuotePlaceholder;
-
   /// <summary>
   ///   Stores the raw text of the current record before column splitting and trimming.
   ///   Cleared for each new row; used only when <see cref="m_ColumnMerger"/> is active.
@@ -104,7 +100,11 @@ public class CsvFileReader : BaseFileReader
   private readonly bool m_WarnNbsp;
   private readonly bool m_WarnQuotes;
   private readonly bool m_WarnUnknownCharacter;
+  // The m_CurrentRowColumns conatins the columns in the row
+  // Here the number of columnns could vary, you woudl see
+  // ignored columns or if its not well formed more than expected
   private readonly List<string> m_CurrentRowColumns = [];
+  private readonly (string, string)[] m_TextSpecials;
 
   /// <summary>
   ///   Supports column realignment when enabled.  
@@ -517,20 +517,26 @@ public class CsvFileReader : BaseFileReader
     m_CodePageId = codePageId;
     m_CommentLine = commentLine;
 
-    m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
-    m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
-
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
+
+    var m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
     if (m_DelimiterPlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid delimiter characters in '{m_DelimiterPlaceholder}'", nameof(delimiterPlaceholder));
 
+
+    var m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
+
     if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'", nameof(newLinePlaceholder));
+    m_TextSpecials = [
+      (m_NewLinePlaceholder, "\n"),
+      (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()),
+      (quotePlaceholder.HandleLongText(), m_FieldQualifier.ToStringHandle0())];
 
     m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
 
     m_NumMaxWarning = numWarning;
-    m_QuotePlaceholder = quotePlaceholder;
+
     m_SkipDuplicateHeader = skipDuplicateHeader;
     m_SkipRows = skipRows<0 ? 0 : skipRows;
     m_SkipRowsAfterHeader = skipRowsAfterHeader<0 ? 0 : skipRowsAfterHeader;
@@ -541,7 +547,7 @@ public class CsvFileReader : BaseFileReader
     m_TryToSolveMoreColumns = tryToSolveMoreColumns;
     m_WarnDelimiterInValue = warnDelimiterInValue;
     m_WarnLineFeed = warnLineFeed;
-    m_WarnLineFeedMessage = m_WarnLineFeed ? "Line feed found in field".AddWarningId(): string.Empty;
+    m_WarnLineFeedMessage = m_WarnLineFeed ? "Line feed found in field".AddWarningId() : string.Empty;
     m_WarnNbsp = warnNbsp;
     m_WarnQuotes = warnQuotes;
     m_WarnUnknownCharacter = warnUnknownCharacter;
@@ -564,6 +570,7 @@ public class CsvFileReader : BaseFileReader
     m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
     m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
+
 
     m_ProcessingBuffer = ArrayPool<char>.Shared.Rent(1024);
   }
@@ -848,9 +855,13 @@ public class CsvFileReader : BaseFileReader
         if (m_CurrentRowColumns.Count != FieldCount || !m_HasFieldHeader || !m_SkipDuplicateHeader) continue;
         var isRepeatedHeader = true;
         for (var col = 0; col < FieldCount; col++)
+        {
           if (!m_HeaderRow[col].Equals(m_CurrentRowColumns[col], StringComparison.OrdinalIgnoreCase))
-          { isRepeatedHeader = false; break; }
-
+          {
+            isRepeatedHeader = false;
+            break;
+          }
+        }
         if (!isRepeatedHeader) continue;
         HandleWarning(-1, "Repeated Header row is ignored");
         readRowAgain = true;
@@ -968,44 +979,52 @@ public class CsvFileReader : BaseFileReader
         }
       }
 
-      // Handle Text replacements and warning in the read columns
+      // Loop through the expecetd columns and store the values,
+      // handle warnings and replacements      
+      // Additional fields are ignored, missing fields are set to empty
+      // This way the number of columns in CurrentRowColumnText never changes
       for (var columnNo = 0; columnNo < FieldCount; columnNo++)
       {
+        // Removed the checking of Ignore here
         // store the values from the currentRow, even ignore rows need to be copied, in case they are referenced like a time column 
-        if (columnNo < m_CurrentRowColumns.Count)
-          CurrentRowColumnText[columnNo] = m_CurrentRowColumns[columnNo];
-        else
+        if (columnNo >= m_CurrentRowColumns.Count || string.IsNullOrEmpty(m_CurrentRowColumns[columnNo]) || m_CurrentRowColumns[columnNo].ShouldBeTreatedAsNull(m_TreatTextAsNull))
+        {
           CurrentRowColumnText[columnNo] = string.Empty;
-
-        if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
           continue;
+        }
+        var col = GetColumn(columnNo);
 
         // Handle replacements and warnings etc.
-        var adjustedSpan = HandleTextSpecials(
-          CurrentRowColumnText[columnNo]
-            .ReplaceCaseInsensitive(m_NewLinePlaceholder, "\n")
-            .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0())
-            .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifier.ToStringHandle0()).AsSpan(),
-          columnNo);
+        var adjustedText = col.ColumnFormatter.FormatInputText(
+          m_CurrentRowColumns[columnNo].AsSpan().ReplaceMultiple(m_TextSpecials), warning => HandleWarning(columnNo,warning));
 
-        if (adjustedSpan.Length > 0)
+        if (adjustedText.Length == 0)
         {
-          if (m_WarnQuotes && adjustedSpan.IndexOf(m_FieldQualifier) != -1 &&
+          CurrentRowColumnText[columnNo] = string.Empty;
+          continue;
+        }
+        // Additional warnings not wanted for ignored columns
+        if (!col.Ignore)
+        {
+          if (m_WarnQuotes && adjustedText.IndexOf(m_FieldQualifier) != -1 &&
               (m_NumMaxWarning < 1 || m_NumWarnings++ < m_NumMaxWarning))
             HandleWarning(columnNo, $"Field qualifier '{m_FieldQualifier.Text()}' found in field".AddWarningId());
 
-          if (m_WarnDelimiterInValue && adjustedSpan.IndexOf(m_FieldDelimiter) != -1 &&
+          if (m_WarnDelimiterInValue && adjustedText.IndexOf(m_FieldDelimiter) != -1 &&
               (m_NumMaxWarning < 1 || m_NumWarnings++ < m_NumMaxWarning))
             HandleWarning(columnNo, $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
+          // This is a special case of UnknownCharacter
+          // soemtimes the UnknownCharacter is raed as simple ? characters
+          // , so we need to check for this as well
           if (m_WarnUnknownCharacter)
           {
             var numberQuestionMark = 0;
             var lastPos = -1;
-            var length = adjustedSpan.Length;
+            var length = adjustedText.Length;
             for (var pos = length - 1; pos >= 0; pos--)
             {
-              if (adjustedSpan[pos] != '?')
+              if (adjustedText[pos] != '?')
                 continue;
               numberQuestionMark++;
 
@@ -1021,18 +1040,10 @@ public class CsvFileReader : BaseFileReader
               lastPos = pos;
             }
           }
-
-          if (adjustedSpan.IndexOfAny(new[] { '\r', '\n' }) != -1)
+          if (m_WarnLineFeed && adjustedText.IndexOfAny(new[] { '\r', '\n' }) != -1)
             WarnLinefeed(columnNo, false);
-
-          if (adjustedSpan.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
-            adjustedSpan = Array.Empty<char>();
         }
-#if NET7_0_OR_GREATER
-        CurrentRowColumnText[columnNo] = new string(adjustedSpan);
-#else
-        CurrentRowColumnText[columnNo] = adjustedSpan.ToString();
-#endif
+        CurrentRowColumnText[columnNo] = adjustedText;
       }
 
       RecordNumber++;

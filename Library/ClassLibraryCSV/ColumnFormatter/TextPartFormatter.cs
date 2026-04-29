@@ -46,7 +46,4 @@ public sealed class TextPartFormatter : BaseColumnFormatter
     return output.ToString();
   }
 
-  /// <inheritdoc/>
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    => inputString.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
 }

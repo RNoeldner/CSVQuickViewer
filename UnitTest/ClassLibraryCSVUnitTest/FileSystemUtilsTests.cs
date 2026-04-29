@@ -149,19 +149,7 @@ public class FileSystemUtilsTests
     // load a known resource from the DLL
     var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
     Assert.IsNotNull(test1);
-
-    try
-    {
-      // load a unknown resource from this DLL
-      _ = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
-    }
-    catch (ArgumentException)
-    {
-    }
-    catch (Exception ex)
-    {
-      Assert.Fail("Wrong Exception Type: " + ex.GetType());
-    }
+    Assert.Throws<FileNotFoundException>(() =>  _ = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt"));
   }
 
   [TestMethod]

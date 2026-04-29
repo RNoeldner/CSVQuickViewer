@@ -43,7 +43,4 @@ public class HtmlToTextFormatter : BaseColumnFormatter
     return output;
   }
 
-  /// <inheritdoc/>
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    => HtmlStyle.TextToHtmlEncode(inputString.ToString()).AsSpan();
 }

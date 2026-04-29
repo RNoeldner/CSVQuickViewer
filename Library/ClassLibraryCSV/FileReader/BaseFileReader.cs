@@ -61,6 +61,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <summary>
   ///   An array of current row column text, this is reused to avoid multiple allocations
+  ///   We will have the information in here from ignored columns
   /// </summary>
   protected string[] CurrentRowColumnText = [];
 
@@ -84,7 +85,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private int[] m_AssociatedTimeZoneCol = [];
 
   /// <summary>
-  ///   Number of Columns in the reader
+  ///   Number of Columns in the reader, including teh ones ignored
+  ///   e.G. a TimeColum associated to a date could be ignored, we still need the information
   /// </summary>
   private int m_FieldCount;
 
@@ -172,7 +174,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   /// <summary>
-  ///   Gets the number of fields in the file.
+  ///   Gets the number of fields in the file. This incudes ignored fields.
   /// </summary>
   /// <value>Number of field in the file.</value>
   public override int FieldCount => m_FieldCount;
@@ -386,19 +388,20 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)
   {
+    var col = GetColumn(ordinal);
     var dt = GetDateTimeNull(
-      null,
-      CurrentRowColumnText[ordinal].AsSpan(),
-      null,
-      GetTimeValue(ordinal),
-      GetColumn(ordinal),
-      true);
+      inputDate: null,
+      strInputDate: CurrentRowColumnText[ordinal].AsSpan(),
+      inputTime: null,
+      strInputTime: GetTimeValue(ordinal),
+      column: col,
+      serialDateTime: true);
     if (dt.HasValue) return dt.Value;
 
     // Warning was added by GetDecimalNull
     throw WarnAddFormatException(
       ordinal,
-      $"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{GetColumn(ordinal).ValueFormat.DateFormat}'");
+      $"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{col.ValueFormat.DateFormat}'");
   }
 
   /// <inheritdoc />
@@ -566,7 +569,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the originally provided text of a column
   /// </summary>
   /// <param name="ordinal">The column number.</param>
-  /// <returns></returns>    
   public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
 
   /// <summary>
@@ -616,16 +618,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override object GetValue(int ordinal)
   {
+     // Pre-condition: Standard ADO.NET exception for out-of-bounds
     if (ordinal < 0 || ordinal >= m_FieldCount)
-#pragma warning disable MA0012 // Do not raise reserved exception type
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
-      throw new IndexOutOfRangeException($"The column ordinal {ordinal} is out of range.");
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-#pragma warning restore MA0012 // Do not raise reserved exception type
-    if (IsDBNull(ordinal))
-      return DBNull.Value;
-    var column = GetColumn(ordinal);
+      throw new IndexOutOfRangeException($"The column ordinal {ordinal} is outside the range [0, {m_FieldCount - 1}].");
 
+    var column = GetColumn(ordinal);
+    if (IsDBNull(column))
+      return DBNull.Value;
+    
     object ret;
     try
     {
@@ -697,22 +697,35 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="message">The message to raise.</param>
   protected void HandleWarning(int ordinal, string message) => HandleError(ordinal, message.AddWarningId());
 
+
+  /// <summary>
+  /// Internal method to determine if 
+  /// the value of a column in the current row should be treated as <see cref="DBNull"/>.
+  /// </summary>
+  /// <param name="column"></param>
+  /// <returns></returns>
+  private bool IsDBNull(Column column)
+  {
+    if (column.Ignore)
+      return true;
+    if (column.ValueFormat.DataType != DataTypeEnum.DateTime)
+      return string.IsNullOrWhiteSpace(CurrentRowColumnText[column.ColumnOrdinal]);
+
+    // Handle combined date-time column
+    if (AssociatedTimeCol[column.ColumnOrdinal] == -1 || AssociatedTimeCol[column.ColumnOrdinal] >= CurrentRowColumnText.Length)
+      return string.IsNullOrWhiteSpace(CurrentRowColumnText[column.ColumnOrdinal]);
+
+    /* For a combined date column to be empty both parts need to be empty */
+    return string.IsNullOrEmpty(CurrentRowColumnText[column.ColumnOrdinal])
+           && string.IsNullOrWhiteSpace(CurrentRowColumnText[AssociatedTimeCol[column.ColumnOrdinal]]);
+  }
+
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
     if (ordinal<0 || CurrentRowColumnText.Length <= ordinal)
       return true;
-
-    if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.DateTime)
-      return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
-
-    // Handle combined date-time column
-    if (AssociatedTimeCol[ordinal] == -1 || AssociatedTimeCol[ordinal] >= CurrentRowColumnText.Length)
-      return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
-
-    /* For a combined date column to be empty both parts need to be empty */
-    return string.IsNullOrEmpty(CurrentRowColumnText[ordinal])
-           && string.IsNullOrWhiteSpace(CurrentRowColumnText[AssociatedTimeCol[ordinal]]);
+    return IsDBNull(GetColumn(ordinal));
   }
 
   /// <inheritdoc cref="DbDataReader" />
@@ -1059,7 +1072,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the associated value.
   /// </summary>
   /// <param name="i">The i.</param>
-  /// <returns></returns>
   protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
     AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
       ? []
@@ -1102,12 +1114,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="span">The input string.</param>
   /// <param name="ordinal">The column number</param>
   /// <returns>The proper encoded or cut text as returned for the column</returns>
-  protected virtual ReadOnlySpan<char> HandleTextSpecials(ReadOnlySpan<char> span, int ordinal)
+  protected virtual string HandleTextSpecials(string span, int ordinal)
   {
-    if (span.IsEmpty || ordinal >= FieldCount)
-      return [];
+    if (string.IsNullOrEmpty(span) || ordinal >= FieldCount)
+      return string.Empty;
 
-    return GetColumn(ordinal).ColumnFormatter.FormatInputText(span);
+    return GetColumn(ordinal).ColumnFormatter.FormatInputText(span, null);
   }
 
   /// <summary>

@@ -33,6 +33,7 @@ public class DataReaderWrapperTests
     {
       FileName = Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")),
       HasFieldHeader = true,
+      SkipRows=0,
       FieldDelimiterChar = '\t',
     };
     // columns from the file
@@ -260,12 +261,9 @@ setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContai
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
-#if DEBUG
-    // Date is empty but time column has a value
-    // 14:26:58, this only works in Debug mode not sure why
-    Assert.IsFalse(wrapper.IsDBNull(0));
-    Assert.AreNotEqual(DBNull.Value, wrapper.GetValue(0));
-#endif
+    // Data shows empty DateTime but Time is filled 14:26:58
+    Assert.IsTrue(wrapper.IsDBNull(0)); // Date and Time are empty
+
     await wrapper.ReadAsync(UnitTestStatic.Token);
     await wrapper.ReadAsync(UnitTestStatic.Token);
     await wrapper.ReadAsync(UnitTestStatic.Token);

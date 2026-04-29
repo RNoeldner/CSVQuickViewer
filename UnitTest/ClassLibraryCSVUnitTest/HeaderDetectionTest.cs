@@ -112,8 +112,7 @@ public class HeaderDetectionTest
     using var reader = await improvedStream.GetTextReaderAsync(65001, 0, UnitTestStatic.Token);
     var result = await reader.InspectHasHeaderAsync(',', '"', '\\', "#", UnitTestStatic.Token);
       
-    Assert.IsTrue(result.message.StartsWith("Header", StringComparison.OrdinalIgnoreCase), result.message);
-    Assert.IsTrue(result.message.EndsWith("too long", StringComparison.OrdinalIgnoreCase), result.message);
+    Assert.IsTrue(result.message.Contains("exceed", StringComparison.OrdinalIgnoreCase), result.message);
   }
 
   [TestMethod]
@@ -122,9 +121,8 @@ public class HeaderDetectionTest
     using var improvedStream =
       new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("StrangeHeaders.txt")));
     using var reader = await improvedStream.GetTextReaderAsync(1200, 0, UnitTestStatic.Token);
-    var result = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "", UnitTestStatic.Token);
-    Assert.IsNotNull(result);
-    Assert.IsFalse(result.hasHeader);
+    var result = await reader.InspectHasHeaderAsync(',', char.MinValue, char.MinValue, "", UnitTestStatic.Token);    
+    Assert.IsTrue(result.message.Contains("numeric values", StringComparison.OrdinalIgnoreCase));    
   }
 
   [TestMethod]

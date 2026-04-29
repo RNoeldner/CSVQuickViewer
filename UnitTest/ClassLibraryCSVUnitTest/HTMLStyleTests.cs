@@ -167,8 +167,6 @@ public sealed class HtmlStyleTests
   {
     var called = false;
     var textToHtml = new TextToHtmlFullFormatter();
-    Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello".AsSpan()).ToString());
-
     Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
     Assert.IsFalse(called);
       
@@ -181,8 +179,7 @@ public sealed class HtmlStyleTests
   public void EmptyFormatterTest()
   {
     var called = false;
-    var textToHtml = new EmptyFormatter();
-    Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello".AsSpan()).ToString());
+    var textToHtml = new EmptyFormatter();    
     Assert.AreEqual("Hello", textToHtml.FormatInputText("Hello", _ => called = true));
     Assert.IsFalse(called);
   }

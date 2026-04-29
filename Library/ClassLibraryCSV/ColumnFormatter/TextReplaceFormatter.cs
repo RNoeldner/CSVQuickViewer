@@ -47,16 +47,4 @@ public sealed class TextReplaceFormatter : BaseColumnFormatter
 
     return inputString;
   }
-
-  /// <inheritdoc />
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-  {
-    if (m_Regex?.IsMatch(inputString.ToString()) ?? false)
-    {
-      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-      return m_Regex.Replace(inputString.ToString(), m_Replacement).AsSpan();
-    }
-
-    return inputString;
-  }
 }

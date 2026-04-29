@@ -22,25 +22,6 @@ namespace CsvTools.Tests;
 [SuppressMessage("ReSharper", "UseAwaitUsing")]
 public class ReaderExtensionMethodsTest
 {
-  private readonly ICsvFile m_ValidSetting = new CsvFileDummy
-  {
-    FileName =UnitTestStatic.GetTestPath("BasicCSV.txt"),
-    FieldDelimiterChar = ',',
-    CommentLine = "#"
-  };
-
-  [TestInitialize]
-  public void Init()
-  {
-    m_ValidSetting.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
-    m_ValidSetting.ColumnCollection.Add(new Column("Proficiency",
-      new ValueFormat(DataTypeEnum.Numeric)));
-    m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang",
-      new ValueFormat(DataTypeEnum.Boolean)));
-    var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
-    m_ValidSetting.ColumnCollection.Add(cf);
-  }
-
 
   [TestMethod]
   public async Task GetColumnsOfReaderTest()
@@ -55,54 +36,48 @@ public class ReaderExtensionMethodsTest
 
 
   [TestMethod]
-  public async Task GetDataTableAsync2()
+  public async Task GetDataTable_BasicCSV_RecordLimit()
   {
-    var setting = new CsvFileDummy() { RecordLimit = 4 };
-
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), setting.CodePageId, setting.SkipRows, 0, setting.HasFieldHeader,
-setting.ColumnCollection, setting.TrimmingOption,
-setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-      setting.ContextSensitiveQualifier,
-setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
-      setting.DelimiterPlaceholder,
-setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
-      setting.TryToSolveMoreColumns,
-setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns,
-setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
-
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), recordLimit:4);
     await test.OpenAsync(UnitTestStatic.Token);
 
     var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
       false, false, false, UnitTestStatic.TesterProgress);
-    Assert.AreEqual(setting.RecordLimit, dt.Rows.Count);
+    Assert.AreEqual(4, dt.Rows.Count);
   }
 
   [TestMethod]
-  public async Task GetDataTableAsync3()
+  public async Task GetDataTable_WithEoFChar()
   {
-    var test3 = new CsvFileDummy() { FieldDelimiterChar = '\t' };
-    test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("WithEoFChar.txt"), test3.CodePageId, test3.SkipRows, 0, test3.HasFieldHeader,
-test3.ColumnCollection, test3.TrimmingOption,
-test3.FieldDelimiterChar, test3.FieldQualifierChar, test3.EscapePrefixChar, test3.RecordLimit, test3.AllowRowCombining,
-      test3.ContextSensitiveQualifier,
-test3.CommentLine, test3.NumWarnings, test3.DuplicateQualifierToEscape, test3.NewLinePlaceholder,
-      test3.DelimiterPlaceholder,
-test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLfAsSpace, test3.TreatUnknownCharacterAsSpace,
-      test3.TryToSolveMoreColumns,
-test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter,
-      test3.WarnEmptyTailingColumns,
-test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows,
-test3.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
+    var columnDefinition = new[] { new Column("Memo", ValueFormat.Empty, ignore: true) };
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("WithEoFChar.txt"),
+      fieldDelimiterChar: '\t');
     await test.OpenAsync(UnitTestStatic.Token);
 
-    using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
-      true, true, true, UnitTestStatic.TesterProgress);
+    using var dt = await test.GetDataTableAsync(TimeSpan.FromMinutes(1), true, true, true, true, UnitTestStatic.TesterProgress);
+    // 10 columns + Start line + Error Field + Record No + Line end
+    Assert.AreEqual(10 + 4, dt.Columns.Count);
+    Assert.AreEqual(19, dt.Rows.Count);
+  }
+
+  [TestMethod]
+  public async Task GetDataTable_WithEoFChar_Ignore()
+  {
+    var columnDefinition = new[] { new Column("Memo", ValueFormat.Empty, ignore: true) };
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("WithEoFChar.txt"), 
+      columnDefinition: columnDefinition, fieldDelimiterChar: '\t');
+    await test.OpenAsync(UnitTestStatic.Token);
+
+    // An ignored columns will be read in the reader
+
+    // With one ignored columend we should not see a misalligedn column
+    // But right now we do...
+    // Error: Input string was not in a correct format.Couldn't store <08:42:27> in #Record Column.  Expected type is Int64.
+    using var dt = await test.GetDataTableAsync(TimeSpan.FromMinutes(1), true, true, true, true, UnitTestStatic.TesterProgress);
     // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
     // Line end
-    Assert.AreEqual(10 - 1 + 4, dt.Columns.Count);
+    Assert.AreEqual(10 -1 + 4, dt.Columns.Count);
+
     Assert.AreEqual(19, dt.Rows.Count);
   }
 }

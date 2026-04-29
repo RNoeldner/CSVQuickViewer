@@ -488,7 +488,7 @@ public class UnitTestLogger : ILogger
     Context?.WriteLine($"{logLevel} - {LastMessage}");
   }
 
-  public bool IsEnabled(LogLevel logLevel) => logLevel > LogLevel.Debug;
+  public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Debug;
 
   public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullLogger.Instance.BeginScope(state);
 }

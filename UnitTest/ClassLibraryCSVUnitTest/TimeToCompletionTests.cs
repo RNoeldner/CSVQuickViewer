@@ -94,7 +94,7 @@ public class TimeToCompletionTests
   [Timeout(20000)]
   public void DisplayTimespan()
   {
-    Assert.AreEqual("1.5 days",
+    Assert.AreEqual("1.50 days",
       TimeToCompletion.DisplayTimespan(TimeSpan.FromDays(1.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("0.10 sec",

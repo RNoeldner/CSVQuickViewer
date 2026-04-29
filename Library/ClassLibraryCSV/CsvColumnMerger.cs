@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CsvTools;
@@ -50,7 +51,7 @@ public sealed class CsvColumnMerger
 
   private readonly int m_ExpectedColumns;
 
-  private readonly List<string[]> m_GoodRows = new List<string[]>(cMaxGoodRows);
+  private readonly List<IReadOnlyList<string>> m_GoodRows = new List<IReadOnlyList<string>>(cMaxGoodRows);
 
   /// <summary>
   /// Initializes a new instance of the <see cref="CsvColumnMerger"/> class.
@@ -67,10 +68,10 @@ public sealed class CsvColumnMerger
   ///   Adds a new unalignedRow assuming the data is well aligned
   /// </summary>
   /// <param name="newRow">Array with the columns of that unalignedRow</param>
-  public void AddAlignedRow(string[] newRow)
+  public void AddAlignedRow(IReadOnlyList<string> newRow)
   {
     if (newRow is null) throw new ArgumentNullException(nameof(newRow));
-    if (newRow.Length != m_ExpectedColumns)
+    if (newRow.Count != m_ExpectedColumns)
       return;
 
     if (m_GoodRows.Count < cMaxGoodRows)
@@ -92,7 +93,7 @@ public sealed class CsvColumnMerger
   /// </param>
   /// <returns>A new list of columns</returns>
   public IReadOnlyList<string> MergeMisalignedColumns(
-    IReadOnlyList<string> unalignedRow,
+    IReadOnlyCollection<string> unalignedRow,
     Action<int, string> handleWarning, Func<int, string, string> parseColumn,
     in string rawText)
   {
@@ -102,7 +103,7 @@ public sealed class CsvColumnMerger
     if (m_GoodRows.Count < 3)
     {
       handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
-      return unalignedRow;
+      return (unalignedRow as IReadOnlyList<string>) ?? unalignedRow.ToArray();
     }
 
     // List is easier to handle than an array
@@ -140,7 +141,7 @@ public sealed class CsvColumnMerger
     }
 
     return (columns.Count == unalignedRow.Count && unalignedRow.Count == m_ExpectedColumns)
-      ? unalignedRow : columns.ToArray();
+        ? (unalignedRow as IReadOnlyList<string>) ?? unalignedRow.ToArray() : columns.ToArray();
   }
 
   /// <summary>
@@ -376,12 +377,12 @@ public sealed class CsvColumnMerger
   /// <param name="colNum">The column index to evaluate.</param>
   /// <param name="rows">The set of rows considered "well-aligned".</param>
   /// <returns>The combined <see cref="ColumnCharacteristic"/> flags for the given column.</returns>
-  private static ColumnCharacteristic GetColumnOptionAllRows(int colNum, in ICollection<string[]> rows)
+  private static ColumnCharacteristic GetColumnOptionAllRows(int colNum, in ICollection<IReadOnlyList<string>> rows)
   {
     var overall = ColumnCharacteristic.Empty;
     foreach (var row in rows)
     {
-      if (row.Length <= colNum) continue;
+      if (row.Count <= colNum) continue;
       var oneColOption = GetColumnOption(row[colNum]);
       if (oneColOption == ColumnCharacteristic.Empty)
         continue;

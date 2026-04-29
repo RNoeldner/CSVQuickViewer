@@ -26,9 +26,6 @@ public abstract class BaseColumnFormatter : IColumnFormatter
   public abstract string FormatInputText(string inputString, Action<string>? handleWarning);
 
   /// <inheritdoc/>
-  public abstract ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString);
-
-  /// <inheritdoc/>
   public virtual string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)
     => dataObject?.ToString() ?? string.Empty;
 

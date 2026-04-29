@@ -100,8 +100,4 @@ public class TextUnescapeFormatter : BaseColumnFormatter
       handleWarning?.Invoke("Unescaped text");
     return output;
   }
-
-  /// <inheritdoc />
-  public override ReadOnlySpan<char> FormatInputText(ReadOnlySpan<char> inputString)
-    => inputString.IndexOf('\\') == -1 ? inputString : Unescape(inputString.ToString()).AsSpan();
 }

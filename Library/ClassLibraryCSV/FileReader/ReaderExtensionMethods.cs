@@ -197,16 +197,21 @@ public static class ReaderExtensionMethods
         progress.Report($"Reading all data");
 
       var watch = Stopwatch.StartNew();
-      while (!progress.CancellationToken.IsCancellationRequested &&
-            (watch.Elapsed < maxDuration || wrapper.Percent >= 95) &&
+      while (!progress.CancellationToken.IsCancellationRequested && 
             await wrapper.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
       {
+        if (watch.Elapsed > maxDuration && wrapper.Percent < 95)
+          throw new TimeoutException($"Timeout of {maxDuration} reached");
+
         for (var i = 0; i < fieldCount; i++)
+        {
           try { values[i] = wrapper.GetValue(i); }
           catch { values[i] = DBNull.Value; }
+        }
+
         var dataRow = dataTable.LoadDataRow(values, fAcceptChanges: true);
         // Apply row-level metadata if necessary
-        if (wrapper.RowErrorInformation != null) dataRow.SetErrorInformation(wrapper.RowErrorInformation);
+        dataRow.SetErrorInformation(wrapper.RowErrorInformation);
         intervalAction?.Invoke(progress, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
       }
     }

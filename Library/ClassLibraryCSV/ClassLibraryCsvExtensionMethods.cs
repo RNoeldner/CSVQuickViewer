@@ -590,6 +590,78 @@ public static class ClassLibraryCsvExtensionMethods
     });
   }
 
+  [DebuggerStepThrough]  
+  public static string ReplaceMultiple(this ReadOnlySpan<char> original, 
+        IEnumerable<(string Pattern, string Replacement)> replacements)
+  {
+    if (original.IsEmpty) return string.Empty;
+
+    // 1. Convert to a list or array once to avoid repeated enumeration overhead
+    var pairList = replacements.Where(p => !string.IsNullOrEmpty(p.Pattern)).ToArray();
+    if (pairList.Length == 0) return original.ToString();
+
+    // 2. Pre-check: Does ANY pattern exist? 
+    // This allows the "Clean Path" to stay extremely fast.
+    bool anyMatch = false;
+    foreach (var pair in pairList)
+    {
+      if (original.IndexOf(pair.Pattern.AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+      {
+        anyMatch = true;
+        break;
+      }
+    }
+
+    if (!anyMatch) return original.ToString();
+
+    // 3. One-pass scan and replace
+    var sb = new StringBuilder(original.Length);
+    ReadOnlySpan<char> remaining = original;
+
+    while (remaining.Length > 0)
+    {
+      int nearestMatch = -1;
+      int pairIndex = -1;
+
+      // Find the closest occurrence among all patterns
+      for (int i = 0; i < pairList.Length; i++)
+      {
+        int pos = remaining.IndexOf(pairList[i].Pattern.AsSpan(), StringComparison.OrdinalIgnoreCase);
+        if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
+        {
+          nearestMatch = pos;
+          pairIndex = i;
+        }
+      }
+
+      if (nearestMatch == -1)
+      {
+        // No more matches left in the remaining span
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+            sb.Append(remaining);
+#else
+        sb.Append(remaining.ToString());
+#endif
+        break;
+      }
+
+      // Append the text before the match
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        sb.Append(remaining.Slice(0, nearestMatch));
+#else
+      sb.Append(remaining.Slice(0, nearestMatch).ToString());
+#endif
+
+      // Append the replacement value
+      sb.Append(pairList[pairIndex].Replacement);
+
+      // Advance the window past the matched pattern
+      remaining = remaining.Slice(nearestMatch + pairList[pairIndex].Pattern.Length);
+    }
+
+    return sb.ToString();
+  }
+
   /// <summary>
   /// Replaces all occurrences of a pattern with a replacement string, ignoring case.
   /// </summary>
