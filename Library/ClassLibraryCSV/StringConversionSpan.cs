@@ -379,7 +379,7 @@ public static class StringConversionSpan
         text.Equals("99999999".AsSpan(), StringComparison.Ordinal))
       return null;
 
-    if (text.IndexOfAny('\t', ' ')!=-1)
+    if (text.IndexOf('\t') != -1 || text.IndexOf("  ".AsSpan(), StringComparison.Ordinal) != -1)
       text = text.ToString().Replace('\t', ' ').Replace("  ", " ").AsSpan();
 
     // get rid of numeric suffixes like 12th or 3rd for dates
@@ -487,14 +487,16 @@ public static class StringConversionSpan
     if (lastPos > 0 && startDecimal != lastPos + 4)
       return false;
 
-
-
     // 1. Handle Braces (Accounting format)
     if (text.Length > 2 && text[0] == '(' && text[text.Length - 1] == ')')
     {
       isNegative = true;
       text = text.Slice(1, text.Length - 2).Trim();
+      if (text.IsEmpty)
+        return false;
     }
+    while (text[0] == '+')
+      text = text.Slice(1).Trim();
 
     // 2. Handle Signs at end
     if (text[text.Length - 1] == '-')
@@ -514,14 +516,15 @@ public static class StringConversionSpan
       while (text.Length > 0 && StaticCollections.CurrencySymbols.Contains(text[text.Length - 1]))
         text = text.Slice(0, text.Length - 1).TrimEnd();
     }
-
+    if (text.IsEmpty)
+      return false;
     isPercentage = allowPercentage && text[text.Length - 1] == '%';
     // ReSharper disable once IdentifierTypo
     isPermille = allowPercentage && text[text.Length - 1] == '‰';
 
     if (isPercentage || isPermille)
       text = text.Slice(0, text.Length - 1).Trim();
-    return true;
+    return !text.IsEmpty;
   }
 
   /// <summary>
