@@ -13,6 +13,7 @@
  */
 #nullable enable
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -89,12 +90,7 @@ public static class StringConversionSpan
           if (oaDate > -657435.0 && oaDate < 2958466.0)
           {
             var timeValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
-            timeSpanValue = new TimeSpan(
-              0,
-              timeValue.Hour,
-              timeValue.Minute,
-              timeValue.Second,
-              timeValue.Millisecond);
+            timeSpanValue = new TimeSpan(0, timeValue.Hour, timeValue.Minute, timeValue.Second, timeValue.Millisecond);
           }
 
           break;
@@ -180,19 +176,16 @@ public static class StringConversionSpan
   ///   Tries to determine the date time assuming its an Excel serial date time, using regional
   ///   and common decimal separators
   /// </summary>
-  /// <param name="text">The Value as string</param>
-  /// <returns></returns>
+  /// <param name="text">The Value as string</param>  
   public static DateTime? SerialStringToDateTime(
     this ReadOnlySpan<char> text)
   {
     var stringDateValue = text.Trim();
     try
     {
-      var numberFormatProvider =
-        new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
       foreach (var decimalSeparator in StaticCollections.DecimalSeparatorChars)
       {
-        numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
+        var numberFormatProvider = GetNumberFormatInfo(decimalSeparator, '\0');
         if (!double.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
               stringDateValue
@@ -433,36 +426,37 @@ public static class StringConversionSpan
       culture);
   }
 
-
-  /// <summary>
-  ///   Parses a string to a decimal
-  /// </summary>
-  /// <param name="text">The value.</param>
-  /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
-  /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
-  /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
-  /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
-  /// <returns>A decimal if the value could be interpreted, <c>null</c> otherwise</returns>
-  public static decimal? StringToDecimal(
-    this ReadOnlySpan<char> text,
-    char decimalSeparatorChar,
-    char groupSeparatorChar,
-    bool allowPercentage,
-    bool currencyRemoval)
+  private static readonly ConcurrentDictionary<int, NumberFormatInfo> m_NfiCache = new ConcurrentDictionary<int, NumberFormatInfo>();
+  private static NumberFormatInfo GetNumberFormatInfo(char decimalSeparator, char groupSeparator)
   {
-    // in case nothing is passed in we are already done here
-    if (text.IsEmpty)
-      return null;
+    // Create a unique key based on the two characters
+    // Using an int key (hash) is faster than a string key like ".|,"
+    int key = (decimalSeparator << 16) | groupSeparator;
 
-    if (currencyRemoval)
+    return m_NfiCache.GetOrAdd(key, _ =>
     {
-      var pos = text.IndexOfAny(StaticCollections.CurrencySymbols);
-      while (pos!=-1)
+      var nfi = new NumberFormatInfo()
       {
-        text = text.ToString().Remove(pos, 1).AsSpan();
-        pos = text.IndexOfAny(StaticCollections.CurrencySymbols);
-      }
-    }
+        NegativeSign = "-",
+        PositiveSign = "+",
+        NumberDecimalSeparator = decimalSeparator.ToString(),
+        NumberGroupSeparator = groupSeparator.ToString()
+      };
+
+      // Set to ReadOnly to ensure thread-safety and prevent external mutation
+      return NumberFormatInfo.ReadOnly(nfi);
+    });
+  }
+
+  private static bool PrepareStringToNumber(
+      ref ReadOnlySpan<char> text, ref bool isNegative, ref bool isPercentage, ref bool isPermille,
+      char decimalSeparatorChar,
+      char groupSeparatorChar,
+      bool allowPercentage,
+      bool currencyRemoval)
+  {
+    if (text.IsEmpty)
+      return false;
 
     var startDecimal = text.Length;
     var lastPos = -3;
@@ -474,7 +468,7 @@ public static class StringConversionSpan
       {
         if (startDecimal < text.Length)
           // Second decimal separator
-          return null;
+          return false;
         startDecimal = pos;
       }
       else if (text[pos] == groupSeparatorChar)
@@ -482,7 +476,7 @@ public static class StringConversionSpan
         if (lastPos > 0 && pos != lastPos + 4)
         {
           // Distance between group is not correct
-          return null;
+          return false;
         }
 
         lastPos = pos;
@@ -491,51 +485,118 @@ public static class StringConversionSpan
 
     // if we have a decimal point the group separator has to be 3 places from the right e.g. 63.467.8373 is not ok, but 634.678.373 is
     if (lastPos > 0 && startDecimal != lastPos + 4)
-      return null;
+      return false;
 
-    var numberFormatProvider = new NumberFormatInfo
+
+
+    // 1. Handle Braces (Accounting format)
+    if (text.Length > 2 && text[0] == '(' && text[text.Length - 1] == ')')
     {
-      NegativeSign = "-",
-      PositiveSign = "+",
-      NumberDecimalSeparator = decimalSeparatorChar.ToStringHandle0(),
-      NumberGroupSeparator = groupSeparatorChar.ToStringHandle0()
-    };
-    var roundBraces = text[0] == '(' && text[text.Length - 1] == ')';
-    if (roundBraces)
+      isNegative = true;
       text = text.Slice(1, text.Length - 2).Trim();
-
-    var percentage = allowPercentage && text[text.Length - 1] == '%';
-    // ReSharper disable once IdentifierTypo
-    var permille = allowPercentage && text[text.Length - 1] == '‰';
-
-    if (percentage || permille)
-      text = text.Slice(0, text.Length - 1).Trim();
-
-    //       Pattern 1:           -1,234.00
-    //       Pattern 2:           - 1,234.00
-    //       Pattern 3:           1,234.00-
-    for (numberFormatProvider.NumberNegativePattern = 1;
-         numberFormatProvider.NumberNegativePattern <= 3;
-         numberFormatProvider.NumberNegativePattern++)
-    {
-      if (!
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-// Span overload exists
-          decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result)
-#else
-        decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result)
-#endif
-         )
-        continue;
-
-      // If this works, exit
-      if (percentage)
-        result /= 100m;
-      else if (permille)
-        result /= 1000m;
-      return (roundBraces) ? -result : result;
     }
 
+    // 2. Handle Signs at end
+    if (text[text.Length - 1] == '-')
+    {
+      isNegative = true;
+      text = text.Slice(0, text.Length - 1).Trim();
+    }
+    else if (text[0] == '-')
+    {
+      isNegative = true;
+      text = text.Slice(1).Trim();
+    }
+    if (currencyRemoval)
+    {
+      while (text.Length > 0 && StaticCollections.CurrencySymbols.Contains(text[0]))
+        text = text.Slice(1).TrimStart();
+      while (text.Length > 0 && StaticCollections.CurrencySymbols.Contains(text[text.Length - 1]))
+        text = text.Slice(0, text.Length - 1).TrimEnd();
+    }
+
+    isPercentage = allowPercentage && text[text.Length - 1] == '%';
+    // ReSharper disable once IdentifierTypo
+    isPermille = allowPercentage && text[text.Length - 1] == '‰';
+
+    if (isPercentage || isPermille)
+      text = text.Slice(0, text.Length - 1).Trim();
+    return true;
+  }
+
+  /// <summary>
+  /// Parses a span of characters to a decimal using a provided <see cref="NumberFormatInfo"/>.
+  /// Direct parsing to decimal avoids the overhead of intermediate double conversion.
+  /// </summary>
+  /// <param name="text">The value.</param>
+  /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
+  /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
+  /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
+  /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
+  /// <returns>A decimal if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static decimal? StringToDecimal(
+      this ReadOnlySpan<char> text,
+      char decimalSeparatorChar, char groupSeparatorChar,
+      bool allowPercentage, bool currencyRemoval)
+  {
+    var isNegative = false;
+    var isPercentage = false;
+    var isPermille = false;
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, allowPercentage, currencyRemoval))
+      return null;
+    var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
+
+    bool success =
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+      decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
+#else
+    decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
+#endif
+    if (success)
+    {
+      // If this works, exit
+      if (isPercentage) result /= 100m;
+      else if (isPermille) result /= 1000m;
+      return isNegative ? -result : result;
+    }
+    return null;
+  }
+
+  /// <summary>
+  /// Parses a span of characters to a double using a provided <see cref="NumberFormatInfo"/>.
+  /// Direct parsing to double avoids the overhead of intermediate decimal conversion.
+  /// </summary>
+  /// <param name="text">The value.</param>
+  /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
+  /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
+  /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
+  /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
+  /// <returns>A double if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static double? StringToDouble(
+      this ReadOnlySpan<char> text,
+      char decimalSeparatorChar, char groupSeparatorChar,
+      bool allowPercentage, bool currencyRemoval)
+  {
+    var isNegative = false;
+    var isPercentage = false;
+    var isPermille = false;
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, allowPercentage, currencyRemoval))
+      return null;
+    var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
+
+    bool success =
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+      double.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
+#else
+    double.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
+#endif
+    if (success)
+    {
+      // If this works, exit
+      if (isPercentage) result /= 100.0;
+      else if (isPermille) result /= 1000.0;
+      return isNegative ? -result : result;
+    }
     return null;
   }
 
@@ -754,7 +815,7 @@ public static class StringConversionSpan
     var slice = text.Slice(slices[0].start, slices[0].length);
     int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-      slice 
+      slice
 #else
             slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif
@@ -790,7 +851,7 @@ public static class StringConversionSpan
       slice = text.Slice(slices[3].start, slices[3].length);
       int.TryParse(
 #if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-        slice 
+        slice
 #else
         slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 #endif

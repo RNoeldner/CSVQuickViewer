@@ -193,7 +193,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
         RecordNumber++;
         EndLineNumber++;
         StartLineNumber++;
-        json!.HandleRow(m_JsonColumns, ',', (idx, val) => CurrentRowColumnText[idx]= val, (idx, val) => CurrentValues[idx]= val);
+        json!.HandleRow(m_JsonColumns, ',', (idx, val) => CurrentRowColumnText.Upsert(idx, val), (idx, val) => CurrentValues[idx]= val);
       }
 
       InfoDisplay(couldRead);

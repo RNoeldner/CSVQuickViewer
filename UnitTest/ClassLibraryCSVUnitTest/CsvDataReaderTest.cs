@@ -252,49 +252,6 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id);
   }
 
   [TestMethod]
-  public void GetInteger32And64()
-  {
-    var column = new Column("test",
-      new ValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
-    var setting = GetDummyBasicCSV();
-
-    using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-      0, setting.HasFieldHeader,
-setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
-      setting.FieldQualifierChar,
-setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-      setting.ContextSensitiveQualifier,
-setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-      setting.NewLinePlaceholder,
-setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
-      setting.TreatLfAsSpace,
-setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
-setting.WarnDelimiterInValue, setting.WarnLineFeed,
-setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns,
-setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-      setting.ConsecutiveEmptyRows,
-setting.IdentifierInContainer, TimeZoneInfo.Local.Id);
-    var inputValue = "17".AsSpan();
-
-    var value32 = test.GetInt32Null(inputValue, column);
-    Assert.IsTrue(value32.HasValue);
-    Assert.AreEqual(17, value32.Value);
-
-    var value64 = test.GetInt64Null(inputValue, column);
-    Assert.IsTrue(value64.HasValue);
-    Assert.AreEqual(17, value64.Value);
-
-#pragma warning disable CS8625
-    value32 = test.GetInt32Null(null, column);
-    Assert.IsFalse(value32.HasValue);
-
-    value64 = test.GetInt64Null(null, column);
-#pragma warning restore CS8625
-    Assert.IsFalse(value64.HasValue);
-  }
-
-  [TestMethod]
   public async Task TestBatchFinishedNotificationAsync()
   {
     var finished = false;
@@ -1551,7 +1508,7 @@ setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
 setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
     await test.OpenAsync(UnitTestStatic.Token);
     await test.ReadAsync(UnitTestStatic.Token);
-    Assert.Throws<IndexOutOfRangeException>(() => test.GetString(666));
+    Assert.Throws<IndexOutOfRangeException>(() => test.GetValue(666));
   }
 
   [TestMethod]

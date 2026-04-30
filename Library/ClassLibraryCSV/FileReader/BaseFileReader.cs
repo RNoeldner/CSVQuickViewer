@@ -34,15 +34,9 @@ namespace CsvTools;
 public abstract class BaseFileReader : DbDataReader, IFileReader
 {
   /// <summary>
-  ///   The maximum value
-  /// </summary>
-  private const int cMaxProgress = 10000;
-
-  /// <summary>
   ///   An array of column
   /// </summary>
   public Column[] Column = [];
-  private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
 
   /// <summary>
   /// The time zone to convert the read data to, assuming the source time zone is part of the data
@@ -63,7 +57,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   An array of current row column text, this is reused to avoid multiple allocations
   ///   We will have the information in here from ignored columns
   /// </summary>
-  protected string[] CurrentRowColumnText = [];
+  protected RowColumnsBuffer CurrentRowColumnText = new RowColumnsBuffer();
 
   /// <summary>
   /// The record limit
@@ -75,8 +69,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   protected bool SelfOpenedStream;
 
+  /// <summary>
+  ///   The maximum value
+  /// </summary>
+  private const int cMaxProgress = 10000;
   private readonly bool m_AllowPercentage;
   private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
+  private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
   /// <summary>
@@ -85,7 +84,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private int[] m_AssociatedTimeZoneCol = [];
 
   /// <summary>
-  ///   Number of Columns in the reader, including teh ones ignored
+  ///   Number of Columns in the reader, including the ones ignored
   ///   e.G. a TimeColum associated to a date could be ignored, we still need the information
   /// </summary>
   private int m_FieldCount;
@@ -151,6 +150,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Event handler called if a warning or error occurred
   /// </summary>
   public event EventHandler<WarningEventArgs>? Warning;
+
 
   /// <inheritdoc />
   /// <summary>
@@ -276,12 +276,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (!EndOfFile)
       EndOfFile = true;
-
-    if (CurrentRowColumnText.Length > 0 && CurrentRowColumnText != Array.Empty<string>())
-    {
-      CurrentRowColumnText = [];
-    }
-
     base.Close();
   }
 
@@ -289,16 +283,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   ///   Gets the boolean.
   /// </summary>
-  /// <param name="ordinal">The zero-based column ordinal.</param>    
+  /// <param name="ordinal">The zero-based column ordinal.</param>
   public override bool GetBoolean(int ordinal)
   {
-    var parsed = GetBooleanNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
+    var col = GetColumn(ordinal);
+    var parsed = SpanToBoolean(col, CurrentRowColumnText.GetSpan(ordinal));
     if (parsed.HasValue) return parsed.Value;
 
     // Warning was added by GetBooleanNull
-    throw WarnAddFormatException(
-      ordinal,
-      $"'{CurrentRowColumnText[ordinal]}' is not a boolean ({GetColumn(ordinal).ValueFormat.True}/{GetColumn(ordinal).ValueFormat.False})");
+    throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a boolean ({col.ValueFormat.True}/{col.ValueFormat.False})");
   }
 
   /// <inheritdoc />
@@ -313,14 +306,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </exception>
   public override byte GetByte(int ordinal)
   {
-    try
-    {
-      return byte.Parse(CurrentRowColumnText[ordinal], CultureInfo.InvariantCulture);
-    }
-    catch (Exception)
-    {
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not byte");
-    }
+    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result.HasValue ? (byte)result.Value : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a byte");
   }
 
   /// <inheritdoc />
@@ -389,37 +376,26 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override DateTime GetDateTime(int ordinal)
   {
     var col = GetColumn(ordinal);
-    var dt = GetDateTimeNull(
-      inputDate: null,
-      strInputDate: CurrentRowColumnText[ordinal].AsSpan(),
-      inputTime: null,
-      strInputTime: GetTimeValue(ordinal),
+    var result = SpanToDateTime(
       column: col,
+      inputDate: null, strInputDate: CurrentRowColumnText.GetSpan(ordinal),
+      inputTime: null, strInputTime: GetTimeValue(ordinal),
       serialDateTime: true);
-    if (dt.HasValue) return dt.Value;
-
-    // Warning was added by GetDecimalNull
-    throw WarnAddFormatException(
-      ordinal,
-      $"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{col.ValueFormat.DateFormat}'");
+    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{col.ValueFormat.DateFormat}'");
   }
 
   /// <inheritdoc />
   public override decimal GetDecimal(int ordinal)
   {
-    var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-    return decimalValue ?? throw
-      // Warning was added by GetDecimalNull
-      WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a decimal");
+    var result = SpanToDecimal(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a decimal");
   }
 
   /// <inheritdoc />
   public override double GetDouble(int ordinal)
   {
-    var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-    return decimalValue.HasValue ? Convert.ToDouble(decimalValue.Value) : throw
-      // Warning was added by GetDecimalNull
-      WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
+    var result = SpanToDouble(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a double");
   }
 
   /// <inheritdoc />
@@ -432,86 +408,47 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override float GetFloat(int ordinal)
   {
-    var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-    return decimalValue.HasValue ? Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture) : throw
-      // Warning was added by GetDecimalNull
-      WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a float");
+    var result = SpanToDouble(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result.HasValue ? (float) result.Value
+      : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a float");
   }
 
   /// <inheritdoc />
   public override Guid GetGuid(int ordinal)
   {
-    var parsed = GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal);
-
-    return parsed ?? throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an GUID");
+    // Even if we do not need the column here access it to check boundaries
+    _ = GetColumn(ordinal);
+    return SpanToGuid(ordinal, CurrentRowColumnText.GetSpan(ordinal))
+      ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an GUID");
   }
 
   /// <inheritdoc />
   public override short GetInt16(int ordinal)
   {
-    var column = GetColumn(ordinal);
-
-    var parsed =
-      CurrentRowColumnText[ordinal].AsSpan().StringToInt16(column.ValueFormat.GroupSeparator);
-    return parsed ?? throw
-      // Warning was added by GetInt32Null
-      WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a short");
+    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result.HasValue ? (short) result.Value
+     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a short");
   }
 
   /// <inheritdoc />
   public override int GetInt32(int ordinal)
   {
-    var column = GetColumn(ordinal);
-
-    var parsed =
-      CurrentRowColumnText[ordinal].AsSpan().StringToInt32(column.ValueFormat.GroupSeparator);
-    return parsed ?? throw
-      // Warning was added by GetInt32Null
-      WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an integer");
-  }
-
-  /// <summary>
-  ///   Gets the int32 value or null.
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <param name="column">The column.</param>
-  /// <returns>a nullable integer</returns>
-  public int? GetInt32Null(ReadOnlySpan<char> inputValue, in Column column)
-  {
-    var ret = inputValue.StringToInt32(column.ValueFormat.GroupSeparator);
-    if (ret.HasValue) return ret.Value;
-
-    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an integer");
-    return null;
+    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result.HasValue ? (int) result.Value
+     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an integer");
   }
 
   /// <inheritdoc />
   public override long GetInt64(int ordinal)
   {
-    var column = GetColumn(ordinal);
-
-    var parsed = CurrentRowColumnText[ordinal].AsSpan().StringToInt64(column.ValueFormat.GroupSeparator);
-    return parsed ?? throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
-  }
-
-  /// <summary>
-  ///   Gets the long value or null.
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <param name="column">The column.</param>    
-  public long? GetInt64Null(ReadOnlySpan<char> inputValue, in Column column)
-  {
-    var ret = inputValue.StringToInt64(column.ValueFormat.GroupSeparator);
-    if (ret.HasValue) return ret.Value;
-
-    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not an long integer");
-    return null;
+    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    return result.HasValue ? result.Value
+     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an long");
   }
 
   /// <inheritdoc />
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public override string GetName(int ordinal) => GetColumn(ordinal).Name;
-
 
   /// <inheritdoc />
   public override int GetOrdinal(string name)
@@ -569,7 +506,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the originally provided text of a column
   /// </summary>
   /// <param name="ordinal">The column number.</param>
-  public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText[ordinal].AsSpan();
+  public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText.GetSpan(ordinal);
 
   /// <summary>
   /// Retrieves data as a <see cref="T:System.IO.Stream"></see>.
@@ -587,7 +524,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public override string GetString(int ordinal) => CurrentRowColumnText[ordinal];
+  public override string GetString(int ordinal)
+    => CurrentRowColumnText[ordinal];
 
   /// <summary>
   /// Retrieves data as a <see cref="TextReader"/> for the specified column.
@@ -618,21 +556,17 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override object GetValue(int ordinal)
   {
-     // Pre-condition: Standard ADO.NET exception for out-of-bounds
-    if (ordinal < 0 || ordinal >= m_FieldCount)
-      throw new IndexOutOfRangeException($"The column ordinal {ordinal} is outside the range [0, {m_FieldCount - 1}].");
-
     var column = GetColumn(ordinal);
     if (IsDBNull(column))
       return DBNull.Value;
-    
+
     object ret;
     try
     {
       ret = column.ValueFormat.DataType switch
       {
         DataTypeEnum.DateTime => GetDateTime(ordinal),
-        DataTypeEnum.Integer => GetInt64(ordinal),
+        DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
         DataTypeEnum.Double => GetDouble(ordinal),
         DataTypeEnum.Numeric => GetDecimal(ordinal),
         DataTypeEnum.Boolean => GetBoolean(ordinal),
@@ -666,19 +600,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Calls the event handler for errors <see cref="Warning"/>
-  /// </summary>
-  /// <param name="ordinal">The column ordinal number.</param>
-  /// <param name="message">The message to raise.</param>
-  protected void HandleError(int ordinal, string message)
-  {
-    // Ignore message for ignore columns
-    if (ordinal>=0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
-      return;
-    Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
-  }
-
-  /// <summary>
   ///   Handles the Event if reading the file is completed
   /// </summary>
   public virtual void HandleReadFinished()
@@ -690,40 +611,10 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     ReadFinished?.SafeInvoke(this);
   }
 
-  /// <summary>
-  ///   Calls the event handler for warnings <see cref="Warning"/>
-  /// </summary>
-  /// <param name="ordinal">The column ordinal number</param>
-  /// <param name="message">The message to raise.</param>
-  protected void HandleWarning(int ordinal, string message) => HandleError(ordinal, message.AddWarningId());
-
-
-  /// <summary>
-  /// Internal method to determine if 
-  /// the value of a column in the current row should be treated as <see cref="DBNull"/>.
-  /// </summary>
-  /// <param name="column"></param>
-  /// <returns></returns>
-  private bool IsDBNull(Column column)
-  {
-    if (column.Ignore)
-      return true;
-    if (column.ValueFormat.DataType != DataTypeEnum.DateTime)
-      return string.IsNullOrWhiteSpace(CurrentRowColumnText[column.ColumnOrdinal]);
-
-    // Handle combined date-time column
-    if (AssociatedTimeCol[column.ColumnOrdinal] == -1 || AssociatedTimeCol[column.ColumnOrdinal] >= CurrentRowColumnText.Length)
-      return string.IsNullOrWhiteSpace(CurrentRowColumnText[column.ColumnOrdinal]);
-
-    /* For a combined date column to be empty both parts need to be empty */
-    return string.IsNullOrEmpty(CurrentRowColumnText[column.ColumnOrdinal])
-           && string.IsNullOrWhiteSpace(CurrentRowColumnText[AssociatedTimeCol[column.ColumnOrdinal]]);
-  }
-
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
-    if (ordinal<0 || CurrentRowColumnText.Length <= ordinal)
+    if (ordinal<0 || CurrentRowColumnText.Count <= ordinal)
       return true;
     return IsDBNull(GetColumn(ordinal));
   }
@@ -744,10 +635,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc cref="IDataReader" />
   public abstract Task OpenAsync(CancellationToken cancellationToken);
 
-  /// <inheritdoc cref="IFileReader" />
-  public sealed override Task<bool> ReadAsync(CancellationToken cancellationToken)
-    => ReadCoreAsync(cancellationToken).AsTask();
-
   /// <inheritdoc cref="IDataReader" />
   /// <remarks>
   /// This synchronous method blocks until the asynchronous read completes.
@@ -757,30 +644,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public sealed override bool Read()
   => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-  /// <summary>
-  /// Performs the actual read operation for the data reader.
-  /// </summary>
-  /// <param name="cancellationToken">
-  /// A token that can be used to cancel the read operation.
-  /// Implementations should observe this token and stop reading promptly when cancellation is requested.
-  /// </param>
-  /// <returns>
-  /// A <see cref="ValueTask{Boolean}"/> that completes with <c>true</c> if a record was read successfully;
-  /// <c>false</c> if the end of the data source was reached, reading was cancelled, or the reader was closed.
-  /// </returns>
-  /// <remarks>
-  /// This method represents the core read logic and must be implemented by derived classes.
-  /// The base class provides the public <see cref="Read"/> and <see cref="ReadAsync(CancellationToken)"/> methods
-  /// and delegates to this method to avoid sync-over-async and async-over-sync implementations.
-  /// <para/>
-  /// Implementations may complete the returned <see cref="ValueTask{Boolean}"/> synchronously if no asynchronous
-  /// I/O is required. True asynchronous readers should perform their I/O asynchronously and respect the
-  /// <paramref name="cancellationToken"/>.
-  /// <para/>
-  /// When this method returns <c>false</c>, the reader is considered finished and the base class will trigger
-  /// the read-finished lifecycle handling.
-  /// </remarks>
-  protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
+  /// <inheritdoc cref="IFileReader" />
+  public sealed override Task<bool> ReadAsync(CancellationToken cancellationToken)
+    => ReadCoreAsync(cancellationToken).AsTask();
 
   /// <summary>
   ///   Resets the position to first data row.
@@ -790,64 +656,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     EndLineNumber = 0;
     RecordNumber = 0;
     EndOfFile = false;
-  }
-
-  /// <summary>
-  ///   Does look at the provided column names, and checks them for valid entry, makes sure the
-  ///   column names are unique and not empty, have the right size etc.
-  /// </summary>
-  /// <param name="columns">The columns as read / provided</param>
-  /// <param name="fieldCount">
-  ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
-  /// </param>
-  private IEnumerable<string> AdjustColumnName(in IEnumerable<string> columns, int fieldCount)
-  {
-    var newNames = new List<string>(fieldCount);
-    var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    int counter = 0;
-
-    foreach (var column in columns)
-    {
-      if (counter >= fieldCount) break;
-
-      var trimmed = column != null ? column.Trim() : string.Empty;
-      string resultingName;
-
-      if (trimmed.Length == 0)
-      {
-        resultingName = GetDefaultName(counter);
-        HandleWarning(counter, $"Column title was empty, set to {resultingName}.");
-      }
-      else
-      {
-        resultingName = trimmed;
-
-        if (!string.Equals(column, trimmed, StringComparison.OrdinalIgnoreCase))
-          HandleWarning(counter, $"Column title '{column}' had leading or trailing spaces, removed.");
-
-        // Truncate first
-        if (resultingName.Length > 128)
-        {
-          var preview = resultingName.Length > 20 ? resultingName.Substring(0, 20) + "…" : resultingName;
-          resultingName = resultingName.Substring(0, 128);
-          HandleWarning(counter, $"Column title '{preview}' too long, cut off after 128 characters.");
-        }
-
-        // Ensure uniqueness (handles truncated columns)
-        var uniqueName = existingNames.MakeUniqueInCollection(resultingName);
-        if (!string.Equals(uniqueName, resultingName, StringComparison.OrdinalIgnoreCase))
-        {
-          HandleError(counter, $"Column title '{resultingName}' exists more than once, replaced with {uniqueName}");
-          resultingName = uniqueName;
-        }
-      }
-
-      newNames.Add(resultingName);
-      existingNames.Add(resultingName);
-      counter++;
-    }
-
-    return newNames;
   }
 
   /// <summary>
@@ -896,6 +704,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     return OnOpenAsync != null ? OnOpenAsync.Invoke() : Task.CompletedTask;
   }
 
+  /// <inheritdoc />
+  protected override void Dispose(bool disposing)
+  {
+
+    if (disposing)
+      CurrentRowColumnText.Dispose();
+    base.Dispose(disposing);
+  }
+
   /// <summary>
   ///   Does set EndOfFile sets the max value for Progress and stores the now known reader columns
   /// </summary>
@@ -910,147 +727,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       m_ColumnIndexMap[Column[i].Name] = i;
 
     OpenFinished?.SafeInvoke(this, Column);
-  }
-
-
-  /// <summary>
-  ///   Gets the boolean value.
-  /// </summary>
-  /// <param name="inputBoolean">The input.</param>
-  /// <param name="ordinal">The column.</param>
-  /// <returns>
-  ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
-  ///   is called
-  /// </returns>
-  protected bool? GetBooleanNull(ReadOnlySpan<char> inputBoolean, int ordinal)
-  {
-    var column = GetColumn(ordinal);
-    var boolValue = inputBoolean.StringToBoolean(column.ValueFormat.True.AsSpan(), column.ValueFormat.False.AsSpan());
-    if (boolValue.HasValue)
-      return boolValue.Value;
-
-    HandleError(ordinal, $"'{inputBoolean.ToString()}' is not a boolean");
-    return null;
-  }
-
-
-  /// <summary>
-  ///   This routine will read a date from a typed or untyped reader, will combined date with time
-  ///   and apply timeZone adjustments.
-  /// </summary>
-  /// <param name="inputDate">The original object possibly containing a date</param>
-  /// <param name="strInputDate">The text representation of the data</param>
-  /// <param name="inputTime">The original object possibly containing a time</param>
-  /// <param name="strInputTime">The text representation of the time</param>
-  /// <param name="column">Column information</param>
-  /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
-  protected DateTime? GetDateTimeNull(
-    in object? inputDate, ReadOnlySpan<char> strInputDate,
-    in object? inputTime, ReadOnlySpan<char> strInputTime,
-    Column column, bool serialDateTime)
-  {
-    var dateTime = StringConversionSpan.CombineObjectsToDateTime(
-      inputDate, strInputDate,
-      inputTime, strInputTime,
-      serialDateTime, column.ValueFormat,
-      out var timeSpanLongerThanDay);
-    if (timeSpanLongerThanDay)
-    {
-      var passedIn = strInputTime;
-      if (inputTime != null)
-        passedIn = Convert.ToString(inputTime).AsSpan();
-
-      HandleWarning(column.ColumnOrdinal, $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
-    }
-
-    if (!dateTime.HasValue && !strInputDate.IsEmpty
-                           && !string.IsNullOrEmpty(column.ValueFormat.DateFormat)
-                           && strInputDate.Length > column.ValueFormat.DateFormat.Length)
-    {
-      var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
-      dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
-        strInputTime, column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime);
-      if (dateTime.HasValue)
-      {
-        var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
-          '/', column.ValueFormat.DateSeparator,
-          ':', column.ValueFormat.TimeSeparator);
-        HandleWarning(column.ColumnOrdinal, strInputTime.Length > 0
-            ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
-            : $"'{strInputDate.ToString()}' is not a date of the format '{display1}', used '{inputDateNew.ToString()}' ");
-      }
-    }
-
-    // ReSharper disable once MergeIntoPattern
-    if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
-    {
-      // get the time zone either from constant or from other column
-      if (!column.TimeZonePart.TryGetConstant(out var timeZone) && m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
-
-      return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
-    }
-
-    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults('/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);
-
-    HandleError(
-      column.ColumnOrdinal,
-      !strInputTime.IsEmpty
-        ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format {display2} {column.TimePartFormat}"
-        : $"'{strInputDate.ToString()}' is not a date of the format {display2}");
-
-    return null;
-  }
-
-  /// <summary>
-  ///   Gets the decimal value or null.
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <param name="ordinal">The column.</param>
-  protected decimal? GetDecimalNull(ReadOnlySpan<char> inputValue, int ordinal)
-  {
-    var column = GetColumn(ordinal);
-    var decimalValue = inputValue.StringToDecimal(column.ValueFormat.DecimalSeparator,
-      column.ValueFormat.GroupSeparator,
-      m_AllowPercentage, m_RemoveCurrency);
-    if (decimalValue.HasValue) return decimalValue.Value;
-
-    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a decimal");
-    return null;
-  }
-
-  /// <summary>
-  ///   Gets the double value or null.
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <param name="ordinal">The column.</param>
-  /// <returns>
-  ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
-  ///   handler for warnings is called
-  /// </returns>
-  protected double? GetDoubleNull(ReadOnlySpan<char> inputValue, int ordinal)
-  {
-    var decimalValue = GetDecimalNull(inputValue, ordinal);
-    if (decimalValue.HasValue) return decimal.ToDouble(decimalValue.Value);
-
-    HandleError(ordinal, $"'{inputValue.ToString()}' is not a double");
-    return null;
-  }
-
-  /// <summary>
-  ///   Gets the int32 value or null.
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <param name="ordinal">The column number.</param>
-  protected Guid? GetGuidNull(ReadOnlySpan<char> inputValue, int ordinal)
-  {
-    if (inputValue.IsEmpty) return null;
-
-    var res = inputValue.StringToGuid();
-    if (res.HasValue)
-      return res.Value;
-    HandleError(ordinal, $"'{inputValue.ToString()}' is not a GUID");
-    return null;
   }
 
   /// <summary>
@@ -1073,23 +749,22 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="i">The i.</param>
   protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
-    AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
+    AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Count
       ? []
-      : CurrentRowColumnText[AssociatedTimeCol[i]].AsSpan();
+      : CurrentRowColumnText.GetSpan(AssociatedTimeCol[i]);
 
   /// <summary>
-  /// Gets the warning event arguments.
+  ///   Calls the event handler for errors <see cref="Warning"/>
   /// </summary>
-  /// <param name="ordinal">The ordinal.</param>
-  /// <param name="message">The message.</param>
-  private WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
-    new WarningEventArgs(
-      RecordNumber,
-      ordinal,
-      message,
-      StartLineNumber,
-      EndLineNumber,
-      ordinal >= 0 && ordinal < m_FieldCount ? GetColumn(ordinal).Name : null);
+  /// <param name="ordinal">The column ordinal number.</param>
+  /// <param name="message">The message to raise.</param>
+  protected void HandleError(int ordinal, string message)
+  {
+    // Ignore message for ignore columns
+    if (ordinal>=0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
+      return;
+    Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
+  }
 
   /// <summary>
   ///   Shows the process.
@@ -1111,16 +786,23 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   maximum column size
   ///   Attention: Trimming needs to be handled beforehand
   /// </summary>
-  /// <param name="span">The input string.</param>
+  /// <param name="text">The input string.</param>
   /// <param name="ordinal">The column number</param>
   /// <returns>The proper encoded or cut text as returned for the column</returns>
-  protected virtual string HandleTextSpecials(string span, int ordinal)
+  protected virtual string HandleTextSpecials(string text, int ordinal)
   {
-    if (string.IsNullOrEmpty(span) || ordinal >= FieldCount)
+    if (string.IsNullOrEmpty(text) || ordinal >= FieldCount)
       return string.Empty;
 
-    return GetColumn(ordinal).ColumnFormatter.FormatInputText(span, null);
+    return GetColumn(ordinal).ColumnFormatter.FormatInputText(text, null);
   }
+
+  /// <summary>
+  ///   Calls the event handler for warnings <see cref="Warning"/>
+  /// </summary>
+  /// <param name="ordinal">The column ordinal number</param>
+  /// <param name="message">The message to raise.</param>
+  protected void HandleWarning(int ordinal, string message) => HandleError(ordinal, message.AddWarningId());
 
   /// <summary>
   ///   Displays progress, is called after <see langword="abstract" /> row has been read
@@ -1144,7 +826,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000", nameof(fieldCount));
     m_FieldCount = fieldCount;
     m_ColumnIndexMap.Clear();
-    CurrentRowColumnText = new string[fieldCount];
     Column = new Column[fieldCount];
     AssociatedTimeCol = new int[fieldCount];
     m_AssociatedTimeZoneCol = new int[fieldCount];
@@ -1154,6 +835,43 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       AssociatedTimeCol[counter] = -1;
       m_AssociatedTimeZoneCol[counter] = -1;
     }
+  }
+
+  /// <summary>
+  /// Internal method to determine if 
+  /// the value of a column in the current row should be treated as <see cref="DBNull"/>.
+  /// </summary>
+  /// <param name="column">The column metadata providing the index and formatting rules.</param>
+  /// <returns>
+  /// <c>true</c> if the column is ignored, contains whitespace, or (for split Date-Time columns) 
+  /// if both the date and associated time components are empty; otherwise, <c>false</c>.
+  /// </returns>
+  /// <remarks>
+  /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
+  /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
+  /// </remarks>
+  protected bool IsDBNull(in Column column)
+  {
+    // 1. Ignored columns are always considered NULL
+    if (column.Ignore) return true;
+
+    // 2. Get the raw span (Zero allocation)
+    var span = CurrentRowColumnText.GetSpan(column.ColumnOrdinal);
+
+    // 3. Check for Date/Time split complexity
+    if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
+    {
+      var timeOrdinal = AssociatedTimeCol[column.ColumnOrdinal];
+      if (timeOrdinal != -1 && timeOrdinal < CurrentRowColumnText.Count)
+      {
+        var timeSpan = CurrentRowColumnText.GetSpan(timeOrdinal);
+        // Both parts must be whitespace to be considered a "Null" DateTime
+        return span.IsWhiteSpace() && timeSpan.IsWhiteSpace();
+      }
+    }
+
+    // 4. Standard check
+    return span.IsEmpty;
   }
 
   /// <summary>
@@ -1248,6 +966,31 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
+  /// Performs the actual read operation for the data reader.
+  /// </summary>
+  /// <param name="cancellationToken">
+  /// A token that can be used to cancel the read operation.
+  /// Implementations should observe this token and stop reading promptly when cancellation is requested.
+  /// </param>
+  /// <returns>
+  /// A <see cref="ValueTask{Boolean}"/> that completes with <c>true</c> if a record was read successfully;
+  /// <c>false</c> if the end of the data source was reached, reading was cancelled, or the reader was closed.
+  /// </returns>
+  /// <remarks>
+  /// This method represents the core read logic and must be implemented by derived classes.
+  /// The base class provides the public <see cref="Read"/> and <see cref="ReadAsync(CancellationToken)"/> methods
+  /// and delegates to this method to avoid sync-over-async and async-over-sync implementations.
+  /// <para/>
+  /// Implementations may complete the returned <see cref="ValueTask{Boolean}"/> synchronously if no asynchronous
+  /// I/O is required. True asynchronous readers should perform their I/O asynchronously and respect the
+  /// <paramref name="cancellationToken"/>.
+  /// <para/>
+  /// When this method returns <c>false</c>, the reader is considered finished and the base class will trigger
+  /// the read-finished lifecycle handling.
+  /// </remarks>
+  protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
+
+  /// <summary>
   /// Checks if we should retry to access the data
   /// </summary>
   /// <param name="ex">The exception.</param>
@@ -1262,12 +1005,158 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     return eventArgs.Retry;
   }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   /// <summary>
-  ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
+  ///   Gets the boolean value.
   /// </summary>
-  public new virtual Task CloseAsync() => Task.Run(() => base.Close());
-#endif
+  /// <param name="column">The column metadata used to determine formatting (separators).</param>
+  /// <param name="inputValue">The character span containing the raw string value to parse.</param>
+  /// <returns>
+  ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
+  ///   is called
+  /// </returns>
+  protected bool? SpanToBoolean(in Column column, ReadOnlySpan<char> inputValue)
+  {
+    var boolValue = inputValue.StringToBoolean(column.ValueFormat.True.AsSpan(), column.ValueFormat.False.AsSpan());
+    if (boolValue.HasValue)
+      return boolValue.Value;
+
+    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a boolean ({column.ValueFormat.True}/{column.ValueFormat.False})");
+    return null;
+  }
+
+  /// <summary>
+  ///   This routine will read a date from a typed or untyped reader, will combined date with time
+  ///   and apply timeZone adjustments.
+  /// </summary>
+  /// <param name="column">The column metadata used to determine formatting (separators).</param>
+  /// <param name="inputDate">The original object possibly containing a date</param>
+  /// <param name="strInputDate">The text representation of the data</param>
+  /// <param name="inputTime">The original object possibly containing a time</param>
+  /// <param name="strInputTime">The text representation of the time</param>
+  /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
+  protected DateTime? SpanToDateTime(Column column,
+    in object? inputDate, ReadOnlySpan<char> strInputDate,
+    in object? inputTime, ReadOnlySpan<char> strInputTime,
+    bool serialDateTime)
+  {
+    var dateTime = StringConversionSpan.CombineObjectsToDateTime(
+      inputDate, strInputDate,
+      inputTime, strInputTime,
+      serialDateTime, column.ValueFormat,
+      out var timeSpanLongerThanDay);
+    if (timeSpanLongerThanDay)
+    {
+      var passedIn = strInputTime;
+      if (inputTime != null)
+        passedIn = Convert.ToString(inputTime).AsSpan();
+
+      HandleWarning(column.ColumnOrdinal, $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
+    }
+
+    if (!dateTime.HasValue && !strInputDate.IsEmpty
+                           && !string.IsNullOrEmpty(column.ValueFormat.DateFormat)
+                           && strInputDate.Length > column.ValueFormat.DateFormat.Length)
+    {
+      var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
+      dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
+        strInputTime, column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime);
+      if (dateTime.HasValue)
+      {
+        var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
+          '/', column.ValueFormat.DateSeparator,
+          ':', column.ValueFormat.TimeSeparator);
+        HandleWarning(column.ColumnOrdinal, strInputTime.Length > 0
+            ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
+            : $"'{strInputDate.ToString()}' is not a date of the format '{display1}', used '{inputDateNew.ToString()}' ");
+      }
+    }
+
+    // ReSharper disable once MergeIntoPattern
+    if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
+    {
+      // get the time zone either from constant or from other column
+      if (!column.TimeZonePart.TryGetConstant(out var timeZone) && m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
+
+      return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
+    }
+
+    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults('/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);
+
+    HandleError(
+      column.ColumnOrdinal,
+      !strInputTime.IsEmpty
+        ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format {display2} {column.TimePartFormat}"
+        : $"'{strInputDate.ToString()}' is not a date of the format {display2}");
+
+    return null;
+  }
+  /// <summary>
+  ///   Gets the decimal value or null.
+  /// </summary>
+  /// <param name="column">The column metadata used to determine formatting (separators).</param>
+  /// <param name="inputValue">The character span containing the raw string value to parse.</param>
+  protected decimal? SpanToDecimal(in Column column, ReadOnlySpan<char> inputValue)
+  {
+    var decimalValue = inputValue.StringToDecimal(column.ValueFormat.DecimalSeparator,
+      column.ValueFormat.GroupSeparator,
+      m_AllowPercentage, m_RemoveCurrency);
+    if (decimalValue.HasValue) return decimalValue.Value;
+
+    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a decimal");
+    return null;
+  }
+
+  /// <summary>
+  /// Gets the double value or null from a character span.
+  /// </summary>
+  /// <param name="column">The column metadata used to determine formatting (separators).</param>
+  /// <param name="inputValue">The character span containing the raw string value to parse.</param>
+  protected double? SpanToDouble(in Column column, ReadOnlySpan<char> inputValue)
+  {
+    var ret = inputValue.StringToDouble(column.ValueFormat.DecimalSeparator,
+      column.ValueFormat.GroupSeparator,
+      m_AllowPercentage, m_RemoveCurrency);
+    if (ret.HasValue) return ret.Value;
+
+    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a double");
+    return null;
+  }
+
+  /// <summary>
+  ///   Gets the Guid value or null.
+  /// </summary>
+  /// <param name="ordinal">The column ordinal index used for error handling.</param>
+  /// <param name="inputValue">The character span containing the raw string value to parse.</param>
+  protected Guid? SpanToGuid(int ordinal, ReadOnlySpan<char> inputValue)
+  {
+    if (inputValue.IsEmpty) return null;
+
+    var res = inputValue.StringToGuid();
+    if (res.HasValue)
+      return res.Value;
+    HandleError(ordinal, $"'{inputValue.ToString()}' is not a GUID");
+    return null;
+  }
+
+  /// <summary>
+  /// Parses a 64-bit signed integer from the provided character span.
+  /// </summary>
+  /// <param name="column">The column metadata containing formatting rules and the ordinal for error reporting.</param>
+  /// <param name="inputValue">The read-only character span to parse.</param>
+  /// <returns>The parsed <see cref="long"/> value if successful; otherwise, <c>null</c>.</returns>
+  /// <remarks>
+  /// If parsing fails, <see cref="HandleError"/> is invoked before returning <c>null</c>.
+  /// </remarks>
+  protected long? SpanToLong(in Column column, ReadOnlySpan<char> inputValue)
+  {
+    var ret = inputValue.StringToInt64(column.ValueFormat.GroupSeparator);
+    if (ret.HasValue) return ret.Value;
+
+    HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a integer");
+    return null;
+  }
+
   /// <summary>
   ///   Adds a Format exception.
   /// </summary>
@@ -1286,4 +1175,81 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="ordinal">The column number counting from 0</param>
   /// <returns>A string with the column name</returns>
   private static string GetDefaultName(int ordinal) => $"Column{ordinal + 1}";
+
+  /// <summary>
+  ///   Does look at the provided column names, and checks them for valid entry, makes sure the
+  ///   column names are unique and not empty, have the right size etc.
+  /// </summary>
+  /// <param name="columns">The columns as read / provided</param>
+  /// <param name="fieldCount">
+  ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
+  /// </param>
+  private IEnumerable<string> AdjustColumnName(in IEnumerable<string> columns, int fieldCount)
+  {
+    var newNames = new List<string>(fieldCount);
+    var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    int counter = 0;
+
+    foreach (var column in columns)
+    {
+      if (counter >= fieldCount) break;
+
+      var trimmed = column != null ? column.Trim() : string.Empty;
+      string resultingName;
+
+      if (trimmed.Length == 0)
+      {
+        resultingName = GetDefaultName(counter);
+        HandleWarning(counter, $"Column title was empty, set to {resultingName}.");
+      }
+      else
+      {
+        resultingName = trimmed;
+
+        if (!string.Equals(column, trimmed, StringComparison.OrdinalIgnoreCase))
+          HandleWarning(counter, $"Column title '{column}' had leading or trailing spaces, removed.");
+
+        // Truncate first
+        if (resultingName.Length > 128)
+        {
+          var preview = resultingName.Length > 20 ? resultingName.Substring(0, 20) + "…" : resultingName;
+          resultingName = resultingName.Substring(0, 128);
+          HandleWarning(counter, $"Column title '{preview}' too long, cut off after 128 characters.");
+        }
+
+        // Ensure uniqueness (handles truncated columns)
+        var uniqueName = existingNames.MakeUniqueInCollection(resultingName);
+        if (!string.Equals(uniqueName, resultingName, StringComparison.OrdinalIgnoreCase))
+        {
+          HandleError(counter, $"Column title '{resultingName}' exists more than once, replaced with {uniqueName}");
+          resultingName = uniqueName;
+        }
+      }
+
+      newNames.Add(resultingName);
+      existingNames.Add(resultingName);
+      counter++;
+    }
+
+    return newNames;
+  }
+  /// <summary>
+  /// Gets the warning event arguments.
+  /// </summary>
+  /// <param name="ordinal">The ordinal.</param>
+  /// <param name="message">The message.</param>
+  private WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
+    new WarningEventArgs(
+      RecordNumber,
+      ordinal,
+      message,
+      StartLineNumber,
+      EndLineNumber,
+      ordinal >= 0 && ordinal < m_FieldCount ? GetColumn(ordinal).Name : null);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  /// <summary>
+  ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
+  /// </summary>
+  public new virtual Task CloseAsync() => Task.Run(() => base.Close());
+#endif
 }

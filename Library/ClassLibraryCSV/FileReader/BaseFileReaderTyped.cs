@@ -87,14 +87,14 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     var val = GetCurrentValue(ordinal);
 
     object? timePart;
-    string timePartText;
+    ReadOnlySpan<char> timePartText = default;
     EnsureTextFilled(ordinal);
 
     if (AssociatedTimeCol[ordinal] > -1)
     {
       timePart = GetCurrentValue(AssociatedTimeCol[ordinal]);
       EnsureTextFilled(AssociatedTimeCol[ordinal]);
-      timePartText = CurrentRowColumnText[AssociatedTimeCol[ordinal]];
+      timePartText = CurrentRowColumnText.GetSpan(AssociatedTimeCol[ordinal]);
     }
     else
     {
@@ -102,16 +102,15 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       timePartText = string.Empty;
     }
     var col = GetColumn(ordinal);
-    var dt = GetDateTimeNull(
-      val,
-      CurrentRowColumnText[ordinal].AsSpan(),
+    var dt = SpanToDateTime(
+      col, val,
+      CurrentRowColumnText.GetSpan(ordinal),
       timePart,
-      timePartText.AsSpan(),
-      col,
+      timePartText,
       false);
     if (dt.HasValue)
       return dt.Value;
-    if (CurrentRowColumnText[ordinal].Length>0)
+    if (!CurrentRowColumnText.GetSpan(ordinal).IsEmpty)
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a date time");
 
     throw new FormatException($"Value in column '{col.Name}' is empty and cannot be converted to DateTime");
@@ -223,7 +222,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     => GetString(ordinal).AsSpan();
 
   /// <inheritdoc />
-  public override string GetString(int ordinal) 
+  public override string GetString(int ordinal)
     => Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
 
   /// <inheritdoc />
@@ -287,23 +286,35 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <inheritdoc cref="BaseFileReader" />
   protected string TreatNbspTestAsNullTrim(ReadOnlySpan<char> inputString)
   {
+
+    if (m_Trim)
+      inputString = inputString.Trim();
+
+    // Standard Null Check (no modifications needed)
+    if (inputString.IsEmpty || inputString.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
+      return string.Empty;
+
+    if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
     {
-      if (inputString.Length == 0)
-        return string.Empty;
+      // 2. We convert to an Array first because the String constructor 
+      // in your version of .NET only understands arrays, not Spans.
+      char[] arrayBuffer = inputString.ToArray();
 
-      if (m_Trim)
-        inputString = inputString.Trim();
-
-      if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
-        return (inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
-
-      return (inputString.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()) ? Array.Empty<char>() : inputString).ToString();
+      // 3. Manual replacement in the array
+      for (int i = 0; i < arrayBuffer.Length; i++)
+        if (arrayBuffer[i] == (char) 0xA0) arrayBuffer[i] = ' ';
+      
+      // 5. Use the classic constructor: (char[] value, int startIndex, int length)
+      // This is guaranteed to compile on all .NET versions.
+      return new string(arrayBuffer, 0, arrayBuffer.Length);
     }
+
+    return inputString.ToString();
   }
 
   private void EnsureTextFilled(int ordinal)
   {
-    if (string.IsNullOrEmpty(CurrentRowColumnText[ordinal]))
-      CurrentRowColumnText[ordinal] = Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
+    if (CurrentRowColumnText.GetSpan(ordinal).IsEmpty)
+      CurrentRowColumnText.Upsert(ordinal, Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty);
   }
 }

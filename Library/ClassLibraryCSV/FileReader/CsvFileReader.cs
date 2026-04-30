@@ -63,11 +63,17 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   private const char cUnknownChar = (char) 0xFFFD;
 
+  private static readonly bool[] m_IsLowAsciiWhitespace = new bool[33];
   private readonly bool m_AllowRowCombining;
   private readonly int m_CodePageId;
   private readonly string m_CommentLine;
   private readonly int m_ConsecutiveEmptyRowsMax;
   private readonly bool m_ContextSensitiveQualifier;
+  // The m_CurrentRowColumns conatins the columns in the row
+  // Here the number of columnns could vary, you woudl see
+  // ignored columns or if its not well formed more than expected
+  private readonly RowColumnsBuffer m_CurrentRowColumns = new RowColumnsBuffer();
+
   private readonly bool m_DuplicateQualifierToEscape;
   private readonly char m_EscapePrefix;
   private readonly char m_FieldDelimiter;
@@ -85,6 +91,7 @@ public class CsvFileReader : BaseFileReader
   private readonly int m_SkipRows;
   private readonly int m_SkipRowsAfterHeader;
   private readonly StreamProviderDelegate m_StreamProvider;
+  private readonly (string, string)[] m_TextSpecials;
   private readonly bool m_TreatLinefeedAsSpace;
   private readonly bool m_TreatNbspAsSpace;
   private readonly string m_TreatNbspMessage;
@@ -100,12 +107,6 @@ public class CsvFileReader : BaseFileReader
   private readonly bool m_WarnNbsp;
   private readonly bool m_WarnQuotes;
   private readonly bool m_WarnUnknownCharacter;
-  // The m_CurrentRowColumns conatins the columns in the row
-  // Here the number of columnns could vary, you woudl see
-  // ignored columns or if its not well formed more than expected
-  private readonly List<string> m_CurrentRowColumns = [];
-  private readonly (string, string)[] m_TextSpecials;
-
   /// <summary>
   ///   Supports column realignment when enabled.  
   ///   Maintains a sliding window of well-formed rows and attempts to correct misaligned ones.
@@ -292,12 +293,12 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <summary>
-  ///   Initializes a new instance of the <see cref="CsvFileReader"/> class.
-  /// </summary>
-  /// <param name="fileName">
   ///   Fully qualified path of the CSV file to read.
   /// </param>
   /// <param name="codePageId">
+  ///   Initializes a new instance of the <see cref="CsvFileReader"/> class.
+  /// </summary>
+  /// <param name="fileName">
   ///   The code page identifier used for decoding the file.  
   ///   UTF-8 corresponds to <c>65001</c>.
   /// </param>
@@ -573,6 +574,12 @@ public class CsvFileReader : BaseFileReader
 
 
     m_ProcessingBuffer = ArrayPool<char>.Shared.Rent(1024);
+    // Initialize only the characters we want to treat as whitespace
+    // We skip the check if the delimiter itself is one of these
+    if (m_FieldDelimiter != ' ') m_IsLowAsciiWhitespace[' ']  = true; // 32
+    if (m_FieldDelimiter != '\t') m_IsLowAsciiWhitespace['\t'] = true; // 9
+    if (m_FieldDelimiter != '\v') m_IsLowAsciiWhitespace['\v'] = true; // 11
+    if (m_FieldDelimiter != '\f') m_IsLowAsciiWhitespace['\f'] = true; // 12
   }
 
   /// <summary>
@@ -600,7 +607,7 @@ public class CsvFileReader : BaseFileReader
   {
     if (buffer is null) throw new ArgumentNullException(nameof(buffer));
     if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
-        string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
+        CurrentRowColumnText.GetSpan(i).IsEmpty) return -1;
     using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
     if (fieldOffset > 0)
       fs.Seek(fieldOffset, SeekOrigin.Begin);
@@ -621,24 +628,25 @@ public class CsvFileReader : BaseFileReader
   public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
 
   /// <inheritdoc />
+  /// <remarks>
+  /// This is basicall doing the same as GetValue in the base class, but its 
+  /// uses the low level methoids directly to avoid the overhead of going through the object conversion twice
+  /// </remarks>
   public override object GetValue(int ordinal)
   {
-    if (IsDBNull(ordinal))
-      return DBNull.Value;
-    var column = Column[ordinal];
-    if (column.Ignore)
+    var column = GetColumn(ordinal);
+    if (IsDBNull(column))
       return DBNull.Value;
     object? ret = column.ValueFormat.DataType switch
     {
-      DataTypeEnum.DateTime => GetDateTimeNull(null, CurrentRowColumnText[ordinal].AsSpan(), null,
-        GetTimeValue(ordinal), column, true),
-      DataTypeEnum.Integer => IntPtr.Size == 4
-        ? GetInt32Null(CurrentRowColumnText[ordinal].AsSpan(), column)
-        : GetInt64Null(CurrentRowColumnText[ordinal].AsSpan(), column),
-      DataTypeEnum.Double => GetDoubleNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
-      DataTypeEnum.Numeric => GetDecimalNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
-      DataTypeEnum.Boolean => GetBooleanNull(CurrentRowColumnText[ordinal].AsSpan(), ordinal),
-      DataTypeEnum.Guid => GetGuidNull(CurrentRowColumnText[ordinal].AsSpan(), column.ColumnOrdinal),
+      DataTypeEnum.DateTime => SpanToDateTime(column, null, CurrentRowColumnText.GetSpan(ordinal),
+                                              null, GetTimeValue(ordinal), true),
+      DataTypeEnum.Integer => IntPtr.Size == 4 ? (int) SpanToLong(column, CurrentRowColumnText.GetSpan(ordinal))!
+                                               : SpanToLong(column, CurrentRowColumnText.GetSpan(ordinal)),
+      DataTypeEnum.Double => SpanToDouble(column, CurrentRowColumnText.GetSpan(ordinal)),
+      DataTypeEnum.Numeric => SpanToDecimal(column, CurrentRowColumnText.GetSpan(ordinal)),
+      DataTypeEnum.Boolean => SpanToBoolean(column, CurrentRowColumnText.GetSpan(ordinal)),
+      DataTypeEnum.Guid => SpanToGuid(column.ColumnOrdinal, CurrentRowColumnText.GetSpan(ordinal)),
       _ => CurrentRowColumnText[ordinal]
     };
     return ret ?? DBNull.Value;
@@ -656,7 +664,6 @@ public class CsvFileReader : BaseFileReader
     {
       if (SelfOpenedStream)
       {
-
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         if (m_Stream is not null)
           await m_Stream.DisposeAsync().ConfigureAwait(false);
@@ -757,6 +764,7 @@ public class CsvFileReader : BaseFileReader
     if (disposing)
     {
       ArrayPool<char>.Shared.Return(m_ProcessingBuffer);
+      m_CurrentRowColumns.Dispose();
       m_TextReader?.Dispose();
       m_TextReader = null;
     }
@@ -978,7 +986,7 @@ public class CsvFileReader : BaseFileReader
           }
         }
       }
-
+      CurrentRowColumnText.Clear();
       // Loop through the expecetd columns and store the values,
       // handle warnings and replacements      
       // Additional fields are ignored, missing fields are set to empty
@@ -989,18 +997,18 @@ public class CsvFileReader : BaseFileReader
         // store the values from the currentRow, even ignore rows need to be copied, in case they are referenced like a time column 
         if (columnNo >= m_CurrentRowColumns.Count || string.IsNullOrEmpty(m_CurrentRowColumns[columnNo]) || m_CurrentRowColumns[columnNo].ShouldBeTreatedAsNull(m_TreatTextAsNull))
         {
-          CurrentRowColumnText[columnNo] = string.Empty;
+          CurrentRowColumnText.NextColumn();
           continue;
         }
         var col = GetColumn(columnNo);
 
         // Handle replacements and warnings etc.
         var adjustedText = col.ColumnFormatter.FormatInputText(
-          m_CurrentRowColumns[columnNo].AsSpan().ReplaceMultiple(m_TextSpecials), warning => HandleWarning(columnNo,warning));
+          m_CurrentRowColumns[columnNo].AsSpan().ReplaceMultiple(m_TextSpecials), warning => HandleWarning(columnNo, warning));
 
         if (adjustedText.Length == 0)
         {
-          CurrentRowColumnText[columnNo] = string.Empty;
+          CurrentRowColumnText.NextColumn();
           continue;
         }
         // Additional warnings not wanted for ignored columns
@@ -1043,7 +1051,7 @@ public class CsvFileReader : BaseFileReader
           if (m_WarnLineFeed && adjustedText.IndexOfAny(new[] { '\r', '\n' }) != -1)
             WarnLinefeed(columnNo, false);
         }
-        CurrentRowColumnText[columnNo] = adjustedText;
+        CurrentRowColumnText.Add(adjustedText);
       }
 
       RecordNumber++;
@@ -1067,20 +1075,16 @@ public class CsvFileReader : BaseFileReader
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   private bool IsWhiteSpace(char c)
   {
-    // Handle cases where the delimiter is a whitespace (e.g. tab)
-    if (c == m_FieldDelimiter)
+    // 1. Fast Path: Low ASCII (0-32)
+    if (c <= 32)
+      return m_IsLowAsciiWhitespace[c];
+
+    // 2. Middle Path: Skip Latin-1 and common symbols (including Non-Breaking Space 160)
+    // This honors your requirement that Non-Breaking Space is NOT whitespace.
+    if (c < 5760)
       return false;
 
-    // Fast Path: ASCII/Latin1 Space and Tab
-    // This covers almost all real-world CSV scenarios.
-    if (c == ' ' || c == '\t')
-      return true;
-
-    // Slow Path: Higher Unicode characters
-    if (c <= '\x00ff')
-      return false;
-
-    // Only call the expensive Globalization method if absolutely necessary
+    // 3. Slow Path: High Unicode Space Separators
     return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
   }
 
@@ -1137,14 +1141,29 @@ public class CsvFileReader : BaseFileReader
     }
     // Allocate builder with historical capacity to prevent internal array resizing
     int charCount = 0;
-    bool quoted = false, preData = true, postData = false, escaped = false;
+    bool quoted = false, preData = true, postData = false;
     bool isIgnored = columnNo < FieldCount && GetColumn(columnNo).Ignore;
 
     while (!endOfFile())
     {
       // Read a character
       char character = readChar();
-
+      if (character == m_EscapePrefix)
+      {
+        var nextChar = peekChar();
+        if (nextChar == m_FieldQualifier || nextChar == m_FieldDelimiter || nextChar == m_EscapePrefix)
+        {
+          moveNext(nextChar);
+          Append(nextChar);
+          continue;
+        }
+        // with peek we could have reached the end of the file.
+        if (endOfFile())
+        {
+          Append(character);
+          continue;
+        }
+      }
       // in case we have a single LF
       if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted)
       {
@@ -1216,7 +1235,7 @@ public class CsvFileReader : BaseFileReader
       }
 
       // Finished with reading the column by Delimiter or EOF
-      if ((character == m_FieldDelimiter && !escaped && (postData || !quoted)) || endOfFile())
+      if ((character == m_FieldDelimiter && (postData || !quoted)) || endOfFile())
         break;
 
       // Finished with reading the column by Linefeed
@@ -1246,7 +1265,7 @@ public class CsvFileReader : BaseFileReader
         preData = false;
 
         // Can not be escaped here
-        if (character == m_FieldQualifier && !escaped)
+        if (character == m_FieldQualifier)
         {
           if (m_TrimmingOption != TrimmingOptionEnum.None)
             charCount = 0;
@@ -1256,10 +1275,11 @@ public class CsvFileReader : BaseFileReader
           continue;
         }
 
-        goto append;
+        Append(character);
+        continue;
       }
 
-      if (character == m_FieldQualifier && quoted && !escaped)
+      if (character == m_FieldQualifier && quoted)
       {
         var peekNextChar = peekChar();
 
@@ -1293,14 +1313,7 @@ public class CsvFileReader : BaseFileReader
         }
       }
 
-      append:
-      if (escaped && (character == m_FieldQualifier || character == m_FieldDelimiter ||
-                      character == m_EscapePrefix))
-        charCount--; // Remove escape char
-
-      // all cases covered, character must be data
       Append(character);
-      escaped = !escaped && character == m_EscapePrefix;
     } // While
 
     if (isIgnored || charCount == 0) return string.Empty;
@@ -1571,20 +1584,20 @@ public class CsvFileReader : BaseFileReader
   }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    /// <inheritdoc cref="BaseFileReader" />
-    public new async ValueTask DisposeAsync()
-    {
-      await DisposeAsyncCore().ConfigureAwait(false);
+  /// <inheritdoc cref="BaseFileReader" />
+  public new async ValueTask DisposeAsync()
+  {
+    await DisposeAsyncCore().ConfigureAwait(false);
 
-      Dispose(false);
-    }
+    Dispose(false);
+  }
 
-    /// <inheritdoc cref="BaseFileReader" />
-    protected async ValueTask DisposeAsyncCore()
-    {
-      if (m_Stream != null &&  SelfOpenedStream)
-        await m_Stream.DisposeAsync().ConfigureAwait(false);
-    }
+  /// <inheritdoc cref="BaseFileReader" />
+  protected async ValueTask DisposeAsyncCore()
+  {
+    if (m_Stream != null &&  SelfOpenedStream)
+      await m_Stream.DisposeAsync().ConfigureAwait(false);
+  }
 
 #endif
 }

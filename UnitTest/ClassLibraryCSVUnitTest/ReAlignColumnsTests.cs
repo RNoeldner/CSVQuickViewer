@@ -50,10 +50,10 @@ public class ReAlignColumnsTests
     // ReSharper disable once NotAccessedVariable
     string warning = string.Empty;
     var res = test.RealignColumn(values2, (_, s) => { warning = s; }, raw);
-    Assert.AreEqual(dt.Columns.Count, res.Count);
+    Assert.AreEqual(dt.Columns.Count, res.Count, "Count");
     // the column should be moved
-    Assert.AreEqual(Convert.ToString(rowT[1]), res[1]);
-    Assert.AreEqual(Convert.ToString(rowT[0]), res[0]);
+    Assert.AreEqual(Convert.ToString(rowT[1]), res[1], "Row 1");
+    Assert.AreEqual(Convert.ToString(rowT[0]), res[0], "Row 0");
   }
 
   [TestMethod()]
