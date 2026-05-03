@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -1129,7 +1128,7 @@ public class CsvFileReader : BaseFileReader
   ///   Reference counter tracking the line number up to and including the parsed value,
   ///   incremented on line breaks.
   /// </param>
-  private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
+   private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
   {
     if (endOfFile())
       return null;
@@ -1146,170 +1145,125 @@ public class CsvFileReader : BaseFileReader
 
     while (!endOfFile())
     {
-      // Read a character
       char character = readChar();
-      if (character == m_EscapePrefix)
-      {
-        var nextChar = peekChar();
-        if (nextChar == m_FieldQualifier || nextChar == m_FieldDelimiter || nextChar == m_EscapePrefix)
-        {
-          moveNext(nextChar);
-          Append(nextChar);
-          continue;
-        }
-        // with peek we could have reached the end of the file.
-        if (endOfFile())
-        {
-          Append(character);
-          continue;
-        }
-      }
-      // in case we have a single LF
-      if (!postData && m_TreatLinefeedAsSpace && character == cLf && quoted)
-      {
-        var singleLf = true;
-        if (!endOfFile())
-        {
-          var nextChar = peekChar();
-          if (nextChar == cCr)
-            singleLf = false;
-        }
-
-        if (singleLf)
-        {
-          character = ' ';
-          endLineNumber++;
-          WarnLinefeed(columnNo, isIgnored);
-        }
-      }
-
-      switch (character)
-      {
-        case cNbsp:
-          if (!postData)
-          {
-            WarnNbsp(columnNo, isIgnored);
-            if (m_TreatNbspAsSpace)
-              character = ' ';
-          }
-
-          break;
-        case cUnknownChar:
-          if (!postData)
-          {
-            WarnUnknownCharacter(columnNo, isIgnored);
-            if (m_TreatUnknownCharacterAsSpace)
-              character = ' ';
-          }
-
-          break;
-        case cCr:
-        case cLf:
-          endLineNumber++;
-
-          var nextChar = char.MinValue;
-          if (!endOfFile())
-          {
-            nextChar = peekChar();
-            if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
-            {
-              nextChar = char.MinValue;
-            }
-            else
-            {
-              moveNext(nextChar);
-
-              if (character == cLf && nextChar == cCr)
-                endLineNumber++;
-            }
-          }
-
-          if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
-          {
-            Append(character);
-            Append(nextChar);
-            continue;
-          }
-
-          break;
-      }
-
-      // Finished with reading the column by Delimiter or EOF
+      // 1. Handle Field Delimiters
       if ((character == m_FieldDelimiter && (postData || !quoted)) || endOfFile())
         break;
-
-      // Finished with reading the column by Linefeed
-      if (character is cCr or cLf && (preData || postData || !quoted))
+      // 2. Handle Substitutions (Nbsp, Unknown)
+      // this needs to be done so in case the chars are replaced with spaces,
+      // the spaces will be handled according to the trimming rules
+      else if (character == cNbsp && !postData)
       {
-        endOfLine = true;
-        break;
+        WarnNbsp(columnNo, isIgnored);
+        character = m_TreatNbspAsSpace ? ' ' : character;
+      }
+      else if (character == cUnknownChar && !postData)
+      {
+        WarnUnknownCharacter(columnNo, isIgnored);
+        character = m_TreatUnknownCharacterAsSpace ? ' ' : character;
+      }
+      // 3. Handle Line Breaks (CR/LF)
+      else if (character is cCr or cLf)
+      {
+        endLineNumber++;
+        var nextChar = !endOfFile() ? peekChar() : char.MinValue;
+        // Handle Single LF as Space optimization
+        if (character == cLf && quoted && !postData && m_TreatLinefeedAsSpace && nextChar != cCr)
+        {
+          character = ' ';
+          WarnLinefeed(columnNo, isIgnored);
+          // Fall through to logic below as it's now a space
+        }
+        // Standard Linebreak Logic
+        if (character is cCr or cLf)
+        {
+          // Consume secondary part of CRLF or LFCR
+          if ((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr))
+          {
+            moveNext(nextChar);
+            if (character == cLf && nextChar == cCr) endLineNumber++;
+
+            // If quoted, we keep the linebreak as data
+            if (quoted && !postData)
+            {
+              Append(character);
+              Append(nextChar);
+              continue;
+            }
+          }
+
+          // If we reach here and it's not a quoted multi-line, it's a structural break
+          if (preData || postData || !quoted)
+          {
+            endOfLine = true;
+            break;
+          }
+        }
+      }
+      // 4. Handle Post-Data (Ignore everything after closing quote until delimiter)
+      if (postData) 
+        continue;
+      // 5. Handle Escape Sequences
+      if (character == m_EscapePrefix)
+      {
+        // Capture the lookahead once
+        char nextChar = !endOfFile() ? peekChar() : char.MinValue;
+
+        // Is it a valid sequence we should escape?
+        if (nextChar == m_FieldQualifier || nextChar == m_FieldDelimiter || nextChar == m_EscapePrefix)
+        {
+          moveNext(nextChar); // Consume the escaped character
+          Append(nextChar);   // Append the literal value
+        }
+        else
+        {
+          // It's either a "dangling" escape prefix at EOF or an 
+          // escape prefix followed by a standard character (treat as literal)
+          Append(character);
+        }
+        preData = false;
+        continue;
       }
 
-      // Only check the characters if not past end of data
-      if (postData)
-        continue;
-
+      // 5. Handle Pre-Data (Leading whitespace and Qualifiers)
       if (preData)
       {
-        // whitespace preceding data
         if (IsWhiteSpace(character))
         {
-          // Store the white spaces if we do any kind of trimming
-          if (m_TrimmingOption == TrimmingOptionEnum.None)
-            // Values will be trimmed later, but we need to find out, if the filed is quoted first
-            Append(character);
+          if (m_TrimmingOption == TrimmingOptionEnum.None) Append(character);
           continue;
         }
 
-        // data is starting
         preData = false;
-
-        // Can not be escaped here
         if (character == m_FieldQualifier)
         {
-          if (m_TrimmingOption != TrimmingOptionEnum.None)
-            charCount = 0;
-
-          // quoted data is starting
           quoted = true;
           continue;
         }
-
-        Append(character);
-        continue;
       }
-
-      if (character == m_FieldQualifier && quoted)
+      // 6. Handle Quoted Transitions (Double-quotes or Closing quotes)
+      else if (character == m_FieldQualifier && quoted)
       {
-        var peekNextChar = peekChar();
-
-        // a "" should be regarded as " if the text is quoted
-        if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifier)
+        var nextChar = !endOfFile() ? peekChar() : char.MinValue;
+        if (m_DuplicateQualifierToEscape && nextChar == m_FieldQualifier)
         {
-          // double quotes within quoted string means add a quote
           Append(m_FieldQualifier);
-          moveNext(peekNextChar);
+          moveNext(nextChar);
 
-          // handling for "" that is not only representing a " but also closes the text
           if (m_ContextSensitiveQualifier)
           {
-            peekNextChar = peekChar();
-            if (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf)
+            var afterDouble = peekChar();
+            if (afterDouble == m_FieldDelimiter || afterDouble == cCr || afterDouble == cLf)
               postData = true;
           }
-
           continue;
         }
 
-        switch (m_ContextSensitiveQualifier)
+        // Logic for closing the quote
+        if (!m_ContextSensitiveQualifier || (nextChar == m_FieldDelimiter || nextChar == cCr || nextChar == cLf))
         {
-          // a single " should be regarded as closing when it's followed by the delimiter
-          case true when
-            (peekNextChar == m_FieldDelimiter || peekNextChar == cCr || peekNextChar == cLf):
-          // a single " should be regarded as closing if we do not have alternate qualifier
-          case false:
-            postData = true;
-            continue;
+          postData = true;
+          continue;
         }
       }
 
@@ -1347,7 +1301,6 @@ public class CsvFileReader : BaseFileReader
       m_ProcessingBuffer = newBuffer;
     }
   }
-
   /// <summary>
   ///   Determine the number of columns in the file
   /// </summary>

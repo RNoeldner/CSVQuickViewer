@@ -266,16 +266,15 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public bool Remove(string item) => throw new NotSupportedException();
 
   /// <summary>
-  /// Removes the last specified number of characters from the current field.
+  /// Trimms teh ending of the last add column by removing characters that 
+  /// match the provided predicate, starting from the end of the current column.
   /// </summary>
-  /// <param name="count">The number of characters to remove.</param>
-  public void UndoAppend(int count)
+  public void TrimEnd(Func<char, bool> shouldBeRemoved)
   {
     // The start of the current active column is the end of the previous one.
     int currentColumnStart = (m_ColumnCount == 0) ? 0 : m_EndOffsets[m_ColumnCount - 1];
-
-    // Ensure we don't back up further than the start of this specific column.
-    m_TotalLength = Math.Max(currentColumnStart, m_TotalLength - count);
+    while (m_TotalLength > currentColumnStart && shouldBeRemoved(m_ArrayPool[m_TotalLength - 1])) 
+      m_TotalLength--;
   }
 
   /// <summary>
