@@ -124,6 +124,7 @@ public class CsvFileReader : BaseFileReader
   ///   Number of records in the source file; set only when the entire file has been read.
   /// </summary>
   private ushort m_NumWarnings;
+  private List<char> m_PendingWhitespace = new List<char>(2);
   private char[] m_ProcessingBuffer;
   private Stream? m_Stream;
 
@@ -1097,7 +1098,6 @@ public class CsvFileReader : BaseFileReader
       m_RecordSource.Append(current);
     m_TextReader?.MoveNext();
   }
-
   /// <summary>
   ///   Parses the next column from the input stream using provided character access functions.
   ///   Handles field delimiters, line breaks (CR/LF), whitespace trimming, qualifiers (quotes),
@@ -1128,7 +1128,7 @@ public class CsvFileReader : BaseFileReader
   ///   Reference counter tracking the line number up to and including the parsed value,
   ///   incremented on line breaks.
   /// </param>
-   private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
+  private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
   {
     if (endOfFile())
       return null;
@@ -1142,7 +1142,7 @@ public class CsvFileReader : BaseFileReader
     int charCount = 0;
     bool quoted = false, preData = true, postData = false;
     bool isIgnored = columnNo < FieldCount && GetColumn(columnNo).Ignore;
-
+    m_PendingWhitespace.Clear();
     while (!endOfFile())
     {
       char character = readChar();
@@ -1187,7 +1187,7 @@ public class CsvFileReader : BaseFileReader
             if (quoted && !postData)
             {
               Append(character);
-              Append(nextChar);
+              Append2(nextChar);
               continue;
             }
           }
@@ -1201,8 +1201,9 @@ public class CsvFileReader : BaseFileReader
         }
       }
       // 4. Handle Post-Data (Ignore everything after closing quote until delimiter)
-      if (postData) 
+      if (postData)
         continue;
+
       // 5. Handle Escape Sequences
       if (character == m_EscapePrefix)
       {
@@ -1224,25 +1225,29 @@ public class CsvFileReader : BaseFileReader
         preData = false;
         continue;
       }
+      if (IsWhiteSpace(character) && (m_TrimmingOption == TrimmingOptionEnum.All ||
+                           (!quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted)))
+      {
+        // If we're in the leading zone (preData), just skip.
+        // Otherwise, it's internal/potential-trailing, so queue it.
+        if (!preData) m_PendingWhitespace.Add(character);
+        continue;
+      }
 
-      // 5. Handle Pre-Data (Leading whitespace and Qualifiers)
       if (preData)
       {
-        if (IsWhiteSpace(character))
-        {
-          if (m_TrimmingOption == TrimmingOptionEnum.None) Append(character);
-          continue;
-        }
-
         preData = false;
         if (character == m_FieldQualifier)
         {
           quoted = true;
+          // Reset preData only if 'All' is set, to trim inside the quotes.
+          preData = m_TrimmingOption == TrimmingOptionEnum.All;
           continue;
         }
       }
+
       // 6. Handle Quoted Transitions (Double-quotes or Closing quotes)
-      else if (character == m_FieldQualifier && quoted)
+      if (character == m_FieldQualifier && quoted)
       {
         var nextChar = !endOfFile() ? peekChar() : char.MinValue;
         if (m_DuplicateQualifierToEscape && nextChar == m_FieldQualifier)
@@ -1254,7 +1259,10 @@ public class CsvFileReader : BaseFileReader
           {
             var afterDouble = peekChar();
             if (afterDouble == m_FieldDelimiter || afterDouble == cCr || afterDouble == cLf)
+            {
+              m_PendingWhitespace.Clear();
               postData = true;
+            }
           }
           continue;
         }
@@ -1262,30 +1270,34 @@ public class CsvFileReader : BaseFileReader
         // Logic for closing the quote
         if (!m_ContextSensitiveQualifier || (nextChar == m_FieldDelimiter || nextChar == cCr || nextChar == cLf))
         {
+          m_PendingWhitespace.Clear();
           postData = true;
           continue;
         }
       }
-
+      // It's a non-whitespace character. Flush the pending queue to the main buffer.
       Append(character);
     } // While
 
-    if (isIgnored || charCount == 0) return string.Empty;
-
-    // Virtual Trimming: Find the start and end within our buffer
-    int start = 0;
-    int end = charCount;
-    if (m_TrimmingOption == TrimmingOptionEnum.All || (!quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted))
-    {
-      while (start < end && IsWhiteSpace(m_ProcessingBuffer[start])) start++;
-      while (end > start && IsWhiteSpace(m_ProcessingBuffer[end - 1])) end--;
-    }
-
-    return start >= end ? string.Empty : new string(m_ProcessingBuffer, start, end - start);
+    return (isIgnored || charCount == 0) ? string.Empty : new string(m_ProcessingBuffer, 0, charCount);
 
     // local method that will appendto buffer and resize if needed
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void Append(char character)
+    {
+      int count = m_PendingWhitespace.Count;
+      if (count > 0)
+      {
+        for (int i = 0; i < count; i++)
+        {
+          Append2(m_PendingWhitespace[i]);
+        }
+        m_PendingWhitespace.Clear();
+      }
+      Append2(character);
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void Append2(char character)
     {
       if (isIgnored)
         return;
@@ -1301,6 +1313,7 @@ public class CsvFileReader : BaseFileReader
       m_ProcessingBuffer = newBuffer;
     }
   }
+
   /// <summary>
   ///   Determine the number of columns in the file
   /// </summary>

@@ -19,17 +19,17 @@ namespace CsvTools;
 public enum TrimmingOptionEnum
 {
   /// <summary>
-  ///   No Trimming
+  ///   No Trimming, all that is passed in will be returned, no matter if it is quoted or not
   /// </summary>
   None = 0,
 
   /// <summary>
-  ///   Do trim unquoted Text
+  ///   Do trim unquoted Text, but do not trim quoted text, as quoted text is considered to be verbatim and should not be changed
   /// </summary>
   Unquoted = 1,
 
   /// <summary>
-  ///   Do trim everything, quoted and unquoted text
+  ///   Trim everywhere — both outside and inside the quotes.
   /// </summary>
   All = 3
 }

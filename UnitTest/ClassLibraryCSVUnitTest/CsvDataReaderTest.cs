@@ -71,17 +71,19 @@ public class CsvDataReaderUnitTest
     using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false, skipRowsAfterHeader: 0, hasFieldHeader: true);
     await test.OpenAsync(UnitTestStatic.Token);
 
-    Assert.AreEqual(10, test.FieldCount);
+    Assert.AreEqual(10, test.FieldCount, "FieldCount");
     await test.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual(2, test.StartLineNumber, "StartLineNumber");
     Assert.AreEqual(3, test.EndLineNumber, "EndLineNumber");
     Assert.AreEqual(1, test.RecordNumber, "RecordNumber");
     Assert.AreEqual("-22477", test.GetString(1));
+
     await test.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual(3, test.StartLineNumber, "StartLineNumber");
     Assert.AreEqual(4, test.EndLineNumber, "EndLineNumber");
     Assert.AreEqual(2, test.RecordNumber, "RecordNumber");
     Assert.AreEqual("22435", test.GetString(1));
+
     for (var line = 3; line < 25; line++)
       await test.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("-21928", test.GetString(1));
@@ -89,10 +91,15 @@ public class CsvDataReaderUnitTest
     Assert.AreEqual(25, test.StartLineNumber, "StartLineNumber");
     Assert.AreEqual(27, test.EndLineNumber, "EndLineNumber");
     Assert.AreEqual(24, test.RecordNumber, "RecordNumber");
+    await test.ReadAsync(UnitTestStatic.Token);
+    Assert.AreEqual(-15530, test.GetInt32(1), "Right Line ");
+    Assert.AreEqual(27, test.StartLineNumber, "StartLineNumber");
+    Assert.AreEqual(28, test.EndLineNumber, "EndLineNumber");
+    Assert.AreEqual(25, test.RecordNumber, "RecordNumber");
 
-    for (var line = 25; line < 47; line++)
+    for (var line = 28; line < 49; line++)
       await test.ReadAsync(UnitTestStatic.Token);
-    Assert.AreEqual(49, test.EndLineNumber, "EndLineNumber");
+    Assert.AreEqual(48, test.EndLineNumber, "EndLineNumber");
     Assert.AreEqual("4390", test.GetString(1));
 
     Assert.AreEqual(46, test.RecordNumber);
