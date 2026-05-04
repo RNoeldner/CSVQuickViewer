@@ -41,6 +41,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   private int m_CheckRunning;
   private int m_CheckPending;
   private volatile bool m_FileChanged;
+  private bool m_StartupLoadDone;
   private string m_FileName;
   private CsvFileDummy? m_FileSetting;
   private bool m_RunDetection;
@@ -517,9 +518,15 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       m_SettingsChangedTimerChange.Stop();
       await OpenDataReaderAsync();
     };
+  }
 
+  private async void FormMain_Shown(object? sender, EventArgs e)
+  {
+    if (m_StartupLoadDone)
+      return;
+
+    m_StartupLoadDone = true;
     await LoadCsvOrZipFileAsync(false);
-    ShowTextPanel(false);
   }
 
   /// <summary>
@@ -528,7 +535,10 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   private async Task LoadCsvOrZipFileAsync(bool detectValues)
   {
     if (string.IsNullOrEmpty(m_FileName))
+    {
+      ShowTextPanel(false);
       return;
+    }
     ShowTextPanel(true);
     await this.RunWithHourglassAsync(async () =>
     {

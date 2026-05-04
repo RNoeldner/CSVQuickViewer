@@ -231,6 +231,7 @@ namespace CsvTools
       Activated += FormMain_Activated;
       FormClosing += FormMain_FormClosing;
       Load += FormMain_Loaded;
+      Shown += FormMain_Shown;
       DragDrop += FileDragDrop;
       DragEnter += FileDragEnter;
       KeyUp += FormMain_KeyUpAsync;

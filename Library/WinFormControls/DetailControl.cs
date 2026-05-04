@@ -86,6 +86,15 @@ public sealed partial class DetailControl : UserControl
       m_ToolStripButtonSource,
       m_ToolStripButtonStore,
     };
+    if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+    {
+      m_TimerVisibility.Enabled = false;
+      timerLoadRemain.Enabled = false;
+      m_NavRepeatTimer.Enabled = false;
+      m_NavInputTimer.Enabled = false;
+      return;
+    }
+
     FilteredDataGridView.CancellationToken = m_ControlCancellation.Token;
     FilteredDataGridView.Scroll += OnDataGridViewScroll;
     FilteredDataGridView.SelectionChanged += UpdateNavigationUI;
@@ -1130,6 +1139,12 @@ public sealed partial class DetailControl : UserControl
 
   private void TimerVisibility_Tick(object? sender, EventArgs e)
   {
+    if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+    {
+      m_TimerVisibility.Enabled = false;
+      return;
+    }
+
     if (!m_UpdateVisibility)
       return;
     m_UpdateVisibility = false;
