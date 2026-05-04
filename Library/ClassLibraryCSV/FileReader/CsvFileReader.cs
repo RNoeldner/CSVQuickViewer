@@ -124,8 +124,8 @@ public class CsvFileReader : BaseFileReader
   ///   Number of records in the source file; set only when the entire file has been read.
   /// </summary>
   private ushort m_NumWarnings;
-  private List<char> m_PendingWhitespace = new List<char>(2);
-  private char[] m_ProcessingBuffer;
+  private char[] m_PendingWhitespace;
+  private char[] m_ProcessingBufferColumn;
   private Stream? m_Stream;
 
   /// <summary>
@@ -294,10 +294,10 @@ public class CsvFileReader : BaseFileReader
 
   /// <summary>
   ///   Fully qualified path of the CSV file to read.
-  /// </param>
+  /// </summary>
   /// <param name="codePageId">
   ///   Initializes a new instance of the <see cref="CsvFileReader"/> class.
-  /// </summary>
+  /// </param>
   /// <param name="fileName">
   ///   The code page identifier used for decoding the file.  
   ///   UTF-8 corresponds to <c>65001</c>.
@@ -573,7 +573,8 @@ public class CsvFileReader : BaseFileReader
     m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
 
 
-    m_ProcessingBuffer = ArrayPool<char>.Shared.Rent(1024);
+    m_PendingWhitespace = ArrayPool<char>.Shared.Rent(64);
+    m_ProcessingBufferColumn = ArrayPool<char>.Shared.Rent(512);
     // Initialize only the characters we want to treat as whitespace
     // We skip the check if the delimiter itself is one of these
     if (m_FieldDelimiter != ' ') m_IsLowAsciiWhitespace[' ']  = true; // 32
@@ -763,7 +764,8 @@ public class CsvFileReader : BaseFileReader
 
     if (disposing)
     {
-      ArrayPool<char>.Shared.Return(m_ProcessingBuffer);
+      ArrayPool<char>.Shared.Return(m_PendingWhitespace);
+      ArrayPool<char>.Shared.Return(m_ProcessingBufferColumn);
       m_CurrentRowColumns.Dispose();
       m_TextReader?.Dispose();
       m_TextReader = null;
@@ -1142,7 +1144,7 @@ public class CsvFileReader : BaseFileReader
     int charCount = 0;
     bool quoted = false, preData = true, postData = false;
     bool isIgnored = columnNo < FieldCount && GetColumn(columnNo).Ignore;
-    m_PendingWhitespace.Clear();
+    int whiteSpaceCount = 0;
     while (!endOfFile())
     {
       char character = readChar();
@@ -1186,8 +1188,8 @@ public class CsvFileReader : BaseFileReader
             // If quoted, we keep the linebreak as data
             if (quoted && !postData)
             {
-              Append(character);
-              Append2(nextChar);
+              AppendHandleWhitespace(character);
+              AddToResult(nextChar);
               continue;
             }
           }
@@ -1214,13 +1216,13 @@ public class CsvFileReader : BaseFileReader
         if (nextChar == m_FieldQualifier || nextChar == m_FieldDelimiter || nextChar == m_EscapePrefix)
         {
           moveNext(nextChar); // Consume the escaped character
-          Append(nextChar);   // Append the literal value
+          AppendHandleWhitespace(nextChar);   // Append the literal value
         }
         else
         {
           // It's either a "dangling" escape prefix at EOF or an 
           // escape prefix followed by a standard character (treat as literal)
-          Append(character);
+          AppendHandleWhitespace(character);
         }
         preData = false;
         continue;
@@ -1230,7 +1232,7 @@ public class CsvFileReader : BaseFileReader
       {
         // If we're in the leading zone (preData), just skip.
         // Otherwise, it's internal/potential-trailing, so queue it.
-        if (!preData) m_PendingWhitespace.Add(character);
+        if (!preData) AppendWhitespace(character);
         continue;
       }
 
@@ -1252,7 +1254,7 @@ public class CsvFileReader : BaseFileReader
         var nextChar = !endOfFile() ? peekChar() : char.MinValue;
         if (m_DuplicateQualifierToEscape && nextChar == m_FieldQualifier)
         {
-          Append(m_FieldQualifier);
+          AppendHandleWhitespace(m_FieldQualifier);
           moveNext(nextChar);
 
           if (m_ContextSensitiveQualifier)
@@ -1260,7 +1262,7 @@ public class CsvFileReader : BaseFileReader
             var afterDouble = peekChar();
             if (afterDouble == m_FieldDelimiter || afterDouble == cCr || afterDouble == cLf)
             {
-              m_PendingWhitespace.Clear();
+              whiteSpaceCount=0;
               postData = true;
             }
           }
@@ -1270,47 +1272,55 @@ public class CsvFileReader : BaseFileReader
         // Logic for closing the quote
         if (!m_ContextSensitiveQualifier || (nextChar == m_FieldDelimiter || nextChar == cCr || nextChar == cLf))
         {
-          m_PendingWhitespace.Clear();
+          whiteSpaceCount=0;
           postData = true;
           continue;
         }
       }
       // It's a non-whitespace character. Flush the pending queue to the main buffer.
-      Append(character);
+      AppendHandleWhitespace(character);
     } // While
 
-    return (isIgnored || charCount == 0) ? string.Empty : new string(m_ProcessingBuffer, 0, charCount);
+    return (isIgnored || charCount == 0) ? string.Empty : new string(m_ProcessingBufferColumn, 0, charCount);
 
     // local method that will appendto buffer and resize if needed
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void Append(char character)
-    {
-      int count = m_PendingWhitespace.Count;
-      if (count > 0)
-      {
-        for (int i = 0; i < count; i++)
-        {
-          Append2(m_PendingWhitespace[i]);
-        }
-        m_PendingWhitespace.Clear();
-      }
-      Append2(character);
-    }
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void Append2(char character)
+    void AppendHandleWhitespace(char character)
     {
       if (isIgnored)
         return;
-      if (charCount == m_ProcessingBuffer.Length) GrowBuffer();
-      m_ProcessingBuffer[charCount++] = character;
+      if (whiteSpaceCount > 0)
+      {
+        for (int i = 0; i < whiteSpaceCount; i++)
+          AddToResult(m_PendingWhitespace[i]);
+        whiteSpaceCount=0;
+      }
+      AddToResult(character);
     }
 
-    void GrowBuffer()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void AddToResult(char character)
     {
-      char[] newBuffer = ArrayPool<char>.Shared.Rent(m_ProcessingBuffer.Length * 2);
-      Array.Copy(m_ProcessingBuffer, newBuffer, m_ProcessingBuffer.Length);
-      ArrayPool<char>.Shared.Return(m_ProcessingBuffer);
-      m_ProcessingBuffer = newBuffer;
+      if (isIgnored)
+        return;
+      if (charCount == m_ProcessingBufferColumn.Length) GrowBuffer(ref m_ProcessingBufferColumn);
+      m_ProcessingBufferColumn[charCount++] = character;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void AppendWhitespace(char character)
+    {
+      if (whiteSpaceCount == m_PendingWhitespace.Length) GrowBuffer(ref m_PendingWhitespace);
+      m_PendingWhitespace[whiteSpaceCount++] = character;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void GrowBuffer(ref char[] buffer)
+    {
+      char[] newBuffer = ArrayPool<char>.Shared.Rent(buffer.Length * 2);
+      Array.Copy(buffer, newBuffer, buffer.Length);
+      ArrayPool<char>.Shared.Return(buffer);
+      buffer = newBuffer;
     }
   }
 

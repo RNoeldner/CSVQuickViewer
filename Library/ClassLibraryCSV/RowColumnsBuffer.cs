@@ -265,16 +265,28 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <inheritdoc/>
   public bool Remove(string item) => throw new NotSupportedException();
 
+
   /// <summary>
-  /// Trimms teh ending of the last add column by removing characters that 
-  /// match the provided predicate, starting from the end of the current column.
+  /// Returns the character span of the currently active (not yet finalized) column.
   /// </summary>
-  public void TrimEnd(Func<char, bool> shouldBeRemoved)
+  /// <remarks>
+  /// This span represents the data written since the end of the last finalized column
+  /// (or from the start of the buffer if no columns have been finalized yet).
+  /// The column is considered transient until <see cref="NextColumn"/> is called,
+  /// and therefore is not included in <see cref="Count"/>.
+  /// </remarks>
+  /// <returns>
+  /// A <see cref="ReadOnlySpan{Char}"/> over the characters of the active column.
+  /// </returns>
+  /// <exception cref="ObjectDisposedException">
+  /// Thrown if the buffer has been disposed.
+  /// </exception>
+
+  public ReadOnlySpan<char> GetCurrentSpan()
   {
-    // The start of the current active column is the end of the previous one.
-    int currentColumnStart = (m_ColumnCount == 0) ? 0 : m_EndOffsets[m_ColumnCount - 1];
-    while (m_TotalLength > currentColumnStart && shouldBeRemoved(m_ArrayPool[m_TotalLength - 1])) 
-      m_TotalLength--;
+    CheckDisposed();
+    int start = (m_ColumnCount == 0) ? 0 : m_EndOffsets[m_ColumnCount - 1];
+    return m_ArrayPool.AsSpan(start, m_TotalLength - start);
   }
 
   /// <summary>
