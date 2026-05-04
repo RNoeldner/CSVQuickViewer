@@ -39,6 +39,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   private readonly ViewSettings m_ViewSettings;
   private bool m_AskOpenFile = true;
   private int m_CheckRunning;
+  private int m_CheckPending;
   private volatile bool m_FileChanged;
   private string m_FileName;
   private CsvFileDummy? m_FileSetting;
@@ -288,73 +289,32 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async Task CheckPossibleChange()
   {
-    // In case the file was deleted we can not reload it...
-    if (m_FileChanged && m_FileSetting != null && m_FileSetting.FileName.Length > 0 && !File.Exists(m_FileSetting.FileName))
-      m_FileChanged=false;
     if (!m_ShouldReloadData && !m_FileChanged)
       return;
     if (Interlocked.Exchange(ref m_CheckRunning, 1) == 1)
+    {
+      Interlocked.Exchange(ref m_CheckPending, 1);
       return;
+    }
     try
     {
-      if (m_ShouldReloadData)
+      do
       {
-        m_ShouldReloadData = false;
-        if (!m_AskOpenFile || MessageBox.Show(
-              "The configuration has changed do you want to reload the data?",
-              "Configuration changed",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question,
-              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-        {
-          if (m_RunDetection && m_FileSetting!=null)
-          {
-            m_RunDetection = false;
-            using var progress = new FormProgress("Detection", m_CancellationTokenSource.Token);
-            progress.Show(this);
-            try
-            {
-              var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
-                m_ViewSettings.FillGuessSettings,
-                progress);
-              ChangeColumnsNoEvent(false, detected);
+        Interlocked.Exchange(ref m_CheckPending, 0);
 
-              m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
-                x.ValueFormat.DataType != DataTypeEnum.String);
-            }
-            catch (Exception ex)
-            {
-              Extensions.ShowError(ex, "Column Detection");
-            }
-
-            m_RunDetection = false;
-            progress.Close();
-          }
-
-          await OpenDataReaderAsync();
-          // as we have reloaded assume any file change is handled as well
+        if (m_FileChanged && m_FileSetting != null &&
+          m_FileSetting.FileName.Length > 0 &&
+          !File.Exists(m_FileSetting.FileName))
           m_FileChanged = false;
-        }
+
+        if (!m_ShouldReloadData && !m_FileChanged)
+          return;
+
+        await CheckPossibleChangeCore();
+
       }
-
-      if (m_FileSetting is null || m_FileSetting.FileName.Length == 0 || !m_FileChanged)
-        return;
-      m_FileName = m_FileSetting.FileName;
-      m_FileChanged = false;
-
-      if (!m_AskOpenFile || MessageBox.Show(
-            "The displayed file has changed do you want to reload the data?",
-            "File changed",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question,
-            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-        await LoadCsvOrZipFileAsync(false);
-      else
-        m_FileChanged = false;
-
-      m_AskOpenFile = true;
-      if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
-        FileSystemUtils.FileDelete(m_FileName + SerializedFilesLib.cSettingExtension);
+      while (Interlocked.Exchange(ref m_CheckPending, 0) == 1 ||
+           m_ShouldReloadData || m_FileChanged);
     }
     catch (Exception exception)
     {
@@ -364,6 +324,68 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     {
       Interlocked.Exchange(ref m_CheckRunning, 0);
     }
+  }
+
+  private async Task CheckPossibleChangeCore()
+  {
+    if (m_ShouldReloadData)
+    {
+      m_ShouldReloadData = false;
+      if (!m_AskOpenFile || MessageBox.Show(
+            "The configuration has changed do you want to reload the data?",
+            "Configuration changed",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question,
+            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+      {
+        if (m_RunDetection && m_FileSetting!=null)
+        {
+          m_RunDetection = false;
+          using var progress = new FormProgress("Detection", m_CancellationTokenSource.Token);
+          progress.Show(this);
+          try
+          {
+            var detected = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
+              m_ViewSettings.FillGuessSettings,
+              progress);
+            ChangeColumnsNoEvent(false, detected);
+
+            m_ToolStripButtonAsText.Visible = m_FileSetting.ColumnCollection.Any(x =>
+              x.ValueFormat.DataType != DataTypeEnum.String);
+          }
+          catch (Exception ex)
+          {
+            Extensions.ShowError(ex, "Column Detection");
+          }
+
+          m_RunDetection = false;
+          progress.Close();
+        }
+
+        await OpenDataReaderAsync();
+        // as we have reloaded assume any file change is handled as well
+        m_FileChanged = false;
+      }
+    }
+
+    if (m_FileSetting is null || m_FileSetting.FileName.Length == 0 || !m_FileChanged)
+      return;
+    m_FileName = m_FileSetting.FileName;
+    m_FileChanged = false;
+
+    if (!m_AskOpenFile || MessageBox.Show(
+          "The displayed file has changed do you want to reload the data?",
+          "File changed",
+          MessageBoxButtons.YesNo,
+          MessageBoxIcon.Question,
+          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+      await LoadCsvOrZipFileAsync(false);
+    else
+      m_FileChanged = false;
+
+    m_AskOpenFile = true;
+    if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
+      FileSystemUtils.FileDelete(m_FileName + SerializedFilesLib.cSettingExtension);
   }
 
   private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
@@ -609,16 +631,15 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       title.Append(" - ");
       title.Append(AssemblyTitle);
 
-      this.SafeInvoke(async () =>
+      this.SafeInvoke(() =>
       {
         ToolStripButtonAsText(false);
         Text = title.ToString();
         m_ToolStripButtonSettings.Visible = m_FileSetting != null;
         m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
           x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
-
-        await OpenDataReaderAsync();
       });
+      await OpenDataReaderAsync();
     });
   }
 
@@ -707,9 +728,6 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     }
     finally
     {
-      m_ShouldReloadData = false;
-      m_FileChanged = false;
-
       // Re enable event watching
       AttachPropertyChanged();
     }

@@ -138,9 +138,8 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
   protected virtual void OnPropertyChanged(string propertyName) =>
               PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-  private void ButtonSkipLine_Click(object? sender, EventArgs e)
-  {
-    this.RunWithHourglass(async () =>
+  private async void ButtonSkipLine_Click(object? sender, EventArgs e)
+    => await buttonSkipLine.RunWithHourglassAsync(async () =>
     {
       using var formProgress = new FormProgress("Check", CancellationToken.None);
       formProgress.Show(this);
@@ -148,13 +147,12 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
       using var stream = FunctionalDI.GetStream(new SourceAccess(m_FileName));
       using var streamReader = new ImprovedTextReader(stream, m_CodePageId);
       formProgress.Report("Inspecting");
+
       SkipRows = await streamReader.InspectStartRowAsync(charBoxDelimiter.Character, charBoxQuote.Character,
         charBoxEscape.Character, textBoxComment.Text,
-        formProgress.CancellationToken).ConfigureAwait(false);
-
+        formProgress.CancellationToken);
       HighlightVisibleRange(SkipRows);
     });
-  }
 
   private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
   {

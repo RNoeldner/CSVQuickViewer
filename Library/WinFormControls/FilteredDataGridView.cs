@@ -98,7 +98,15 @@ public partial class FilteredDataGridView : DataGridView
     ColumnWidthChanged += FilteredDataGridView_ColumnWidthChanged;
     CellValueNeeded += FilteredDataGridView_CellValueNeeded;
     KeyDown += FilteredDataGridView_KeyDown;
-
+    DataError += (_, e) =>
+    {
+#pragma warning disable S2486 // Generic exceptions should not be ignored
+#pragma warning disable S108 // Nested blocks of code should not be left empty
+      try { Logger.Warning(e.Exception, "DataGridView data error"); } catch { }
+#pragma warning restore S108 // Nested blocks of code should not be left empty
+#pragma warning restore S2486 // Generic exceptions should not be ignored
+      e.ThrowException = false;
+    };
     // Inside FilteredDataGridView.cs constructor or initialization logic
     DefaultCellStyle.ForeColor = Color.Black;
     DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
@@ -1031,8 +1039,12 @@ public partial class FilteredDataGridView : DataGridView
     }
     catch (Exception ex)
     {
+#pragma warning disable S2486 // Generic exceptions should not be ignored
+#pragma warning disable S108 // Nested blocks of code should not be left empty
+      try { Logger.Warning(ex, "FilteredDataGridView painting failed"); } catch { }
+#pragma warning restore S108 // Nested blocks of code should not be left empty
+#pragma warning restore S2486 // Generic exceptions should not be ignored
       e.Handled = false;
-      Debug.WriteLine(ex);
     }
   }
 
