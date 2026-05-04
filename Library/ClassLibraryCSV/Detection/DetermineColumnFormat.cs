@@ -135,7 +135,7 @@ public static class DetermineColumnFormat
       return [.. columnCollectionInput];
 
     if (fileReader.EndOfFile)
-      fileReader.ResetPositionToFirstDataRow();
+      await fileReader.ResetPositionToFirstDataRowAsync(progress.CancellationToken).ConfigureAwait(false);
 
     if (fileReader.EndOfFile) // still end of file
       return [.. columnCollectionInput];
@@ -595,7 +595,7 @@ public static class DetermineColumnFormat
     var recordsScanned = 0;
 
     if (fileReader is { EndOfFile: true, SupportsReset: true })
-      fileReader.ResetPositionToFirstDataRow();
+      await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
 
     var startingRow = fileReader.RecordNumber;
     var action = new IntervalAction(.5);
@@ -610,7 +610,7 @@ public static class DetermineColumnFormat
         if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           if (!fileReader.SupportsReset) break;
-          fileReader.ResetPositionToFirstDataRow();
+          await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
           if (startingRow == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false)) break;
         }
         recordsScanned++;

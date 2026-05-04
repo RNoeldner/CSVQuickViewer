@@ -179,7 +179,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   /// <inheritdoc cref="BaseFileReader" />
   protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
-      if (!EndOfFile && !cancellationToken.IsCancellationRequested && m_EnumeratorJson !=null)
+    if (!EndOfFile && !cancellationToken.IsCancellationRequested && m_EnumeratorJson !=null)
     {
       JObject? json = null;
       if (RecordNumber < m_SampleRows.Count)
@@ -207,7 +207,11 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   }
 
   /// <inheritdoc cref="IFileReader" />
-  public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+  public override async ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
+  {
+    await base.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+    ResetPositionToStartOrOpen();
+  }
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)

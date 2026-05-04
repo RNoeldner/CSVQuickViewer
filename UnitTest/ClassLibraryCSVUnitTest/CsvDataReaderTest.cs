@@ -19,6 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests;
@@ -1545,7 +1546,7 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
     Assert.AreEqual("German", test.GetValue(1));
   }
 
-  public void DataReaderResetPositionToFirstDataRow()
+  public async Task DataReaderResetPositionToFirstDataRowAsync()
   {
     var setting = GetDummyBasicCSV();
     using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
@@ -1565,7 +1566,7 @@ setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
 setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
       setting.ConsecutiveEmptyRows,
 setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
-    test.ResetPositionToFirstDataRow();
+    await test.ResetPositionToFirstDataRowAsync(CancellationToken.None).ConfigureAwait(false);
   }
 
   [TestMethod]

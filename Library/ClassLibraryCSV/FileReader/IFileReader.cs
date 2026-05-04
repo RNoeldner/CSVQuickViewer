@@ -140,16 +140,17 @@ public interface IFileReader : IDataReader
   /// <summary>
   ///   Reads the next record of the current result set asynchronously
   /// </summary>
-  /// <param name="token">The cancellation token</param>
+  /// <param name="cancellationToken">The cancellation token</param>
   /// <returns>
   ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
   /// </returns>
-  Task<bool> ReadAsync(CancellationToken token);
+  Task<bool> ReadAsync(CancellationToken cancellationToken);
 
   /// <summary>
   ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
   /// </summary>
-  void ResetPositionToFirstDataRow();
+  /// <param name="cancellationToken">The cancellation token.</param>
+  ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken);
 
   /// <summary>
   ///   Sets the progress reporting action <see cref="ProgressInfo.Value"/> will be between 0 and 10000/>

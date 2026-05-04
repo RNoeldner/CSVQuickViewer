@@ -651,11 +651,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   ///   Resets the position to first data row.
   /// </summary>
-  public virtual void ResetPositionToFirstDataRow()
+  public virtual ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
     EndLineNumber = 0;
     RecordNumber = 0;
     EndOfFile = false;
+    return default;
   }
 
   /// <summary>
@@ -1246,6 +1247,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       StartLineNumber,
       EndLineNumber,
       ordinal >= 0 && ordinal < m_FieldCount ? GetColumn(ordinal).Name : null);
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   /// <summary>
   ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.

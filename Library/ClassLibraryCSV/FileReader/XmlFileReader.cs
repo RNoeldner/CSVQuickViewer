@@ -166,9 +166,12 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     return new ValueTask<bool>(false);
   }
 
-
-  /// <inheritdoc />
-  public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+  /// <inheritdoc cref="IFileReader" />
+  public override async ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
+  {
+    await base.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+    ResetPositionToStartOrOpen();
+  }
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)

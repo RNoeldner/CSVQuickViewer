@@ -341,14 +341,14 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
   /// <inheritdoc />
   [Obsolete("No need to open a DataReaderWrapper, passed in reader is open already")]
-  public Task OpenAsync(CancellationToken cancellationToken)
+  public async Task OpenAsync(CancellationToken cancellationToken)
   {
-    if (m_FileReader != null) return m_FileReader.OpenAsync(cancellationToken);
-    _ = OnOpenAsync?.Invoke();
-    ResetPositionToFirstDataRow();
+    if (m_FileReader != null)
+      await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+    if (OnOpenAsync !=null)
+      await OnOpenAsync().ConfigureAwait(false);
+    await ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
     OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
-
-    return Task.CompletedTask;
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -392,13 +392,14 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   }
 
   /// <inheritdoc />
-  public virtual void ResetPositionToFirstDataRow()
+  public virtual ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
-    m_FileReader?.ResetPositionToFirstDataRow();
     m_ColumnErrorDictionary.Clear();
     RowErrorInformation = string.Empty;
     RecordNumber = 0;
     NumberRowWarnings = 0;
+    // Return the task directly from the reader to avoid a local async state machine
+    return (m_FileReader != null) ? m_FileReader.ResetPositionToFirstDataRowAsync(cancellationToken) : default;
   }
 
   /// <inheritdoc />

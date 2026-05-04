@@ -716,7 +716,7 @@ public class CsvFileReader : BaseFileReader
 
       // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on the first data row
       if (m_TextReader.CanSeek)
-        ResetPositionToFirstDataRow();
+        await ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
 
       FinishOpen();
     }
@@ -742,9 +742,9 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <inheritdoc cref="IFileReader" />
-  public new void ResetPositionToFirstDataRow()
+  public new async Task ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
-    ResetPositionToStartOrOpen();
+    await ResetPositionToStartOrOpenAsync(cancellationToken);
     if (m_HasFieldHeader)
       // Read the header currentRow, this could be more than one line
       ReadNextRow(false);
@@ -965,14 +965,12 @@ public class CsvFileReader : BaseFileReader
                 if (m_FieldQualifier!=0 && raw[0] != m_FieldQualifier)
                   raw = $"{m_FieldQualifier}{raw}{m_FieldQualifier}";
 
-                return ParseColumn(
-                  readChar: () => raw[pos++],
-                  peekChar: () => raw[pos],
-                  moveNext: (c) => pos++,
-                  endOfFile: () => pos >= raw.Length,
-                  columnNo: col,
-                  endOfLine: ref eol,
-                  ref ignored)!;
+                var len = ParseColumn(readChar: () => raw[pos++],
+                  peekChar: () => raw[pos], moveNext: (c) => pos++,
+                  endOfFile: () => pos >= raw.Length, columnNo: col,
+                  endOfLine: ref eol, ref ignored)!;
+
+                return !len.HasValue || len==0 ? string.Empty : new string(m_ProcessingBufferColumn, 0, len.Value);
               }, m_RecordSource.ToString());
             // 3. Update the internal list directly instead of replacing the reference
             if (mergedResult != m_CurrentRowColumns)
@@ -1100,37 +1098,70 @@ public class CsvFileReader : BaseFileReader
       m_RecordSource.Append(current);
     m_TextReader?.MoveNext();
   }
+
   /// <summary>
-  ///   Parses the next column from the input stream using provided character access functions.
-  ///   Handles field delimiters, line breaks (CR/LF), whitespace trimming, qualifiers (quotes),
-  ///   escape sequences, and special characters such as non-breaking spaces and unknown chars.
-  ///   
-  ///   Behavior:
-  ///   - Starts a new line if the previous field ended with a line break.
-  ///   - Supports quoted fields with optional escape/duplicate qualifier handling.
-  ///   - Treats CR/LF combinations correctly, including mixed order (LF+CR).
-  ///   - Can replace line feeds inside quoted fields with spaces (if configured).
-  ///   - Emits warnings for special characters (e.g., NBSP, unknown chars) depending on settings.
-  ///   - Applies trimming rules (None, All, or Unquoted) before returning the final value.
-  /// 
-  ///   Returns:
-  ///   - The parsed column text, with applied transformations.
-  ///   - <c>null</c> if at end of file or if a new line has just started.
+  /// Parses the next column from the input stream using the supplied character access delegates.
   /// </summary>
-  /// <param name="readChar">Delegate that returns the next character and advances the reader position.</param>
-  /// <param name="peekChar">Delegate that returns the next character without advancing the reader.</param>
-  /// <param name="moveNext">Delegate that consumes the specified character, advancing the reader.</param>
-  /// <param name="endOfFile">Delegate that indicates whether the end of the input stream has been reached.</param>
-  /// <param name="columnNo">Zero-based column index currently being parsed.</param>
-  /// <param name="endOfLine">
-  ///   Reference flag set to <c>true</c> when the parser encounters a line break,
-  ///   indicating the end of the current row.
-  /// </param>re
-  /// <param name="endLineNumber">
-  ///   Reference counter tracking the line number up to and including the parsed value,
-  ///   incremented on line breaks.
+  /// <remarks>
+  /// This method distinguishes between <c>null</c> and <c>0</c> return values:
+  /// <list type="bullet">
+  /// <item>
+  /// <description>
+  /// <c>null</c> indicates that no column value was produced.  
+  /// This occurs when the end of the current record has been reached
+  /// (for example, immediately after a line break or at end-of-file),
+  /// and signals the caller to stop reading columns for the current row.
+  /// </description>
+  /// </item>
+  /// <item>
+  /// <description>
+  /// <c>0</c> indicates a valid column with an empty value.
+  /// The column exists and must be added to the current row.
+  /// </description>
+  /// </item>
+  /// </list>
+  /// Returning a positive value indicates the number of characters written
+  /// for a valid, non-empty column.
+  ///
+  /// The method handles delimiters, line breaks (CR/LF), quoted fields,
+  /// escape sequences, trimming rules, and special-character handling
+  /// (such as non-breaking spaces and Unicode replacement characters),
+  /// emitting warnings as configured.
+  /// </remarks>
+  /// <param name="readChar">
+  /// Delegate that reads and returns the next character, advancing the reader position.
   /// </param>
-  private string? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
+  /// <param name="peekChar">
+  /// Delegate that returns the next character without advancing the reader position.
+  /// </param>
+  /// <param name="moveNext">
+  /// Delegate that consumes the specified character, advancing the reader.
+  /// </param>
+  /// <param name="endOfFile">
+  /// Delegate that returns <c>true</c> when the end of the input stream has been reached.
+  /// </param>
+  /// <param name="columnNo">
+  /// Zero-based index of the column currently being parsed.
+  /// </param>
+  /// <param name="endOfLine">
+  /// Reference flag that is set to <c>true</c> when the parser encounters a line break,
+  /// indicating the end of the current record.
+  /// </param>
+  /// <param name="endLineNumber">
+  /// Reference counter tracking the current line number; incremented when line breaks are encountered.
+  /// </param>
+  /// <returns>
+  /// <para>
+  /// <c>null</c> if no column should be produced (end of record or end of file).
+  /// </para>
+  /// <para>
+  /// <c>0</c> if an empty column was parsed.
+  /// </para>
+  /// <para>
+  /// A positive integer representing the number of characters written for a non-empty column.
+  /// </para>
+  /// </returns>
+  private int? ParseColumn(Func<char> readChar, Func<char> peekChar, Action<char> moveNext, Func<bool> endOfFile, int columnNo, ref bool endOfLine, ref long endLineNumber)
   {
     if (endOfFile())
       return null;
@@ -1281,7 +1312,7 @@ public class CsvFileReader : BaseFileReader
       AppendHandleWhitespace(character);
     } // While
 
-    return (isIgnored || charCount == 0) ? string.Empty : new string(m_ProcessingBufferColumn, 0, charCount);
+    return charCount;
 
     // local method that will appendto buffer and resize if needed
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1434,7 +1465,7 @@ public class CsvFileReader : BaseFileReader
   {
     bool restart;
     // Special handling for the first column in the row
-    string? item;
+    int? len;
     m_CurrentRowColumns.Clear();
     do
     {
@@ -1448,10 +1479,10 @@ public class CsvFileReader : BaseFileReader
       if (EndOfFile || m_TextReader is null)
         return;
 
-      item = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, 0, ref m_EndOfLine, ref m_EndLineNumber);
+      len = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, 0, ref m_EndOfLine, ref m_EndLineNumber);
 
       // An empty line does not have a first column
-      if ((item is null || item.Length == 0) && m_EndOfLine)
+      if ((len.HasValue|| len == 0) && m_EndOfLine)
       {
         m_EndOfLine = false;
         if (m_SkipEmptyLines)
@@ -1462,7 +1493,7 @@ public class CsvFileReader : BaseFileReader
           return;
       }
       // And skip commented lines
-      else if (m_CommentLine.Length > 0 && item != null && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+      else if (m_CommentLine.Length > 0 && len.HasValue && m_ProcessingBufferColumn.AsSpan(0, len.Value).StartsWith(m_CommentLine.AsSpan(), StringComparison.Ordinal))
       {
         // A commented line does start with the comment
         if (m_EndOfLine) m_EndOfLine = false;
@@ -1477,25 +1508,19 @@ public class CsvFileReader : BaseFileReader
             EatNextCrlf(character);
             break;
           }
-
         restart = true;
       }
     } while (restart);
-
-    var col = 0;
-
-
-    while (item != null)
+    // We have a proper column now read the row we already have raed the inital column
+    while (len != null)
     {
       // If a column is quoted and contains the delimiter and linefeed, issue a warning; we
       // might have an opening delimiter with a missing closing delimiter
-      if (raiseWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
-          && item.IndexOf(m_FieldDelimiter) != -1)
-        HandleWarning(col, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters".AddWarningId());
-      m_CurrentRowColumns.Add(item);
-
-      col++;
-      item = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, col, ref m_EndOfLine, ref m_EndLineNumber);
+      if (raiseWarnings && EndLineNumber > StartLineNumber + 4 && len > 1024
+          && m_ProcessingBufferColumn.AsSpan(0, len.Value).IndexOf(m_FieldDelimiter) != -1)
+        HandleWarning(m_CurrentRowColumns.Count, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {len} characters".AddWarningId());
+      m_CurrentRowColumns.Add(m_ProcessingBufferColumn.AsSpan(0, len.Value));
+      len = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, m_CurrentRowColumns.Count, ref m_EndOfLine, ref m_EndLineNumber);
     }
   }
 
@@ -1505,7 +1530,7 @@ public class CsvFileReader : BaseFileReader
   /// <exception cref="InvalidOperationException">
   /// Thrown if the reader cannot seek and the stream was not opened by this instance.
   /// </exception>
-  private void ResetPositionToStartOrOpen()
+  private async Task ResetPositionToStartOrOpenAsync(CancellationToken cancellationToken)
   {
     if (m_TextReader?.CanSeek ?? false)
     {
@@ -1522,11 +1547,9 @@ public class CsvFileReader : BaseFileReader
         IdentifierInContainer = m_IdentifierInContainer
       });
 
-      m_TextReader = m_Stream
-        .GetTextReaderAsync(m_CodePageId, m_SkipRows, CancellationToken.None)
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
+      m_TextReader = await m_Stream
+        .GetTextReaderAsync(m_CodePageId, m_SkipRows, cancellationToken)
+        .ConfigureAwait(false);
     }
     else
     {

@@ -76,10 +76,16 @@ public sealed class DataTableWrapper : DataReaderWrapper
   public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
   /// <inheritdoc />
-  public override void ResetPositionToFirstDataRow()
+  public override async ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    await CloseAsync().ConfigureAwait(false);
+#else
     Close();
-    base.ResetPositionToFirstDataRow();
-    DataReader = DataTable.CreateDataReader();
+#endif
+    await base.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+
+    if (DataTable != null)
+      DataReader = DataTable.CreateDataReader();
   }
 }
