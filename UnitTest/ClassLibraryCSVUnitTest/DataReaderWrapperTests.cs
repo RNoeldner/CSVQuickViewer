@@ -262,7 +262,7 @@ setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContai
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
     // Data shows empty DateTime but Time is filled 14:26:58
-    Assert.IsTrue(wrapper.IsDBNull(0)); // Date and Time are empty
+    Assert.IsFalse(wrapper.IsDBNull(0));
 
     await wrapper.ReadAsync(UnitTestStatic.Token);
     await wrapper.ReadAsync(UnitTestStatic.Token);

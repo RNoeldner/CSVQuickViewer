@@ -807,14 +807,13 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         m_FileChanged = !newFileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
         m_AskOpenFile = !(m_FileChanged || m_RunDetection);
 
-        m_ShouldReloadData = m_FileSetting.AllowRowCombining != newFileSetting.AllowRowCombining;
-        m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqualWithOrder(newFileSetting.ColumnCollection);
+        m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != newFileSetting.TryToSolveMoreColumns;
+        m_ShouldReloadData |= m_FileSetting.AllowRowCombining != newFileSetting.AllowRowCombining;
         m_ShouldReloadData |= m_FileSetting.ByteOrderMark != newFileSetting.ByteOrderMark;
         m_ShouldReloadData |= m_FileSetting.CodePageId != newFileSetting.CodePageId;
         m_ShouldReloadData |= m_FileSetting.HasFieldHeader != newFileSetting.HasFieldHeader;
         m_ShouldReloadData |= m_FileSetting.SkipRows != newFileSetting.SkipRows;
         m_ShouldReloadData |= m_FileSetting.SkipRowsAfterHeader != newFileSetting.SkipRowsAfterHeader;
-        m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != newFileSetting.TryToSolveMoreColumns;
         m_ShouldReloadData |= m_FileSetting.WarnDelimiterInValue != newFileSetting.WarnDelimiterInValue;
         m_ShouldReloadData |= m_FileSetting.WarnEmptyTailingColumns != newFileSetting.WarnEmptyTailingColumns;
         m_ShouldReloadData |= m_FileSetting.WarnLineFeed != newFileSetting.WarnLineFeed;
@@ -837,6 +836,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         m_ShouldReloadData |= m_FileSetting.TreatNBSPAsSpace != newFileSetting.TreatNBSPAsSpace;
         m_ShouldReloadData |= m_FileSetting.TreatUnknownCharacterAsSpace != newFileSetting.TreatUnknownCharacterAsSpace;
         m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != newFileSetting.SkipEmptyLines;
+        m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqual(newFileSetting.ColumnCollection);
 
         m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
         m_FileSetting = newFileSetting;

@@ -17,7 +17,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -95,8 +94,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   private bool m_IsFinished;
 
-  // ReSharper disable once FieldCanBeMadeReadOnly.Global    
+  // ReSharper disable once FieldCanBeMadeReadOnly.Global
   private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
+
+  /// <summary>
+  /// A mapping of column indices to include during parsing. 
+  /// Includes columns explicitly mapped to properties, as well as auxiliary columns 
+  /// required for data integrity or time-zone context.
+  /// </summary>
+  protected bool[] m_ParseFromSource = Array.Empty<bool>();
 
   /// <inheritdoc />
   /// <summary>
@@ -307,7 +313,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override byte GetByte(int ordinal)
   {
     var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
-    return result.HasValue ? (byte)result.Value : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a byte");
+    return result.HasValue ? (byte) result.Value : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a byte");
   }
 
   /// <inheritdoc />
@@ -830,6 +836,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     Column = new Column[fieldCount];
     AssociatedTimeCol = new int[fieldCount];
     m_AssociatedTimeZoneCol = new int[fieldCount];
+    m_ParseFromSource = new bool[fieldCount];
     for (var counter = 0; counter < fieldCount; counter++)
     {
       Column[counter] = new Column(GetDefaultName(counter), ValueFormat.Empty, counter);
@@ -934,13 +941,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       return;
     }
 
+    // Initialize parse source tracking, this might not be needed 
+    // just in case an implemnetion used the array during open
+    for (var index = 0; index < Column.Length; index++)
+      m_ParseFromSource[index] = false;
+
     // Step 4: Initialize TimePart and TimeZone associations
     for (var index = 0; index < Column.Length; index++)
     {
       var column = GetColumn(index);
       // if the original column that reference other columns is ignored, skip it
       if (column.Ignore) continue;
-
+      m_ParseFromSource[index] = true;
       var searchedTimePart = column.TimePart;
       var searchedTimeZonePart = column.TimeZonePart;
 
@@ -950,6 +962,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           if (indexPoint == index) continue;
           if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
           AssociatedTimeCol[index] = indexPoint;
+          m_ParseFromSource[indexPoint] = true;
           break;
         }
 
@@ -961,6 +974,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
         if (!GetColumn(indexPoint).Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
         m_AssociatedTimeZoneCol[index] = indexPoint;
+        m_ParseFromSource[indexPoint] = true;
         break;
       }
     }

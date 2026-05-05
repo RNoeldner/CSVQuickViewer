@@ -137,8 +137,8 @@ public class CsvDataReaderUnitTest
 
     // There are more columns
     await test.ReadAsync(UnitTestStatic.Token);
-    Assert.AreEqual(1, warningList.CountRows);
-    Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
+    Assert.AreEqual(1, warningList.CountRows, $"We have {warningList.CountRows} warnings");
+    Assert.AreEqual("Eagle_SRD-0137699", test.GetString(0));
     Assert.AreEqual("de-DE", test.GetValue(2));
     Assert.AreEqual(3, test.StartLineNumber);
 
