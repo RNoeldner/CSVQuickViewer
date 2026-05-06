@@ -235,6 +235,7 @@ public static class JsonTabularConverter
       JTokenType.String => typeof(string),
       JTokenType.Boolean => typeof(bool),
       JTokenType.Date => typeof(DateTime),
+      JTokenType.Null => typeof(DBNull),
       _ => typeof(string)
     };
   }
