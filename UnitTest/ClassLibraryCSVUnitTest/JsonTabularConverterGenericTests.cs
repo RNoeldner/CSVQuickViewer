@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 
 namespace CsvTools.Tests;
@@ -93,7 +94,7 @@ public class JsonTabularConverterTests
   [DataRow("Emp.json")]
   [DataRow("larger.json")]
   [DataRow("Jason1.json")]
-  [DataRow("Jason2.json")] 
+  [DataRow("Jason2.json")]
   [DataRow("Jason3.json")]
   [DataRow("Jason4.json")]
   [DataRow("Array.json")]
@@ -104,7 +105,7 @@ public class JsonTabularConverterTests
     var filePath = fileName.FullPath(UnitTestStatic.ApplicationDirectory);
     Assert.IsTrue(File.Exists(filePath), $"Test JSON file not found: {fileName}");
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
     using var reader = new StreamReader(filePath);
     var (columns, metadata) = reader.StreamRows(row => rows.Add(row), ',', 3, UnitTestStatic.Token);
 
@@ -146,7 +147,7 @@ public class JsonTabularConverterTests
             ]
         }";
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     using var reader = new StringReader(json);
 
@@ -164,10 +165,11 @@ public class JsonTabularConverterTests
     int idIndex = columns.ToList().FindIndex(c => c.HeaderName == "id");
     int nameIndex = columns.ToList().FindIndex(c => c.HeaderName == "name");
 
-    Assert.AreEqual("1", row1[idIndex]);
-    Assert.AreEqual("Item1", row1[nameIndex]);
-    Assert.AreEqual("2", row2[idIndex]);
-    Assert.AreEqual("Item2", row2[nameIndex]);
+    Assert.AreEqual("1", row1[idIndex].text);
+    Assert.AreEqual(Convert.ToInt64(1), Convert.ToInt64(row1[idIndex].value));
+    Assert.AreEqual("Item1", row1[nameIndex].text);
+    Assert.AreEqual("2", row2[idIndex].text);
+    Assert.AreEqual("Item2", row2[nameIndex].text);
   }
 
   [TestMethod]
@@ -176,7 +178,7 @@ public class JsonTabularConverterTests
     // Arrange
     var json = @"{ ""tags"": [] }";
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     using var reader = new StringReader(json);
 
@@ -196,7 +198,7 @@ public class JsonTabularConverterTests
             ""collection2"": { ""id"": ""2"", ""title"": ""Blog2"" }
         }";
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     using var reader = new StringReader(json);
 
@@ -214,10 +216,10 @@ public class JsonTabularConverterTests
     int idIndex = columns.ToList().FindIndex(c => c.HeaderName == "id");
     int titleIndex = columns.ToList().FindIndex(c => c.HeaderName == "title");
 
-    Assert.AreEqual("1", row1[idIndex]);
-    Assert.AreEqual("Blog", row1[titleIndex]);
-    Assert.AreEqual("2", row2[idIndex]);
-    Assert.AreEqual("Blog2", row2[titleIndex]);
+    Assert.AreEqual("1", row1[idIndex].text);
+    Assert.AreEqual("Blog", row1[titleIndex].text);
+    Assert.AreEqual("2", row2[idIndex].text);
+    Assert.AreEqual("Blog2", row2[titleIndex].text);
   }
 
   [TestMethod]
@@ -232,7 +234,7 @@ public class JsonTabularConverterTests
             }
         }";
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     using var reader = new StringReader(json);
 
@@ -248,7 +250,7 @@ public class JsonTabularConverterTests
     var row = rows[0].ToArray();
     int homepageIndex = columns.ToList().FindIndex(c => c.HeaderName == "address.homepages");
 
-    Assert.AreEqual("true", row[homepageIndex]);
+    Assert.AreEqual("true", row[homepageIndex].text);
   }
 
   [TestMethod]
@@ -257,7 +259,7 @@ public class JsonTabularConverterTests
     // Arrange: JSON with only scalars
     var json = @"{ ""time"": ""2020-01-01"", ""level"": ""Info"" }";
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     using var reader = new StringReader(json);
 
@@ -289,7 +291,7 @@ public class JsonTabularConverterTests
             }
         };
 
-    var rows = new List<IReadOnlyCollection<string>>();
+    var rows = new List<IReadOnlyCollection<(string text, object? value)>>();
 
     // Act
     using var reader = new StringReader(new JArray(array).ToString());
@@ -305,10 +307,14 @@ public class JsonTabularConverterTests
     int activeIndex = columns.ToList().FindIndex(c => c.HeaderName == "active");
     int createdIndex = columns.ToList().FindIndex(c => c.HeaderName == "created");
 
-    Assert.AreEqual("1", row[idIndex]);
-    Assert.AreEqual("Alice", row[nameIndex]);
-    Assert.AreEqual("t1, t2", row[tagsIndex]);
-    Assert.AreEqual("true", row[activeIndex]);
-    Assert.AreEqual("2026-01-12T08:00:00", row[createdIndex]);
+    Assert.AreEqual("1", row[idIndex].text);
+    Assert.AreEqual("Alice", row[nameIndex].text);
+    Assert.AreEqual("t1, t2", row[tagsIndex].text);
+
+    Assert.AreEqual("true", row[activeIndex].text);
+    Assert.AreEqual(true, row[activeIndex].value);
+
+    Assert.AreEqual("2026-01-12T08:00:00", row[createdIndex].text);
+    Assert.AreEqual(new DateTime(2026, 01, 12, 8, 0, 0), row[createdIndex].value);
   }
 }

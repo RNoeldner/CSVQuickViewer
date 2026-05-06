@@ -56,7 +56,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   An array of current row column text, this is reused to avoid multiple allocations
   ///   We will have the information in here from ignored columns
   /// </summary>
-  protected RowColumnsBuffer CurrentRowColumnText = new RowColumnsBuffer();
+  private readonly RowColumnsBuffer CurrentRowColumnText = new RowColumnsBuffer();
 
   /// <summary>
   /// The record limit
@@ -77,6 +77,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
+
   /// <summary>
   ///   An array of associated col
   /// </summary>
@@ -134,6 +135,26 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     FileName = fileName.GetFileName();
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
+  }
+
+  protected IReadOnlyList<string> CurrentRowText => CurrentRowColumnText;
+
+  /// <summary>
+  /// Clears the current row data
+  /// </summary>
+  protected virtual void Clear()
+    => CurrentRowColumnText.Clear();
+
+  /// <summary>
+  /// Adds a value to the collection
+  /// </summary>
+  /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
+  /// <param name="typedValue">The underlying object value, only actaully used in <see cref="BaseFileReaderTyped"/>.</param>
+  /// <returns>The zero-based index at which the value was added.</returns>
+  protected virtual int Add(ReadOnlySpan<char> text, object? typedValue = null)
+  {
+    CurrentRowColumnText.Add(text);
+    return CurrentRowColumnText.Count-1;
   }
 
   /// <summary>
@@ -293,11 +314,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override bool GetBoolean(int ordinal)
   {
     var col = GetColumn(ordinal);
-    var parsed = SpanToBoolean(col, CurrentRowColumnText.GetSpan(ordinal));
+    var parsed = SpanToBoolean(col, GetSpan(ordinal));
     if (parsed.HasValue) return parsed.Value;
 
     // Warning was added by GetBooleanNull
-    throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a boolean ({col.ValueFormat.True}/{col.ValueFormat.False})");
+    throw new FormatException($"'{GetString(ordinal)}' is not a boolean ({col.ValueFormat.True}/{col.ValueFormat.False})");
   }
 
   /// <inheritdoc />
@@ -312,8 +333,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </exception>
   public override byte GetByte(int ordinal)
   {
-    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
-    return result.HasValue ? (byte) result.Value : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a byte");
+    var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
+    return result.HasValue ? (byte) result.Value : throw new FormatException($"'{GetString(ordinal)}' is not a byte");
   }
 
   /// <inheritdoc />
@@ -344,7 +365,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
   {
-    var text = CurrentRowColumnText[ordinal];
+    var text = GetString(ordinal);
     var totalLength = text.Length;
 
     // ADO.NET convention: if buffer == null, return total length of data
@@ -384,24 +405,24 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     var col = GetColumn(ordinal);
     var result = SpanToDateTime(
       column: col,
-      inputDate: null, strInputDate: CurrentRowColumnText.GetSpan(ordinal),
+      inputDate: null, strInputDate: GetSpan(ordinal),
       inputTime: null, strInputTime: GetTimeValue(ordinal),
       serialDateTime: true);
-    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{col.ValueFormat.DateFormat}'");
+    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a date of the format '{col.ValueFormat.DateFormat}'");
   }
 
   /// <inheritdoc />
   public override decimal GetDecimal(int ordinal)
   {
-    var result = SpanToDecimal(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
-    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a decimal");
+    var result = SpanToDecimal(GetColumn(ordinal), GetSpan(ordinal));
+    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a decimal");
   }
 
   /// <inheritdoc />
   public override double GetDouble(int ordinal)
   {
-    var result = SpanToDouble(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
-    return result ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a double");
+    var result = SpanToDouble(GetColumn(ordinal), GetSpan(ordinal));
+    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a double");
   }
 
   /// <inheritdoc />
@@ -414,9 +435,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override float GetFloat(int ordinal)
   {
-    var result = SpanToDouble(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    var result = SpanToDouble(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (float) result.Value
-      : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a float");
+      : throw new FormatException($"'{GetString(ordinal)}' is not a float");
   }
 
   /// <inheritdoc />
@@ -424,32 +445,32 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     // Even if we do not need the column here access it to check boundaries
     _ = GetColumn(ordinal);
-    return SpanToGuid(ordinal, CurrentRowColumnText.GetSpan(ordinal))
-      ?? throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an GUID");
+    return SpanToGuid(ordinal, GetSpan(ordinal))
+      ?? throw new FormatException($"'{GetString(ordinal)}' is not an GUID");
   }
 
   /// <inheritdoc />
   public override short GetInt16(int ordinal)
   {
-    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (short) result.Value
-     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not a short");
+     : throw new FormatException($"'{GetString(ordinal)}' is not a short");
   }
 
   /// <inheritdoc />
   public override int GetInt32(int ordinal)
   {
-    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (int) result.Value
-     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an integer");
+     : throw new FormatException($"'{GetString(ordinal)}' is not an integer");
   }
 
   /// <inheritdoc />
   public override long GetInt64(int ordinal)
   {
-    var result = SpanToLong(GetColumn(ordinal), CurrentRowColumnText.GetSpan(ordinal));
+    var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? result.Value
-     : throw new FormatException($"'{CurrentRowColumnText[ordinal]}' is not an long");
+     : throw new FormatException($"'{GetString(ordinal)}' is not an long");
   }
 
   /// <inheritdoc />
@@ -512,6 +533,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Gets the originally provided text of a column
   /// </summary>
   /// <param name="ordinal">The column number.</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText.GetSpan(ordinal);
 
   /// <summary>
@@ -524,14 +546,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override Stream GetStream(int ordinal)
   {
     if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
-      return new FileStream(path: CurrentRowColumnText[ordinal], mode: FileMode.Open, access: FileAccess.Read);
-    return new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
+      return new FileStream(path: GetString(ordinal), mode: FileMode.Open, access: FileAccess.Read);
+    return new MemoryStream(Encoding.UTF8.GetBytes(GetString(ordinal)));
   }
 
   /// <inheritdoc />
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public override string GetString(int ordinal)
-    => CurrentRowColumnText[ordinal];
+  public override string GetString(int ordinal) => CurrentRowColumnText[ordinal];
 
   /// <summary>
   /// Retrieves data as a <see cref="TextReader"/> for the specified column.
@@ -545,7 +566,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (IsDBNull(ordinal))
       return new StringReader(string.Empty);
-    var text = CurrentRowColumnText[ordinal];
+    var text = GetString(ordinal);
 
     if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
     {
@@ -666,42 +687,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  /// Processes a text span by optionally trimming, converting non-breaking spaces to normal spaces,
-  /// and checking if the text should be treated as null.
-  /// </summary>
-  /// <param name="inputString">The input span of characters.</param>
-  /// <param name="treatNbspAsSpace">
-  /// If <c>true</c>, converts non-breaking spaces (0xA0) to regular spaces.
-  /// </param>
-  /// <param name="treatTextAsNull">
-  /// A span of text which, if matched exactly, should be treated as null.
-  /// </param>
-  /// <param name="trim">
-  /// If <c>true</c>, leading and trailing whitespace will be removed (NBSP not removed by default).
-  /// </param>
-  /// <returns>
-  /// A <see cref="ReadOnlySpan{Char}"/> representing the processed text, or <c>ReadOnlySpan&lt;char&gt;.Empty</c> if the text is considered null.
-  /// </returns>
-  protected static ReadOnlySpan<char> TreatNbspAsNullTrim(
-    ReadOnlySpan<char> inputString,
-    bool treatNbspAsSpace,
-    ReadOnlySpan<char> treatTextAsNull,
-    bool trim)
-  {
-    if (inputString.Length == 0)
-      return [];
-
-    if (trim)
-      inputString = inputString.Trim();
-
-    if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
-      return inputString.ToString().Replace((char) 0xA0, ' ').AsSpan().ShouldBeTreatedAsNull(treatTextAsNull)
-        ? []
-        : inputString;
-    return inputString.ShouldBeTreatedAsNull(treatTextAsNull) ? [] : inputString;
-  }
-
-  /// <summary>
   ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if it's a
   ///   physical file
   /// </summary>
@@ -758,7 +743,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
     AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Count
       ? []
-      : CurrentRowColumnText.GetSpan(AssociatedTimeCol[i]);
+      : GetSpan(AssociatedTimeCol[i]);
 
   /// <summary>
   ///   Calls the event handler for errors <see cref="Warning"/>
@@ -796,12 +781,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="text">The input string.</param>
   /// <param name="ordinal">The column number</param>
   /// <returns>The proper encoded or cut text as returned for the column</returns>
-  protected virtual string HandleTextSpecials(string text, int ordinal)
+  protected virtual ReadOnlySpan<char> HandleTextSpecials(string text, int ordinal)
   {
-    if (string.IsNullOrEmpty(text) || ordinal >= FieldCount)
-      return string.Empty;
-
-    return GetColumn(ordinal).ColumnFormatter.FormatInputText(text, null);
+    var column = GetColumn(ordinal);
+    if (ReferenceEquals(column.ColumnFormatter, EmptyFormatter.Instance))
+      return text;
+    return column.ColumnFormatter.FormatInputText(text, msg => HandleWarning(ordinal, msg));
   }
 
   /// <summary>
@@ -864,7 +849,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     if (column.Ignore) return true;
 
     // 2. Get the raw span (Zero allocation)
-    var span = CurrentRowColumnText.GetSpan(column.ColumnOrdinal);
+    var span = GetSpan(column.ColumnOrdinal);
 
     // 3. Check for Date/Time split complexity
     if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
@@ -872,7 +857,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       var timeOrdinal = AssociatedTimeCol[column.ColumnOrdinal];
       if (timeOrdinal != -1 && timeOrdinal < CurrentRowColumnText.Count)
       {
-        var timeSpan = CurrentRowColumnText.GetSpan(timeOrdinal);
+        var timeSpan = GetSpan(timeOrdinal);
         // Both parts must be whitespace to be considered a "Null" DateTime
         return span.IsWhiteSpace() && timeSpan.IsWhiteSpace();
       }

@@ -142,42 +142,48 @@ public sealed class JsonFileReader : BaseFileReaderTyped
 #endif
     await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
-    Retry:
-    try
+    bool retry = false;
+    do
     {
-      ResetPositionToStartOrOpen();
-      if (m_EnumeratorJson is null)
-        throw new InvalidOperationException("JSON enumerator not initialized.");
+      try
+      {
+        ResetPositionToStartOrOpen();
+        if (m_EnumeratorJson is null)
+          throw new InvalidOperationException("JSON enumerator not initialized.");
 
-      // Discover columns from first N rows
-      for (int i = 0; i < 5 && m_EnumeratorJson.MoveNext(); i++)
-        m_SampleRows.Add(m_EnumeratorJson.Current);
-      m_JsonColumns = m_SampleRows.DiscoverColumns(4, cancellationToken);
-      InitColumn(m_JsonColumns.Count);
-      ParseColumnName(m_JsonColumns.Select(x => x.HeaderName), m_JsonColumns.Select(x => x.PropertyType.GetDataType()));
+        // Discover columns from first N rows
+        for (int i = 0; i < 5 && m_EnumeratorJson.MoveNext(); i++)
+          m_SampleRows.Add(m_EnumeratorJson.Current);
+        m_JsonColumns = m_SampleRows.DiscoverColumns(4, cancellationToken);
+        InitColumn(m_JsonColumns.Count);
+        ParseColumnName(m_JsonColumns.Select(x => x.HeaderName), m_JsonColumns.Select(x => x.PropertyType.GetDataType()));
 
-      FinishOpen();
-    }
-    catch (Exception ex)
-    {
-      if (ShouldRetry(ex, cancellationToken))
-        goto Retry;
+        FinishOpen();
+        break;
+      }
+      catch (Exception ex)
+      {
+        retry =ShouldRetry(ex, cancellationToken);
+        if (!retry)
+        {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await CloseAsync().ConfigureAwait(false);
-#else      
-      Close();
+#else
+          Close();
 #endif
-      var appEx = new FileReaderException(
-        "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
-        ex);
-      HandleError(-1, appEx.ExceptionMessages());
-      HandleReadFinished();
-      throw appEx;
-    }
+          var appEx = new FileReaderException(
+            "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
+            ex);
+          HandleError(-1, appEx.ExceptionMessages());
+          HandleReadFinished();
+          throw appEx;
+        }
+      }
+    } while (retry);
   }
 
   /// <inheritdoc cref="BaseFileReader" />
-  protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
+  protected override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
     if (!EndOfFile && !cancellationToken.IsCancellationRequested && m_EnumeratorJson !=null)
     {
@@ -193,7 +199,8 @@ public sealed class JsonFileReader : BaseFileReaderTyped
         RecordNumber++;
         EndLineNumber++;
         StartLineNumber++;
-        json!.HandleRow(m_JsonColumns, ',', (idx, val) => CurrentRowColumnText.Upsert(idx, val), (idx, val) => CurrentValues[idx]= val);
+        Clear();
+        json!.HandleRow(m_JsonColumns, ',', (_, txtx, val) => Add(txtx, val));
       }
 
       InfoDisplay(couldRead);
@@ -258,7 +265,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     StartLineNumber = EndLineNumber;
     RecordNumber = 0;
 
-    m_StreamReader = new StreamReader(m_Stream!, Encoding.UTF8, true, 4096, true);
+    m_StreamReader = new StreamReader(m_Stream!, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, 4096, leaveOpen: true);
 
     // Initialize the JsonTextReader for streaming
     m_EnumeratorJson = m_StreamReader.StreamJsonObjects().Items.GetEnumerator();

@@ -258,8 +258,7 @@ public static class JsonTabularConverter
       this JObject currentObject,
       IReadOnlyCollection<JsonColumn> columns,
       char valueSeparator,
-      Action<int, string> handleColumn,
-      Action<int, object?>? handleColumnValue = null)
+      Action<int, string, object?> handleColumn)
   {
     var index = 0;
     var sb = new StringBuilder(); // Reuse per row
@@ -271,7 +270,7 @@ public static class JsonTabularConverter
       var tokenValue = currentObject[col.JsonProperty];
       if (tokenValue == null)
       {
-        handleColumn(index++, string.Empty);
+        handleColumn(index++, string.Empty, null);
         continue;
       }
       var resultType = typeof(string);
@@ -303,8 +302,7 @@ public static class JsonTabularConverter
           resultType = col.PropertyType;
           break;
       }
-      handleColumnValue?.Invoke(index, HandleValueTyped(tokenValue, resultType));
-      handleColumn(index++, value);
+      handleColumn(index++, value, HandleValueTyped(tokenValue, resultType));
     }
 
     static void HandleList(JToken? t, StringBuilder sb, Type type, char valueSeparator)
@@ -491,7 +489,7 @@ public static class JsonTabularConverter
   /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
   /// </remarks>
   public static (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
-    StreamRows(this TextReader reader, Action<IReadOnlyCollection<string>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
+    StreamRows(this TextReader reader, Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
   {
     var (items, metadata) = reader.StreamJsonObjects();
     var enumerator = items.GetEnumerator();
@@ -507,20 +505,20 @@ public static class JsonTabularConverter
       // Write first rows immediately
       foreach (var row in firstRows)
       {
-        var columnValues = new string[columns.Count];
-        row.HandleRow(columns, valueSeparator, (idx, val) => columnValues[idx]=val, null);
+        var columnData = new (string text, object? value)[columns.Count];
+        row.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt,val) );
         // Pass copy to avoid overwrites
-        handleOneRow(columnValues);
+        handleOneRow(columnData);
       }
 
       // Continue streaming the rest
       while (enumerator.MoveNext())
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var columnValues = new string[columns.Count];
-        enumerator.Current.HandleRow(columns, valueSeparator, (idx, val) => columnValues[idx]=val, null);
+        var columnData = new (string text, object? value)[columns.Count];
+        enumerator.Current.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt, val));
         // Pass copy to avoid overwrites
-        handleOneRow(columnValues);
+        handleOneRow(columnData);
       }
     }
     return (columns, metadata);

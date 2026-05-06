@@ -149,7 +149,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   }
 
   /// <inheritdoc cref="BaseFileReader" />
-  protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
+  protected override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
   {
     if (!EndOfFile && !cancellationToken.IsCancellationRequested)
     {
@@ -240,12 +240,14 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       StartLineNumber = RecordNumber;
       EndLineNumber = RecordNumber;
 
-      var columnNumber = 0;
-      foreach (var col in Column)
+      Clear();
+      for(var i = 0; i < FieldCount; i++)
       {
+        var col = Column[i];
         if (keyValuePairs.TryGetValue(col.Name, out var value))
-          CurrentValues[columnNumber] = value;
-        columnNumber++;
+          Add(value.ToString(), value);
+        else
+          Add(ReadOnlySpan<char>.Empty, null);
       }
 
       if (keyValuePairs.Count < FieldCount)

@@ -608,8 +608,8 @@ public class CsvFileReader : BaseFileReader
   {
     if (buffer is null) throw new ArgumentNullException(nameof(buffer));
     if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
-        CurrentRowColumnText.GetSpan(i).IsEmpty) return -1;
-    using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
+        GetSpan(i).IsEmpty) return -1;
+    using var fs = FileSystemUtils.OpenRead(GetString(i));
     if (fieldOffset > 0)
       fs.Seek(fieldOffset, SeekOrigin.Begin);
     return fs.Read(buffer, bufferOffset, length);
@@ -640,15 +640,15 @@ public class CsvFileReader : BaseFileReader
       return DBNull.Value;
     object? ret = column.ValueFormat.DataType switch
     {
-      DataTypeEnum.DateTime => SpanToDateTime(column, null, CurrentRowColumnText.GetSpan(ordinal),
+      DataTypeEnum.DateTime => SpanToDateTime(column, null, GetSpan(ordinal),
                                               null, GetTimeValue(ordinal), true),
-      DataTypeEnum.Integer => IntPtr.Size == 4 ? (int) SpanToLong(column, CurrentRowColumnText.GetSpan(ordinal))!
-                                               : SpanToLong(column, CurrentRowColumnText.GetSpan(ordinal)),
-      DataTypeEnum.Double => SpanToDouble(column, CurrentRowColumnText.GetSpan(ordinal)),
-      DataTypeEnum.Numeric => SpanToDecimal(column, CurrentRowColumnText.GetSpan(ordinal)),
-      DataTypeEnum.Boolean => SpanToBoolean(column, CurrentRowColumnText.GetSpan(ordinal)),
-      DataTypeEnum.Guid => SpanToGuid(column.ColumnOrdinal, CurrentRowColumnText.GetSpan(ordinal)),
-      _ => CurrentRowColumnText[ordinal]
+      DataTypeEnum.Integer => IntPtr.Size == 4 ? (int) SpanToLong(column, GetSpan(ordinal))!
+                                               : SpanToLong(column, GetSpan(ordinal)),
+      DataTypeEnum.Double => SpanToDouble(column, GetSpan(ordinal)),
+      DataTypeEnum.Numeric => SpanToDecimal(column, GetSpan(ordinal)),
+      DataTypeEnum.Boolean => SpanToBoolean(column, GetSpan(ordinal)),
+      DataTypeEnum.Guid => SpanToGuid(column.ColumnOrdinal, GetSpan(ordinal)),
+      _ => GetString(ordinal)
     };
     return ret ?? DBNull.Value;
   }
@@ -981,7 +981,7 @@ public class CsvFileReader : BaseFileReader
             text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
         }
       }
-      CurrentRowColumnText.Clear();
+      Clear();
       // Loop through the expecetd columns and store the values,
       // handle warnings and replacements      
       // Additional fields are ignored, missing fields are set to empty
@@ -992,7 +992,7 @@ public class CsvFileReader : BaseFileReader
         // store the values from the currentRow, even ignore rows need to be copied, in case they are referenced like a time column 
         if (columnNo >= m_CurrentRowColumns.Count || string.IsNullOrEmpty(m_CurrentRowColumns[columnNo]) || m_CurrentRowColumns[columnNo].ShouldBeTreatedAsNull(m_TreatTextAsNull))
         {
-          CurrentRowColumnText.NextColumn();
+          Add(ReadOnlySpan<char>.Empty); 
           continue;
         }
         var col = GetColumn(columnNo);
@@ -1003,7 +1003,7 @@ public class CsvFileReader : BaseFileReader
 
         if (adjustedText.Length == 0)
         {
-          CurrentRowColumnText.NextColumn();
+          Add(ReadOnlySpan<char>.Empty);
           continue;
         }
         // Additional warnings not wanted for ignored columns
@@ -1046,11 +1046,11 @@ public class CsvFileReader : BaseFileReader
           if (m_WarnLineFeed && (m_NumMaxWarning < 1 || m_NumWarnings++ <= m_NumMaxWarning) && adjustedText.IndexOfAny(new[] { '\r', '\n' }) != -1)
             HandleWarning(columnNo, m_WarnLineFeedMessage);
         }
-        CurrentRowColumnText.Add(adjustedText);
+        Add(adjustedText);
       }
 
       RecordNumber++;
-      m_ColumnMerger?.AddAlignedRow(CurrentRowColumnText);
+      m_ColumnMerger?.AddAlignedRow(CurrentRowText);
       return true;
     }
     catch (Exception ex)

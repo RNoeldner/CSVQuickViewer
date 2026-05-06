@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace CsvTools;
 
@@ -26,14 +27,14 @@ namespace CsvTools;
 /// </summary>
 public abstract class BaseFileReaderTyped : BaseFileReader
 {
-  /// <summary>
-  /// The values of the current row
-  /// </summary>
-  protected object?[] CurrentValues;
-
   private readonly bool m_TreatNbspAsSpace;
   private readonly string m_TreatTextAsNull;
   private readonly bool m_Trim;
+
+  /// <summary>
+  /// The typed values of the current row
+  /// </summary>
+  private object?[] m_CurrentValues;
 
   /// <inheritdoc />
   /// <summary>
@@ -63,8 +64,8 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   {
     m_TreatNbspAsSpace = treatNbspAsSpace;
     m_Trim = trim;
-    m_TreatTextAsNull = treatTextAsNull;
-    CurrentValues = Array.Empty<object>();
+    m_TreatTextAsNull = treatTextAsNull.Trim();
+    m_CurrentValues = Array.Empty<object>();
   }
 
   /// <inheritdoc />
@@ -73,7 +74,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     var val = GetCurrentValue(ordinal);
     if (val is bool b)
       return b;
-    EnsureTextFilled(ordinal);
     return base.GetBoolean(ordinal);
   }
 
@@ -84,34 +84,28 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)
   {
-    var val = GetCurrentValue(ordinal);
+    // 1. Pre-calculate the time column index to reduce redundant array lookups
+    int timeColIndex = AssociatedTimeCol[ordinal];
+    bool hasTimeCol = timeColIndex > -1;
 
-    object? timePart;
-    ReadOnlySpan<char> timePartText = default;
-    EnsureTextFilled(ordinal);
-
-    if (AssociatedTimeCol[ordinal] > -1)
-    {
-      timePart = GetCurrentValue(AssociatedTimeCol[ordinal]);
-      EnsureTextFilled(AssociatedTimeCol[ordinal]);
-      timePartText = CurrentRowColumnText.GetSpan(AssociatedTimeCol[ordinal]);
-    }
-    else
-    {
-      timePart = null;
-      timePartText = string.Empty;
-    }
+    // 2. Fetch values. Note: GetSpan(ordinal) is likely called inside SpanToDateTime too, 
+    // but we'll grab it once here to check for emptiness later.
+    var span = GetSpan(ordinal);
     var col = GetColumn(ordinal);
-    var dt = SpanToDateTime(
-      col, val,
-      CurrentRowColumnText.GetSpan(ordinal),
-      timePart,
-      timePartText,
-      false);
+
+    // 3. Conditional fetch for time parts (Inline ternary is often cleaner for JIT)
+    var timePartValue = hasTimeCol ? GetCurrentValue(timeColIndex) : null;
+    var timePartSpan = hasTimeCol ? GetSpan(timeColIndex) : ReadOnlySpan<char>.Empty;
+
+    // 4. Execution
+    var dt = SpanToDateTime(col, GetCurrentValue(ordinal), span, timePartValue, timePartSpan, false);
+
     if (dt.HasValue)
       return dt.Value;
-    if (!CurrentRowColumnText.GetSpan(ordinal).IsEmpty)
-      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a date time");
+
+    // 5. Exceptional paths
+    if (!GetSpan(ordinal).IsEmpty)
+      throw WarnAddFormatException(ordinal, $"'{GetString(ordinal)}' is not a date time");
 
     throw new FormatException($"Value in column '{col.Name}' is empty and cannot be converted to DateTime");
   }
@@ -122,7 +116,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     var val = GetCurrentValue(ordinal);
     if (val is decimal or double or float or short or int or long)
       return Convert.ToDecimal(val, CultureInfo.CurrentCulture);
-    EnsureTextFilled(ordinal);
     return base.GetDecimal(ordinal);
   }
 
@@ -132,7 +125,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     var val = GetCurrentValue(ordinal);
     if (val is decimal or double or float or short or int or long)
       return Convert.ToDouble(val, CultureInfo.CurrentCulture);
-    EnsureTextFilled(ordinal);
     return base.GetDouble(ordinal);
   }
 
@@ -150,7 +142,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       throw WarnAddFormatException(ordinal, $"'{val}' is not a float, {e.Message}");
     }
 
-    EnsureTextFilled(ordinal);
     return base.GetFloat(ordinal);
   }
 
@@ -159,7 +150,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   {
     if (GetCurrentValue(ordinal) is Guid val)
       return val;
-    EnsureTextFilled(ordinal);
     return base.GetGuid(ordinal);
   }
 
@@ -177,7 +167,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       throw WarnAddFormatException(ordinal, $"'{val}' is not a short, {e.Message}");
     }
 
-    EnsureTextFilled(ordinal);
     return base.GetInt16(ordinal);
   }
 
@@ -194,8 +183,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     {
       throw WarnAddFormatException(ordinal, $"'{val}' is not an integer, {e.Message}");
     }
-
-    EnsureTextFilled(ordinal);
     return base.GetInt32(ordinal);
   }
 
@@ -213,87 +200,91 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       throw WarnAddFormatException(ordinal, $"'{val}' is not a long, {e.Message}");
     }
 
-    EnsureTextFilled(ordinal);
     return base.GetInt64(ordinal);
   }
 
   /// <inheritdoc />
-  public override ReadOnlySpan<char> GetSpan(int ordinal)
-    => GetString(ordinal).AsSpan();
-
-  /// <inheritdoc />
-  public override string GetString(int ordinal)
-    => Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
-
-  /// <inheritdoc />
   public override int GetValues(object[] values)
   {
-    Array.Copy(CurrentValues, values, FieldCount);
+    Array.Copy(m_CurrentValues, values, FieldCount);
     return FieldCount;
   }
 
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
-    if ((ordinal < 0 && ordinal >= FieldCount) || (CurrentValues.Length <= ordinal))
+    if ((ordinal < 0 && ordinal >= FieldCount) || (m_CurrentValues.Length <= ordinal))
       return true;
 
     if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)
     {
       if (AssociatedTimeCol[ordinal] == -1)
-        return CurrentValues[ordinal] is null;
+        return m_CurrentValues[ordinal] is null;
 
-      return CurrentValues[ordinal] is null && CurrentValues[AssociatedTimeCol[ordinal]] is null;
+      return m_CurrentValues[ordinal] is null && m_CurrentValues[AssociatedTimeCol[ordinal]] is null;
     }
 
-    if (CurrentValues[ordinal] is null)
+    if (m_CurrentValues[ordinal] is null)
       return true;
 
-    if (CurrentValues[ordinal] is string str)
+    if (m_CurrentValues[ordinal] is string str)
       return string.IsNullOrEmpty(str);
 
     return false;
   }
 
   /// <summary>
-  /// Gets the current object stored in CurrentValues and does check
+  /// Adds a value to the collection and synchronizes it with <see cref="m_CurrentValues"/>.
   /// </summary>
-  /// <param name="ordinal">The ordinal of the column</param>  
-  /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
-  /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
-  private object? GetCurrentValue(int ordinal)
+  /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
+  /// <param name="typedValue">The underlying object value, or <see langword="null"/>.</param>
+  /// <returns>The zero-based index at which the value was added.</returns>
+  protected override int Add(ReadOnlySpan<char> text, object? typedValue = null)
   {
-    if (ordinal < 0 || ordinal >= FieldCount)
-      throw new ArgumentOutOfRangeException(nameof(ordinal), $"Value is out of range 0-{FieldCount}");
-
-    if (CurrentValues is null || ordinal > CurrentValues.Length)
-#pragma warning disable MA0012 // Do not raise reserved exception type
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
-      throw new NullReferenceException("CurrentValues is not set, please open the reader before accessing data");
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-#pragma warning restore MA0012 // Do not raise reserved exception type
-
-    return CurrentValues[ordinal];
+    var baseIndex = base.Add(text, typedValue);
+    m_CurrentValues[baseIndex] = typedValue;
+    return baseIndex;
   }
+
+  /// <summary>
+  /// Clears the current text data and typed values.
+  /// </summary>
+  protected override void Clear()
+  {
+    base.Clear();
+    Array.Clear(m_CurrentValues, 0, m_CurrentValues.Length);
+  }
+
+  /// <summary>
+  /// Gets the current object stored in <see cref="m_CurrentValues"/>.
+  /// </summary>
+  /// <param name="ordinal">The zero-based column ordinal.</param>
+  /// <returns>The value at the specified ordinal.</returns>
+  /// <exception cref="IndexOutOfRangeException">Thrown if the ordinal is outside the bounds of the data row.</exception>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected object? GetCurrentValue(int ordinal) => m_CurrentValues[ordinal];
 
   /// <inheritdoc />
   protected override void InitColumn(int fieldCount)
   {
-    CurrentValues = new object[fieldCount];
+    m_CurrentValues = new object[fieldCount];
     base.InitColumn(fieldCount);
   }
 
-  /// <inheritdoc cref="BaseFileReader" />
-  protected string TreatNbspTestAsNullTrim(ReadOnlySpan<char> inputString)
+  protected ReadOnlySpan<char> TrimAndNullHandling(ReadOnlySpan<char> inputString)
   {
-
     if (m_Trim)
       inputString = inputString.Trim();
 
     // Standard Null Check (no modifications needed)
-    if (inputString.IsEmpty || inputString.ShouldBeTreatedAsNull(m_TreatTextAsNull.AsSpan()))
-      return string.Empty;
+    if (inputString.IsEmpty || inputString.SequenceEqual(m_TreatTextAsNull.AsSpan()))
+      return ReadOnlySpan<char>.Empty;
 
+    return inputString;
+  }
+
+  protected ReadOnlySpan<char> TreatNbsp(ReadOnlySpan<char> inputString)
+  {
     if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
     {
       // 2. We convert to an Array first because the String constructor 
@@ -303,18 +294,10 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       // 3. Manual replacement in the array
       for (int i = 0; i < arrayBuffer.Length; i++)
         if (arrayBuffer[i] == (char) 0xA0) arrayBuffer[i] = ' ';
-      
-      // 5. Use the classic constructor: (char[] value, int startIndex, int length)
-      // This is guaranteed to compile on all .NET versions.
-      return new string(arrayBuffer, 0, arrayBuffer.Length);
+
+      return arrayBuffer.AsSpan();
     }
 
-    return inputString.ToString();
-  }
-
-  private void EnsureTextFilled(int ordinal)
-  {
-    if (CurrentRowColumnText.GetSpan(ordinal).IsEmpty)
-      CurrentRowColumnText.Upsert(ordinal, Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty);
+    return inputString;
   }
 }
