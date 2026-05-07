@@ -386,29 +386,42 @@ public static class Extensions
   }
 
   /// <summary>
+  /// Helper to validate control state and force handle creation if needed.
+  /// </summary>
+  private static bool PrepareControlForInvoke(Control uiElement)
+  {
+    if (uiElement == null || uiElement.IsDisposed || uiElement.Disposing)
+      return false;
+
+    if (!uiElement.IsHandleCreated)
+    {
+      try { _ = uiElement.Handle; }
+      catch { return false; }
+    }
+
+    return true;
+  }
+
+  /// <summary>
   /// Safely executes an action on the UI thread using BeginInvoke (Asynchronous).
   /// </summary>
   public static void SafeBeginInvoke(this Control uiElement, Action action)
   {
-    if (uiElement?.IsDisposed ?? true)
-      return;
+    if (!PrepareControlForInvoke(uiElement)) return;
 
     try
     {
       if (uiElement.InvokeRequired)
-      {
         uiElement.BeginInvoke(action);
-        return;
-      }
+      else
+        action();
     }
-    catch
+    catch (Exception ex) when (ex is ObjectDisposedException || ex is InvalidOperationException)
     {
-      // sometimes there is an error accessing InvokeRequired
-      // if so ignore it and try to preform the action anyway.
+      // Safety catch for race conditions during disposal
     }
-
-    action();
   }
+
 
   /// <summary>
   /// Safely executes an action on the UI thread using Invoke (Synchronous).
@@ -416,22 +429,18 @@ public static class Extensions
   /// </summary>
   public static void SafeInvoke(this Control uiElement, Action action)
   {
-    if (uiElement?.IsDisposed ?? true)
-      return;
-
-    // Ensure control handle is created (lazy creation)
-    if (!uiElement.IsHandleCreated)
+    if (!PrepareControlForInvoke(uiElement)) return;
+    try
     {
-      try { _ = uiElement.Handle; }
-      catch
-      {
-        // Any exception while checking handle => skip
-        return;
-      }
+      if (uiElement.InvokeRequired)
+        uiElement.Invoke(action);
+      else
+        action();
     }
-
-    SafeInvokeNoHandleNeeded(uiElement, action);
-
+    catch (Exception ex) when (ex is ObjectDisposedException || ex is InvalidOperationException)
+    {
+      // Safety catch for race conditions during disposal
+    }
     ProcessUIElements();
   }
 
@@ -441,9 +450,10 @@ public static class Extensions
   /// </summary>
   /// <param name="uiElement">The control on which to invoke the action.</param>
   /// <param name="action">The action to execute.</param>
+  [Obsolete("Use SafeInvoke or RunWithHourglass", true)]
   public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
   {
-    if (uiElement.IsDisposed)
+    if (uiElement == null || uiElement.IsDisposed || uiElement.Disposing)
       return;
     try
     {
