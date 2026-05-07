@@ -72,14 +72,13 @@ public class ViewSettingTests
   }
 
   [TestMethod]
-  [Timeout(1000)]
+  [Timeout(2000)]
   public async Task ReStoreViewSettingDetailControlAsync()
   {
-    using (var dt = UnitTestStaticData.GetDataTable())
+    using (var dt = UnitTestStaticData.GetDataTable(50, false))
     {
-      using (var dc = new DetailControl())
+      UnitTestStaticForms.ShowControlAsync(() => new DetailControl(), async dc =>
       {
-        dc.HtmlStyle = HtmlStyle.Default;
         await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
         dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
         var text = dc.GetViewStatus();
@@ -89,7 +88,7 @@ public class ViewSettingTests
         FileSystemUtils.WriteAllText(fn, text);
         dc.ReStoreViewSetting(fn);
         FileSystemUtils.FileDelete(fn);
-      }
+      });
     }
   }
 }

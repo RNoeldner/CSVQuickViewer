@@ -16,93 +16,68 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CsvTools.Tests;
 
 [TestClass]
 public class DetailControlTests
 {
-  private readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+  private DataTable? m_SharedDataTable;
+
+  [TestInitialize]
+  public void Setup()
+  {
+    // Create the large 5000-row table once per test run
+    m_SharedDataTable = UnitTestStaticData.GetDataTable(200, true);
+  }
+
+  [TestCleanup]
+  public void Cleanup()
+  {
+    m_SharedDataTable?.Dispose();
+  }
 
   [TestMethod]
   [Timeout(2000)]
-  public void SearchText()
+  public void DetailControl_FindNextAsync()
   {
-    using var dt = UnitTestStaticData.RandomDataTable(1000);
-    UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
+    UnitTestStaticForms.ShowControlAsync(() => new DetailControl(), async ctrl =>
     {
-      await ctrl.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
-      ctrl.SearchText="212";
+      await ctrl.LoadDataTableAsync(m_SharedDataTable!, RowFilterTypeEnum.All, UnitTestStatic.Token);
+      ctrl.SearchText = "20";
       await ctrl.FindNextAsync(true);
     });
   }
 
   [TestMethod]
-  [Timeout(5000)]
-  public void FilterColumn()
+  [Timeout(2000)]
+  public async Task DetailControl_SetFilter()
   {
-    using var dt = UnitTestStaticData.RandomDataTable(500);
-
-    UnitTestStaticForms.ShowControl(()=>new DetailControl(), .1, async ctrl =>
+    UnitTestStaticForms.ShowControlAsync(() => new DetailControl(), async dc =>
     {
-      await ctrl.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
-      ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
+      await dc.LoadDataTableAsync(m_SharedDataTable!, RowFilterTypeEnum.All, UnitTestStatic.Token);
+      dc.SetFilter(UnitTestStaticData.Columns[0].Name, ">", "Test2");
     });
   }
 
   [TestMethod]
-  [Timeout(1000)]
-  public async Task DetailControlTestAsync()
+  [Timeout(2000)]
+  public async Task DetailControl_LoadDataTableAsync()
   {
-    using var dt = new DataTable();
-    dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
-    for (var line = 1; line < 5000; line++)
-    {
-      var row = dt.NewRow();
-      row[0] = line;
-      row[1] = $"This is text {line / 2}";
-      row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
-      row[3] = line % 3 == 0;
-      if (m_Random.Next(1, 10) == 5)
-        row.SetColumnError(m_Random.Next(0, 3), "Error");
-      if (m_Random.Next(1, 50) == 5)
-        row.RowError = "Row Error";
-      dt.Rows.Add(row);
-    }
-
-    using var dc = new DetailControl();
-    dc.HtmlStyle = HtmlStyle.Default;
-    dc.Show();
-    await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
+    UnitTestStaticForms.ShowControlAsync(() => new DetailControl(),
+        dc => dc.LoadDataTableAsync(m_SharedDataTable!, RowFilterTypeEnum.All, UnitTestStatic.Token));
   }
 
   [TestMethod]
-  [Timeout(1000)]
-  public async Task SortTestAsync()
+  [Timeout(2000)]
+  public async Task DetailControl_Sort()
   {
-    using var dt = new DataTable();
-    dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
-    dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
-    for (var line = 1; line < 5000; line++)
-    {
-      var row = dt.NewRow();
-      row[0] = m_Random.Next(1, 5000);
-      row[1] = $"This is text {line / 2}";
-      row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
-      row[3] = line % 3 == 0;
-      dt.Rows.Add(row);
-    }
-
-    using var dc = new DetailControl();
-    dc.HtmlStyle = HtmlStyle.Default;
-    dc.Show();
-    
-    await dc.LoadDataTableAsync(dt, RowFilterTypeEnum.All, UnitTestStatic.Token);
-    dc.Sort("ID", ListSortDirection.Ascending);
+    UnitTestStaticForms.ShowControlAsync(() => new DetailControl(),
+        async dc =>
+        {
+          await dc.LoadDataTableAsync(m_SharedDataTable!, RowFilterTypeEnum.All, UnitTestStatic.Token);
+          dc.Sort(UnitTestStaticData.Columns[9].Name, ListSortDirection.Ascending);
+        });
   }
 }

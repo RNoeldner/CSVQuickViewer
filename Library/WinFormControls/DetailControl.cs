@@ -474,21 +474,16 @@ public sealed partial class DetailControl : UserControl
   {
     try
     {
-      FilteredDataGridView.SafeInvoke(
-        () =>
-        {
-          var col = GetViewColumn(dataColumnName);
-          if (col is null) return;
-          var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
+      var col = GetViewColumn(dataColumnName);
+      if (col is null) return;
 
-          columnFilters.Operator = op;
-          if (value is DateTime dateTime)
-            columnFilters.ValueDateTime = dateTime;
-          else
-            columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
-          columnFilters.ApplyFilter();
-        }
-      );
+      var columnFilters = FilteredDataGridView.GetColumnFilter(col.Index);
+      columnFilters.Operator = op;
+      if (value is DateTime dateTime)
+        columnFilters.ValueDateTime = dateTime;
+      else
+        columnFilters.ValueText = Convert.ToString(value) ?? string.Empty;
+      columnFilters.ApplyFilter();
     }
     catch (Exception ex)
     {
@@ -507,7 +502,7 @@ public sealed partial class DetailControl : UserControl
   {
     try
     {
-      FilteredDataGridView.SafeInvoke(
+      FilteredDataGridView.SafeBeginInvoke(
         () =>
         {
           var col = GetViewColumn(dataColumnName);
@@ -546,7 +541,6 @@ public sealed partial class DetailControl : UserControl
     {
       // ignore
     }
-
   }
 
   protected override void OnHandleDestroyed(EventArgs e)
@@ -583,9 +577,8 @@ public sealed partial class DetailControl : UserControl
           HtmlStyle);
       m_FormShowMaxLength.ShowWithFont(this);
       m_FormShowMaxLength.FormClosed += (o, formClosedEventArgs) =>
-        this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
+        this.SafeBeginInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
     }, ParentForm!);
-    m_ToolStripButtonColumnLength.Enabled = false;
   }
 
   /// <summary>
@@ -609,9 +602,8 @@ public sealed partial class DetailControl : UserControl
         { Icon = ParentForm?.Icon };
       m_FormDuplicatesDisplay.ShowWithFont(this);
       m_FormDuplicatesDisplay.FormClosed +=
-        (o, formClosedEventArgs) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
+        (o, formClosedEventArgs) => this.SafeBeginInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
     }, ParentForm!);
-    m_ToolStripButtonDuplicates.Enabled = false;
   }
 
   /// <summary>
@@ -631,9 +623,8 @@ public sealed partial class DetailControl : UserControl
         { Icon = ParentForm?.Icon };
       m_HierarchyDisplay.ShowWithFont(this);
       m_HierarchyDisplay.FormClosed += (o, formClosedEventArgs) =>
-        this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+        this.SafeBeginInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
     }, ParentForm!);
-    m_ToolStripButtonHierarchy.Enabled = false;
   }
 
   /// <summary>
@@ -774,7 +765,7 @@ public sealed partial class DetailControl : UserControl
   {
     // 1. Get the text from the UI safely
     string selectedText = string.Empty;
-    this.SafeInvoke(() => selectedText = m_ToolStripComboBoxFilterType?.SelectedItem?.ToString() ?? string.Empty);
+    this.SafeBeginInvoke(() => selectedText = m_ToolStripComboBoxFilterType?.SelectedItem?.ToString() ?? string.Empty);
 
     if (!string.IsNullOrEmpty(selectedText))
     {
@@ -936,7 +927,7 @@ public sealed partial class DetailControl : UserControl
   {
     m_Search.Hide();
     FilteredDataGridView.HighlightText = string.Empty;
-    FilteredDataGridView.SafeInvoke(FilteredDataGridView.Invalidate);
+    FilteredDataGridView.SafeBeginInvoke(FilteredDataGridView.Invalidate);
   }
 
   private async void OnSearchNext(object? sender, EventArgs e)
@@ -1228,8 +1219,8 @@ public sealed partial class DetailControl : UserControl
 #else
       using var wrapper = new DataTableWrapper(exportTable);
 #endif
-        // Use the wrapper to satisfy the ICsvReader requirement
-        await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
+      // Use the wrapper to satisfy the ICsvReader requirement
+      await WriteFileAsync.Invoke(m_ControlCancellation.Token, wrapper);
     }, ParentForm!);
   }
 
@@ -1331,7 +1322,7 @@ public sealed partial class DetailControl : UserControl
   {
     try
     {
-      this.SafeInvoke(() =>
+      this.SafeBeginInvoke(() =>
       {
         int current = (FilteredDataGridView.CurrentRow?.Index ?? 0) + 1;
         int total = FilteredDataGridView.RowCount;

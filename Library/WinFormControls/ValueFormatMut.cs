@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 
@@ -88,6 +89,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   ///   asFalse or numberFormat or timeSeparator or asTrue or partSplitter or regexSearchPattern
   ///   or regexReplacement or readFolder or writeFolder or fileOutPutPlaceholder
   /// </exception>
+  [JsonConstructor]
   public ValueFormatMut(
     DataTypeEnum dataType = DataTypeEnum.String,
     string? dateFormat = null,

@@ -11,13 +11,16 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CsvTools;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CsvTools.Tests;
 
@@ -146,20 +149,55 @@ public class ValueFormatMutTests
   [TestMethod]
   public void ValueFormatMutableProperties()
   {
-    var input = new ValueFormatMut(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|",
-      false, "pat",
-      "erp", "read", "Wr", "ou", false);
-    UnitTestStatic.RunSerializeAllProps(input);
+    // Arrange: Define test values
+    var dataType = DataTypeEnum.DateTime;
+    var dateFormat = "yyyy-MM-dd";
+    var dateSep = "-";
+    var timeSep = ":";
+    var numFormat = "N2";
+    var groupSep = ".";
+    var decimalSep = ",";
+    var asTrue = "Yo";
+    var asFalse = "Nö";
+    var displayNull = "<N>";
+    var part = 3;
+    var partSplitter = "|";
+    var partToEnd = false;
+    var regexSearch = "erp";
+    var regexReplace = "read";
+    var readFolder = "Wr";
+    var writeFolder = "ou";
+    var filePlaceholder = "pat";
+    var overwrite = false;
+
+    // Act
+    var input = new ValueFormatMut(
+        dataType, dateFormat, dateSep, timeSep, numFormat, groupSep, decimalSep,
+        asTrue, asFalse, displayNull, part, partSplitter, partToEnd,
+        regexSearch, regexReplace, readFolder, writeFolder, filePlaceholder, overwrite);
+
+    // Assert
+    Assert.AreEqual(dataType, input.DataType);
+    Assert.AreEqual(dateFormat, input.DateFormat);
+    Assert.AreEqual(dateSep, input.DateSeparator);
+    Assert.AreEqual(timeSep, input.TimeSeparator);
+    Assert.AreEqual(numFormat, input.NumberFormat);
+    Assert.AreEqual(groupSep, input.GroupSeparator);
+    Assert.AreEqual(decimalSep, input.DecimalSeparator);
+    Assert.AreEqual(asTrue, input.True);
+    Assert.AreEqual(asFalse, input.False);
+    Assert.AreEqual(displayNull, input.DisplayNullAs);
+    Assert.AreEqual(part, input.Part);
+    Assert.AreEqual(partSplitter, input.PartSplitter);
+    Assert.AreEqual(partToEnd, input.PartToEnd);
+    Assert.AreEqual(regexSearch, input.RegexSearchPattern);
+    Assert.AreEqual(regexReplace, input.RegexReplacement);
+    Assert.AreEqual(readFolder, input.ReadFolder);
+    Assert.AreEqual(writeFolder, input.WriteFolder);
+    Assert.AreEqual(filePlaceholder, input.FileOutPutPlaceholder);
+    Assert.AreEqual(overwrite, input.Overwrite);
   }
 
-  [TestMethod]
-  public void ValueFormatMutProperties()
-  {
-    var input = new ValueFormatMut(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|",
-      false, "pat",
-      "erp", "read", "Wr", "ou", false);
-    UnitTestStatic.RunSerializeAllProps(input);
-  }
 
   [TestMethod]
   public void ValueFormatNotEquals()

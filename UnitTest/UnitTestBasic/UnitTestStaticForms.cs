@@ -59,15 +59,8 @@ public static class UnitTestStaticForms
 
         frm.ShowInTaskbar = false;
 
-        try
-        {
-          frm.Show();
-          Application.DoEvents();
-        }
-        catch (Exception)
-        {
-          // ignore the form might be shown already
-        }
+        frm.Show();
+        Application.DoEvents();
 
         if (waitBeforeActionSeconds > 0 && !isClosed)
           WaitSomeTime(waitBeforeActionSeconds, CancellationToken.None);

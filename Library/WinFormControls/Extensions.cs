@@ -339,10 +339,11 @@ public static class Extensions
   /// <b>Re-entrance:</b> Disabling the item prevents duplicate triggers if the user clicks
   /// while the UI thread is processing.
   /// </remarks>
+  /// <exception cref="ArgumentNullException"><paramref name="item"/> is <c>null</c>.</exception>
   public static void RunWithHourglass(this ToolStripItem item, Action action, Form frm)
   {
     if (item == null) throw new ArgumentNullException(nameof(item));
-    RunWithHourglassInternal(action, (val) => frm.SafeInvoke(() => item.Enabled = val), frm);
+    RunWithHourglassInternal(action, (val) => frm.SafeBeginInvoke(() => item.Enabled = val), frm);
   }
 
   /// <summary>
@@ -350,10 +351,11 @@ public static class Extensions
   /// </summary>
   /// <param name="control">The control to disable.</param>
   /// <param name="action">The synchronous logic to execute.</param>
+  /// <exception cref="ArgumentNullException"><paramref name="control"/> is <c>null</c>.</exception>
   public static void RunWithHourglass(this Control control, Action action)
   {
     if (control == null) throw new ArgumentNullException(nameof(control));
-    RunWithHourglassInternal(action, (val) => control.SafeInvoke(() => control.Enabled = val), control.FindForm());
+    RunWithHourglassInternal(action, (val) => control.SafeBeginInvoke(() => control.Enabled = val), control.FindForm());
   }
 
   /// <summary>
@@ -363,10 +365,11 @@ public static class Extensions
   /// <param name="action">The asynchronous task to execute.</param>
   /// <param name="frm">The parent form used for error reporting.</param>
   /// <returns>A task representing the operation.</returns>
+  /// <exception cref="ArgumentNullException"></exception>
   public static Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form frm)
   {
     if (item == null) throw new ArgumentNullException(nameof(item));
-    return RunWithHourglassInternalAsync(action, (val) => frm.SafeInvoke(() => item.Enabled = val), frm);
+    return RunWithHourglassInternalAsync(action, (val) => frm.SafeBeginInvoke(() => item.Enabled = val), frm);
   }
 
   /// <summary>
@@ -375,10 +378,11 @@ public static class Extensions
   /// <param name="control">The control to disable.</param>
   /// <param name="action">The asynchronous task to execute.</param>
   /// <returns>A task representing the operation.</returns>
+  /// <exception cref="ArgumentNullException"><paramref name="control"/> is <c>null</c>.</exception>
   public static Task RunWithHourglassAsync(this Control control, Func<Task> action)
   {
     if (control == null) throw new ArgumentNullException(nameof(control));
-    return RunWithHourglassInternalAsync(action, (val) => control.SafeInvoke(() => control.Enabled = val), control.FindForm());
+    return RunWithHourglassInternalAsync(action, (val) => control.SafeBeginInvoke(() => control.Enabled = val), control.FindForm());
   }
 
   /// <summary>
@@ -386,7 +390,7 @@ public static class Extensions
   /// </summary>
   public static void SafeBeginInvoke(this Control uiElement, Action action)
   {
-    if (uiElement.IsDisposed)
+    if (uiElement?.IsDisposed ?? true)
       return;
 
     try
@@ -412,7 +416,7 @@ public static class Extensions
   /// </summary>
   public static void SafeInvoke(this Control uiElement, Action action)
   {
-    if (uiElement.IsDisposed)
+    if (uiElement?.IsDisposed ?? true)
       return;
 
     // Ensure control handle is created (lazy creation)
@@ -553,14 +557,14 @@ public static class Extensions
     try
     {
       setEnabled(false);
-      frm?.SafeInvoke(() => Cursor.Current=Cursors.WaitCursor);
+      frm?.SafeBeginInvoke(() => Cursor.Current=Cursors.WaitCursor);
       action.InvokeWithHourglass();
     }
     catch (ObjectDisposedException) { /* Component was closed; ignore */ }
     catch (Exception ex)
     {
       // Restore previous state
-      frm?.SafeInvoke(() =>
+      frm?.SafeBeginInvoke(() =>
       {
         Cursor.Current=previousCursor ?? Cursors.Default;
         ShowError(ex);
@@ -571,7 +575,7 @@ public static class Extensions
       try
       {
         // Restore previous state
-        frm?.SafeInvoke(() => Cursor.Current=previousCursor ?? Cursors.Default);
+        frm?.SafeBeginInvoke(() => Cursor.Current=previousCursor ?? Cursors.Default);
         setEnabled(true);
       }
       catch (ObjectDisposedException)
