@@ -69,15 +69,6 @@ public readonly record struct TextValue
   public TextValue(bool value) { Type = DataTypeEnum.Boolean; Boolean = value; }
   #endregion
 
-  #region Implicit Operators
-  public static implicit operator TextValue(string v) => new(v);
-  public static implicit operator TextValue(long v) => new(v);
-  public static implicit operator TextValue(decimal v) => new(v);
-  public static implicit operator TextValue(double v) => new(v);
-  public static implicit operator TextValue(DateTime v) => new(v);
-  public static implicit operator TextValue(bool v) => new(v);
-  #endregion
-
   #region Explicit Operators (Using 'in' for performance)
 
   /// <summary>
