@@ -11,6 +11,167 @@ using System.Threading;
 namespace CsvTools;
 
 /// <summary>
+/// Represents a memory-efficient, type-safe discriminated union for common data types.
+/// As a value type (struct), it minimizes GC pressure by avoiding heap allocations for 
+/// numeric types and storing data contiguously in arrays.
+/// </summary>
+public readonly record struct TextValue
+{
+  /// <summary>
+  /// Gets a static instance of an empty <see cref="TextValue"/>.
+  /// </summary>
+  public static readonly TextValue Empty = new TextValue();
+
+  /// <summary>Gets the current data type stored in this instance.</summary>
+  public DataTypeEnum Type { get; }
+
+  /// <summary>Gets the string value. Returns <see cref="string.Empty"/> if not a string.</summary>
+  public string Text { get; } = string.Empty;
+
+  /// <summary>Gets the 64-bit integer value.</summary>
+  public long Integer { get; }
+
+  /// <summary>Gets the high-precision decimal value.</summary>
+  public decimal Numeric { get; }
+
+  /// <summary>Gets the double-precision floating-point value.</summary>
+  public double Double { get; }
+
+  /// <summary>Gets the date and time value.</summary>
+  public DateTime DateTime { get; }
+
+  /// <summary>Gets the boolean value.</summary>
+  public bool Boolean { get; }
+
+  #region Constructors
+  /// <summary>
+  /// Initializes a new instance of the <see cref="TextValue"/> struct.
+  /// Defaults to <see cref="DataTypeEnum.String"/> with an empty string.
+  /// </summary>
+  public TextValue() : this(string.Empty) { }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as a String.</summary>
+  public TextValue(string value) { Type = DataTypeEnum.String; Text = value ?? string.Empty; }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as an Integer.</summary>
+  public TextValue(long value) { Type = DataTypeEnum.Integer; Integer = value; }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as a Numeric (Decimal).</summary>
+  public TextValue(decimal value) { Type = DataTypeEnum.Numeric; Numeric = value; }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as a Double.</summary>
+  public TextValue(double value) { Type = DataTypeEnum.Double; Double = value; }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as a DateTime.</summary>
+  public TextValue(DateTime value) { Type = DataTypeEnum.DateTime; DateTime = value; }
+
+  /// <summary>Initializes a new <see cref="TextValue"/> as a Boolean.</summary>
+  public TextValue(bool value) { Type = DataTypeEnum.Boolean; Boolean = value; }
+  #endregion
+
+  #region Implicit Operators
+  public static implicit operator TextValue(string v) => new(v);
+  public static implicit operator TextValue(long v) => new(v);
+  public static implicit operator TextValue(decimal v) => new(v);
+  public static implicit operator TextValue(double v) => new(v);
+  public static implicit operator TextValue(DateTime v) => new(v);
+  public static implicit operator TextValue(bool v) => new(v);
+  #endregion
+
+  #region Explicit Operators (Using 'in' for performance)
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a string.
+  /// </summary>
+  /// <param name="v">The value to convert. Passed by reference using 'in' to avoid copying the large struct.</param>
+  /// <exception cref="InvalidCastException">Thrown if the underlying type is not String.</exception>
+  public static explicit operator string(in TextValue v) =>
+      v.Type == DataTypeEnum.String ? v.Text : throw new InvalidCastException($"Cannot cast {v.Type} to string.");
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a long. Supports conversion from Integer, Numeric, and Double.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  public static explicit operator long(in TextValue v) => v.Type switch
+  {
+    DataTypeEnum.Integer => v.Integer,
+    DataTypeEnum.Numeric => (long) v.Numeric,
+    DataTypeEnum.Double => (long) v.Double,
+    _ => throw new InvalidCastException($"Cannot convert {v.Type} to long.")
+  };
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to an int with overflow checking.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  /// <exception cref="OverflowException">Thrown if the value exceeds the range of a 32-bit integer.</exception>
+  public static explicit operator int(in TextValue v) => v.Type switch
+  {
+    DataTypeEnum.Integer => checked((int) v.Integer),
+    DataTypeEnum.Numeric => checked((int) v.Numeric),
+    DataTypeEnum.Double => checked((int) v.Double),
+    _ => throw new InvalidCastException($"Cannot convert {v.Type} to int.")
+  };
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a decimal. Supports conversion from Numeric, Integer, and Double.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  public static explicit operator decimal(in TextValue v) => v.Type switch
+  {
+    DataTypeEnum.Numeric => v.Numeric,
+    DataTypeEnum.Integer => v.Integer,
+    DataTypeEnum.Double => (decimal) v.Double,
+    _ => throw new InvalidCastException($"Cannot cast {v.Type} to decimal.")
+  };
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a double. Supports conversion from Double, Integer, and Numeric.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  public static explicit operator double(in TextValue v) => v.Type switch
+  {
+    DataTypeEnum.Double => v.Double,
+    DataTypeEnum.Integer => v.Integer,
+    DataTypeEnum.Numeric => (double) v.Numeric,
+    _ => throw new InvalidCastException($"Cannot cast {v.Type} to double.")
+  };
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a DateTime.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  public static explicit operator DateTime(in TextValue v) =>
+      v.Type == DataTypeEnum.DateTime ? v.DateTime : throw new InvalidCastException($"Cannot cast {v.Type} to DateTime.");
+
+  /// <summary>
+  /// Explicitly converts a <see cref="TextValue"/> to a boolean.
+  /// </summary>
+  /// <param name="v">The value to convert (passed by reference).</param>
+  public static explicit operator bool(in TextValue v) =>
+      v.Type == DataTypeEnum.Boolean ? v.Boolean : throw new InvalidCastException($"Cannot cast {v.Type} to bool.");
+  #endregion
+
+  /// <summary>
+  /// Boxes and returns the underlying value as a generic object.
+  /// Use this primarily for interoperability or late-bound scenarios.
+  /// </summary>
+  public object GetValue() => Type switch
+  {
+    DataTypeEnum.String => Text,
+    DataTypeEnum.Integer => Integer,
+    DataTypeEnum.Numeric => Numeric,
+    DataTypeEnum.Double => Double,
+    DataTypeEnum.DateTime => DateTime,
+    DataTypeEnum.Boolean => Boolean,
+    _ => throw new InvalidOperationException("Unknown Type")
+  };
+
+  /// <summary>Returns the string representation of the stored value.</summary>
+  public override string ToString() => GetValue()?.ToString() ?? string.Empty;
+}
+
+/// <summary>
 /// Provides helper methods to convert JSON data into tabular form.
 /// Supports scalar properties, object flattening, arrays of primitives, 
 /// and arrays of objects with identity properties (id, name, title, label).
