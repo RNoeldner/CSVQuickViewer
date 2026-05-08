@@ -52,7 +52,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
   protected BaseFileReaderTyped(
     string fileName,
-    in IEnumerable<Column>? columnDefinition,
+    IEnumerable<Column>? columnDefinition,
     long recordLimit,
     bool trim,
     string treatTextAsNull,
@@ -223,6 +223,9 @@ public abstract class BaseFileReaderTyped : BaseFileReader
 
       return m_CurrentValues[ordinal] is null && m_CurrentValues[AssociatedTimeCol[ordinal]] is null;
     }
+    
+    if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.String)
+      return GetSpan(ordinal).Length==0;
 
     if (m_CurrentValues[ordinal] is null)
       return true;

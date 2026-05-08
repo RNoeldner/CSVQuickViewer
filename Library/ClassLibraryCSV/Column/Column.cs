@@ -81,7 +81,7 @@ public record Column
   /// <summary>
   ///   Formatting option for values
   /// </summary>
-  public ValueFormat ValueFormat { get; protected set; }
+  public ValueFormat ValueFormat { get; set; }
 
   /// <summary>
   /// Identifier in collections, similar to a hash code based on a  properties that should be unique in a collection
