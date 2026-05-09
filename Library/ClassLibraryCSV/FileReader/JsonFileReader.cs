@@ -200,7 +200,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
         EndLineNumber++;
         StartLineNumber++;
         Clear();
-        json!.HandleRow(m_JsonColumns, ',', (_, txtx, val) => Add(txtx, val));
+        json!.HandleRow(m_JsonColumns, ',', (col, txtx, val) => Add(HandleText(txtx, col), val));
       }
 
       InfoDisplay(couldRead);

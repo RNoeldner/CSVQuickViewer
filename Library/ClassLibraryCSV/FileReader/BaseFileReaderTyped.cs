@@ -211,29 +211,40 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   }
 
   /// <inheritdoc />
-  public override bool IsDBNull(int ordinal)
+  protected override bool IsDBNull(in Column column)
   {
-    if ((ordinal < 0 && ordinal >= FieldCount) || (m_CurrentValues.Length <= ordinal))
-      return true;
+    // 1. Exit immediately for ignored columns
+    if (column.Ignore) return true;
 
-    if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)
+    var ordinal = column.ColumnOrdinal;
+    var dataType = column.ValueFormat.DataType;
+
+    // 2. Specialized DateTime logic
+    if (dataType == DataTypeEnum.DateTime)
     {
-      if (AssociatedTimeCol[ordinal] == -1)
-        return m_CurrentValues[ordinal] is null;
+      // Optimization: Null check first (memory read), then check span (logic/calculation)
+      // If the date part has any data, return false immediately.
+      if (m_CurrentValues[ordinal] is not null || !GetSpan(ordinal).IsEmpty)
+        return false;
 
-      return m_CurrentValues[ordinal] is null && m_CurrentValues[AssociatedTimeCol[ordinal]] is null;
+      int timeOrdinal = AssociatedTimeCol[ordinal];
+
+      // Fast bounds check: handles both -1 and out-of-range via uint cast
+      if ((uint) timeOrdinal >= (uint) m_CurrentValues.Length)
+        return true;
+
+      // If Date was empty, both Time reference and Time span must be empty for a true NULL
+      return m_CurrentValues[timeOrdinal] is null && GetSpan(timeOrdinal).IsEmpty;
     }
-    
-    if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.String)
-      return GetSpan(ordinal).Length==0;
 
-    if (m_CurrentValues[ordinal] is null)
-      return true;
+    // 3. String logic: String emptiness is the definition of NULL in this context
+    if (dataType == DataTypeEnum.String)
+    {
+      return GetSpan(ordinal).IsEmpty;
+    }
 
-    if (m_CurrentValues[ordinal] is string str)
-      return string.IsNullOrEmpty(str);
-
-    return false;
+    // 4. Fallback for primitives: A simple null check on the current value object
+    return m_CurrentValues[ordinal] is null;
   }
 
   /// <summary>
@@ -274,33 +285,63 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     base.InitColumn(fieldCount);
   }
 
-  protected ReadOnlySpan<char> TrimAndNullHandling(ReadOnlySpan<char> inputString)
+
+  /// <summary>
+  /// Orchestrates text processing including formatting, null-equivalent detection, 
+  /// trimming, and non-breaking space replacement.
+  /// </summary>
+  /// <param name="textSpan">The raw character span to process.</param>
+  /// <param name="ordinal">The column index for metadata and formatter lookups.</param>
+  /// <returns>A processed span that is potentially trimmed, formatted, or cleaned.</returns>
+  protected ReadOnlySpan<char> HandleText(ReadOnlySpan<char> textSpan, int ordinal)
   {
-    if (m_Trim)
-      inputString = inputString.Trim();
+    // 1. Primary Empty Check
+    if (textSpan.IsEmpty)
+      return textSpan;
 
-    // Standard Null Check (no modifications needed)
-    if (inputString.IsEmpty || inputString.SequenceEqual(m_TreatTextAsNull.AsSpan()))
-      return ReadOnlySpan<char>.Empty;
-
-    return inputString;
-  }
-
-  protected ReadOnlySpan<char> TreatNbsp(ReadOnlySpan<char> inputString)
-  {
-    if (m_TreatNbspAsSpace && inputString.IndexOf((char) 0xA0)!=-1)
+    // 2. Formatting (HTML Encoding, etc.)
+    // We do this first as formatters might change length or content
+    var column = GetColumn(ordinal);
+    if (!ReferenceEquals(column.ColumnFormatter, EmptyFormatter.Instance))
     {
-      // 2. We convert to an Array first because the String constructor 
-      // in your version of .NET only understands arrays, not Spans.
-      char[] arrayBuffer = inputString.ToArray();
-
-      // 3. Manual replacement in the array
-      for (int i = 0; i < arrayBuffer.Length; i++)
-        if (arrayBuffer[i] == (char) 0xA0) arrayBuffer[i] = ' ';
-
-      return arrayBuffer.AsSpan();
+      textSpan = column.ColumnFormatter.FormatInputText(
+          textSpan.ToString(),
+          msg => HandleWarning(ordinal, msg)
+      ).AsSpan();
     }
 
-    return inputString;
+    // 3. Trimming
+    if (m_Trim)
+      textSpan = textSpan.Trim();
+
+    // 4. Null-Equivalent Check ("NULL", "N\A", etc.)
+    if (textSpan.IsEmpty)
+      return ReadOnlySpan<char>.Empty;
+
+    if (m_TreatTextAsNull != null &&
+        textSpan.Length == m_TreatTextAsNull.Length &&
+        textSpan.SequenceEqual(m_TreatTextAsNull.AsSpan()))
+    {
+      return ReadOnlySpan<char>.Empty;
+    }
+
+    // 5. NBSP Treatment
+    // SIMD-optimized IndexOf check to avoid allocation on clean data
+    if (m_TreatNbspAsSpace)
+    {
+      int firstNbsp = textSpan.IndexOf('\u00A0');
+      if (firstNbsp != -1)
+      {
+        char[] buffer = textSpan.ToArray();
+        for (int i = firstNbsp; i < buffer.Length; i++)
+        {
+          if (buffer[i] == '\u00A0')
+            buffer[i] = ' ';
+        }
+        return buffer.AsSpan();
+      }
+    }
+
+    return textSpan;
   }
 }

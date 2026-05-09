@@ -773,21 +773,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected virtual void HandleShowProgressPeriodic(string text)
     => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
 
-  /// <summary>
-  ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
-  ///   maximum column size
-  ///   Attention: Trimming needs to be handled beforehand
-  /// </summary>
-  /// <param name="text">The input string.</param>
-  /// <param name="ordinal">The column number</param>
-  /// <returns>The proper encoded or cut text as returned for the column</returns>
-  protected virtual ReadOnlySpan<char> HandleTextSpecials(string text, int ordinal)
-  {
-    var column = GetColumn(ordinal);
-    if (ReferenceEquals(column.ColumnFormatter, EmptyFormatter.Instance))
-      return text;
-    return column.ColumnFormatter.FormatInputText(text, msg => HandleWarning(ordinal, msg));
-  }
+ 
 
   /// <summary>
   ///   Calls the event handler for warnings <see cref="Warning"/>
@@ -843,27 +829,31 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
   /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
   /// </remarks>
-  protected bool IsDBNull(in Column column)
+  protected virtual bool IsDBNull(in Column column)
   {
-    // 1. Ignored columns are always considered NULL
     if (column.Ignore) return true;
 
-    // 2. Get the raw span (Zero allocation)
-    var span = GetSpan(column.ColumnOrdinal);
+    var ordinal = column.ColumnOrdinal;
+    var span = GetSpan(ordinal);
 
-    // 3. Check for Date/Time split complexity
     if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
     {
-      var timeOrdinal = AssociatedTimeCol[column.ColumnOrdinal];
-      if (timeOrdinal != -1 && timeOrdinal < CurrentRowColumnText.Count)
+      // 1. If Date part has data, it's NOT NULL. Exit immediately.
+      if (!span.IsEmpty) return false;
+
+      // 2. Date part is empty. Check if there's a split Time part.
+      var timeOrdinal = AssociatedTimeCol[ordinal];
+
+      // 3. The (uint) cast handles both -1 and out-of-bounds in one check.
+      if ((uint) timeOrdinal < (uint) CurrentRowColumnText.Count)
       {
-        var timeSpan = GetSpan(timeOrdinal);
-        // Both parts must be whitespace to be considered a "Null" DateTime
-        return span.IsWhiteSpace() && timeSpan.IsWhiteSpace();
+        return GetSpan(timeOrdinal).IsEmpty;
       }
+
+      // 4. Date was empty and no valid Time column exists.
+      return true;
     }
 
-    // 4. Standard check
     return span.IsEmpty;
   }
 
