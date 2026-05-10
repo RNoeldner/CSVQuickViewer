@@ -492,7 +492,6 @@ public sealed class HtmlStyle
   /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
   public string ConvertToHtmlFragment(string fragment)
   {
-    // return $"<HTML><HEAD>{Style}</HEAD><BODY>{fragment}</BODY></HTML>";
     const string markerBlock =
       "Version:1.0\r\nStartHTML:{0,8}\r\nEndHTML:{1,8}\r\nStartFragment:{2,8}\r\nEndFragment:{3,8}\r\nStartSelection:{2,8}\r\nEndSelection:{3,8}\r\n{4}";
 

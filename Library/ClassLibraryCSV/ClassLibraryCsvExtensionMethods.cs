@@ -590,22 +590,34 @@ public static class ClassLibraryCsvExtensionMethods
     });
   }
 
-  [DebuggerStepThrough]  
-  public static string ReplaceMultiple(this ReadOnlySpan<char> original, 
-        IEnumerable<(string Pattern, string Replacement)> replacements)
-  {
-    if (original.IsEmpty) return string.Empty;
 
-    // 1. Convert to a list or array once to avoid repeated enumeration overhead
-    var pairList = replacements.Where(p => !string.IsNullOrEmpty(p.Pattern)).ToArray();
-    if (pairList.Length == 0) return original.ToString();
+  /// <summary>
+  /// Replaces all occurrences of specified patterns within a <see cref="ReadOnlySpan{Char}"/> 
+  /// with their corresponding replacement strings.
+  /// </summary>
+  /// <param name="original">The source character span to search within.</param>
+  /// <param name="replacements">One or more tuples containing the pattern to find and the string to replace it with.</param>
+  /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns>
+  /// <exception cref="ArgumentException">Thrown when <paramref name="replacements"/> is null or empty.</exception>
+  [DebuggerStepThrough]
+
+  public static string ReplaceMultiple(this ReadOnlySpan<char> original,
+        params (string Pattern, string Replacement)[] replacements)
+  {
+    // Ensure the collection is not null and contains at least one entry
+    if (replacements == null || replacements.Length == 0)
+      throw new ArgumentException("At least one replacement pattern must be provided.", nameof(replacements));
+    if (original.IsEmpty) return string.Empty;
 
     // 2. Pre-check: Does ANY pattern exist? 
     // This allows the "Clean Path" to stay extremely fast.
     bool anyMatch = false;
-    foreach (var pair in pairList)
+    foreach (var pair in replacements)
     {
-      if (original.IndexOf(pair.Pattern.AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+      var patternSpan = pair.Pattern.AsSpan();
+      if (patternSpan.IsEmpty)
+        continue;
+      if (original.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase) != -1)
       {
         anyMatch = true;
         break;
@@ -616,7 +628,7 @@ public static class ClassLibraryCsvExtensionMethods
 
     // 3. One-pass scan and replace
     var sb = new StringBuilder(original.Length);
-    ReadOnlySpan<char> remaining = original;
+    var remaining = original;
 
     while (remaining.Length > 0)
     {
@@ -624,9 +636,12 @@ public static class ClassLibraryCsvExtensionMethods
       int pairIndex = -1;
 
       // Find the closest occurrence among all patterns
-      for (int i = 0; i < pairList.Length; i++)
+      for (int i = 0; i < replacements.Length; i++)
       {
-        int pos = remaining.IndexOf(pairList[i].Pattern.AsSpan(), StringComparison.OrdinalIgnoreCase);
+        var patternSpan = replacements[i].Pattern.AsSpan();
+        if (patternSpan.IsEmpty) continue;
+
+        int pos = remaining.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase);
         if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
         {
           nearestMatch = pos;
@@ -653,10 +668,10 @@ public static class ClassLibraryCsvExtensionMethods
 #endif
 
       // Append the replacement value
-      sb.Append(pairList[pairIndex].Replacement);
+      sb.Append(replacements[pairIndex].Replacement);
 
       // Advance the window past the matched pattern
-      remaining = remaining.Slice(nearestMatch + pairList[pairIndex].Pattern.Length);
+      remaining = remaining.Slice(nearestMatch + replacements[pairIndex].Pattern.Length);
     }
 
     return sb.ToString();

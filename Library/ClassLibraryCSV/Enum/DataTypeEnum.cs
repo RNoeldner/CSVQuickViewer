@@ -97,7 +97,6 @@ public enum DataTypeEnum
   [ShortDescription("Unescaped Text")]
   TextUnescape = 14,
 
-  /* TODO: Hide Binary and Markdown2Html in the UI if application is CSV Quick Viewer */
   /// <summary>
   ///   Binary data stored in a file; the text value refers to the file path.
   /// </summary>
