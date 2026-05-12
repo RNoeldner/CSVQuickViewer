@@ -50,6 +50,16 @@ public class PunctuationTests
     Assert.IsTrue("'".FromText().Description().Contains("\'"));
   }
 
+  [TestMethod()]
+  public void FromText()
+  {
+    Assert.AreEqual('\n', "Line feed".FromText());
+    Assert.AreEqual('\r', "Carriage return".FromText());
+
+    Assert.AreEqual('\t', "tab".FromText());
+    Assert.AreEqual(',', "Comma".FromText());
+  }
+
 
   [TestMethod()]
   public void TextTest()
@@ -70,7 +80,7 @@ public class PunctuationTests
   [TestMethod()]
   public void HandleLongTextTest()
   {
-    Assert.AreEqual("\t", "Tab".HandleLongText());
+    Assert.AreEqual("Tab", "Tab".HandleLongText());
     Assert.AreEqual("\t", "\t".HandleLongText());
   }
 

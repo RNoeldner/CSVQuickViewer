@@ -71,6 +71,40 @@ public class DetermineColumnFormatTest
     Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list, null).DateFormat);
   }
 
+  [TestMethod]
+  public void FindShortFormat()
+  {
+    // Given the format yyyy/MM/dd HH:mm:ss, 
+    // it Looks like longer formats like yyyy/MM/dd HH:mm:ss.FFFF are found even though they are valid for reading
+    // or Shorter  like "yyyy/MM/dd H:mm:ss"
+
+    var list = new List<ReadOnlyMemory<char>>();
+    list.Add("2023-06-24 15:09:35".AsMemory());
+    list.Add("2023-06-24 12:06:22".AsMemory());
+    list.Add("2023-09-25 14:49:29".AsMemory());
+    list.Add("2023-06-24 15:09:42".AsMemory());
+    list.Add("2023-05-04 15:30:10".AsMemory());
+    list.Add("2023-06-24 15:09:42".AsMemory());
+    list.Add("2023-06-24 12:07:03".AsMemory());
+    list.Add("2024-06-11 06:52:30".AsMemory());
+    list.Add("2023-06-24 15:09:50".AsMemory());
+    list.Add("2023-06-24 15:09:51".AsMemory());
+    list.Add("2023-01-01 10:26:16".AsMemory());
+    list.Add("2023-01-01 10:26:17".AsMemory());
+    list.Add("2023-01-01 10:26:19".AsMemory());
+    list.Add("2023-01-01 10:26:20".AsMemory());
+    list.Add("2023-01-01 10:26:20".AsMemory());
+    list.Add("2025-12-02 14:26:48".AsMemory());
+    list.Add("2025-12-02 14:27:20".AsMemory());
+    list.Add("2025-12-02 14:27:28".AsMemory());
+    var df = DetermineColumnFormat.GuessDateTime(list, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
+    Assert.AreEqual("yyyy/MM/dd HH:mm:ss", df);
+
+    list.Add("2025-12-02 14:29:29.8832".AsMemory());
+
+    var df2 = DetermineColumnFormat.GuessDateTime(list, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
+    Assert.AreEqual("yyyy/MM/dd HH:mm:ss.FFFF", df2);
+  }
 
   [TestMethod()]
   public void GuessDateTimeTest()

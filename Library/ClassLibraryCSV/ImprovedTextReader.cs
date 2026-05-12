@@ -44,8 +44,8 @@ public sealed class ImprovedTextReader : DisposableBase
   private void PositionAfterBom()
   {
     m_Stream.Seek(0, SeekOrigin.Begin);
-#if NET6_0_OR_GREATER
-      Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    Span<byte> bomBufferPass = stackalloc byte[m_BomLength];
       m_Stream.ReadExactly(bomBufferPass);
 #else
 #pragma warning disable MA0060 // The value returned by Stream.Read/Stream.ReadAsync is not used
@@ -95,8 +95,8 @@ public sealed class ImprovedTextReader : DisposableBase
         m_Stream.Seek(0, SeekOrigin.Begin);
 
       // Space for 4 BOM bytes     
-#if NET6_0_OR_GREATER
-        Span<byte> bomBuffer = stackalloc byte[4];
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      Span<byte> bomBuffer = stackalloc byte[4];
         int bytesRead = m_Stream.Read(bomBuffer); // read up to 4 bytes
 
         var intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(bomBuffer.Slice(0, bytesRead));
@@ -229,8 +229,8 @@ public sealed class ImprovedTextReader : DisposableBase
   /// LFCR  is treated as two line breaks, which is uncommon but can occur in some legacy files</remarks>
   public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
   {
-#if NET6_0_OR_GREATER
-      var line = await StreamReader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+    var line = await StreamReader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
 #else
     var line = await StreamReader.ReadLineAsync().ConfigureAwait(false);
 #endif
@@ -246,9 +246,8 @@ public sealed class ImprovedTextReader : DisposableBase
   /// <param name="buffer">The character array to write the data into.</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <returns>Number of read chars</returns>
-#if NET6_0_OR_GREATER
-
-    public ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  public ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)
      => StreamReader.ReadBlockAsync(buffer, cancellationToken);
 #else
   public async ValueTask<int> ReadBlockAsync(Memory<char> buffer, CancellationToken cancellationToken = default)

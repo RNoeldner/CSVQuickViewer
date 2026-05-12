@@ -38,11 +38,11 @@ public sealed class TextPartFormatter : BaseColumnFormatter
   }
 
   /// <inheritdoc/>
-  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning)
   {
-    var output = inputString.AsSpan().StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
+    var output = inputSpan.StringToTextPart(m_PartSplitter, m_Part, m_PartToEnd);
     if (RaiseWarning && output.IsEmpty)
-      handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
+      handleWarning?.Invoke($"Part {m_Part} of text {inputSpan.ToString()} is empty.");
     return output.ToString();
   }
 

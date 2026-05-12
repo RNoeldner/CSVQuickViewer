@@ -31,10 +31,10 @@ public interface IColumnFormatter
   /// <summary>
   /// Format the text while reading, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
   /// </summary>
-  /// <param name="inputString">The input text that need to be processed</param>
+  /// <param name="inputSpan">The input text that need to be processed</param>
   /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
   /// <returns>The formatted text</returns>
-  string FormatInputText(string inputString, Action<string>? handleWarning);
+  string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning);
 
   /// <summary>
   /// Write the dataObject, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues

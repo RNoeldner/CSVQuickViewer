@@ -487,21 +487,19 @@ public static class CsvHelper
   /// </remarks>
   public static async Task UpdateInspectionResultAsync(this Stream stream,
     InspectionResult inspectionResult,
-    bool guessJson,
-    bool guessCodePage,
-    bool guessEscapePrefix,
-    bool guessDelimiter,
-    bool guessQualifier,
-    bool guessStartRow,
-    bool guessHasHeader,
-    bool guessNewLine,
-    bool guessCommentLine,
-    char probableDelimiter,
+    bool guessJson, bool guessCodePage,
+    bool guessEscapePrefix, bool guessDelimiter,
+    bool guessQualifier, bool guessStartRow,
+    bool guessHasHeader, bool guessNewLine,
+    bool guessCommentLine, char probableDelimiter,
     IReadOnlyCollection<char> disallowedDelimiter,
     IProgressWithCancellation progress)
   {
     if (stream is null)
       throw new ArgumentNullException(nameof(stream));
+    if (!stream.CanRead || !stream.CanSeek)
+      throw new ArgumentException("Stream must be readable and seekable.", nameof(stream));
+
     // Exit early if no analysis is requested
     if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
           guessCommentLine || guessNewLine))
@@ -511,7 +509,6 @@ public static class CsvHelper
     if (guessCodePage)
     {
       progress.CancellationToken.ThrowIfCancellationRequested();
-
       stream.Seek(0, SeekOrigin.Begin);
       progress.Report("Checking Code Page");
       var (codePage, bom) = await stream.InspectCodePageAsync(progress.CancellationToken).ConfigureAwait(false);
@@ -526,8 +523,7 @@ public static class CsvHelper
     {
       progress.CancellationToken.ThrowIfCancellationRequested();
       progress.Report("Checking XML format");
-      inspectionResult.IsXml = await stream
-        .InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
+      inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
 
       if (inspectionResult.IsXml)
       {
@@ -553,13 +549,12 @@ public static class CsvHelper
     const int maxAttempts = 5;
     int attempt = 0;
     bool retry;
+    bool magicDelimiter = false;
     do
     {
       attempt++;
-      retry = false;
-
-      if (guessStartRow)
-        inspectionResult.SkipRows = 0;
+      if (attempt>1)
+        progress.Report($"Prefix, Delimiter and Qualifier can affect detection, checking again... Attempt : {attempt}");
 
       // --- Comment Line ---
       if (guessCommentLine)
@@ -643,7 +638,7 @@ public static class CsvHelper
           if (delimiterResult.MagicKeyword)
           {
             progress.Report($"Delimiter from 'sep=' in first line: {delimiterResult.Delimiter}");
-            inspectionResult.SkipRows++;
+            magicDelimiter = true;
             progress.Report("Skipping line");
           }
 
@@ -674,9 +669,11 @@ public static class CsvHelper
       inspectionResult.EscapePrefix = newPrefix;
 
       // --- Retry conditions ---
-      if (guessEscapePrefix && (changedDelimiter || changedFieldQualifier) && attempt < maxAttempts)
-        retry = true;
-
+      retry = guessEscapePrefix && (changedDelimiter || changedFieldQualifier);
+      if (retry)
+        continue;
+      if (magicDelimiter)
+        inspectionResult.SkipRows = 1;
       // --- StartRow Recheck ---
       if (guessStartRow)
       {
@@ -685,8 +682,9 @@ public static class CsvHelper
 
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
           .ConfigureAwait(false);
-        var newSkipRows = await textReader.InspectStartRowAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
-          inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
+        // InspectStartRowAsync does recognoze magicDelimiter all will treat magicDelimiter like a comment
+        var newSkipRows = await textReader.InspectStartRowAsync(fieldDelimiterChar: inspectionResult.FieldDelimiter, fieldQualifierChar: inspectionResult.FieldQualifier, 
+          escapePrefixChar: inspectionResult.EscapePrefix,commentLine: inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
         progress.Report($"Start Row: {newSkipRows}");
         changedSkipRows = inspectionResult.SkipRows != newSkipRows;
         inspectionResult.SkipRows = newSkipRows;

@@ -1213,7 +1213,7 @@ public sealed partial class DetailControl : UserControl
           .Select(col => col.DataPropertyName);
       // Create the snapshot of the filtered/sorted data
       using var exportTable = FilteredDataGridView.DataTable.DefaultView.ToTable(distinct: false, [.. columnsToExport]);
-#if NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       var wrapper = new DataTableWrapper(exportTable);
       await using (wrapper.ConfigureAwait(false))
 #else

@@ -79,7 +79,7 @@ public static class FileSystemUtils
   /// <item><description>Evaluates wildcards (*, ?) to locate the most recent file matching the pattern.</description></item>
   /// </list>
   /// </remarks>
-  public static string FullPath(this string? fileName, string? root) =>
+  public static string FullPath(this ReadOnlySpan<char> fileName, ReadOnlySpan<char> root) =>
     ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
   /// <summary>
@@ -95,9 +95,9 @@ public static class FileSystemUtils
   /// </remarks>
   /// <exception cref="UnauthorizedAccessException">The caller does not have the required permission.</exception>
   /// <exception cref="IOException">The directory cannot be created (e.g., a file with the same name exists).</exception>
-  public static void CreateDirectory(string? directoryName)
+  public static void CreateDirectory(ReadOnlySpan<char> directoryName)
   {
-    if (directoryName is null || directoryName.Length == 0)
+    if (directoryName.IsEmpty)
       return;
     Directory.CreateDirectory(directoryName.LongPathPrefix());
   }
@@ -124,7 +124,7 @@ public static class FileSystemUtils
         var psStart = name.LastIndexOf('V');
         var psEnd = name.LastIndexOf('.');
         if (psStart != -1 && psEnd <= psStart + 5
-          && int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), NumberStyles.None, CultureInfo.InvariantCulture,  out var num)
+          && int.TryParse(name.Substring(psStart + 1, psEnd - psStart - 1), NumberStyles.None, CultureInfo.InvariantCulture, out var num)
           && num > numBackup)
         {
           numBackup = num;
@@ -145,8 +145,8 @@ public static class FileSystemUtils
   /// Check if a directory exists.
   /// </summary>
   /// <param name="directoryName">Name of the directory.</param>
-  public static bool DirectoryExists(string? directoryName) =>
-    !(directoryName is null || directoryName.Length == 0) && Directory.Exists(directoryName.LongPathPrefix());
+  public static bool DirectoryExists(ReadOnlySpan<char> directoryName) =>
+    !directoryName.IsEmpty && Directory.Exists(directoryName.LongPathPrefix());
 
   /// <summary>
   /// Retrieves the absolute path to the directory containing the application's executable or main assembly.
@@ -189,9 +189,9 @@ public static class FileSystemUtils
   ///   Deletes a file if it exists.
   /// </summary>
   /// <param name="fileName">Specify the file to be deleted</param>
-  public static void FileDelete(string? fileName)
+  public static void FileDelete(ReadOnlySpan<char> fileName)
   {
-    if (fileName is null || fileName.Length == 0) return;
+    if (fileName.IsEmpty) return;
     var fn = fileName.LongPathPrefix();
     if (File.Exists(fn))
       File.Delete(fn);
@@ -201,8 +201,8 @@ public static class FileSystemUtils
   /// Checks if a file exists
   /// </summary>
   /// <param name="fileName">Name of the file.</param>
-  public static bool FileExists(string? fileName) =>
-    !(fileName is null || fileName.Length == 0) && File.Exists(fileName.LongPathPrefix());
+  public static bool FileExists(ReadOnlySpan<char> fileName) =>
+    !fileName.IsEmpty && File.Exists(fileName.LongPathPrefix());
 
   /// <summary>
   ///   Gets the absolute (rooted) path.
@@ -210,19 +210,19 @@ public static class FileSystemUtils
   /// <param name="fileName">Name of the file.</param>
   /// <param name="basePath">The base path.</param>
   /// <returns>The combined filename with the LongPathPrefix if necessary</returns>
-  public static string GetAbsolutePath(this string? fileName, string? basePath = null)
+  public static string GetAbsolutePath(this ReadOnlySpan<char> fileName, ReadOnlySpan<char> basePath)
   {
-    if (string.IsNullOrWhiteSpace(fileName))
+    if (fileName.IsWhiteSpace())
       return string.Empty;
 
-    var expandedFileName = Environment.ExpandEnvironmentVariables(fileName).RemovePrefix();
+    var expandedFileName = Environment.ExpandEnvironmentVariables(fileName.ToString()).RemovePrefix();
 
     if (Path.IsPathRooted(expandedFileName))
       return Path.GetFullPath(expandedFileName);
 
-    var adjustedBasePath = (basePath is null || basePath.Length == 0) ? "." : basePath;
+    var adjustedBasePath = (basePath.IsEmpty) ? string.Empty : basePath.ToString();
 
-    return GetFullPath(Path.Combine(adjustedBasePath, expandedFileName));
+    return Path.GetFullPath(Path.Combine(adjustedBasePath, expandedFileName).LongPathPrefix());
   }
 
   /// <summary>
@@ -429,31 +429,50 @@ public static class FileSystemUtils
   /// </remarks>
   public static string GetShortDisplayFileName(this string fileName, int length = 80)
   {
-    var ret = fileName.RemovePrefix();
+    var processedPath = fileName.RemovePrefix();
+
     if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
-      return ret;
+      return processedPath;
+
+    // 1. Check if it's a UNC path (starts with {Path.DirectorySeparatorChar})
     var parts = fileName.Split([Path.DirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+    if (parts.Length == 0) return processedPath;
     var fileNameOnly = parts[parts.Length - 1];
+    string sep = Path.DirectorySeparatorChar.ToString();
+    // Restore UNC backslashes to the server name (windows only, no harm in other environments though)
+    if (processedPath.StartsWith($"{sep}{sep}", StringComparison.Ordinal))
+      parts[0] = $"{sep}{sep}{parts[0]}";
 
-    // try to cut out directories
+    // Level 1: Deep Path - Keep Server, Share, and last two folders
     if (parts.Length > 5)
-      ret = $"{parts[0]}{Path.DirectorySeparatorChar}{parts[1]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 3]}{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
+    {
+      processedPath = $"{parts[0]}{sep}{parts[1]}{sep}…{sep}{parts[parts.Length - 3]}{sep}{parts[parts.Length - 2]}{sep}{fileNameOnly}";
+    }
+    // Level 2: Medium Path - Keep Root and last folder
+    if (processedPath.Length > length && parts.Length > 3)
+    {
+      processedPath = $"{parts[0]}{sep}…{sep}{parts[parts.Length - 2]}{sep}{fileNameOnly}";
+    }
 
-    if (ret.Length > length && parts.Length > 3)
-      ret = $"{parts[0]}{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
+    // Level 3: Short Path - Just the end of the path
+    if (processedPath.Length > length && parts.Length >= 2)
+    {
+      processedPath = $"…{sep}{parts[parts.Length - 2]}{sep}{fileNameOnly}";
+    }
 
-    if (ret.Length > length && parts.Length > 3)
-      ret = $"…{Path.DirectorySeparatorChar}{parts[parts.Length - 2]}{Path.DirectorySeparatorChar}{fileNameOnly}";
+    // Level 4: Extreme - Just the filename
+    if (processedPath.Length > length)
+      processedPath = fileNameOnly;
 
-    // yet too long? only filename
-    if (ret.Length > length)
-      ret = fileNameOnly;
+    // Level 5: Still too long? Brute force middle-cut
+    if (processedPath.Length <= length)
+      return processedPath;
 
-    // still too long?
-    if (ret.Length <= length)
-      return ret;
-    var cut = length * 2 / 3;
-    return ret.Substring(0, length - cut) + "…" + ret.Substring(ret.Length - cut + 1);
+    int keepRight = length * 2 / 3;
+    int keepLeft = length - keepRight - 1; // -1 for the ellipsis
+    // Ensure we don't pass negative numbers to Substring
+    if (keepLeft < 0) return fileNameOnly.Substring(0, Math.Min(length, fileNameOnly.Length));
+    return processedPath.Substring(0, keepLeft) + "…" + processedPath.Substring(processedPath.Length - keepRight);
   }
 
   /// <summary>
@@ -590,7 +609,7 @@ public static class FileSystemUtils
 
   /// <summary>Opens the file for writing</summary>
   /// <param name="fileName">Name of the file.</param>
-  public static FileStream OpenWrite(string fileName) => File.OpenWrite(fileName.LongPathPrefix());
+  public static FileStream OpenWrite(ReadOnlySpan<char> fileName) => File.OpenWrite(fileName.LongPathPrefix());
 
   /// <summary>
   /// Creates a file in a particular path.  If the file exists, it is replaced. The file is opened with ReadWrite access and cannot be opened by another application until it has been closed.  
@@ -598,7 +617,7 @@ public static class FileSystemUtils
   /// <param name="fileName">Name of the file.</param>
   /// <param name="bufferSize">Size of the buffer.</param>
   /// <param name="options">The options like RandomAccess or Asynchronous</param>    
-  public static FileStream Create(string fileName, int bufferSize, in FileOptions options) =>
+  public static FileStream Create(ReadOnlySpan<char> fileName, int bufferSize, in FileOptions options) =>
     File.Create(fileName.LongPathPrefix(), bufferSize, options);
 
   /// <summary>
@@ -606,8 +625,8 @@ public static class FileSystemUtils
   /// </summary>
   /// <param name="fileName">Name of the file.</param>
   /// <param name="contents">The contents.</param>
-  public static void WriteAllText(string fileName, string contents) =>
-    File.WriteAllText(fileName.LongPathPrefix(), contents);
+  public static void WriteAllText(ReadOnlySpan<char> fileName, ReadOnlySpan<char> contents) =>
+    File.WriteAllText(fileName.LongPathPrefix(), contents.ToString());
 
   /// <summary>
   /// Writes all text to the given file
@@ -615,8 +634,8 @@ public static class FileSystemUtils
   /// <param name="fileName">Name of the file.</param>
   /// <param name="contents">The contents.</param>
   /// <param name="encoding">The encoding to be used</param>
-  public static void WriteAllText(string fileName, string contents, in Encoding encoding) =>
-    File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
+  public static void WriteAllText(ReadOnlySpan<char> fileName, ReadOnlySpan<char> contents, in Encoding encoding) =>
+    File.WriteAllText(fileName.LongPathPrefix(), contents.ToString(), encoding);
 
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
   private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
@@ -651,20 +670,20 @@ public static class FileSystemUtils
   /// during resolution, but returns a "clean" path suitable for UI display or standard API usage.
   /// </remarks>
   /// <exception cref="ArgumentException"><paramref name="path"/> contains invalid characters.</exception>
-  public static string GetFullPath(string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
+  public static string GetFullPath(ReadOnlySpan<char> path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
 
   /// <summary>
   /// Opens the file for reading
   /// </summary>
   /// <param name="fileName">Name of the file.</param>    
-  public static FileStream OpenRead(string fileName) => File.OpenRead(fileName.LongPathPrefix());
+  public static FileStream OpenRead(ReadOnlySpan<char> fileName) => File.OpenRead(fileName.LongPathPrefix());
 
   /// <summary>
   /// Writes all bytes of content to the file
   /// </summary>
   /// <param name="fileName">Name of the file.</param>
   /// <param name="contents">The contents to be written.</param>
-  public static void WriteAllBytes(string fileName, in byte[] contents) =>
+  public static void WriteAllBytes(ReadOnlySpan<char> fileName, in byte[] contents) =>
     File.WriteAllBytes(fileName.LongPathPrefix(), contents);
 
   /// <summary>
@@ -708,33 +727,38 @@ public static class FileSystemUtils
   ///   Get the long name of the file in case it was shorted with ~
   /// </summary>
   /// <param name="shortPath">The short path.</param>    
-  public static string LongFileName(this string shortPath)
+  public static string LongFileName(this ReadOnlySpan<char> shortPath)
   {
-    if (string.IsNullOrEmpty(shortPath))
-      return shortPath;
+    if (shortPath.IsEmpty)
+      return string.Empty;
 
     if (!IsWindows)
-      return !shortPath.Contains("." + Path.DirectorySeparatorChar) ? shortPath : Path.GetFullPath(shortPath);
+      return !shortPath.Contains("." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ? shortPath.ToString() : Path.GetFullPath(shortPath.ToString());
     else
-      return shortPath.Contains('~') ? shortPath.LongFileNameKernel() : shortPath;
+      return shortPath.IndexOf('~')!=-1 ? shortPath.LongFileNameKernel() : shortPath.ToString();
   }
 
   /// <summary>
   /// Gets a prefix that allows .NET windows system to deal with filename that exceed 248 characters
   /// </summary>
   /// <param name="path">The path to the file.</param>    
-  public static string LongPathPrefix(this string path)
+  public static string LongPathPrefix(this ReadOnlySpan<char> path)
   {
     // In case the directory is 248 we need long path as well
-    if (!IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
-        path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+    if (!IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix.AsSpan(), StringComparison.Ordinal) ||
+        path.StartsWith(cUncLongPathPrefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
     {
-      return path;
+      return path.ToString();
     }
 
-    return path.StartsWith(@"\\", StringComparison.Ordinal)
-      ? cUncLongPathPrefix + path.Substring(2)
-      : cLongPathPrefix + path;
+    if (path.StartsWith(@"\\".AsSpan(), StringComparison.Ordinal))
+    {
+      // Skip the leading "\\" (2 chars) and prepend the UNC long prefix
+      return string.Concat(cUncLongPathPrefix, path.Slice(2).ToString());
+    }
+
+    // 3. Handle Local Paths (e.g., C:\...)
+    return string.Concat(cLongPathPrefix, path.ToString());
   }
 
 
@@ -747,20 +771,26 @@ public static class FileSystemUtils
   /// </remarks>
   /// <param name="path">The possibly prefixed file path.</param>
   /// <returns>The path without the long path prefix.</returns>
-  public static string RemovePrefix(this string path)
+  public static string RemovePrefix(this ReadOnlySpan<char> path)
   {
-    if (!IsWindows)
-      return path;
+    if (!IsWindows || path.IsEmpty)
+      return path.ToString();
 
-    // Local long path prefix: \\?\
-    if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
-      return path.Substring(cLongPathPrefix.Length);
+    // 1. Handle UNC long path prefix: \\?\UNC\ (Highest priority)
+    // Needs to convert \\?\UNC\Server\Share to \\Server\Share
+    if (path.StartsWith(cUncLongPathPrefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
+    {
+      return string.Concat(@"\\", path.Slice(cUncLongPathPrefix.Length).ToString());
+    }
 
-    // UNC long path prefix: \\?\UNC\
-    if (path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
-      return @"\\" + path.Substring(cUncLongPathPrefix.Length);
+    // 2. Handle Local long path prefix: \\?\
+    // Needs to convert \\?\C:\Path to C:\Path
+    if (path.StartsWith(cLongPathPrefix.AsSpan(), StringComparison.Ordinal))
+    {
+      return path.Slice(cLongPathPrefix.Length).ToString();
+    }
 
-    return path;
+    return path.ToString();
   }
 
   /// <summary>
@@ -780,13 +810,13 @@ public static class FileSystemUtils
   /// </list>
   /// Standard environment variables (e.g., %TEMP%) are also expanded.
   /// </remarks>
-  public static string ResolvePattern(this string fileName)
+  public static string ResolvePattern(this ReadOnlySpan<char> fileName)
   {
-    if (fileName is null || fileName.Length == 0)
+    if (fileName.IsEmpty)
       return string.Empty;
 
     // expand %AppData%, %LOCALAPPDATA% or %USERPROFILE% and alike
-    var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName
+    var withoutPlaceHolder = Environment.ExpandEnvironmentVariables(fileName.ToString()
         .PlaceholderReplace("date", DateTime.Now.ToString(CultureInfo.CurrentCulture))
         .PlaceholderReplace("utc", DateTime.UtcNow.ToString(CultureInfo.CurrentCulture))
     );
@@ -855,47 +885,58 @@ public static class FileSystemUtils
   /// - Windows long path prefixes (e.g., "\\?\" or "\\?\UNC\") are removed.
   /// - DirectoryName never ends with a separator.
   /// </remarks>
-  public static SplitResult SplitPath(string? path)
+  public static SplitResult SplitPath(ReadOnlySpan<char> path)
   {
-    if (string.IsNullOrEmpty(path))
+    if (path.IsEmpty)
       return new SplitResult(string.Empty, string.Empty);
 
     // Expand environment variables first
-    path = Environment.ExpandEnvironmentVariables(path);
+    var expandedPath = Environment.ExpandEnvironmentVariables(path.ToString());
 
     // Normalize separators
-    path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+    expandedPath = expandedPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
     // Remove Windows long path prefix if present
-    path = path.RemovePrefix();
+    expandedPath = expandedPath.RemovePrefix();
 
     // Convert relative paths to absolute
     try
     {
-      if (path.IndexOf(Path.DirectorySeparatorChar) !=-1 && !Path.IsPathRooted(path))
-        path = Path.GetFullPath(path);
+      if (expandedPath.IndexOf(Path.DirectorySeparatorChar) !=-1 && !Path.IsPathRooted(expandedPath))
+        expandedPath = Path.GetFullPath(expandedPath);
     }
-    catch
-    {
-      // Ignore GetFullPath might fail due to invalid char
-    }
-    var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
+    catch (ArgumentException) { /* Handle invalid path characters */ }
+    catch (PathTooLongException) { /* Fallback to current string */ }
 
-    return lastIndex != -1
-      ? new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1))
-      : new SplitResult(string.Empty, path);
+    var lastIndex = expandedPath.LastIndexOf(Path.DirectorySeparatorChar);
+
+    if (lastIndex != -1)
+    {
+      // Handle case where path ends in a separator (e.g., "C:\Temp\")
+      if (lastIndex == expandedPath.Length - 1)
+      {
+        return new SplitResult(expandedPath.TrimEnd(Path.DirectorySeparatorChar), string.Empty);
+      }
+
+      return new SplitResult(
+          expandedPath.Substring(0, lastIndex),
+          expandedPath.Substring(lastIndex + 1)
+      );
+    }
+
+    return new SplitResult(string.Empty, expandedPath);
   }
 
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
   private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
 
-  private static string LongFileNameKernel(this string shortPath)
+  private static string LongFileNameKernel(this ReadOnlySpan<char> shortPath)
   {
-    if (string.IsNullOrEmpty(shortPath))
-      return shortPath;
+    if (shortPath.IsEmpty)
+      return string.Empty;
     var longNameBuffer = new StringBuilder(4000);
     var length = GetLongPathName(shortPath.LongPathPrefix(), longNameBuffer, longNameBuffer.Capacity);
-    return length > 0 ? longNameBuffer.ToString(0, length) : shortPath;
+    return length > 0 ? longNameBuffer.ToString(0, length) : shortPath.ToString();
   }
 
   /// <summary>

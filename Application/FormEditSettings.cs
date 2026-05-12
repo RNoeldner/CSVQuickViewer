@@ -36,7 +36,6 @@ public partial class FormEditSettings : ResizeForm
   private readonly EditSettings m_WriteSettings;
   private readonly ViewSettings m_ViewSettings;
 
-
   /// <summary>
   /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
   /// </summary>
@@ -141,7 +140,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private async void BtnOpenFile_Click(object? sender, EventArgs e)
   {
-    try
+    await btnOpenFile.RunWithHourglassAsync(async () =>
     {
       var split = FileSystemUtils.SplitPath(textBoxFileName.Text);
       var newFileName = WindowsAPICodePackWrapper.Open(
@@ -153,7 +152,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       if (newFileName is null || newFileName.Length == 0)
         return;
 
-      newFileName = newFileName.GetShortestPath(".");
       SetDefaultInspectionResult();
 
       using var formProgress = new FormProgress("Examining file", m_CancellationTokenSource.Token);
@@ -174,69 +172,63 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           if (frm.ShowWithFont(this, true) == DialogResult.Cancel)
             throw new OperationCanceledException();
           return frm.SelectedText;
-        }, m_ViewSettings.DefaultInspectionResult, 
+        }, m_ViewSettings.DefaultInspectionResult,
 #if SupportPGP
             PgpHelper.GetKeyAndValidate(newFileName, m_ViewSettings.KeyFileRead),
 #else
         string.Empty,
 #endif
-        
+
         formProgress);
-      this.SafeInvoke(() =>
-      {
-        formProgress.Close();
 
-        m_ReadSettings.FileName = newFileName;
-        m_ReadSettings.SkipRows = ir.SkipRows;
-        m_ReadSettings.CodePageId = ir.CodePageId;
-        m_ReadSettings.ByteOrderMark = ir.ByteOrderMark;
-        m_ReadSettings.IdentifierInContainer = ir.IdentifierInContainer;
-        m_ReadSettings.HasFieldHeader = ir.HasFieldHeader;
-        m_ReadSettings.ColumnCollection.Overwrite(ir.Columns);
-        m_ReadSettings.CommentLine = ir.CommentLine;
-        m_ReadSettings.EscapePrefixChar = ir.EscapePrefix;
-        m_ReadSettings.FieldDelimiterChar = ir.FieldDelimiter;
-        m_ReadSettings.FieldQualifierChar = ir.FieldQualifier;
-        m_ReadSettings.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
-        m_ReadSettings.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
-        m_ReadSettings.NewLine = ir.NewLine;
-        m_ReadSettings.IsJson = ir.IsJson;
-        m_ReadSettings.IsXml = ir.IsXml;
+      formProgress.Close();
 
-        m_WriteSettings.CodePageId = ir.CodePageId;
-        m_WriteSettings.ByteOrderMark = ir.ByteOrderMark;
+      m_ReadSettings.FileName = newFileName;
+      m_ReadSettings.SkipRows = ir.SkipRows;
+      m_ReadSettings.CodePageId = ir.CodePageId;
+      m_ReadSettings.ByteOrderMark = ir.ByteOrderMark;
+      m_ReadSettings.IdentifierInContainer = ir.IdentifierInContainer;
+      m_ReadSettings.HasFieldHeader = ir.HasFieldHeader;
+      m_ReadSettings.ColumnCollection.Overwrite(ir.Columns);
+      m_ReadSettings.CommentLine = ir.CommentLine;
+      m_ReadSettings.EscapePrefixChar = ir.EscapePrefix;
+      m_ReadSettings.FieldDelimiterChar = ir.FieldDelimiter;
+      m_ReadSettings.FieldQualifierChar = ir.FieldQualifier;
+      m_ReadSettings.ContextSensitiveQualifier = ir.ContextSensitiveQualifier;
+      m_ReadSettings.DuplicateQualifierToEscape = ir.DuplicateQualifierToEscape;
+      m_ReadSettings.NewLine = ir.NewLine;
+      m_ReadSettings.IsJson = ir.IsJson;
+      m_ReadSettings.IsXml = ir.IsXml;
 
-        m_WriteSettings.ColumnCollection.Overwrite(ir.Columns);
+      m_WriteSettings.CodePageId = ir.CodePageId;
+      m_WriteSettings.ByteOrderMark = ir.ByteOrderMark;
 
-        // Fix No Qualifier
-        if (m_WriteSettings.FieldQualifierChar == 0)
-          m_WriteSettings.FieldQualifierChar = '"';
+      m_WriteSettings.ColumnCollection.Overwrite(ir.Columns);
 
-        // Fix No DuplicateQualifier
-        if (!m_WriteSettings.DuplicateQualifierToEscape && m_WriteSettings.FieldQualifierChar == '"' &&
-            m_WriteSettings.EscapePrefixChar == char.MinValue)
-          m_WriteSettings.DuplicateQualifierToEscape = true;
+      // Fix No Qualifier
+      if (m_WriteSettings.FieldQualifierChar == 0)
+        m_WriteSettings.FieldQualifierChar = '"';
 
-        // Fix No Delimiter
-        if (m_WriteSettings.FieldDelimiterChar == 0)
-          m_WriteSettings.FieldDelimiterChar = ',';
+      // Fix No DuplicateQualifier
+      if (!m_WriteSettings.DuplicateQualifierToEscape && m_WriteSettings.FieldQualifierChar == '"' &&
+          m_WriteSettings.EscapePrefixChar == char.MinValue)
+        m_WriteSettings.DuplicateQualifierToEscape = true;
 
-        // NewLine depending on Environment
-        if (Environment.NewLine == "\r\n")
-          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Crlf;
-        else if (Environment.NewLine == "\n")
-          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Lf;
-        else if (Environment.NewLine == "\r")
-          m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Cr;
+      // Fix No Delimiter
+      if (m_WriteSettings.FieldDelimiterChar == 0)
+        m_WriteSettings.FieldDelimiterChar = ',';
 
-        TextBoxFile_Validating(sender, new CancelEventArgs(false));
-        textBoxFileName.Focus();
-      });
-    }
-    catch (Exception ex)
-    {
-      Extensions.ShowError(ex);
-    }
+      // NewLine depending on Environment
+      if (Environment.NewLine == "\r\n")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Crlf;
+      else if (Environment.NewLine == "\n")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Lf;
+      else if (Environment.NewLine == "\r")
+        m_WriteSettings.NewLine = RecordDelimiterTypeEnum.Cr;
+
+      TextBoxFile_Validating(sender, new CancelEventArgs(false));
+      textBoxFileName.Focus();
+    });
   }
 
   private async void ButtonEscapeSequence_Click(object sender, EventArgs e)
@@ -558,20 +550,30 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
   private void TextBoxFile_Validating(object? sender, CancelEventArgs e)
   {
-    var isValidFile = !m_ReadSettings.IsJson
-                && !m_ReadSettings.IsXml
-                && FileSystemUtils.FileExists(m_ReadSettings.FileName);
-    buttonFileInfo.Enabled = isValidFile;
-    buttonGuessHeader.Enabled=isValidFile;
-    buttonGuessCP.Enabled=isValidFile;
-    buttonGuessDelimiter.Enabled=isValidFile;
-    buttonGuessLineComment.Enabled=isValidFile;
-    buttonSkipLine.Enabled=isValidFile;
-    buttonInteractiveSettings.Enabled=isValidFile;
-    buttonGuessTextQualifier.Enabled=isValidFile;
-    buttonEscapeSequence.Enabled=isValidFile;
+    string path = Environment.ExpandEnvironmentVariables(textBoxFileName.Text);
+    bool isEmpty = string.IsNullOrEmpty(path);
+    // Perform the expensive check exactly once, only if there is text.
+    bool fileExists = !isEmpty && FileSystemUtils.FileExists(path);
+    // Determine the format
+    bool isCsv = !(m_ReadSettings.IsJson || m_ReadSettings.IsXml);
 
-    if (!m_ReadSettings.IsJson && !m_ReadSettings.IsXml && !isValidFile)
+    // 1. Basic File Info button only needs the file to exist
+    buttonFileInfo.Enabled = fileExists;
+
+    // 2. CSV-specific buttons need the file to exist AND the mode to be CSV
+    bool enableCsvTools = fileExists && isCsv;
+
+    buttonGuessHeader.Enabled = enableCsvTools;
+    buttonGuessCP.Enabled = enableCsvTools;
+    buttonGuessDelimiter.Enabled = enableCsvTools;
+    buttonGuessLineComment.Enabled = enableCsvTools;
+    buttonSkipLine.Enabled = enableCsvTools;
+    buttonInteractiveSettings.Enabled = enableCsvTools;
+    buttonGuessTextQualifier.Enabled = enableCsvTools;
+    buttonEscapeSequence.Enabled = enableCsvTools;
+
+    // 3. Validation Logic
+    if (!fileExists && !isEmpty)
     {
       errorProvider.SetError(textBoxFileName, "File does not exist.");
       e.Cancel = true;

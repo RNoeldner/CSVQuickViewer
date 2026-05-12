@@ -34,8 +34,9 @@ public sealed class TextReplaceFormatter : BaseColumnFormatter
   }
 
   /// <inheritdoc/>
-  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning)
   {
+    var inputString = inputSpan.ToString();
     if (m_Regex?.IsMatch(inputString) ?? false)
     {
       var output = m_Regex.Replace(inputString, m_Replacement);

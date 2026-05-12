@@ -28,5 +28,5 @@ public sealed class EmptyFormatter : BaseColumnFormatter
   public static readonly EmptyFormatter Instance = new EmptyFormatter();
 
   /// <inheritdoc/>
-  public override string FormatInputText(string inputString, Action<string>? handleWarning) => inputString;
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning) => inputSpan.ToString();
 }

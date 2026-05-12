@@ -230,10 +230,19 @@ public abstract class BaseFileWriter : IFileWriter
       if (column != null)
       {
         var tz = column.TimeZonePart;
-        if (!string.IsNullOrEmpty(tz) && !tz.TryGetConstant(out constantTimeZone) &&
-            colNames.TryGetByValue(tz, out var ordinal))
+        if (!string.IsNullOrEmpty(tz))
         {
-          columnOrdinalTimeZoneReader = ordinal;
+          // 1. Try to see if the string is a constant (e.g., "'UTC'" or "0")
+          if (tz.AsSpan().TryGetConstant(out var resultSpan))
+          {
+            // It's a constant. Convert the span back to a string once.
+            constantTimeZone = resultSpan.ToString();
+          }
+          // 2. If it's NOT a constant, check if it's a column name (e.g., "TZ_COLUMN")
+          else if (colNames.TryGetByValue(tz, out var ordinal))
+          {
+            columnOrdinalTimeZoneReader = ordinal;
+          }
         }
       }
 

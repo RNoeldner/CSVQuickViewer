@@ -165,7 +165,6 @@ public sealed class SourceAccess
   }
 
 #if !QUICK
-  /// <inheritdoc />
   /// <summary>
   ///   Create a source access based on a setting, the setting might contain information for
   ///   containers like Zip of PGP

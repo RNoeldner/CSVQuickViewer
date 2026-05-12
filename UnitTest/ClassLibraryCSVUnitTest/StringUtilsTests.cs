@@ -43,9 +43,9 @@ public class StringUtilsTests
   public void PassesFilter()
   {
     Assert.AreEqual(true, "".PassesFilter(""));
-    Assert.AreEqual(true, "This is a test".PassesFilter("test"));
+    Assert.AreEqual(true, "This is a test".PassesFilter("test", StringComparison.Ordinal));
     Assert.AreEqual(true, "This is a test".PassesFilter("This"));
-    Assert.AreEqual(true, "This is a test".PassesFilter("This +test"));
+    Assert.AreEqual(true, "This is a test".PassesFilter("This +test", StringComparison.Ordinal));
     Assert.AreEqual(true, "This is a test".PassesFilter("The+test"));
     Assert.AreEqual(false, "This is a test".PassesFilter("+The+test"));
     Assert.AreEqual(true, "This is a test".PassesFilter("+"));
@@ -132,18 +132,12 @@ public class StringUtilsTests
   [TestMethod]
   public void HtmlEncodeShortLineFeed()
   {
-    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\nTest"));
-    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\n\rTest"));
-    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\rTest"));
-    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\nTest"));
-    Assert.AreEqual("Dies ist<br><br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\rTest"));
-  }
-
-  [TestMethod]
-  public void HtmlEncodeShortNull()
-  {
-    Assert.IsNull(HtmlStyle.HtmlEncodeShort(null));
-    Assert.AreEqual(string.Empty, HtmlStyle.HtmlEncodeShort(string.Empty));
+    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\nTest"), "\\r\\n");
+    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\n\rTest"), "\\n\\r");
+    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\rTest"), "\\r");
+    Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\nTest"), "\\n");
+    Assert.AreEqual("Dies ist<br><br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\rTest"), "\\r\\r");
+    Assert.AreEqual("Dies ist<br><br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\n\nTest"), "\\n\\n");
   }
 
   [TestMethod]
@@ -180,16 +174,17 @@ public class StringUtilsTests
   [Timeout(200)]
   public void NoSpecials2()
   {
-    Assert.AreEqual(string.Empty, " ".AsSpan().NoSpecials().ToString());
-    Assert.AreEqual("aabb", "aabb".AsSpan().NoSpecials().ToString());
-    Assert.AreEqual("12", "12_&§$".AsSpan().NoSpecials().ToString());
-    Assert.AreEqual("aabb", " aa_bb  ".AsSpan().NoSpecials().ToString());
+    Assert.AreEqual(string.Empty, " ".NoSpecials());
+    Assert.AreEqual("aabb", "aabb".NoSpecials());
+    Assert.AreEqual("12", "12_&§$".NoSpecials());
+    Assert.AreEqual("aabb", " aa_bb  ".NoSpecials());
   }
+
   [TestMethod]
   [Timeout(200)]
   public void SqlName()
   {
-    Assert.AreEqual(@"", @"".SqlName());
+    Assert.AreEqual(string.Empty, string.Empty.SqlName());
     Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlName());
     Assert.AreEqual(@"Validation]]Task", @"Validation]Task".SqlName());
   }
@@ -198,16 +193,16 @@ public class StringUtilsTests
   [Timeout(200)]
   public void SqlName2()
   {
-    Assert.AreEqual(@"", @"".AsSpan().SqlName().ToString());
-    Assert.AreEqual(@"ValidationTask", @"ValidationTask".AsSpan().SqlName().ToString());
-    Assert.AreEqual(@"Validation]]Task", @"Validation]Task".AsSpan().SqlName().ToString());
+    Assert.AreEqual(string.Empty, string.Empty.SqlName());
+    Assert.AreEqual("ValidationTask", "ValidationTask".SqlName());
+    Assert.AreEqual("Validation]]Task", "Validation]Task".SqlName());
   }
 
   [TestMethod]
   [Timeout(200)]
   public void SqlQuote()
   {
-    Assert.AreEqual(@"", @"".SqlQuote());
+    Assert.AreEqual(string.Empty, string.Empty.SqlQuote());
     Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlQuote());
     Assert.AreEqual(@"Validation''Task", @"Validation'Task".SqlQuote());
   }
@@ -215,17 +210,17 @@ public class StringUtilsTests
   [Timeout(200)]
   public void SqlQuote2()
   {
-    Assert.AreEqual(@"", @"".AsSpan().SqlQuote().ToString());
-    Assert.AreEqual(@"ValidationTask", @"ValidationTask".AsSpan().SqlQuote().ToString());
-    Assert.AreEqual(@"Validation''Task", @"Validation'Task".AsSpan().SqlQuote().ToString());
+    Assert.AreEqual(string.Empty, string.Empty.SqlQuote().ToString());
+    Assert.AreEqual(@"ValidationTask", @"ValidationTask".SqlQuote());
+    Assert.AreEqual(@"Validation''Task", @"Validation'Task".SqlQuote());
   }
   [TestMethod]
   [Timeout(200)]
   public void SafeFileName()
   {
-    Assert.AreEqual(@"", @"".SafePath());
+    Assert.AreEqual(string.Empty, string.Empty.SafePath());
 #pragma warning disable CS8625 
-    Assert.AreEqual(@"", FileSystemUtils.SafePath(null));
+    Assert.AreEqual(string.Empty, FileSystemUtils.SafePath(null));
 #pragma warning restore CS8625 
 
     Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
@@ -313,18 +308,18 @@ public class StringUtilsTests
   [TestMethod()]
   public void NoControlCharactersTest()
   {
-    Assert.AreEqual("Test", "Test".AsSpan().NoControlCharacters().ToString());
-    Assert.AreEqual("Test", "Te\tst".AsSpan().NoControlCharacters().ToString());
-    Assert.AreEqual("Test", "T\be\tst".AsSpan().NoControlCharacters().ToString());
+    Assert.AreEqual("Test", "Test".NoControlCharacters());
+    Assert.AreEqual("Test", "Te\tst".NoControlCharacters());
+    Assert.AreEqual("Test", "T\be\tst".NoControlCharacters());
   }
 
   [TestMethod()]
   public void TryGetConstantTest()
   {
-    Assert.IsTrue("'15'".AsSpan().TryGetConstant(out var result));
+    Assert.IsTrue("'15'".TryGetConstant(out var result));
     Assert.AreEqual("15", result.ToString());
 
-    Assert.IsTrue("\"-115.6\"".AsSpan().TryGetConstant(out var result2));
+    Assert.IsTrue("\"-115.6\"".TryGetConstant(out var result2));
     Assert.AreEqual("-115.6", result2.ToString());
   }
 }

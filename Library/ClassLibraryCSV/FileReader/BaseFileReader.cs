@@ -77,6 +77,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
+  private readonly string m_TreatTextAsNull;
 
   /// <summary>
   ///   An array of associated col
@@ -105,13 +106,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   protected bool[] m_ParseFromSource = Array.Empty<bool>();
 
-  /// <inheritdoc />
   /// <summary>
   ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" />
   /// </summary>
   /// <param name="fileName">Path to a physical file (if used)</param>
   /// <param name="columnDefinition">List of column definitions</param>
   /// <param name="recordLimit">Number of records that should be read</param>
+  /// <param name="treatTextAsNull">A semicolon or tab separated list of that should be treated as NULL</param>
   /// <param name="returnedTimeZone">
   ///   Name of the time zone datetime values that have a source time zone should be converted to
   /// </param>
@@ -120,6 +121,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected BaseFileReader(string fileName,
     IEnumerable<Column>? columnDefinition,
     long recordLimit,
+    string treatTextAsNull,
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
@@ -135,6 +137,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     FileName = fileName.GetFileName();
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
+    m_TreatTextAsNull = treatTextAsNull.Trim();
   }
 
   protected IReadOnlyList<string> CurrentRowText => CurrentRowColumnText;
@@ -759,6 +762,43 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
+  /// Orchestrates text processing including formatting, null-equivalent detection, 
+  /// trimming, and non-breaking space replacement.
+  /// </summary>
+  /// <param name="textSpan">The raw character span to process.</param>
+  /// <param name="columnNo">The column index for metadata and formatter lookups.</param>
+  /// <returns>A processed span that is potentially trimmed, formatted, or cleaned.</returns>
+  protected virtual string HandleText(ReadOnlySpan<char> textSpan, int columnNo)
+  {
+    // 1. Primary Empty Check
+    if (textSpan.IsEmpty)
+      return string.Empty;
+
+    var columnFormatter = GetColumn(columnNo).ColumnFormatter;
+
+    // We need to keep a reference to the new string if one is created
+    string? formattedString = null;
+
+    // 2. Formatting
+    if (!ReferenceEquals(columnFormatter, EmptyFormatter.Instance))
+    {
+      formattedString = columnFormatter.FormatInputText(textSpan, msg => HandleWarning(columnNo, msg));
+      // textSpan now points to the memory of formattedString
+      textSpan = formattedString.AsSpan();
+    }
+
+    // 3. Null Detection
+    // This is now safe because formattedString keeps the memory alive
+    if (textSpan.ShouldBeTreatedAsNull(m_TreatTextAsNull))
+      return string.Empty;
+
+    // 4. Return
+    // If we formatted it, return the string we already have to avoid a second allocation
+    // If we didn't format it, create a new string from the original span
+    return formattedString ?? textSpan.ToString();
+  }
+
+  /// <summary>
   ///   Shows the process.
   /// </summary>
   /// <param name="text">Leading Text</param>
@@ -1036,7 +1076,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       out var timeSpanLongerThanDay);
     if (timeSpanLongerThanDay)
     {
-      var passedIn = strInputTime;
+      ReadOnlySpan<char> passedIn = strInputTime;
       if (inputTime != null)
         passedIn = Convert.ToString(inputTime).AsSpan();
 
@@ -1061,14 +1101,24 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       }
     }
 
-    // ReSharper disable once MergeIntoPattern
     if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
     {
-      // get the time zone either from constant or from other column
-      if (!column.TimeZonePart.TryGetConstant(out var timeZone) && m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
+      // Try to get it from the constant definition (e.g., "UTC")
+      if (!column.TimeZonePart.TryGetConstant(out var timeZone))
+      {
+        int associatedColIdx = m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal
+            ? m_AssociatedTimeZoneCol[column.ColumnOrdinal]
+            : -1;
 
-      return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
+        if (associatedColIdx > -1)
+          timeZone = GetSpan(associatedColIdx);
+      }
+
+      return TimeZoneAdjust(
+          dateTime.Value,
+          timeZone.ToString(),
+          ReturnedTimeZone,
+          message => HandleWarning(column.ColumnOrdinal, message));
     }
 
     var display2 = column.ValueFormat.DateFormat.ReplaceDefaults('/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);

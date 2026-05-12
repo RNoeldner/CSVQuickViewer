@@ -43,7 +43,7 @@ public static class UnitTestStatic
     "TestFiles");
 
   // ReSharper disable once ArrangeObjectCreationWhenTypeEvident
-#if NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public static readonly Random Random = Random.Shared;
 #else
   public static readonly Random Random = new Random(Environment.TickCount);

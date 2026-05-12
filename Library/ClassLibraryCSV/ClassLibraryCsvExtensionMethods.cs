@@ -13,6 +13,7 @@
  */
 #nullable enable
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -90,31 +91,39 @@ public static class ClassLibraryCsvExtensionMethods
   /// </summary>
   /// <param name="input">The text to inspect for placeholders.</param>
   /// <returns><c>true</c> if a potential placeholder pattern is detected.</returns>
-  public static bool AssumePlaceholderPresent(this string input)
+  public static bool AssumePlaceholderPresent(this ReadOnlySpan<char> input)
   {
-    if (string.IsNullOrEmpty(input))
+    if (input.Length < 2) // Most placeholders need at least 2 chars (e.g., {}, #a)
       return false;
-    int start;
+    int index = input.IndexOfAny("{[(<#");
 
-    // Check for pairs: {}, [], ()
-    if ((start = input.IndexOf('{')) != -1 && input.IndexOf('}', start + 1) != -1)
-      return true;
+    while (index != -1 && index < input.Length - 1)
+    {
+      char found = input[index];
+      ReadOnlySpan<char> remaining = input.Slice(index + 1);
 
-    if ((start = input.IndexOf('[')) != -1 && input.IndexOf(']', start + 1) != -1)
-      return true;
+      switch (found)
+      {
+        case '{': if (remaining.IndexOf('}') != -1) return true; break;
+        case '[': if (remaining.IndexOf(']') != -1) return true; break;
+        case '(': if (remaining.IndexOf(')') != -1) return true; break;
+        case '<':
+          // Special check for <: ... >
+          if (remaining.Length > 0 && remaining[0] == ':' && remaining.IndexOf('>') != -1)
+            return true;
+          break;
+        case '#':
+          // Your current logic: # followed by anything
+          return true;
+      }
 
-    if ((start = input.IndexOf('(')) != -1 && input.IndexOf(')', start + 1) != -1)
-      return true;
+      // Move past the current char and look for the next potential start
+      int next = remaining.IndexOfAny("{[(<#");
+      if (next == -1) break;
 
-    // Check for <: >
-    if ((start = input.IndexOf("<:", StringComparison.Ordinal)) != -1 && input.IndexOf('>', start + 2) != -1)
-      return true;
-
-    // Check for # (Handles both #paired# and #open placeholders closed by space)
-    start = input.IndexOf('#');
-    // Returns true if # exists and is not the very last character
-    if (start != -1 && start < input.Length - 1)
-      return true;
+      // Update index relative to the original 'input'
+      index += next + 1;
+    }
 
     return false;
   }
@@ -125,7 +134,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// <param name="fileName">The name or path of the file.</param>  
   public static bool AssumeZip(this string fileName) =>
     fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
- 
+
   /// <summary>
   /// Clears the target collection and populates it with cloned copies of elements from the source.
   /// </summary>
@@ -133,7 +142,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// <param name="self">The source sequence of items to cloneable.</param>
   /// <param name="other">The target collection to be updated. Does nothing if null.</param>
   [DebuggerStepThrough]
-  public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other)  where T : class
+  public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other) where T : class
   {
     if (other is null || self is null) return;
     other.Clear();
@@ -653,7 +662,7 @@ public static class ClassLibraryCsvExtensionMethods
       {
         // No more matches left in the remaining span
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-            sb.Append(remaining);
+        sb.Append(remaining);
 #else
         sb.Append(remaining.ToString());
 #endif
@@ -662,7 +671,7 @@ public static class ClassLibraryCsvExtensionMethods
 
       // Append the text before the match
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        sb.Append(remaining.Slice(0, nearestMatch));
+      sb.Append(remaining.Slice(0, nearestMatch));
 #else
       sb.Append(remaining.Slice(0, nearestMatch).ToString());
 #endif
@@ -689,7 +698,7 @@ public static class ClassLibraryCsvExtensionMethods
     if (replacement.Equals(pattern, StringComparison.Ordinal))
       return original;
 
-#if NET8_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     return original.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
 #else
     var inc = original.Length / pattern.Length * (replacement.Length - pattern.Length);
@@ -722,62 +731,85 @@ public static class ClassLibraryCsvExtensionMethods
   /// <summary>
   /// Efficiently replaces specific characters in a string. If the replacement is <c>\0</c>, the character is removed.
   /// </summary>
-  public static string ReplaceDefaults(this string inputValue, in char old1, in char new1, in char old2,
-    in char new2)
+  public static string ReplaceDefaults(this ReadOnlySpan<char> inputValue, in char old1, in char new1, in char old2, in char new2)
   {
     if (inputValue.Length == 0)
       return string.Empty;
 
-    var result = new char[inputValue.Length];
-    int pos = 0;
-    for (int i = 0; i < inputValue.Length; i++)
-    {
-      if (inputValue[i] == old1)
-      {
-        if (new1 != char.MinValue)
-          result[pos++] = new1;
-      }
-      else if (inputValue[i] == old2)
-      {
-        if (new2 != char.MinValue)
-          result[pos++] = new2;
-      }
-      else
-        result[pos++] = inputValue[i];
-    }
+    // Use a pooled array or stackalloc safely via a conditional Span
+    char[]? arrayFromPool = null;
+    int length = inputValue.Length;
 
-    return new string(result, 0, pos);
+    // Use stackalloc for small strings, otherwise rent from ArrayPool to avoid heap pressure
+    Span<char> result = length <= 256
+        ? stackalloc char[length]
+        : (arrayFromPool = ArrayPool<char>.Shared.Rent(length));
+    try
+    {
+      int pos = 0;
+      for (int i = 0; i < inputValue.Length; i++)
+      {
+        if (inputValue[i] == old1)
+        {
+          if (new1 != char.MinValue)
+            result[pos++] = new1;
+        }
+        else if (inputValue[i] == old2)
+        {
+          if (new2 != char.MinValue)
+            result[pos++] = new2;
+        }
+        else
+          result[pos++] = inputValue[i];
+      }
+      return result.Slice(0, pos).ToString();
+    }
+    finally
+    {
+      if (arrayFromPool != null)
+        ArrayPool<char>.Shared.Return(arrayFromPool);
+    }
   }
 
   /// <summary>
   /// Replaces occurrences of two different strings within a source string.
   /// </summary>
-  public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2,
-    string new2)
+  public static string ReplaceDefaults(this ReadOnlySpan<char> inputValue, ReadOnlySpan<char> old1, string new1, ReadOnlySpan<char> old2, string new2)
   {
-    if (inputValue.Length == 0)
-      return string.Empty;
+    if (inputValue.IsEmpty) return string.Empty;
 
     if (old1.Length == 1 && new1.Length == 1 && old2.Length == 1 && new2.Length == 1)
       return ReplaceDefaults(inputValue, old1[0], new1[0], old2[0], new2[0]);
+    
+    // We estimate the capacity. If the new strings are longer than the old ones, 
+    // the StringBuilder will grow.
+    var sb = new StringBuilder(inputValue.Length);
 
-    var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
-    var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
 
-    if (exchange1 && exchange2 && string.Equals(new1, old2))
+    for (int i = 0; i < inputValue.Length; i++)
     {
-      inputValue = inputValue.Replace(old1, "{\0}");
-      inputValue = inputValue.Replace(old2, new2);
-      return inputValue.Replace("{\0}", new1);
+      // Try to match the first pattern
+      if (!old1.IsEmpty && inputValue.Slice(i).StartsWith(old1, StringComparison.Ordinal))
+      {
+        sb.Append(new1);
+        i += old1.Length - 1; // Jump past the matched string
+      }
+      // Try to match the second pattern
+      else if (!old2.IsEmpty && inputValue.Slice(i).StartsWith(old2, StringComparison.Ordinal))
+      {
+        sb.Append(new2);
+        i += old2.Length - 1; // Jump past the matched string
+      }
+      else
+      {
+        // No match found at this position, just copy the current character
+        sb.Append(inputValue[i]);
+      }
     }
 
-    if (exchange1)
-      inputValue = inputValue.Replace(old1, new1);
-    if (exchange2)
-      inputValue = inputValue.Replace(old2, new2);
-
-    return inputValue;
+    return sb.ToString();
   }
+
   /// <summary>
   /// Sets the maximum value on a progress reporter if it implements <see cref="IProgressTime"/>.
   /// </summary>

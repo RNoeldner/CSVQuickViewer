@@ -34,11 +34,11 @@ public class TextToHtmlFullFormatter : BaseColumnFormatter
     dataObject is null ? string.Empty : HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
 
   /// <inheritdoc/>
-  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning)
   {
-    var output = HtmlStyle.HtmlEncodeShort(inputString);
-    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-      handleWarning?.Invoke($"HTML encoding removed from {inputString}");
+    var output = HtmlStyle.HtmlEncodeShort(inputSpan);
+    if (RaiseWarning && !inputSpan.SequenceEqual(output.AsSpan()))
+      handleWarning?.Invoke($"HTML encoding removed from {inputSpan.ToString()}");
     return output!;
   }
 

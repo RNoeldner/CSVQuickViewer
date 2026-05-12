@@ -43,7 +43,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   private volatile bool m_FileChanged;
   private bool m_StartupLoadDone;
   private string m_FileName;
-  private CsvFileDummy? m_FileSetting;
+  private CsvFileDummy m_FileSetting;
   private bool m_RunDetection;
   private bool m_ShouldReloadData;
   private IList<Column>? m_StoreColumns;
@@ -62,6 +62,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     InitializeComponent();
     Text = AssemblyTitle;
     WinAppLogging.AddLog(loggerDisplay);
+    m_FileSetting = new CsvFileDummy();
+    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
     FunctionalDI.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(m_ViewSettings.FillGuessSettings);
 #if SupportPGP
@@ -122,7 +124,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
     detailControl.WriteFileAsync = async (token, reader) =>
     {
-      if (m_FileSetting == null)
+      if (string.IsNullOrEmpty(m_FileSetting.FileName))
         return;
       try
       {
@@ -184,32 +186,44 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
     detailControl.DisplaySourceAsync = async ct =>
     {
-      using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting!.FullPath,
+      if (string.IsNullOrEmpty(m_FileSetting.FullPath))
+        return;
+      using var sourceDisplay = new FormCsvTextDisplay(m_FileSetting.FullPath,
         async formProgress =>
         {
-          var sa = new SourceAccess(m_FileSetting!.FullPath);
-          sa.IdentifierInContainer = m_FileSetting.IdentifierInContainer;
-          using var stream = FunctionalDI.GetStream(sa);
-          using var textReader =
-            new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
-
-          var sb = new StringBuilder();
-          char[] buffer = ArrayPool<char>.Shared.Rent(64000);
-          int len;
-          const int max = 1000;
-          formProgress.SetMaximum(max);
-          while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length)) != 0)
+          var sa = new SourceAccess(m_FileSetting.FullPath)
           {
-            formProgress.CancellationToken.ThrowIfCancellationRequested();
-            sb.Append(buffer, 0, len);
-            var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * max) : 0L;
-            formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
+            IdentifierInContainer = m_FileSetting.IdentifierInContainer
+          };
+          using var stream = FunctionalDI.GetStream(sa);
+          using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
+
+          var sb = new StringBuilder((int) stream.Length);
+          char[] buffer = ArrayPool<char>.Shared.Rent(64000);
+          try
+          {
+            int len;
+            const int max = 1000;
+            formProgress.SetMaximum(max);
+            while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length)) != 0)
+            {
+              formProgress.CancellationToken.ThrowIfCancellationRequested();
+              for (int i = 0; i < len; i++)
+                if (buffer[i] == '\t') buffer[i] = '⇥';
+              sb.Append(buffer, 0, len);
+              var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * max) : 0L;
+              formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
+            }
+
+            formProgress.SetMaximum(0);
+            formProgress.Report("Finished reading file");
+
+            return sb.ToString();
           }
-
-          formProgress.SetMaximum(0);
-          formProgress.Report("Finished reading file");
-
-          return sb.ToString();
+          finally
+          {
+            ArrayPool<char>.Shared.Return(buffer);
+          }
         });
       sourceDisplay.FontConfig = new FontConfig(Font.Name, Font.Size);
       if (m_FileSetting.IsCsv)
@@ -260,11 +274,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   private void AttachPropertyChanged()
   {
-    if (m_FileSetting != null)
-    {
-      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
-    }
+    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
     try
     {
@@ -303,16 +314,13 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       {
         Interlocked.Exchange(ref m_CheckPending, 0);
 
-        if (m_FileChanged && m_FileSetting != null &&
-          m_FileSetting.FileName.Length > 0 &&
-          !File.Exists(m_FileSetting.FileName))
+        if (m_FileChanged && (string.IsNullOrEmpty(m_FileSetting.FileName) || !File.Exists(m_FileSetting.FullPath)))
           m_FileChanged = false;
 
         if (!m_ShouldReloadData && !m_FileChanged)
           return;
 
         await CheckPossibleChangeCore();
-
       }
       while (Interlocked.Exchange(ref m_CheckPending, 0) == 1 ||
            m_ShouldReloadData || m_FileChanged);
@@ -339,7 +347,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
             MessageBoxIcon.Question,
             MessageBoxDefaultButton.Button2) == DialogResult.Yes)
       {
-        if (m_RunDetection && m_FileSetting!=null)
+        if (m_RunDetection && !string.IsNullOrEmpty(m_FileSetting.FileName))
         {
           m_RunDetection = false;
           using var progress = new FormProgress("Detection", m_CancellationTokenSource.Token);
@@ -363,15 +371,19 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
           progress.Close();
         }
 
+        // Event Suppression, OpenDataReaderAsync will add text columns
+        m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
         await OpenDataReaderAsync();
+        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+
         // as we have reloaded assume any file change is handled as well
         m_FileChanged = false;
       }
     }
 
-    if (m_FileSetting is null || m_FileSetting.FileName.Length == 0 || !m_FileChanged)
+    if (string.IsNullOrEmpty(m_FileSetting.FileName) || !m_FileChanged)
       return;
-    m_FileName = m_FileSetting.FileName;
+    m_FileName = m_FileSetting.FullPath;
     m_FileChanged = false;
 
     if (!m_AskOpenFile || MessageBox.Show(
@@ -402,7 +414,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   {
     m_SettingsChangedTimerChange.Stop();
 
-    if (m_FileSetting is null) return;
+    if (string.IsNullOrEmpty(m_FileSetting.FileName)) return;
 
     try
     {
@@ -455,7 +467,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     if (m_FileChanged)
       return;
 
-    var fileName = m_FileSetting?.FileName;
+    var fileName = m_FileSetting.FullPath;
     if (string.IsNullOrEmpty(fileName))
       return;
 
@@ -620,7 +632,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         m_FileSetting.KeyFile = PgpHelper.LookupKeyFile(fileName);
 #endif
 
-      if (m_FileSetting is null)
+      if (string.IsNullOrEmpty(m_FileSetting.FileName))
         return;
 
       m_ViewSettings.DeriveWriteSetting(m_FileSetting);
@@ -645,7 +657,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       {
         ToolStripButtonAsText(false);
         Text = title.ToString();
-        m_ToolStripButtonSettings.Visible = m_FileSetting != null;
+        m_ToolStripButtonSettings.Visible = !string.IsNullOrEmpty(m_FileSetting.FileName);
         m_ToolStripButtonAsText.Visible = m_FileSetting?.ColumnCollection.Any(x =>
           x.ValueFormat.DataType != DataTypeEnum.String) ?? false;
       });
@@ -658,7 +670,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   private async Task OpenDataReaderAsync()
   {
-    if (m_FileSetting is null)
+    if (string.IsNullOrEmpty(m_FileSetting.FileName))
       return;
 
     // Stop Property changed events for the time this is processed we might store data in the FileSetting
@@ -747,7 +759,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   {
     try
     {
-      if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
+      if (!string.IsNullOrEmpty(m_FileSetting.FileName) && m_ViewSettings.StoreSettingsByFile)
       {
         var fileName = m_FileSetting.FileName + SerializedFilesLib.cSettingExtension;
         await new InspectionResult(m_FileSetting).SerializeAsync(fileName, () => MessageBox.Show(
@@ -797,16 +809,16 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       m_ViewSettings.PassOnConfiguration(newFileSetting);
 
       // Update Setting
-      if (m_FileSetting != null)
+      // If field headers or FillGuess has changed we need to run  Detection again
+      m_RunDetection = m_FileSetting.HasFieldHeader != newFileSetting.HasFieldHeader ||
+                       !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
+
+      // if the file has changed need to load all
+      m_FileChanged = !newFileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
+      m_AskOpenFile = !(m_FileChanged || m_RunDetection) && !string.IsNullOrEmpty(m_FileSetting.FileName);
+      m_ShouldReloadData = false;
+      if (!string.IsNullOrEmpty(newFileSetting.FileName))
       {
-        // If field headers or FillGuess has changed we need to run  Detection again
-        m_RunDetection = m_FileSetting.HasFieldHeader != newFileSetting.HasFieldHeader ||
-                         !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
-
-        // if the file has changed need to load all
-        m_FileChanged = !newFileSetting.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase);
-        m_AskOpenFile = !(m_FileChanged || m_RunDetection);
-
         m_ShouldReloadData |= m_FileSetting.TryToSolveMoreColumns != newFileSetting.TryToSolveMoreColumns;
         m_ShouldReloadData |= m_FileSetting.AllowRowCombining != newFileSetting.AllowRowCombining;
         m_ShouldReloadData |= m_FileSetting.ByteOrderMark != newFileSetting.ByteOrderMark;
@@ -837,18 +849,12 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         m_ShouldReloadData |= m_FileSetting.TreatUnknownCharacterAsSpace != newFileSetting.TreatUnknownCharacterAsSpace;
         m_ShouldReloadData |= m_FileSetting.SkipEmptyLines != newFileSetting.SkipEmptyLines;
         m_ShouldReloadData |= !m_FileSetting.ColumnCollection.CollectionEqual(newFileSetting.ColumnCollection);
+      }
 
-        m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-        m_FileSetting = newFileSetting;
-        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
-      }
-      // Set Setting
-      else
-      {
-        m_FileSetting = newFileSetting;
-        m_FileChanged = true;
-        m_AskOpenFile = false;
-      }
+      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+      m_FileSetting = newFileSetting;
+      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+
       SetFileSystemWatcher(m_FileSetting.FileName);
 
       await CheckPossibleChange();
@@ -882,7 +888,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async Task ToggleDisplayAsTextAsync()
   {
-    if (m_FileSetting is null)
+    if (string.IsNullOrEmpty(m_FileSetting.FileName))
       return;
 
     await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>

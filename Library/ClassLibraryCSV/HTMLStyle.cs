@@ -16,9 +16,11 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Globalization;
 using System.Text;
 using System.Web;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CsvTools;
 
@@ -32,8 +34,6 @@ public sealed class HtmlStyle
 {
   /// <summary>Default HtmlStyle</summary>
   public static readonly HtmlStyle Default = new HtmlStyle(cDefaultStyle);
-
-  private string m_Style;
   private const string cSecColor = "DarkBlue";
   private const string cBackCol = "#c8c8c8";
 
@@ -63,18 +63,14 @@ public sealed class HtmlStyle
   [JsonConstructor]
   public HtmlStyle(string? style)
   {
-    m_Style = style ?? cDefaultStyle;
+    Style = style ?? cDefaultStyle;
   }
 
   /// <summary>
   ///   Set the overall HTML Style Sheet.
   /// </summary>
   [DefaultValue(cDefaultStyle)]
-  public string Style
-  {
-    get => m_Style;
-    set => m_Style = value;
-  }
+  public string Style { get; set; }
 
   /// <summary>
   ///   Gets or sets the TD template.
@@ -200,7 +196,7 @@ public sealed class HtmlStyle
     {
       if (contents[i] != null)
       {
-        contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace(
+        contents[i] = HtmlEncode(contents[i]?.ToString() ?? string.Empty).Replace(
           "�",
           "<span style=\"color:Red; font-size:larger\">&diams;</span>");
       }
@@ -215,36 +211,37 @@ public sealed class HtmlStyle
   /// <param name="text">The text string to encode.</param>
   /// <returns>The HTML-encoded text.</returns>
   /// <remarks>Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb</remarks>
-  public static string HtmlEncode(string text)
+  public static string HtmlEncode(ReadOnlySpan<char> text)
   {
-    text = text.HandleCrlfCombinations();
-
-    var sb = new StringBuilder(text.Length);
-    var len = text.Length;
-    for (var i = 0; i < len; i++)
+    // Estimate capacity: text length + 10% extra for encoding overhead
+    var sb = new StringBuilder(text.Length + (text.Length / 10));
+    for (var i = 0; i < text.Length; i++)
     {
-      switch (text[i])
+      char c = text[i];
+
+      // 1. Handle CRLF / LFCR / LF / CR in one go (Logic from HandleCrlfCombinations)
+      if (c is '\r' or '\n')
       {
-        case '\n':
-          sb.Append("<br style=\"mso-data-placement:same-cell;\">");
-          break;
+        if (i + 1 < text.Length)
+        {
+          char next = text[i + 1];
+          if ((c == '\r' && next == '\n') || (c == '\n' && next == '\r'))
+          {
+            i++; // Skip the '\n' in a CRLF pair
+          }
+        }
+        // Dead weight for pure HTML, but nice to have in Microsoft Office
+        sb.Append("<br style=\"mso-data-placement:same-cell;\">");
+        continue;
+      }
 
-        case '<':
-          sb.Append("&lt;");
-          break;
-
-        case '>':
-          sb.Append("&gt;");
-          break;
-
-        case '"':
-          sb.Append("&quot;");
-          break;
-
-        case '&':
-          sb.Append("&amp;");
-          break;
-
+      // 2. Standard HTML Encoding
+      switch (c)
+      {
+        case '<': sb.Append("&lt;"); break;
+        case '>': sb.Append("&gt;"); break;
+        case '"': sb.Append("&quot;"); break;
+        case '&': sb.Append("&amp;"); break;
         default:
           if (text[i] > 159)
           {
@@ -257,11 +254,9 @@ public sealed class HtmlStyle
           {
             sb.Append(text[i]);
           }
-
           break;
       }
     }
-
     return sb.ToString();
   }
 
@@ -270,40 +265,40 @@ public sealed class HtmlStyle
   ///   and &amp;
   /// </summary>
   /// <param name="text">The text.</param>
-  /// <returns></returns>
-  public static string? HtmlEncodeShort(string? text)
+  public static string HtmlEncodeShort(ReadOnlySpan<char> text)
   {
-    if (text is null)
-      return null;
-    text = text.HandleCrlfCombinations();
-    var sb = new StringBuilder(text.Length);
+    if (text.IsEmpty) return string.Empty;
 
-    foreach (var oneChar in text)
+    // Estimate capacity: +10% is a safe guess for "Short" encoding
+    var sb = new StringBuilder(text.Length + (text.Length / 10));
+
+    for (int i = 0; i < text.Length; i++)
     {
-      switch (oneChar)
+      char c = text[i];
+
+      // Inline CRLF handling to avoid the extra string allocation
+      if (c is '\r' or '\n')
       {
-        case '\n':
-          sb.Append("<br>");
-          break;
+        if (i + 1 < text.Length)
+        {
+          char next = text[i + 1];
+          if ((c == '\r' && next == '\n') || (c == '\n' && next == '\r'))
+          {
+            i++; // Skip the '\n' in a CRLF pair
+          }
+        }
+        sb.Append("<br>");
+        continue;
+      }
 
-        case '<':
-          sb.Append("&lt;");
-          break;
-
-        case '>':
-          sb.Append("&gt;");
-          break;
-
-        case '"':
-          sb.Append("&quot;");
-          break;
-
-        case '&':
-          sb.Append("&amp;");
-          break;
-
+      switch (c)
+      {
+        case '<': sb.Append("&lt;"); break;
+        case '>': sb.Append("&gt;"); break;
+        case '"': sb.Append("&quot;"); break;
+        case '&': sb.Append("&amp;"); break;
         default:
-          sb.Append(oneChar);
+          sb.Append(c);
           break;
       }
     }
@@ -355,14 +350,14 @@ public sealed class HtmlStyle
   /// </summary>
   /// <param name="text">The text possibly containing HTML codes.</param>
   /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
-  public static string TextToHtmlEncode(string text)
+  public static string TextToHtmlEncode(ReadOnlySpan<char> text)
   {
-    if (text is null) throw new ArgumentNullException(nameof(text));
+    if (text.IsEmpty) return string.Empty;
 
     if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
         && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
-      return text.Substring(9, text.Length - 12);
-    return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ").Replace("  ", " ");
+      return text.Slice(9, text.Length - 12).ToString();
+    return text.HandleCrlfCombinations("<br>").Replace("\t", " ").Replace("  "," ");
   }
 
   /// <summary>
@@ -371,14 +366,22 @@ public sealed class HtmlStyle
   /// <param name="text"></param>
   /// <returns>The text without HTML Encoding</returns>
   /// <exception cref="ArgumentNullException"></exception>
-  public static string HtmlDecode(string text)
+  public static string HtmlDecode(ReadOnlySpan<char> text)
   {
-    if (text is null) throw new ArgumentNullException(nameof(text));
+    if (text.IsEmpty) return string.Empty;
 
-    if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
-        && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
-      return text.Substring(9, text.Length - 12);
-    return HttpUtility.HtmlDecode(text);
+    // 1. CDATA check using Span (0 allocations for the slice)
+    if (text.StartsWith("<![CDATA[".AsSpan(), StringComparison.OrdinalIgnoreCase)
+        && text.EndsWith("]]>".AsSpan(), StringComparison.Ordinal))
+    {
+      // Slice the inner content and convert once to string
+      return text.Slice(9, text.Length - 12).ToString();
+    }
+
+    // 2. Fallback to standard decoding
+    // Note: HttpUtility.HtmlDecode currently requires a string.
+    // If text is already a string, this is just a pointer reference.
+    return HttpUtility.HtmlDecode(text.ToString());
   }
 
   /// <summary>

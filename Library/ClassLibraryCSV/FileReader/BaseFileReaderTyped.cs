@@ -28,7 +28,6 @@ namespace CsvTools;
 public abstract class BaseFileReaderTyped : BaseFileReader
 {
   private readonly bool m_TreatNbspAsSpace;
-  private readonly string m_TreatTextAsNull;
   private readonly bool m_Trim;
 
   /// <summary>
@@ -36,7 +35,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// </summary>
   private object?[] m_CurrentValues;
 
-  /// <inheritdoc />
   /// <summary>
   ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see
   ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQl
@@ -45,7 +43,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
   /// <param name="columnDefinition">List of column definitions</param>
   /// <param name="recordLimit">Number of records that should be read</param>
   /// <param name="trim">Trim read text</param>
-  /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
+  /// <param name="treatTextAsNull">A semicolon or tab separated list of that should be treated as NULL</param>
   /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
   /// <param name="returnedTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
   /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become .267</param>
@@ -60,11 +58,10 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, returnedTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, treatTextAsNull, returnedTimeZone, allowPercentage, removeCurrency)
   {
     m_TreatNbspAsSpace = treatNbspAsSpace;
     m_Trim = trim;
-    m_TreatTextAsNull = treatTextAsNull.Trim();
     m_CurrentValues = Array.Empty<object>();
   }
 
@@ -285,63 +282,53 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     base.InitColumn(fieldCount);
   }
 
-
   /// <summary>
   /// Orchestrates text processing including formatting, null-equivalent detection, 
   /// trimming, and non-breaking space replacement.
   /// </summary>
   /// <param name="textSpan">The raw character span to process.</param>
-  /// <param name="ordinal">The column index for metadata and formatter lookups.</param>
+  /// <param name="columnNo">The column index for metadata and formatter lookups.</param>
   /// <returns>A processed span that is potentially trimmed, formatted, or cleaned.</returns>
-  protected ReadOnlySpan<char> HandleText(ReadOnlySpan<char> textSpan, int ordinal)
+  protected override string HandleText(ReadOnlySpan<char> textSpan, int columnNo)
   {
-    // 1. Primary Empty Check
-    if (textSpan.IsEmpty)
-      return textSpan;
+    // 1. Get base string (Handles formatting and initial null checks)
+    string text = base.HandleText(textSpan, columnNo);
 
-    // 2. Formatting (HTML Encoding, etc.)
-    // We do this first as formatters might change length or content
-    var column = GetColumn(ordinal);
-    if (!ReferenceEquals(column.ColumnFormatter, EmptyFormatter.Instance))
-    {
-      textSpan = column.ColumnFormatter.FormatInputText(
-          textSpan.ToString(),
-          msg => HandleWarning(ordinal, msg)
-      ).AsSpan();
-    }
+    if (string.IsNullOrEmpty(text))
+      return string.Empty;
 
-    // 3. Trimming
+    // Use a span for trimming and scanning
+    ReadOnlySpan<char> processedSpan = text.AsSpan();
+
+    // 2. Trimming
     if (m_Trim)
-      textSpan = textSpan.Trim();
+      processedSpan = processedSpan.Trim();
 
-    // 4. Null-Equivalent Check ("NULL", "N\A", etc.)
-    if (textSpan.IsEmpty)
-      return ReadOnlySpan<char>.Empty;
+    if (processedSpan.IsEmpty)
+      return string.Empty;
 
-    if (m_TreatTextAsNull != null &&
-        textSpan.Length == m_TreatTextAsNull.Length &&
-        textSpan.SequenceEqual(m_TreatTextAsNull.AsSpan()))
-    {
-      return ReadOnlySpan<char>.Empty;
-    }
-
-    // 5. NBSP Treatment
-    // SIMD-optimized IndexOf check to avoid allocation on clean data
+    // 3. NBSP Treatment (\u00A0)
     if (m_TreatNbspAsSpace)
     {
-      int firstNbsp = textSpan.IndexOf('\u00A0');
+      int firstNbsp = processedSpan.IndexOf('\u00A0');
       if (firstNbsp != -1)
       {
-        char[] buffer = textSpan.ToArray();
+        // Fallback: Copy to array and modify
+        char[] buffer = processedSpan.ToArray();
         for (int i = firstNbsp; i < buffer.Length; i++)
         {
           if (buffer[i] == '\u00A0')
             buffer[i] = ' ';
         }
-        return buffer.AsSpan();
+        return new string(buffer);
       }
     }
 
-    return textSpan;
+    // 4. Final return optimization: 
+    // If length hasn't changed (no trimming happened), return original string object.
+    if (processedSpan.Length == text.Length)
+      return text;
+
+    return processedSpan.ToString();
   }
 }

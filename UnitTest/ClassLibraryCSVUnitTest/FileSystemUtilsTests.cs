@@ -29,7 +29,7 @@ public class FileSystemUtilsTests
     // This test does not make sense if its shorter...
     if (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Length > "%UserProfile%".Length)
     {
-      var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath();
+      var testFile1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TestFile.txt").GetAbsolutePath(ReadOnlySpan<char>.Empty);
       Assert.AreEqual("%UserProfile%\\TestFile.txt", testFile1.UseSpecialFolders());
 
       var testFile2 = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

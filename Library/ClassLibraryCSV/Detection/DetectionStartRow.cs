@@ -75,8 +75,12 @@ public static class DetectionStartRow
       {
         int charsRead = await textReader.ReadBlockAsync(buffer, cancellationToken).ConfigureAwait(false);
         if (charsRead == 0) break;
-
-        for (int i = 0; i < charsRead && currentRow < maxRows; i++)
+        var start = 0;
+        // Handle the magic key of Sep= like a comment line
+        var spanStart = buffer.AsSpan(0, 10);
+        if (spanStart.TrimStart().StartsWith("sep=", StringComparison.OrdinalIgnoreCase))
+          start = spanStart.IndexOfAny(new[] { '\r', '\n' });
+        for (int i = start; i < charsRead && currentRow < maxRows; i++)
         {
           var lastChar = currentChar;
           currentChar = buffer[i];
@@ -164,13 +168,16 @@ public static class DetectionStartRow
     if (structuralRows.Count < 2)
       return 0;
 
-    int take = Math.Min(15, structuralRows.Count);
-    int start = structuralRows.Count - take;
-
     // Determine common column count in the tail
     var allowed = new HashSet<int>();
-    for (int i = structuralRows.Count - 1; i >= start; i--)
+    // Take up to the first 10
+    for (int i = 0; i < Math.Min(10, structuralRows.Count); i++)
       allowed.Add(structuralRows[i].Count);
+    // Take up to the last 10
+    int lastStart = Math.Max(0, structuralRows.Count - 10);
+    for (int i = lastStart; i < structuralRows.Count; i++)
+      allowed.Add(structuralRows[i].Count);
+
     var firstRow = structuralRows.Where(row => allowed.Contains(row.Count)).Select(row => row.RowIndex).FirstOrDefault();
     return rowStartLine[firstRow]-1;
   }

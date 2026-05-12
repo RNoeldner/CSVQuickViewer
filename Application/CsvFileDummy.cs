@@ -172,7 +172,7 @@ public sealed class CsvFileDummy : ICsvFile
   public long FileSize { get; set; }
 
   /// <inheritdoc />
-  public string FullPath => m_FullPath ?? FileName;
+  public string FullPath => m_FullPath ?? Environment.ExpandEnvironmentVariables(FileName);
 
   /// <inheritdoc />
   [DefaultValue("")] public string IdentifierInContainer { get; set; } = string.Empty;

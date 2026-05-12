@@ -14,6 +14,7 @@
 #nullable enable
 
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Text;
 
@@ -29,74 +30,128 @@ public class TextUnescapeFormatter : BaseColumnFormatter
   /// </summary>
   public static readonly TextUnescapeFormatter Instance = new TextUnescapeFormatter();
 
-  private static Tuple<int, int> ParseHex(ReadOnlySpan<char> text, int startPos)
+  private static (int pos, int charValue) ParseHex(ReadOnlySpan<char> text, int startPos)
   {
-    var hex = new StringBuilder();
-    var pos = startPos + 2;
-    // up to 4 byte escape 
-    while (pos < startPos + 6 && pos < text.Length)
+    // Skip the indicator (\u or \x)
+    int pos = startPos + 2;
+    int maxPos = Math.Min(pos + 4, text.Length);
+    int currentPos = pos;
+
+    // 1. Identify how many characters are valid hex digits
+    while (currentPos < maxPos)
     {
-      if ((text[pos] >= '0' && text[pos] <= '9')
-          || (text[pos] >= 'A' && text[pos] <= 'F')
-          || (text[pos] >= 'a' && text[pos] <= 'f'))
-        hex.Append(text[pos]);
+      char c = text[currentPos];
+      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
+      {
+        currentPos++;
+      }
       else
+      {
         break;
-      pos++;
+      }
     }
 
-    return hex.Length > 0&& int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue)
-      ? new Tuple<int, int>(pos, charValue)
-      : new Tuple<int, int>(-1, -1);
+    // 2. If we found digits, parse the slice directly
+    if (currentPos > pos)
+    {
+      var hexSlice = text.Slice(pos, currentPos - pos);
+
+      if (int.TryParse(
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      hexSlice
+#else
+      hexSlice.ToString()
+#endif
+      , NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue))
+      {
+        return (currentPos, charValue);
+      }
+    }
+
+    return (-1, -1);
   }
 
   /// <summary>
   ///   Overwrite c escaped text to verbatim text similar to RegEx UnEscape
   /// </summary>
   /// <param name="text">The text possibly containing c escaped text.</param>    
-  public static string Unescape(string text)
+  public static string Unescape(ReadOnlySpan<char> text)
   {
-    if (text is null) throw new ArgumentNullException(nameof(text));
+    if (text.IsEmpty) return string.Empty;
+
     if (text.IndexOf('\\') == -1)
-      return text;
+      return text.ToString();
 
-    var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v")
-      .Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
+    // 1. Rent a buffer from the shared pool
+    // Unescaping usually results in a SHORTER string, so text.Length is a safe max
+    char[]? pooledArray = null;
+    Span<char> buffer = text.Length <= 256
+        ? stackalloc char[text.Length]
+        : (pooledArray = ArrayPool<char>.Shared.Rent(text.Length));
 
-    var posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
-    while (posEncoded != -1)
+    try
     {
-      var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
-      if (pos != -1)
+      int writePos = 0;
+      for (int i = 0; i < text.Length; i++)
       {
-        retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
-        posEncoded -= 2;
+        if (text[i] == '\\' && i + 1 < text.Length)
+        {
+          char next = text[i + 1];
+          bool handled = true;
+          switch (next)
+          {
+            case 't': buffer[writePos++] = '\t'; break;
+            case 'n': buffer[writePos++] = '\n'; break;
+            case 'r': buffer[writePos++] = '\r'; break;
+            case 'v': buffer[writePos++] = '\v'; break;
+            case '\'': buffer[writePos++] = '\''; break;
+            case '"': buffer[writePos++] = '\"'; break;
+            case 'a': buffer[writePos++] = '\a'; break;
+            case 'b': buffer[writePos++] = '\b'; break;
+            case 'f': buffer[writePos++] = '\f'; break;
+            case '\\': buffer[writePos++] = '\\'; break;
+            case 'u':
+            case 'x':
+              var (pos, charValue) = ParseHex(text, i);
+              if (pos != -1)
+              {
+                buffer[writePos++] = (char) charValue;
+                i = pos - 2; // Jump past hex
+              }
+              else handled = false;
+              break;
+            default:
+              handled = false;
+              break;
+          }
+
+          if (handled)
+          {
+            i++; // Skip the escaped char
+            continue;
+          }
+        }
+
+        // Standard character
+        buffer[writePos++] = text[i];
       }
 
-      posEncoded = retValue.IndexOf("\\u", posEncoded + 2, StringComparison.Ordinal);
+      // 2. Return the sliced result as a string
+      return buffer.Slice(0, writePos).ToString();
     }
-
-    posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
-    while (posEncoded != -1)
+    finally
     {
-      var (pos, charValue) = ParseHex(retValue.AsSpan(), posEncoded);
-      if (pos != -1)
-      {
-        retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
-        posEncoded -= 2;
-      }
-
-      posEncoded = retValue.IndexOf("\\x", posEncoded + 2, StringComparison.Ordinal);
+      // 3. Crucial: Return the buffer to the pool
+      if (pooledArray != null)
+        ArrayPool<char>.Shared.Return(pooledArray);
     }
-
-    return retValue;
   }
 
   /// <inheritdoc />
-  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning)
   {
-    var output = Unescape(inputString);
-    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
+    var output = Unescape(inputSpan);
+    if (RaiseWarning && !inputSpan.SequenceEqual(output.AsSpan()))
       handleWarning?.Invoke("Unescaped text");
     return output;
   }

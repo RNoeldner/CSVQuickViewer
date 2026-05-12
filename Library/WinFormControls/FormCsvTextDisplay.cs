@@ -72,9 +72,7 @@ public partial class FormCsvTextDisplay : ResizeForm
       textBox.ClearUndo();
       formProgress.Report("Display of read file");
 
-      // Actually now read the text to display
-      textBox.Text = (await m_GetContent(formProgress)).Replace("\t", "⇥");
-
+      textBox.Text = await m_GetContent(formProgress);
       textBox.IsChanged = false;
       formProgress.Maximum = 0;
       formProgress.Report("Applying color coding");

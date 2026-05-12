@@ -218,42 +218,22 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, true);
   [TestMethod]
   public async Task ComplexDataDelimiter()
   {
-    var setting =
-      new CsvFileDummy()
-      {
-        HasFieldHeader = false,
-        FieldDelimiterChar = ',',
-        CommentLine = "#",
-        EscapePrefixChar = '\\',
-        FieldQualifierChar = '"'
-      };
-    setting.FieldDelimiterChar = ',';
-    setting.TrimmingOption = TrimmingOptionEnum.Unquoted;
-
-
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), 65001,
-      0, 0, setting.HasFieldHeader,
-      new ColumnCollection(),
-setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-setting.RecordLimit, setting.AllowRowCombining,
-setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-      setting.NewLinePlaceholder,
-setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-      setting.TreatUnknownCharacterAsSpace,
-setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-setting.WarnQuotes, setting.WarnUnknownCharacter,
-setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-      setting.ConsecutiveEmptyRows,
-setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, true);
+    using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), escapeCharacterChar: '\\', hasFieldHeader:false);
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual(6, test.FieldCount);
-    Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
+    Assert.AreEqual(1, test.StartLineNumber, "LineNumber");
 
-    Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync");
-    Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
-    Assert.AreEqual("5\"", test.GetString(4));
+    Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync1"); // 1 No header!
+    Assert.AreEqual(1, test.StartLineNumber, "LineNumber");
+    Assert.AreEqual("1", test.GetString(0), "Column 0 Row 1 Line 1");
+    Assert.AreEqual("2", test.GetString(1), "Column 1 Row 1 Line 1");
+    Assert.AreEqual("5\"", test.GetString(4), "Column 4 Row 1 Line 1");
+    Assert.AreEqual("6", test.GetString(5), "Column 5 Row 1 Line 1");
 
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync2"); // 2
+    // I have a record spread over two lines
+    Assert.AreEqual(4, test.StartLineNumber, "StartLineNumber");
+    Assert.AreEqual(6, test.EndLineNumber, "EndLineNumber");  // End Line is teh startline of the next row
     Assert.AreEqual("a", test.GetString(0));
     Assert.AreEqual("bta", test.GetString(1));
     Assert.AreEqual("c", test.GetString(2));
@@ -261,16 +241,19 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, true);
     Assert.AreEqual("e", test.GetString(4));
     Assert.AreEqual("f\n  , ", test.GetString(5).HandleCrlfCombinations());
 
-    Assert.AreEqual(4, test.StartLineNumber, "StartLineNumber");
-    Assert.AreEqual(6, test.EndLineNumber, "EndLineNumber");
-
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync3"); // 3
-    Assert.AreEqual(6U, test.StartLineNumber, "StartLineNumber");
-    Assert.AreEqual("6\"", test.GetString(5));
+    // I have a record in one lines
+    Assert.AreEqual(6, test.StartLineNumber, "StartLineNumber");
+    Assert.AreEqual(7, test.EndLineNumber, "EndLineNumber");
+    Assert.AreEqual("1", test.GetString(0), "First column Row 3 Line 6");
 
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync4"); // 4
-    Assert.AreEqual("k\n", test.GetString(4).HandleCrlfCombinations());
     Assert.AreEqual(9, test.StartLineNumber, "StartLineNumber");
+    Assert.AreEqual(11, test.EndLineNumber, "StartLineNumber");
+
+    Assert.AreEqual("g", test.GetString(0), "First column Row 4 Line 9");
+    Assert.AreEqual("k\n", test.GetString(4).HandleCrlfCombinations());
+    Assert.AreEqual("l", test.GetString(5), "Last column Row 4 Line 10");
 
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token)); // 5
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token)); // 6
@@ -1280,30 +1263,8 @@ TimeZoneInfo.Local.Id, true, false);
   [TestMethod]
   public async Task PlaceHolderTest()
   {
-    var setting = new CsvFileDummy()
-    {
-      HasFieldHeader = true,
-      FieldDelimiterChar = ',',
-      EscapePrefixChar = char.MinValue,
-      DelimiterPlaceholder = @"<\d>",
-      QualifierPlaceholder = @"<\q>",
-      NewLinePlaceholder = @"<\r>"
-    };
-
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Placeholder.txt"), 65001,
-      0, 0, setting.HasFieldHeader,
-      new ColumnCollection(),
-setting.TrimmingOption, setting.FieldDelimiterChar, setting.FieldQualifierChar, setting.EscapePrefixChar,
-setting.RecordLimit, setting.AllowRowCombining,
-setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
-      setting.NewLinePlaceholder,
-setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-      setting.TreatUnknownCharacterAsSpace,
-setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
-setting.WarnQuotes, setting.WarnUnknownCharacter,
-setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-      setting.ConsecutiveEmptyRows,
-setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Placeholder.txt"), fieldDelimiterChar: ',', escapeCharacterChar: char.MinValue,
+      delimiterPlaceholder: @"<\d>", newLinePlaceholder: @"<\r>", quotePlaceholder: @"<\q>");
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 

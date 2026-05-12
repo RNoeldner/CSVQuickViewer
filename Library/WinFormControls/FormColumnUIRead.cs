@@ -368,8 +368,10 @@ public partial class FormColumnUiRead : ResizeForm
         }
         labelSampleDisplay.Text = text.Join(", ");
 
-        if (timeZone.TryGetConstant(out var tz))
+        if (timeZone.TryGetConstant(out var span))
         {
+          // TODO Improove this later, best would be to deal with ReadOnlySpan more generally
+          var tz = span.ToString();
           sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
         }
         else
@@ -382,8 +384,10 @@ public partial class FormColumnUiRead : ResizeForm
       }
       else
       {
-        if (timeZone.TryGetConstant(out var tz))
+        if (timeZone.TryGetConstant(out var span))
         {
+          // TODO Improove this later, best would be to deal with ReadOnlySpan more generally
+          var tz = span.ToString();
           sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, StandardTimeZoneAdjust.cIdLocal, tz, null);
           labelOutPutTZ.Text = tz;
         }

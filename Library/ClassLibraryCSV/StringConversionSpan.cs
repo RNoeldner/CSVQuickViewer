@@ -187,7 +187,7 @@ public static class StringConversionSpan
       {
         var numberFormatProvider = GetNumberFormatInfo(decimalSeparator, '\0');
         if (!double.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
               stringDateValue
 #else
                 stringDateValue.ToString()
@@ -401,7 +401,7 @@ public static class StringConversionSpan
         matchingDateTimeFormats.Add(dateTimeFormatString);
       // In case of a date & time format add the date only format separately
       var indexHour =
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         dateTimeFormatString.IndexOf('h', StringComparison.OrdinalIgnoreCase);
 #else
           dateTimeFormatString.IndexOfAny(new[] { 'h', 'H' });
@@ -550,7 +550,7 @@ public static class StringConversionSpan
     var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
 
     bool success =
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
 #else
     decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
@@ -588,7 +588,7 @@ public static class StringConversionSpan
     var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
 
     bool success =
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       double.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
 #else
     double.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
@@ -613,7 +613,7 @@ public static class StringConversionSpan
     if (text.IsEmpty)
       return null;
 
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     if (Guid.TryParse(text, out var result))
       return result;
 #else
@@ -744,7 +744,7 @@ public static class StringConversionSpan
     var finalSpan = buffer.Slice(0, k);
 
     // 4. Final Parse using Span-based TryParse where available
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     if (long.TryParse(finalSpan, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #else
     if (long.TryParse(finalSpan.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
@@ -817,7 +817,7 @@ public static class StringConversionSpan
 
     var slice = text.Slice(slices[0].start, slices[0].length);
     int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       slice
 #else
             slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -828,7 +828,7 @@ public static class StringConversionSpan
     {
       slice = text.Slice(slices[1].start, slices[1].length);
       int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         slice
 #else
             slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -840,7 +840,7 @@ public static class StringConversionSpan
     {
       slice = text.Slice(slices[2].start, slices[2].length);
       int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         slice
 #else
             slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -853,7 +853,7 @@ public static class StringConversionSpan
     {
       slice = text.Slice(slices[3].start, slices[3].length);
       int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         slice
 #else
         slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -919,7 +919,7 @@ public static class StringConversionSpan
       // separator is not part of the date format
       // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." It's still parsed
       if (DateTime.TryParseExact(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             stringDateValue
 #else
               stringDateValue.ToString()
@@ -938,7 +938,7 @@ public static class StringConversionSpan
         dateTimeFormatInfo.AbbreviatedMonthNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames;
 
         if (DateTime.TryParseExact(
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
               stringDateValue
 #else
                 stringDateValue.ToString()

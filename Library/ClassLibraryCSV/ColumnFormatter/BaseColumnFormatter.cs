@@ -23,7 +23,7 @@ namespace CsvTools;
 public abstract class BaseColumnFormatter : IColumnFormatter
 {
   /// <inheritdoc/>
-  public abstract string FormatInputText(string inputString, Action<string>? handleWarning);
+  public abstract string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning);
 
   /// <inheritdoc/>
   public virtual string Write(in object? dataObject, in IDataRecord? dataRow, Action<string>? handleWarning)

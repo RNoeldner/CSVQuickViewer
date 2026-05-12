@@ -35,11 +35,11 @@ public class HtmlToTextFormatter : BaseColumnFormatter
   }
 
   /// <inheritdoc/>
-  public override string FormatInputText(string inputString, Action<string>? handleWarning)
+  public override string FormatInputText(ReadOnlySpan<char> inputSpan, Action<string>? handleWarning)
   {
-    var output = HtmlStyle.HtmlDecode(inputString);
-    if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
-      handleWarning?.Invoke($"HTML decoding from {inputString}");
+    var output = HtmlStyle.HtmlDecode(inputSpan);
+    if (RaiseWarning && !inputSpan.SequenceEqual(output.AsSpan()))
+      handleWarning?.Invoke($"HTML decoding from {inputSpan.ToString()}");
     return output;
   }
 

@@ -709,8 +709,8 @@ public static class DetermineColumnFormat
         possibleDateSeparators.Add(sep);
       }
     }
-
-    foreach (var fmt in StaticCollections.StandardDateTimeFormats.MatchingForLength(minLength, maxLength))
+    var testFormats = StaticCollections.StandardDateTimeFormats.MatchingForLength(minLength, maxLength);
+    foreach (var fmt in testFormats)
     {
       if (cancellationToken.IsCancellationRequested)
         return checkResult;
@@ -723,7 +723,8 @@ public static class DetermineColumnFormat
           var res = samples.CheckDate(format, sep, ':', CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
-          checkResult.KeepBestPossibleMatch(res);
+          if (res.PossibleMatch)
+            checkResult.KeepBestPossibleMatch(res);
         }
       }
       else
@@ -732,7 +733,8 @@ public static class DetermineColumnFormat
         var res = samples.CheckDate(format, char.MinValue, ':', CultureInfo.CurrentCulture, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.KeepBestPossibleMatch(res);
+        if (res.PossibleMatch)
+          checkResult.KeepBestPossibleMatch(res);
       }
     }
 

@@ -29,8 +29,8 @@ namespace CsvTools;
 public sealed class CsvColumnMerger
 {
   private const int cMaxGoodRows = 40;
-#if NET6_0_OR_GREATER
-    private static readonly Random Random = Random.Shared;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  private static readonly Random Random = Random.Shared;
 #else
   private static readonly Random Random = new Random(Environment.TickCount);
 #endif

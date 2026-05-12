@@ -70,7 +70,7 @@ public sealed class HtmlStyleTests
   public void AddTdTest()
   {
     Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd(null)));
-    Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd("")));
+    Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd(string.Empty)));
     Assert.AreEqual("<1>", HtmlStyle.AddTd("<{0}>", "1"));
   }
 
@@ -92,8 +92,7 @@ public sealed class HtmlStyleTests
   [TestMethod]
   public void HtmlEncodeShortTest()
   {
-    Assert.IsNull(HtmlStyle.HtmlEncodeShort(null));
-    Assert.AreEqual("", HtmlStyle.HtmlEncodeShort(""));
+    Assert.AreEqual(string.Empty, HtmlStyle.HtmlEncodeShort(string.Empty));
     Assert.AreEqual("&lt;&gt;", HtmlStyle.HtmlEncodeShort("<>"));
     Assert.AreEqual("HTML", HtmlStyle.HtmlEncodeShort("HTML"));
     Assert.AreEqual("K&amp;N", HtmlStyle.HtmlEncodeShort("K&N"));
@@ -103,7 +102,7 @@ public sealed class HtmlStyleTests
   [TestMethod]
   public void HtmlEncodeTest()
   {
-    Assert.AreEqual("", HtmlStyle.HtmlEncode(""));
+    Assert.AreEqual(string.Empty, HtmlStyle.HtmlEncode(string.Empty));
     Assert.AreEqual("HTML", HtmlStyle.HtmlEncode("HTML"));
     Assert.AreEqual("K&amp;N", HtmlStyle.HtmlEncode("K&N"));
     Assert.AreEqual("he sated &quot;Hello&quot;", HtmlStyle.HtmlEncode("he sated \"Hello\""));
@@ -119,7 +118,7 @@ public sealed class HtmlStyleTests
   [TestMethod]
   public void JsonElementNameTest()
   {
-    Assert.AreEqual("", HtmlStyle.JsonElementName(""));
+    Assert.AreEqual(string.Empty, HtmlStyle.JsonElementName(string.Empty));
     Assert.AreEqual("HTmL", HtmlStyle.JsonElementName("HTmL"));
     Assert.AreEqual("RaphaelNöldner", HtmlStyle.JsonElementName("Raphael Nöldner"));
     Assert.AreEqual("_12", HtmlStyle.XmlElementName("12"));
@@ -128,7 +127,7 @@ public sealed class HtmlStyleTests
   [TestMethod]
   public void TextToHtmlEncodeTest()
   {
-    Assert.AreEqual("", HtmlStyle.TextToHtmlEncode(""));
+    Assert.AreEqual(string.Empty, HtmlStyle.TextToHtmlEncode(string.Empty));
     Assert.AreEqual("Raphael Nöldner", HtmlStyle.TextToHtmlEncode("Raphael  Nöldner"));
     Assert.AreEqual("Raphael Nöldner", HtmlStyle.TextToHtmlEncode("Raphael\t Nöldner"));
     Assert.AreEqual("Line1<br>Line2", HtmlStyle.TextToHtmlEncode("Line1\r\nLine2"));
@@ -205,7 +204,7 @@ public sealed class HtmlStyleTests
         Element names can contain letters, digits, hyphens, underscores, and periods
         Element names cannot contain spaces
     */
-    Assert.AreEqual("", HtmlStyle.XmlElementName(""));
+    Assert.AreEqual(string.Empty, HtmlStyle.XmlElementName(string.Empty));
     Assert.AreEqual("HTmL", HtmlStyle.XmlElementName("HTmL"));
     Assert.AreEqual("HTML", HtmlStyle.XmlElementName("HT;ML"));
     Assert.AreEqual("RaphaelNoldner", HtmlStyle.XmlElementName("Raphael Nöldner"));

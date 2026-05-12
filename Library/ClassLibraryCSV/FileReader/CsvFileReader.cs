@@ -94,7 +94,6 @@ public class CsvFileReader : BaseFileReader
   private readonly bool m_TreatLinefeedAsSpace;
   private readonly bool m_TreatNbspAsSpace;
   private readonly string m_TreatNbspMessage;
-  private readonly string m_TreatTextAsNull;
   private readonly bool m_TreatUnknownCharacterAsSpace;
   private readonly string m_TreatUnknownCharacterMessage;
   private readonly TrimmingOptionEnum m_TrimmingOption;
@@ -490,7 +489,7 @@ public class CsvFileReader : BaseFileReader
                         int consecutiveEmptyRowsMax, string identifierInContainer, string fileName,
                         string destinationTimeZone, bool allowPercentage,
                         bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, destinationTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, treatTextAsNull, destinationTimeZone, allowPercentage, removeCurrency)
   {
     SelfOpenedStream = !string.IsNullOrEmpty(fileName);
     m_StreamProvider = FunctionalDI.GetStream;
@@ -499,14 +498,9 @@ public class CsvFileReader : BaseFileReader
     m_FieldDelimiter = fieldDelimiterChar;
     m_FieldQualifier = fieldQualifierChar;
 
-    if (m_FieldDelimiter == char.MinValue)
-      throw new FileReaderException("All delimited text files do need a delimiter.");
-
-    if (m_FieldQualifier is cCr or cLf)
-      throw new FileReaderException("The text qualifier characters is invalid, please use something else than CR or LF");
-
-    if (m_FieldDelimiter is cCr or cLf or ' ')
-      throw new FileReaderException("The field delimiter character is invalid, please use something else than CR, LF or Space");
+    if (m_FieldDelimiter == char.MinValue) throw new FileReaderException("All delimited text files do need a delimiter.");
+    if (m_FieldQualifier is cCr or cLf) throw new FileReaderException("The text qualifier characters is invalid, please use something else than CR or LF");
+    if (m_FieldDelimiter is cCr or cLf or ' ') throw new FileReaderException("The field delimiter character is invalid, please use something else than CR, LF or Space");
 
     if (m_EscapePrefix != char.MinValue && (m_FieldDelimiter == m_EscapePrefix || m_FieldQualifier == m_EscapePrefix))
       throw new FileReaderException($"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefix.Text()}.");
@@ -520,24 +514,16 @@ public class CsvFileReader : BaseFileReader
     m_CommentLine = commentLine;
 
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-
     var m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
     if (m_DelimiterPlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid delimiter characters in '{m_DelimiterPlaceholder}'", nameof(delimiterPlaceholder));
 
     var m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
-
     if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'", nameof(newLinePlaceholder));
-    m_TextSpecials = [
-      (m_NewLinePlaceholder, "\n"),
-      (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()),
-      (quotePlaceholder.HandleLongText(), m_FieldQualifier.ToStringHandle0())];
-
+    m_TextSpecials = [(m_NewLinePlaceholder, "\n"), (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()), (quotePlaceholder.HandleLongText(), m_FieldQualifier.ToStringHandle0())];
     m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
-
     m_NumMaxWarning = numWarning;
-
     m_SkipDuplicateHeader = skipDuplicateHeader;
     m_SkipRows = skipRows<0 ? 0 : skipRows;
     m_SkipRowsAfterHeader = skipRowsAfterHeader<0 ? 0 : skipRowsAfterHeader;
@@ -553,9 +539,8 @@ public class CsvFileReader : BaseFileReader
     m_WarnQuotes = warnQuotes;
     m_WarnUnknownCharacter = warnUnknownCharacter;
     m_TreatUnknownCharacterMessage = m_WarnUnknownCharacter
-      ? m_TreatUnknownCharacterAsSpace
-            ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-            : "Unknown Character '�' found in field".AddWarningId()
+      ? m_TreatUnknownCharacterAsSpace ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+                                       : "Unknown Character '�' found in field".AddWarningId()
       : string.Empty;
 
     m_HasFieldHeader = hasFieldHeader;
@@ -567,11 +552,9 @@ public class CsvFileReader : BaseFileReader
                          : "Character Non Breaking Space found in field".AddWarningId()
       : string.Empty;
 
-    m_TrimmingOption = trimmingOption;
-    m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
+    m_TrimmingOption = trimmingOption;    
     m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
-
 
     m_PendingWhitespace = ArrayPool<char>.Shared.Rent(64);
     m_ProcessingBufferColumn = ArrayPool<char>.Shared.Rent(512);
@@ -607,9 +590,11 @@ public class CsvFileReader : BaseFileReader
   public new long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferOffset, int length)
   {
     if (buffer is null) throw new ArgumentNullException(nameof(buffer));
-    if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
+    var format = GetColumn(i).ValueFormat;
+    if (format.DataType != DataTypeEnum.Binary ||
         GetSpan(i).IsEmpty) return -1;
-    using var fs = FileSystemUtils.OpenRead(GetString(i));
+    var filePath = FileSystemUtils.GetAbsolutePath(GetSpan(i), format.ReadFolder);
+    using var fs = FileSystemUtils.OpenRead(filePath);
     if (fieldOffset > 0)
       fs.Seek(fieldOffset, SeekOrigin.Begin);
     return fs.Read(buffer, bufferOffset, length);
@@ -698,7 +683,7 @@ public class CsvFileReader : BaseFileReader
       for (int i = 0; i<m_SkipRowsAfterHeader; i++)
         ReadNextRow(raiseWarnings: false);
 
-      InitColumn(ParseFieldCount(m_HeaderRow));
+      InitColumn(ParseFieldCount());
 
       ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
@@ -712,9 +697,7 @@ public class CsvFileReader : BaseFileReader
       if (m_TryToSolveMoreColumns && m_FieldDelimiter != char.MinValue)
         m_ColumnMerger = new CsvColumnMerger(FieldCount, m_FieldDelimiter);
 
-      // if Seek is supported ParseFieldCount has read extra columns, need to return, otherwise we are on the first data row
-      if (m_TextReader.CanSeek)
-        await ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+      await ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
 
       FinishOpen();
     }
@@ -737,14 +720,94 @@ public class CsvFileReader : BaseFileReader
       HandleReadFinished();
       throw appEx;
     }
+
+    int ParseFieldCount()
+    {
+      var headerLength = m_HeaderRow.Sum(x => x.Length);
+      if (m_HeaderRow.Count == 0 || headerLength == 0 ||
+          headerLength < Enumerable.Count(m_HeaderRow.TakeWhile(x => !string.IsNullOrEmpty(x))))
+        return 0;
+
+      var fields = m_HeaderRow.Count;
+
+      // The last column is empty, but we expect a header column, assume if a trailing separator
+      if (fields <= 1)
+        return fields;
+
+      // check if the next lines do have data in the last column
+      for (var additional = 0; (m_TextReader?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
+      {
+        ReadNextRow(false);
+
+        // if we have less columns than in the header exit the loop
+        if (m_CurrentRowColumns.Count < fields)
+          break;
+
+        // special case of missing linefeed, the line is twice as long minus 1 because of the
+        // combined column in the middle
+        if (m_CurrentRowColumns.Count == (fields * 2) - 1)
+          continue;
+
+        while (m_CurrentRowColumns.Count > fields)
+        {
+          HandleWarning(fields, $"No header for last {m_CurrentRowColumns.Count - fields} column(s)".AddWarningId());
+          fields++;
+        }
+
+        // if we have data in the column assume the header was missing
+        if (!string.IsNullOrEmpty(m_CurrentRowColumns[fields - 1]))
+          return fields;
+      }
+
+      // ReSharper disable once InvertIf
+      // ReSharper disable once UseIndexFromEndExpression
+      if (string.IsNullOrEmpty(m_HeaderRow[m_HeaderRow.Count - 1]))
+      {
+        HandleWarning(fields, "The last column does not have a column name and seems to be empty, this column will be ignored."
+            .AddWarningId());
+        return fields - 1;
+      }
+
+      return fields;
+    }
   }
 
   /// <inheritdoc cref="IFileReader" />
   public override async ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
-    await ResetPositionToStartOrOpenAsync(cancellationToken).ConfigureAwait(false);
+    if (m_TextReader?.CanSeek ?? false)
+    {
+      m_TextReader.ToBeginning();
+    }
+    else if (SelfOpenedStream)
+    {
+      // Dispose and reopen the stream from the start
+      if (m_TextReader!=null)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        await m_TextReader.DisposeAsync().ConfigureAwait(false);
+#else
+        m_TextReader.Dispose();
+#endif
+
+      m_Stream = m_StreamProvider(new SourceAccess(FullPath)
+      {
+        IdentifierInContainer = m_IdentifierInContainer
+      });
+
+      m_TextReader = await m_Stream
+        .GetTextReaderAsync(m_CodePageId, m_SkipRows, cancellationToken)
+        .ConfigureAwait(false);
+    }
+    else
+      throw new InvalidOperationException("Resetting to the start of the stream is not supported for externally provided streams.");
+
+    EndLineNumber = 1 + m_SkipRows;
+    StartLineNumber = EndLineNumber;
+    RecordNumber = 0;
+    m_EndOfLine = false;
+    EndOfFile = false;
+    // Read the header currentRow, this could be more than one line
     if (m_HasFieldHeader)
-      // Read the header currentRow, this could be more than one line
       ReadNextRow(false);
     // Read the header currentRow, this could be more than one line
     for (int i = 0; i<m_SkipRowsAfterHeader; i++)
@@ -784,7 +847,6 @@ public class CsvFileReader : BaseFileReader
 
     return base.GetRelativePosition();
   }
-
 
   /// <inheritdoc cref="BaseFileReader" />
   protected sealed override ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken)
@@ -834,6 +896,7 @@ public class CsvFileReader : BaseFileReader
     if (character == cLf && nextChar == cCr)
       EndLineNumber++;
   }
+
   /// <summary>
   ///   Reads the next record and stores it in CurrentRowColumnText, handling column mismatches.
   /// </summary>
@@ -990,22 +1053,18 @@ public class CsvFileReader : BaseFileReader
       {
         // Removed the checking of Ignore here
         // store the values from the currentRow, even ignore rows need to be copied, in case they are referenced like a time column 
-        if (columnNo >= m_CurrentRowColumns.Count || string.IsNullOrEmpty(m_CurrentRowColumns[columnNo]) || m_CurrentRowColumns[columnNo].ShouldBeTreatedAsNull(m_TreatTextAsNull))
+        if (columnNo >= m_CurrentRowColumns.Count || m_CurrentRowColumns.GetSpan(columnNo).IsEmpty)
         {
-          Add(ReadOnlySpan<char>.Empty); 
+          Add(ReadOnlySpan<char>.Empty);
           continue;
         }
-        var col = GetColumn(columnNo);
-
-        // Handle replacements and warnings etc.
-        var adjustedText = col.ColumnFormatter.FormatInputText(
-          m_CurrentRowColumns[columnNo].AsSpan().ReplaceMultiple(m_TextSpecials), warning => HandleWarning(columnNo, warning));
-
+        var adjustedText = HandleText(m_CurrentRowColumns.GetSpan(columnNo).ReplaceMultiple(m_TextSpecials), columnNo);
         if (adjustedText.Length == 0)
         {
           Add(ReadOnlySpan<char>.Empty);
           continue;
         }
+        var col = GetColumn(columnNo);
         // Additional warnings not wanted for ignored columns
         if (!col.Ignore)
         {
@@ -1362,65 +1421,6 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <summary>
-  ///   Determine the number of columns in the file
-  /// </summary>
-  /// <param name="headerRow">The initial header</param>
-  /// <returns>Number of columns</returns>
-  /// <remarks>
-  ///   If seek is supported, it will parse a few extra rows to check if the header and the
-  ///   following rows do result in the same number of columns
-  /// </remarks>
-  private int ParseFieldCount(IReadOnlyList<string> headerRow)
-  {
-    var headerLength = headerRow.Sum(x => x.Length);
-    if (headerRow.Count == 0 || headerLength == 0 ||
-        headerLength < Enumerable.Count(headerRow.TakeWhile(x => !string.IsNullOrEmpty(x))))
-      return 0;
-
-    var fields = headerRow.Count;
-
-    // The last column is empty, but we expect a header column, assume if a trailing separator
-    if (fields <= 1)
-      return fields;
-
-    // check if the next lines do have data in the last column
-    for (var additional = 0; (m_TextReader?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
-    {
-      ReadNextRow(false);
-
-      // if we have less columns than in the header exit the loop
-      if (m_CurrentRowColumns.Count < fields)
-        break;
-
-      // special case of missing linefeed, the line is twice as long minus 1 because of the
-      // combined column in the middle
-      if (m_CurrentRowColumns.Count == (fields * 2) - 1)
-        continue;
-
-      while (m_CurrentRowColumns.Count > fields)
-      {
-        HandleWarning(fields, $"No header for last {m_CurrentRowColumns.Count - fields} column(s)".AddWarningId());
-        fields++;
-      }
-
-      // if we have data in the column assume the header was missing
-      if (!string.IsNullOrEmpty(m_CurrentRowColumns[fields - 1]))
-        return fields;
-    }
-
-    // ReSharper disable once InvertIf
-    // ReSharper disable once UseIndexFromEndExpression
-    if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
-    {
-      HandleWarning(fields, "The last column does not have a column name and seems to be empty, this column will be ignored."
-          .AddWarningId());
-      return fields - 1;
-    }
-
-    return fields;
-  }
-
-  /// <summary>
   ///   Gets the next char from the buffer, but stay at the current position
   /// </summary>
   /// <returns>The next char</returns>
@@ -1460,6 +1460,7 @@ public class CsvFileReader : BaseFileReader
       m_RecordSource.Append(character);
     return character;
   }
+
   /// <summary>
   ///   Reads the record of the CSV file, which can span multiple lines. This method can return more or fewer columns than expected.
   /// </summary>
@@ -1528,47 +1529,6 @@ public class CsvFileReader : BaseFileReader
       m_CurrentRowColumns.Add(m_ProcessingBufferColumn.AsSpan(0, len.Value));
       len = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, m_CurrentRowColumns.Count, ref m_EndOfLine, ref m_EndLineNumber);
     }
-  }
-
-  /// <summary>
-  /// Resets the reading position and internal buffers to the first line of the file
-  /// </summary>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if the reader cannot seek and the stream was not opened by this instance.
-  /// </exception>
-  private async Task ResetPositionToStartOrOpenAsync(CancellationToken cancellationToken)
-  {
-    if (m_TextReader?.CanSeek ?? false)
-    {
-      m_TextReader.ToBeginning();
-    }
-    else if (SelfOpenedStream)
-    {
-      // Dispose and reopen the stream from the start
-      if (m_TextReader!=null)
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        await m_TextReader.DisposeAsync().ConfigureAwait(false);
-#else
-        m_TextReader.Dispose();
-#endif
-
-      m_Stream = m_StreamProvider(new SourceAccess(FullPath)
-      {
-        IdentifierInContainer = m_IdentifierInContainer
-      });
-
-      m_TextReader = await m_Stream
-        .GetTextReaderAsync(m_CodePageId, m_SkipRows, cancellationToken)
-        .ConfigureAwait(false);
-    }
-    else
-      throw new InvalidOperationException("Resetting to the start of the stream is not supported for externally provided streams.");
-
-    EndLineNumber = 1 + m_SkipRows;
-    StartLineNumber = EndLineNumber;
-    RecordNumber = 0;
-    m_EndOfLine = false;
-    EndOfFile = false;
   }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

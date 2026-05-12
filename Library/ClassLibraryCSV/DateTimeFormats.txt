@@ -239,6 +239,7 @@ ddd d MMM yyyy HH:mm
 ddd dd MMM yyyy H:mm
 ddd, d MMM yyyy H:mm
 ddd,MMM dd,yyyy H:mm
+yyyy/MM/dd HH:mm:ss
 M/d/yyyy h:mm:ss tt
 MM/dd/yy h:mm:ss tt
 MM/dd/yyyy HH:mm:ss
