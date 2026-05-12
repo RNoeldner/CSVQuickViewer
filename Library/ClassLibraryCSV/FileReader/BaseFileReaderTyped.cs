@@ -240,8 +240,8 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       return GetSpan(ordinal).IsEmpty;
     }
 
-    // 4. Fallback for primitives: A simple null check on the current value object
-    return m_CurrentValues[ordinal] is null;
+    // 4. Fallback for primitives: A null check on the current value object , but the cell could be a typed cell but teh value came back as text
+    return m_CurrentValues[ordinal] is null && GetSpan(ordinal).IsEmpty;
   }
 
   /// <summary>
