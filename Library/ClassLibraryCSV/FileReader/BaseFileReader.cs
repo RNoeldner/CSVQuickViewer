@@ -77,7 +77,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
-  private readonly string m_TreatTextAsNull;
+  private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;  // ReadOnlyMemory for long-term storage of slices.
+  private readonly string m_OriginalTreatAsNull; // Keep source alive otherwise m_TreatAsNullMemories refernces wrong text
 
   /// <summary>
   ///   An array of associated col
@@ -137,7 +138,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     FileName = fileName.GetFileName();
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
-    m_TreatTextAsNull = treatTextAsNull.Trim();
+    m_OriginalTreatAsNull = treatTextAsNull;
+    if (string.IsNullOrWhiteSpace(m_OriginalTreatAsNull))
+    {
+      m_TreatAsNullMemories = Array.Empty<ReadOnlyMemory<char>>();
+    }
+    else
+    {
+      // Split using the logic you provided or a simple loop
+      m_TreatAsNullMemories = [.. treatTextAsNull
+          .Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries)
+          .Select(s => s.Trim().AsMemory())];
+    }
   }
 
   protected IReadOnlyList<string> CurrentRowText => CurrentRowColumnText;
@@ -485,24 +497,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (string.IsNullOrEmpty(name))
       throw new ArgumentException("Column name must not be null or empty.", nameof(name));
+    
+    // This is filled when we open
+    if (m_ColumnIndexMap.TryGetValue(name, out var index))
+      return index;
 
-    if (m_ColumnIndexMap.Count>0)
-    {
-      if (m_ColumnIndexMap.TryGetValue(name, out var index))
-        return index;
-    }
-    else
-      for (int i = 0; i < m_FieldCount; i++)
-      {
-        if (Column[i].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-          return i;
-      }
-
-#pragma warning disable MA0012 // Do not raise reserved exception type
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
     throw new IndexOutOfRangeException($"The column name '{name}' was not found.");
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-#pragma warning restore MA0012 // Do not raise reserved exception type
   }
 
   /// <inheritdoc />
@@ -753,7 +753,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="ordinal">The column ordinal number.</param>
   /// <param name="message">The message to raise.</param>
-  protected void HandleError(int ordinal, string message)
+  protected void HandleError(int ordinal, ReadOnlySpan<char> message)
   {
     // Ignore message for ignore columns
     if (ordinal>=0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
@@ -774,28 +774,23 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     if (textSpan.IsEmpty)
       return string.Empty;
 
-    var columnFormatter = GetColumn(columnNo).ColumnFormatter;
-
-    // We need to keep a reference to the new string if one is created
-    string? formattedString = null;
-
-    // 2. Formatting
-    if (!ReferenceEquals(columnFormatter, EmptyFormatter.Instance))
+    // 2. Null Detection
+    // This is now safe because formattedString keeps the memory alive
+    for (int i = 0; i < m_TreatAsNullMemories.Length; i++)
     {
-      formattedString = columnFormatter.FormatInputText(textSpan, msg => HandleWarning(columnNo, msg));
-      // textSpan now points to the memory of formattedString
-      textSpan = formattedString.AsSpan();
+      if (textSpan.Equals(m_TreatAsNullMemories[i].Span, StringComparison.Ordinal))
+        return string.Empty;
     }
 
-    // 3. Null Detection
-    // This is now safe because formattedString keeps the memory alive
-    if (textSpan.ShouldBeTreatedAsNull(m_TreatTextAsNull))
-      return string.Empty;
+    // 3. Formatting
+    var columnFormatter = GetColumn(columnNo).ColumnFormatter;
+    if (!ReferenceEquals(columnFormatter, EmptyFormatter.Instance))
+      return columnFormatter.FormatInputText(textSpan, msg => HandleWarning(columnNo, msg));
 
     // 4. Return
     // If we formatted it, return the string we already have to avoid a second allocation
     // If we didn't format it, create a new string from the original span
-    return formattedString ?? textSpan.ToString();
+    return textSpan.ToString();
   }
 
   /// <summary>
@@ -803,7 +798,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="text">Leading Text</param>
   /// <param name="percent">Value between 0 and 1 representing the relative position</param>
-  protected virtual void HandleShowProgress(string text, double percent) =>
+  protected virtual void HandleShowProgress(ReadOnlySpan<char> text, double percent) =>
     m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
 
   /// <summary>
@@ -812,8 +807,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="text">Leading Text</param>
   protected virtual void HandleShowProgressPeriodic(string text)
     => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
-
- 
 
   /// <summary>
   ///   Calls the event handler for warnings <see cref="Warning"/>
@@ -1278,7 +1271,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="ordinal">The ordinal.</param>
   /// <param name="message">The message.</param>
-  private WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
+  private WarningEventArgs GetWarningEventArgs(int ordinal, ReadOnlySpan<char> message) =>
     new WarningEventArgs(
       RecordNumber,
       ordinal,

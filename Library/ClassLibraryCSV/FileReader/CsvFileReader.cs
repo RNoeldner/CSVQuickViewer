@@ -514,11 +514,11 @@ public class CsvFileReader : BaseFileReader
     m_CommentLine = commentLine;
 
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-    var m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
+    var m_DelimiterPlaceholder = delimiterPlaceholder ?? string.Empty;
     if (m_DelimiterPlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid delimiter characters in '{m_DelimiterPlaceholder}'", nameof(delimiterPlaceholder));
 
-    var m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
+    var m_NewLinePlaceholder = newLinePlaceholder ?? string.Empty;
     if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'", nameof(newLinePlaceholder));
     m_TextSpecials = [(m_NewLinePlaceholder, "\n"), (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()), (quotePlaceholder.HandleLongText(), m_FieldQualifier.ToStringHandle0())];
@@ -552,7 +552,7 @@ public class CsvFileReader : BaseFileReader
                          : "Character Non Breaking Space found in field".AddWarningId()
       : string.Empty;
 
-    m_TrimmingOption = trimmingOption;    
+    m_TrimmingOption = trimmingOption;
     m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     m_WarnEmptyTailingColumns = warnEmptyTailingColumns;
 
@@ -678,10 +678,10 @@ public class CsvFileReader : BaseFileReader
       EndLineNumber = 1 + m_SkipRows;
       m_EndOfLine = false;
       EndOfFile = false;
-      ReadNextRow(raiseWarnings: false);
+      _ = ReadNextRow(raiseWarnings: false);
       m_HeaderRow = [.. m_CurrentRowColumns];
       for (int i = 0; i<m_SkipRowsAfterHeader; i++)
-        ReadNextRow(raiseWarnings: false);
+        _ = ReadNextRow(raiseWarnings: false);
 
       InitColumn(ParseFieldCount());
 
@@ -737,7 +737,7 @@ public class CsvFileReader : BaseFileReader
       // check if the next lines do have data in the last column
       for (var additional = 0; (m_TextReader?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
       {
-        ReadNextRow(false);
+        _ = ReadNextRow(raiseWarnings: false);
 
         // if we have less columns than in the header exit the loop
         if (m_CurrentRowColumns.Count < fields)
@@ -808,10 +808,10 @@ public class CsvFileReader : BaseFileReader
     EndOfFile = false;
     // Read the header currentRow, this could be more than one line
     if (m_HasFieldHeader)
-      ReadNextRow(false);
+      _=ReadNextRow(raiseWarnings: false);
     // Read the header currentRow, this could be more than one line
     for (int i = 0; i<m_SkipRowsAfterHeader; i++)
-      ReadNextRow(false);
+      _=ReadNextRow(raiseWarnings: false);
   }
 
   /// <inheritdoc />
@@ -865,23 +865,6 @@ public class CsvFileReader : BaseFileReader
     HandleReadFinished();
     return new ValueTask<bool>(false);
   }
-  private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string?>? columns)
-  {
-    if (columns != null)
-    {
-      var rowLength = columns.Count;
-      for (var col = 0; col < rowLength && col < FieldCount; col++)
-        if (!string.IsNullOrEmpty(columns[col]))
-        {
-          m_ConsecutiveEmptyRows = 0;
-          return false;
-        }
-    }
-
-    m_ConsecutiveEmptyRows++;
-    EndOfFile |= m_ConsecutiveEmptyRows >= m_ConsecutiveEmptyRowsMax;
-    return true;
-  }
 
   private void EatNextCrlf(char character)
   {
@@ -909,9 +892,13 @@ public class CsvFileReader : BaseFileReader
       do
       {
         readRowAgain = false;
-        ReadNextRow(true);
-        if (AllEmptyAndCountConsecutiveEmptyRows(m_CurrentRowColumns))
+        // Fill m_CurrentRowColumns by calling ReadNextRow
+        var hasColumns = ReadNextRow(raiseWarnings: true);
+        if (!hasColumns)
         {
+          m_ConsecutiveEmptyRows++;
+          EndOfFile |= m_ConsecutiveEmptyRows >= m_ConsecutiveEmptyRowsMax;
+
           if (EndOfFile)
             return false;
 
@@ -921,6 +908,10 @@ public class CsvFileReader : BaseFileReader
             readRowAgain = true;
             continue;
           }
+        }
+        else
+        {
+          m_ConsecutiveEmptyRows = 0;
         }
 
         if (m_CurrentRowColumns.Count != FieldCount || !m_HasFieldHeader || !m_SkipDuplicateHeader) continue;
@@ -966,11 +957,11 @@ public class CsvFileReader : BaseFileReader
 
           // get the next currentRow
           var previousRowParts = m_CurrentRowColumns.ToArray();
-          ReadNextRow(true);
+          var hasData = ReadNextRow(raiseWarnings: true);
           StartLineNumber = startLine;
 
           // allow up to two extra columns they can be combined later
-          if (m_CurrentRowColumns.Count > 0 && m_CurrentRowColumns.Count + previousRowParts.Length < FieldCount + 4)
+          if (hasData && m_CurrentRowColumns.Count > 0 && m_CurrentRowColumns.Count + previousRowParts.Length < FieldCount + 4)
           {
             m_CurrentRowColumns.Clear();
             for (int i = 0; i < previousRowParts.Length - 1; i++)
@@ -1040,8 +1031,7 @@ public class CsvFileReader : BaseFileReader
         }
         else
         {
-          HandleWarning(-1,
-            text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
+          HandleWarning(-1, text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
         }
       }
       Clear();
@@ -1146,6 +1136,7 @@ public class CsvFileReader : BaseFileReader
   ///   Move to next character and store the recent character
   /// </summary>
   /// <param name="current">The recent character that has been read</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   private void MoveNext(char current)
   {
     if (m_ColumnMerger != null)
@@ -1446,6 +1437,7 @@ public class CsvFileReader : BaseFileReader
   /// If the end of the file is reached, returns <c>cLf</c> to signal
   /// an artificial line break and sets EndOfFile to <c>true</c>.
   /// </returns>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   private char ReadChar()
   {
     int res = m_TextReader!.Read();
@@ -1466,13 +1458,14 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   /// <param name="raiseWarnings">Set to true if warnings should be issued.</param>
   /// <returns>
-  ///   An empty list if the row cannot be read, or string values representing the columns of the row.
+  ///   true if at least one column was not empty.
   /// </returns>
-  private void ReadNextRow(bool raiseWarnings)
+  private bool ReadNextRow(bool raiseWarnings)
   {
     bool restart;
     // Special handling for the first column in the row
     int? len;
+    bool oneColumnNotEmpty = false;
     m_CurrentRowColumns.Clear();
     do
     {
@@ -1484,7 +1477,7 @@ public class CsvFileReader : BaseFileReader
 
       // If already at end of file, return null
       if (EndOfFile || m_TextReader is null)
-        return;
+        return oneColumnNotEmpty;
 
       len = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, 0, ref m_EndOfLine, ref m_EndLineNumber);
 
@@ -1497,7 +1490,7 @@ public class CsvFileReader : BaseFileReader
           restart = true;
         else
           // Return it as array of empty columns
-          return;
+          return oneColumnNotEmpty;
       }
       // And skip commented lines
       else if (m_CommentLine.Length > 0 && len.HasValue && m_ProcessingBufferColumn.AsSpan(0, len.Value).StartsWith(m_CommentLine.AsSpan(), StringComparison.Ordinal))
@@ -1526,9 +1519,11 @@ public class CsvFileReader : BaseFileReader
       if (raiseWarnings && EndLineNumber > StartLineNumber + 4 && len > 1024
           && m_ProcessingBufferColumn.AsSpan(0, len.Value).IndexOf(m_FieldDelimiter) != -1)
         HandleWarning(m_CurrentRowColumns.Count, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {len} characters".AddWarningId());
+      oneColumnNotEmpty |= len>0;
       m_CurrentRowColumns.Add(m_ProcessingBufferColumn.AsSpan(0, len.Value));
       len = ParseColumn(ReadChar, Peek, MoveNext, () => EndOfFile, m_CurrentRowColumns.Count, ref m_EndOfLine, ref m_EndLineNumber);
     }
+    return oneColumnNotEmpty;
   }
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

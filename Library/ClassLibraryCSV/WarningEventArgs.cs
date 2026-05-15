@@ -35,16 +35,16 @@ public sealed class WarningEventArgs : EventArgs
   public WarningEventArgs(
     long recordNumber,
     int columnNumber,
-    string warningMessage,
+    ReadOnlySpan<char> warningMessage,
     long lineNumberStart,
     long lineNumberEnd,
     string? columnName)
   {
-    if (string.IsNullOrEmpty(warningMessage)) throw new ArgumentException("message", nameof(warningMessage));
+    if (warningMessage.IsEmpty) throw new ArgumentException("message", nameof(warningMessage));
 
     RecordNumber = recordNumber;
     ColumnNumber = columnNumber;
-    Message = warningMessage;
+    Message = warningMessage.ToString();
     LineNumberStart = lineNumberStart;
     LineNumberEnd = lineNumberEnd;
     ColumnName = columnName;

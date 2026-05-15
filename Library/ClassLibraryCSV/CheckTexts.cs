@@ -35,6 +35,7 @@ public static class CheckTexts
   /// <param name="culture">The culture used for parsing (important for named days or months).</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
   /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
+  /// <remarks>We have a problem with tiomes that are if look colsely are invalid like 25:15:00 ist not in 00:00 - 23:59:00 but it could be interpreted as timespan > a day </remarks>
   public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
     ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
     in CultureInfo culture, CancellationToken cancellationToken)

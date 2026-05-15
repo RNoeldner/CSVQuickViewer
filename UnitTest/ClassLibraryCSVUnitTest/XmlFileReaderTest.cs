@@ -77,7 +77,7 @@ public class XmlFileReaderTest
 
 
   [TestMethod]
-  //[Timeout(2000)]
+  [Timeout(2000)]
   public async Task ReadTypes()
   {
     using var xmlReader = new XmlFileReader(UnitTestStatic.GetTestPath("PlantSample.xml"), Array.Empty<Column>(),

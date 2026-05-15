@@ -338,12 +338,9 @@ public sealed class CsvFileDummy : ICsvFile
   /// <inheritdoc />
   public bool Equals(IFileSetting? other2)
   {
-    if (other2 == null)
-      return false;
-    if (ReferenceEquals(this, other2))
-      return true;
-    if (!(other2 is ICsvFile other))
-      return false;
+    if (!(other2 is ICsvFile other))  return false;
+    if (ReferenceEquals(this, other2))  return true;
+
     return
       other.AllowRowCombining  == AllowRowCombining &&
       other.ByteOrderMark  == ByteOrderMark &&

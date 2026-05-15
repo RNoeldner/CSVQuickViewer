@@ -62,7 +62,7 @@ public sealed class CheckResult
   /// <param name="subResult">The sub result.</param>
   public void KeepBestPossibleMatch(in CheckResult subResult)
   {
-    if (!subResult.PossibleMatch || subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count)
+    if (!subResult.PossibleMatch || (PossibleMatch &&  subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count))
       return;
     m_ExampleNonMatch.Clear();
     PossibleMatch = true;

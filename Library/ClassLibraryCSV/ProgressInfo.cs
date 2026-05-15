@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+
 namespace CsvTools;
 
 /// <summary>
@@ -23,9 +25,9 @@ public class ProgressInfo
   ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
   /// </summary>
   /// <param name="text">The informational text.</param>
-  public ProgressInfo(string text)
+  public ProgressInfo(ReadOnlySpan<char> text)
   {
-    Text = text;
+    Text = text.ToString();
     Value = -1;
   }
 
@@ -34,9 +36,9 @@ public class ProgressInfo
   /// </summary>
   /// <param name="text">The informational text.</param>
   /// <param name="value">The progress value.</param>
-  public ProgressInfo(string text, long value)
+  public ProgressInfo(ReadOnlySpan<char> text, long value)
   {
-    Text = text;
+    Text = text.ToString();
     Value = value;
   }
 
@@ -45,7 +47,7 @@ public class ProgressInfo
   /// Example:
   ///   ProgressInfo info = "Loading...";
   /// </summary>
-  public static implicit operator ProgressInfo(string text)
+  public static implicit operator ProgressInfo(ReadOnlySpan<char> text)
     => new ProgressInfo(text);
 
   /// <summary>
