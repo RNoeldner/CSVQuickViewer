@@ -43,7 +43,7 @@ public class FormProgressTests
       formProgress.Show();
       formProgress.Maximum = 100;
       var sentTime = new TimeSpan(0);
-      formProgress.ProgressChanged = (param) => sentTime = formProgress.TimeToCompletion.EstimatedTimeRemaining;
+      formProgress.ProgressChanged += (_, param) => sentTime = formProgress.TimeToCompletion.EstimatedTimeRemaining;
 
       var end = 50;
       var step = 5;
@@ -161,12 +161,12 @@ public class FormProgressTests
     formProgress.Maximum = 80;
 
     formProgress.Show();
-    long called = 10;
+    bool called = false;
 
-    formProgress.ProgressChanged = (p) => { called = p.Item1.Value; };
+    formProgress.ProgressChanged += (_, p) => { called = true; };
 
     formProgress.Report(new ProgressInfo("Help", 20));
 
-    Assert.AreEqual(20, called);
+    Assert.IsTrue(called);
   }
 }

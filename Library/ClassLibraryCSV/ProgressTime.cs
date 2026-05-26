@@ -40,6 +40,6 @@ public class ProgressTime : IProgressTime
     if (TimeToCompletion.Value == args.Value)
       return;
     TimeToCompletion.Value = args.Value;
-    ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(args, TimeToCompletion.Percent, TimeToCompletion.EstimatedTimeRemaining));
+    ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(args.Text, TimeToCompletion.Percent, TimeToCompletion.EstimatedTimeRemaining));
   }
 }

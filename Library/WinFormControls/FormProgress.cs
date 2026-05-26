@@ -158,7 +158,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
 
       // Thread-safe snapshot local assignment copy to prevent cross-thread race conditions
       var localHandler = ProgressChanged;
-      localHandler?.Invoke(this, new ProgressChangedEventArgs(progressInfo, TimeToCompletion.Percent, TimeToCompletion.EstimatedTimeRemaining));
+      localHandler?.Invoke(this, new ProgressChangedEventArgs(progressInfo.Text, TimeToCompletion.Percent, TimeToCompletion.EstimatedTimeRemaining));
 
       labelText.SafeBeginInvoke(
         () =>
