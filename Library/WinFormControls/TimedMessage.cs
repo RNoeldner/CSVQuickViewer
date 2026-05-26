@@ -281,7 +281,7 @@ public class TimedMessage : ResizeForm
     m_TableLayoutPanel.Dock = DockStyle.Fill;
     m_TableLayoutPanel.Location = new Point(0, 0);
     m_TableLayoutPanel.Margin = new Padding(2);
-    m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+    m_TableLayoutPanel.Name = "tableLayoutPanel";
     m_TableLayoutPanel.Padding = new Padding(4, 0, 10, 3);
     m_TableLayoutPanel.RowCount = 2;
     m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));

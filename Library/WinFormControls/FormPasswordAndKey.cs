@@ -162,7 +162,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     m_TableLayoutPanel.Dock = DockStyle.Top;
     m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
     m_TableLayoutPanel.Margin = new Padding(4, 3, 4, 3);
-    m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+    m_TableLayoutPanel.Name = "tableLayoutPanel";
     m_TableLayoutPanel.RowCount = 3;
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());
     m_TableLayoutPanel.RowStyles.Add(new RowStyle());

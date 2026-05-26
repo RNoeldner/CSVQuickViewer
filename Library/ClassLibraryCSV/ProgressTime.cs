@@ -25,22 +25,21 @@ public class ProgressTime : IProgressTime
   public long Maximum
   {
     get => TimeToCompletion.TargetValue;
-    set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
+    set => TimeToCompletion.TargetValue =  Math.Max(1, value);
   }
 
   /// <inheritdoc />
   public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
 
   /// <inheritdoc />
-  public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
+  public event EventHandler<ProgressChangedEventArgs>? ProgressChanged;
 
   /// <inheritdoc />
   public void Report(ProgressInfo args)
   {
-    if (TimeToCompletion.Value != args.Value)
-    {
-      TimeToCompletion.Value = args.Value;
-      ProgressChanged?.Invoke((args, TimeToCompletion));
-    }
+    if (TimeToCompletion.Value == args.Value)
+      return;
+    TimeToCompletion.Value = args.Value;
+    ProgressChanged?.Invoke(this, new ProgressChangedEventArgs(args, TimeToCompletion.Percent, TimeToCompletion.EstimatedTimeRemaining));
   }
 }

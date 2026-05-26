@@ -15,6 +15,58 @@ using System;
 
 namespace CsvTools;
 
+
+#if NET5_0_OR_GREATER
+/// <summary>
+/// Provides high-performance, stack-allocated progress data to event subscribers.
+/// </summary>
+public readonly record struct ProgressChangedEventArgs(ProgressInfo Progress, double Percent, TimeSpan EstimatedTimeRemaining);
+#else
+/// <summary>
+/// Provides high-performance, stack-allocated progress data to event subscribers.
+/// </summary>
+public readonly struct ProgressChangedEventArgs : IEquatable<ProgressChangedEventArgs>
+{
+  public ProgressInfo Progress { get; }
+
+  public double Percent { get; }
+
+  public TimeSpan EstimatedTimeRemaining { get; }
+
+  public ProgressChangedEventArgs(
+      ProgressInfo progress,
+      double percent, TimeSpan estimatedTimeRemaining)
+  {
+    Progress = progress;
+    Percent = percent;
+    EstimatedTimeRemaining = estimatedTimeRemaining;
+  }
+
+  /// <inheritdoc />
+  public bool Equals(ProgressChangedEventArgs other) =>
+     Progress.Equals(other.Progress) &&
+     Percent.Equals(other.Percent) &&
+     EstimatedTimeRemaining.Equals(other.EstimatedTimeRemaining);
+
+  /// <inheritdoc />
+  public override bool Equals(object? obj) =>
+      obj is ProgressChangedEventArgs other && Equals(other);
+
+  /// <inheritdoc />
+  public override int GetHashCode()
+  {
+    unchecked
+    {
+      int hash = 17;
+      hash = hash* 23 + Progress.GetHashCode();
+      hash = hash* 23 + Percent.GetHashCode();
+      hash = hash* 23 + EstimatedTimeRemaining.GetHashCode();
+      return hash;
+    }
+  }
+}
+#endif
+
 /// <summary>
 ///   Represents a progress reporter that tracks a value, supports a defined maximum,
 ///   and provides estimated time-to-completion based on observed progress velocity.
@@ -44,5 +96,5 @@ public interface IProgressTime : IProgress<ProgressInfo>
   ///   Subscribers can use this event to update UI or trigger other actions.
   /// </summary>
   /// <summary>Raised for each reported progress value.</summary>
-  public Action<(ProgressInfo, TimeToCompletion)>? ProgressChanged { get; set; }
+  event EventHandler<ProgressChangedEventArgs>? ProgressChanged;
 }

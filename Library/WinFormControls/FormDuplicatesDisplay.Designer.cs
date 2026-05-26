@@ -28,82 +28,85 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+      System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
       var dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDuplicatesDisplay));
       var dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.Label label1;
-      detailControl = new DetailControl();
-      comboBoxID = new System.Windows.Forms.ComboBox();
+      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDuplicatesDisplay));
+      System.Windows.Forms.Label fieldSelectionLabel;
+      duplicatesDetailControl = new DetailControl();
+      comboBoxTargetField = new System.Windows.Forms.ComboBox();
       checkBoxIgnoreNull = new System.Windows.Forms.CheckBox();
-      tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      label1 = new System.Windows.Forms.Label();
-      tableLayoutPanel1.SuspendLayout();
+      mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      fieldSelectionLabel = new System.Windows.Forms.Label();
+      mainTableLayoutPanel.SuspendLayout();
       SuspendLayout();
       // 
       // tableLayoutPanel1
       // 
-      tableLayoutPanel1.ColumnCount = 3;
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel1.Controls.Add(detailControl, 0, 1);
-      tableLayoutPanel1.Controls.Add(label1, 0, 0);
-      tableLayoutPanel1.Controls.Add(comboBoxID, 1, 0);
-      tableLayoutPanel1.Controls.Add(checkBoxIgnoreNull, 2, 0);
-      tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-      tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      tableLayoutPanel1.Name = "tableLayoutPanel1";
-      tableLayoutPanel1.RowCount = 2;
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(637, 488);
-      tableLayoutPanel1.TabIndex = 10;
+      mainTableLayoutPanel.ColumnCount = 3;
+      mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      mainTableLayoutPanel.Controls.Add(duplicatesDetailControl, 0, 1);
+      mainTableLayoutPanel.Controls.Add(fieldSelectionLabel, 0, 0);
+      mainTableLayoutPanel.Controls.Add(comboBoxTargetField, 1, 0);
+      mainTableLayoutPanel.Controls.Add(checkBoxIgnoreNull, 2, 0);
+      mainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      mainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      mainTableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      mainTableLayoutPanel.Name = "mainTableLayoutPanel";
+      mainTableLayoutPanel.RowCount = 2;
+      mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      mainTableLayoutPanel.Size = new System.Drawing.Size(637, 488);
+      mainTableLayoutPanel.TabIndex = 10;
       // 
       // detailControl
       // 
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
-      detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
-      tableLayoutPanel1.SetColumnSpan(detailControl, 3);
+      duplicatesDetailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
+      mainTableLayoutPanel.SetColumnSpan(duplicatesDetailControl, 3);
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      detailControl.DefaultCellStyle = dataGridViewCellStyle2;
-      detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      detailControl.Location = new System.Drawing.Point(4, 30);
-      detailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      detailControl.MenuDown = false;
-      detailControl.Name = "detailControl";
-      detailControl.ShowButtonAtLength = 1000;
-      detailControl.Size = new System.Drawing.Size(629, 455);
-      detailControl.TabIndex = 2;
+      duplicatesDetailControl.DefaultCellStyle = dataGridViewCellStyle2;
+      duplicatesDetailControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      duplicatesDetailControl.FillGuessSettings = null;
+      duplicatesDetailControl.FrozenColumns = 0;
+      duplicatesDetailControl.Location = new System.Drawing.Point(4, 30);
+      duplicatesDetailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      duplicatesDetailControl.MenuDown = false;
+      duplicatesDetailControl.Name = "duplicatesDetailControl";
+      duplicatesDetailControl.SearchText = "";
+      duplicatesDetailControl.ShowButtonAtLength = 1000;
+      duplicatesDetailControl.Size = new System.Drawing.Size(629, 455);
+      duplicatesDetailControl.TabIndex = 2;
       // 
       // label1
       // 
-      label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(4, 7);
-      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(29, 13);
-      label1.TabIndex = 3;
-      label1.Text = "Field";
+      fieldSelectionLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      fieldSelectionLabel.AutoSize = true;
+      fieldSelectionLabel.Location = new System.Drawing.Point(4, 7);
+      fieldSelectionLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      fieldSelectionLabel.Name = "fieldSelectionLabel";
+      fieldSelectionLabel.Size = new System.Drawing.Size(29, 13);
+      fieldSelectionLabel.TabIndex = 3;
+      fieldSelectionLabel.Text = "Field";
       // 
       // comboBoxID
       // 
-      comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
-      comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      comboBoxID.FormattingEnabled = true;
-      comboBoxID.Location = new System.Drawing.Point(41, 3);
-      comboBoxID.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      comboBoxID.Name = "comboBoxID";
-      comboBoxID.Size = new System.Drawing.Size(497, 21);
-      comboBoxID.TabIndex = 0;
-      comboBoxID.SelectedIndexChanged += ComboBoxID_SelectedIndexChanged;
+      comboBoxTargetField.Dock = System.Windows.Forms.DockStyle.Top;
+      comboBoxTargetField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      comboBoxTargetField.FormattingEnabled = true;
+      comboBoxTargetField.Location = new System.Drawing.Point(41, 3);
+      comboBoxTargetField.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      comboBoxTargetField.Name = "comboBoxTargetField";
+      comboBoxTargetField.Size = new System.Drawing.Size(497, 21);
+      comboBoxTargetField.TabIndex = 0;
+      comboBoxTargetField.SelectedIndexChanged += ComboBoxTargetField_SelectedIndexChanged;
       // 
       // checkBoxIgnoreNull
       // 
@@ -116,25 +119,26 @@ namespace CsvTools
       checkBoxIgnoreNull.TabIndex = 1;
       checkBoxIgnoreNull.Text = "Ignore NULL";
       checkBoxIgnoreNull.UseVisualStyleBackColor = true;
-      checkBoxIgnoreNull.CheckedChanged += ComboBoxID_SelectedIndexChanged;
+      checkBoxIgnoreNull.CheckedChanged += CheckBoxIgnoreNull_CheckedChanged;
       // 
       // FormDuplicatesDisplay
       // 
+      AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
       ClientSize = new System.Drawing.Size(637, 488);
-      Controls.Add(tableLayoutPanel1);
+      Controls.Add(mainTableLayoutPanel);
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       Name = "FormDuplicatesDisplay";
       Text = "Duplicates Display";
-      FormClosing += DuplicatesDisplay_FormClosing;
-      Load += DuplicatesDisplay_LoadAsync;
-      tableLayoutPanel1.ResumeLayout(false);
-      tableLayoutPanel1.PerformLayout();
+      FormClosing += FormDuplicatesDisplay_FormClosing;
+      Load += FormDuplicatesDisplay_LoadAsync;
+      mainTableLayoutPanel.ResumeLayout(false);
+      mainTableLayoutPanel.PerformLayout();
       ResumeLayout(false);
     }
 
     private System.Windows.Forms.CheckBox checkBoxIgnoreNull;
-    private System.Windows.Forms.ComboBox comboBoxID;
-    private CsvTools.DetailControl detailControl;
+    private System.Windows.Forms.ComboBox comboBoxTargetField;
+    private CsvTools.DetailControl duplicatesDetailControl;
 
 #endregion
   }

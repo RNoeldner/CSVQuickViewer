@@ -36,8 +36,9 @@ public partial class FillGuessSettingEdit : UserControl
     set
     {
       fillGuessSettingsBindingSource.DataSource = value;
+      fillGuessSettingsBindingSource.ResetBindings(metadataChanged: false);
       if (!value.Enabled)
-        radioButtonDisabled.Checked = true;
+        radioButtonHeuristicsDisabled.Checked = true;
     }
   }
 }

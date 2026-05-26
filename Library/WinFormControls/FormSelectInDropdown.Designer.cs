@@ -81,7 +81,7 @@ namespace CsvTools
       tableLayoutPanel1.Controls.Add(buttonCancel, 2, 1);
       tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanel1.Name = "tableLayoutPanel1";
+      tableLayoutPanel1.Name = "mainTableLayoutPanel";
       tableLayoutPanel1.RowCount = 2;
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());

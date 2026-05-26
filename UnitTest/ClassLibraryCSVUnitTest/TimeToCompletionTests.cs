@@ -95,26 +95,26 @@ public class TimeToCompletionTests
   public void DisplayTimespan()
   {
     Assert.AreEqual("1.50 days",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromDays(1.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromDays(1.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("0.10 sec",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromSeconds(0.1), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("20 sec",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(20), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromSeconds(20), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("20:30 min",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(20.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromMinutes(20.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("2:30 min",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromMinutes(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("2:30 hrs",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromHours(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromHours(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
     Assert.AreEqual("11:30 hrs",
-      TimeToCompletion.DisplayTimespan(TimeSpan.FromHours(11.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+      TimeToCompletion.FormatRemainingTime(TimeSpan.FromHours(11.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
-    Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1)));
+    Assert.AreEqual("", TimeToCompletion.FormatRemainingTime(TimeSpan.FromSeconds(0.1)));
   }
 }

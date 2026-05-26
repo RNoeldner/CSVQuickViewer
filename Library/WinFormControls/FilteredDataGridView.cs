@@ -1041,7 +1041,7 @@ public partial class FilteredDataGridView : DataGridView
     {
 #pragma warning disable S2486 // Generic exceptions should not be ignored
 #pragma warning disable S108 // Nested blocks of code should not be left empty
-      try { Logger.Warning(ex, "FilteredDataGridView painting failed"); } catch { }
+      try { Logger.Warning(ex, "mainDataGridView painting failed"); } catch { }
 #pragma warning restore S108 // Nested blocks of code should not be left empty
 #pragma warning restore S2486 // Generic exceptions should not be ignored
       e.Handled = false;

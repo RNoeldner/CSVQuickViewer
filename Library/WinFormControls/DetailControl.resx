@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,11 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="m_ToolStripLabelCount.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="toolStripButtonMoveFirstItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMoveFirst.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yJaMxpqEAAALaSURBVDhPZZNpSJRRFIYfZybHJsu2MTBNsgUT
@@ -140,7 +137,7 @@
         QmCC
 </value>
   </data>
-  <data name="toolStripButtonMovePreviousItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMovePrevious.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yJaMxpqEAAAHjSURBVDhPjZLdS5NhGIevtjVzVuZHCaGNdRAa
@@ -154,7 +151,7 @@
         OJ4sYtrxAHADlWtdSAk1ZCdwFOgE1B1sS7YDLXogE8iL18I/gtefYkxrDu0AAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="toolStripButtonMoveNextItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMoveNext.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yJaMxpqEAAAH0SURBVDhPjZNdSJNhGIavrT9GC0tmq82Q+mIV
@@ -169,7 +166,7 @@
         QwAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="toolStripButtonMoveLastItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMoveLast.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yJaMxpqEAAALXSURBVDhPdZN9TMxxHMdfd8WJo9iduJjNWdjM
@@ -187,7 +184,7 @@
         cf6AzPWFpHuY/NlQz9WcqM3p/nveUo2kB8L/F2dfdL0Nqupw/1r3CzTeM3ju4R8UAAAAAElFTkSuQmCC
 </value>
   </data>
-  <data name="m_ToolStripButtonDuplicates.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonDuplicates.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yAZ8yQnAAAAF9SURBVDhPY2DABIwEMG4gYDf/tFrIiq/SPsu+
@@ -200,7 +197,7 @@
         eYwAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="m_ToolStripButtonHierarchy.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonHierarchy.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw00AL5v1WAAAAIQSURBVDhPjZPtS1NhGMbvb/0P9bn61D/Ul6CP
@@ -215,27 +212,27 @@
         /3iGZ91l6ho/uKIn1Lv+7TzjrfMvzTuYbcSS7RwAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="m_ToolStripButtonStore.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonStore.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        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
+        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
 </value>
   </data>
-  <data name="m_ToolStripButtonUniqueValues.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonUniqueValues.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAK
         6QAACukB/XXO0wAAAAd0SU1FB9YFFw0yLjTjfykAAAIUSURBVDhPlZNLaxNhFIa/pf/CpQtFF4poVVyI
@@ -250,13 +247,7 @@
         lY+uSg5DPgj1OJJa65jMSVovQvsfmXM+BEvtbB6OXNPoAAAAAElFTkSuQmCC
 </value>
   </data>
-  <metadata name="m_ToolStripNavigation.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>434, 24</value>
-  </metadata>
-  <metadata name="m_ToolStripTop.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>302, 20</value>
-  </metadata>
-  <data name="m_ToolStripButtonColumnLength.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonColumnLength.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
         DAAACwwBP0AiyAAAAAd0SU1FB9YFFw0zOa4ry68AAALfSURBVDhPdZNrTNNXGMZ//EFKQYsXZifMsXUa
@@ -275,32 +266,20 @@
         SUVORK5CYII=
 </value>
   </data>
-  <data name="m_ToolStripButtonSource.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="toolStripButtonSource.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        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
+        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
 </value>
   </data>
-  <metadata name="m_TimerVisibility.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>164, 18</value>
-  </metadata>
-  <metadata name="timerLoadRemain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="m_NavRepeatTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>609, 24</value>
-  </metadata>
-  <metadata name="m_NavInputTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>767, 24</value>
-  </metadata>
 </root>

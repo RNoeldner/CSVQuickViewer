@@ -7,5 +7,5 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Design", "MA0051:Method is too long", Justification = "<Pending>", Scope = "member", Target = "~M:CsvTools.Search.InitializeComponent")]
 [assembly: SuppressMessage("Usage", "MA0011:IFormatProvider is missing", Justification = "<Pending>", Scope = "member", Target = "~M:CsvTools.ResizeForm.InitializeComponent")]
-[assembly: SuppressMessage("Usage", "MA0011:IFormatProvider is missing", Justification = "<Pending>", Scope = "member", Target = "~M:CsvTools.FilteredDataGridView.#ctor")]
+[assembly: SuppressMessage("Usage", "MA0011:IFormatProvider is missing", Justification = "<Pending>", Scope = "member", Target = "~M:CsvTools.mainDataGridView.#ctor")]
 [assembly: SuppressMessage("Usage", "MA0011:IFormatProvider is missing", Justification = "<Pending>", Scope = "member", Target = "~M:CsvTools.Search.InitializeComponent")]

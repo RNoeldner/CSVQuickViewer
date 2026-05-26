@@ -68,10 +68,10 @@ public partial class FormUniqueDisplay : ResizeForm
 
     m_InitialColumn = initialColumn;
     InitializeComponent();
-    detailControl.ReadOnly = true;
-    detailControl.ShowFilter = false;
-    detailControl.ShowInfoButtons = false;
-    detailControl.HtmlStyle = htmlStyle;
+    uniqueValuesDetailControl.ReadOnly = true;
+    uniqueValuesDetailControl.ShowFilter = false;
+    uniqueValuesDetailControl.ShowInfoButtons = false;
+    uniqueValuesDetailControl.HtmlStyle = htmlStyle;
   }
 
   /// <summary>
@@ -79,10 +79,10 @@ public partial class FormUniqueDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void ComboBoxID_SelectedIndexChanged(object? sender, EventArgs e) =>
-    Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
+  private void ComboBoxTargetField_SelectedIndexChanged(object? sender, EventArgs e) =>
+    Work(comboBoxTargetField.Text, checkBoxIgnoreNull.Checked);
 
-  private void UniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
+  private void FormUniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
     m_CancellationTokenSource.Cancel();
 
   /// <summary>
@@ -90,7 +90,7 @@ public partial class FormUniqueDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private async void FormUniqueDisplay_Load(object? sender, EventArgs e)
+  private async void FormUniqueDisplay_LoadAsync(object? sender, EventArgs e)
   {
     var index = 0;
     var current = 0;
@@ -99,11 +99,11 @@ public partial class FormUniqueDisplay : ResizeForm
       if (!string.IsNullOrEmpty(m_InitialColumn)
           && column.ColumnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
         index = current;
-      comboBoxID.Items.Add(column.ColumnName);
+      comboBoxTargetField.Items.Add(column.ColumnName);
       current++;
     }
-    comboBoxID.SelectedIndex = index;
-    await detailControl.LoadDataTableAsync(m_DataTable, RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
+    comboBoxTargetField.SelectedIndex = index;
+    await uniqueValuesDetailControl.LoadDataTableAsync(m_DataTable, RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
   }
 
   private void Work(string dataColumnName, bool ignoreNull)
@@ -119,8 +119,8 @@ public partial class FormUniqueDisplay : ResizeForm
     this.SafeInvoke(
       () =>
       {
-        detailControl.Visible = false;
-        detailControl.SuspendLayout();
+        uniqueValuesDetailControl.Visible = false;
+        uniqueValuesDetailControl.SuspendLayout();
       });
     Extensions.ProcessUIElements();
 
@@ -189,7 +189,7 @@ public partial class FormUniqueDisplay : ResizeForm
       m_DataTable.EndLoadData();
       formProgress.Maximum = 0;
       formProgress.Report("Sorting");
-      detailControl.Sort(dataColumnName);
+      uniqueValuesDetailControl.Sort(dataColumnName);
     }
     catch (Exception ex)
     {
@@ -200,8 +200,8 @@ public partial class FormUniqueDisplay : ResizeForm
       this.SafeInvoke(
         () =>
         {
-          detailControl.Visible = true;
-          detailControl.ResumeLayout(true);
+          uniqueValuesDetailControl.Visible = true;
+          uniqueValuesDetailControl.ResumeLayout(true);
         });
     }
   }

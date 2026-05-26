@@ -21,11 +21,11 @@ public sealed class TimeToCompletion
   /// <summary>
   ///   Maximum displayed timespan or fallback when no estimate is possible.
   /// </summary>
-  public static readonly TimeSpan Max = TimeSpan.FromDays(2);
+  public static readonly TimeSpan UnavailableEstimate = TimeSpan.FromDays(2);
 
   // Fixed circular buffer configuration
   private readonly int m_BufferSize;
-  private readonly TimeSpan m_MaxAge;
+  private readonly TimeSpan m_HistoryWindow;
 
   // Circular buffer storage for values and timestamps (Stopwatch ticks)
   private readonly long[] m_Values;
@@ -40,7 +40,7 @@ public sealed class TimeToCompletion
   private long m_LastValue;
 
   // Stopwatch frequency → ticks per second
-  private readonly long m_TicksPerSecond = Stopwatch.Frequency;
+  private static readonly long TicksPerSecond = Stopwatch.Frequency;
 
   /// <summary>
   ///   Creates a high-performance progress estimator.
@@ -58,32 +58,32 @@ public sealed class TimeToCompletion
   public TimeToCompletion(long targetValue = 1, int bufferSize = 32, double historySeconds = 120.0)
   {
     m_TargetValue = Math.Max(1, targetValue);
-    m_BufferSize = bufferSize;
-    m_MaxAge = TimeSpan.FromSeconds(historySeconds);
+    m_BufferSize = Math.Max(2, bufferSize); 
+    m_HistoryWindow = TimeSpan.FromSeconds(Math.Max(1, historySeconds));
 
     // Allocate fixed-size circular buffers
-    m_Values = new long[bufferSize];
-    m_Timestamps = new long[bufferSize];
+    m_Values = new long[m_BufferSize];
+    m_Timestamps = new long[m_BufferSize];
   }
 
   /// <summary>
-  ///   Gets the computed remaining time. Defaults to <see cref="Max"/> if no
+  ///   Gets the computed remaining time. Defaults to <see cref="UnavailableEstimate"/> if no
   ///   meaningful estimate can be made.
   /// </summary>
-  public TimeSpan EstimatedTimeRemaining { get; private set; } = Max;
+  public TimeSpan EstimatedTimeRemaining { get; private set; } = UnavailableEstimate;
 
   /// <summary>
   ///   Human-readable string of remaining time (or empty if not applicable).
   /// </summary>
   public string EstimatedTimeRemainingDisplay =>
-    DisplayTimespan(EstimatedTimeRemaining);
+    FormatRemainingTime(EstimatedTimeRemaining);
 
   /// <summary>
   ///   Returns the estimated remaining time prefixed with " - ", or empty when
   ///   no estimate is available (for UI display convenience).
   /// </summary>
   public string EstimatedTimeRemainingDisplaySeparator =>
-    EstimatedTimeRemaining >= Max ? string.Empty : " - " + EstimatedTimeRemainingDisplay;
+    EstimatedTimeRemaining >= UnavailableEstimate ? string.Empty : " - " + EstimatedTimeRemainingDisplay;
 
   /// <summary>
   ///   Current percentage (0–100) based purely on the last reported value,
@@ -106,10 +106,10 @@ public sealed class TimeToCompletion
     set
     {
       m_TargetValue = Math.Max(1, value);
-      Recalculate();
+      Recalculate(Stopwatch.GetTimestamp());
     }
   }
-
+  
   /// <summary>
   ///   Gets or updates the current progress value.
   ///   Each update records a new sample and triggers recalculation.
@@ -119,15 +119,28 @@ public sealed class TimeToCompletion
     get => m_LastValue;
     set
     {
-      // Reject regressions, duplicates, or invalid values
-      if (value <= m_LastValue || value > m_TargetValue)
+      value = Math.Min(value, m_TargetValue);
+
+      // Ignore regressions
+      if (value < m_LastValue)
         return;
 
+      var now = Stopwatch.GetTimestamp();
+
+      // Same value = stalled progress
+      if (value == m_LastValue)
+      {
+        Recalculate(now);
+        return;
+      }
+
       m_LastValue = value;
-      AddSample(value);
-      Recalculate();
+
+      AddSample(value, now);
+      Recalculate(now);
     }
   }
+  private void UpdatePercent(long value) => Percent = Math.Min(100.0, (double) value / m_TargetValue * 100.0);
 
   // ——————————————————————————————————————————————
   //         Internal mechanics: circular buffer
@@ -136,12 +149,10 @@ public sealed class TimeToCompletion
   /// <summary>
   ///   Inserts a new value/timestamp sample into the circular history buffer.
   /// </summary>
-  private void AddSample(long value)
+  private void AddSample(long value, long timestamp)
   {
-    long now = Stopwatch.GetTimestamp();
-
     m_Values[m_Index] = value;
-    m_Timestamps[m_Index] = now;
+    m_Timestamps[m_Index] = timestamp;
 
     // Advance cursor
     m_Index = (m_Index + 1) % m_BufferSize;
@@ -153,23 +164,29 @@ public sealed class TimeToCompletion
 
   /// <summary>
   ///   Recalculates velocity, percentage, and estimated remaining time using
-  ///   only the newest and oldest valid samples inside <see cref="m_MaxAge"/>.
+  ///   only the newest and oldest valid samples inside <see cref="m_HistoryWindow"/>.
   /// </summary>
-  private void Recalculate()
+  private void Recalculate(long now)
   {
     if (m_Count < 2)
     {
-      EstimatedTimeRemaining = Max;
-      Percent = (double) m_LastValue / m_TargetValue * 100.0;
+      EstimatedTimeRemaining = UnavailableEstimate;
+      UpdatePercent(m_LastValue);
       return;
     }
 
-    var maxAgeTicks = (long) (m_MaxAge.TotalSeconds * m_TicksPerSecond);
+    var maxAgeTicks = (long) (m_HistoryWindow.TotalSeconds * TicksPerSecond);
 
     // Latest sample index (just behind the write position)
     var newest = (m_Index - 1 + m_BufferSize) % m_BufferSize;
     var newestValue = m_Values[newest];
     var newestTime = m_Timestamps[newest];
+    if (newestValue >= m_TargetValue)
+    {
+      UpdatePercent(m_TargetValue);
+      EstimatedTimeRemaining = TimeSpan.Zero;
+      return;
+    }
 
     // Walk backward to find the oldest sample within the allowed age
     var oldest = newest;
@@ -194,35 +211,41 @@ public sealed class TimeToCompletion
     // Not enough movement → no meaningful velocity
     if (deltaValue <= 0 || deltaTicks <= 0)
     {
-      EstimatedTimeRemaining = Max;
-      Percent = (double) m_LastValue / m_TargetValue * 100.0;
+      EstimatedTimeRemaining = UnavailableEstimate;
+      UpdatePercent(m_LastValue);
       return;
     }
 
     // High-precision velocity (units per second)
     double velocity =
-      deltaValue / (deltaTicks / (double) m_TicksPerSecond);
+      deltaValue / (deltaTicks / (double) TicksPerSecond);
+    
+    if (now - newestTime > maxAgeTicks)
+    {
+      EstimatedTimeRemaining = UnavailableEstimate;
+      UpdatePercent(newestValue);
+      return;
+    }
 
     // Estimate time left
     double remainingSeconds =
       (m_TargetValue - newestValue) / velocity;
-
-    Percent = (double) newestValue / m_TargetValue * 100.0;
+    UpdatePercent(newestValue);
 
     // Valid result?
     EstimatedTimeRemaining =
-      (remainingSeconds > 0 && remainingSeconds < Max.TotalSeconds)
+      (remainingSeconds > 0 && remainingSeconds < UnavailableEstimate.TotalSeconds)
         ? TimeSpan.FromSeconds(remainingSeconds)
-        : Max;
+        : UnavailableEstimate;
   }
 
   /// <summary>
   ///   Converts a <see cref="TimeSpan"/> into a readable UI-friendly string.
   ///   Short times (&lt; 2 sec) are suppressed unless explicitly requested.
   /// </summary>
-  public static string DisplayTimespan(TimeSpan value, bool cutBelowTwoSeconds = true)
+  public static string FormatRemainingTime(TimeSpan value, bool cutBelowTwoSeconds = true)
   {
-    if (value == Max || value.TotalDays > 7)
+    if (value == UnavailableEstimate || value.TotalDays > 7)
       return string.Empty;
 
     if (value.TotalSeconds < 2)

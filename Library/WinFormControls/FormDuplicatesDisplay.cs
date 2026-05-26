@@ -58,10 +58,10 @@ public partial class FormDuplicatesDisplay : ResizeForm
     m_InitialColumn = initialColumn ?? string.Empty;
     InitializeComponent();
     // These can not be set in Designed, not sure why
-    detailControl.ReadOnly = true;
-    detailControl.ShowFilter = false;
-    detailControl.ShowInfoButtons = false;
-    detailControl.HtmlStyle = htmlStyle;
+    duplicatesDetailControl.ReadOnly = true;
+    duplicatesDetailControl.ShowFilter = false;
+    duplicatesDetailControl.ShowInfoButtons = false;
+    duplicatesDetailControl.HtmlStyle = htmlStyle;
   }
 
   /// <summary>
@@ -69,10 +69,10 @@ public partial class FormDuplicatesDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private void ComboBoxID_SelectedIndexChanged(object? sender, EventArgs e) =>
-    Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
+  private void ComboBoxTargetField_SelectedIndexChanged(object? sender, EventArgs e) =>
+    Work(comboBoxTargetField.Text, checkBoxIgnoreNull.Checked);
 
-  private void DuplicatesDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
+  private void FormDuplicatesDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
     m_CancellationTokenSource.Cancel();
 
   /// <summary>
@@ -80,7 +80,7 @@ public partial class FormDuplicatesDisplay : ResizeForm
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-  private async void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
+  private async void FormDuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
   {
     var index = 0;
     var current = 0;
@@ -89,11 +89,11 @@ public partial class FormDuplicatesDisplay : ResizeForm
       if (!string.IsNullOrEmpty(m_InitialColumn)
           && column.ColumnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
         index = current;
-      comboBoxID.Items.Add(column.ColumnName);
+      comboBoxTargetField.Items.Add(column.ColumnName);
       current++;
     }
-    comboBoxID.SelectedIndex = index;
-    await detailControl.LoadDataTableAsync(m_DataTable, RowFilterTypeEnum.All,  m_CancellationTokenSource.Token);
+    comboBoxTargetField.SelectedIndex = index;
+    await duplicatesDetailControl.LoadDataTableAsync(m_DataTable, RowFilterTypeEnum.All, m_CancellationTokenSource.Token);
   }
 
   private void Work(string dataColumnName, bool ignoreNull)
@@ -109,13 +109,13 @@ public partial class FormDuplicatesDisplay : ResizeForm
     this.SafeInvoke(
       () =>
       {
-        detailControl.Visible = false;
-        detailControl.SuspendLayout();
+        duplicatesDetailControl.Visible = false;
+        duplicatesDetailControl.SuspendLayout();
       });
     try
     {
       var duplicateList = new List<int>();
-      var dictIDToRow = new DictionaryIgnoreCase< int>();
+      var dictIDToRow = new DictionaryIgnoreCase<int>();
       var dictFirstIDStored = new HashSet<int>();
       var dataColumnID = m_DataTable.Columns[dataColumnName];
       if (dataColumnID==null)
@@ -178,16 +178,20 @@ public partial class FormDuplicatesDisplay : ResizeForm
       m_DataTable.EndLoadData();
       formProgress.Maximum = 0;
       formProgress.Report("Sorting");
-      detailControl.Sort(dataColumnName);
+      duplicatesDetailControl.Sort(dataColumnName);
     }
     finally
     {
       this.SafeInvoke(
         () =>
         {
-          detailControl.Visible = true;
-          detailControl.ResumeLayout(true);
+          duplicatesDetailControl.Visible = true;
+          duplicatesDetailControl.ResumeLayout(true);
         });
     }
   }
+
+  private void CheckBoxIgnoreNull_CheckedChanged(object sender, EventArgs e) =>
+    Work(comboBoxTargetField.Text, checkBoxIgnoreNull.Checked);
+
 }

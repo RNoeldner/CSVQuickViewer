@@ -64,7 +64,7 @@ namespace CsvTools
       labelInput = new System.Windows.Forms.Label();
       labelSampleDisplay = new System.Windows.Forms.Label();
       labelDateOutputDisplay = new System.Windows.Forms.Label();
-      labelNote = new System.Windows.Forms.Label();
+      labelTimeZoneNote = new System.Windows.Forms.Label();
       labelInputTZ = new System.Windows.Forms.Label();
       labelOutPutTZ = new System.Windows.Forms.Label();
       labelTCFormat = new System.Windows.Forms.Label();
@@ -112,8 +112,8 @@ namespace CsvTools
       labelNumber = new System.Windows.Forms.Label();
       groupBoxDate = new System.Windows.Forms.GroupBox();
       labelDisplayNullAs = new System.Windows.Forms.Label();
-      panelBottom1 = new System.Windows.Forms.Panel();
-      panelBottom2 = new System.Windows.Forms.Panel();
+      panelUtilitiesBottom = new System.Windows.Forms.Panel();
+      panelActionsBottom = new System.Windows.Forms.Panel();
       buttonOK = new System.Windows.Forms.Button();
       buttonCancel = new System.Windows.Forms.Button();
       labelGroup = new System.Windows.Forms.Label();
@@ -144,8 +144,8 @@ namespace CsvTools
       groupBoxBoolean.SuspendLayout();
       groupBoxNumber.SuspendLayout();
       groupBoxDate.SuspendLayout();
-      panelBottom1.SuspendLayout();
-      panelBottom2.SuspendLayout();
+      panelUtilitiesBottom.SuspendLayout();
+      panelActionsBottom.SuspendLayout();
       SuspendLayout();
       // 
       // labelGroup
@@ -366,7 +366,7 @@ namespace CsvTools
       tableLayoutPanelDate.Controls.Add(labelSample, 5, 3);
       tableLayoutPanelDate.Controls.Add(labelSampleDisplay, 5, 4);
       tableLayoutPanelDate.Controls.Add(labelDateOutputDisplay, 5, 5);
-      tableLayoutPanelDate.Controls.Add(labelNote, 4, 1);
+      tableLayoutPanelDate.Controls.Add(labelTimeZoneNote, 4, 1);
       tableLayoutPanelDate.Controls.Add(labelInputTZ, 6, 4);
       tableLayoutPanelDate.Controls.Add(labelOutPutTZ, 6, 5);
       tableLayoutPanelDate.Controls.Add(labelTCFormat, 4, 2);
@@ -553,16 +553,16 @@ namespace CsvTools
       // 
       // labelNote
       // 
-      labelNote.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      labelNote.AutoSize = true;
-      tableLayoutPanelDate.SetColumnSpan(labelNote, 3);
-      labelNote.ForeColor = System.Drawing.SystemColors.Highlight;
-      labelNote.Location = new System.Drawing.Point(385, 33);
-      labelNote.Margin = new System.Windows.Forms.Padding(3);
-      labelNote.Name = "labelNote";
-      labelNote.Size = new System.Drawing.Size(187, 13);
-      labelNote.TabIndex = 11;
-      labelNote.Text = "Note: Constants in quotes e.G. \"UTC\"";
+      labelTimeZoneNote.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      labelTimeZoneNote.AutoSize = true;
+      tableLayoutPanelDate.SetColumnSpan(labelTimeZoneNote, 3);
+      labelTimeZoneNote.ForeColor = System.Drawing.SystemColors.Highlight;
+      labelTimeZoneNote.Location = new System.Drawing.Point(385, 33);
+      labelTimeZoneNote.Margin = new System.Windows.Forms.Padding(3);
+      labelTimeZoneNote.Name = "labelTimeZoneNote";
+      labelTimeZoneNote.Size = new System.Drawing.Size(187, 13);
+      labelTimeZoneNote.TabIndex = 11;
+      labelTimeZoneNote.Text = "Note: Constants in quotes e.G. \"UTC\"";
       // 
       // labelInputTZ
       // 
@@ -801,8 +801,8 @@ namespace CsvTools
       tableLayoutPanel.Controls.Add(comboBoxColumnName, 1, 0);
       tableLayoutPanel.Controls.Add(comboBoxDataType, 2, 0);
       tableLayoutPanel.Controls.Add(checkBoxIgnore, 0, 1);
-      tableLayoutPanel.Controls.Add(panelBottom1, 0, 8);
-      tableLayoutPanel.Controls.Add(panelBottom2, 2, 8);
+      tableLayoutPanel.Controls.Add(panelUtilitiesBottom, 0, 8);
+      tableLayoutPanel.Controls.Add(panelActionsBottom, 2, 8);
       tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
       tableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
@@ -990,7 +990,7 @@ namespace CsvTools
       // 
       textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "True", true));
       textBoxTrue.Location = new System.Drawing.Point(113, 13);
-      textBoxTrue.Name = "textBoxTrue";
+      textBoxTrue.Name = "textBoxTrueLiteralValue";
       textBoxTrue.Size = new System.Drawing.Size(45, 20);
       textBoxTrue.TabIndex = 0;
       // 
@@ -998,7 +998,7 @@ namespace CsvTools
       // 
       textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", bindingSourceValueFormat, "False", true));
       textBoxFalse.Location = new System.Drawing.Point(113, 38);
-      textBoxFalse.Name = "textBoxFalse";
+      textBoxFalse.Name = "textBoxFalseLiteralValue";
       textBoxFalse.Size = new System.Drawing.Size(45, 20);
       textBoxFalse.TabIndex = 1;
       // 
@@ -1135,25 +1135,25 @@ namespace CsvTools
       // 
       // panelBottom1
       // 
-      panelBottom1.AutoSize = true;
-      tableLayoutPanel.SetColumnSpan(panelBottom1, 2);
-      panelBottom1.Controls.Add(buttonGuess);
-      panelBottom1.Controls.Add(buttonDisplayValues);
-      panelBottom1.Location = new System.Drawing.Point(2, 746);
-      panelBottom1.Margin = new System.Windows.Forms.Padding(2);
-      panelBottom1.Name = "panelBottom1";
-      panelBottom1.Size = new System.Drawing.Size(217, 30);
-      panelBottom1.TabIndex = 16;
+      panelUtilitiesBottom.AutoSize = true;
+      tableLayoutPanel.SetColumnSpan(panelUtilitiesBottom, 2);
+      panelUtilitiesBottom.Controls.Add(buttonGuess);
+      panelUtilitiesBottom.Controls.Add(buttonDisplayValues);
+      panelUtilitiesBottom.Location = new System.Drawing.Point(2, 746);
+      panelUtilitiesBottom.Margin = new System.Windows.Forms.Padding(2);
+      panelUtilitiesBottom.Name = "panelUtilitiesBottom";
+      panelUtilitiesBottom.Size = new System.Drawing.Size(217, 30);
+      panelUtilitiesBottom.TabIndex = 16;
       // 
       // panelBottom2
       // 
-      panelBottom2.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-      panelBottom2.Controls.Add(buttonOK);
-      panelBottom2.Controls.Add(buttonCancel);
-      panelBottom2.Location = new System.Drawing.Point(403, 747);
-      panelBottom2.Name = "panelBottom2";
-      panelBottom2.Size = new System.Drawing.Size(178, 27);
-      panelBottom2.TabIndex = 17;
+      panelActionsBottom.Anchor =  System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+      panelActionsBottom.Controls.Add(buttonOK);
+      panelActionsBottom.Controls.Add(buttonCancel);
+      panelActionsBottom.Location = new System.Drawing.Point(403, 747);
+      panelActionsBottom.Name = "panelActionsBottom";
+      panelActionsBottom.Size = new System.Drawing.Size(178, 27);
+      panelActionsBottom.TabIndex = 17;
       // 
       // buttonOK
       // 
@@ -1210,8 +1210,8 @@ namespace CsvTools
       groupBoxNumber.ResumeLayout(false);
       groupBoxNumber.PerformLayout();
       groupBoxDate.ResumeLayout(false);
-      panelBottom1.ResumeLayout(false);
-      panelBottom2.ResumeLayout(false);
+      panelUtilitiesBottom.ResumeLayout(false);
+      panelActionsBottom.ResumeLayout(false);
       ResumeLayout(false);
       PerformLayout();
     }
@@ -1264,7 +1264,7 @@ namespace CsvTools
     private System.Windows.Forms.ComboBox comboBoxTimeZone;
     private System.Windows.Forms.Label labelSampleDisplay;
     private System.Windows.Forms.Label labelDateOutputDisplay;
-    private System.Windows.Forms.Label labelNote;
+    private System.Windows.Forms.Label labelTimeZoneNote;
     private System.Windows.Forms.Label labelInputTZ;
     private System.Windows.Forms.Label labelOutPutTZ;
     private System.Windows.Forms.ComboBox comboBoxTPFormat;
@@ -1283,9 +1283,9 @@ namespace CsvTools
     private System.Windows.Forms.Label labelDateOutput;
     private System.Windows.Forms.Button buttonCancel;
     private System.Windows.Forms.Button buttonOK;
-    private System.Windows.Forms.Panel panelBottom1;
+    private System.Windows.Forms.Panel panelUtilitiesBottom;
     private System.Windows.Forms.Button buttonGuess;
     private System.Windows.Forms.Button buttonDisplayValues;
-    private System.Windows.Forms.Panel panelBottom2;
+    private System.Windows.Forms.Panel panelActionsBottom;
   }
 }
