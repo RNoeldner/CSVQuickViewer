@@ -170,12 +170,14 @@ public static class StringUtils
   }
 
   /// <summary>
-  /// Gets the not secured text
+  /// Converts a SecureString to a managed string for use in KDFs.
+  /// Warning: The returned string persists in the managed heap until GC collection.
   /// </summary>
-  /// <param name="secPassword">The secured text.</param>    
   public static string GetText(this System.Security.SecureString secPassword)
   {
-    var unmanagedString = IntPtr.Zero;
+    if (secPassword == null) return string.Empty;
+
+    IntPtr unmanagedString = IntPtr.Zero;
     try
     {
       unmanagedString = System.Runtime.InteropServices.Marshal.SecureStringToGlobalAllocUnicode(secPassword);
@@ -183,7 +185,8 @@ public static class StringUtils
     }
     finally
     {
-      System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+      if (unmanagedString != IntPtr.Zero)
+        System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
     }
   }
 
