@@ -119,9 +119,9 @@ public sealed class CsvFileWriter : BaseFileWriter
     Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter.Text());
     m_IsFixedLength  = fixedLength;
 
-    m_NewLinePlaceholder = newLinePlaceholder.HandleLongText();
-    m_DelimiterPlaceholder = delimiterPlaceholder.HandleLongText();
-    m_QualifierPlaceholder = qualifierPlaceholder.HandleLongText();
+    m_NewLinePlaceholder = newLinePlaceholder;
+    m_DelimiterPlaceholder = delimiterPlaceholder;
+    m_QualifierPlaceholder = qualifierPlaceholder;
 
     // check the validity of placeholders
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };

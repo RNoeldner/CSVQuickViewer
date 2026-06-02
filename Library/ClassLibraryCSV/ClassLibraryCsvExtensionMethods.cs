@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -859,12 +860,8 @@ public static class ClassLibraryCsvExtensionMethods
   /// <summary>
   /// Converts a long to an int, clamping to the nearest valid integer boundary.
   /// </summary>
-  public static int ToInt(this long value)
-  {
-    if (value > int.MaxValue)
-      return int.MaxValue;
-    return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
-  }
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  public static int ToInt(this long value) => value > int.MaxValue ? int.MaxValue : value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
 
   /// <summary>
   /// Converts a decimal to an int, clamping to the nearest valid integer boundary.

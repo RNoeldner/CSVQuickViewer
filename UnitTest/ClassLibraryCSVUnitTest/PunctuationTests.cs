@@ -78,13 +78,6 @@ public class PunctuationTests
   }
 
   [TestMethod()]
-  public void HandleLongTextTest()
-  {
-    Assert.AreEqual("Tab", "Tab".HandleLongText());
-    Assert.AreEqual("\t", "\t".HandleLongText());
-  }
-
-  [TestMethod()]
   public void FromTextTest()
   {
     Assert.AreEqual('\t', "Tab".FromText());

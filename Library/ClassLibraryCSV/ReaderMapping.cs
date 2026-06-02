@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace CsvTools;
 
@@ -63,8 +64,9 @@ public sealed class ReaderMapping
   /// <param name="errorField">Add artificial field Error but only if the source does not have the information</param>
   public ReaderMapping(IEnumerable<Column> columns, bool startLine, bool endLine, bool recNum, bool errorField)
   {
-    m_Mapping = new BiDirectionalDictionary<int, int>();
-    m_ResultingColumns = new List<Column>();
+    var initialCapacity = columns is IReadOnlyCollection<Column> col ? col.Count : 16;
+    m_Mapping = new BiDirectionalDictionary<int, int>(initialCapacity);
+    m_ResultingColumns = new List<Column>(initialCapacity + 2);
 
     var fieldCount = 0;
 
@@ -158,10 +160,30 @@ public sealed class ReaderMapping
   public IReadOnlyList<Column> ResultingColumns => m_ResultingColumns;
 
   /// <summary>
+  /// Gets the ordinal index of a column by its name using a span comparison to prevent allocations.
+  /// </summary>
+  /// <param name="name">The name of the column to find.</param>
+  /// <returns>The zero-based ordinal index, or -1 if not found.</returns>
+  public int GetOrdinal(ReadOnlySpan<char> name)
+  {
+    if (name.IsEmpty)
+      return -1;
+    var count = m_ResultingColumns.Count;
+    for (var i = 0; i < count; i++)
+    {
+      // No allocations, direct memory evaluation loop
+      if (name.Equals(m_ResultingColumns[i].Name, StringComparison.OrdinalIgnoreCase))
+        return i;
+    }
+    return -1;
+  }
+
+  /// <summary>
   /// Get the column number of the source, taking care of ignored columns and artificial columns
   /// </summary>
   /// <param name="resultColumn">The column number in the reader with artificial columns</param>
   /// <returns>The column number in the source</returns>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public int ResultToSource(int resultColumn) => m_Mapping.GetByValue(resultColumn);
 
   /// <summary>
@@ -170,5 +192,6 @@ public sealed class ReaderMapping
   /// <param name="sourceColumn">The column number in the source reader</param>
   /// <param name="resultColumn">The column number in the reader with artificial columns</param>
   /// <returns>True if found</returns>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public bool SourceToResult(int sourceColumn, out int resultColumn) => m_Mapping.TryGetValue(sourceColumn, out resultColumn);
 }

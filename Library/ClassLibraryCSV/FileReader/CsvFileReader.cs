@@ -521,7 +521,7 @@ public class CsvFileReader : BaseFileReader
     var m_NewLinePlaceholder = newLinePlaceholder ?? string.Empty;
     if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
       throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'", nameof(newLinePlaceholder));
-    m_TextSpecials = [(m_NewLinePlaceholder, "\n"), (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()), (quotePlaceholder.HandleLongText(), m_FieldQualifier.ToStringHandle0())];
+    m_TextSpecials = [(m_NewLinePlaceholder, "\n"), (m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()), (quotePlaceholder, m_FieldQualifier.ToStringHandle0())];
     m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
     m_NumMaxWarning = numWarning;
     m_SkipDuplicateHeader = skipDuplicateHeader;

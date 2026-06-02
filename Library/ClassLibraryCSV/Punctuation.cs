@@ -85,40 +85,6 @@ public static class Punctuation
   }
 
   /// <summary>
-  /// Legacy wrapper for resolving character spans. 
-  /// Attempts to resolve single-character aliases via <see cref="FromText"/>, 
-  /// otherwise returns the span's string representation.
-  /// </summary>
-  /// <param name="inputSpan">The character span to resolve.</param>
-  /// <returns>
-  /// A string containing the resolved character if a transformation occurred; 
-  /// otherwise, the string representation of the original <paramref name="inputSpan"/>.
-  /// </returns>
-  /// <remarks>
-  /// This method is maintained for backward compatibility. 
-  /// New code should use <see cref="FromText(ReadOnlySpan{char})"/> directly to avoid 
-  /// unnecessary string allocations and to leverage the full jump-table optimization for keywords.
-  /// </remarks>
-  [Obsolete("This method is odd and performs unnecessary allocations; use FromText instead.")]
-  public static string HandleLongText(this ReadOnlySpan<char> inputSpan)
-  {
-    // 1. Primary Empty Check
-    if (inputSpan.IsEmpty)
-      return string.Empty;
-
-    // 2. Optimization: If length is 1, return it as a string immediately
-    if (inputSpan.Length == 1)
-    {
-      var from = inputSpan.FromText();
-      if (from!=  inputSpan[0])
-        return from.ToString();
-    }
-
-    // 3. Resolve using the optimized jump-table logic    
-    return inputSpan.ToString();
-  }
-
-  /// <summary>
   /// Resolves a character from a string representation, supporting both literal characters 
   /// and descriptive keywords (e.g., "Tab", "NBSP", "Comma").
   /// </summary>
@@ -131,7 +97,7 @@ public static class Punctuation
   /// This method is optimized for .NET 27 high-performance scenarios:
   /// <list type="bullet">
   /// <item>Uses a length-based jump table to minimize string comparisons.</item>
-  /// <item>Operates entirely on <see cref="ReadOnlySpan{char}"/> to ensure zero heap allocations.</item>
+  /// <item>Operates entirely on ReadOnlySpan to ensure zero heap allocations.</item>
   /// <item>Performs case-insensitive ordinal comparisons for descriptive keywords.</item>
   /// </list>
   /// </remarks>

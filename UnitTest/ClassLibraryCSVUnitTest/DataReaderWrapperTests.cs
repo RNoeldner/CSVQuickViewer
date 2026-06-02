@@ -154,14 +154,14 @@ public class DataReaderWrapperTests
   {
     return new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
       setting.SkipRowsAfterHeader, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiterChar,
-setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
-setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
-setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
-setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
-setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
-setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
+      setting.FieldQualifierChar, setting.EscapePrefixChar, setting.RecordLimit, setting.AllowRowCombining,
+      setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
+      setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
+      setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+      setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
+      setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
+      setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
   }
 
   [TestMethod()]
@@ -200,6 +200,19 @@ setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContai
     Assert.AreEqual(0, wrapper.GetOrdinal("DateTime"));
     Assert.AreEqual(4, wrapper.GetOrdinal("String"));
     Assert.AreEqual(8, wrapper.GetOrdinal("TZ"));
+  }
+
+  [TestMethod()]
+  public async Task GetOrdinalSpanTest()
+  {
+    using var reader = GetReader(m_Setting);
+    await reader.OpenAsync(UnitTestStatic.Token);
+    var wrapper = new DataReaderWrapper(reader);
+    await wrapper.ReadAsync(UnitTestStatic.Token);
+    // DateTime Integer Double Numeric String
+    Assert.AreEqual(0, wrapper.GetOrdinalSpan("DateTime"));
+    Assert.AreEqual(4, wrapper.GetOrdinalSpan("String"));
+    Assert.AreEqual(8, wrapper.GetOrdinalSpan("TZ"));
   }
 
   [TestMethod()]

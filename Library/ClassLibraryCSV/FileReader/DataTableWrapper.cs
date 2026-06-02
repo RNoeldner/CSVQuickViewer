@@ -61,12 +61,28 @@ public sealed class DataTableWrapper : DataReaderWrapper
   public override object GetValue(int ordinal)
   {
     var src = base.GetValue(ordinal);
-    // in case of the error column add the information that stored in columns and row errors
-    if (!m_AddErrorField || !string.Equals(GetColumn(ordinal).Name, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)) return src;
-    var row = DataTable.Rows[(RecordNumber - 1).ToInt()];
-    var dbRowError = row.GetErrorInformation();
-    if (dbRowError.Length > 0)
-      src = IsDBNull(ordinal) ? dbRowError : src.ToString()!.AddMessage(dbRowError);
+
+    // Guard: Exit early if we aren't appending error metrics or this isn't the error target field
+    if (!m_AddErrorField || ordinal != m_ReaderMapping.ColNumErrorField)
+      return src;
+
+    var rowIndex = (RecordNumber - 1).ToInt();
+
+    // Bounds Check Guard: Prevents off-by-one errors before loops start or after a reset operation
+    if (rowIndex >= 0 && rowIndex < DataTable.Rows.Count)
+    {
+      var row = DataTable.Rows[rowIndex];
+      var dbRowError = row.GetErrorInformation();
+
+      if (dbRowError.Length > 0)
+      {
+        var currentError = src?.ToString() ?? string.Empty;
+        src = string.IsNullOrEmpty(currentError)
+          ? dbRowError
+          : currentError.AddMessage(dbRowError);
+      }
+    }
+
     return src;
   }
 

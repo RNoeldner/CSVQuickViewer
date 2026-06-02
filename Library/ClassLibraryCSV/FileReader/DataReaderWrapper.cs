@@ -38,7 +38,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   protected IDataReader DataReader;
   private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
   private readonly IFileReader? m_FileReader;
-  private readonly ReaderMapping m_ReaderMapping;
+  protected readonly ReaderMapping m_ReaderMapping;
   private readonly long m_RecordLimit;
 
   /// <summary>
@@ -71,8 +71,10 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     }
 
     m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
-
-    m_FileReader?.Warning += HandleSourceWarning;
+    if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1 )
+    {
+      m_FileReader.Warning += HandleSourceWarning;
+    }
   }
 
   /// <inheritdoc />
@@ -109,10 +111,6 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   public override bool IsClosed => DataReader.IsClosed;
 
-  /// <summary>
-  /// Get the number of rows with errors (at least one row is missing)
-  /// </summary>
-  private long NumberRowError { get; set; }
 
   /// <summary>
   /// Get the number of rows with issues
@@ -224,44 +222,44 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.ResultToSource(ordinal));
 
+
   /// <inheritdoc />
-  public override int GetInt32(int ordinal) => DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
+  public override int GetInt32(int ordinal)
+  {
+    // Return fixed columns are not mapped to the underlying reader, so handle them directly
+    if (ordinal == m_ReaderMapping.ColNumStartLine)
+      return StartLineNumber.ToInt();
+    if (ordinal == m_ReaderMapping.ColNumEndLine)
+      return EndLineNumber.ToInt();
+    if (ordinal == m_ReaderMapping.ColNumRecNum)
+      return RecordNumber.ToInt();
+    return DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
+  }
 
   /// <inheritdoc />
   public override long GetInt64(int ordinal)
   {
-    // if mapped use the underlying reader
-    if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
-      return DataReader.GetInt64(mapped);
+    // Return fixed columns are not mapped to the underlying reader, so handle them directly
     if (ordinal == m_ReaderMapping.ColNumStartLine)
       return StartLineNumber;
     if (ordinal == m_ReaderMapping.ColNumEndLine)
       return EndLineNumber;
-#pragma warning disable MA0012 // Do not raise reserved exception type
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
-    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber : throw new IndexOutOfRangeException($"Column {ordinal} not found");
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-#pragma warning restore MA0012 // Do not raise reserved exception type
+    if (ordinal == m_ReaderMapping.ColNumRecNum)
+      return RecordNumber;
+    // if mapped use the underlying reader    
+    return DataReader.GetInt64(m_ReaderMapping.ResultToSource(ordinal));
   }
 
   /// <inheritdoc />
   public override string GetName(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].Name;
 
   /// <inheritdoc />
-  public override int GetOrdinal(string name)
-  {
-    if (string.IsNullOrEmpty(name))
-      return -1;
-    var count = 0;
-    foreach (var column in m_ReaderMapping.ResultingColumns)
-    {
-      if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
-        return count;
-      count++;
-    }
+  public override int GetOrdinal(string name) => m_ReaderMapping.GetOrdinal(name);
 
-    return -1;
-  }
+  /// <summary>
+  /// Allocation-free column lookup via text spans.
+  /// </summary>
+  public int GetOrdinalSpan(ReadOnlySpan<char> name) => m_ReaderMapping.GetOrdinal(name);
 
   /// <inheritdoc />
   public override DataTable GetSchemaTable()
@@ -273,7 +271,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     {
       var column = m_ReaderMapping.ResultingColumns[col];
       schemaRow[1] = column.Name; // ResultingColumns name
-      schemaRow[4] = column.Name; // ResultingColumns name         
+      schemaRow[4] = column.Name; // ResultingColumns name
       schemaRow[5] = col; // ResultingColumns ordinal
       schemaRow[7] = column.ValueFormat.DataType.GetNetType();
       dataTable.Rows.Add(schemaRow);
@@ -285,6 +283,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
   public override string GetString(int ordinal)
+    // Error is fixed and not mapped to the underlying reader, so handle them directly
     => (ordinal == m_ReaderMapping.ColNumErrorField)
       ? RowErrorInformation
       : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
@@ -292,24 +291,17 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   public override object GetValue(int ordinal)
   {
-    if (ordinal == m_ReaderMapping.ColNumErrorField)
-      return RowErrorInformation;
-
-    // if mapped use the underlying reader
-    if (m_ReaderMapping.SourceToResult(ordinal, out var mapped))
-      return DataReader.GetValue(mapped);
-
     if (ordinal == m_ReaderMapping.ColNumStartLine)
       return StartLineNumber;
     if (ordinal == m_ReaderMapping.ColNumEndLine)
       return EndLineNumber;
-#pragma warning disable MA0012 // Do not raise reserved exception type
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
-    return ordinal == m_ReaderMapping.ColNumRecNum ? RecordNumber :
-      throw new IndexOutOfRangeException($"Column {ordinal} not found");
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-#pragma warning restore MA0012 // Do not raise reserved exception type
+    if (ordinal == m_ReaderMapping.ColNumRecNum)
+      return RecordNumber;
+    if (ordinal == m_ReaderMapping.ColNumErrorField)
+      return RowErrorInformation;
+    return DataReader.GetValue(m_ReaderMapping.ResultToSource(ordinal));
   }
+
 
   /// <inheritdoc />
   public override int GetValues(object[] values)
@@ -320,7 +312,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     if (maxFld > FieldCount) maxFld = FieldCount;
 
     for (var col = 0; col < maxFld; col++)
-      values[col] = GetValue(m_ReaderMapping.ResultToSource(col));
+      values[col] = GetValue(col);
 
     return maxFld;
   }
@@ -368,22 +360,24 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     {
       RecordNumber++;
 
+      // if we do have source field for error information,use this      
       if (m_ReaderMapping.ColNumErrorFieldSource != -1)
+      {
         RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
           ? string.Empty
-          : DataReader.GetValue(m_ReaderMapping.ColNumErrorFieldSource).ToString() ?? string.Empty;
+          : DataReader.GetString(m_ReaderMapping.ColNumErrorFieldSource);
+      }
       else
       {
+        // Get the error information from the Dictionary filled by the source reader warnings
         RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
           i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
         m_ColumnErrorDictionary.Clear();
       }
-
-      if (RowErrorInformation.Length <= 0) return true;
+      
       if (RowErrorInformation.IsWarningMessage())
         NumberRowWarnings++;
-      else
-        NumberRowError++;
+
       return true;
     }
 
@@ -405,13 +399,14 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
-    if (disposing && m_FileReader!=null)
+    if (disposing)
     {
-      m_FileReader.Warning -= HandleSourceWarning;
-      m_FileReader.Dispose();
+      if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1)
+        m_FileReader.Warning -= HandleSourceWarning;
+
+      // This must ALWAYS run on an explicit app Dispose invocation
+      DataReader?.Dispose();
     }
-    else
-      DataReader.Dispose();
 
     base.Dispose(disposing);
   }
