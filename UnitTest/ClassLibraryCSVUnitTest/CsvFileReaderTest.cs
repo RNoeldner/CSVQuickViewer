@@ -1353,10 +1353,7 @@ new[] { new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePar
   [TestMethod]
   public async Task ReadDateWithTimeAsync()
   {
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001,
-      0, 0, true,
-new[] {new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
-        timePart: "Start Time", timePartFormat: "HH:mm:ss")}, TrimmingOptionEnum.Unquoted, '\t');
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("Sessions.txt"), 65001, 0, 0, true, new[] {new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time", timePartFormat: "HH:mm:ss")}, TrimmingOptionEnum.Unquoted, '\t');
     await test.OpenAsync(UnitTestStatic.Token);
     await test.ReadAsync(UnitTestStatic.Token);
     var cultureInfo = new CultureInfo("en-US");

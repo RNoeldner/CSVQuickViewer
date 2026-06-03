@@ -351,14 +351,16 @@ identifierInContainer: string.Empty, destinationTimeZone: TimeZoneInfo.Local.Id,
       "double (Money (High Precision) (0,#####))"
       "numeric (Money (High Precision) (0,#####))"
       "ID (Integer)"
+      "Time (Date Time (MM/dd/yyyy))"
+      "Parent ID (Integer)"
       "#Line (Integer)"
      */
-    Assert.AreEqual(8, columns.Count(), "Recognized columns");
+    Assert.AreEqual(10, columns.Where(x=>x.ValueFormat.DataType!= DataTypeEnum.String).Count(), "Recognized columns");
 
     // with Text columns
     var columns2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
       new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.TesterProgress);
-    Assert.AreEqual(11, columns2.Count(), "Recognized columns 2");
+    Assert.AreEqual(dt.Columns.Count, columns2.Count(), "Recognized columns 2");
   }
 
 
