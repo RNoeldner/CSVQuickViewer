@@ -738,7 +738,7 @@ public static class StringConversionSpan
     }
 
     // If we only have a minus sign and no digits, it's invalid
-    if (k == 0 || (k == 1 && isNegative))
+    if (k == 0)
       return null;
 
     var finalSpan = buffer.Slice(0, k);
