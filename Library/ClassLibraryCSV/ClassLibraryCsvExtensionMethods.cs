@@ -34,39 +34,26 @@ namespace CsvTools;
 /// </summary>
 public static class ClassLibraryCsvExtensionMethods
 {
-  // Standardized Regex to capture content from any supported delimiter
-  // Groups: 1=Full Match, 2=Content (Key), 3=Optional Format (after :)
-  // Updated Regex to support {{ }}, { }, [ ], ( ), <: > and # #  #word
-  // It uses a conditional (?(group)then|else) to enforce the correct closing tag.
-  private static readonly Regex m_UnifiedPlaceholderRegEx = new Regex(
-      // 1. Match the opening and content, then use a branch reset or alternation for the close
-      @"(?:" +
-          @"\{\{\s*(?<content>.*?)(?:\s*:\s*(?<format>[^}]+))?\s*\}\}|" +   // {{key:fmt}}
-          @"\{(?<!\{\{)\s*(?<content>.*?)(?:\s*:\s*(?<format>[^}]+))?\s*\}|" + // {key:fmt}
-          @"\[\s*(?<content>.*?)(?:\s*:\s*(?<format>[^\]]+))?\s*\]|" +      // [key:fmt]
-          @"\(\s*(?<content>.*?)(?:\s*:\s*(?<format>[^\)]+))?\s*\)|" +      // (key:fmt)
-          @"<:\s*(?<content>.*?)(?:\s*:\s*(?<format>[^>]+))?\s*>|" +        // <:key:fmt>
-          @"#\s*(?<content>.*?)(?:\s*:\s*(?<format>[^#\s]+))?\s*(?:#|(?=\s|$))" + // #key:fmt# or #key
-      @")",
-      RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled, TimeSpan.FromMilliseconds(200));
+  private static readonly (string opener, string closer)[] Openers =
+    { ("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"),  ("<:", ">"), ("#", "#") };
 
   /// <summary>
   /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
   /// </summary>
   /// <param name="fileName">The name or path of the file.</param>
   /// <returns><c>true</c> if the extension is .cmp or .dfl; otherwise, <c>false</c>.</returns>
-  public static bool AssumeDeflate(this string fileName) =>
+  public static bool AssumeDeflate(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase)
     || fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>Determines if the file is a delimited text file based on its extension.</summary>
   /// <param name="fileName">The name or path of the file.</param>
-  public static bool AssumeDelimited(this string fileName) =>
+  public static bool AssumeDelimited(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) || AssumeDelimited1(fileName);
 
   /// <summary>Determines if the file is a common delimited format (.csv, .tab, .tsv).</summary>
   /// <param name="fileName">The name or path of the file.</param>
-  public static bool AssumeDelimited1(this string fileName) =>
+  public static bool AssumeDelimited1(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
     fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase) ||
     fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
@@ -75,7 +62,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// Determines if the file should be treated as a GZip compressed file based on its extension.
   /// </summary>
   /// <param name="fileName">The name or path of the file.</param>
-  public static bool AssumeGZip(this string fileName) =>
+  public static bool AssumeGZip(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
     || fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
@@ -83,7 +70,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// Determines if the file should be treated as a PGP/GPG encrypted file based on its extension.
   /// </summary>
   /// <param name="fileName">The name or path of the file.</param>
-  public static bool AssumePgp(this string fileName) =>
+  public static bool AssumePgp(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase)
     || fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
@@ -133,7 +120,7 @@ public static class ClassLibraryCsvExtensionMethods
   /// Determines if the file should be treated as a standard ZIP archive based on its extension.
   /// </summary>
   /// <param name="fileName">The name or path of the file.</param>  
-  public static bool AssumeZip(this string fileName) =>
+  public static bool AssumeZip(this ReadOnlySpan<char> fileName) =>
     fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>
@@ -367,9 +354,9 @@ public static class ClassLibraryCsvExtensionMethods
   /// </summary>
   /// <param name="path">The full path to the file.</param>
   /// <returns>A sanitized string suitable for use as an ID.</returns>
-  public static string GetIdFromFileName(this string path)
+  public static string GetIdFromFileName(this ReadOnlySpan<char> path)
   {
-    if (string.IsNullOrWhiteSpace(path)) return "id";
+    if (path.IsWhiteSpace()) return "id";
 
     // 1. Extract the filename
     var fileName = FileSystemUtils.SplitPath(path).FileNameWithoutExtension;
@@ -538,27 +525,47 @@ public static class ClassLibraryCsvExtensionMethods
     if (string.IsNullOrEmpty(placeholder) || !input.Contains(placeholder, StringComparison.OrdinalIgnoreCase))
       return input;
 
-    // This handles all delimiters + optional formatting found in the string for this specific key
-    return m_UnifiedPlaceholderRegEx.Replace(input, match =>
+    foreach (var (opener, closer) in Openers)
     {
-      var key = match.Groups["content"].Value.Trim();
-      if (key.Equals(placeholder, StringComparison.OrdinalIgnoreCase))
-      {
-        var format = match.Groups["format"].Value.Trim();
-        // Try to treat replacement if format is present
-        if (!string.IsNullOrEmpty(format))
-        {
-          if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture)) return ApplyPlaceholderFormat(dtCurrentCulture, format);
-          if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture)) return ApplyPlaceholderFormat(dblCurrentCulture, format);
+      // Search for the pattern: Opener + placeholder + (optional :fmt) + Closer
+      string searchPattern = opener + placeholder;
+      int startIdx = input.IndexOf(searchPattern, StringComparison.OrdinalIgnoreCase);
 
-          if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant)) return ApplyPlaceholderFormat(dtInvariant, format);
-          if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture)) return ApplyPlaceholderFormat(dblInvariantCulture, format);
-          return ApplyPlaceholderFormat(replacement, format);
+      while (startIdx != -1)
+      {
+        // Find where the placeholder section ends
+        int endIdx = input.IndexOf(closer, startIdx + searchPattern.Length);
+
+        if (endIdx != -1)
+        {
+          string fullMatch = input.Substring(startIdx, endIdx - startIdx + 1);
+          string contentPart = fullMatch.Substring(opener.Length, fullMatch.Length - opener.Length - 1);
+
+          string processedReplacement = replacement;
+          var indexColon = contentPart.IndexOf(':');
+          if (indexColon!=-1)
+          {
+            var format = contentPart.Substring(indexColon + 1).Trim();
+            // Try and convert to a typed value, then use ApplyPlaceholderFormat
+            if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
+              processedReplacement= ApplyPlaceholderFormat(dtCurrentCulture, format);
+            else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
+              processedReplacement= ApplyPlaceholderFormat(dtCurrentCulture, format);
+            else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
+              processedReplacement= ApplyPlaceholderFormat(dblCurrentCulture, format);
+            else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
+              processedReplacement= ApplyPlaceholderFormat(dblCurrentCulture, format);
+          }
+          input = input.Remove(startIdx, fullMatch.Length).Insert(startIdx, processedReplacement);
+          startIdx = input.IndexOf(searchPattern, startIdx + processedReplacement.Length);
         }
-        return replacement;
+        else
+        {
+          break;
+        }
       }
-      return match.Value;
-    });
+    }
+    return input;
   }
 
   /// <summary>
@@ -584,108 +591,13 @@ public static class ClassLibraryCsvExtensionMethods
     // FAST CHECK: If no '{', '[', '(', '#', or '<:' exists, return immediately.
     if (!template.AssumePlaceholderPresent()) return template;
 
-    // Get all available properties in teh object
-    var props = obj.GetType().GetProperties().Where(p => p.GetMethod != null).ToList();
-
-    // handle all possible placeholders
-    return m_UnifiedPlaceholderRegEx.Replace(template, match =>
-    {
-      var placeHolderName = match.Groups["content"].Value.Trim();
-      var format = match.Groups["format"].Value.Trim();
-
-      var prop = props.FirstOrDefault(p => p.Name.Equals(placeHolderName, StringComparison.OrdinalIgnoreCase));
-      if (prop == null) return match.Value; // Keep original if no property found
-
-      return ApplyPlaceholderFormat(prop.GetValue(obj), format);
-    });
+    var result = template;
+    // Get all available properties in the object
+    foreach (var prop in obj.GetType().GetProperties().Where(p => p.GetMethod != null))
+      result = result.PlaceholderReplace(prop.Name, prop.GetValue(obj)?.ToString() ?? string.Empty);
+    return result;
   }
 
-
-  /// <summary>
-  /// Replaces all occurrences of specified patterns within a <see cref="ReadOnlySpan{Char}"/> 
-  /// with their corresponding replacement strings.
-  /// </summary>
-  /// <param name="original">The source character span to search within.</param>
-  /// <param name="replacements">One or more tuples containing the pattern to find and the string to replace it with.</param>
-  /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns>
-  /// <exception cref="ArgumentException">Thrown when <paramref name="replacements"/> is null or empty.</exception>
-  [DebuggerStepThrough]
-
-  public static string ReplaceMultiple(this ReadOnlySpan<char> original,
-        params (string Pattern, string Replacement)[] replacements)
-  {
-    // Ensure the collection is not null and contains at least one entry
-    if (replacements == null || replacements.Length == 0)
-      throw new ArgumentException("At least one replacement pattern must be provided.", nameof(replacements));
-    if (original.IsEmpty) return string.Empty;
-
-    // 2. Pre-check: Does ANY pattern exist? 
-    // This allows the "Clean Path" to stay extremely fast.
-    bool anyMatch = false;
-    foreach (var pair in replacements)
-    {
-      var patternSpan = pair.Pattern.AsSpan();
-      if (patternSpan.IsEmpty)
-        continue;
-      if (original.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase) != -1)
-      {
-        anyMatch = true;
-        break;
-      }
-    }
-
-    if (!anyMatch) return original.ToString();
-
-    // 3. One-pass scan and replace
-    var sb = new StringBuilder(original.Length);
-    var remaining = original;
-
-    while (remaining.Length > 0)
-    {
-      int nearestMatch = -1;
-      int pairIndex = -1;
-
-      // Find the closest occurrence among all patterns
-      for (int i = 0; i < replacements.Length; i++)
-      {
-        var patternSpan = replacements[i].Pattern.AsSpan();
-        if (patternSpan.IsEmpty) continue;
-
-        int pos = remaining.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase);
-        if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
-        {
-          nearestMatch = pos;
-          pairIndex = i;
-        }
-      }
-
-      if (nearestMatch == -1)
-      {
-        // No more matches left in the remaining span
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        sb.Append(remaining);
-#else
-        sb.Append(remaining.ToString());
-#endif
-        break;
-      }
-
-      // Append the text before the match
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      sb.Append(remaining.Slice(0, nearestMatch));
-#else
-      sb.Append(remaining.Slice(0, nearestMatch).ToString());
-#endif
-
-      // Append the replacement value
-      sb.Append(replacements[pairIndex].Replacement);
-
-      // Advance the window past the matched pattern
-      remaining = remaining.Slice(nearestMatch + replacements[pairIndex].Pattern.Length);
-    }
-
-    return sb.ToString();
-  }
 
   /// <summary>
   /// Replaces all occurrences of a pattern with a replacement string, ignoring case.
@@ -781,7 +693,7 @@ public static class ClassLibraryCsvExtensionMethods
 
     if (old1.Length == 1 && new1.Length == 1 && old2.Length == 1 && new2.Length == 1)
       return ReplaceDefaults(inputValue, old1[0], new1[0], old2[0], new2[0]);
-    
+
     // We estimate the capacity. If the new strings are longer than the old ones, 
     // the StringBuilder will grow.
     var sb = new StringBuilder(inputValue.Length);
@@ -812,11 +724,97 @@ public static class ClassLibraryCsvExtensionMethods
   }
 
   /// <summary>
+  /// Replaces all occurrences of specified patterns within a <see cref="ReadOnlySpan{Char}"/> 
+  /// with their corresponding replacement strings.
+  /// </summary>
+  /// <param name="original">The source character span to search within.</param>
+  /// <param name="replacements">One or more tuples containing the pattern to find and the string to replace it with.</param>
+  /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns>
+  /// <exception cref="ArgumentException">Thrown when <paramref name="replacements"/> is null or empty.</exception>
+  [DebuggerStepThrough]
+
+  public static string ReplaceMultiple(this ReadOnlySpan<char> original,
+        params (string Pattern, string Replacement)[] replacements)
+  {
+    // Ensure the collection is not null and contains at least one entry
+    if (replacements == null || replacements.Length == 0)
+      throw new ArgumentException("At least one replacement pattern must be provided.", nameof(replacements));
+    if (original.IsEmpty) return string.Empty;
+
+    // 2. Pre-check: Does ANY pattern exist? 
+    // This allows the "Clean Path" to stay extremely fast.
+    bool anyMatch = false;
+    foreach (var pair in replacements)
+    {
+      var patternSpan = pair.Pattern.AsSpan();
+      if (patternSpan.IsEmpty)
+        continue;
+      if (original.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase) != -1)
+      {
+        anyMatch = true;
+        break;
+      }
+    }
+
+    if (!anyMatch) return original.ToString();
+
+    // 3. One-pass scan and replace
+    var sb = new StringBuilder(original.Length);
+    var remaining = original;
+
+    while (remaining.Length > 0)
+    {
+      int nearestMatch = -1;
+      int pairIndex = -1;
+
+      // Find the closest occurrence among all patterns
+      for (int i = 0; i < replacements.Length; i++)
+      {
+        var patternSpan = replacements[i].Pattern.AsSpan();
+        if (patternSpan.IsEmpty) continue;
+
+        int pos = remaining.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase);
+        if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
+        {
+          nearestMatch = pos;
+          pairIndex = i;
+        }
+      }
+
+      if (nearestMatch == -1)
+      {
+        // No more matches left in the remaining span
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        sb.Append(remaining);
+#else
+        sb.Append(remaining.ToString());
+#endif
+        break;
+      }
+
+      // Append the text before the match
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      sb.Append(remaining.Slice(0, nearestMatch));
+#else
+      sb.Append(remaining.Slice(0, nearestMatch).ToString());
+#endif
+
+      // Append the replacement value
+      sb.Append(replacements[pairIndex].Replacement);
+
+      // Advance the window past the matched pattern
+      remaining = remaining.Slice(nearestMatch + replacements[pairIndex].Pattern.Length);
+    }
+
+    return sb.ToString();
+  }
+
+  /// <summary>
   /// Sets the maximum value on a progress reporter if it implements <see cref="IProgressTime"/>.
   /// </summary>
   public static void SetMaximum(this IProgress<ProgressInfo>? progress, long maximum)
   {
-    if (!(progress is IProgressTime progressTime)) return;
+    if (progress is not IProgressTime progressTime) return;
     progressTime.Maximum = maximum;
   }
 
@@ -849,8 +847,8 @@ public static class ClassLibraryCsvExtensionMethods
   /// <summary>
   /// Returns the first character of a string, or <see cref="char.MinValue"/> (\0) if empty.
   /// </summary>
-  public static char StringToChar(this string inputString) =>
-    string.IsNullOrEmpty(inputString) ? char.MinValue : inputString[0];
+  public static char StringToChar(this ReadOnlySpan<char> inputString) =>
+    inputString.IsEmpty ? char.MinValue : inputString[0];
 
   /// <summary>
   /// Converts a ulong to an int, clamping to <see cref="int.MaxValue"/> if out of range.

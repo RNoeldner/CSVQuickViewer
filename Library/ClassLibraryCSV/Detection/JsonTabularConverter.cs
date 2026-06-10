@@ -521,7 +521,6 @@ public static class JsonTabularConverter
   /// Supports arrays at root, nested objects, and multiple top-level properties.
   /// </summary>
   /// <param name="reader">TextReader containing JSON content.</param>
-  /// <returns>
   /// A tuple:
   /// <list type="bullet">
   ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
@@ -565,35 +564,68 @@ public static class JsonTabularConverter
           case JsonToken.StartObject:
             var obj = JObject.Load(jsonReader);
 
+            // Sometime we get an extra layer and the actually array we look for is 
+            // encapsulated e.G.    "result": { "items": [
+            // this is track in hasArrayLevel1
+            var hasArrayLevel1 = false;
             // Capture root-level scalar properties
             foreach (var prop in obj.Properties())
             {
               if (prop.Value is JValue jValue)
                 metadata[prop.Name] = jValue;
+              if (prop.Value is JArray)
+                hasArrayLevel1=true;
             }
-            bool yieldedArrayObjects = false;
-            foreach (var propToken in obj.Properties().Select(prop => prop.Value))
+            if (!hasArrayLevel1)
             {
-              switch (propToken)
+              foreach (var prop in obj.Properties())
               {
-                case JArray arr:
+                if (prop.Value is JObject jObj)
                 {
-                  foreach (var item in arr.OfType<JObject>())
-                    yield return item;
-                  yieldedArrayObjects = true;
-                  break;
+                  var sub = jObj.Properties().ToList();
+                  // Only in case we do not 1 to 2 properties and we do not have any array
+                  if (sub.Count < 3)
+                  {
+                    foreach (var subI in sub)
+                    {
+                      if (subI.Value is JArray arr)
+                      {
+                        foreach (var item in arr.OfType<JObject>())
+                          yield return item;
+                        break;
+                      }
+                    }
+                  }
                 }
-                case JObject childObj:
-                  // Yield top-level child objects (e.g., collection, collection2)
-                  yield return childObj;
-                  yieldedArrayObjects = true;
-                  break;
               }
             }
+            else
+            {
+              // Instaed of then making an yieldedArrayObjects we want these items
+              bool yieldedArrayObjects = false;
+              foreach (var propToken in obj.Properties().Select(prop => prop.Value))
+              {
+                switch (propToken)
+                {
+                  case JArray arr:
+                  {
+                    foreach (var item in arr.OfType<JObject>())
+                      yield return item;
+                    yieldedArrayObjects = true;
+                    break;
+                  }
+                  case JObject childObj:
+                    // Yield top-level child objects (e.g., collection, collection2)
+                    yield return childObj;
+                    yieldedArrayObjects = true;
+                    break;
+                }
+              }
 
-            // If nothing yielded (scalar-only root object), yield root itself
-            if (!yieldedArrayObjects)
-              yield return obj;
+              // If nothing yielded (scalar-only root object), yield root itself
+              if (!yieldedArrayObjects)
+                yield return obj;
+            }
             break;
           case JsonToken.Comment:
           case JsonToken.None:
@@ -659,7 +691,7 @@ public static class JsonTabularConverter
       foreach (var row in firstRows)
       {
         var columnData = new (string text, object? value)[columns.Count];
-        row.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt,val) );
+        row.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt, val));
         // Pass copy to avoid overwrites
         handleOneRow(columnData);
       }
