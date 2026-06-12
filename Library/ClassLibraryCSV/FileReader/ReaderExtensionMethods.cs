@@ -165,8 +165,8 @@ public static class ReaderExtensionMethods
   /// <summary>
   /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors
   /// </summary>
-  /// <param name="wrapper"></param>
-  /// <param name="maxDuration">Initial Duration for first return</param>    
+  /// <param name="wrapper">The DataReader Warpper to read the data from</param>
+  /// <param name="maxDuration">Initial Duration for first return</param>
   /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
   public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
     IProgressWithCancellation progress)
