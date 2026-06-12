@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ public class CsvDataReaderUnitTest
     new("IsNativeLang", new(DataTypeEnum.Boolean)),
     new("ExamDate", new(DataTypeEnum.DateTime, "dd/MM/yyyy"))
   ];
+
   private static readonly string m_PathBasicCSV = UnitTestStatic.GetTestPath("BasicCSV.txt");
 
   [TestMethod]
@@ -66,7 +68,8 @@ public class CsvDataReaderUnitTest
   [TestMethod]
   public async Task AllFormatsPipeReaderAsync()
   {
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|', skipEmptyLines: false, skipRowsAfterHeader: 0, hasFieldHeader: true);
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), fieldDelimiterChar: '|',
+      skipEmptyLines: false, skipRowsAfterHeader: 0, hasFieldHeader: true);
     await test.OpenAsync(UnitTestStatic.Token);
 
     Assert.AreEqual(10, test.FieldCount, "FieldCount");
@@ -85,7 +88,8 @@ public class CsvDataReaderUnitTest
     for (var line = 3; line < 25; line++)
       await test.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("-21928", test.GetString(1));
-    Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"), $"Line {test.StartLineNumber}-{test.EndLineNumber} EndsWith(\"twpapulfffy\") - {test.GetString(4)}");
+    Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"),
+      $"Line {test.StartLineNumber}-{test.EndLineNumber} EndsWith(\"twpapulfffy\") - {test.GetString(4)}");
     Assert.AreEqual(25, test.StartLineNumber, "StartLineNumber");
     Assert.AreEqual(27, test.EndLineNumber, "EndLineNumber");
     Assert.AreEqual(24, test.RecordNumber, "RecordNumber");
@@ -106,7 +110,8 @@ public class CsvDataReaderUnitTest
   [TestMethod]
   public async Task IssueReaderAsync()
   {
-    using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite);
+    using var stream = new FileStream(UnitTestStatic.GetTestPath("BadIssues.csv").LongPathPrefix(), FileMode.Open,
+      FileAccess.ReadWrite);
 
     using var test = new CsvFileReader(stream: stream,
       columnDefinition: new[]
@@ -117,7 +122,8 @@ public class CsvDataReaderUnitTest
         new Column("retrainingRequired", new ValueFormat(DataTypeEnum.Boolean)),
         new Column("classroomTraining", new ValueFormat(DataTypeEnum.Boolean)),
         new Column("webLink", new ValueFormat(DataTypeEnum.TextToHtml)),
-      }, treatLinefeedAsSpace: true, skipRowsAfterHeader: 0, tryToSolveMoreColumns: true, allowRowCombining: true, fieldDelimiterChar: '\t',
+      }, treatLinefeedAsSpace: true, skipRowsAfterHeader: 0, tryToSolveMoreColumns: true, allowRowCombining: true,
+      fieldDelimiterChar: '\t',
       fieldQualifierChar: char.MinValue);
     var warningList = new RowErrorCollection();
 
@@ -229,15 +235,16 @@ public class CsvDataReaderUnitTest
   public async Task TestBatchFinishedNotificationAsync()
   {
     var finished = false;
-    using var test = new CsvFileReader( fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV, fieldDelimiterChar: '#' );
-    {
-      test.ReadFinished += delegate { finished = true; };
-      await test.OpenAsync(UnitTestStatic.Token);
+    using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV,
+      fieldDelimiterChar: '#');
 
-      while (await test.ReadAsync(UnitTestStatic.Token))
-      {
-      }
+    test.ReadFinished += delegate { finished = true; };
+    await test.OpenAsync(UnitTestStatic.Token);
+
+    while (await test.ReadAsync(UnitTestStatic.Token))
+    {
     }
+
 
     Assert.IsTrue(finished, "ReadFinished");
   }
@@ -253,13 +260,15 @@ public class CsvDataReaderUnitTest
     while (await test.ReadAsync(UnitTestStatic.Token))
     {
     }
+
     Assert.IsTrue(finished);
   }
 
   [TestMethod]
   public async Task GetDateTimeTestAsync()
   {
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TestFile.txt"), fieldDelimiterChar: '\t', columnDefinition: new[] { new Column("Title", new ValueFormat(DataTypeEnum.DateTime)) }, skipRowsAfterHeader: 0);
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("TestFile.txt"), fieldDelimiterChar: '\t',
+      columnDefinition: new[] { new Column("Title", new ValueFormat(DataTypeEnum.DateTime)) }, skipRowsAfterHeader: 0);
     await test.OpenAsync(UnitTestStatic.Token);
     await test.ReadAsync(UnitTestStatic.Token);
     Assert.Throws<FormatException>(() => test.GetDateTime(1));
@@ -273,6 +282,7 @@ public class CsvDataReaderUnitTest
       using (new CsvFileReader(fileName: string.Empty))
       {
       }
+
       Assert.Fail("Exception expected");
     }
     catch (Exception ex) when (ex is ArgumentException || ex is FileReaderException) { }
@@ -317,7 +327,8 @@ public class CsvDataReaderUnitTest
 9 ,,,,,
 10
 */
-    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), skipEmptyLines: false, consecutiveEmptyRowsMax: 3, skipRowsAfterHeader: 0);
+    using var test = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), skipEmptyLines: false,
+      consecutiveEmptyRowsMax: 3, skipRowsAfterHeader: 0);
     await test.OpenAsync(UnitTestStatic.Token);
     var row = 0;
     while (await test.ReadAsync(UnitTestStatic.Token))
@@ -325,6 +336,7 @@ public class CsvDataReaderUnitTest
       row++;
       Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
     }
+
     Assert.AreEqual(7, row, "Read");
   }
 
@@ -360,7 +372,7 @@ public class CsvDataReaderUnitTest
   public async Task CsvDataReaderGetOrdinalAsync()
   {
     using var test = new CsvFileReader(fileName: m_PathBasicCSV);
-    
+
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual(0, test.GetOrdinal("ID"));
     Assert.AreEqual(1, test.GetOrdinal("LangCodeID"));
@@ -390,7 +402,7 @@ public class CsvDataReaderUnitTest
   public async Task CsvDataReaderGetValueNullAsync()
   {
     using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV);
-    
+
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -473,7 +485,6 @@ public class CsvDataReaderUnitTest
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
     Assert.Throws<FormatException>(() => test.GetDateTime(1));
-
   }
 
   [TestMethod]
@@ -555,7 +566,6 @@ public class CsvDataReaderUnitTest
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
     Assert.Throws<FormatException>(() => test.GetFloat(1));
-
   }
 
   [TestMethod]
@@ -661,7 +671,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldDelimiterChar: '\r');
+      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+        fieldDelimiterChar: '\r');
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -686,7 +697,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldQualifierChar: "Carriage return".FromText());
+      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+        fieldQualifierChar: "Carriage return".FromText());
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -711,7 +723,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(fileName: m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, fieldQualifierChar: "Line feed".FromText());
+      using var test = new CsvFileReader(fileName: m_PathBasicCSV, hasFieldHeader: false, skipRows: 1,
+        fieldQualifierChar: "Line feed".FromText());
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -743,7 +756,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldDelimiterChar: '\n');
+      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+        fieldDelimiterChar: '\n');
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -768,7 +782,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldDelimiterChar: " ".FromText());
+      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+        fieldDelimiterChar: " ".FromText());
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -793,7 +808,8 @@ public class CsvDataReaderUnitTest
     var exception = false;
     try
     {
-      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldQualifierChar: ',');
+      using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+        fieldQualifierChar: ',');
       await test.OpenAsync(UnitTestStatic.Token);
     }
     catch (ArgumentException)
@@ -897,8 +913,8 @@ public class CsvDataReaderUnitTest
   public async Task CsvDataReaderTreatNullTextTrue()
   {
     using var test = new CsvFileReader(
-       fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV,
-        treatTextAsNull: "NULL");
+      fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV,
+      treatTextAsNull: "NULL");
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -995,7 +1011,8 @@ public class CsvDataReaderUnitTest
   [TestMethod]
   public async Task GetDataTableAsync_RecordLimit_DataTable()
   {
-    using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV, recordLimit: 5);
+    using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV,
+      recordLimit: 5);
 
     await test.OpenAsync(UnitTestStatic.Token);
     using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
@@ -1006,7 +1023,8 @@ public class CsvDataReaderUnitTest
   [TestMethod]
   public async Task GetDataTableAsync_RecordLimit_RecordNumber()
   {
-    using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV, recordLimit: 5);
+    using var test = new CsvFileReader(fileName: m_PathBasicCSV, columnDefinition: m_ColumnCollectionBasicCSV,
+      recordLimit: 5);
     await test.OpenAsync(UnitTestStatic.Token);
 
     var count = 0;
@@ -1018,7 +1036,8 @@ public class CsvDataReaderUnitTest
   [TestMethod]
   public async Task CsvDataReaderNoHeader()
   {
-    using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0, fieldDelimiterChar: ',');
+    using var test = new CsvFileReader(m_PathBasicCSV, hasFieldHeader: false, skipRows: 1, skipRowsAfterHeader: 0,
+      fieldDelimiterChar: ',');
     await test.OpenAsync(UnitTestStatic.Token);
     Assert.AreEqual("Column1", test.GetName(0));
     Assert.AreEqual("Column2", test.GetName(1));

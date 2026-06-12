@@ -316,5 +316,10 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
       new PropertyChangedEventArgs(item.UniqueKeyPropertyName));
   }
   
+  /// <summary>
+  /// Compares to another collections for equality the order of items does not matter.
+  /// </summary>
+  /// <param name="other">other collection</param>
+  /// <returns><c>true</c> if other collections contain the same elements (regardless of order); otherwise, <c>false</c>.</returns>
   public bool Equals(ICollection<T> other) => this.CollectionEqual(other);
 }

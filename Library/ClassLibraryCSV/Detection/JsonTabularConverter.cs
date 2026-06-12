@@ -325,6 +325,7 @@ public static class JsonTabularConverter
     for (int i = 0; i < 5 && enumerator.MoveNext(); i++)
     {
       token.ThrowIfCancellationRequested();
+      if (enumerator.Current == null) continue;
       foreach (var prop in enumerator.Current.OfType<JProperty>())
       {
         var name = prop.Name;
@@ -700,7 +701,7 @@ public static class JsonTabularConverter
       {
         cancellationToken.ThrowIfCancellationRequested();
         var columnData = new (string text, object? value)[columns.Count];
-        enumerator.Current.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt, val));
+        enumerator.Current?.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx] = (txt, val));
         // Pass copy to avoid overwrites
         handleOneRow(columnData);
       }
