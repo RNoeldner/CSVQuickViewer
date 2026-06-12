@@ -115,8 +115,7 @@ public sealed class ColumnCollection : ObservableList<Column>
 
   /// <inheritdoc/>
   /// <exception cref="ArgumentException">Thrown if <paramref name="column"/> is null, has an empty name, or its name already exists at a different index.</exception>
-
-  public override void Insert(int index, Column column)
+  protected override void Insert(int index, Column column)
   {
     Validate(column);
     // Try to replace existing column with same name
@@ -143,8 +142,7 @@ public sealed class ColumnCollection : ObservableList<Column>
   /// <exception cref="ArgumentException">
   ///   Thrown if any column is null, has an empty name, or its name already exists in the collection.
   /// </exception>
-
-  public override void InsertRange(int index, IEnumerable<Column> columns)
+  protected override void InsertRange(int index, IEnumerable<Column> columns)
   {
     if (columns is null)
       throw new ArgumentNullException(nameof(columns));

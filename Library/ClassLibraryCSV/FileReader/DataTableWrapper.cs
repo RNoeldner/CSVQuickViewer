@@ -76,7 +76,7 @@ public sealed class DataTableWrapper : DataReaderWrapper
 
       if (dbRowError.Length > 0)
       {
-        var currentError = src?.ToString() ?? string.Empty;
+        var currentError = src.ToString() ?? string.Empty;
         src = string.IsNullOrEmpty(currentError)
           ? dbRowError
           : currentError.AddMessage(dbRowError);
@@ -101,7 +101,6 @@ public sealed class DataTableWrapper : DataReaderWrapper
 #endif
     await base.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
 
-    if (DataTable != null)
-      DataReader = DataTable.CreateDataReader();
+    DataReader = DataTable.CreateDataReader();
   }
 }

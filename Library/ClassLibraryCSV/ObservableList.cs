@@ -137,7 +137,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="index">The zero-based index at which to insert the item.</param>
     /// <param name="item">The item to insert.</param>
-    public new virtual void Insert(int index, T item)
+    protected new virtual void Insert(int index, T item)
     {
       base.Insert(index, item);
       OnCollectionChanged();
@@ -148,7 +148,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="index">The zero-based index at which to insert the items.</param>
     /// <param name="items">The items to insert.</param>
-    public new virtual void InsertRange(int index, IEnumerable<T> items)
+    protected new virtual void InsertRange(int index, IEnumerable<T> items)
     {
       var list = items as ICollection<T> ?? items.ToList();
       if (list.Count == 0)

@@ -39,7 +39,7 @@ public class TextToHtmlFullFormatter : BaseColumnFormatter
     var output = HtmlStyle.HtmlEncodeShort(inputSpan);
     if (RaiseWarning && !inputSpan.SequenceEqual(output.AsSpan()))
       handleWarning?.Invoke($"HTML encoding removed from {inputSpan.ToString()}");
-    return output!;
+    return output;
   }
 
 }

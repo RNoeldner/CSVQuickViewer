@@ -13,7 +13,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -215,11 +214,7 @@ public static class DetectionHeader
         foreach (var line in msg)
           finalMsg.AppendLine($" • {line}");
         // Use the overload that accepts IFormatProvider (available in .NET 6+ and newer Framework versions)
-        finalMsg.AppendLine(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-CultureInfo.InvariantCulture,
-#endif
-          $"\n(Reliability: {totalIssues} indicators found; limit is {border})");
+        finalMsg.AppendLine($"\n(Reliability: {totalIssues} indicators found; limit is {border})");
 
         bool isValid = tooLong.Count == 0 && totalIssues < border;
         return (finalMsg.ToString(), isValid);

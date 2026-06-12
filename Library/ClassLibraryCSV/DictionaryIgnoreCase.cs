@@ -27,7 +27,7 @@ public class DictionaryIgnoreCase<TValue> : Dictionary<string, TValue>, IEquatab
   /// </summary>
   public DictionaryIgnoreCase() : base(StringComparer.OrdinalIgnoreCase)
   {
-    m_ValueComparer = GetValueComparer(null);
+    m_ValueComparer = GetValueComparer();
   }
 
   /// <summary>
@@ -36,7 +36,7 @@ public class DictionaryIgnoreCase<TValue> : Dictionary<string, TValue>, IEquatab
   /// </summary>
   public DictionaryIgnoreCase(int capacity) : base(capacity, StringComparer.OrdinalIgnoreCase)
   {
-    m_ValueComparer = GetValueComparer(null);
+    m_ValueComparer = GetValueComparer();
   }
 
   /// <summary>

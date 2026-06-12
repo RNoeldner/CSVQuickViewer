@@ -245,9 +245,9 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       {
         var col = Column[i];
         if (keyValuePairs.TryGetValue(col.Name, out var value))
-          Add(HandleText(value.ToString(), i), value);
+          Add(HandleText(value, i), value);
         else
-          Add(ReadOnlySpan<char>.Empty, null);
+          Add(ReadOnlySpan<char>.Empty);
       }
 
       if (keyValuePairs.Count < FieldCount)

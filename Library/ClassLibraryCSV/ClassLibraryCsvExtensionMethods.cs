@@ -35,7 +35,7 @@ namespace CsvTools;
 public static class ClassLibraryCsvExtensionMethods
 {
   private static readonly (string opener, string closer)[] Openers =
-    { ("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"),  ("<:", ">"), ("#", "#") };
+    [("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"),  ("<:", ">"), ("#", "#"),];
 
   /// <summary>
   /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
@@ -132,7 +132,7 @@ public static class ClassLibraryCsvExtensionMethods
   [DebuggerStepThrough]
   public static void CollectionCopyClone<T>(this IEnumerable<T> self, ICollection<T>? other) where T : class
   {
-    if (other is null || self is null) return;
+    if (other is null) return;
     other.Clear();
     foreach (var item in self)
     {
@@ -172,7 +172,7 @@ public static class ClassLibraryCsvExtensionMethods
   public static bool CollectionEqual<T>(this IEnumerable<T> self, in IEnumerable<T>? other)
     where T : IEquatable<T>
   {
-    if (other is null || self is null)
+    if (other is null)
       return false;
     if (ReferenceEquals(self, other))
       return true;
@@ -534,7 +534,7 @@ public static class ClassLibraryCsvExtensionMethods
       while (startIdx != -1)
       {
         // Find where the placeholder section ends
-        int endIdx = input.IndexOf(closer, startIdx + searchPattern.Length);
+        int endIdx = input.IndexOf(closer, startIdx + searchPattern.Length, StringComparison.Ordinal);
 
         if (endIdx != -1)
         {
@@ -550,14 +550,14 @@ public static class ClassLibraryCsvExtensionMethods
             if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
               processedReplacement= ApplyPlaceholderFormat(dtCurrentCulture, format);
             else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
-              processedReplacement= ApplyPlaceholderFormat(dtCurrentCulture, format);
+              processedReplacement= ApplyPlaceholderFormat(dtInvariant, format);
             else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
               processedReplacement= ApplyPlaceholderFormat(dblCurrentCulture, format);
             else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
-              processedReplacement= ApplyPlaceholderFormat(dblCurrentCulture, format);
+              processedReplacement= ApplyPlaceholderFormat(dblInvariantCulture, format);
           }
           input = input.Remove(startIdx, fullMatch.Length).Insert(startIdx, processedReplacement);
-          startIdx = input.IndexOf(searchPattern, startIdx + processedReplacement.Length);
+          startIdx = input.IndexOf(searchPattern, startIdx + processedReplacement.Length, StringComparison.Ordinal);
         }
         else
         {
@@ -605,7 +605,7 @@ public static class ClassLibraryCsvExtensionMethods
   [DebuggerStepThrough]
   public static string ReplaceCaseInsensitive(this string original, string? pattern, string replacement)
   {
-    if (pattern is null || pattern.Length == 0)
+    if (string.IsNullOrEmpty(pattern))
       return original;
 
     if (replacement.Equals(pattern, StringComparison.Ordinal))
@@ -614,7 +614,7 @@ public static class ClassLibraryCsvExtensionMethods
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     return original.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
 #else
-    var inc = original.Length / pattern.Length * (replacement.Length - pattern.Length);
+    var inc = original.Length / pattern!.Length * (replacement.Length - pattern.Length);
     var chars = new char[original.Length + Math.Max(0, inc)];
 
     var count = 0;
@@ -851,7 +851,7 @@ public static class ClassLibraryCsvExtensionMethods
     inputString.IsEmpty ? char.MinValue : inputString[0];
 
   /// <summary>
-  /// Converts a ulong to an int, clamping to <see cref="int.MaxValue"/> if out of range.
+  /// Converts an ulong to an int, clamping to <see cref="int.MaxValue"/> if out of range.
   /// </summary>
   public static int ToInt(this ulong value) => value > int.MaxValue ? int.MaxValue : Convert.ToInt32(value);
 
@@ -891,7 +891,7 @@ public static class ClassLibraryCsvExtensionMethods
     if (value < long.MinValue)
       return long.MinValue;
 
-    return value.Equals(double.NaN) ? default : Convert.ToInt64(value);
+    return value.Equals(double.NaN) ? 0 : Convert.ToInt64(value);
   }
 
   /// <summary>

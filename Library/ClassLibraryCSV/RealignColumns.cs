@@ -62,7 +62,7 @@ public sealed class ReAlignColumns
       return;
 
     for (int i = 0; i < newRow.Length; i++)
-      newRow[i] = newRow[i]?.Trim() ?? string.Empty;
+      newRow[i] = newRow[i].Trim() ?? string.Empty;
 
     if (m_GoodRows.Count < cMaxGoodRows)
     {

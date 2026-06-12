@@ -99,7 +99,7 @@ public readonly record struct TextValue
   public static explicit operator int(in TextValue v) => v.Type switch
   {
     DataTypeEnum.Integer => checked((int) v.Integer),
-    DataTypeEnum.Numeric => checked((int) v.Numeric),
+    DataTypeEnum.Numeric => (int) v.Numeric,
     DataTypeEnum.Double => checked((int) v.Double),
     _ => throw new InvalidCastException($"Cannot convert {v.Type} to int.")
   };
@@ -159,7 +159,7 @@ public readonly record struct TextValue
   };
 
   /// <summary>Returns the string representation of the stored value.</summary>
-  public override string ToString() => GetValue()?.ToString() ?? string.Empty;
+  public override string ToString() => GetValue().ToString() ?? string.Empty;
 }
 
 /// <summary>
@@ -380,7 +380,7 @@ public static class JsonTabularConverter
       }
     }
 
-    Type GetDotNetType(JToken token) => token.Type switch
+    Type GetDotNetType(JToken jToken) => jToken.Type switch
     {
       JTokenType.Integer => typeof(long),
       JTokenType.Float => typeof(double),
@@ -482,13 +482,13 @@ public static class JsonTabularConverter
           var b when b == typeof(bool) => t.Value<bool>().ToString(CultureInfo.CurrentCulture).ToLower(CultureInfo.CurrentCulture),
           var n when n == typeof(double) => t.Value<double>().ToString("G", CultureInfo.CurrentCulture),
           var l when l == typeof(long) => t.Value<long>().ToString(CultureInfo.CurrentCulture),
-          _ => t.ToString()?.Trim() ?? string.Empty
+          _ => t.ToString().Trim() ?? string.Empty
         };
       }
       catch
       {
         // fallback if cast fails
-        return t.ToString()?.Trim() ?? string.Empty;
+        return t.ToString().Trim() ?? string.Empty;
       }
     }
 
@@ -526,7 +526,6 @@ public static class JsonTabularConverter
   ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
   ///   <item>A dictionary of metadata scalars found at root level.</item>
   /// </list>
-  /// </returns>
   /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
   /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
   /// Caller is responsible for keeping the TextReader open
@@ -677,8 +676,8 @@ public static class JsonTabularConverter
     StreamRows(this TextReader reader, Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
   {
     var (items, metadata) = reader.StreamJsonObjects();
-    var enumerator = items.GetEnumerator();
-
+    using var enumerator = items.GetEnumerator();
+    
     // Discover columns from first N rows
     var firstRows = new List<JObject>();
     for (int i = 0; i < sampleSize && enumerator.MoveNext(); i++)

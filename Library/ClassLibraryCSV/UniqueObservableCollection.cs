@@ -23,7 +23,7 @@ namespace CsvTools;
 public class UniqueObservableCollection<T> : ObservableCollection<T>
   where T : class, ICollectionIdentity, INotifyPropertyChanged, IEquatable<T>
 {
-  private bool m_SuppressOnCollectionChanged = false;
+  private bool m_SuppressOnCollectionChanged;
 
   /// <summary>
   /// Internal lookup table mapping unique keys to items.
@@ -64,7 +64,6 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
   /// </summary>
   public void AddRange(IEnumerable<T> items)
   {
-    if (items == null) return;
     bool addedAny = false;
     try
     {
@@ -316,7 +315,6 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
     CollectionItemPropertyChanged?.Invoke(this,
       new PropertyChangedEventArgs(item.UniqueKeyPropertyName));
   }
-
-  /// <inheritdoc/>
+  
   public bool Equals(ICollection<T> other) => this.CollectionEqual(other);
 }

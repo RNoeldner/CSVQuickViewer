@@ -15,7 +15,7 @@ namespace CsvTools;
 /// This class utilizes <see cref="ArrayPool{T}"/> to minimize GC pressure. 
 /// Always ensure <see cref="Dispose"/> is called to return buffers to the pool.
 /// </remarks>
-public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string>,  IDisposable
+public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string>, IDisposable
 {
   private char[] m_ArrayPool;
   private int m_ColumnCount;
@@ -34,7 +34,9 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     m_EndOffsets = ArrayPool<int>.Shared.Rent(initialColumnCount);
   }
 
-  /// <inheritdoc/>
+  /// <summary>
+  /// Number of Columns
+  /// </summary>
   public int Count => m_ColumnCount;
 
   /// <inheritdoc/>
@@ -65,6 +67,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
       value.CopyTo(m_ArrayPool.AsSpan(m_TotalLength));
       m_TotalLength += value.Length;
     }
+
     NextColumn();
   }
 
@@ -101,6 +104,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     foreach (string item in collection)
       Add(item);
   }
+
   /// <summary>
   /// Appends a single character to latest current column being parsed.
   /// </summary>
@@ -120,7 +124,8 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   }
 
   /// <inheritdoc/>
-  public bool Contains(string item) => Enumerable.Range(0, m_ColumnCount).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
+  public bool Contains(string item) =>
+    Enumerable.Range(0, m_ColumnCount).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
 
   /// <inheritdoc/>
   public void CopyTo(string[] array, int arrayIndex)
@@ -129,26 +134,11 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   }
 
   /// <inheritdoc/>
-  public void CopyTo(RowColumnsBuffer target)
-  {
-    target.Clear();
-    for (int i = 0; i < m_ColumnCount; i++) target.Add(this[i]);
-  }
-
-  /// <inheritdoc/>
   public void Dispose()
   {
     if (m_Disposed) return;
-    if (m_ArrayPool != null)
-    {
-      ArrayPool<char>.Shared.Return(m_ArrayPool);
-      m_ArrayPool = null!;
-    }
-    if (m_EndOffsets != null)
-    {
-      ArrayPool<int>.Shared.Return(m_EndOffsets);
-      m_EndOffsets = null!;
-    }
+    ArrayPool<char>.Shared.Return(m_ArrayPool);
+    ArrayPool<int>.Shared.Return(m_EndOffsets);
     m_Disposed = true;
   }
 
@@ -172,6 +162,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
         if (!GetSpan(i).SequenceEqual(list[i].AsSpan()))
           return false;
       }
+
       return true;
     }
 
@@ -192,7 +183,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// Determines whether the specified object is equal to the current buffer.
   /// </summary>
   public override bool Equals(object? obj)
-      => obj is IReadOnlyCollection<string> other && Equals(other);
+    => obj is IReadOnlyCollection<string> other && Equals(other);
 
   /// <inheritdoc/>
   public IEnumerator<string> GetEnumerator()
@@ -258,7 +249,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public void NextColumn()
   {
     CheckDisposed();
-    EnsureOffsetsCapacity(m_ColumnCount+1);
+    EnsureOffsetsCapacity(m_ColumnCount + 1);
     m_EndOffsets[m_ColumnCount++] = m_TotalLength;
   }
 
@@ -281,7 +272,6 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <exception cref="ObjectDisposedException">
   /// Thrown if the buffer has been disposed.
   /// </exception>
-
   public ReadOnlySpan<char> GetCurrentSpan()
   {
     CheckDisposed();
@@ -382,6 +372,5 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     => EnsureCapacity(ref m_ArrayPool, requiredCapacity, m_TotalLength);
 
   private void EnsureOffsetsCapacity(int requiredCapacity)
-  => EnsureCapacity(ref m_EndOffsets, requiredCapacity, m_ColumnCount);
-
+    => EnsureCapacity(ref m_EndOffsets, requiredCapacity, m_ColumnCount);
 }

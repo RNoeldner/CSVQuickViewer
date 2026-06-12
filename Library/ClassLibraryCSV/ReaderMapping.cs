@@ -146,7 +146,7 @@ public sealed class ReaderMapping
     if (startLine)
     {
       if (orgStartLine>=0) m_Mapping.Add(orgStartLine, fieldCount);
-      var columnOrdinal = ColNumStartLine = fieldCount++;
+      var columnOrdinal = ColNumStartLine = fieldCount;
       m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
   }

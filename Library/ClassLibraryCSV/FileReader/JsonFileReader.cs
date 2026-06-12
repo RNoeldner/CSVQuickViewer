@@ -33,7 +33,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   private Stream? m_Stream;
   private readonly StreamProviderDelegate m_StreamProvider;
 
-  private IEnumerator<JObject>? m_EnumeratorJson = null;
+  private IEnumerator<JObject>? m_EnumeratorJson;
   // Storage for already read columns 
   private readonly List<JObject> m_SampleRows = new List<JObject>();
   // Need to keep the StreamReader so its not disposed in between
@@ -142,7 +142,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
 #endif
     await BeforeOpenAsync($"Opening JSON file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
-    bool retry = false;
+    bool retry;
     do
     {
       try

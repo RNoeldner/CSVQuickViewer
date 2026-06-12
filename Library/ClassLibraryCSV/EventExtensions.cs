@@ -28,8 +28,6 @@ public static class EventExtensions
     object sender,
     TEventArgs e) // where TEventArgs : EventArgs
   {
-    if (handler == null)
-      return;
     var array = handler.GetInvocationList();
     for (var i = 0; i<array.Length; i++)
     {

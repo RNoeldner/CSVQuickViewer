@@ -16,11 +16,9 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Dynamic;
 using System.Globalization;
 using System.Text;
 using System.Web;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace CsvTools;
 

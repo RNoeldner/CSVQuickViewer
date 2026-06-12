@@ -72,7 +72,7 @@ public static class FunctionalDI
   /// Delegate that resolves the concrete <see cref="IColumnFormatter"/> based on <see cref="DataTypeEnum"/>.
   /// </summary>
   /// <remarks>Default Implementation will use CSV File know Formatters</remarks>
-  public static ColumnFormatterDelegate GetColumnFormatter { get; set; } = (in ValueFormat valueFormat) =>
+  public static ColumnFormatterDelegate GetColumnFormatter { get; set; } = (in valueFormat) =>
     valueFormat.DataType switch
     {
       DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),

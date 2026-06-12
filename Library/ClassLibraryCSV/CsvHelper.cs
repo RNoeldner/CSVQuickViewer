@@ -360,8 +360,8 @@ public static class CsvHelper
       }
 
       using var zipFile = new ZipFile(fileName2);
-      var filesInZip = ImprovedStream.SuitableZipEntries(zipFile).Select(x => x.Name);
-      selectedFile = selectFile?.Invoke(filesInZip.ToList()) ?? filesInZip.FirstOrDefault();
+      var filesInZip = ImprovedStream.SuitableZipEntries(zipFile).Select(x => x.Name).ToList();
+      selectedFile = selectFile?.Invoke(filesInZip) ?? filesInZip.FirstOrDefault();
       if (selectedFile is null)
         throw new FileNotFoundException("No suitable file found in the ZIP archive.");
     }

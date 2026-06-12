@@ -78,7 +78,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
   private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;  // ReadOnlyMemory for long-term storage of slices.
-  private readonly string m_OriginalTreatAsNull; // Keep source alive otherwise m_TreatAsNullMemories refernces wrong text
 
   /// <summary>
   ///   An array of associated col
@@ -138,8 +137,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     FileName = fileName.GetFileName();
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
-    m_OriginalTreatAsNull = treatTextAsNull;
-    if (string.IsNullOrWhiteSpace(m_OriginalTreatAsNull))
+    var mOriginalTreatAsNull = treatTextAsNull;
+    if (string.IsNullOrWhiteSpace(mOriginalTreatAsNull))
     {
       m_TreatAsNullMemories = Array.Empty<ReadOnlyMemory<char>>();
     }
@@ -152,6 +151,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     }
   }
 
+  /// <summary>
+  /// The text values in the row
+  /// </summary>
   protected IReadOnlyList<string> CurrentRowText => CurrentRowColumnText;
 
   /// <summary>

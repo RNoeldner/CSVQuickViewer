@@ -21,7 +21,7 @@ public class StringDictionaryConverter<TValue> : JsonConverter<IDictionary<strin
   }
 
   /// <inheritdoc/>
-  public override IDictionary<string, TValue>? ReadJson(JsonReader reader, Type objectType, IDictionary<string, TValue>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+  public override IDictionary<string, TValue> ReadJson(JsonReader reader, Type objectType, IDictionary<string, TValue>? existingValue, bool hasExistingValue, JsonSerializer serializer)
   {
     try
     {

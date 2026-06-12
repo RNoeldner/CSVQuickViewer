@@ -175,8 +175,6 @@ public static class StringUtils
   /// </summary>
   public static string GetText(this System.Security.SecureString secPassword)
   {
-    if (secPassword == null) return string.Empty;
-
     IntPtr unmanagedString = IntPtr.Zero;
     try
     {

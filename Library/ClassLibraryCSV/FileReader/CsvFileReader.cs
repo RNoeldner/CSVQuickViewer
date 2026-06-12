@@ -1016,7 +1016,7 @@ public class CsvFileReader : BaseFileReader
                 raw = $"{m_FieldQualifier}{raw}{m_FieldQualifier}";
 
               var len = ParseColumn(readChar: () => raw[pos++],
-                peekChar: () => raw[pos], moveNext: (c) => pos++,
+                peekChar: () => raw[pos], moveNext: (_) => pos++,
                 endOfFile: () => pos >= raw.Length, columnNo: col,
                 endOfLine: ref eol, ref ignored)!;
 

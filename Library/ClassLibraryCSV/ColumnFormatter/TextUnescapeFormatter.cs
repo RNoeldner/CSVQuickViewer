@@ -16,7 +16,6 @@
 using System;
 using System.Buffers;
 using System.Globalization;
-using System.Text;
 
 namespace CsvTools;
 

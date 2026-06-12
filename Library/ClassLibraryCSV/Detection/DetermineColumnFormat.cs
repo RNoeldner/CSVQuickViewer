@@ -605,7 +605,8 @@ public static class DetermineColumnFormat
       action.Invoke(() => Logger.Information("Analyzing data patterns to optimize view..."));
       while (recordsScanned < maxRecords && activeColumns.Count > 0)
       {
-        action.Invoke(() => Logger.Information($"Analyzing {activeColumns.Count} columns... (Record {recordsScanned:N0})"));
+        var scanned = recordsScanned;
+        action.Invoke(() => Logger.Information($"Analyzing {activeColumns.Count} columns... (Record {scanned:N0})"));
         // Rollover to the beginning if we hit the end of file
         if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {

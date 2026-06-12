@@ -38,6 +38,10 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   protected IDataReader DataReader;
   private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
   private readonly IFileReader? m_FileReader;
+
+  /// <summary>
+  /// The mapping for columns between source and destination 
+  /// </summary>
   protected readonly ReaderMapping m_ReaderMapping;
   private readonly long m_RecordLimit;
 
@@ -405,7 +409,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
         m_FileReader.Warning -= HandleSourceWarning;
 
       // This must ALWAYS run on an explicit app Dispose invocation
-      DataReader?.Dispose();
+      DataReader.Dispose();
     }
 
     base.Dispose(disposing);
@@ -426,7 +430,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
     {
       m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
-      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex)?.Name ?? string.Empty));
+      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex).Name ?? string.Empty));
     }
   }
 }
