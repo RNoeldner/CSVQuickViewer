@@ -51,19 +51,24 @@ namespace CSVQuickViewer
       // Associate extension with ProgID
       using (var extKey = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{extension}"))
       {
-        extKey.SetValue("", progId);
+        if (extKey != null) extKey.SetValue("", progId);
       }
 
       // Create ProgID entry with description, icon, and open command
       using (var progKey = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{progId}"))
       {
-        progKey.SetValue("", description);
+        if (progKey != null)
+        {
+          progKey.SetValue("", description);
 
-        using (var iconKey = progKey.CreateSubKey("DefaultIcon"))
-          iconKey.SetValue("", $"\"{appPath}\",0");
+          using (var iconKey = progKey.CreateSubKey("DefaultIcon"))
+            if (iconKey != null)
+              iconKey.SetValue("", $"\"{appPath}\",0");
 
-        using (var shellKey = progKey.CreateSubKey(@"Shell\Open\Command"))
-          shellKey.SetValue("", $"\"{appPath}\" \"%1\"");
+          using (var shellKey = progKey.CreateSubKey(@"Shell\Open\Command"))
+            if (shellKey != null)
+              shellKey.SetValue("", $"\"{appPath}\" \"%1\"");
+        }
       }
     }
   }

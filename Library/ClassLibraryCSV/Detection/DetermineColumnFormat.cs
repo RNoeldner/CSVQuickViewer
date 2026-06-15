@@ -622,7 +622,7 @@ public static class DetermineColumnFormat
         {
           int colIdx = activeColumns[i];
           if (fileReader.IsDBNull(colIdx)) continue;
-          string value = fileReader.GetValue(colIdx)?.ToString()?.Trim() ?? string.Empty;
+          string value = fileReader.GetValue(colIdx).ToString()?.Trim() ?? string.Empty;
           if (value.Length == 0 || StringUtils.ShouldBeTreatedAsNull(value, treatAsNull)) continue;
 
           if (maxChars > 0 && value.Length > maxChars)

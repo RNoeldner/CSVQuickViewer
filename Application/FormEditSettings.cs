@@ -41,7 +41,6 @@ public partial class FormEditSettings : ResizeForm
   /// </summary>
   /// <param name="viewSettings">The default view settings.</param>
   /// <param name="setting">The current setting.</param>
-  /// <param name="warnings">The warnings to be listed in HTML Info</param>
   /// <param name="numRecords">The number records that have been read</param>
   /// <exception cref="System.ArgumentNullException">viewSettings</exception>
   public FormEditSettings(ViewSettings viewSettings, CsvFileDummy? setting, int? numRecords)
@@ -149,7 +148,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         "Delimited files|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
         split.FileName);
 
-      if (newFileName is null || newFileName.Length == 0)
+      if (newFileName.Length == 0)
         return;
 
       SetDefaultInspectionResult();
@@ -693,11 +692,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       set => SetProperty(ref m_ContextSensitiveQualifier, value);
     }
 
-    public string DelimiterPlaceholder
-    {
-      get => m_DelimiterPlaceholder;
-      set => SetProperty(ref m_DelimiterPlaceholder, value);
-    }
+    public string DelimiterPlaceholder => m_DelimiterPlaceholder;
 
     public bool DuplicateQualifierToEscape
     {

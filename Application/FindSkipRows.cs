@@ -83,7 +83,7 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
     get => m_CommentLine;
     set
     {
-      var newVal = value?.Trim() ?? string.Empty;
+      var newVal = value.Trim() ?? string.Empty;
       if (m_CommentLine == newVal)
         return; m_CommentLine=newVal;
       OnPropertyChanged(nameof(CommentLine));

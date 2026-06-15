@@ -26,7 +26,7 @@ public static class UnitTestStaticForms
   public static void InitThreadException()
   {
     Application.ThreadException += (obj, args) => args.Exception.ToString().WriteToContext();
-    AppDomain.CurrentDomain.UnhandledException += (obj, args) => args.ExceptionObject.ToString().WriteToContext();
+    AppDomain.CurrentDomain.UnhandledException += (obj, args) => args.ExceptionObject.ToString()!.WriteToContext();
     Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
   }
 

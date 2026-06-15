@@ -53,12 +53,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected int[] AssociatedTimeCol = [];
 
   /// <summary>
-  ///   An array of current row column text, this is reused to avoid multiple allocations
-  ///   We will have the information in here from ignored columns
-  /// </summary>
-  private readonly RowColumnsBuffer CurrentRowColumnText = new RowColumnsBuffer();
-
-  /// <summary>
   /// The record limit
   /// </summary>
   protected long RecordLimit;
@@ -72,9 +66,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   The maximum value
   /// </summary>
   private const int cMaxProgress = 10000;
+
   private readonly bool m_AllowPercentage;
+
   private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
+
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
+
+  /// <summary>
+  ///   An array of current row column text, this is reused to avoid multiple allocations
+  ///   We will have the information in here from ignored columns
+  /// </summary>
+  private readonly RowColumnsBuffer m_CurrentRowColumnText = new RowColumnsBuffer();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
   private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;  // ReadOnlyMemory for long-term storage of slices.
@@ -96,15 +99,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   private bool m_IsFinished;
 
-  // ReSharper disable once FieldCanBeMadeReadOnly.Global
-  private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
-
   /// <summary>
   /// A mapping of column indices to include during parsing. 
   /// Includes columns explicitly mapped to properties, as well as auxiliary columns 
   /// required for data integrity or time-zone context.
   /// </summary>
-  protected bool[] m_ParseFromSource = Array.Empty<bool>();
+  private bool[] m_ParseFromSource = Array.Empty<bool>();
+
+  // ReSharper disable once FieldCanBeMadeReadOnly.Global
+  private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
 
   /// <summary>
   ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" />
@@ -152,29 +155,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  /// The text values in the row
-  /// </summary>
-  protected IReadOnlyList<string> CurrentRowText => CurrentRowColumnText;
-
-  /// <summary>
-  /// Clears the current row data
-  /// </summary>
-  protected virtual void Clear()
-    => CurrentRowColumnText.Clear();
-
-  /// <summary>
-  /// Adds a value to the collection
-  /// </summary>
-  /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
-  /// <param name="typedValue">The underlying object value, only actaully used in <see cref="BaseFileReaderTyped"/>.</param>
-  /// <returns>The zero-based index at which the value was added.</returns>
-  protected virtual int Add(ReadOnlySpan<char> text, object? typedValue = null)
-  {
-    CurrentRowColumnText.Add(text);
-    return CurrentRowColumnText.Count-1;
-  }
-
-  /// <summary>
   ///   Occurs when something went wrong during opening of the setting, this might be the file
   ///   does not exist or a query ran into a timeout
   /// </summary>
@@ -194,7 +174,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Event handler called if a warning or error occurred
   /// </summary>
   public event EventHandler<WarningEventArgs>? Warning;
-
 
   /// <inheritdoc />
   /// <summary>
@@ -308,6 +287,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// The full path.
   /// </value>
   protected string FullPath { get; }
+
+  /// <summary>
+  /// The text values in the row
+  /// </summary>
+  protected IReadOnlyList<string> MCurrentRowText => m_CurrentRowColumnText;
 
   /// <inheritdoc />
   public override object this[string columnName] => GetValue(GetOrdinal(columnName));
@@ -486,8 +470,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override long GetInt64(int ordinal)
   {
     var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
-    return result.HasValue ? result.Value
-     : throw new FormatException($"'{GetString(ordinal)}' is not an long");
+    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not an long");
   }
 
   /// <inheritdoc />
@@ -499,7 +482,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (string.IsNullOrEmpty(name))
       throw new ArgumentException("Column name must not be null or empty.", nameof(name));
-    
+
     // This is filled when we open
     if (m_ColumnIndexMap.TryGetValue(name, out var index))
       return index;
@@ -535,13 +518,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Gets the originally provided text of a column
-  /// </summary>
-  /// <param name="ordinal">The column number.</param>
-  [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public virtual ReadOnlySpan<char> GetSpan(int ordinal) => CurrentRowColumnText.GetSpan(ordinal);
-
-  /// <summary>
   /// Retrieves data as a <see cref="T:System.IO.Stream"></see>.
   /// </summary>
   /// <param name="ordinal">Retrieves data as a <see cref="T:System.IO.Stream"></see>.</param>
@@ -557,7 +533,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public override string GetString(int ordinal) => CurrentRowColumnText[ordinal];
+  public override string GetString(int ordinal) => m_CurrentRowColumnText[ordinal];
 
   /// <summary>
   /// Retrieves data as a <see cref="TextReader"/> for the specified column.
@@ -646,7 +622,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
-    if (ordinal<0 || CurrentRowColumnText.Count <= ordinal)
+    if (ordinal<0 || m_CurrentRowColumnText.Count <= ordinal)
       return true;
     return IsDBNull(GetColumn(ordinal));
   }
@@ -672,7 +648,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// This synchronous method blocks until the asynchronous read completes.
   /// Prefer ReadAsync(CancellationToken) in asynchronous scenarios.
   /// </remarks>
-  [Obsolete("Use ReadAsync instead for asynchronous, non-blocking operation.")]
   public sealed override bool Read()
   => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
@@ -692,6 +667,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
+  /// Adds a value to the collection
+  /// </summary>
+  /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
+  /// <param name="typedValue">The underlying object value, only actually used in <see cref="BaseFileReaderTyped"/>.</param>
+  /// <returns>The zero-based index at which the value was added.</returns>
+  protected virtual int Add(ReadOnlySpan<char> text, object? typedValue = null)
+  {
+    m_CurrentRowColumnText.Add(text);
+    return m_CurrentRowColumnText.Count-1;
+  }
+
+  /// <summary>
   ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if it's a
   ///   physical file
   /// </summary>
@@ -701,12 +688,17 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     return OnOpenAsync != null ? OnOpenAsync.Invoke() : Task.CompletedTask;
   }
 
+  /// <summary>
+  /// Clears the current row data
+  /// </summary>
+  protected virtual void Clear()
+    => m_CurrentRowColumnText.Clear();
+
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
   {
-
     if (disposing)
-      CurrentRowColumnText.Dispose();
+      m_CurrentRowColumnText.Dispose();
     base.Dispose(disposing);
   }
 
@@ -742,11 +734,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
+  ///   Gets the originally provided text of a column
+  /// </summary>
+  /// <param name="ordinal">The column number.</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected virtual ReadOnlySpan<char> GetSpan(int ordinal) => m_CurrentRowColumnText.GetSpan(ordinal);
+
+  /// <summary>
   ///   Gets the associated value.
   /// </summary>
   /// <param name="i">The i.</param>
   protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
-    AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Count
+    AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= m_CurrentRowColumnText.Count
       ? []
       : GetSpan(AssociatedTimeCol[i]);
 
@@ -764,6 +763,21 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
+  ///   Shows the process.
+  /// </summary>
+  /// <param name="text">Leading Text</param>
+  /// <param name="percent">Value between 0 and 1 representing the relative position</param>
+  protected virtual void HandleShowProgress(ReadOnlySpan<char> text, double percent) =>
+    m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
+
+  /// <summary>
+  ///   Shows the process twice a second
+  /// </summary>
+  /// <param name="text">Leading Text</param>
+  protected virtual void HandleShowProgressPeriodic(string text)
+    => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
+
+  /// <summary>
   /// Orchestrates text processing including formatting, null-equivalent detection, 
   /// trimming, and non-breaking space replacement.
   /// </summary>
@@ -778,9 +792,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     // 2. Null Detection
     // This is now safe because formattedString keeps the memory alive
-    for (int i = 0; i < m_TreatAsNullMemories.Length; i++)
+    foreach (var t in m_TreatAsNullMemories)
     {
-      if (textSpan.Equals(m_TreatAsNullMemories[i].Span, StringComparison.Ordinal))
+      if (textSpan.Equals(t.Span, StringComparison.Ordinal))
         return string.Empty;
     }
 
@@ -794,21 +808,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     // If we didn't format it, create a new string from the original span
     return textSpan.ToString();
   }
-
-  /// <summary>
-  ///   Shows the process.
-  /// </summary>
-  /// <param name="text">Leading Text</param>
-  /// <param name="percent">Value between 0 and 1 representing the relative position</param>
-  protected virtual void HandleShowProgress(ReadOnlySpan<char> text, double percent) =>
-    m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
-
-  /// <summary>
-  ///   Shows the process twice a second
-  /// </summary>
-  /// <param name="text">Leading Text</param>
-  protected virtual void HandleShowProgressPeriodic(string text)
-    => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
 
   /// <summary>
   ///   Calls the event handler for warnings <see cref="Warning"/>
@@ -880,7 +879,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       var timeOrdinal = AssociatedTimeCol[ordinal];
 
       // 3. The (uint) cast handles both -1 and out-of-bounds in one check.
-      if ((uint) timeOrdinal < (uint) CurrentRowColumnText.Count)
+      if ((uint) timeOrdinal < (uint) m_CurrentRowColumnText.Count)
       {
         return GetSpan(timeOrdinal).IsEmpty;
       }
@@ -899,12 +898,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="headerRow">The header row.</param>
   /// <param name="dataType">Optional provided data types.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
-  protected virtual void ParseColumnName(
-    in IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
+  protected virtual void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
     // Step 1: Adjust column names
     var adjustedNames = hasFieldHeader
-        ? AdjustColumnName(headerRow, Column.Length).ToList()
+        ? AdjustColumnName(headerRow, Column.Length)
         : Enumerable.Range(0, Column.Length)
             .Select(colIndex =>
             {
@@ -919,8 +917,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
                 }
               }
               return colName;
-            })
-            .ToList();
+            }).ToList();
     // Step 2: Initialize data types
     var dataTypeL = new DataTypeEnum[adjustedNames.Count];
     // Initialize as text
@@ -952,7 +949,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     }
 
     // Initialize parse source tracking, this might not be needed 
-    // just in case an implemnetion used the array during open
+    // just in case an implementation used the array during open
     for (var index = 0; index < Column.Length; index++)
       m_ParseFromSource[index] = false;
 
@@ -967,6 +964,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       var searchedTimeZonePart = column.TimeZonePart;
 
       if (!string.IsNullOrEmpty(searchedTimePart))
+      {
         for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
         {
           if (indexPoint == index) continue;
@@ -975,6 +973,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           m_ParseFromSource[indexPoint] = true;
           break;
         }
+      }
 
       if (string.IsNullOrEmpty(searchedTimeZonePart)) continue;
 
@@ -999,7 +998,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </param>
   /// <returns>
   /// A <see cref="ValueTask{Boolean}"/> that completes with <c>true</c> if a record was read successfully;
-  /// <c>false</c> if the end of the data source was reached, reading was cancelled, or the reader was closed.
+  /// <c>false</c> if the end of the data source was reached, reading was canceled, or the reader was closed.
   /// </returns>
   /// <remarks>
   /// This method represents the core read logic and must be implemented by derived classes.
@@ -1015,6 +1014,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </remarks>
   protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
 
+  /// <summary>
+  /// Determines if a columns should be parsed
+  /// </summary>
+  protected bool ShouldParseFromSource(int columnNo)  => m_ParseFromSource.Length == 0 || columnNo >= m_ParseFromSource.Length ||  m_ParseFromSource[columnNo];
+  
   /// <summary>
   /// Checks if we should retry to access the data
   /// </summary>
@@ -1126,6 +1130,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     return null;
   }
+
   /// <summary>
   ///   Gets the decimal value or null.
   /// </summary>
@@ -1219,7 +1224,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="fieldCount">
   ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
   /// </param>
-  private IEnumerable<string> AdjustColumnName(in IEnumerable<string> columns, int fieldCount)
+  private List<string> AdjustColumnName(IEnumerable<string> columns, int fieldCount)
   {
     var newNames = new List<string>(fieldCount);
     var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1229,7 +1234,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     {
       if (counter >= fieldCount) break;
 
-      var trimmed = column != null ? column.Trim() : string.Empty;
+      var trimmed = column.Trim();
       string resultingName;
 
       if (trimmed.Length == 0)
@@ -1268,6 +1273,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     return newNames;
   }
+
   /// <summary>
   /// Gets the warning event arguments.
   /// </summary>

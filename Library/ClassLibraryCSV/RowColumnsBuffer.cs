@@ -75,13 +75,6 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public void Add(string? item) => Add(item.AsSpan());
 
   /// <summary>
-  /// Adds an empty column to the row.
-  /// </summary>
-  [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  [Obsolete("Either use Add(ReadOnlySpan<char>.Empty) for better clarity or use NextColumn().", true)]
-  public void AddEmpty() => NextColumn();
-
-  /// <summary>
   /// Adds a sequence of column values to the end of the current row.
   /// </summary>
   /// <param name="collection">The sequence of strings to add.</param>
@@ -229,7 +222,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <returns>A span representing the column text.</returns>
   public ReadOnlySpan<char> GetSpan(int index)
   {
-    CheckDisposed();
+    // CheckDisposed();
     if (index < 0 || index >= m_ColumnCount) return ReadOnlySpan<char>.Empty;
     int start = (index == 0) ? 0 : m_EndOffsets[index - 1];
     int length = m_EndOffsets[index] - start;
