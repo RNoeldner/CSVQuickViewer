@@ -42,10 +42,10 @@ public class ImprovedStream : Stream, IImprovedStream
 #if WithBuffer
   // Base block size (8 KB) × 512 = 4 MB total buffer
   private readonly byte[] m_SeekBuffer;
-  private long m_BufferStartPos = 0;
-  private int m_BufferLength = 0;
-  private int m_BufferPos = 0;
-  private long m_AbsolutePosition = 0;
+  private long m_BufferStartPos;
+  private int m_BufferLength;
+  private int m_BufferPos;
+  private long m_AbsolutePosition;
 #endif
 
   private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;

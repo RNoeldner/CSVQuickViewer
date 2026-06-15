@@ -288,7 +288,7 @@ public static class DetermineColumnFormat
 
     progress.CancellationToken.ThrowIfCancellationRequested();
 
-    // check all doubles if they could be integer needed for excel files as the typed values do
+    // check all doubles if they could be integer needed for Excel files as the typed values do
     // not distinguish between double and integer.
     if (checkDoubleToBeInteger)
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -331,7 +331,7 @@ public static class DetermineColumnFormat
 
     if (fillGuessSettings.DateParts)
     {
-      // Case a)
+      // Case a
       // Try to find a time for a date if the date does not already have a time Case 
       // a TimeFormat has already been recognized
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -419,7 +419,7 @@ public static class DetermineColumnFormat
         }
       }
 
-      // Case b)
+      // Case b
       // TimeFormat has not been recognized (e.G. all values are 08:00) only look in
       // adjacent fields
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -623,7 +623,7 @@ public static class DetermineColumnFormat
           int colIdx = activeColumns[i];
           if (fileReader.IsDBNull(colIdx)) continue;
           string value = fileReader.GetValue(colIdx).ToString()?.Trim() ?? string.Empty;
-          if (value.Length == 0 || StringUtils.ShouldBeTreatedAsNull(value, treatAsNull)) continue;
+          if (value.Length == 0 || value.ShouldBeTreatedAsNull(treatAsNull)) continue;
 
           if (maxChars > 0 && value.Length > maxChars)
             value = value.Substring(0, maxChars);
@@ -813,7 +813,7 @@ public static class DetermineColumnFormat
   /// <param name="guessDateTime">Try to determine if it is a date time</param>
   /// <param name="guessPercentage">Accept percentage values</param>
   /// <param name="serialDateTime">Allow serial Date time</param>
-  /// <param name="removeCurrencySymbols">"If true, currency symbols will be ignored during numeric detection</param>
+  /// <param name="removeCurrencySymbols">If true, currency symbols will be ignored during numeric detection</param>
   /// <param name="othersValueFormatDate">
   ///   The date format found in prior columns, assuming the data format is the same in other
   ///   columns, we do not need that many samples

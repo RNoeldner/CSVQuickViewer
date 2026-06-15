@@ -27,7 +27,7 @@ public static class DetectionStartRow
   /// </summary>
   /// <param name="textReader">Reader providing sequential access to the input file.</param>
   /// <param name="fieldDelimiterChar">Character used to separate fields (e.g. comma or semicolon).</param>
-  /// <param name="fieldQualifierChar">Character used for quoting fields (e.g. ").</param>
+  /// <param name="fieldQualifierChar">Character used for quoting fields (e.g. &quot;).</param>
   /// <param name="escapePrefixChar">Character used to escape special characters inside fields.</param>
   /// <param name="commentLine">
   /// Prefix that identifies a comment line (e.g. "#", "//"). Lines starting with this
@@ -130,13 +130,11 @@ public static class DetectionStartRow
       void HandleCRLF()
       {
         currentLine++;
-        if (!quoted)
-        {
-          currentRow++;
-          startOfNewRow = true;
-          if (currentRow < maxRows)
-            rowStartLine[currentRow] = currentLine;
-        }
+        if (quoted) return;
+        currentRow++;
+        startOfNewRow = true;
+        if (currentRow < maxRows)
+          rowStartLine[currentRow] = currentLine;
       }
     }
     finally

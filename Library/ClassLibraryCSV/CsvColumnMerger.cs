@@ -36,7 +36,7 @@ public sealed class CsvColumnMerger
 #endif
   private readonly char m_Delimiter;
   private static readonly HashSet<string> BoolSet = new HashSet<string>(
-    new[] { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" },
+    ["True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F",],
     StringComparer.OrdinalIgnoreCase);
 
   private static readonly HashSet<char> DigitsSet = new("0123456789");

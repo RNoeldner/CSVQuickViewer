@@ -45,7 +45,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <summary>
   /// Fully qualified file path to write.
   /// </summary>
-  private readonly string FullPath;
+  private readonly string m_FullPath;
   private readonly string m_IdentifierInContainer;
   private readonly bool m_KeepUnencrypted;
   private readonly string m_PublicKey;
@@ -63,7 +63,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// Delegate used to create or provide the target <see cref="Stream"/>
   /// for writing output.
   /// </summary>
-  protected readonly StreamProviderDelegate m_StreamProvider;
+  protected readonly StreamProviderDelegate StreamProvider;
 
   /// <summary>The header written before the records are stored</summary>
   protected string Header;
@@ -71,7 +71,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <summary>
   /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
   /// </summary>
-  /// <param name="fullPath">The fully qualified path of the file to write.</param>
+  /// <param name="mFullPath">The fully qualified path of the file to write.</param>
   /// <param name="valueFormatGeneral">The fallback value format for columns without specific formatting.</param>
   /// <param name="identifierInContainer">The name of the file within an archive (e.g., ZIP).</param>
   /// <param name="footer">The template for the footer written after data records.</param>
@@ -81,7 +81,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// <param name="publicKey">The key used for encrypting the output data.</param>
   /// <param name="unencrypted">If <c>true</c>, keeps the unencrypted file as a reference when encryption is used.</param>  
   protected BaseFileWriter(
-    string fullPath,
+    string mFullPath,
     in ValueFormat? valueFormatGeneral,
     string? identifierInContainer,
     string? footer,
@@ -93,11 +93,11 @@ public abstract class BaseFileWriter : IFileWriter
   )
   {
     TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
-    m_StreamProvider = FunctionalDI.GetStream;
+    StreamProvider = FunctionalDI.GetStream;
     m_PublicKey = publicKey;
     m_KeepUnencrypted = unencrypted;
-    FullPath = fullPath;
-    var fileName = FileSystemUtils.GetFileName(FullPath);
+    m_FullPath = mFullPath;
+    var fileName = m_FullPath.GetFileName();
     Header = ReplacePlaceHolder(header, fileName);
     m_Footer = ReplacePlaceHolder(footer, fileName);
 
@@ -123,7 +123,7 @@ public abstract class BaseFileWriter : IFileWriter
   /// </summary>
   public event EventHandler? WriteFinished;
 
-  private static readonly char[] timeIdentifiers = new[] { 'h', 'H', 'm', 's' };
+  private static readonly char[] TimeIdentifiers = ['h', 'H', 'm', 's',];
 
   /// <summary>
   /// Retrieves column metadata by merging source reader information with explicit column definitions.
@@ -258,7 +258,7 @@ public abstract class BaseFileWriter : IFileWriter
       if (column is null || string.IsNullOrEmpty(column.TimePart) || colNames.ContainsValue(column.TimePart))
         continue;
 
-      if (ci.ValueFormat.DateFormat.IndexOfAny(timeIdentifiers) != -1)
+      if (ci.ValueFormat.DateFormat.IndexOfAny(TimeIdentifiers) != -1)
         Logger.Warning($"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
 
       // In case we have a split column, add the second column (unless the column is also present
@@ -285,7 +285,7 @@ public abstract class BaseFileWriter : IFileWriter
     HandleWriteStart();
     try
     {
-      var sourceAccess = new SourceAccess(FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
+      var sourceAccess = new SourceAccess(m_FullPath, false, keepEncrypted: m_KeepUnencrypted, pgpKey: m_PublicKey);
       if (!string.IsNullOrEmpty(m_IdentifierInContainer))
         sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 
@@ -299,10 +299,10 @@ public abstract class BaseFileWriter : IFileWriter
     }
     catch (Exception exc)
     {
-      Logger.Error(exc, $"Could not write file {FullPath.GetShortDisplayFileName()}" );
+      Logger.Error(exc, $"Could not write file {m_FullPath.GetShortDisplayFileName()}" );
 
       throw new FileWriterException(
-        $"Could not write file '{FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
+        $"Could not write file '{m_FullPath.GetShortDisplayFileName()}'\n{exc.SourceExceptionMessage()}",
         exc);
     }
     finally

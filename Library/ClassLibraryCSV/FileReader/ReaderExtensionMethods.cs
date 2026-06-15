@@ -165,7 +165,7 @@ public static class ReaderExtensionMethods
   /// <summary>
   /// Reads the data from a <see cref="DataReaderWrapper"/> into a DataTable, handling artificial fields and errors
   /// </summary>
-  /// <param name="wrapper">The DataReader Warpper to read the data from</param>
+  /// <param name="wrapper">The DataReader wrapper to read the data from</param>
   /// <param name="maxDuration">Initial Duration for first return</param>
   /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
   public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
@@ -191,10 +191,9 @@ public static class ReaderExtensionMethods
     dataTable.BeginLoadData();
     try
     {
-      if (maxDuration < TimeSpan.MaxValue)
-        progress.Report($"Reading batch (Limit {maxDuration.TotalSeconds:F1}s)");
-      else
-        progress.Report($"Reading all data");
+      progress.Report(maxDuration < TimeSpan.MaxValue
+        ? $"Reading batch (Limit {maxDuration.TotalSeconds:F1}s)"
+        : "Reading all data");
 
       var watch = Stopwatch.StartNew();
       while (!progress.CancellationToken.IsCancellationRequested && 

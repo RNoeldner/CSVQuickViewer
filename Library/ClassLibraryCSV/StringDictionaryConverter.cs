@@ -44,14 +44,13 @@ public class StringDictionaryConverter<TValue> : JsonConverter<IDictionary<strin
           // Array-style JSON: [{"key":"k","value":"v"}]
           foreach (var item in (JArray) token)
           {
-            var key = item["key"]?.ToString();
-            if (!string.IsNullOrEmpty(key))
-            {
-              var valueToken = item["value"];
-              dict[key!] = valueToken != null
-                  ? valueToken.ToObject<TValue>(serializer)!
-                  : default!;
-            }
+            var key = item["key"]?.ToString() ?? string.Empty;
+            if (key.Length <= 0) 
+              continue;
+            var valueToken = item["value"];
+            dict[key] = valueToken != null
+              ? valueToken.ToObject<TValue>(serializer)!
+              : default!;
           }
           break;
 

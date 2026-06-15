@@ -767,14 +767,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="text">Leading Text</param>
   /// <param name="percent">Value between 0 and 1 representing the relative position</param>
-  protected virtual void HandleShowProgress(ReadOnlySpan<char> text, double percent) =>
+  protected void HandleShowProgress(ReadOnlySpan<char> text, double percent) =>
     m_ReportProgress.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
 
   /// <summary>
   ///   Shows the process twice a second
   /// </summary>
   /// <param name="text">Leading Text</param>
-  protected virtual void HandleShowProgressPeriodic(string text)
+  protected void HandleShowProgressPeriodic(string text)
     => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
 
   /// <summary>
@@ -820,7 +820,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Displays progress, is called after <see langword="abstract" /> row has been read
   /// </summary>
   /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
-  protected virtual void InfoDisplay(bool hasReadRow)
+  protected void InfoDisplay(bool hasReadRow)
   {
     if (!hasReadRow)
       HandleReadFinished();
@@ -898,7 +898,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="headerRow">The header row.</param>
   /// <param name="dataType">Optional provided data types.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
-  protected virtual void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
+  protected void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
     // Step 1: Adjust column names
     var adjustedNames = hasFieldHeader
@@ -1100,7 +1100,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       }
     }
 
-    if (dateTime.HasValue && dateTime.Value.Year is > 1752 and <= 9999)
+    if (dateTime?.Year is > 1752 and <= 9999)
     {
       // Try to get it from the constant definition (e.g., "UTC")
       if (!column.TimeZonePart.TryGetConstant(out var timeZone))

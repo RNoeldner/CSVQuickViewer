@@ -118,7 +118,7 @@ public sealed class ReAlignColumns
   {
     var columns = new List<string>(row.Count);
     for (int i = 0; i < row.Count; i++)
-      columns.Add(row[i]?.Trim() ?? string.Empty);
+      columns.Add(row[i] != null ? row[i].Trim() : string.Empty);
 
     if (columns.Count >= (m_ExpectedColumns * 2) - 1)
     {

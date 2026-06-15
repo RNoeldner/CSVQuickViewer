@@ -36,7 +36,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
   private IEnumerator<JObject>? m_EnumeratorJson;
   // Storage for already read columns 
   private readonly List<JObject> m_SampleRows = new List<JObject>();
-  // Need to keep the StreamReader so its not disposed in between
+  // Need to keep the StreamReader so it's not disposed in between
   private StreamReader? m_StreamReader;
   private IReadOnlyList<JsonTabularConverter.JsonColumn> m_JsonColumns = Array.Empty<JsonTabularConverter.JsonColumn>();
 
@@ -200,7 +200,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
         EndLineNumber++;
         StartLineNumber++;
         Clear();
-        json!.HandleRow(m_JsonColumns, ',', (col, txtx, val) => Add(HandleText(txtx, col), val));
+        json!.HandleRow(m_JsonColumns, ',', (col, text, val) => Add(HandleText(text, col), val));
       }
 
       InfoDisplay(couldRead);

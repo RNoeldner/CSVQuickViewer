@@ -248,7 +248,7 @@ public static class StringUtils
   }
 
   /// <summary>
-  ///   All combination of \r \n will be reagrded as single \n
+  ///   All combination of \r \n will be regarded as single \n
   /// </summary>
   /// <param name="text">The Text</param>
   /// <returns>

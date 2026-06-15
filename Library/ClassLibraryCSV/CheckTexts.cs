@@ -35,7 +35,7 @@ public static class CheckTexts
   /// <param name="culture">The culture used for parsing (important for named days or months).</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
   /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
-  /// <remarks>We have a problem with tiomes that are if look colsely are invalid like 25:15:00 ist not in 00:00 - 23:59:00 but it could be interpreted as timespan > a day </remarks>
+  /// <remarks>We have a problem with times that are if you look closely are invalid like 25:15:00 ist not in 00:00 - 23:59:00, but it could be interpreted as timespan > a day </remarks>
   public static CheckResult CheckDate(this IReadOnlyCollection<ReadOnlyMemory<char>> samples,
     ReadOnlySpan<char> dateFormatPattern, char dateSep, char timeSep,
     in CultureInfo culture, CancellationToken cancellationToken)
@@ -269,9 +269,6 @@ public static class CheckTexts
   /// </returns>
   internal static DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples, CancellationToken cancellationToken)
   {
-    const StringComparison OrdinalIgnoreCase = StringComparison.OrdinalIgnoreCase;
-    const StringComparison Ordinal = StringComparison.Ordinal;
-
     ReadOnlySpan<char> brSpan = "<br>".AsSpan();
     ReadOnlySpan<char> cdataSpan = "<![CDATA[".AsSpan();
     ReadOnlySpan<string> escapeSequences = new[] { "\\r", "\\n", "\\t", "\\u", "\\x" };
@@ -286,13 +283,13 @@ public static class CheckTexts
       var span = text.Span;
 
       // HTML-like indicators
-      if ((span.IndexOf(brSpan, OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, OrdinalIgnoreCase)) && ++foundHtml > minRequiredSamples)
+      if ((span.IndexOf(brSpan, StringComparison.OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, StringComparison.OrdinalIgnoreCase)) && ++foundHtml > minRequiredSamples)
         return DataTypeEnum.TextToHtml;
 
       // C-style escape sequences
       foreach (var esc in escapeSequences)
       {
-        if (span.IndexOf(esc.AsSpan(), Ordinal) != -1)
+        if (span.IndexOf(esc.AsSpan(), StringComparison.Ordinal) != -1)
         {
           if (++foundUnescaped > minRequiredSamples)
             return DataTypeEnum.TextUnescape;

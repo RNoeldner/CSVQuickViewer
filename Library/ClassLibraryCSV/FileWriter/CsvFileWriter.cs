@@ -46,7 +46,7 @@ public sealed class CsvFileWriter : BaseFileWriter
   /// <summary>
   /// Initializes a new instance of the <see cref="CsvFileWriter"/> class for writing delimited text or fixed-length files.
   /// </summary>
-  /// <param name="fullPath">The fully qualified path of the file to be written.</param>
+  /// <param name="mFullPath">The fully qualified path of the file to be written.</param>
   /// <param name="hasFieldHeader">Indicates whether a header row containing column names should be created.</param>
   /// <param name="valueFormat">The fallback value format for typed values that do not have a specific column configuration.</param>
   /// <param name="codePageId">The Code Page ID used for character encoding (default is 65001 for UTF-8).</param>
@@ -69,7 +69,7 @@ public sealed class CsvFileWriter : BaseFileWriter
   /// <param name="publicKey">The public key used for encrypting the output file (if supported by the writer).</param>
   /// <param name="unencrypted">If <c>true</c>, the unencrypted version of the file is preserved for reference when encryption is used.</param>
   public CsvFileWriter(
-    string fullPath,
+    string mFullPath,
     bool hasFieldHeader = true,
     in ValueFormat? valueFormat = null,
     int codePageId = 65001,
@@ -92,7 +92,7 @@ public sealed class CsvFileWriter : BaseFileWriter
     string publicKey = "",
     bool unencrypted = false
   )
-    : base(fullPath, valueFormat, identifierInContainer,
+    : base(mFullPath, valueFormat, identifierInContainer,
       footer, header, columnDefinition,
       fileSettingDisplay, publicKey, unencrypted)
   {

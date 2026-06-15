@@ -103,7 +103,7 @@ public static class Punctuation
   /// </remarks>
   public static char FromText(this ReadOnlySpan<char> inputString)
   {
-    // Do not trim early as a single /t would lost
+    // Do not trim early as a single /t would lose
     if (inputString.Length == 1)
       return inputString[0];
 

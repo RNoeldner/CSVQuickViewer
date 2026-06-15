@@ -70,7 +70,7 @@ public static class CsvHelper
     inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
     using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
     var disallowedDelimiter = new List<char>();
-    var delimiterByExtension = DetectionDelimiter.GetDelimiterByExtension(!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName);
+    var delimiterByExtension = (!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName).GetDelimiterByExtension();
 
     do
     {
@@ -157,7 +157,7 @@ public static class CsvHelper
   ///     is preserved even when moving between dealership environments with different file standards.
   ///   </para>
   /// </remarks>
-  public static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess,
+  private static async Task<Stream> GetStreamInMemoryAsync(this SourceAccess sourceAccess,
     CancellationToken cancellationToken)
   {
     // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
@@ -396,7 +396,7 @@ public static class CsvHelper
   /// <param name="stream">The stream to read data from</param>
   /// <param name="encoding">The encoding.</param>
   /// <returns><c>true</c> if XML could be read from stream; otherwise, <c>false</c>.</returns>
-  public static async Task<bool> InspectIsXmlReadableAsync(
+  private static async Task<bool> InspectIsXmlReadableAsync(
     this Stream stream,
     Encoding encoding)
   {
@@ -566,10 +566,9 @@ public static class CsvHelper
           .ConfigureAwait(false);
         inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(progress.CancellationToken)
           .ConfigureAwait(false);
-        if (!string.IsNullOrEmpty(inspectionResult.CommentLine))
-          progress.Report($"Comment Line: {inspectionResult.CommentLine}");
-        else
-          progress.Report("No Comment Line");
+        progress.Report(!string.IsNullOrEmpty(inspectionResult.CommentLine)
+          ? $"Comment Line: {inspectionResult.CommentLine}"
+          : "No Comment Line");
       }
 
       // --- Escape Prefix ---
@@ -584,10 +583,7 @@ public static class CsvHelper
             inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, progress.CancellationToken)
           .ConfigureAwait(false);
 
-        if (newPrefix != char.MinValue)
-          progress.Report($"Escape : {newPrefix}");
-        else
-          progress.Report("No Escape found");
+        progress.Report(newPrefix != char.MinValue ? $"Escape : {newPrefix}" : "No Escape found");
       }
 
       // --- Delimiter / Qualifier / NewLine ---
@@ -611,10 +607,9 @@ public static class CsvHelper
             inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
             m_QualifiersToTest, progress.CancellationToken);
 
-          if (qualifierResult.QuoteChar != char.MinValue)
-            progress.Report($"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}");
-          else
-            progress.Report("No Qualifier found");
+          progress.Report(qualifierResult.QuoteChar != char.MinValue
+            ? $"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}"
+            : "No Qualifier found");
 
           changedFieldQualifier = inspectionResult.FieldQualifier != qualifierResult.QuoteChar;
           inspectionResult.FieldQualifier = qualifierResult.QuoteChar;

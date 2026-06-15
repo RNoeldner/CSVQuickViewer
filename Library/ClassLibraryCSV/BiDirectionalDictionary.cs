@@ -165,7 +165,7 @@ public sealed class BiDirectionalDictionary<TKey, TValue> : IEnumerable<KeyValue
     {
       ThrowKeyNotFound(value);
     }
-    return key!;
+    return key;
   }
 
   /// <summary>

@@ -53,7 +53,7 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   private const char cLf = (char) 0x0a;
 
-  private static readonly char[] cCRLF = new[] { cCr, cLf };
+  private static readonly char[] cCRLF = [cCr, cLf,];
 
   /// <summary>
   ///   Non-breaking space character.
@@ -1119,7 +1119,7 @@ public class CsvFileReader : BaseFileReader
                 continue;
               numberQuestionMark++;
 
-              // If we have at least two and there are two consecutive or more than 3+ in 12
+              // If we have at least two and there are two consecutive or more than 3 in 12
               // characters, or 4+ in 16 characters
               if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
               {

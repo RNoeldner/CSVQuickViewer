@@ -564,7 +564,7 @@ public static class JsonTabularConverter
           case JsonToken.StartObject:
             var obj = JObject.Load(jsonReader);
 
-            // Sometime we get an extra layer and the actually array we look for is 
+            // Sometimes we get an extra layer and the actually array we look for is 
             // encapsulated e.G.    "result": { "items": [
             // this is track in hasArrayLevel1
             var hasArrayLevel1 = false;
@@ -580,28 +580,22 @@ public static class JsonTabularConverter
             {
               foreach (var prop in obj.Properties())
               {
-                if (prop.Value is JObject jObj)
+                if (prop.Value is not JObject jObj) continue;
+                var sub = jObj.Properties().ToList();
+                // Only in case we do not 1 to 2 properties, and we do not have any array
+                if (sub.Count >= 3) continue;
+                foreach (var subI in sub)
                 {
-                  var sub = jObj.Properties().ToList();
-                  // Only in case we do not 1 to 2 properties and we do not have any array
-                  if (sub.Count < 3)
-                  {
-                    foreach (var subI in sub)
-                    {
-                      if (subI.Value is JArray arr)
-                      {
-                        foreach (var item in arr.OfType<JObject>())
-                          yield return item;
-                        break;
-                      }
-                    }
-                  }
+                  if (subI.Value is not JArray arr) continue;
+                  foreach (var item in arr.OfType<JObject>())
+                    yield return item;
+                  break;
                 }
               }
             }
             else
             {
-              // Instaed of then making an yieldedArrayObjects we want these items
+              // Instead of then making an yieldedArrayObjects we want these items
               bool yieldedArrayObjects = false;
               foreach (var propToken in obj.Properties().Select(prop => prop.Value))
               {

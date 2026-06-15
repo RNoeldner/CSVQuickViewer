@@ -85,7 +85,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
   {
     if (m_DataReaderWrapper is null)
       return new DataTable();
-    // TODO: Is this needed? we report in GetDataTableAsync... Possily setting percentage
+    // TODO: Is this needed? we report in GetDataTableAsync... Possibly setting percentage
     m_DataReaderWrapper.ReportProgress = progress;
     var dataTable = await m_DataReaderWrapper.GetDataTableAsync(duration, progress).ConfigureAwait(false);
 

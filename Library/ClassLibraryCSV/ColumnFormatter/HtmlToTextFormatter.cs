@@ -19,7 +19,7 @@ using System.Data;
 namespace CsvTools;
 
 /// <summary>
-/// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, " 
+/// Formatter to handle HTML, this one handling only some special charters like linefeed, &lt;, &gt;, &quot; 
 /// </summary>
 public class HtmlToTextFormatter : BaseColumnFormatter
 {

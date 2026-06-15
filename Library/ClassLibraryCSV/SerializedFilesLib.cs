@@ -186,7 +186,7 @@ public static class SerializedFilesLib
   /// </summary>
   /// <param name="content">The Json content as text</param>
   /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
-  /// <exception cref="JsonException">$"Returned content could not be read as Json</exception>
+  /// <exception cref="JsonException">Returned content could not be read as Json</exception>
   public static JContainer DeserializeJson(this string content)
   {
     if (JsonConvert.DeserializeObject(content, JsonSerializerSettings.Value) is JContainer jsonData)

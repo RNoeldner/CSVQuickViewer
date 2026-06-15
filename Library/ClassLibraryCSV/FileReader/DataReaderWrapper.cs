@@ -396,7 +396,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     RecordNumber = 0;
     NumberRowWarnings = 0;
     // Return the task directly from the reader to avoid a local async state machine
-    return (m_FileReader != null) ? m_FileReader.ResetPositionToFirstDataRowAsync(cancellationToken) : default;
+    return m_FileReader?.ResetPositionToFirstDataRowAsync(cancellationToken) ?? default;
   }
 
   /// <inheritdoc />

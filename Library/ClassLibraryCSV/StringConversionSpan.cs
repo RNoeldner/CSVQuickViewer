@@ -173,7 +173,7 @@ public static class StringConversionSpan
   }
 
   /// <summary>
-  ///   Tries to determine the date time assuming its an Excel serial date time, using regional
+  ///   Tries to determine the date time assuming it's an Excel serial date time, using regional
   ///   and common decimal separators
   /// </summary>
   /// <param name="text">The Value as string</param>  
@@ -676,7 +676,7 @@ public static class StringConversionSpan
   ///   Parses a span of characters into a <see cref="long"/>.
   /// </summary>
   /// <param name="text">The input text.</param>
-  /// <param name="thousandSeparatorChar">The thousands separator. If not needed, pass '\0'.</param>
+  /// <param name="thousandSeparatorChar">The thousands' separator. If not needed, pass '\0'.</param>
   /// <returns>A <see cref="long"/> if successful, otherwise <c>null</c>.</returns>
   public static long? StringToInt64(
     this ReadOnlySpan<char> text,

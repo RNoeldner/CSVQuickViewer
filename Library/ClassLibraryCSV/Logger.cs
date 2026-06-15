@@ -60,7 +60,7 @@ public static class Logger
   }
 
   /// <summary>
-  /// Logs a error level message.
+  /// Logs an error level message.
   /// </summary>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>

@@ -673,7 +673,9 @@ public static class ClassLibraryCsvExtensionMethods
             result[pos++] = new2;
         }
         else
+        {
           result[pos++] = inputValue[i];
+        }
       }
       return result.Slice(0, pos).ToString();
     }

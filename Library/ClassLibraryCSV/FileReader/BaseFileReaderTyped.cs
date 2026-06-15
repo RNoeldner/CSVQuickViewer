@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -37,7 +36,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
 
   /// <summary>
   ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see
-  ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQl
+  ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQL
   /// </summary>
   /// <param name="fileName">Path to a physical file (if used)</param>
   /// <param name="columnDefinition">List of column definitions</param>
@@ -73,10 +72,6 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       return b;
     return base.GetBoolean(ordinal);
   }
-
-  /// <inheritdoc />
-  /// <exception cref="NotImplementedException"></exception>
-  public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)

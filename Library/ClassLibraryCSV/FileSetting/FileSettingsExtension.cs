@@ -32,7 +32,7 @@ public static class FileSettingsExtensionMethods
   /// <param name="fileSetting">The FileSetting</param>
   /// <param name="additionalInfo">Information that should be outputted as well</param>
   /// <param name="numRecords">Number of records that have been read, null if it's not know or should not be displayed</param>
-  /// <param name="isDelimited">True if its a delimited text file</param>
+  /// <param name="isDelimited">True if it's a delimited text file</param>
   /// <param name="cancellationToken">Cancellation Token to stop a possibly long running process</param>
   /// <returns>HTML Table</returns>
   public static async Task<string> GetFileInformationHtml(this IFileSettingPhysicalFile fileSetting,
@@ -120,26 +120,24 @@ public static class FileSettingsExtensionMethods
 
       try
       {
-        using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile)))
+        using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+        rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
+          csvFile.FieldDelimiterChar,
+          csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
+
+        improvedStream.Position = 0;
+
+        using var streamReader =
+          new StreamReader(improvedStream, Encoding.GetEncoding(csvFile.CodePageId),
+            false, 4096, false);
+        var numLines = 0;
+        while (!streamReader.EndOfStream)
         {
-          rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
-            csvFile.FieldDelimiterChar,
-            csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
-
-          improvedStream.Position = 0;
-
-          using var streamReader =
-            new StreamReader(improvedStream, Encoding.GetEncoding(csvFile.CodePageId),
-              false, 4096, false);
-          var numLines = 0;
-          while (!streamReader.EndOfStream)
-          {
-            numLines++;
-            await streamReader.ReadLineAsync().ConfigureAwait(false);
-          }
-
-          AddInfo("Number of Lines", numLines.ToString(CultureInfo.CurrentCulture));
+          numLines++;
+          await streamReader.ReadLineAsync().ConfigureAwait(false);
         }
+
+        AddInfo("Number of Lines", numLines.ToString(CultureInfo.CurrentCulture));
       }
       catch
       {
