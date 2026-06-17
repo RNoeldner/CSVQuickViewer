@@ -96,8 +96,8 @@ public class ErrorInformationTests : DisposableBase
     Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
     var res = errorInfo.GetErrorsAndWarnings();
-    Assert.AreEqual(2, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
-    Assert.AreEqual(2, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
+    Assert.AreEqual(2, res.Column.ToString().Count(x => x == ErrorInformation.cSeparator) + 1);
+    Assert.AreEqual(2, res.Message.ToString().Count(x => x == ErrorInformation.cSeparator) + 1);
   }
 
   [TestMethod]

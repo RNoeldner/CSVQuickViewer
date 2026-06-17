@@ -121,9 +121,9 @@ public static class ErrorInformation
   {
     var list = new List<ColumnAndMessage>();
     if (!string.IsNullOrEmpty(row.RowError))
-      list.Add(new ColumnAndMessage(string.Empty, row.RowError));
+      list.Add(new ColumnAndMessage(ReadOnlyMemory<char>.Empty, row.RowError.AsMemory()));
     list.AddRange(
-      row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
+      row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName.AsMemory(), row.GetColumnError(col).AsMemory())));
     return BuildList(list);
   }
 
@@ -136,15 +136,15 @@ public static class ErrorInformation
   /// </remarks>
   /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
   /// <returns>two strings first error second warnings</returns>
-  public static ColumnAndMessage GetErrorsAndWarnings(this ReadOnlySpan<char> errorList)
+  public static ColumnAndMessage GetErrorsAndWarnings(this string errorList)
   {
     var sbErrors = new StringBuilder();
     var sbWarning = new StringBuilder();
 
     foreach (var parts in ParseList(errorList))
     {
-      ReadOnlySpan<char> messageSpan = parts.Message.AsSpan();
-      ReadOnlySpan<char> columnSpan = parts.Column.AsSpan();
+      ReadOnlySpan<char> messageSpan = parts.Message.Span;
+      ReadOnlySpan<char> columnSpan = parts.Column.Span;
 
       var start = 0;
       while (start < messageSpan.Length)
@@ -182,7 +182,7 @@ public static class ErrorInformation
       }
     }
 
-    return new ColumnAndMessage(sbErrors.ToString(), sbWarning.ToString());
+    return new ColumnAndMessage(sbErrors.ToString().AsMemory(), sbWarning.ToString().AsMemory());
   }
 
   /// <summary>
@@ -244,20 +244,25 @@ public static class ErrorInformation
       return string.Empty;
 
     var list = new List<ColumnAndMessage>();
-    // Parallel.Foreach but it not reliable
     foreach (var entry in columnErrors)
     {
-      if (entry.Key < -1) continue;
-      var colName = getColumnName(entry.Key);
-      var start = 0;
-      while (start < entry.Value.Length)
+      if (entry.Key < -1 || entry.Value == null) continue;
+
+      var colNameMemory = getColumnName(entry.Key).AsMemory();
+      var valueMemory = entry.Value.AsMemory();
+      var span = valueMemory.Span;
+
+      int start = 0;
+      while (start < span.Length)
       {
-        var end = entry.Value.IndexOf(cSeparator, start + 1);
-        if (end == -1)
-          end = entry.Value.Length;
-        // Add one Line for each error in the column
-        list.Add(new ColumnAndMessage(colName, entry.Value.Substring(start, end - start)));
-        start = end + 1;
+        int end = span.Slice(start).IndexOf(cSeparator);
+        int length = (end == -1) ? span.Length - start : end;
+
+        // Slicing the existing memory instead of Substring
+        list.Add(new ColumnAndMessage(colNameMemory, valueMemory.Slice(start, length)));
+
+        if (end == -1) break;
+        start += length + 1;
       }
     }
 
@@ -278,34 +283,41 @@ public static class ErrorInformation
       return;
 
     foreach (var parts in ParseList(errorList))
-      if (parts.Column.Length == 0)
+    {
+      if (parts.Column.IsEmpty)
       {
         if (!onlyColumnErrors)
-          row.RowError = parts.Message;
+          row.RowError = parts.Message.ToString();
       }
       else
       {
+        var columnSpan = parts.Column.Span;
         var start = 0;
         // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
         // in each column
-        while (start < parts.Column.Length)
+        while (start < columnSpan.Length)
         {
-          var end = parts.Column.IndexOf(cFieldSeparator, start + 1);
+          var end = columnSpan.Slice(start).IndexOf(cFieldSeparator);
           if (end == -1)
             end = parts.Column.Length;
-          var colName = parts.Column.Substring(start, end - start);
-          if (row.Table.Columns.Contains(colName) && !string.IsNullOrEmpty(parts.Message))
-            row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(parts.Message));
-          else
+          var colName = columnSpan.Slice(start, end).ToString();
+
+          if (row.Table.Columns.Contains(colName) && !parts.Message.IsEmpty)
           {
-            if (!onlyColumnErrors)
-              row.RowError = row.RowError.AddMessage(
-                CombineColumnAndError(parts.Column, parts.Message));
+            var currentError = row.GetColumnError(colName);
+            // Assuming AddMessage can handle string and span/memory
+            row.SetColumnError(colName, currentError.AsSpan().AddMessage(parts.Message.Span));
+          }
+          else if (!onlyColumnErrors)
+          {
+            row.RowError = row.RowError.AsSpan().AddMessage(
+              CombineColumnAndError(columnSpan.Slice(start, end), parts.Message.Span));
           }
 
-          start = end + 1;
+          start += end + 1;
         }
       }
+    }
   }
 
   /// <summary>
@@ -329,11 +341,11 @@ public static class ErrorInformation
   {
     var errors = new StringBuilder();
     // False before True in Linq order by
-    foreach (var entry in errorList.OrderBy(part => part.Message.IsWarningMessage()))
+    foreach (var entry in errorList.OrderBy(part => part.Message.Span.IsWarningMessage()))
     {
       if (errors.Length > 0)
         errors.Append(cSeparator);
-      errors.Append(CombineColumnAndError(entry.Column, entry.Message));
+      errors.Append(CombineColumnAndError(entry.Column.Span, entry.Message.Span));
     }
 
     return errors.ToString();
@@ -344,22 +356,26 @@ public static class ErrorInformation
   /// </summary>
   /// <param name="errorList">The combined error text.</param>
   /// <returns>A list of messages with column information.</returns>
-  private static List<ColumnAndMessage> ParseList(ReadOnlySpan<char> errorList)
+  private static IEnumerable<ColumnAndMessage> ParseList(string errorList)
   {
-    var result = new List<ColumnAndMessage>();
-    if (errorList.IsEmpty)
-      return result;
-    
+    if (string.IsNullOrEmpty(errorList))
+      yield break;
+
+    var memory = errorList.AsMemory();
     int start = 0;
-    while (start < errorList.Length)
+
+    while (start < memory.Length)
     {
-      int end = errorList.Slice(start + 1).IndexOf(cSeparator)+1;
-      if (end == 0)
-        end = errorList.Length - start;
-      result.Add(SplitColumnAndMessage(errorList.Slice(start, end )));
-      start += end + 1;
+      // Find the next separator
+      int index = memory.Span.Slice(start).IndexOf(cSeparator);
+      int length = (index == -1) ? memory.Length - start : index;
+
+      // Yield the split result using memory slices
+      yield return SplitColumnAndMessage(memory.Slice(start, length));
+
+      if (index == -1) break;
+      start += length + 1;
     }
-    return result;
   }
 
 
@@ -368,22 +384,10 @@ public static class ErrorInformation
   /// </summary>
   public readonly struct ColumnAndMessage
   {
-    /// <summary>
-    /// Name of the Column
-    /// </summary>
-    public readonly string Column;
+    public readonly ReadOnlyMemory<char> Column;
+    public readonly ReadOnlyMemory<char> Message;
 
-    /// <summary>
-    /// Message for this column
-    /// </summary>
-    public readonly string Message;
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    /// <param name="column"></param>
-    /// <param name="message"></param>
-    public ColumnAndMessage(string column, string message)
+    public ColumnAndMessage(ReadOnlyMemory<char> column, ReadOnlyMemory<char> message)
     {
       Column = column;
       Message = message;
@@ -393,20 +397,23 @@ public static class ErrorInformation
   /// <summary>
   ///   Splits column and error information
   /// </summary>
-  /// <param name="span">Text span with the message</param>  
-  /// <returns></returns>
-  private static ColumnAndMessage SplitColumnAndMessage(ReadOnlySpan<char> span)
+  /// <param name="memory">Text span with the message</param>  
+  private static ColumnAndMessage SplitColumnAndMessage(ReadOnlyMemory<char> memory)
   {
+    var span = memory.Span;
     if (!span.IsEmpty && span[0] == cOpenField)
     {
       var close = span.Slice(1).IndexOf(cClosingField);
       if (close == -1)
-        return new ColumnAndMessage(string.Empty, span.ToString());
-      var column = span.Slice(1, close).ToString();
-      var message = span.Slice(close + 3).ToString();
+        return new ColumnAndMessage(ReadOnlyMemory<char>.Empty, memory);
+
+      // Slice the memory directly
+      var column = memory.Slice(1, close);
+      // Symetrical to CombineColumnAndError need 3 as we have a space
+      var message = memory.Slice(close + 3);
       return new ColumnAndMessage(column, message);
     }
-    return new ColumnAndMessage(string.Empty, span.ToString());
+    return new ColumnAndMessage(ReadOnlyMemory<char>.Empty, memory);
   }
 
 }
