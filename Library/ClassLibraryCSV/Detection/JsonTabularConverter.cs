@@ -539,13 +539,13 @@ public static class JsonTabularConverter
 
     IEnumerable<JObject> Enumerate()
     {
-#if DEBUG
-      var txt = reader.ReadToEnd();
-      using var sr = new StringReader(txt);
-      var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
-#else
+//#if DEBUG
+//      var txt = reader.ReadToEnd();
+//      using var sr = new StringReader(txt);
+//      var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
+//#else
       var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
-#endif
+//#endif
       // There is no async method for this so all keeps synchronous
       while (jsonReader.Read())
       {
@@ -578,6 +578,8 @@ public static class JsonTabularConverter
             }
             if (!hasArrayLevel1)
             {
+              // Looking for Array, but as long as we did not find anything, use old implemnetaion
+              hasArrayLevel1=true;
               foreach (var prop in obj.Properties())
               {
                 if (prop.Value is not JObject jObj) continue;
@@ -587,13 +589,16 @@ public static class JsonTabularConverter
                 foreach (var subI in sub)
                 {
                   if (subI.Value is not JArray arr) continue;
+                  // We have found a array, 
+                  hasArrayLevel1=false;
                   foreach (var item in arr.OfType<JObject>())
                     yield return item;
                   break;
                 }
               }
             }
-            else
+            // hasArrayLevel1 coulod have been chnaged above...
+            if (hasArrayLevel1)
             {
               // Instead of then making an yieldedArrayObjects we want these items
               bool yieldedArrayObjects = false;

@@ -77,10 +77,10 @@ public class FilterDataTableTests
   [TestMethod]
   public async Task FilterWarningTestAsync()
   {
-    var (dt, _, warn) = GetDataTable(2000);
+    var (dt, _, warnigRows) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    await test.FilterAsync(0, RowFilterTypeEnum.Warning, UnitTestStatic.Token);
-    Assert.AreEqual(warn, test.OriginalTable!.Rows.Count);
+    (var DataTable, var NumWarning, var NumErrors, var NumWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Warning, UnitTestStatic.Token);
+    Assert.AreEqual(warnigRows, DataTable.Rows.Count);
   }
 
   [TestMethod]
@@ -88,8 +88,8 @@ public class FilterDataTableTests
   {
     var (dt, err, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    await test.FilterAsync(0, RowFilterTypeEnum.Errors, UnitTestStatic.Token);
-    Assert.AreEqual(err, test.OriginalTable!.Rows.Count);
+    (var DataTable, var NumWarning, var NumErrors, var NumWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Errors, UnitTestStatic.Token);
+    Assert.AreEqual(err, DataTable.Rows.Count);
   }
 
   [TestMethod]
@@ -115,7 +115,7 @@ public class FilterDataTableTests
   {
     var (dt, err, warn) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    var (res, _, _, _) = await test.FilterAsync(0, RowFilterTypeEnum.All, UnitTestStatic.Token);
+    var (res, _, _, _) = await test.FilterAsync(0, RowFilterTypeEnum.Clean, UnitTestStatic.Token);
     Assert.AreEqual(dt.Rows.Count - err - warn, res.Rows.Count);
   }
 
