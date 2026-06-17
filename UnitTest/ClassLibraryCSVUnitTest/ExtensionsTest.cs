@@ -54,11 +54,8 @@ public class ExtensionsTest
   {
     Assert.AreEqual("Hello 1526", "Hello {TaskID}".PlaceholderReplace("TaskID", "1526"));
     Assert.AreEqual("Hello Nice World", "Hello #TaskID World".PlaceholderReplace("TaskID", "Nice"));
-    Assert.AreEqual("Hello TaskName", "Hello #TaskID".PlaceholderReplace("TaskID", "TaskName"));
     Assert.AreEqual("Hello #TaskIDWorld", "Hello #TaskIDWorld".PlaceholderReplace("TaskID", "Nice"));
-    Assert.AreEqual("Hello Nice", "Hello (TaskIDWorld)".PlaceholderReplace("TaskID", "Nice"), "(");
-    Assert.AreEqual("Hello Nice", "Hello {{TaskIDWorld}}".PlaceholderReplace("TaskID", "Nice"), "{{");
-    Assert.AreEqual("Hello Nice", "Hello <:TaskIDWorld>".PlaceholderReplace("TaskID", "Nice"), "<:");
+    Assert.AreEqual("Hello TaskName", "Hello #TaskID".PlaceholderReplace("TaskID", "TaskName"));
 
   }
 

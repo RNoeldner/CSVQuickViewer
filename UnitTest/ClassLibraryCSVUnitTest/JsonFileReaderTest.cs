@@ -91,6 +91,30 @@ public class JsonFileReaderTest
 
   [TestMethod]
   [Timeout(2000)]
+  public async Task GetBytes()
+  {
+    using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"));
+    await jfr.OpenAsync(UnitTestStatic.Token);
+    await jfr.ReadAsync(UnitTestStatic.Token);
+
+    var buffer = new byte[200];
+    Assert.AreEqual(7, jfr.GetBytes(1, 0, buffer, 0, 100));
+    try
+    {
+      jfr.GetData(2);
+      Assert.Fail("GetData - No Exception");
+    }
+    catch (NotImplementedException)
+    {
+    }
+    catch (Exception ex)
+    {
+      Assert.Fail($"GetData - Wrong type of exception  {ex.GetType().Name}");
+    }
+  }
+
+  [TestMethod]
+  [Timeout(2000)]
   public async Task ReadJSonTypes()
   {
     using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
