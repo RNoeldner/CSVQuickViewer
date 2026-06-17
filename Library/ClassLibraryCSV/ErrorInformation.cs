@@ -54,40 +54,21 @@ public static class ErrorInformation
   ///   usually messages are appended, unless they are errors and the list contains only warnings
   ///   so far
   /// </returns>
-  public static string AddMessage(this string errorList, string newError, bool isWarning)
+  public static string AddMessage(this ReadOnlySpan<char> errorList, ReadOnlySpan<char> newError, bool isWarning)
   {
-    if (string.IsNullOrEmpty(newError))
+    if (newError.IsEmpty)
       throw new ArgumentException("Error can not be empty", nameof(newError));
 
     // no need to check for null
     if (errorList.Length == 0)
-      return newError;
+      return newError.ToString();
 
     // if the message is already in the text do not do anything
-    if (errorList.Contains(newError))
-      return errorList;
-
-    var sb = new StringBuilder(errorList.Length + newError.Length + 1);
-
-    // If the new message is considered an error put it in front, this way it's easier to check if
-    // there is an error
-    if (isWarning)
-    {
-      // Append to previous messages
-      sb.Append(errorList);
-      sb.Append(cSeparator);
-      sb.Append(cWarningId);
-      sb.Append(newError);
-    }
-    else
-    {
-      // Put in front of previous messages, to have errors first
-      sb.Append(newError);
-      sb.Append(cSeparator);
-      sb.Append(errorList);
-    }
-
-    return sb.ToString();
+    if (errorList.Contains(newError, StringComparison.Ordinal))
+      return errorList.ToString();
+    return isWarning
+        ? string.Concat(errorList.ToString(), cSeparator.ToString(), newError.AddWarningId())
+        : string.Concat(newError.ToString(), cSeparator.ToString(), errorList.ToString());
   }
 
   /// <summary>
@@ -100,74 +81,19 @@ public static class ErrorInformation
   ///   usually messages are appended, unless they are errors and the list contains only warnings
   ///   so far
   /// </returns>
-  public static string AddMessage(this string errorList, string newError)
-  {
-    if (string.IsNullOrEmpty(newError))
-      throw new ArgumentException("Error can not be empty", nameof(newError));
-
-    // no need to check for null
-    if (errorList.Length == 0)
-      return newError;
-
-    // if the message is already in the text do not do anything
-    if (errorList.Contains(newError))
-      return errorList;
-
-    var sb = new StringBuilder(errorList.Length + newError.Length + 1);
-
-    // If the new message is considered an error put it in front, this way it's easier to check if
-    // there is an error
-    if (newError.IsWarningMessage())
-    {
-      // Append to previous messages
-      sb.Append(errorList);
-      sb.Append(cSeparator);
-      sb.Append(newError);
-    }
-    else
-    {
-      // Put in front of previous messages, to have errors first
-      sb.Append(newError);
-      sb.Append(cSeparator);
-      sb.Append(errorList);
-    }
-
-    return sb.ToString();
-  }
-
+  public static string AddMessage(this ReadOnlySpan<char> errorList, ReadOnlySpan<char> newError)
+    => AddMessage(errorList, newError, newError.IsWarningMessage());
+ 
   /// <summary>
   ///   String method to add the warning identifier to an error message
   /// </summary>
   /// <param name="message">The message that should get the ID</param>
   /// <returns>The text with the leading WarningID</returns>
-  public static string AddWarningId(this string message)
+  public static string AddWarningId(this ReadOnlySpan<char> message)
   {
-    if (message.Length == 0 || message.StartsWith(cWarningId, StringComparison.Ordinal))
-      return message;
-
-    var sb = new StringBuilder();
-    sb.Append(cWarningId);
-    sb.Append(message);
-    return sb.ToString();
-  }
-
-  /// <summary>
-  ///   Method to add the warning identifier to an error message
-  /// </summary>
-  /// <param name="message">The message that should get the ID</param>
-  /// <param name="buffer">The span that will be modified</param>
-  /// <returns>The text with the leading WarningID</returns>
-  public static int AddWarningId(ReadOnlySpan<char> message, Span<char> buffer)
-  {
-    if (message.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
-    {
-      message.CopyTo(buffer);
-      return message.Length;
-    }
-
-    cWarningId.AsSpan().CopyTo(buffer);
-    message.CopyTo(buffer.Slice(cWarningId.Length));
-    return cWarningId.Length + message.Length;
+    if (message.Length == 0 || message.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
+      return message.ToString();
+    return string.Concat(cWarningId, message.ToString());
   }
 
   /// <summary>
@@ -176,14 +102,14 @@ public static class ErrorInformation
   /// <param name="column">The column.</param>
   /// <param name="errorMessage">The error message.</param>
   /// <returns>An error message to be stored</returns>
-  public static string CombineColumnAndError(string column, string errorMessage)
+  public static string CombineColumnAndError(ReadOnlySpan<char> column, ReadOnlySpan<char> errorMessage)
   {
-    if (string.IsNullOrEmpty(errorMessage))
+    if (errorMessage.IsEmpty)
       throw new ArgumentNullException(nameof(errorMessage));
     // pass back messages that already have column information
     if (column.Length == 0 && errorMessage[0] == cOpenField)
-      return errorMessage;
-    return $"{cOpenField}{column}{cClosingField} {errorMessage}";
+      return errorMessage.ToString();
+    return $"{cOpenField}{column.ToString()}{cClosingField} {errorMessage.ToString()}";
   }
 
   /// <summary>
@@ -210,45 +136,53 @@ public static class ErrorInformation
   /// </remarks>
   /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
   /// <returns>two strings first error second warnings</returns>
-  public static ColumnAndMessage GetErrorsAndWarnings(this string errorList)
+  public static ColumnAndMessage GetErrorsAndWarnings(this ReadOnlySpan<char> errorList)
   {
     var sbErrors = new StringBuilder();
-    var sbWaring = new StringBuilder();
+    var sbWarning = new StringBuilder();
 
     foreach (var parts in ParseList(errorList))
     {
-      // errors are in front so if overall message is not an error there is no error
+      ReadOnlySpan<char> messageSpan = parts.Message.AsSpan();
+      ReadOnlySpan<char> columnSpan = parts.Column.AsSpan();
+
       var start = 0;
-      while (start < parts.Message.Length)
+      while (start < messageSpan.Length)
       {
-        var end = parts.Message.IndexOf(cSeparator, start + 1);
-        if (end == -1)
-          end = parts.Message.Length;
-        if (start < end)
+        var end = messageSpan.Slice(start).IndexOf(cSeparator);
+        int length = (end == -1) ? messageSpan.Length - start : end;
+
+        if (length > 0)
         {
-          var part = parts.Message.Substring(start, end - start);
+          ReadOnlySpan<char> part = messageSpan.Slice(start, length);
+
           if (part.IsWarningMessage())
           {
-            if (sbWaring.Length > 0)
-              sbWaring.Append(cSeparator);
-            sbWaring.Append(
-              parts.Column.Length == 0
-                ? part.WithoutWarningId()
-                : CombineColumnAndError(parts.Column, part.WithoutWarningId()));
+            if (sbWarning.Length > 0) sbWarning.Append(cSeparator);
+
+            // Slice the warning ID off directly without temporary strings
+            ReadOnlySpan<char> cleanPart = part.Slice(cWarningId.Length);
+
+            sbWarning.Append(columnSpan.IsEmpty
+                ? cleanPart.ToString()
+                : CombineColumnAndError(columnSpan, cleanPart));
           }
           else
           {
-            if (sbErrors.Length > 0)
-              sbErrors.Append(cSeparator);
-            sbErrors.Append(parts.Column.Length == 0 ? part : CombineColumnAndError(parts.Column, part));
+            if (sbErrors.Length > 0) sbErrors.Append(cSeparator);
+
+            sbErrors.Append(columnSpan.IsEmpty
+                ? part.ToString()
+                : CombineColumnAndError(columnSpan, part));
           }
         }
 
-        start = end + 1;
+        if (end == -1) break;
+        start += length + 1;
       }
     }
 
-    return new ColumnAndMessage(sbErrors.ToString(), sbWaring.ToString());
+    return new ColumnAndMessage(sbErrors.ToString(), sbWarning.ToString());
   }
 
   /// <summary>
@@ -259,7 +193,7 @@ public static class ErrorInformation
   ///   <c>true</c> if the text should be regarded as an error message, <c>false</c> if it's a
   ///   warning message or empty
   /// </returns>
-  public static bool IsErrorMessage(this string errorList)
+  public static bool IsErrorMessage(this ReadOnlySpan<char> errorList)
   {
     if (errorList.Length == 0)
       return false;
@@ -274,42 +208,27 @@ public static class ErrorInformation
   ///   <c>true</c> if the text should be regarded as a warning message, <c>false</c> if it's an
   ///   error message or empty.
   /// </returns>
-  public static bool IsWarningMessage(this string? errorList)
+  public static bool IsWarningMessage(this ReadOnlySpan<char> errorList)
   {
     // Compiler flow analysis understands that errorList is non-null after this.
-    if (errorList == null || errorList.Length == 0)
+    if (errorList.IsEmpty)
       return false;
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    ReadOnlySpan<char> span = errorList.AsSpan();
     ReadOnlySpan<char> warnId = cWarningId.AsSpan();
 
     // 1. Direct match at start
-    if (span.StartsWith(warnId, StringComparison.Ordinal))
+    if (errorList.StartsWith(warnId, StringComparison.Ordinal))
       return true;
 
     // 2. Match after first field (e.g., "[ColumnName]: [WARNING]")
-    var splitter = span.IndexOf(cClosingField);
-    if (splitter != -1)
-    {
-      var startIdx = splitter + 2;
-      // Safety check to ensure we don't slice out of bounds
-      if (startIdx <= span.Length - warnId.Length)
-        return span.Slice(startIdx).StartsWith(warnId, StringComparison.Ordinal);
-    }
-#else
-    // Legacy path: string.Compare avoids the heap allocations of .Substring()
-    if (errorList.StartsWith(cWarningId, StringComparison.Ordinal))
-      return true;
-
     var splitter = errorList.IndexOf(cClosingField);
     if (splitter != -1)
     {
       var startIdx = splitter + 2;
-      if (startIdx <= errorList.Length - cWarningId.Length)
-        return string.Compare(errorList, startIdx, cWarningId, 0, cWarningId.Length, StringComparison.Ordinal) == 0;
+      // Safety check to ensure we don't slice out of bounds
+      if (startIdx <= errorList.Length - warnId.Length)
+        return errorList.Slice(startIdx).StartsWith(warnId, StringComparison.Ordinal);
     }
-#endif
     return false;
   }
 
@@ -349,7 +268,7 @@ public static class ErrorInformation
   ///   Set the Row and Column errors of the DataRow, based on parameter
   /// </summary>
   /// <param name="row">The DataRow that will get the error information</param>
-  /// <param name="errorList"></param>
+  /// <param name="errorList">A text containing different types of messages that are concatenated</param>
   /// <param name="onlyColumnErrors">If set true, row errors will not be set</param>
   public static void SetErrorInformation(this DataRow row, string errorList, bool onlyColumnErrors = false)
   {
@@ -394,18 +313,11 @@ public static class ErrorInformation
   /// </summary>
   /// <param name="errorList">A text containing different types of messages that are concatenated</param>
   /// <returns>The text without the leading WarningID</returns>
-  public static string WithoutWarningId(this string errorList)
-  {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    ReadOnlySpan<char> span = errorList.AsSpan();
-    return span.Length <= cWarningId.Length
-      ? errorList
-      : span.Slice(cWarningId.Length).ToString();
-#else
+  public static string WithoutWarningId(this ReadOnlySpan<char> errorList)
+  {    
     return errorList.Length <= cWarningId.Length
-      ? errorList
-      : errorList.Substring(cWarningId.Length);
-#endif
+      ? errorList.ToString()
+      : errorList.Slice(cWarningId.Length).ToString();
   }
 
   /// <summary>
@@ -413,7 +325,6 @@ public static class ErrorInformation
   ///   duplicates though
   /// </summary>
   /// <param name="errorList">The error list.</param>
-  /// <returns></returns>
   private static string BuildList(in IEnumerable<ColumnAndMessage> errorList)
   {
     var errors = new StringBuilder();
@@ -433,35 +344,21 @@ public static class ErrorInformation
   /// </summary>
   /// <param name="errorList">The combined error text.</param>
   /// <returns>A list of messages with column information.</returns>
-  private static List<ColumnAndMessage> ParseList(string errorList)
+  private static List<ColumnAndMessage> ParseList(ReadOnlySpan<char> errorList)
   {
     var result = new List<ColumnAndMessage>();
-    if (string.IsNullOrEmpty(errorList))
+    if (errorList.IsEmpty)
       return result;
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    ReadOnlySpan<char> span = errorList.AsSpan();
-    int start = 0;
-    while (start < span.Length)
-    {
-      int end = span.Slice(start + 1).IndexOf(cSeparator)+1;
-      if (end == 0)
-        end = span.Length - start;
-      result.Add(SplitColumnAndMessage(span.Slice(start, end )));
-      start += end + 1;
-    }
-#else
+    
     int start = 0;
     while (start < errorList.Length)
     {
-      int end = errorList.IndexOf(cSeparator, start + 1);
-      if (end == -1)
-        end = errorList.Length;
-      result.Add(SplitColumnAndMessage(errorList.Substring(start, end - start)));
-      start = end + 1;
+      int end = errorList.Slice(start + 1).IndexOf(cSeparator)+1;
+      if (end == 0)
+        end = errorList.Length - start;
+      result.Add(SplitColumnAndMessage(errorList.Slice(start, end )));
+      start += end + 1;
     }
-#endif
-
     return result;
   }
 
@@ -493,7 +390,6 @@ public static class ErrorInformation
     }
   }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   /// <summary>
   ///   Splits column and error information
   /// </summary>
@@ -512,35 +408,5 @@ public static class ErrorInformation
     }
     return new ColumnAndMessage(string.Empty, span.ToString());
   }
-#endif
 
-  /// <summary>
-  ///   Splits column and error information
-  /// </summary>
-  /// <param name="text">The column with error.</param>
-  /// <returns></returns>
-  private static ColumnAndMessage SplitColumnAndMessage(string text)
-  {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    ReadOnlySpan<char> span = text.AsSpan();
-    if (!span.IsEmpty && span[0] == cOpenField)
-    {
-      var close = span.Slice(1).IndexOf(cClosingField);
-      if (close == -1)
-        return new ColumnAndMessage(string.Empty, text);
-      // TODO: There is possibly still an error  if we have two warning messages for two columns this seems to fails
-      // without the trim, this should not happen
-      var column = span.Slice(1, close).Trim().ToString();
-      var message = span.Slice(close + 3).Trim().ToString();
-      return new ColumnAndMessage(column, message);
-    }
-    return new ColumnAndMessage(string.Empty, text);
-#else
-    if (text.Length <= 0 || text[0] != cOpenField) return new ColumnAndMessage(string.Empty, text);
-    var close = text.IndexOf(cClosingField);
-    return close == -1
-      ? new ColumnAndMessage(string.Empty, text)
-      : new ColumnAndMessage(text.Substring(1, close - 1), text.Substring(close + 2));
-#endif
-  }
 }
