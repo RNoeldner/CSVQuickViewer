@@ -334,8 +334,7 @@ public static class StringConversionSpan
   {
     var stringDateValue = text.Trim();
 
-    var result = StringToDateTimeExact(text, dateFormats, dateSeparatorChar, timeSeparatorChar,
-      CultureInfo.CurrentCulture);
+    var result = StringToDateTimeExact(text, dateFormats, dateSeparatorChar, timeSeparatorChar, CultureInfo.CurrentCulture);
     if (result.HasValue)
       return result.Value;
 

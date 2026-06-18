@@ -13,8 +13,10 @@
  */
 #nullable enable
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace CsvTools;
 
@@ -31,50 +33,89 @@ public static class StringConversion
   /// <returns>Formatted value</returns>
   public static string DateTimeToString(this DateTime dateTime, ValueFormat format) =>
     DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
-
   /// <summary>
-  ///   Converts a dates to string
+  /// Converts a <see cref="DateTime"/> to a formatted string using custom date and time separators.
   /// </summary>
-  /// <param name="dateTime">The date time.</param>
-  /// <param name="dateFormat">The format.</param>
-  /// <param name="dateSeparator">The date separator.</param>
-  /// <param name="timeSeparator">The time separator.</param>
-  /// <param name="cultureInfo"></param>
-  /// <returns>Formatted value</returns>
-  public static string DateTimeToString(DateTime dateTime, string dateFormat, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
+  /// <remarks>
+  /// If the <paramref name="formatSpan"/> contains "HHH", the method calculates the total hours 
+  /// elapsed since a defined constant (<see cref="DateTimeConstants.FirstDateTime"/>) and 
+  /// applies padding based on the number of 'H' characters, bypassing standard format providers 
+  /// for the hour component.
+  /// </remarks>
+  /// <param name="dateTime">The <see cref="DateTime"/> value to convert.</param>
+  /// <param name="formatSpan">The format string (e.g., "yyyy-MM-dd HH:mm").</param>
+  /// <param name="dateSeparator">The character used to replace standard date separators.</param>
+  /// <param name="timeSeparator">The character used to replace standard time separators.</param>
+  /// <param name="cultureInfo">The <see cref="CultureInfo"/> used for formatting. Defaults to <see cref="CultureInfo.InvariantCulture"/> if null.</param>
+  /// <returns>A string representation of the <paramref name="dateTime"/> formatted according to the specified parameters.</returns>
+  public static string DateTimeToString(DateTime dateTime, ReadOnlySpan<char> formatSpan, char dateSeparator, char timeSeparator, CultureInfo? cultureInfo = null)
   {
     cultureInfo ??= CultureInfo.InvariantCulture;
-
-    // replacing the format placeholder with constants, to be replaced back later
-    if (!dateFormat.Contains("HHH"))
-      return dateTime.ToString(dateFormat.Replace('/', '\uFFF9').Replace(':', '\uFFFA'), cultureInfo)
-        .Replace('\uFFF9', dateSeparator).Replace('\uFFFA', timeSeparator);
-    var pad = 2;
-
-    // only allow format that has time values
-    // ReSharper disable once StringLiteralTypo
-    const string allowed = " Hhmsf:";
-
-    var result = dateFormat.Where(chr => allowed.IndexOf(chr) != -1)
-      .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
-    // make them all upper case H lower case does not make sense
-    while (result.Contains("h"))
-      result = result.Replace("h", "H");
-
-    for (var length = 5; length > 2; length--)
+    if (!formatSpan.Contains("HHH".AsSpan(), StringComparison.OrdinalIgnoreCase))
     {
-      var search = new string('H', length);
-      if (!result.Contains(search))
-        continue;
-      result = result.Replace(search, "HH");
-      pad = length;
-      break;
+      // Rent a buffer from the pool to avoid heap allocation
+      char[] buffer = ArrayPool<char>.Shared.Rent(formatSpan.Length);
+      try
+      {
+        for (int i = 0; i < formatSpan.Length; i++)
+        {
+          char c = formatSpan[i];
+          if (c == '/') buffer[i] = dateSeparator;
+          else if (c == ':') buffer[i] = timeSeparator;
+          else buffer[i] = c;
+        }
+        // Create string from the buffer
+        return dateTime.ToString(new string(buffer, 0, formatSpan.Length), cultureInfo);
+
+      }
+      finally
+      {
+        // Always return the buffer to the pool
+        ArrayPool<char>.Shared.Return(buffer);
+      }
     }
 
-    var strFormat = "{0:" + new string('0', pad) + "}".Replace('/', '\uFFF9').Replace(':', '\uFFFA');
-    return dateTime.ToString(
-        result.Replace("HH", string.Format(cultureInfo, strFormat, Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours))), cultureInfo)
-      .Replace('\uFFF9', dateSeparator).Replace('\uFFFA', timeSeparator);
+    // Measure the length for teh hours block
+    var lengthHours = 0;
+    var consecutiveHours = true;
+    for (int i = 0; i < formatSpan.Length; i++)
+    {
+      char c = formatSpan[i];
+      if (c=='h' || c=='H')
+      {
+        if (consecutiveHours)
+          lengthHours++;
+        consecutiveHours = true;
+      }
+      else
+        consecutiveHours = false;
+    }
+
+    StringBuilder newFormatTimeOnly = new StringBuilder();
+    bool hasHours = false;
+    for (int i = 0; i < formatSpan.Length; i++)
+    {
+      char c = formatSpan[i];
+      if (c=='h' || c=='H')
+      {
+        if (!hasHours)
+        {
+          var hours = (long) Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours);
+          int digits = (hours == 0) ? 1 : (int) Math.Floor(Math.Log10(hours)) + 1;
+          if (lengthHours > digits)
+            newFormatTimeOnly.Append(hours.ToString(new string('0', lengthHours)));
+          else
+            newFormatTimeOnly.Append(hours.ToString(CultureInfo.InvariantCulture));
+        }
+        hasHours = true;
+      }
+      if (c=='m' || c=='s' || c=='f' || c==' ' || c=='.')
+        newFormatTimeOnly.Append(c);
+      if (c == ':')
+        newFormatTimeOnly.Append(timeSeparator);
+    }
+
+    return dateTime.ToString(newFormatTimeOnly.ToString(), cultureInfo);
   }
 
   /// <summary>

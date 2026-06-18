@@ -178,6 +178,19 @@ public class StringToDateTimeTest
     for (var count = 0; count < 100000; count++)
       Assert.IsNull(OldStringToDateTime("Quatsch", @"MM/dd/yyyy", '/', ":"));
   }*/
+  [TestMethod]
+  public void TestConvertDateToStringTimes()
+  {
+
+    var dateTime2 = DateTimeConstants.FirstDateTime.AddHours(1245).AddMinutes(23).AddSeconds(12).AddMilliseconds(167);
+    Assert.AreEqual("1245:23", StringConversion.DateTimeToString(dateTime2, @"HHH:mm", char.MinValue, ':'));
+
+
+    var dateTime = DateTimeConstants.FirstDateTime.AddHours(245).AddMinutes(23).AddSeconds(12).AddMilliseconds(167);
+    
+    Assert.AreEqual("245:23:12", StringConversion.DateTimeToString(dateTime, @"HHH:mm:ss", char.MinValue, ':'));
+    Assert.AreEqual("0245:23:12.167", StringConversion.DateTimeToString(dateTime, @"HHHH:mm:ss.fff", char.MinValue, ':'));
+  }
 
   [TestMethod]
   public void TestConvertDateToString()
@@ -202,6 +215,8 @@ public class StringToDateTimeTest
     actual = StringConversion.DateTimeToString(dateTime, @"yyyy-MM-dd HH:mm:ss.fff", '-', ':');
     Assert.AreEqual("2001-10-17 12:01:02.009", actual);
   }
+
+
 
   [TestMethod]
   public void TryParseGbWithUsDate()
