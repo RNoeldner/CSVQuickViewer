@@ -238,7 +238,7 @@ public static class ErrorInformation
   /// <param name="columnErrors">The column errors by column number</param>
   /// <param name="getColumnName">A Function to get the column name</param>
   /// <returns>The error message with a resulting of the column number to the column name</returns>
-  public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, Func<int, string> getColumnName)
+  public static string ReadErrorInformation(IDictionary<int, ReadOnlyMemory<char>>? columnErrors, Func<int, string> getColumnName)
   {
     if (columnErrors is null || columnErrors.Count == 0)
       return string.Empty;
@@ -246,11 +246,10 @@ public static class ErrorInformation
     var list = new List<ColumnAndMessage>();
     foreach (var entry in columnErrors)
     {
-      if (entry.Key < -1 || entry.Value == null) continue;
+      if (entry.Key < -1 || entry.Value.IsEmpty) continue;
 
       var colNameMemory = getColumnName(entry.Key).AsMemory();
-      var valueMemory = entry.Value.AsMemory();
-      var span = valueMemory.Span;
+      var span = entry.Value.Span;
 
       int start = 0;
       while (start < span.Length)
@@ -259,7 +258,7 @@ public static class ErrorInformation
         int length = (end == -1) ? span.Length - start : end;
 
         // Slicing the existing memory instead of Substring
-        list.Add(new ColumnAndMessage(colNameMemory, valueMemory.Slice(start, length)));
+        list.Add(new ColumnAndMessage(colNameMemory, entry.Value.Slice(start, length)));
 
         if (end == -1) break;
         start += length + 1;

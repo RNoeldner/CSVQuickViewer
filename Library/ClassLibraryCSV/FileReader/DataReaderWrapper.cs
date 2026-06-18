@@ -36,7 +36,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// Data Reader, that might be reset by overriding class <see cref="DataTableWrapper"/>
   /// </summary>
   protected IDataReader DataReader;
-  private readonly Dictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
+  private readonly Dictionary<int, ReadOnlyMemory<char>> m_ColumnErrorDictionary = new Dictionary<int, ReadOnlyMemory<char>>();
   private readonly IFileReader? m_FileReader;
 
   /// <summary>
@@ -423,12 +423,12 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   {
     if (e.ColumnNumber < 0)
     {
-      m_ColumnErrorDictionary.Add(-1, e.Message);
+      m_ColumnErrorDictionary.Add(-1, e.Message.AsMemory());
       Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));
     }
     else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
     {
-      m_ColumnErrorDictionary[ownColumnIndex]= e.Message;
+      m_ColumnErrorDictionary[ownColumnIndex]= e.Message.AsMemory();
       Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex).Name ?? string.Empty));
     }
   }

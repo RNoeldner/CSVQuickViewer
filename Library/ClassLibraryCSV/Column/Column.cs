@@ -194,7 +194,6 @@ public record Column
   /// <summary>
   ///   Gets the description.
   /// </summary>
-  /// <returns></returns>
   public string GetTypeAndFormatDescription(bool addTime = true)
   {
     var stringBuilder = new StringBuilder(ValueFormat.DataType.Description());

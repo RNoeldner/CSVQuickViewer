@@ -53,10 +53,21 @@ public class ExtensionsTest
   public void ReplaceProjectPlaceholder()
   {
     Assert.AreEqual("Hello 1526", "Hello {TaskID}".PlaceholderReplace("TaskID", "1526"));
-    Assert.AreEqual("Hello Nice World", "Hello #TaskID World".PlaceholderReplace("TaskID", "Nice"));
-    Assert.AreEqual("Hello #TaskIDWorld", "Hello #TaskIDWorld".PlaceholderReplace("TaskID", "Nice"));
-    Assert.AreEqual("Hello TaskName", "Hello #TaskID".PlaceholderReplace("TaskID", "TaskName"));
+    Assert.AreEqual("Hello 1527s", "Hello (TaskID)s".PlaceholderReplace("TaskID", "1527"));
+    Assert.AreEqual("Hello 1528", "Hello {{TaskID}}".PlaceholderReplace("TaskID", "1528"));
+    Assert.AreEqual("Hello 1529", "Hello [TaskID]".PlaceholderReplace("TaskID", "1529"));
+    Assert.AreEqual("Hello 1530", "Hello <:TaskID>".PlaceholderReplace("TaskID", "1530"));
+    Assert.AreEqual("Hello 1531 World", "Hello #TaskID World".PlaceholderReplace("TaskID", "1531"));
+    Assert.AreEqual("Hello #TaskIDWorld", "Hello #TaskIDWorld".PlaceholderReplace("TaskID", "1532"));
+    Assert.AreEqual("Hello 1533", "Hello #TaskID".PlaceholderReplace("TaskID", "1533"));
+    Assert.AreEqual("Hello 1534 1534", "Hello <:TaskID> [TaskID]".PlaceholderReplace("TaskID", "1534"));
+  }
 
+  [TestMethod]
+  public void ReplaceProjectPlaceholderFormats()
+  {
+    Assert.AreEqual("My Date: 2026-05-24", "My Date: {date:YYYY-MM-dd}".PlaceholderReplace("date", new DateTime(2026, 5, 24).ToString()));
+    Assert.AreEqual("Hello 000152", "Hello {TaskID:000000}".PlaceholderReplace("TaskID", "152"));
   }
 
   [TestMethod]

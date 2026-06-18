@@ -27,6 +27,7 @@ using CsvTools;
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -72,7 +73,7 @@ public class ErrorInformationTests : DisposableBase
     // After incorporating the class for Errors in columns into RowErrorCollection,
     // this test make less sense, there is no need to test Dictionary
     // It now mainly tests ReadErrorInformation */
-    var columnErrors = new Dictionary<int, string>();
+    var columnErrors = new Dictionary<int, ReadOnlyMemory<char>>();
 
     var colNames = new List<string>();
     foreach (DataColumn col in m_DataTable.Columns)
@@ -80,10 +81,10 @@ public class ErrorInformationTests : DisposableBase
 
     Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty)));
 
-    columnErrors.Add(-1, "Error on Row");
-    columnErrors.Add(0, "Error on Column".AddWarningId());
-    columnErrors.Add(1, "Error on ColumnA");     
-    columnErrors.Add(2, "Warning on ColumnB".AddWarningId());
+    columnErrors.Add(-1, "Error on Row".AsMemory());
+    columnErrors.Add(0, "Error on Column".AddWarningId().AsMemory());
+    columnErrors.Add(1, "Error on ColumnA".AsMemory());
+    columnErrors.Add(2, "Warning on ColumnB".AddWarningId().AsMemory());
       
     var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, (i) => i>=0 && i <= colNames.Count ? colNames[i] : string.Empty);
     Assert.IsNotNull(errorInfo);

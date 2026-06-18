@@ -35,7 +35,17 @@ namespace CsvTools;
 public static class ClassLibraryCsvExtensionMethods
 {
   private static readonly (string opener, string closer)[] Openers =
-    [("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"),  ("<:", ">"), ("#", "#"),];
+    [("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"), ("<:", ">"), ("#", "#"), ("#", string.Empty)];
+  
+  private static readonly char[] WordDelimiters =
+    [
+    ' ', '\r', '\n', '\t',    // Whitespace
+     '.', ',', ';', '|', ':', '!', '?',               // Sentence terminators
+    '(', ')', '[', ']', '{', '}', '<', '>', // Brackets/Enclosures
+    '\'', '\"',              // Quotes
+    '+', '-', '=', '*', '/', // Mathematical
+    '@', '&', '^', '~'       // Scripting/Logical
+    ];
 
   /// <summary>
   /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
@@ -520,52 +530,85 @@ public static class ClassLibraryCsvExtensionMethods
   /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
   /// <param name="replacement">The text to inject.</param>
   /// <returns>The modified string.</returns>
-  public static string PlaceholderReplace(this string input, string placeholder, string replacement)
+
+  /// <summary>
+  /// Replaces a named placeholder with a replacement string, searching for various delimiters like {x}, #x#, (x).
+  /// </summary>
+  /// <param name="input">The source text.</param>
+  /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
+  /// <param name="replacement">The text to inject.</param>
+  /// <returns>The modified string.</returns>
+  public static string PlaceholderReplace(this string input, ReadOnlySpan<char> placeholder, string replacement)
   {
-    if (string.IsNullOrEmpty(placeholder) || !input.Contains(placeholder, StringComparison.OrdinalIgnoreCase))
+    if (placeholder.IsEmpty || !input.AsSpan().Contains(placeholder, StringComparison.OrdinalIgnoreCase))
       return input;
 
-    foreach (var (opener, closer) in Openers)
+    foreach (var pattern in Openers)
     {
-      // Search for the pattern: Opener + placeholder + (optional :fmt) + Closer
-      string searchPattern = opener + placeholder;
-      int startIdx = input.IndexOf(searchPattern, StringComparison.OrdinalIgnoreCase);
+      string searchPattern = pattern.opener + placeholder.ToString();
+      int startIdx = 0;
 
-      while (startIdx != -1)
+      while ((startIdx = input.IndexOf(searchPattern, startIdx, StringComparison.OrdinalIgnoreCase)) != -1)
       {
-        // Find where the placeholder section ends
-        int endIdx = input.IndexOf(closer, startIdx + searchPattern.Length, StringComparison.Ordinal);
+        int endIdx;
+        int fullMatchLen;
 
-        if (endIdx != -1)
+        if (pattern.closer.Length == 0)
         {
-          string fullMatch = input.Substring(startIdx, endIdx - startIdx + 1);
-          string contentPart = fullMatch.Substring(opener.Length, fullMatch.Length - opener.Length - 1);
+          // 1. Check if the pattern is followed by a boundary
+          int afterPattern = startIdx + searchPattern.Length;
 
-          string processedReplacement = replacement;
-          var indexColon = contentPart.IndexOf(':');
-          if (indexColon!=-1)
+          // Define what counts as a valid boundary (delimiter or end of string)
+          bool isAtEnd = afterPattern == input.Length;
+          bool isAtBoundary = !isAtEnd && WordDelimiters.Contains(input[afterPattern]);
+
+          if (!isAtEnd && !isAtBoundary)
           {
-            var format = contentPart.Substring(indexColon + 1).Trim();
-            // Try and convert to a typed value, then use ApplyPlaceholderFormat
-            if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
-              processedReplacement= ApplyPlaceholderFormat(dtCurrentCulture, format);
-            else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
-              processedReplacement= ApplyPlaceholderFormat(dtInvariant, format);
-            else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
-              processedReplacement= ApplyPlaceholderFormat(dblCurrentCulture, format);
-            else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
-              processedReplacement= ApplyPlaceholderFormat(dblInvariantCulture, format);
+            // It's part of a larger word (e.g., #PlaceholderExtra), skip this match
+            startIdx += searchPattern.Length;
+            continue;
           }
-          input = input.Remove(startIdx, fullMatch.Length).Insert(startIdx, processedReplacement);
-          startIdx = input.IndexOf(searchPattern, startIdx + processedReplacement.Length, StringComparison.Ordinal);
+
+          // 2. Scan until next delimiter or colon
+          int next = input.IndexOfAny(WordDelimiters, afterPattern);
+          endIdx = (next == -1) ? input.Length : next;
+          fullMatchLen = endIdx - startIdx;
         }
         else
         {
-          break;
+          // Search for the defined closer
+          int foundCloser = input.IndexOf(pattern.closer, startIdx + searchPattern.Length, StringComparison.Ordinal);
+          if (foundCloser == -1) { startIdx += searchPattern.Length; continue; }
+          fullMatchLen = (foundCloser + pattern.closer.Length) - startIdx;
         }
+
+        string fullMatch = input.Substring(startIdx, fullMatchLen);
+        string contentPart = fullMatch.Substring(pattern.opener.Length, fullMatchLen - pattern.opener.Length - pattern.closer.Length);
+
+        string processed = ProcesReplacemnet(contentPart);
+        input = input.Remove(startIdx, fullMatchLen).Insert(startIdx, processed);
+        startIdx += processed.Length;
       }
     }
     return input;
+
+    string ProcesReplacemnet(ReadOnlySpan<char> contentPart)
+    {
+      var indexColon = contentPart.IndexOf(':');
+      if (indexColon!=-1)
+      {
+        // Try and convert to a typed value, then use ApplyPlaceholderFormat
+        if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
+          return ApplyPlaceholderFormat(dtCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
+          return ApplyPlaceholderFormat(dtInvariant, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
+          return ApplyPlaceholderFormat(dblCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
+          return ApplyPlaceholderFormat(dblInvariantCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+      }
+      return replacement;
+    }
   }
 
   /// <summary>
