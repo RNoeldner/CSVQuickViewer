@@ -28,7 +28,7 @@ namespace CsvTools;
 ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
 /// </summary>
 /// <remarks>
-///   Allow any IDataReader to be used as IFileReader
+///   Allows any IDataReader to be used as IFileReader
 /// </remarks>
 public class DataReaderWrapper : DbDataReader, IFileReader
 {
@@ -55,14 +55,14 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <param name="recNum">Add artificial field Records Number</param>
   /// <param name="errorField">Add artificial field Error</param>
   /// <param name="recordLimit">Maximum number of records to read</param>
-  public DataReaderWrapper(in IDataReader reader,
+  public DataReaderWrapper(IDataReader reader,
     bool startLine = false, bool endLine = false,
     bool recNum = false, bool errorField = false, long recordLimit = -1)
   {
-    DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
-    m_FileReader = reader as IFileReader;
     if (reader.IsClosed)
       throw new InvalidOperationException("Reader can not be status closed");
+    DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
+    m_FileReader = reader as IFileReader;
     RowErrorInformation = string.Empty;
     m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
     var sourceColumns = new List<Column>();
@@ -75,7 +75,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     }
 
     m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
-    if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1 )
+    if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1)
     {
       m_FileReader.Warning += HandleSourceWarning;
     }
@@ -326,10 +326,13 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   {
     if (ordinal == m_ReaderMapping.ColNumStartLine || ordinal == m_ReaderMapping.ColNumEndLine ||
         ordinal == m_ReaderMapping.ColNumRecNum)
+    {
       return false;
-    if (ordinal == m_ReaderMapping.ColNumErrorField)
-      return RowErrorInformation.Length == 0;
-    return DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
+    }
+
+    return ordinal == m_ReaderMapping.ColNumErrorField
+      ? RowErrorInformation.Length == 0
+      : DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -363,23 +366,33 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     {
       RecordNumber++;
 
-      // if we do have source field for error information,use this      
+      // if we do have source field for error information,use this
       if (m_ReaderMapping.ColNumErrorFieldSource != -1)
       {
-        RowErrorInformation = DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource)
-          ? string.Empty
-          : DataReader.GetString(m_ReaderMapping.ColNumErrorFieldSource);
+        if (!DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource))
+        {
+          RowErrorInformation = DataReader.GetString(m_ReaderMapping.ColNumErrorFieldSource);
+          if (RowErrorInformation.IsWarningMessage())
+            NumberRowWarnings++;
+        }
+        else
+        {
+          RowErrorInformation = string.Empty;
+        }
+      }
+      // If we have errors reported through HandleSourceWarning
+      else if (m_ColumnErrorDictionary.Count>0)
+      {
+        // Get the error information from the Dictionary filled by the source reader warnings
+        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => m_ReaderMapping.ResultingColumns[i].Name);
+        if (RowErrorInformation.IsWarningMessage())
+          NumberRowWarnings++;
+        m_ColumnErrorDictionary.Clear();
       }
       else
       {
-        // Get the error information from the Dictionary filled by the source reader warnings
-        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary,
-          i => i >= 0 ? m_ReaderMapping.ResultingColumns[i].Name : string.Empty);
-        m_ColumnErrorDictionary.Clear();
+        RowErrorInformation = string.Empty;
       }
-      
-      if (RowErrorInformation.IsWarningMessage())
-        NumberRowWarnings++;
 
       return true;
     }
@@ -421,15 +434,11 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <param name="e">The <see cref="WarningEventArgs"/> instance containing the event data.</param>
   private void HandleSourceWarning(object? sender, WarningEventArgs e)
   {
-    if (e.ColumnNumber < 0)
-    {
-      m_ColumnErrorDictionary.Add(-1, e.Message.AsMemory());
-      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, -1, e.Message, StartLineNumber, EndLineNumber, string.Empty));
-    }
-    else if (m_ReaderMapping.SourceToResult(e.ColumnNumber, out var ownColumnIndex))
-    {
-      m_ColumnErrorDictionary[ownColumnIndex]= e.Message.AsMemory();
-      Warning?.SafeInvoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex).Name ?? string.Empty));
-    }
+    int ownColumnIndex = -1;
+    if (e.ColumnNumber >= 0)
+      m_ReaderMapping.SourceToResult(e.ColumnNumber, out ownColumnIndex);
+
+    m_ColumnErrorDictionary[ownColumnIndex]= e.Message.AsMemory();
+    Warning?.Invoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex).Name ?? string.Empty));
   }
 }

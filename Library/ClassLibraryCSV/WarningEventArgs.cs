@@ -21,7 +21,7 @@ namespace CsvTools;
 /// <summary>
 ///   Argument for a WarningEvent
 /// </summary>
-public sealed class WarningEventArgs : EventArgs
+public sealed record WarningEventArgs 
 {
   /// <summary>
   ///   Initializes a new instance of the <see cref="WarningEventArgs" /> class.
@@ -40,7 +40,8 @@ public sealed class WarningEventArgs : EventArgs
     long lineNumberEnd,
     string? columnName)
   {
-    if (warningMessage.IsEmpty) throw new ArgumentException("message", nameof(warningMessage));
+    if (warningMessage.IsEmpty) 
+      throw new ArgumentException("Message cannot be empty.", nameof(Message));
 
     RecordNumber = recordNumber;
     ColumnNumber = columnNumber;
@@ -94,20 +95,17 @@ public sealed class WarningEventArgs : EventArgs
   /// <value>A nicely formatted representation of the information</value>
   public string Display(bool addLocationInfoToWarning, bool addColumnInfoToWarning)
   {
-    var sb = new StringBuilder();
+    var sb = new StringBuilder(Message.Length + 64);
 
     if (addLocationInfoToWarning && (LineNumberEnd > 0 || LineNumberStart > 0))
     {
       sb.Append("Line ");
-      if (LineNumberStart > 0)
-      {
-        sb.Append(LineNumberStart);
-        if (LineNumberStart < LineNumberEnd)
-          sb.Append(" - ");
-      }
-
+      sb.Append(LineNumberStart);
       if (LineNumberStart < LineNumberEnd)
+      {
+        sb.Append(" - ");
         sb.Append(LineNumberEnd);
+      }
     }
 
     if (addColumnInfoToWarning && !string.IsNullOrEmpty(ColumnName))
@@ -125,12 +123,10 @@ public sealed class WarningEventArgs : EventArgs
       {
         sb.Append(ColumnName);
       }
-
       sb.Append(']');
     }
 
-    if (sb.Length > 0)
-      sb.Append(": ");
+    if (sb.Length > 0) sb.Append(": ");
     sb.Append(Message);
 
     return sb.ToString();

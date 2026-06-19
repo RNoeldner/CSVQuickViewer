@@ -115,7 +115,7 @@ public static class UnitTestStaticData
     dr[ColUserId] = $"U{recordNumber}";
 
     // Parent ID
-    if (recordNumber > 0 && UnitTestStatic.Random.Next(0, 2) == 0)
+    if (recordNumber > 0 && UnitTestStatic.Random.Next(0, 10) < 9)
     {
       int randomPreviousId = UnitTestStatic.Random.Next(0, recordNumber);
       dr[ColParentId] = randomPreviousId;
