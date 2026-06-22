@@ -177,7 +177,7 @@ public sealed class TimeToCompletion
 
     var maxAgeTicks = (long) (m_HistoryWindow.TotalSeconds * TicksPerSecond);
 
-    // Latest sample index (just behind the write position)
+    // Latest sample index (just behind the writing position)
     var newest = (m_Index - 1 + m_BufferSize) % m_BufferSize;
     var newestValue = m_Values[newest];
     var newestTime = m_Timestamps[newest];

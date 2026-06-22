@@ -52,7 +52,7 @@ public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
   /// <summary>
-  ///   First page has number 1
+  ///   The first page has number 1
   /// </summary>
   public int PageIndex { get; private set; }
 
@@ -66,27 +66,27 @@ public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   }
 
   /// <summary>
-  /// Moves to first page asynchronous.
+  /// Moves to the first page asynchronous.
   /// </summary>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   public async Task MoveToFirstPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(1, cancellationToken).ConfigureAwait(false);
 
   /// <summary>
-  /// Moves to last page asynchronous.
+  /// Moves to the last page asynchronous.
   /// </summary>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   public async Task MoveToLastPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(int.MaxValue, cancellationToken).ConfigureAwait(false);
 
   /// <summary>
-  /// Moves to next page asynchronous.
+  /// Moves to the next page asynchronous.
   /// </summary>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   public async Task MoveToNextPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(PageIndex + 1, cancellationToken).ConfigureAwait(false);
 
   /// <summary>
-  /// Moves to previous page asynchronous.
+  /// Moves to the previous page asynchronous.
   /// </summary>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   public async Task MoveToPreviousPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(PageIndex - 1, cancellationToken).ConfigureAwait(false);
 
   /// <summary>
@@ -96,7 +96,7 @@ public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   /// <param name="addEndLine">Add artificial field End Line</param>
   /// <param name="addRecNum">Add artificial field Records Number</param>
   /// <param name="addErrorField">Add artificial field Error</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   public async Task OpenAsync(
     bool addStartLine, bool addEndLine,
     bool addRecNum, bool addErrorField,
@@ -111,7 +111,7 @@ public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   /// Moves to page asynchronous.
   /// </summary>
   /// <param name="pageIndex">Index of the page.</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <exception cref="CsvTools.FileReaderOpenException"></exception>
   private async Task MoveToPageAsync(int pageIndex, CancellationToken cancellationToken )
   {

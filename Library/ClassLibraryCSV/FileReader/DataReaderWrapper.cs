@@ -47,7 +47,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
   /// <summary>
   ///   Constructor for a DataReaderWrapper this wrapper adds artificial fields like Error,
-  ///   Start and End Line or Record number in needed and handles the return of these artificial fields in GetValue
+  ///   Start and End Line, or Record number in needed and handles the return of these artificial fields in GetValue
   /// </summary>
   /// <param name="reader">Regular framework IDataReader</param>
   /// <param name="startLine">Add artificial field Start Line</param>
@@ -195,7 +195,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
 
   /// <inheritdoc />
-  public new IDataReader GetData(int i) => DataReader.GetData(m_ReaderMapping.ResultToSource(i));
+  public new IDataReader GetData(int i) => DataReader.GetData(m_ReaderMapping.ResultToSource(i))!;
 
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
@@ -250,7 +250,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       return EndLineNumber;
     if (ordinal == m_ReaderMapping.ColNumRecNum)
       return RecordNumber;
-    // if mapped use the underlying reader    
+    // if mapped, use the underlying reader    
     return DataReader.GetInt64(m_ReaderMapping.ResultToSource(ordinal));
   }
 
@@ -366,7 +366,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     {
       RecordNumber++;
 
-      // if we do have source field for error information,use this
+      // if we do have source field for error information, use this
       if (m_ReaderMapping.ColNumErrorFieldSource != -1)
       {
         if (!DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource))
@@ -428,7 +428,8 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   }
 
   /// <summary>
-  /// Handles the warnings raised in the source and adds them to the corresponding columns if so to will be added to RowErrorInformation for the record
+  /// Handles the warnings raised in the source and adds them to the corresponding columns if so
+  /// added to RowErrorInformation for the record
   /// </summary>
   /// <param name="sender">The sender.</param>
   /// <param name="e">The <see cref="WarningEventArgs"/> instance containing the event data.</param>

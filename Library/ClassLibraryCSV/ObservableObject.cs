@@ -53,7 +53,7 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
   }
 
   /// <summary>
-  ///   Sets the collection of a backing store and raises <see cref="PropertyChanged" /> after the
+  ///   Sets the collection of backing stores and raises <see cref="PropertyChanged" /> after the
   ///   value is changed
   /// </summary>
   /// <param name="field">The backing store.</param>
@@ -82,7 +82,7 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
 
   /// <summary>
   ///   Overwrite properties of a class with the properties of another class, allowing usage of
-  ///   readonly fields being set, the target field is not passed in as reference as we do not overwrite the field but properties in this field only 
+  ///   readonly fields being set; the target field is not passed in as reference as we do not overwrite the field but properties in this field only 
   /// </summary>
   /// <param name="field">The field to be overwritten</param>
   /// <param name="value">the class with the new values, supporting a copy to</param>
@@ -107,7 +107,7 @@ public abstract class ObservableObject : INotifyPropertyChanged //, INotifyPrope
   /// <param name="comparison">Equality comparer</param>
   /// <param name="propertyName">Name of the property.</param>
   /// <returns><c>true</c> if the value was changed</returns>
-  protected bool SetProperty<T>(ref T field, in T value, IEqualityComparer<T>? comparison = null, [CallerMemberName] string propertyName = "") // where T : struct
+  protected bool SetProperty<T>(ref T field, in T value, IEqualityComparer<T>? comparison = null, [CallerMemberName] string propertyName = "") // where T: struct
   {
     comparison ??= EqualityComparer<T>.Default;
     if (comparison.Equals(field, value))

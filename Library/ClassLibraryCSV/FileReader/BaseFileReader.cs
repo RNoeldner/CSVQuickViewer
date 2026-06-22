@@ -28,7 +28,7 @@ namespace CsvTools;
 
 /// <inheritdoc cref="DbDataReader" />
 /// <summary>
-///   Abstract class as base for all DataReaders
+///   Abstract class as a base for all DataReaders
 /// </summary>
 public abstract class BaseFileReader : DbDataReader, IFileReader
 {
@@ -58,7 +58,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected long RecordLimit;
 
   /// <summary>
-  /// If the stream is opened by the reader this is true
+  /// If the reader opens the stream, this is true
   /// </summary>
   protected bool SelfOpenedStream;
 
@@ -74,7 +74,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
 
   /// <summary>
-  ///   An array of current row column text, this is reused to avoid multiple allocations
+  ///   An array of current row column text, this is reused to avoid multiple allocations.
   ///   We will have the information in here from ignored columns
   /// </summary>
   private readonly RowColumnsBuffer m_CurrentRowColumnText = new RowColumnsBuffer();
@@ -89,7 +89,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <summary>
   ///   Number of Columns in the reader, including the ones ignored
-  ///   e.G. a TimeColum associated to a date could be ignored, we still need the information
+  ///   e.G. a TimeColum associated with a date could be ignored, we still need the information
   /// </summary>
   private int m_FieldCount;
 
@@ -155,13 +155,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Occurs when something went wrong during opening of the setting, this might be the file
+  ///   Occurs when something went wrong during the opening of the setting, this might be the file
   ///   does not exist or a query ran into a timeout
   /// </summary>
   public event EventHandler<RetryEventArgs>? OnAskRetry;
 
   /// <summary>
-  /// Occurs when opening is at its end.
+  /// Occurs when the opening is at its end.
   /// </summary>
   public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
 
@@ -184,8 +184,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override int Depth => 0;
 
   /// <summary>
-  ///   Current Line Number in the text file, a record can span multiple lines and lines are
-  ///   skipped, this is he ending line
+  ///   Current Line Number in the text file, a record can span multiple lines, and lines are
+  ///   skipped, this is the ending line
   /// </summary>
   public virtual long EndLineNumber { get; protected set; }
 
@@ -197,9 +197,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   /// <summary>
-  ///   Gets the number of fields in the file. This incudes ignored fields.
+  ///   Gets the number of fields in the file. This includes ignored fields.
   /// </summary>
-  /// <value>Number of field in the file.</value>
+  /// <value>Number of fields in the file.</value>
   public override int FieldCount => m_FieldCount;
 
   /// <summary>
@@ -330,7 +330,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
   /// <exception cref="T:System.IndexOutOfRangeException">
   ///   The index passed was outside the range of 0 through <see
-  ///   cref="P:System.Data.IDataRecord.FieldCount" />.
+  ///   cref="P:System.Data.IDataRecord.FieldCount"/>
   /// </exception>
   public override byte GetByte(int ordinal)
   {
@@ -444,7 +444,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override Guid GetGuid(int ordinal)
   {
-    // Even if we do not need the column here access it to check boundaries
+    // Even if we do not need the column, here access it to check boundaries
     _ = GetColumn(ordinal);
     return SpanToGuid(ordinal, GetSpan(ordinal))
       ?? throw new FormatException($"'{GetString(ordinal)}' is not an GUID");
@@ -505,7 +505,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       schemaRow[5] = col; // ColumnOrdinal
       schemaRow[19] = column.Ignore; // IsHidden        
 
-      // If there is a conversion get the information
+      // If there is a conversion, get the information
       if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
         schemaRow[7] = column.ValueFormat.DataType.GetNetType();
       else
@@ -656,7 +656,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     => ReadCoreAsync(cancellationToken).AsTask();
 
   /// <summary>
-  ///   Resets the position to first data row.
+  ///   Resets the position to the first data row.
   /// </summary>
   public virtual ValueTask ResetPositionToFirstDataRowAsync(CancellationToken cancellationToken)
   {
@@ -756,7 +756,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="message">The message to raise.</param>
   protected void HandleError(int ordinal, ReadOnlySpan<char> message)
   {
-    // Ignore message for ignore columns
+    // Ignore message for ignored columns
     if (ordinal>=0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
       return;
     Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
@@ -791,7 +791,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       return string.Empty;
 
     // 2. Null Detection
-    // This is now safe because formattedString keeps the memory alive
     foreach (var t in m_TreatAsNullMemories)
     {
       if (textSpan.Equals(t.Span, StringComparison.Ordinal))
@@ -872,7 +871,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
     {
-      // 1. If Date part has data, it's NOT NULL. Exit immediately.
+      // 1. If the Date part has data, it's NOT NULL. Exit immediately.
       if (!span.IsEmpty) return false;
 
       // 2. Date part is empty. Check if there's a split Time part.
@@ -896,8 +895,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// Column array must be initialized beforehand.
   /// </summary>
   /// <param name="headerRow">The header row.</param>
-  /// <param name="dataType">Optional provided data types.</param>
-  /// <param name="hasFieldHeader">if set to <c>true</c> if file has field header.</param>
+  /// <param name="dataType">Optionally provided data types.</param>
+  /// <param name="hasFieldHeader">if set to <c>true</c> if a file has field header.</param>
   protected void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
     // Step 1: Adjust column names
@@ -932,7 +931,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     }
 
     // Step 3: Update Column objects
-    // set the data types, either using the definition, or the provided DataType with defaults
+    // set the data types, either using the definition or the provided DataType with defaults
     for (var colIndex = 0; colIndex < adjustedNames.Count && colIndex < Column.Length; colIndex++)
     {
       var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
@@ -957,7 +956,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     for (var index = 0; index < Column.Length; index++)
     {
       var column = GetColumn(index);
-      // if the original column that reference other columns is ignored, skip it
+      // if the original column that references other columns is ignored, skip it
       if (column.Ignore) continue;
       m_ParseFromSource[index] = true;
       var searchedTimePart = column.TimePart;
@@ -1015,7 +1014,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
 
   /// <summary>
-  /// Determines if a columns should be parsed
+  /// Determines if a column should be parsed
   /// </summary>
   protected bool ShouldParseFromSource(int columnNo)  => m_ParseFromSource.Length == 0 || columnNo >= m_ParseFromSource.Length ||  m_ParseFromSource[columnNo];
   
@@ -1054,7 +1053,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   This routine will read a date from a typed or untyped reader, will combined date with time
+  ///   This routine will read a date from a typed or untyped reader, will combine date with time,
   ///   and apply timeZone adjustments.
   /// </summary>
   /// <param name="column">The column metadata used to determine formatting (separators).</param>
@@ -1217,7 +1216,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private static string GetDefaultName(int ordinal) => $"Column{ordinal + 1}";
 
   /// <summary>
-  ///   Does look at the provided column names, and checks them for valid entry, makes sure the
+  ///   Does look at the provided column names and checks them for valid entry, makes sure the
   ///   column names are unique and not empty, have the right size etc.
   /// </summary>
   /// <param name="columns">The columns as read / provided</param>

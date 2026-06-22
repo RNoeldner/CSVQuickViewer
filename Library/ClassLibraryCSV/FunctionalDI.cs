@@ -15,7 +15,6 @@ using System;
 using System.IO;
 namespace CsvTools;
 
-#pragma warning disable MA0048 // File name must match type name
 /// <summary>
 /// Delegate for retrieving encryption metadata (passphrase and key files) for a specific file path.
 /// </summary>
@@ -46,8 +45,8 @@ public delegate IColumnFormatter ColumnFormatterDelegate(in ValueFormat valueFor
 /// Optional action invoked to report warnings, such as unknown or invalid time zones.
 /// </param>
 /// <returns>The converted <see cref="DateTime"/> value in the target time zone.</returns>
-public delegate DateTime TimeZoneChangeDelegate(DateTime input, string sourceTimeZone, string destinationTimeZone, Action<string>? handleWarning);
-#pragma warning restore MA0048 // File name must match type name
+public delegate DateTime TimeZoneChangeDelegate(DateTime input, ReadOnlySpan<char> sourceTimeZone, ReadOnlySpan<char> destinationTimeZone, Action<string>? handleWarning);
+
 
 /// <summary>
 ///   This class implements a lightweight Dependency Injection (DI) pattern without a framework.
@@ -57,8 +56,8 @@ public delegate DateTime TimeZoneChangeDelegate(DateTime input, string sourceTim
 public static class FunctionalDI
 {
   /// <summary>
-  /// Delegate that returns encryption related information for a file.
-  /// Note: This is currently not utilized within the CSV Viewer itself.
+  /// Delegate that returns encryption-related information for a file.
+  /// Note: This is currently not used within the CSV Viewer itself.
   /// </summary>
   public static EncryptionInfoDelegate GetKeyAndPassphraseForFile { get; set; } =
       _ => (string.Empty, string.Empty, string.Empty);

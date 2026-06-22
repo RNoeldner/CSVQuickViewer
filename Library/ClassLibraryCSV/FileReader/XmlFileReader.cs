@@ -25,7 +25,7 @@ namespace CsvTools;
 
 /// <inheritdoc cref="CsvTools.IFileReader" />
 /// <summary>
-///   Xml text file reader
+///   XML text file reader
 /// </summary>
 public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 {
@@ -225,8 +225,8 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
   }
 
   /// <summary>
-  ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
-  ///   the structure of the Json file
+  ///   Reads a data row from the reader and stores the values and text, this will flatten
+  ///   the structure of the XML file
   /// </summary>
   /// <returns>A collection with name and value of the properties</returns>
   private bool GetNextRecord()
@@ -277,7 +277,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
 
   /// <summary>
   ///   Resets the position and buffer to the first line, excluding headers, use
-  ///   ResetPositionToStart if you want to go to first data line
+  ///   ResetPositionToStart if you want to go to the first data line
   /// </summary>
   private void ResetPositionToStartOrOpen()
   {
@@ -292,7 +292,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       m_Stream!.Seek(0, SeekOrigin.Begin);
     }
 
-    // End Line should be at 1, later on as the line is read the start line s set to this value
+    // End Line should be at 1, later on, as the line is read, the start line s set to this value
     StartLineNumber = 1;
     EndLineNumber = 1;
     RecordNumber = 0;

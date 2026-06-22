@@ -25,22 +25,22 @@ namespace CsvTools;
 public static class StandardTimeZoneAdjust 
 {
   /// <summary>
-  /// Representation for current system timezone
+  /// Representation for the current system timezone
   /// </summary>
   public const string cIdLocal = "(local)";
 
   private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
-  private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
+  private static TimeZoneInfo FindTimeZoneInfo(ReadOnlySpan<char> timeZone)
   {
-    if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
+    if (timeZone.Equals(cIdLocal.AsSpan(), StringComparison.OrdinalIgnoreCase))
       return TimeZoneInfo.Local;
     return IsWindows
       ? TimeZoneInfo.FindSystemTimeZoneById(
-        TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
-      : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
+        TZConvert.TryIanaToWindows(timeZone.ToString(), out var winSrc) ? winSrc : timeZone.ToString())
+      : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone.ToString(), out var inaraSrc)
         ? inaraSrc
-        : timeZone);
+        : timeZone.ToString());
   }
 
   /// <summary>
@@ -50,15 +50,15 @@ public static class StandardTimeZoneAdjust
   /// <param name="sourceTimeZone">The identifier of the source time zone.</param>
   /// <param name="destinationTimeZone">The identifier of the target time zone.</param>
   /// <param name="handleWarning">
-  /// Optional action invoked when a warning occurs, for example if a time zone is not recognized.
+  /// Optional action invoked when a warning occurs, for example, if a time zone is not recognized.
   /// </param>
   /// <returns>
   /// The <see cref="DateTime"/> converted to the destination time zone, or the original value if conversion fails.
   /// </returns>
-  public static DateTime ChangeTimeZone(DateTime input, string sourceTimeZone, string destinationTimeZone,
+  public static DateTime ChangeTimeZone(DateTime input, ReadOnlySpan<char> sourceTimeZone, ReadOnlySpan<char> destinationTimeZone,
     Action<string>? handleWarning)
   {
-    if (string.IsNullOrEmpty(sourceTimeZone) || string.IsNullOrEmpty(destinationTimeZone) ||
+    if (sourceTimeZone.IsEmpty || destinationTimeZone.IsEmpty ||
         destinationTimeZone.Equals(sourceTimeZone, StringComparison.OrdinalIgnoreCase))
     {
       return input;

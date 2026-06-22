@@ -42,7 +42,7 @@ public static class FileSystemUtils
 #pragma warning restore VSSpell001
 {
   /// <summary>
-  ///   On windows, we need to take care of filename that might exceed 248 characters, they need to
+  ///   On Windows, we need to take care of filename that might exceed 248 characters; they need to
   ///   be escaped.
   /// </summary>
   private const string cLongPathPrefix = @"\\?\";
@@ -106,7 +106,7 @@ public static class FileSystemUtils
   ///   Deletes a file and creates a backup copy with a .bak extension
   /// </summary>
   /// <param name="fileName">Name of the file.</param>
-  /// <param name="multipleBackups">if set to <c>true</c> multiple backup version are kept.</param>
+  /// <param name="multipleBackups">if set to <c>true</c> multiple backup versions are kept.</param>
   public static void DeleteWithBackup(string fileName, bool multipleBackups)
   {
     if (!FileExists(fileName))
@@ -230,7 +230,7 @@ public static class FileSystemUtils
   /// </summary>
   /// <param name="folder">The directory to look in</param>
   /// <param name="searchPattern">The pattern to look for</param>
-  /// <returns>No matching file is found of the folder does not exist an empty string is returned</returns>
+  /// <returns>No matching file is found of the folder does not exist; an empty string is returned</returns>
   public static string GetLatestFileOfPattern(string folder, string searchPattern)
   {
     if (string.IsNullOrEmpty(folder))
@@ -238,7 +238,7 @@ public static class FileSystemUtils
     else if (!DirectoryExists(folder))
       return string.Empty;
 
-    // If a pattern is present in the folder this is not going to work
+    // If a pattern is present in the folder, this is not going to work
     var newSet = new DateTime(0, DateTimeKind.Utc);
     var lastFile = string.Empty;
     foreach (var fileName in Directory.EnumerateFiles(
@@ -424,7 +424,7 @@ public static class FileSystemUtils
   /// <item><description>Retains the root and the last few directory levels.</description></item>
   /// <item><description>Progressively drops intermediate directories.</description></item>
   /// <item><description>Reduces to the filename only.</description></item>
-  /// <item><description>Performs a "middle-out" character truncation if the filename alone is too long.</description></item>
+  /// <item><description>Performs "middle-out" character truncation if the filename alone is too long.</description></item>
   /// </list>
   /// </remarks>
   public static string GetShortDisplayFileName(this string fileName, int length = 80)
@@ -498,11 +498,11 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  ///   Gets filename that is usable in the file system.
+  ///   Gets a filename that is usable in the file system.
   /// </summary>
   /// <param name="original">The original text.</param>
   /// <param name="replaceInvalid">The replacement for invalid chars</param>
-  /// <returns>A text that is allowed in the file system as filename</returns>
+  /// <returns>A text that is allowed in the file system as a filename</returns>
   public static string SafePath(this string original, string replaceInvalid = "")
   {
     if (string.IsNullOrEmpty(original))
@@ -739,12 +739,12 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  /// Gets a prefix that allows .NET windows system to deal with filename that exceed 248 characters
+  /// Gets a prefix that allows .NET Windows system to deal with filename that exceeds 248 characters
   /// </summary>
   /// <param name="path">The path to the file.</param>    
   public static string LongPathPrefix(this ReadOnlySpan<char> path)
   {
-    // In case the directory is 248 we need long path as well
+    // In case the directory is 248, we need long path as well
     if (!IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix.AsSpan(), StringComparison.Ordinal) ||
         path.StartsWith(cUncLongPathPrefix.AsSpan(), StringComparison.OrdinalIgnoreCase))
     {
@@ -940,8 +940,8 @@ public static class FileSystemUtils
   }
 
   /// <summary>
-  ///   In general a wrapper for <see cref="System.IO.FileInfo" />, but it does allow to store
-  ///   information from other sources (sFTP, Zip etc.) Provides properties for a files, it has a
+  ///   In general a wrapper for <see cref="System.IO.FileInfo" />, but it does allow storing
+  ///   information from other sources (sFTP, Zip, etc.) Provides properties for a file, it has a
   ///   reduced property set. Allows the update of LastWriteTimeUtc
   /// </summary>
   public class FileInfo
@@ -977,7 +977,7 @@ public static class FileSystemUtils
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="length">The length.</param>
-    /// <param name="lastWriteTimeUtc">The last write time UTC.</param>
+    /// <param name="lastWriteTimeUtc">The last writing time UTC.</param>
     public FileInfo(string fileName, long length, DateTime lastWriteTimeUtc)
     {
       Name = fileName;
@@ -994,10 +994,10 @@ public static class FileSystemUtils
     public bool Exists { get; }
 
     /// <summary>
-    /// Gets or sets the last write time UTC for the file
+    /// Gets or sets the last writing time UTC for the file
     /// </summary>
     /// <value>
-    /// The last write time UTC.
+    /// The last writing time UTC.
     /// </value>
     public DateTime LastWriteTimeUtc
     {
@@ -1011,7 +1011,7 @@ public static class FileSystemUtils
     }
 
     /// <summary>
-    /// Gets the length of th file
+    /// Gets the length of the file
     /// </summary>
     /// <value>
     /// The length.
@@ -1048,7 +1048,7 @@ public static class FileSystemUtils
     /// <summary>
     /// Initializes a new instance of the <see cref="SplitResult"/> class.
     /// </summary>
-    /// <param name="dir">The directory path without trailing separator.</param>
+    /// <param name="dir">The directory path without a trailing separator.</param>
     /// <param name="file">The file name with extension.</param>
     public SplitResult(string dir, string file)
     {

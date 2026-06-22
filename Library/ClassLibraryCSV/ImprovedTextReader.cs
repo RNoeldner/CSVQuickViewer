@@ -167,26 +167,26 @@ public sealed class ImprovedTextReader : DisposableBase
   public void MoveNext() => StreamReader.Read();
 
   /// <summary>
-  ///   Gets the next character but does not progress, as this can be done numerous times on the
+  ///   Gets the next character but does not progress, as this can be done many times on the
   ///   same position
   /// </summary>
   /// <returns>
-  ///   The next character from the input stream represented as an <see
+  ///   The next character from the input stream represented as an<see
   ///   cref="T:System.Int32">Int32</see> object, or -1 if no more characters are available.
   /// </returns>
   /// <exception cref="IOException">An I/O error occurs.</exception>
   public int Peek() => StreamReader.Peek();
 
   /// <summary>
-  ///   Reads the next character and progresses one further, and tracks the line number
+  ///   Reads the next character and progresses one further and tracks the line number
   /// </summary>
   /// <returns>
-  ///   The next character from the input stream represented as an <see
+  ///   The next character from the input stream represented as an<see
   ///   cref="T:System.Int32">Int32</see> object, or -1 if no more characters are available.
   /// </returns>
   /// <exception cref="IOException">An I/O error occurs.</exception>
   /// <remarks>
-  ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
+  ///   In case the character is a cr or Lf, it will increase the lineNumber, to prevent a CR LF
   ///   combination to count as two lines Make sure you "eat" the possible next char using <see
   ///   cref="Peek" /> and <see cref="MoveNext" />
   /// </remarks>
@@ -221,12 +221,12 @@ public sealed class ImprovedTextReader : DisposableBase
   /// <exception cref="ArgumentOutOfRangeException">
   ///   The number of characters in the next line is larger than <see cref="F:System.Int32.MaxValue">MaxValue</see>.
   /// </exception>
-  /// <exception cref="ObjectDisposedException">The stream has been disposed.</exception>
+  /// <exception cref="ObjectDisposedException">The stream has been disposed of.</exception>
   /// <exception cref="InvalidOperationException">
   ///   The reader is currently in use by a previous read operation.
   /// </exception>
-  /// <remarks>CR,LF,CRLF will end the line, LFCR is not supported
-  /// LFCR  is treated as two line breaks, which is uncommon but can occur in some legacy files</remarks>
+  /// <remarks>CR, LF, CRLF will end the line, LFCR is not supported
+  /// LFCR  is treated as two-line breaks, which is uncommon but can occur in some legacy files</remarks>
   public async Task<string> ReadLineAsync(CancellationToken cancellationToken)
   {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -241,7 +241,7 @@ public sealed class ImprovedTextReader : DisposableBase
 
   /// <summary>
   ///  Reads a block of characters from the text reader and writes the data to a buffer, beginning at the specified index.
-  /// This does not keep track of the line number, use Read, ReadLine or ReadLineAsync for this
+  /// This does not keep track of the line number, use Read, ReadLine, or ReadLineAsync for this
   /// </summary>
   /// <param name="buffer">The character array to write the data into.</param>
   /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
@@ -268,10 +268,10 @@ public sealed class ImprovedTextReader : DisposableBase
 
   /// <summary>
   /// Reads a specified maximum number of characters from the current stream and writes the data to a buffer, beginning at the specified index.
-  /// This does not keep track of the line number, use Read, ReadLine or ReadLineAsync for this
+  /// This does not keep track of the line number, use Read, ReadLine, or ReadLineAsync for this
   /// </summary>
   /// <param name="buffer">When this method returns, contains the specified character array with the values between index and (index + count - 1) replaced by the characters read from the current source.</param>
-  /// <param name="index">The position in buffer at which to begin writing.</param>
+  /// <param name="index">The position in the buffer at which to begin writing.</param>
   /// <param name="count">The maximum number of characters to read.</param>
   /// <returns>The number of characters that have been read. The number will be less than or equal to count, depending on whether all input characters have been read.</returns>
   public int ReadBlock(char[] buffer, int index, int count)
@@ -279,8 +279,8 @@ public sealed class ImprovedTextReader : DisposableBase
 
   /// <summary>
   ///   Resets the position of the stream to the beginning, without opening the stream from
-  ///   scratch This is fast in case the text fitted into the buffer or the underlying stream
-  ///   supports seeking. In case this is not that case it does reopen the text reader
+  ///   scratch. This is fast in case the text fitted into the buffer or the underlying stream
+  ///   supports seeking. In case this is not that case, it does reopen the text reader
   /// </summary>
   public void ToBeginning()
   {

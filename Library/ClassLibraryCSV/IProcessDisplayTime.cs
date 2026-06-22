@@ -45,8 +45,8 @@ public interface IProgressTime : IProgress<ProgressInfo>
 
   /// <summary>
   ///   Occurs whenever a new progress value is reported.
-  ///   Subscribers can use this event to update UI or trigger other actions.
+  ///   Subscribers can use this event to update the UI or trigger other actions.
   /// </summary>
-  /// <summary>Raised for each reported progress value.</summary>
+  /// <summary>Rose for each reported progress value.</summary>
   event EventHandler<ProgressChangedEventArgs>? ProgressChanged;
 }

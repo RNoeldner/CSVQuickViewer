@@ -73,7 +73,7 @@ public class CsvFileReader : BaseFileReader
 
   private readonly bool m_ContextSensitiveQualifier;
 
-  // The m_CurrentRowColumns contains the columns in the row
+  // The m_CurrentRowColumns contains the columns in the row.
   // Here the number of columns could vary, you would see
   // ignored columns or if it's not well-formed more than expected
   private readonly RowColumnsBuffer m_CurrentRowColumns = new RowColumnsBuffer();
@@ -313,7 +313,7 @@ public class CsvFileReader : BaseFileReader
   ///   UTF-8 corresponds to <c>65001</c>.
   /// </param>
   /// <param name="skipRows">
-  ///   Number of initial rows to ignore, e.g. introductory text unrelated to the tabular data.
+  ///   Number of initial rows to ignore, e.g., introductory text unrelated to the tabular data.
   /// </param>
   /// <param name="skipRowsAfterHeader">
   ///   Number of rows to skip immediately after the header row.  
@@ -419,7 +419,7 @@ public class CsvFileReader : BaseFileReader
   ///   Maximum number of consecutive empty rows before assuming end-of-file.
   /// </param>
   /// <param name="identifierInContainer">
-  ///   Identifier of the file within a container (e.g. an entry name inside a ZIP archive).
+  ///   Identifier of the file within a container (e.g., an entry name inside a ZIP archive).
   /// </param>  
   /// <param name="destinationTimeZone">
   ///   Target time zone to which date-time values should be converted.
@@ -589,7 +589,7 @@ public class CsvFileReader : BaseFileReader
 
     m_PendingWhitespace = ArrayPool<char>.Shared.Rent(64);
     m_ProcessingBufferColumn = ArrayPool<char>.Shared.Rent(512);
-    // Initialize only the characters we want to treat as whitespace
+    // Initialize only the characters we want to treat as whitespace.
     // We skip the check if the delimiter itself is one of these
     if (m_FieldDelimiter != ' ') m_IsLowAsciiWhitespace[' '] = true; // 32
     if (m_FieldDelimiter != '\t') m_IsLowAsciiWhitespace['\t'] = true; // 9
@@ -598,8 +598,8 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <summary>
-  ///   Current Line Number in the text file, a record can span multiple lines and lines are
-  ///   skipped, this is he ending line
+  ///   Current Line Number in the text file, a record can span multiple lines, and lines are
+  ///   skipped, this is the ending line
   /// </summary>
   public override long EndLineNumber { get => m_EndLineNumber; protected set => m_EndLineNumber = value; }
 
@@ -646,8 +646,8 @@ public class CsvFileReader : BaseFileReader
 
   /// <inheritdoc />
   /// <remarks>
-  /// This is basically doing the same as GetValue in the base class, but its 
-  /// uses the low level methods directly to avoid the overhead of going through the object conversion twice
+  /// This is basically doing the same as GetValue in the base class, but it 
+  /// uses the low-level methods directly to avoid the overhead of going through the object conversion twice
   /// </remarks>
   public override object GetValue(int ordinal)
   {
@@ -769,11 +769,11 @@ public class CsvFileReader : BaseFileReader
       {
         _ = ReadNextRow(raiseWarnings: false);
 
-        // if we have less columns than in the header exit the loop
+        // if we have fewer columns than in the header, exit the loop
         if (m_CurrentRowColumns.Count < fields)
           break;
 
-        // special case of missing linefeed, the line is twice as long minus 1 because of the
+        // Special case of missing linefeed, the line is twice as long minus 1 because of the
         // combined column in the middle
         if (m_CurrentRowColumns.Count == (fields * 2) - 1)
           continue;
@@ -784,7 +784,7 @@ public class CsvFileReader : BaseFileReader
           fields++;
         }
 
-        // if we have data in the column assume the header was missing
+        // if we have data in the column, assume the header was missing
         if (!string.IsNullOrEmpty(m_CurrentRowColumns[fields - 1]))
           return fields;
       }
@@ -959,19 +959,21 @@ public class CsvFileReader : BaseFileReader
         readRowAgain = true;
       } while (readRowAgain);
 
-      // Option a Supported - We have a break in a middle column, the missing columns are pushed
+      // Option 1
+      // Supported - We have a break in a middle column, the missing columns are pushed
       // in the next currentRow(s)
-      // Option b Not Supported - We have a line break in the last column,
+      // Option 2
+      // Not Supported - We have a line break in the last column,
       // the text of this currentRow belongs to the last Column of the last records, as the last record
-      // had been processed already we can not change it anymore...
+      // had been processed already, we cannot change it anymore
       if (m_CurrentRowColumns.Count < FieldCount)
       {
-        // if we still have only one column, and we should have a number of columns assume this was
+        // if we still have only one column, and we should have a number of columns, assume this was
         // nonsense like a report footer
         if (m_CurrentRowColumns.Count == 1 && EndOfFile && m_CurrentRowColumns[0].Length < 10)
         {
-          // As the record is ignored this will most likely not be visible
-          // -2 to indicate this error could be stored with the previous line....
+          // As the record is ignored, this will most likely not be visible
+          // -2 to indicate this error could be stored with the previous line
           if (m_WarnEmptyTailingColumns)
             HandleWarning(-2, $"Last line is '{m_CurrentRowColumns[0]}'. Assumed to be a EOF marker and ignored.");
           return false;
@@ -1070,8 +1072,8 @@ public class CsvFileReader : BaseFileReader
       Clear();
 
       // Loop through the expected columns and store the values,
-      // handle warnings and replacements      
-      // Additional fields are ignored, missing fields are set to empty
+      // handle warnings and replacements.
+      // Additional fields are ignored, missing fields are set to empty.
       // This way the number of columns in CurrentRowColumnText never changes
       for (var columnNo = 0; columnNo < FieldCount; columnNo++)
       {
@@ -1106,8 +1108,8 @@ public class CsvFileReader : BaseFileReader
             HandleWarning(columnNo, $"Field delimiter '{m_FieldDelimiter.Text()}' found in field".AddWarningId());
 
           // This is a special case of UnknownCharacter
-          // sometimes the UnknownCharacter is raed as simple ? characters
-          // , so we need to check for this as well
+          // sometimes the UnknownCharacter is read as simple ? characters,
+          // so we need to check for this as well
           if (m_WarnUnknownCharacter)
           {
             var numberQuestionMark = 0;
@@ -1119,7 +1121,7 @@ public class CsvFileReader : BaseFileReader
                 continue;
               numberQuestionMark++;
 
-              // If we have at least two and there are two consecutive or more than 3 in 12
+              // If we have at least two, and there are two consecutive or more than 3 in 12
               // characters, or 4+ in 16 characters
               if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
               {
@@ -1155,10 +1157,10 @@ public class CsvFileReader : BaseFileReader
 
   /// <summary>
   ///   Indicates whether the specified Unicode character is categorized as white space.
-  ///   A NonBreaking space is not considers as white space
+  ///   A NonBreaking space is not considered as white space
   /// </summary>
   /// <param name="c">A Unicode character.</param>
-  /// <returns><character>true</character> if the character is a whitespace</returns>
+  /// <returns><character>true</character> if the character is whitespace</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   private bool IsWhiteSpace(char c)
   {
@@ -1176,7 +1178,7 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <summary>
-  ///   Move to next character and store the recent character
+  ///   Move to the next character and store the recent character
   /// </summary>
   /// <param name="current">The recent character that has been read</param>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1197,7 +1199,7 @@ public class CsvFileReader : BaseFileReader
   /// <description>
   /// <c>null</c> indicates that no column value was produced.  
   /// This occurs when the end of the current record has been reached
-  /// (for example, immediately after a line break or at end-of-file),
+  /// (for example, immediately after a line break or at the end-of-file)
   /// and signals the caller to stop reading columns for the current row.
   /// </description>
   /// </item>
@@ -1319,7 +1321,7 @@ public class CsvFileReader : BaseFileReader
         continue;
 
       // Handle Substitutions (Nbsp, Unknown)
-      // Needs to be done so in case the chars are replaced with spaces,
+      // Needs to be done, so in case the chars are replaced with spaces,
       // the spaces will be handled according to the trimming rules
       if (character == cNbsp)
       {
@@ -1371,7 +1373,7 @@ public class CsvFileReader : BaseFileReader
         if (character == m_FieldQualifier)
         {
           quoted = true;
-          // Reset preData only if 'All' is set, to trim inside the quotes.
+          // Reset preData only if 'All' is set to trim inside the quotes.
           preData = m_TrimmingOption == TrimmingOptionEnum.All;
           continue;
         }
@@ -1461,7 +1463,7 @@ public class CsvFileReader : BaseFileReader
   }
 
   /// <summary>
-  ///   Gets the next char from the buffer, but stay at the current position
+  ///   Gets the next char from the buffer but stay at the current position
   /// </summary>
   /// <returns>The next char</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1563,7 +1565,7 @@ public class CsvFileReader : BaseFileReader
       }
     } while (restart);
 
-    // We have a proper column now read the row we already have raed the initial column
+    // We have a proper column now read the row we already have read the initial column
     while (len != null)
     {
       // If a column is quoted and contains the delimiter and linefeed, issue a warning; we

@@ -179,7 +179,7 @@ public sealed class HtmlStyle
   public static string Warning => "<span class='war'>{0}</span>";
 
   /// <summary>
-  ///   Adds an HTML TD, with the given contend
+  ///   Adds an HTML TD with the given contend
   /// </summary>
   /// <param name="template">The template.</param>
   /// <param name="contents">The contents.</param>
@@ -378,7 +378,7 @@ public sealed class HtmlStyle
 
     // 2. Fallback to standard decoding
     // Note: HttpUtility.HtmlDecode currently requires a string.
-    // If text is already a string, this is just a pointer reference.
+    // If the text is already a string, this is just a pointer reference.
     return HttpUtility.HtmlDecode(text.ToString());
   }
 
@@ -389,7 +389,7 @@ public sealed class HtmlStyle
   /// <returns>A valid XML Element Name</returns>
   /// <remarks>
   ///   Element names are case-sensitive, Element names must start with a letter or underscore,
-  ///   Element names cannot start with the letters xml(or XML, or Xml, etc), Element names can
+  ///   Element names cannot start with the letters XML(or XML, or Xml, etc), Element names can
   ///   contain letters, digits, hyphens, underscores, and periods, Element names cannot contain spaces
   /// </remarks>
   public static string XmlElementName(string text)
@@ -410,7 +410,7 @@ public sealed class HtmlStyle
   }
 
   /// <summary>
-  ///   Adds a HTML TD cell.
+  ///   Adds an HTML TD cell.
   /// </summary>
   /// <param name="sbHtml">A StringBuilder for the HTML.</param>
   /// <param name="tdTemplate">The table cell template.</param>
@@ -489,7 +489,7 @@ public sealed class HtmlStyle
   /// </summary>
   /// <param name="fragment">The HTML to put onto the clipboard. It must be valid HTML!</param>
   /// <returns>A string that can be put onto the clipboard and will be recognized as HTML</returns>
-  /// <exception cref="ArgumentException">Parameter can not be empty;fragment</exception>
+  /// <exception cref="ArgumentException">Parameter cannot be empty; fragment</exception>
   /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
   public string ConvertToHtmlFragment(string fragment)
   {

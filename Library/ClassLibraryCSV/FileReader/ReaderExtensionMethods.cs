@@ -33,7 +33,7 @@ public static class ReaderExtensionMethods
   ///   but should not be regarded
   /// </summary>
   /// <param name="reader">A file reader or any data reader</param>
-  /// <returns>A List of all column, be aware that the format in ValueFormat of might be wrong, if is passed in as IDataReader</returns>
+  /// <returns>A List of all columns, be aware that the format in ValueFormat of might be wrong, if is passed in as IDataReader</returns>
   public static IReadOnlyCollection<Column> GetColumnsOfReader(this IDataReader reader)
   {
     if (reader is null)
@@ -67,7 +67,7 @@ public static class ReaderExtensionMethods
   /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
   /// </summary>
   /// <param name="source">The initial source setting </param>
-  /// <param name="cancellationToken">Token to cancel the long running async method</param>
+  /// <param name="cancellationToken">Token to cancel the long-running async method</param>
   /// <returns>The IFileReader to read the data as text</returns>
   /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
   public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,
@@ -135,26 +135,26 @@ public static class ReaderExtensionMethods
   ///   original passed in data table is returned, no artificial columns are added
   /// </param>
   /// <param name="maxDuration">
-  ///   Timeout duration for reading data, if the reader is slow, or it has many rows make sure the
-  ///   timespan is big enough, otherwise the result is cut off
+  ///   Timeout duration for reading data, if the reader is slow, or it has many rows, make sure the
+  ///   timespan is big enough; otherwise the result is cut off
   /// </param>
   /// <param name="startLine">
-  ///   if <c>true</c> add a column for the start line: <see cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+  ///   if <c>true</c> add a column for the start line: <see cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line-based reader like
   ///   delimited text
   /// </param>
   /// <param name="endLine">
-  ///   if <c>true</c> add a column for the end line: <see cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+  ///   if <c>true</c> add a column for the end line: <see cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line-based reader like
   ///   delimited text where a record can span multiple lines
   /// </param>
   /// <param name="recNum">
-  ///   if <c>true</c> add a column for the records number: <see cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+  ///   if <c>true</c> add a column for the number of records: <see cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning,
   ///   it will not start with 1)
   /// </param>
   /// <param name="errorField">
   ///   if <c>true</c> add a column with error information: <see cref="ReaderConstants.cErrorField" />
   /// </param>
   /// <param name="progress">
-  ///   Used to pass on progress information with number of records and percentage
+  ///   Used to pass on progress information with the number of records and percentage
   /// </param>
   /// <returns>A Data Table with all records from the reader</returns>
   public static Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
@@ -167,7 +167,7 @@ public static class ReaderExtensionMethods
   /// </summary>
   /// <param name="wrapper">The DataReader wrapper to read the data from</param>
   /// <param name="maxDuration">Initial Duration for first return</param>
-  /// <param name="progress">Used to pass on progress information with number of records and percentage</param>
+  /// <param name="progress">Used to pass on progress information with the number of records and percentage</param>
   public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
     IProgressWithCancellation progress)
   {

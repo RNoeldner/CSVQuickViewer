@@ -23,15 +23,12 @@ public static class EventExtensions
   /// Safely invokes an event handler, making a thread-safe copy of the delegate.
   /// Catches exceptions from handlers swallows but logs them
   /// </summary>
-  public static void SafeInvoke<TEventArgs>(
-    this EventHandler<TEventArgs> handler,
-    object sender,
-    TEventArgs e) // where TEventArgs : EventArgs
+  public static void SafeInvoke<TEventArgs>(this EventHandler<TEventArgs> handler, object sender, TEventArgs e) 
   {
     var array = handler.GetInvocationList();
-    for (var i = 0; i<array.Length; i++)
+    foreach (var t in array)
     {
-      var singleHandler = (EventHandler<TEventArgs>) array[i];
+      var singleHandler = (EventHandler<TEventArgs>) t;
       try
       {
         singleHandler(sender, e);
@@ -48,12 +45,12 @@ public static class EventExtensions
   /// </summary>
   public static void SafeInvoke(
     this EventHandler handler,
-    object sender) 
+    object sender)
   {
     var array = handler.GetInvocationList();
-    for (var i = 0; i<array.Length; i++)
+    foreach (var t in array)
     {
-      var singleHandler = (EventHandler) array[i];
+      var singleHandler = (EventHandler) t;
       try
       {
         singleHandler(sender, EventArgs.Empty);

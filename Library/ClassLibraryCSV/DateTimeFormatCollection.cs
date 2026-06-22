@@ -95,12 +95,12 @@ public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormat
   /// <remarks>
   /// The scoring heuristic prioritizes:
   /// <list type="number">
-  /// <item><description>Exact length matches (highest priority).</description></item>
+  /// <item><description>Exact length matches (the highest priority).</description></item>
   /// <item><description>Narrower supported length ranges (greater precision).</description></item>
   /// <item><description>Numeric-heavy formats over those containing written names (e.g., MMM, ddd).</description></item>
   /// <item><description>Standard precision over sub-second precision for shorter inputs.</description></item>
   /// </list>
-  /// The underlying collection is loaded lazily. This method is thread-safe for reading, 
+  /// The underlying collection is loaded lazily. This method is thread-safe for reading 
   /// but does not support concurrent modifications to the source collection.
   /// </remarks>
   public IReadOnlyCollection<string> MatchingForLength(int minLength, int maxLength)
@@ -162,7 +162,7 @@ public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormat
     {
       int penalties = 0;
       // Removed 'y' and 's' per your requirement
-      ReadOnlySpan<char> targets = stackalloc char[] { 'M', 'd', 'H', 'h', 'm' };
+      ReadOnlySpan<char> targets = ['M', 'd', 'H', 'h', 'm',];
       bool inQuotes = false;
 
       for (int i = 0; i < format.Length; i++)

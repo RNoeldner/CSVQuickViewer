@@ -20,8 +20,8 @@ using System.Runtime.CompilerServices;
 namespace CsvTools;
 
 /// <summary>
-///   Handles mapping of a data reader to a resulting data reader ignored columns will be omitted
-///   and artificial columns for Line, record and error information are added at the correct places
+///   Handles mapping of a data reader to a resulting data reader ignored columns will be omitted,
+///   and artificial columns for Line, record, and error information are added at the correct places
 /// </summary>
 [DebuggerDisplay("{m_Mapping}")]
 public sealed class ReaderMapping
@@ -59,8 +59,8 @@ public sealed class ReaderMapping
   /// </summary>
   /// <param name="columns"> Collection of column information</param>
   /// <param name="startLine">Add artificial field Start Line, if false the data will be passed on from the source (if existing)</param>
-  /// <param name="endLine">Add artificial field End Line, if false the data will be passed on from the source (if existing)</param>
-  /// <param name="recNum">Add artificial field Records Number, if false the data will be passed on from the source (if existing)</param>
+  /// <param name="endLine">Add artificial field End Line, if false, the data will be passed on from the source (if existing)</param>
+  /// <param name="recNum">Add artificial field Records Number, if false, the data will be passed on from the source (if existing)</param>
   /// <param name="errorField">Add artificial field Error but only if the source does not have the information</param>
   public ReaderMapping(IEnumerable<Column> columns, bool startLine, bool endLine, bool recNum, bool errorField)
   {
@@ -116,7 +116,7 @@ public sealed class ReaderMapping
         continue;
       }
 
-      // Arriving here we take the source column but make sure the ColumnOrdinal is set properly
+      // Arriving here, we take the source column but make sure the ColumnOrdinal is set properly
       m_ResultingColumns.Add(new Column(column.Name, column.ValueFormat, m_ResultingColumns.Count, false, null, column.DestinationName, column.TimePart, column.TimePartFormat, column.TimeZonePart));
       m_Mapping.Add(index, fieldCount++);
     }

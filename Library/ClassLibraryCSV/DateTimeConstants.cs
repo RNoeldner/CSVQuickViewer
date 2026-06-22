@@ -82,6 +82,6 @@ public static class DateTimeConstants
   /// <summary>
   ///  Get the most common time formats
   /// </summary>
-  /// <remarks>Returning the internal Collection directly exposes mutable state.</remarks>
+  /// <remarks>Returning the internal Collection directly exposes the mutable state.</remarks>
   public static IReadOnlyCollection<string> CommonTimeFormats() => m_CommonTimeFormats;
 }

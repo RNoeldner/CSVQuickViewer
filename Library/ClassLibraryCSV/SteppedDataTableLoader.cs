@@ -24,8 +24,8 @@ public sealed class SteppedDataTableLoader : DisposableBase
   private DataReaderWrapper? m_DataReaderWrapper;
 
   /// <summary>
-  /// The number of columns supported, if more columns are found its assumed there is something wrong
-  /// Without this check the DataGrid will run into issues
+  /// The number of columns supported, if more columns are found its assumed there is something wrong.
+  /// Without this check, the DataGrid will run into issues
   /// </summary>
   private const int cMaxColumns = 2048;
 
@@ -41,7 +41,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
   /// <param name="fileSetting">The file setting.</param>
   /// <param name="durationInitial">The duration for the initial load</param>
   /// <param name="progress">Process display to pass on progress information</param>
-  /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
+  /// <exception cref="CsvTools.FileReaderException">Could not get a reader for {fileSetting}</exception>
   public async Task<DataTable> StartAsync(
     IFileSetting fileSetting,
     TimeSpan durationInitial,
@@ -89,7 +89,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
     m_DataReaderWrapper.ReportProgress = progress;
     var dataTable = await m_DataReaderWrapper.GetDataTableAsync(duration, progress).ConfigureAwait(false);
 
-    // If FINISHED dispose m_DataReaderWrapper already
+    // If FINISHED, dispose m_DataReaderWrapper already
     if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await DisposeAsync().ConfigureAwait(false);

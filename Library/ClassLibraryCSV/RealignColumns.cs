@@ -19,8 +19,8 @@ using System.Collections.Generic;
 namespace CsvTools;
 
 /// <summary>
-///   Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
-///   column lead to more than the expected columns This is archived by looking at known good rows
+///   Class that is used to condense columns of a row sensibly, assuming a delimiter in a
+///   column lead to more than the expected columns. This is archived by looking at known good rows
 ///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
 ///   are long text or all empty there is no way to say which column is not aligned.
 /// </summary>

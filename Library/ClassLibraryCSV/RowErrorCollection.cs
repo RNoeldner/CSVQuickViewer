@@ -36,7 +36,7 @@ public sealed class RowErrorCollection
   public int CountRows => m_RowErrorCollection.Count;
 
   /// <summary>
-  ///   Combines all messages in order to display them
+  ///   Combines all messages to display them
   /// </summary>
   /// <value>One string with all messages</value>
   public string Display
@@ -132,6 +132,6 @@ public sealed class RowErrorCollection
   /// <param name="returnValue">The return value.</param>
   /// <returns></returns>
   public bool TryGetValue(long recordNumber, out Dictionary<int, string>? returnValue) =>
-    // if we return true, th dictionary is not null
+    // if we return true, the dictionary is not null
     m_RowErrorCollection.TryGetValue(recordNumber, out returnValue);
 }

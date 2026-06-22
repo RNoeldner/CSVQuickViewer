@@ -578,7 +578,7 @@ public class ImprovedStream : Stream, IImprovedStream
         SourceAccess.IdentifierInContainer = "File1.txt";
       var cleanName = ZipEntry.CleanName(SourceAccess.IdentifierInContainer);
       var copyOtherFiles = false;
-      // Check the stream if it already contains the file; if so remove the old file
+      // Check the stream if it already contains the file; if so, remove the old file
       using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
       {
         // ReSharper disable once NotDisposedResource

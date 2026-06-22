@@ -14,7 +14,7 @@
 namespace CsvTools;
 
 /// <summary>
-///   Class should support CollectionIdentifier to support uniqueness and finding in collection
+///   Class should support CollectionIdentifier to support uniqueness and finding in a collection
 /// </summary>
 public interface ICollectionIdentity
 {

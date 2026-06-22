@@ -99,7 +99,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   }
 
   /// <summary>
-  /// Appends a single character to latest current column being parsed.
+  /// Appends a single character to the latest current column being parsed.
   /// </summary>
   /// <param name="c">The character to append.</param>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -186,34 +186,6 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
 
   /// <inheritdoc/>
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-  /// <summary>
-  /// Serves as the default hash function.
-  /// </summary>
-  /// <summary>
-  /// Returns a hash code for the entire row based on the content of all columns.
-  /// </summary>
-  public override int GetHashCode()
-  {
-    unchecked
-    {
-      int hash = 17;
-
-      // 1. Hash the structure/metadata
-      hash = (hash * 397) ^ m_ColumnCount;
-
-      // 2. Hash only the ACTIVE data in the buffer
-      // We stop at m_TotalLength to ignore pool garbage
-      for (int i = 0; i < m_TotalLength; i++)
-        hash = (hash * 397) ^ m_ArrayPool[i];
-
-      // 3. Hash the offsets to distinguish between ["a","bc"] and ["ab","c"]
-      for (int i = 0; i < m_ColumnCount; i++)
-        hash = (hash * 397) ^ m_EndOffsets[i];
-
-      return hash;
-    }
-  }
 
   /// <summary>
   /// Returns the column text as a <see cref="ReadOnlySpan{Char}"/>.

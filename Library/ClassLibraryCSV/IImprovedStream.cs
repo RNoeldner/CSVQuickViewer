@@ -20,7 +20,7 @@ namespace CsvTools;
 public interface IImprovedStream 
 {    
   /// <summary>
-  /// Percentage of read source as decimal between 0.0 and 1.0
+  /// Percentage of a read source as decimal between 0.0 and 1.0
   /// </summary>
   double Percentage { get; }
 }

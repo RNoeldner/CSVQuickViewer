@@ -530,14 +530,6 @@ public static class ClassLibraryCsvExtensionMethods
   /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
   /// <param name="replacement">The text to inject.</param>
   /// <returns>The modified string.</returns>
-
-  /// <summary>
-  /// Replaces a named placeholder with a replacement string, searching for various delimiters like {x}, #x#, (x).
-  /// </summary>
-  /// <param name="input">The source text.</param>
-  /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
-  /// <param name="replacement">The text to inject.</param>
-  /// <returns>The modified string.</returns>
   public static string PlaceholderReplace(this string input, ReadOnlySpan<char> placeholder, string replacement)
   {
     if (placeholder.IsEmpty || !input.AsSpan().Contains(placeholder, StringComparison.OrdinalIgnoreCase))

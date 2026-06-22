@@ -33,6 +33,7 @@ public static class StringConversion
   /// <returns>Formatted value</returns>
   public static string DateTimeToString(this DateTime dateTime, ValueFormat format) =>
     DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
+  
   /// <summary>
   /// Converts a <see cref="DateTime"/> to a formatted string using custom date and time separators.
   /// </summary>
@@ -75,7 +76,7 @@ public static class StringConversion
       }
     }
 
-    // Measure the length for teh hours block
+    // Measure the length for the hours block
     var lengthHours = 0;
     var consecutiveHours = true;
     for (int i = 0; i < formatSpan.Length; i++)
@@ -102,10 +103,9 @@ public static class StringConversion
         {
           var hours = (long) Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours);
           int digits = (hours == 0) ? 1 : (int) Math.Floor(Math.Log10(hours)) + 1;
-          if (lengthHours > digits)
-            newFormatTimeOnly.Append(hours.ToString(new string('0', lengthHours)));
-          else
-            newFormatTimeOnly.Append(hours.ToString(CultureInfo.InvariantCulture));
+          newFormatTimeOnly.Append(lengthHours > digits
+            ? hours.ToString(new string('0', lengthHours))
+            : hours.ToString(CultureInfo.InvariantCulture));
         }
         hasHours = true;
       }
@@ -119,7 +119,7 @@ public static class StringConversion
   }
 
   /// <summary>
-  ///   Converts a decimals to string.
+  ///   Converts a decimal to string.
   /// </summary>
   /// <param name="value">The value.</param>
   /// <param name="format">The <see cref="ValueFormat" />.</param>
@@ -136,7 +136,7 @@ public static class StringConversion
   /// <returns></returns>
   public static string DisplayDateTime(DateTime dateTime, CultureInfo culture)
   {
-    // if we only have a time:
+    // if we only have a time value:
     if (IsTimeOnly(dateTime))
       return dateTime.ToString("T", culture);
 
@@ -150,7 +150,7 @@ public static class StringConversion
   }
 
   /// <summary>
-  ///   Converts a long to string.
+  ///   Converts a 64bit integer value to string.
   /// </summary>
   /// <param name="value">The value.</param>
   /// <param name="format">The <see cref="ValueFormat" />.</param>
@@ -164,7 +164,7 @@ public static class StringConversion
   }
 
   /// <summary>
-  ///   Converts a doubles to string.
+  ///   Converts a double to string.
   /// </summary>
   /// <param name="value">The value.</param>
   /// <param name="format">The <see cref="ValueFormat" />.</param>
@@ -183,7 +183,7 @@ public static class StringConversion
   ///   Formats a file size in KiloBytes or MegaBytes depending on size
   /// </summary>
   /// <param name="length">Storage size in Bytes</param>
-  /// <returns>String representation as binary prefix</returns>
+  /// <returns>String representation as a binary prefix</returns>
   /// <example>1048576 is 1 MB</example>
   public static string DynamicStorageSize(long length)
   {

@@ -22,7 +22,7 @@ namespace CsvTools;
 
 /// <inheritdoc />
 /// <summary>
-///   Abstract class as base for all DataReaders that are reading a typed value, e.G. Excel
+///   Abstract class as a base for all DataReaders that are reading a typed value, e.G. Excel
 /// </summary>
 public abstract class BaseFileReaderTyped : BaseFileReader
 {
@@ -235,7 +235,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
       return GetSpan(ordinal).IsEmpty;
     }
 
-    // 4. Fallback for primitives: A null check on the current value object , but the cell could be a typed cell but teh value came back as text
+    // 4. Fallback for primitives: A null check on the current value object, but the cell could be a typed cell but the value came back as text
     return m_CurrentValues[ordinal] is null && GetSpan(ordinal).IsEmpty;
   }
 
@@ -320,7 +320,7 @@ public abstract class BaseFileReaderTyped : BaseFileReader
     }
 
     // 4. Final return optimization: 
-    // If length hasn't changed (no trimming happened), return original string object.
+    // If the length hasn't changed (no trimming happened), return the original string object.
     if (processedSpan.Length == text.Length)
       return text;
 

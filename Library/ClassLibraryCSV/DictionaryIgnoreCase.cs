@@ -45,8 +45,8 @@ public class DictionaryIgnoreCase<TValue> : Dictionary<string, TValue>, IEquatab
   /// </summary>
   /// <param name="collection">Source dictionary (can be null).</param>
   /// <param name="valueComparer">
-  /// Optional equality comparer for TValue. 
-  /// If null and TValue is string, uses OrdinalIgnoreCase.
+  /// Optional equality comparer to TValue. 
+  /// If null and TValue are string, uses OrdinalIgnoreCase.
   /// </param>
   public DictionaryIgnoreCase(IDictionary<string, TValue>? collection, IEqualityComparer<TValue>? valueComparer = null)
     : base(StringComparer.OrdinalIgnoreCase)

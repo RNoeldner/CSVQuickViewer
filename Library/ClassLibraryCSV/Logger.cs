@@ -19,7 +19,7 @@ using System;
 namespace CsvTools;
 
 /// <summary>
-///   Central point for logging ILogger needs to be set once
+///   The central point for logging ILogger needs to be set once
 /// </summary>
 public static class Logger
 {
@@ -36,12 +36,12 @@ public static class Logger
   /// <summary>
   /// Formats the message and creates a scope.
   /// </summary>
-  /// <param name="name">Format string of the log message in message template format. Example: <c>"User {User} logged in from {Address}"</c>.</param>
+  /// <param name="name">Format the string of the log message in the message template format. Example: <c>"User {User} logged in from {Address}"</c>.</param>
   /// <param name="args">An object array that contains zero or more objects to format.</param>
   /// <returns>A disposable scope object. Can be null.</returns>
   /// <example>
   /// <code language="csharp">
-  /// using(logger.BeginScope("Processing request from {Address}", address)) { }
+  ///  using (logger.BeginScope("Processing request from {Address}", address)) { }
   /// </code>
   /// </example>
   public static IDisposable? BeginScope(string name, params object[] args) =>
@@ -54,7 +54,7 @@ public static class Logger
   /// <param name="args">The arguments.</param>
   public static void Debug(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Debug))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Debug))
       return;
     LoggerInstance.LogDebug(message, args);
   }
@@ -66,13 +66,13 @@ public static class Logger
   /// <param name="args">Message arguments.</param>
   public static void Error(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Error))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Error))
       return;
     LoggerInstance.LogError(message, args);
   }
 
   /// <summary>Logs a message on error level.</summary>
-  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="exception">Exception that needs to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
   public static void Error(in Exception exception, string? message = null, params object?[] args)
@@ -87,18 +87,18 @@ public static class Logger
   /// <param name="args">Message arguments.</param>
   public static void Information(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Information))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Information))
       return;
     LoggerInstance.LogInformation(message, args);
   }
 
   /// <summary>Logs a message on information level.</summary>
-  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="exception">Exception that needs to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
   public static void Information(in Exception exception, string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Information))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Information))
       return;
     LoggerInstance.LogInformation(exception, message, args);
   }
@@ -115,18 +115,18 @@ public static class Logger
   /// <param name="args">Message arguments.</param>
   public static void Warning(string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Warning))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Warning))
       return;
     LoggerInstance.LogWarning(message, args);
   }
 
   /// <summary>Logs a warning level message.</summary>
-  /// <param name="exception">Exception that need to be documented</param>
+  /// <param name="exception">Exception that needs to be documented</param>
   /// <param name="message">The message.</param>
   /// <param name="args">Message arguments.</param>
   public static void Warning(Exception exception, string? message, params object?[] args)
   {
-    if (message is null || message.Length == 0 || !IsEnabled(LogLevel.Warning))
+    if (string.IsNullOrEmpty(message) || !IsEnabled(LogLevel.Warning))
       return;
     LoggerInstance.LogWarning(exception, message, args);
   }

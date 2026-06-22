@@ -46,8 +46,8 @@ public sealed class ImprovedTextReaderPositionStore
     || (m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted);
 
   /// <summary>
-  ///   Determines if we could reset the position to allow processing text that had been read before
-  ///   If its supported it will do so.
+  ///   Determines if we could reset the position to allow processing text that had been read before.
+  ///   If it's supported, it will do so.
   /// </summary>
   private bool CouldStartFromBeginning()
   {

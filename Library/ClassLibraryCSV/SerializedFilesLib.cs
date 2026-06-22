@@ -107,7 +107,7 @@ public static class SerializedFilesLib
                 arr[i].Remove();
         }
         
-        // if array has no items left it's empty
+        // if array has no items left, it's empty
         return !arr.HasValues;
 
       case JTokenType.None:
@@ -154,7 +154,7 @@ public static class SerializedFilesLib
   }
 
   /// <summary>
-  ///   De serialize a file, looking at the file its determined if it should be read as json or xml
+  ///   De serialize a file, looking at the file its determined if it should be read as JSON or XML
   /// </summary>
   /// <typeparam name="T">A class</typeparam>
   /// <param name="fileName">Name of the file</param>
@@ -166,7 +166,7 @@ public static class SerializedFilesLib
     using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
     var text = await reader.ReadToEndAsync().ConfigureAwait(false);
-    // Moved some classes across library, this need to be adjusted here
+    // Moved some classes across library, this needs to be adjusted here
     text = new[] { ".CsvFile", ".JsonFile", ".XMLFile" }.Aggregate(text, (current, className) => current.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\""));
 
     if (text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
@@ -175,18 +175,18 @@ public static class SerializedFilesLib
   }
 
   /// <summary>
-  ///   De serialize the text as specific type
+  ///   De serialize the text as a specific type
   /// </summary>
-  /// <param name="content">The Json content as text</param>
+  /// <param name="content">The JSON content as text</param>
   public static T DeserializeText<T>(this string content) where T : class =>
     JsonConvert.DeserializeObject<T>(content, JsonSerializerSettings.Value)!;
 
   /// <summary>
-  ///   De serializes the text as Json Object
+  ///   De serializes the text as JSON Object
   /// </summary>
-  /// <param name="content">The Json content as text</param>
+  /// <param name="content">The JSON content as text</param>
   /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
-  /// <exception cref="JsonException">Returned content could not be read as Json</exception>
+  /// <exception cref="JsonException">Returned content could not be read as JSON</exception>
   public static JContainer DeserializeJson(this string content)
   {
     if (JsonConvert.DeserializeObject(content, JsonSerializerSettings.Value) is JContainer jsonData)
@@ -214,11 +214,11 @@ public static class SerializedFilesLib
   }
 
   /// <summary>
-  ///   Serialize the data class and store the result in a file. If the file exists it will be checked if there are changes to the current content.
+  ///   Serialize the data class and store the result in a file. If the file exists, it will be checked if there are changes to the current content.
   /// </summary>
   /// <param name="data">The class to be serialized</param>
   /// <param name="fileName">The filename to store the serialization text</param>
-  /// <param name="askOverwrite">Function to call if the file does exist, if left empty the file will be overwritten</param>
+  /// <param name="askOverwrite">Function to call if the file does exist, if left empty, the file will be overwritten</param>
   /// <param name="withBackup">If <c>true</c> backups are </param>
   /// <returns></returns>
   public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null,

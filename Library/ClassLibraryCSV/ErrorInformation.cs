@@ -50,7 +50,7 @@ public static class ErrorInformation
   /// <param name="newError">A new message that should be added to the list</param>
   /// <param name="isWarning"><c>true</c> if this message is a warning</param>
   /// <returns>
-  ///   A new error list text, if the message was already contained is not added a second time,
+  ///   A new error list text, if the message was already contained, is not added a second time,
   ///   usually messages are appended, unless they are errors and the list contains only warnings
   ///   so far
   /// </returns>
@@ -63,7 +63,7 @@ public static class ErrorInformation
     if (errorList.Length == 0)
       return newError.ToString();
 
-    // if the message is already in the text do not do anything
+    // if the message is already in the text, do not do anything
     if (errorList.Contains(newError, StringComparison.Ordinal))
       return errorList.ToString();
     return isWarning
@@ -77,7 +77,7 @@ public static class ErrorInformation
   /// <param name="errorList">A text containing different types of messages that are concatenated</param>
   /// <param name="newError">A new message that should be added to the list</param>
   /// <returns>
-  ///   A new error list text, if the message was already contained is not added a second time,
+  ///   A new error list text, if the message was already contained, is not added a second time,
   ///   usually messages are appended, unless they are errors and the list contains only warnings
   ///   so far
   /// </returns>
@@ -216,11 +216,11 @@ public static class ErrorInformation
 
     ReadOnlySpan<char> warnId = cWarningId.AsSpan();
 
-    // 1. Direct match at start
+    // 1. Direct match at the start
     if (errorList.StartsWith(warnId, StringComparison.Ordinal))
       return true;
 
-    // 2. Match after first field (e.g., "[ColumnName]: [WARNING]")
+    // 2. Match after the first field (e.g., "[ColumnName]: [WARNING]")
     var splitter = errorList.IndexOf(cClosingField);
     if (splitter != -1)
     {
@@ -233,7 +233,7 @@ public static class ErrorInformation
   }
 
   /// <summary>
-  ///   Stores the error information in a single string (usually stored in #error )
+  ///   Stores the error information in a single string (usually stored in #error)
   /// </summary>
   /// <param name="columnErrors">The column errors by column number</param>
   /// <param name="getColumnName">A Function to get the column name</param>
@@ -269,7 +269,7 @@ public static class ErrorInformation
   }
 
   /// <summary>
-  ///   Set the Row and Column errors of the DataRow, based on parameter
+  ///   Set the Row and Column errors of the DataRow, based on a parameter
   /// </summary>
   /// <param name="row">The DataRow that will get the error information</param>
   /// <param name="errorList">A text containing different types of messages that are concatenated</param>
@@ -332,7 +332,7 @@ public static class ErrorInformation
   }
 
   /// <summary>
-  ///   Builds a list from the provided error list, sorting error in front, this will show
+  ///   Builds a list from the provided error list, sorting error in front; this will show
   ///   duplicates though
   /// </summary>
   /// <param name="errorList">The error list.</param>
@@ -383,9 +383,21 @@ public static class ErrorInformation
   /// </summary>
   public readonly struct ColumnAndMessage
   {
+    /// <summary>
+    /// The name of the column
+    /// </summary>
     public readonly ReadOnlyMemory<char> Column;
+    
+    /// <summary>
+    /// The Message for the column
+    /// </summary>
     public readonly ReadOnlyMemory<char> Message;
 
+    /// <summary>
+    /// Create an instance for ColumnAndMessage
+    /// </summary>
+    /// <param name="column">The name of the column</param>
+    /// <param name="message">The Message for the column</param>
     public ColumnAndMessage(ReadOnlyMemory<char> column, ReadOnlyMemory<char> message)
     {
       Column = column;
@@ -408,7 +420,7 @@ public static class ErrorInformation
 
       // Slice the memory directly
       var column = memory.Slice(1, close);
-      // Symetrical to CombineColumnAndError need 3 as we have a space
+      // Symmetrical to CombineColumnAndError need 3 as we have a space
       var message = memory.Slice(close + 3);
       return new ColumnAndMessage(column, message);
     }

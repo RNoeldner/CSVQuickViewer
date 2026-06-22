@@ -19,7 +19,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs whenever the collection content changes,
     ///   such as when an item is added, inserted, removed,
-    ///   or collection is cleared.
+    ///   or a collection is cleared.
     ///   AddRange, InsertRange, Overwrite, RemoveRange all raise exactly one event.
     /// </summary>
     [field: NonSerialized]

@@ -31,7 +31,7 @@ public readonly struct ProgressChangedEventArgs : IEquatable<ProgressChangedEven
   public string Information { get; }
 
   /// <summary>
-  /// Gets the completion percentage, expressed as a value from 0 to 100.
+  /// Gets the completion percentage, expressed as a value, from 0 to 100.
   /// </summary>
   public double Percent { get; }
 

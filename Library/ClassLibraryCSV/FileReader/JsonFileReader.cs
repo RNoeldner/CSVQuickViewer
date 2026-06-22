@@ -247,7 +247,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
 
   /// <summary>
   ///   Resets the position and buffer to the first line, excluding headers, use
-  ///   ResetPositionToStart if you want to go to first data line
+  ///   ResetPositionToStart if you want to go to the first data line
   /// </summary>
   private void ResetPositionToStartOrOpen()
   {
