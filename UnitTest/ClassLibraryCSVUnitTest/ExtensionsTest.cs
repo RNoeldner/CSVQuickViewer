@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ public class ExtensionsTest
   [TestMethod]
   public void ReplaceProjectPlaceholderFormats()
   {
-    Assert.AreEqual("My Date: 2026-05-24", "My Date: {date:YYYY-MM-dd}".PlaceholderReplace("date", new DateTime(2026, 5, 24).ToString()));
+    Assert.AreEqual("My Date: 2026-05-24", "My Date: {date:YYYY-MM-dd}".PlaceholderReplace("date", new DateTime(2026, 5, 24).ToString(CultureInfo.InvariantCulture)));
     Assert.AreEqual("Hello 000152", "Hello {TaskID:000000}".PlaceholderReplace("TaskID", "152"));
   }
 
