@@ -500,8 +500,8 @@ public class CsvFileReader : BaseFileReader
     int consecutiveEmptyRowsMax, string identifierInContainer, string fileName,
     string destinationTimeZone, bool allowPercentage,
     bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, treatTextAsNull, destinationTimeZone, allowPercentage,
-      removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, false, treatTextAsNull, treatNbspAsSpace, destinationTimeZone, allowPercentage,
+      removeCurrency, false)
   {
     SelfOpenedStream = !string.IsNullOrEmpty(fileName);
     m_StreamProvider = FunctionalDI.GetStream;
@@ -512,20 +512,30 @@ public class CsvFileReader : BaseFileReader
 
     if (m_FieldDelimiter == char.MinValue)
       throw new FileReaderException("All delimited text files do need a delimiter.");
+
     if (m_FieldQualifier is cCr or cLf)
+    {
       throw new FileReaderException(
         "The text qualifier characters is invalid, please use something else than CR or LF");
+    }
+
     if (m_FieldDelimiter is cCr or cLf or ' ')
+    {
       throw new FileReaderException(
         "The field delimiter character is invalid, please use something else than CR, LF or Space");
+    }
 
     if (m_EscapePrefix != char.MinValue && (m_FieldDelimiter == m_EscapePrefix || m_FieldQualifier == m_EscapePrefix))
+    {
       throw new FileReaderException(
         $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefix.Text()}.");
+    }
 
     if (m_FieldQualifier != char.MinValue && m_FieldQualifier == m_FieldDelimiter)
+    {
       throw new ArgumentOutOfRangeException(
         $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiter.Text()}");
+    }
 
     m_AllowRowCombining = allowRowCombining;
     m_ContextSensitiveQualifier = contextSensitiveQualifier;
@@ -535,13 +545,18 @@ public class CsvFileReader : BaseFileReader
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
     var m_DelimiterPlaceholder = delimiterPlaceholder ?? string.Empty;
     if (m_DelimiterPlaceholder.IndexOfAny(illegal) != -1)
+    {
       throw new ArgumentException($"Invalid delimiter characters in '{m_DelimiterPlaceholder}'",
         nameof(delimiterPlaceholder));
+    }
 
     var m_NewLinePlaceholder = newLinePlaceholder ?? string.Empty;
     if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
+    {
       throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'",
         nameof(newLinePlaceholder));
+    }
+
     var specials = new List<(string, string)>();
     if (m_NewLinePlaceholder.Length>0)
       specials.Add((m_NewLinePlaceholder, "\n"));
@@ -1085,8 +1100,8 @@ public class CsvFileReader : BaseFileReader
           continue;
         }
 
-        var adjustedText = (m_TextSpecials.Length>0) 
-          ? HandleText(m_CurrentRowColumns.GetSpan(columnNo).ReplaceMultiple(m_TextSpecials), columnNo) 
+        var adjustedText = (m_TextSpecials.Length>0)
+          ? HandleText(m_CurrentRowColumns.GetSpan(columnNo).ReplaceMultiple(m_TextSpecials), columnNo)
           : HandleText(m_CurrentRowColumns.GetSpan(columnNo), columnNo);
 
         if (adjustedText.Length == 0)

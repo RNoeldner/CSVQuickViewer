@@ -28,7 +28,7 @@ namespace CsvTools;
 /// <summary>
 ///   Json text file reader, this reader is a synchronous reader
 /// </summary>
-public sealed class JsonFileReader : BaseFileReaderTyped
+public sealed class JsonFileReader : BaseFileReader
 {
   private Stream? m_Stream;
   private readonly StreamProviderDelegate m_StreamProvider;
@@ -62,7 +62,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     string returnedTimeZone,
     bool allowPercentage,
     bool removeCurrency)
-    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency)
+    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency, true)
   {
     m_Stream = stream;
     m_StreamProvider= FunctionalDI.GetStream;
@@ -91,7 +91,7 @@ public sealed class JsonFileReader : BaseFileReaderTyped
     string returnedTimeZone = "",
     bool allowPercentage = true,
     bool removeCurrency = true)
-    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency, true)
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("File can not be null or empty", nameof(fileName));

@@ -12,11 +12,13 @@
  *
  */
 #nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -28,37 +30,38 @@ namespace CsvTools;
 
 /// <inheritdoc cref="DbDataReader" />
 /// <summary>
-///   Abstract class as a base for all DataReaders
+///   Abstract class as a base for all file-based DataReaders.
+///   This combines the former BaseFileReader and BaseFileReaderTyped behavior.
 /// </summary>
 public abstract class BaseFileReader : DbDataReader, IFileReader
 {
   /// <summary>
-  ///   An array of column
+  ///   An array of column definitions.
   /// </summary>
   public Column[] Column = [];
 
   /// <summary>
-  /// The time zone to convert the read data to, assuming the source time zone is part of the data
+  /// The time zone to convert the read data to, assuming the source time zone is part of the data.
   /// </summary>
   protected readonly string ReturnedTimeZone;
 
   /// <summary>
-  /// The routine used for time zone adjustment
+  /// The routine used for time zone adjustment.
   /// </summary>
   protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
   /// <summary>
-  ///   An array of associated col
+  ///   An array of associated time columns.
   /// </summary>
   protected int[] AssociatedTimeCol = [];
 
   /// <summary>
-  /// The record limit
+  /// The record limit.
   /// </summary>
   protected long RecordLimit;
 
   /// <summary>
-  /// If the reader opens the stream, this is true
+  /// If the reader opens the stream, this is true.
   /// </summary>
   protected bool SelfOpenedStream;
 
@@ -68,19 +71,22 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private const int cMaxProgress = 10000;
 
   private readonly bool m_AllowPercentage;
-
   private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
-
   private readonly DictionaryIgnoreCase<int> m_ColumnIndexMap = new DictionaryIgnoreCase<int>();
 
   /// <summary>
   ///   An array of current row column text, this is reused to avoid multiple allocations.
-  ///   We will have the information in here from ignored columns
+  ///   We will have the information in here from ignored columns.
   /// </summary>
   private readonly RowColumnsBuffer m_CurrentRowColumnText = new RowColumnsBuffer();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
-  private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;  // ReadOnlyMemory for long-term storage of slices.
+
+  private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;
+
+  private readonly bool m_TreatNbspAsSpace;
+
+  private readonly bool m_Trim;
 
   /// <summary>
   ///   An array of associated col
@@ -88,69 +94,73 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private int[] m_AssociatedTimeZoneCol = [];
 
   /// <summary>
+  ///   Optional typed values of the current row.
+  ///   Used by typed readers such as JSON/XML.
+  ///   Null for pure text readers such as CSV.
+  /// </summary>
+  private object?[]? m_CurrentValues;
+  /// <summary>
   ///   Number of Columns in the reader, including the ones ignored
   ///   e.G. a TimeColum associated with a date could be ignored, we still need the information
   /// </summary>
   private int m_FieldCount;
-
-  /// <summary>
-  ///   used to avoid reporting a fished execution twice it might be called on error before being
-  ///   called once execution is done
-  /// </summary>
   private bool m_IsFinished;
-
-  /// <summary>
-  /// A mapping of column indices to include during parsing. 
-  /// Includes columns explicitly mapped to properties, as well as auxiliary columns 
-  /// required for data integrity or time-zone context.
-  /// </summary>
   private bool[] m_ParseFromSource = Array.Empty<bool>();
-
-  // ReSharper disable once FieldCanBeMadeReadOnly.Global
   private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
 
   /// <summary>
-  ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" />
+  ///   Constructor for abstract base class for <see cref="T:CsvTools.IFileReader" />
   /// </summary>
   /// <param name="fileName">Path to a physical file (if used)</param>
   /// <param name="columnDefinition">List of column definitions</param>
   /// <param name="recordLimit">Number of records that should be read</param>
+  /// <param name="trim">If we should trim values</param>
   /// <param name="treatTextAsNull">A semicolon or tab separated list of that should be treated as NULL</param>
+  /// <param name="treatNbspAsSpace">Treat an NBSP as regular space</param>
   /// <param name="returnedTimeZone">
   ///   Name of the time zone datetime values that have a source time zone should be converted to
   /// </param>
   /// <param name="allowPercentage">If <c>true</c> percentage symbols are is processed to a decimal 26.7% will become 0.267</param>
   /// <param name="removeCurrency">If <c>true</c> common currency symbols are removed to parse a currency value as decimal</param>
-  protected BaseFileReader(string fileName,
+  /// <param name="useTypedValues">If <c>true</c> pass in and store typed values</param>
+  protected BaseFileReader(
+    string fileName,
     IEnumerable<Column>? columnDefinition,
     long recordLimit,
+    bool trim,
     string treatTextAsNull,
+    bool treatNbspAsSpace,
     string returnedTimeZone,
     bool allowPercentage,
-    bool removeCurrency)
+    bool removeCurrency,
+    bool useTypedValues)
   {
     TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
     ReturnedTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
     m_ColumnDefinition = columnDefinition is null
       ? []
       : new List<Column>(columnDefinition).ToArray();
+
     RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
     FullPath = fileName;
     SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
     FileName = fileName.GetFileName();
+
     m_AllowPercentage = allowPercentage;
     m_RemoveCurrency = removeCurrency;
-    var mOriginalTreatAsNull = treatTextAsNull;
-    if (string.IsNullOrWhiteSpace(mOriginalTreatAsNull))
+    m_Trim = trim;
+    m_TreatNbspAsSpace = treatNbspAsSpace;
+    m_CurrentValues = useTypedValues ? Array.Empty<object?>() : null;
+
+    if (string.IsNullOrWhiteSpace(treatTextAsNull))
     {
       m_TreatAsNullMemories = Array.Empty<ReadOnlyMemory<char>>();
     }
     else
     {
-      // Split using the logic you provided or a simple loop
       m_TreatAsNullMemories = [.. treatTextAsNull
-          .Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries)
-          .Select(s => s.Trim().AsMemory())];
+        .Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries)
+        .Select(s => s.Trim().AsMemory())];
     }
   }
 
@@ -176,11 +186,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public event EventHandler<WarningEventArgs>? Warning;
 
   /// <inheritdoc />
-  /// <summary>
-  ///   Gets a value indicating the depth of nesting for the current row.
-  /// </summary>
-  /// <value></value>
-  /// <returns>The level of nesting.</returns>
   public override int Depth => 0;
 
   /// <summary>
@@ -196,10 +201,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public virtual bool EndOfFile { get; protected set; } = true;
 
   /// <inheritdoc />
-  /// <summary>
-  ///   Gets the number of fields in the file. This includes ignored fields.
-  /// </summary>
-  /// <value>Number of fields in the file.</value>
   public override int FieldCount => m_FieldCount;
 
   /// <summary>
@@ -225,14 +226,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public virtual long RecordNumber { get; protected set; }
 
   /// <inheritdoc />
-  /// <summary>
-  ///   Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
-  /// </summary>
-  /// <value></value>
-  /// <returns>
-  ///   The number of rows changed, inserted, or deleted; 0 if no rows were affected or the
-  ///   statement failed; and -1 for SELECT statements.
-  /// </returns>
   public override int RecordsAffected => -1;
 
   /// <summary>
@@ -243,10 +236,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </value>
   public IProgress<ProgressInfo> ReportProgress
   {
-    protected get
-    {
-      return m_ReportProgress;
-    }
+    protected get => m_ReportProgress;
     set
     {
       value.SetMaximum(cMaxProgress);
@@ -308,32 +298,23 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <inheritdoc />
-  /// <summary>
-  ///   Gets the boolean.
-  /// </summary>
-  /// <param name="ordinal">The zero-based column ordinal.</param>
   public override bool GetBoolean(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    if (val is bool b)
+      return b;
+
     var col = GetColumn(ordinal);
     var parsed = SpanToBoolean(col, GetSpan(ordinal));
-    if (parsed.HasValue) return parsed.Value;
-
-    // Warning was added by GetBooleanNull
-    throw new FormatException($"'{GetString(ordinal)}' is not a boolean ({col.ValueFormat.True}/{col.ValueFormat.False})");
+    return parsed ?? throw new FormatException($"'{GetString(ordinal)}' is not a boolean ({col.ValueFormat.True}/{col.ValueFormat.False})");
   }
 
   /// <inheritdoc />
-  /// <summary>
-  ///   Gets the 8-bit unsigned integer value of the specified column.
-  /// </summary>
-  /// <param name="ordinal">The zero-based column ordinal.</param>
-  /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
-  /// <exception cref="T:System.IndexOutOfRangeException">
-  ///   The index passed was outside the range of 0 through <see
-  ///   cref="P:System.Data.IDataRecord.FieldCount"/>
-  /// </exception>
   public override byte GetByte(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    if (val is byte b)
+      return b;
     var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (byte) result.Value : throw new FormatException($"'{GetString(ordinal)}' is not a byte");
   }
@@ -343,7 +324,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     using var stream = GetStream(ordinal);
 
-    // Return total length if no buffer is supplied (ADO.NET convention)
     if (buffer == null)
       return stream.Length;
 
@@ -354,7 +334,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       throw new ArgumentOutOfRangeException(nameof(dataOffset), "Offset cannot be negative.");
 
     if (dataOffset >= stream.Length)
-      return 0; // No data to read
+      return 0;
 
     stream.Seek(dataOffset, SeekOrigin.Begin);
     return stream.Read(buffer, bufferOffset, length);
@@ -369,17 +349,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     var text = GetString(ordinal);
     var totalLength = text.Length;
 
-    // ADO.NET convention: if buffer == null, return total length of data
     if (buffer == null)
       return totalLength;
 
     if (dataOffset < 0 || dataOffset > totalLength)
-      return 0; // Nothing to read or invalid offset
+      return 0;
 
     if (bufferOffset < 0 || length < 0 || bufferOffset + length > buffer.Length)
       throw new ArgumentOutOfRangeException(nameof(length), "Invalid buffer range specified.");
 
-    // Compute how many characters we can actually copy
     var charsAvailable = totalLength - (int) dataOffset;
     var charsToCopy = Math.Min(charsAvailable, length);
 
@@ -403,18 +381,47 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)
   {
-    var col = GetColumn(ordinal);
+    if (m_CurrentValues is not null)
+    {
+      int timeColIndex = AssociatedTimeCol[ordinal];
+      bool hasTimeCol = timeColIndex > -1;
+
+      var span = GetSpan(ordinal);
+      var col = GetColumn(ordinal);
+
+      var timePartValue = hasTimeCol ? GetCurrentValue(timeColIndex) : null;
+      var timePartSpan = hasTimeCol ? GetSpan(timeColIndex) : ReadOnlySpan<char>.Empty;
+
+      var dt = SpanToDateTime(col, GetCurrentValue(ordinal), span, timePartValue, timePartSpan, false);
+
+      if (dt.HasValue)
+        return dt.Value;
+
+      if (!GetSpan(ordinal).IsEmpty)
+        throw WarnAddFormatException(ordinal, $"'{GetString(ordinal)}' is not a date time");
+
+      throw new FormatException($"Value in column '{col.Name}' is empty and cannot be converted to DateTime");
+    }
+
+    var column = GetColumn(ordinal);
     var result = SpanToDateTime(
-      column: col,
-      inputDate: null, strInputDate: GetSpan(ordinal),
-      inputTime: null, strInputTime: GetTimeValue(ordinal),
+      column: column,
+      inputDate: null,
+      strInputDate: GetSpan(ordinal),
+      inputTime: null,
+      strInputTime: GetTimeValue(ordinal),
       serialDateTime: true);
-    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a date of the format '{col.ValueFormat.DateFormat}'");
+
+    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a date of the format '{column.ValueFormat.DateFormat}'");
   }
 
   /// <inheritdoc />
   public override decimal GetDecimal(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    if (val is decimal or double or float or short or int or long)
+      return Convert.ToDecimal(val, CultureInfo.CurrentCulture);
+
     var result = SpanToDecimal(GetColumn(ordinal), GetSpan(ordinal));
     return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a decimal");
   }
@@ -422,6 +429,10 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override double GetDouble(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    if (val is decimal or double or float or short or int or long)
+      return Convert.ToDouble(val, CultureInfo.CurrentCulture);
+
     var result = SpanToDouble(GetColumn(ordinal), GetSpan(ordinal));
     return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a double");
   }
@@ -436,6 +447,17 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override float GetFloat(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    try
+    {
+      if (val is decimal or double or float or short or int or long)
+        return Convert.ToSingle(val, CultureInfo.CurrentCulture);
+    }
+    catch (Exception e)
+    {
+      throw WarnAddFormatException(ordinal, $"'{val}' is not a float, {e.Message}");
+    }
+
     var result = SpanToDouble(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (float) result.Value
       : throw new FormatException($"'{GetString(ordinal)}' is not a float");
@@ -444,7 +466,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override Guid GetGuid(int ordinal)
   {
-    // Even if we do not need the column, here access it to check boundaries
+    if (GetCurrentValue(ordinal) is Guid val)
+      return val;
+
     _ = GetColumn(ordinal);
     return SpanToGuid(ordinal, GetSpan(ordinal))
       ?? throw new FormatException($"'{GetString(ordinal)}' is not an GUID");
@@ -453,22 +477,55 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override short GetInt16(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    try
+    {
+      if (val is decimal or double or float or short or int or long or byte)
+        return Convert.ToInt16(val, CultureInfo.CurrentCulture);
+    }
+    catch (Exception e)
+    {
+      throw WarnAddFormatException(ordinal, $"'{val}' is not a short, {e.Message}");
+    }
+
     var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (short) result.Value
-     : throw new FormatException($"'{GetString(ordinal)}' is not a short");
+      : throw new FormatException($"'{GetString(ordinal)}' is not a short");
   }
 
   /// <inheritdoc />
   public override int GetInt32(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    try
+    {
+      if (val is decimal or double or float or short or int or long or byte)
+        return Convert.ToInt32(val, CultureInfo.CurrentCulture);
+    }
+    catch (Exception e)
+    {
+      throw WarnAddFormatException(ordinal, $"'{val}' is not an integer, {e.Message}");
+    }
+
     var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result.HasValue ? (int) result.Value
-     : throw new FormatException($"'{GetString(ordinal)}' is not an integer");
+      : throw new FormatException($"'{GetString(ordinal)}' is not an integer");
   }
 
   /// <inheritdoc />
   public override long GetInt64(int ordinal)
   {
+    var val = GetCurrentValue(ordinal);
+    try
+    {
+      if (val is decimal or double or float or short or int or long or byte)
+        return Convert.ToInt64(val, CultureInfo.CurrentCulture);
+    }
+    catch (Exception e)
+    {
+      throw WarnAddFormatException(ordinal, $"'{val}' is not a long, {e.Message}");
+    }
+
     var result = SpanToLong(GetColumn(ordinal), GetSpan(ordinal));
     return result ?? throw new FormatException($"'{GetString(ordinal)}' is not an long");
   }
@@ -483,7 +540,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     if (string.IsNullOrEmpty(name))
       throw new ArgumentException("Column name must not be null or empty.", nameof(name));
 
-    // This is filled when we open
     if (m_ColumnIndexMap.TryGetValue(name, out var index))
       return index;
 
@@ -500,16 +556,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     {
       var column = GetColumn(col);
 
-      schemaRow[1] = column.Name; // BaseColumnName
-      schemaRow[4] = column.Name; // ColumnName
-      schemaRow[5] = col; // ColumnOrdinal
-      schemaRow[19] = column.Ignore; // IsHidden        
+      schemaRow[1] = column.Name;
+      schemaRow[4] = column.Name;
+      schemaRow[5] = col;
+      schemaRow[19] = column.Ignore;
 
-      // If there is a conversion, get the information
-      if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
-        schemaRow[7] = column.ValueFormat.DataType.GetNetType();
-      else
-        schemaRow[7] = typeof(string);
+      schemaRow[7] = column.Convert && column.ValueFormat.DataType != DataTypeEnum.String
+        ? column.ValueFormat.DataType.GetNetType()
+        : typeof(string);
 
       dataTable.Rows.Add(schemaRow);
     }
@@ -547,17 +601,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (IsDBNull(ordinal))
       return new StringReader(string.Empty);
+
     var text = GetString(ordinal);
 
     if (GetColumn(ordinal).ValueFormat.DataType == DataTypeEnum.Binary)
-    {
-      // Interpret as file reference (text-based)
-      return File.Exists(text)
-        ? File.OpenText(text)
-        : new StringReader(string.Empty);
-    }
+      return File.Exists(text) ? File.OpenText(text) : new StringReader(string.Empty);
 
-    // Treat as direct textual data
     return new StringReader(text);
   }
 
@@ -601,7 +650,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     var count = Math.Min(values.Length, FieldCount);
 
-    for (int ordinal = 0; ordinal < count; ordinal++)
+    if (m_CurrentValues is not null)
+    {
+      Array.Copy(m_CurrentValues, values, count);
+      return count;
+    }
+
+    for (var ordinal = 0; ordinal < count; ordinal++)
       values[ordinal] = GetValue(ordinal);
 
     return count;
@@ -612,7 +667,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   public virtual void HandleReadFinished()
   {
-    if (m_IsFinished) return;
+    if (m_IsFinished)
+      return;
 
     m_IsFinished = true;
     HandleShowProgress("Finished reading", 1);
@@ -622,7 +678,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
-    if (ordinal<0 || m_CurrentRowColumnText.Count <= ordinal)
+    if (ordinal < 0 || m_CurrentRowColumnText.Count <= ordinal)
       return true;
     return IsDBNull(GetColumn(ordinal));
   }
@@ -635,21 +691,15 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc cref="IDataReader" />
   [Obsolete("Use OpenAsync instead for asynchronous, non-blocking operation.")]
-  public virtual void Open()
-  =>
-    // Synchronously calls async method; safe for non-UI threads.
-    OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
+  public void Open()
+    => OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-  /// <inheritdoc cref="IDataReader" />
+  /// <inheritdoc />
   public abstract Task OpenAsync(CancellationToken cancellationToken);
 
-  /// <inheritdoc cref="IDataReader" />
-  /// <remarks>
-  /// This synchronous method blocks until the asynchronous read completes.
-  /// Prefer ReadAsync(CancellationToken) in asynchronous scenarios.
-  /// </remarks>
+  /// <inheritdoc />
   public sealed override bool Read()
-  => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
+    => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
   /// <inheritdoc cref="IFileReader" />
   public sealed override Task<bool> ReadAsync(CancellationToken cancellationToken)
@@ -670,12 +720,21 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// Adds a value to the collection
   /// </summary>
   /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
-  /// <param name="typedValue">The underlying object value, only actually used in <see cref="BaseFileReaderTyped"/>.</param>
+  /// <param name="typedValue">The underlying object value</param>
   /// <returns>The zero-based index at which the value was added.</returns>
-  protected virtual int Add(ReadOnlySpan<char> text, object? typedValue = null)
+
+  protected void Add(ReadOnlySpan<char> text, object? typedValue = null)
   {
     m_CurrentRowColumnText.Add(text);
-    return m_CurrentRowColumnText.Count-1;
+    if (m_CurrentValues is null)
+    {
+      if (typedValue is not null)
+        throw new InvalidOperationException("Cannot add a typed value if the reader is not supposed to store typed values");
+    }
+    else
+    {
+      m_CurrentValues[m_CurrentRowColumnText.Count - 1] = typedValue;
+    }
   }
 
   /// <summary>
@@ -691,8 +750,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   /// Clears the current row data
   /// </summary>
-  protected virtual void Clear()
-    => m_CurrentRowColumnText.Clear();
+  protected void Clear()
+  {
+    m_CurrentRowColumnText.Clear();
+
+    if (m_CurrentValues is not null)
+      Array.Clear(m_CurrentValues, 0, m_CurrentValues.Length);
+  }
 
   /// <inheritdoc />
   protected override void Dispose(bool disposing)
@@ -711,12 +775,20 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     EndOfFile = false;
 
     m_ColumnIndexMap.Clear();
-    // Precomputed name lookup
-    for (int i = 0; i < m_FieldCount; i++)
+    for (var i = 0; i < m_FieldCount; i++)
       m_ColumnIndexMap[Column[i].Name] = i;
 
     OpenFinished?.SafeInvoke(this, Column);
   }
+
+  /// <summary>
+  /// Gets the current object stored in <see cref="m_CurrentValues"/>.
+  /// </summary>
+  /// <param name="ordinal">The zero-based column ordinal.</param>
+  /// <returns>The value at the specified ordinal.</returns>
+  /// <exception cref="IndexOutOfRangeException">Thrown if the ordinal is outside the bounds of the data row.</exception>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected object? GetCurrentValue(int ordinal) => m_CurrentValues?[ordinal];
 
   /// <summary>
   ///   Gets the relative position; this only works if RecordLimit is set
@@ -730,6 +802,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (RecordLimit is > 0 and < long.MaxValue)
       return (double) RecordNumber / RecordLimit;
+
     return 0;
   }
 
@@ -738,17 +811,16 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="ordinal">The column number.</param>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  protected virtual ReadOnlySpan<char> GetSpan(int ordinal) => m_CurrentRowColumnText.GetSpan(ordinal);
+  protected ReadOnlySpan<char> GetSpan(int ordinal) => m_CurrentRowColumnText.GetSpan(ordinal);
 
   /// <summary>
   ///   Gets the associated value.
   /// </summary>
-  /// <param name="i">The i.</param>
-  protected virtual ReadOnlySpan<char> GetTimeValue(int i) =>
+  /// <param name="i">The column.</param>
+  protected ReadOnlySpan<char> GetTimeValue(int i) =>
     AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= m_CurrentRowColumnText.Count
       ? []
       : GetSpan(AssociatedTimeCol[i]);
-
   /// <summary>
   ///   Calls the event handler for errors <see cref="Warning"/>
   /// </summary>
@@ -756,9 +828,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="message">The message to raise.</param>
   protected void HandleError(int ordinal, ReadOnlySpan<char> message)
   {
-    // Ignore message for ignored columns
-    if (ordinal>=0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
+    if (ordinal >= 0 && ordinal < Column.Length && GetColumn(ordinal).Ignore)
       return;
+
     Warning?.SafeInvoke(this, GetWarningEventArgs(ordinal, message));
   }
 
@@ -784,28 +856,50 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="textSpan">The raw character span to process.</param>
   /// <param name="columnNo">The column index for metadata and formatter lookups.</param>
   /// <returns>A processed span that is potentially trimmed, formatted, or cleaned.</returns>
-  protected virtual string HandleText(ReadOnlySpan<char> textSpan, int columnNo)
+  protected string HandleText(ReadOnlySpan<char> textSpan, int columnNo)
   {
-    // 1. Primary Empty Check
     if (textSpan.IsEmpty)
       return string.Empty;
 
-    // 2. Null Detection
     foreach (var t in m_TreatAsNullMemories)
     {
       if (textSpan.Equals(t.Span, StringComparison.Ordinal))
         return string.Empty;
     }
 
-    // 3. Formatting
     var columnFormatter = GetColumn(columnNo).ColumnFormatter;
-    if (!ReferenceEquals(columnFormatter, EmptyFormatter.Instance))
-      return columnFormatter.FormatInputText(textSpan, msg => HandleWarning(columnNo, msg));
+    var text = !ReferenceEquals(columnFormatter, EmptyFormatter.Instance)
+      ? columnFormatter.FormatInputText(textSpan, msg => HandleWarning(columnNo, msg))
+      : textSpan.ToString();
 
-    // 4. Return
-    // If we formatted it, return the string we already have to avoid a second allocation
-    // If we didn't format it, create a new string from the original span
-    return textSpan.ToString();
+    if (string.IsNullOrEmpty(text))
+      return string.Empty;
+
+    var processedSpan = text.AsSpan();
+
+    if (m_Trim)
+      processedSpan = processedSpan.Trim();
+
+    if (processedSpan.IsEmpty)
+      return string.Empty;
+
+    if (m_TreatNbspAsSpace)
+    {
+      var firstNbsp = processedSpan.IndexOf('\u00A0');
+      if (firstNbsp != -1)
+      {
+        var buffer = processedSpan.ToArray();
+        for (var i = firstNbsp; i < buffer.Length; i++)
+        {
+          if (buffer[i] == '\u00A0')
+            buffer[i] = ' ';
+        }
+
+        return new string(buffer);
+      }
+    }
+
+    return processedSpan.Length == text.Length ? text : processedSpan.ToString();
   }
 
   /// <summary>
@@ -835,12 +929,18 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (fieldCount > 1000)
       throw new ArgumentException($"Too many columns: {fieldCount}. Maximum supported: 1000", nameof(fieldCount));
+
     m_FieldCount = fieldCount;
     m_ColumnIndexMap.Clear();
     Column = new Column[fieldCount];
+    // m_CurrentValues is set to empty array in constructor if we store values 
+    if (m_CurrentValues is not null)
+      m_CurrentValues = new object[fieldCount];
+
     AssociatedTimeCol = new int[fieldCount];
     m_AssociatedTimeZoneCol = new int[fieldCount];
     m_ParseFromSource = new bool[fieldCount];
+
     for (var counter = 0; counter < fieldCount; counter++)
     {
       Column[counter] = new Column(GetDefaultName(counter), ValueFormat.Empty, counter);
@@ -864,27 +964,43 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </remarks>
   protected virtual bool IsDBNull(in Column column)
   {
-    if (column.Ignore) return true;
+    if (column.Ignore)
+      return true;
 
     var ordinal = column.ColumnOrdinal;
     var span = GetSpan(ordinal);
 
-    if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
+    if (m_CurrentValues is not null)
     {
-      // 1. If the Date part has data, it's NOT NULL. Exit immediately.
-      if (!span.IsEmpty) return false;
+      var dataType = column.ValueFormat.DataType;
 
-      // 2. Date part is empty. Check if there's a split Time part.
-      var timeOrdinal = AssociatedTimeCol[ordinal];
-
-      // 3. The (uint) cast handles both -1 and out-of-bounds in one check.
-      if ((uint) timeOrdinal < (uint) m_CurrentRowColumnText.Count)
+      if (dataType == DataTypeEnum.DateTime)
       {
-        return GetSpan(timeOrdinal).IsEmpty;
+        if (m_CurrentValues[ordinal] is not null || !span.IsEmpty)
+          return false;
+
+        var timeOrdinal = AssociatedTimeCol[ordinal];
+
+        if ((uint) timeOrdinal >= (uint) m_CurrentValues.Length)
+          return true;
+
+        return m_CurrentValues[timeOrdinal] is null && GetSpan(timeOrdinal).IsEmpty;
       }
 
-      // 4. Date was empty and no valid Time column exists.
-      return true;
+      if (dataType == DataTypeEnum.String)
+        return span.IsEmpty;
+
+      return m_CurrentValues[ordinal] is null && span.IsEmpty;
+    }
+
+    if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
+    {
+      if (!span.IsEmpty)
+        return false;
+
+      var timeOrdinal = AssociatedTimeCol[ordinal];
+
+      return (uint) timeOrdinal >= (uint) m_CurrentRowColumnText.Count || GetSpan(timeOrdinal).IsEmpty;
     }
 
     return span.IsEmpty;
@@ -897,31 +1013,33 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="headerRow">The header row.</param>
   /// <param name="dataType">Optionally provided data types.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if a file has field header.</param>
+
   protected void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
-    // Step 1: Adjust column names
     var adjustedNames = hasFieldHeader
-        ? AdjustColumnName(headerRow, Column.Length)
-        : Enumerable.Range(0, Column.Length)
-            .Select(colIndex =>
+      ? AdjustColumnName(headerRow, Column.Length)
+      : Enumerable.Range(0, Column.Length)
+        .Select(colIndex =>
+        {
+          var colName = GetColumn(colIndex).Name;
+          if (colName.Equals(GetDefaultName(colIndex), StringComparison.OrdinalIgnoreCase))
+          {
+            var def = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
+            if (def != null && !string.IsNullOrEmpty(def.Name))
             {
-              var colName = GetColumn(colIndex).Name;
-              if (colName.Equals(GetDefaultName(colIndex), StringComparison.OrdinalIgnoreCase))
-              {
-                var def = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
-                if (def != null && !string.IsNullOrEmpty(def.Name))
-                {
-                  HandleError(colIndex, "Using column name from definition");
-                  return def.Name;
-                }
-              }
-              return colName;
-            }).ToList();
-    // Step 2: Initialize data types
+              HandleError(colIndex, "Using column name from definition");
+              return def.Name;
+            }
+          }
+
+          return colName;
+        }).ToList();
+
     var dataTypeL = new DataTypeEnum[adjustedNames.Count];
-    // Initialize as text
-    for (var col = 0; col < adjustedNames.Count; col++) dataTypeL[col] = DataTypeEnum.String;
-    // get the provided and overwrite
+
+    for (var col = 0; col < adjustedNames.Count; col++)
+      dataTypeL[col] = DataTypeEnum.String;
+
     if (dataType != null)
     {
       using var enumeratorType = dataType.GetEnumerator();
@@ -930,15 +1048,21 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         dataTypeL[col++] = enumeratorType.Current;
     }
 
-    // Step 3: Update Column objects
-    // set the data types, either using the definition or the provided DataType with defaults
     for (var colIndex = 0; colIndex < adjustedNames.Count && colIndex < Column.Length; colIndex++)
     {
       var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
-          new Column(adjustedNames[colIndex], new ValueFormat(dataTypeL[colIndex]), colIndex);
-      Column[colIndex] = new Column(adjustedNames[colIndex], defined.ValueFormat,
-        colIndex, defined.Ignore, defined.Convert, defined.DestinationName,
-        defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
+                    new Column(adjustedNames[colIndex], new ValueFormat(dataTypeL[colIndex]), colIndex);
+
+      Column[colIndex] = new Column(
+        adjustedNames[colIndex],
+        defined.ValueFormat,
+        colIndex,
+        defined.Ignore,
+        defined.Convert,
+        defined.DestinationName,
+        defined.TimePart,
+        defined.TimePartFormat,
+        defined.TimeZonePart);
     }
 
     if (Column.Length == 0)
@@ -947,18 +1071,17 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       return;
     }
 
-    // Initialize parse source tracking, this might not be needed 
-    // just in case an implementation used the array during open
     for (var index = 0; index < Column.Length; index++)
       m_ParseFromSource[index] = false;
 
-    // Step 4: Initialize TimePart and TimeZone associations
     for (var index = 0; index < Column.Length; index++)
     {
       var column = GetColumn(index);
-      // if the original column that references other columns is ignored, skip it
-      if (column.Ignore) continue;
+      if (column.Ignore)
+        continue;
+
       m_ParseFromSource[index] = true;
+
       var searchedTimePart = column.TimePart;
       var searchedTimeZonePart = column.TimeZonePart;
 
@@ -966,21 +1089,29 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       {
         for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
         {
-          if (indexPoint == index) continue;
-          if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
+          if (indexPoint == index)
+            continue;
+
+          if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase))
+            continue;
+
           AssociatedTimeCol[index] = indexPoint;
           m_ParseFromSource[indexPoint] = true;
           break;
         }
       }
 
-      if (string.IsNullOrEmpty(searchedTimeZonePart)) continue;
+      if (string.IsNullOrEmpty(searchedTimeZonePart))
+        continue;
 
       for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
       {
-        if (indexPoint == index) continue;
+        if (indexPoint == index)
+          continue;
 
-        if (!GetColumn(indexPoint).Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+        if (!GetColumn(indexPoint).Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase))
+          continue;
+
         m_AssociatedTimeZoneCol[index] = indexPoint;
         m_ParseFromSource[indexPoint] = true;
         break;
@@ -1016,8 +1147,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   /// Determines if a column should be parsed
   /// </summary>
-  protected bool ShouldParseFromSource(int columnNo)  => m_ParseFromSource.Length == 0 || columnNo >= m_ParseFromSource.Length ||  m_ParseFromSource[columnNo];
-  
+  protected bool ShouldParseFromSource(int columnNo) =>
+    m_ParseFromSource.Length == 0 || columnNo >= m_ParseFromSource.Length || m_ParseFromSource[columnNo];
+
   /// <summary>
   /// Checks if we should retry to access the data
   /// </summary>
@@ -1025,7 +1157,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="token">The cancellation token.</param>
   protected bool ShouldRetry(in Exception ex, CancellationToken token)
   {
-    if (token.IsCancellationRequested) return false;
+    if (token.IsCancellationRequested)
+      return false;
 
     var eventArgs = new RetryEventArgs(ex) { Retry = false };
     var handler = Volatile.Read(ref OnAskRetry);
@@ -1062,16 +1195,23 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="inputTime">The original object possibly containing a time</param>
   /// <param name="strInputTime">The text representation of the time</param>
   /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
-  protected DateTime? SpanToDateTime(Column column,
-    in object? inputDate, ReadOnlySpan<char> strInputDate,
-    in object? inputTime, ReadOnlySpan<char> strInputTime,
+  protected DateTime? SpanToDateTime(
+    Column column,
+    in object? inputDate,
+    ReadOnlySpan<char> strInputDate,
+    in object? inputTime,
+    ReadOnlySpan<char> strInputTime,
     bool serialDateTime)
   {
     var dateTime = StringConversionSpan.CombineObjectsToDateTime(
-      inputDate, strInputDate,
-      inputTime, strInputTime,
-      serialDateTime, column.ValueFormat,
+      inputDate,
+      strInputDate,
+      inputTime,
+      strInputTime,
+      serialDateTime,
+      column.ValueFormat,
       out var timeSpanLongerThanDay);
+
     if (timeSpanLongerThanDay)
     {
       ReadOnlySpan<char> passedIn = strInputTime;
@@ -1081,45 +1221,57 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       HandleWarning(column.ColumnOrdinal, $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
     }
 
-    if (!dateTime.HasValue && !strInputDate.IsEmpty
-                           && !string.IsNullOrEmpty(column.ValueFormat.DateFormat)
-                           && strInputDate.Length > column.ValueFormat.DateFormat.Length)
+    if (!dateTime.HasValue &&
+        !strInputDate.IsEmpty &&
+        !string.IsNullOrEmpty(column.ValueFormat.DateFormat) &&
+        strInputDate.Length > column.ValueFormat.DateFormat.Length)
     {
       var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
-      dateTime = inputDateNew.CombineStringsToDateTime(column.ValueFormat.DateFormat.AsSpan(),
-        strInputTime, column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime);
+      dateTime = inputDateNew.CombineStringsToDateTime(
+        column.ValueFormat.DateFormat.AsSpan(),
+        strInputTime,
+        column.ValueFormat.DateSeparator,
+        column.ValueFormat.TimeSeparator,
+        serialDateTime);
+
       if (dateTime.HasValue)
       {
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
-          '/', column.ValueFormat.DateSeparator,
-          ':', column.ValueFormat.TimeSeparator);
+          '/',
+          column.ValueFormat.DateSeparator,
+          ':',
+          column.ValueFormat.TimeSeparator);
+
         HandleWarning(column.ColumnOrdinal, strInputTime.Length > 0
-            ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
-            : $"'{strInputDate.ToString()}' is not a date of the format '{display1}', used '{inputDateNew.ToString()}' ");
+          ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
+          : $"'{strInputDate.ToString()}' is not a date of the format '{display1}', used '{inputDateNew.ToString()}' ");
       }
     }
 
     if (dateTime?.Year is > 1752 and <= 9999)
     {
-      // Try to get it from the constant definition (e.g., "UTC")
       if (!column.TimeZonePart.TryGetConstant(out var timeZone))
       {
-        int associatedColIdx = m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal
-            ? m_AssociatedTimeZoneCol[column.ColumnOrdinal]
-            : -1;
+        var associatedColIdx = m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal
+          ? m_AssociatedTimeZoneCol[column.ColumnOrdinal]
+          : -1;
 
         if (associatedColIdx > -1)
           timeZone = GetSpan(associatedColIdx);
       }
 
       return TimeZoneAdjust(
-          dateTime.Value,
-          timeZone.ToString(),
-          ReturnedTimeZone,
-          message => HandleWarning(column.ColumnOrdinal, message));
+        dateTime.Value,
+        timeZone.ToString(),
+        ReturnedTimeZone,
+        message => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults('/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);
+    var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(
+      '/',
+      column.ValueFormat.DateSeparator,
+      ':',
+      column.ValueFormat.TimeSeparator);
 
     HandleError(
       column.ColumnOrdinal,
@@ -1137,10 +1289,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="inputValue">The character span containing the raw string value to parse.</param>
   protected decimal? SpanToDecimal(in Column column, ReadOnlySpan<char> inputValue)
   {
-    var decimalValue = inputValue.StringToDecimal(column.ValueFormat.DecimalSeparator,
+    var decimalValue = inputValue.StringToDecimal(
+      column.ValueFormat.DecimalSeparator,
       column.ValueFormat.GroupSeparator,
-      m_AllowPercentage, m_RemoveCurrency);
-    if (decimalValue.HasValue) return decimalValue.Value;
+      m_AllowPercentage,
+      m_RemoveCurrency);
+
+    if (decimalValue.HasValue)
+      return decimalValue.Value;
 
     HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a decimal");
     return null;
@@ -1153,10 +1309,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="inputValue">The character span containing the raw string value to parse.</param>
   protected double? SpanToDouble(in Column column, ReadOnlySpan<char> inputValue)
   {
-    var ret = inputValue.StringToDouble(column.ValueFormat.DecimalSeparator,
+    var ret = inputValue.StringToDouble(
+      column.ValueFormat.DecimalSeparator,
       column.ValueFormat.GroupSeparator,
-      m_AllowPercentage, m_RemoveCurrency);
-    if (ret.HasValue) return ret.Value;
+      m_AllowPercentage,
+      m_RemoveCurrency);
+
+    if (ret.HasValue)
+      return ret.Value;
 
     HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a double");
     return null;
@@ -1169,11 +1329,13 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="inputValue">The character span containing the raw string value to parse.</param>
   protected Guid? SpanToGuid(int ordinal, ReadOnlySpan<char> inputValue)
   {
-    if (inputValue.IsEmpty) return null;
+    if (inputValue.IsEmpty)
+      return null;
 
     var res = inputValue.StringToGuid();
     if (res.HasValue)
       return res.Value;
+
     HandleError(ordinal, $"'{inputValue.ToString()}' is not a GUID");
     return null;
   }
@@ -1190,7 +1352,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected long? SpanToLong(in Column column, ReadOnlySpan<char> inputValue)
   {
     var ret = inputValue.StringToInt64(column.ValueFormat.GroupSeparator);
-    if (ret.HasValue) return ret.Value;
+    if (ret.HasValue)
+      return ret.Value;
 
     HandleError(column.ColumnOrdinal, $"'{inputValue.ToString()}' is not a integer");
     return null;
@@ -1227,11 +1390,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     var newNames = new List<string>(fieldCount);
     var existingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    int counter = 0;
+    var counter = 0;
 
     foreach (var column in columns)
     {
-      if (counter >= fieldCount) break;
+      if (counter >= fieldCount)
+        break;
 
       var trimmed = column.Trim();
       string resultingName;
@@ -1248,7 +1412,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         if (!string.Equals(column, trimmed, StringComparison.OrdinalIgnoreCase))
           HandleWarning(counter, $"Column title '{column}' had leading or trailing spaces, removed.");
 
-        // Truncate first
         if (resultingName.Length > 128)
         {
           var preview = resultingName.Length > 20 ? resultingName.Substring(0, 20) + "…" : resultingName;
@@ -1256,7 +1419,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           HandleWarning(counter, $"Column title '{preview}' too long, cut off after 128 characters.");
         }
 
-        // Ensure uniqueness (handles truncated columns)
         var uniqueName = existingNames.MakeUniqueInCollection(resultingName);
         if (!string.Equals(uniqueName, resultingName, StringComparison.OrdinalIgnoreCase))
         {
@@ -1288,9 +1450,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       ordinal >= 0 && ordinal < m_FieldCount ? GetColumn(ordinal).Name : null);
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-  /// <summary>
-  ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
-  /// </summary>
   public new virtual Task CloseAsync() => Task.Run(() => base.Close());
 #endif
 }

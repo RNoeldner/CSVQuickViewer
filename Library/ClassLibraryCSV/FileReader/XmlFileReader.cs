@@ -27,7 +27,7 @@ namespace CsvTools;
 /// <summary>
 ///   XML text file reader
 /// </summary>
-public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
+public sealed class XmlFileReader : BaseFileReader
 {
   private readonly XmlDocument m_Doc = new XmlDocument();
   private XmlNode? m_CurrentNode;
@@ -39,7 +39,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     long recordLimit, bool trim,
     string treatTextAsNull, bool treatNbspAsSpace,
     string destTimeZone, bool allowPercentage, bool removeCurrency)
-    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
+    : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency, true)
   {
     m_Stream = stream;
   }
@@ -50,7 +50,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     long recordLimit, bool trim,
     string treatTextAsNull, bool treatNbspAsSpace,
     string destTimeZone, bool allowPercentage, bool removeCurrency)
-    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency)
+    : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, destTimeZone, allowPercentage, removeCurrency, true)
   {
     if (string.IsNullOrEmpty(fileName))
       throw new ArgumentException("File can not be null or empty", nameof(fileName));
@@ -105,7 +105,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
     HandleShowProgress($"Opening XML file {FileName}", 0);
     await BeforeOpenAsync($"Opening XML file {FileName.GetShortDisplayFileName()}")
       .ConfigureAwait(false);
-  Retry:
+    Retry:
     try
     {
       ResetPositionToStartOrOpen();
@@ -241,7 +241,7 @@ public sealed class XmlFileReader : BaseFileReaderTyped, IFileReader
       EndLineNumber = RecordNumber;
 
       Clear();
-      for(var i = 0; i < FieldCount; i++)
+      for (var i = 0; i < FieldCount; i++)
       {
         var col = Column[i];
         if (keyValuePairs.TryGetValue(col.Name, out var value))

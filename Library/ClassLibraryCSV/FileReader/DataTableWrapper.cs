@@ -22,7 +22,7 @@ namespace CsvTools;
 /// <summary>
 ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
 /// </summary>
-/// <remarks>Some functionality for progress reporting are not implemented</remarks>
+/// <remarks>Some functionality for progress reporting is not implemented</remarks>
 public sealed class DataTableWrapper : DataReaderWrapper
 {
   private readonly bool m_AddErrorField;

@@ -100,14 +100,9 @@ public partial class FilteredDataGridView : DataGridView
     KeyDown += FilteredDataGridView_KeyDown;
     DataError += (_, e) =>
     {
-#pragma warning disable S2486 // Generic exceptions should not be ignored
-#pragma warning disable S108 // Nested blocks of code should not be left empty
-      try
-      {
-        if (e != null) Logger.Warning(e.Exception, "DataGridView data error");
-      } catch { }
-#pragma warning restore S108 // Nested blocks of code should not be left empty
-#pragma warning restore S2486 // Generic exceptions should not be ignored
+      if (e == null)
+        return;
+      Logger.Warning(e.Exception, "DataGridView data error");
       e.ThrowException = false;
     };
     // Inside FilteredDataGridView.cs constructor or initialization logic
