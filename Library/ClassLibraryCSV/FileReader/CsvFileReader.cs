@@ -543,25 +543,25 @@ public class CsvFileReader : BaseFileReader
     m_CommentLine = commentLine;
 
     var illegal = new[] { (char) 0x0a, (char) 0x0d, m_FieldDelimiter, m_FieldQualifier };
-    var m_DelimiterPlaceholder = delimiterPlaceholder ?? string.Empty;
-    if (m_DelimiterPlaceholder.IndexOfAny(illegal) != -1)
+    var placeholder = delimiterPlaceholder ?? string.Empty;
+    if (placeholder.IndexOfAny(illegal) != -1)
     {
-      throw new ArgumentException($"Invalid delimiter characters in '{m_DelimiterPlaceholder}'",
+      throw new ArgumentException($"Invalid delimiter characters in '{placeholder}'",
         nameof(delimiterPlaceholder));
     }
 
-    var m_NewLinePlaceholder = newLinePlaceholder ?? string.Empty;
-    if (m_NewLinePlaceholder.IndexOfAny(illegal) != -1)
+    var linePlaceholder = newLinePlaceholder ?? string.Empty;
+    if (linePlaceholder.IndexOfAny(illegal) != -1)
     {
-      throw new ArgumentException($"Invalid placeholder characters in '{m_NewLinePlaceholder}'",
+      throw new ArgumentException($"Invalid placeholder characters in '{linePlaceholder}'",
         nameof(newLinePlaceholder));
     }
 
     var specials = new List<(string, string)>();
-    if (m_NewLinePlaceholder.Length>0)
-      specials.Add((m_NewLinePlaceholder, "\n"));
-    if (m_DelimiterPlaceholder.Length>0)
-      specials.Add((m_DelimiterPlaceholder, m_FieldDelimiter.ToStringHandle0()));
+    if (linePlaceholder.Length>0)
+      specials.Add((linePlaceholder, "\n"));
+    if (placeholder.Length>0)
+      specials.Add((placeholder, m_FieldDelimiter.ToStringHandle0()));
     if (quotePlaceholder.Length>0)
       specials.Add((quotePlaceholder, m_FieldQualifier.ToStringHandle0()));
     m_TextSpecials= specials.ToArray();
@@ -658,33 +658,7 @@ public class CsvFileReader : BaseFileReader
   /// <param name="i">The index of the field to find.</param>
   /// <returns>The .NET type name of the column</returns>
   public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
-
-  /// <inheritdoc />
-  /// <remarks>
-  /// This is basically doing the same as GetValue in the base class, but it 
-  /// uses the low-level methods directly to avoid the overhead of going through the object conversion twice
-  /// </remarks>
-  public override object GetValue(int ordinal)
-  {
-    var column = GetColumn(ordinal);
-    if (IsDBNull(column))
-      return DBNull.Value;
-    object? ret = column.ValueFormat.DataType switch
-    {
-      DataTypeEnum.DateTime => SpanToDateTime(column, null, GetSpan(ordinal),
-        null, GetTimeValue(ordinal), true),
-      DataTypeEnum.Integer => IntPtr.Size == 4
-        ? (int) SpanToLong(column, GetSpan(ordinal))!
-        : SpanToLong(column, GetSpan(ordinal)),
-      DataTypeEnum.Double => SpanToDouble(column, GetSpan(ordinal)),
-      DataTypeEnum.Numeric => SpanToDecimal(column, GetSpan(ordinal)),
-      DataTypeEnum.Boolean => SpanToBoolean(column, GetSpan(ordinal)),
-      DataTypeEnum.Guid => SpanToGuid(column.ColumnOrdinal, GetSpan(ordinal)),
-      _ => GetString(ordinal)
-    };
-    return ret ?? DBNull.Value;
-  }
-
+  
   /// <inheritdoc cref="IFileReader.OpenAsync" />
   /// <summary>
   ///   Open the file Reader; Start processing the Headers and determine the maximum column size
@@ -732,7 +706,7 @@ public class CsvFileReader : BaseFileReader
 
       ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
-      // Turn off un-escaped warning based on WarnLineFeed
+      // Turn off unescaped warning based on WarnLineFeed
       if (!m_WarnLineFeed)
       {
         foreach (var fmt in Column.Select(x => x.ColumnFormatter).OfType<TextUnescapeFormatter>())
@@ -1159,7 +1133,7 @@ public class CsvFileReader : BaseFileReader
       }
 
       RecordNumber++;
-      m_ColumnMerger?.AddAlignedRow(MCurrentRowText);
+      m_ColumnMerger?.AddAlignedRow(CurrentRowText);
       return true;
     }
     catch (Exception ex)

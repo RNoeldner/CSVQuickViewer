@@ -244,9 +244,16 @@ public static class ErrorInformation
       return string.Empty;
 
     var list = new List<ColumnAndMessage>();
-    foreach (var entry in columnErrors)
+
+    foreach (var entry in columnErrors)    
     {
-      if (entry.Key < -1 || entry.Value.IsEmpty) continue;
+      if (entry.Value.IsEmpty) 
+        continue;
+      if (entry.Key == -1)
+      {
+        list.Add(new ColumnAndMessage(ReadOnlyMemory<char>.Empty, entry.Value));
+        continue;
+      }
 
       var colNameMemory = getColumnName(entry.Key).AsMemory();
       var span = entry.Value.Span;

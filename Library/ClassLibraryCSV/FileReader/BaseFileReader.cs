@@ -51,11 +51,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
   /// <summary>
-  ///   An array of associated time columns.
-  /// </summary>
-  protected int[] AssociatedTimeCol = [];
-
-  /// <summary>
   /// The record limit.
   /// </summary>
   protected long RecordLimit;
@@ -81,11 +76,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly RowColumnsBuffer m_CurrentRowColumnText = new RowColumnsBuffer();
   private readonly IntervalAction m_IntervalAction = new IntervalAction();
   private readonly bool m_RemoveCurrency;
-
   private readonly ReadOnlyMemory<char>[] m_TreatAsNullMemories;
-
   private readonly bool m_TreatNbspAsSpace;
-
   private readonly bool m_Trim;
 
   /// <summary>
@@ -94,18 +86,24 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private int[] m_AssociatedTimeZoneCol = [];
 
   /// <summary>
+  ///   An array of associated time columns.
+  /// </summary>
+  private int[] m_AssociatedTimeCol = [];
+
+  /// <summary>
   ///   Optional typed values of the current row.
   ///   Used by typed readers such as JSON/XML.
   ///   Null for pure text readers such as CSV.
   /// </summary>
   private object?[]? m_CurrentValues;
+  
   /// <summary>
   ///   Number of Columns in the reader, including the ones ignored
   ///   e.G. a TimeColum associated with a date could be ignored, we still need the information
   /// </summary>
   private int m_FieldCount;
   private bool m_IsFinished;
-  private bool[] m_ParseFromSource = Array.Empty<bool>();
+  private bool[] m_ParseFromSource = [];
   private IProgress<ProgressInfo> m_ReportProgress = new Progress<ProgressInfo>();
 
   /// <summary>
@@ -281,7 +279,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <summary>
   /// The text values in the row
   /// </summary>
-  protected IReadOnlyList<string> MCurrentRowText => m_CurrentRowColumnText;
+  protected IReadOnlyList<string> CurrentRowText => m_CurrentRowColumnText;
 
   /// <inheritdoc />
   public override object this[string columnName] => GetValue(GetOrdinal(columnName));
@@ -378,41 +376,33 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
+  /// <summary>
+  ///   Gets the column ordinal of the associated time column.
+  /// </summary>
+  /// <param name="column">The column that has teh association.</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected int GetAssociatedTime(int column) => m_AssociatedTimeCol[column];
+
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)
   {
-    if (m_CurrentValues is not null)
-    {
-      int timeColIndex = AssociatedTimeCol[ordinal];
-      bool hasTimeCol = timeColIndex > -1;
+    var dateSpan = GetSpan(ordinal);
+    var dateColumn = GetColumn(ordinal);
+    // Add the associated Time column if set
+    int timeColIndex = GetAssociatedTime(ordinal);
+    bool hasTimeCol = timeColIndex > -1;
 
-      var span = GetSpan(ordinal);
-      var col = GetColumn(ordinal);
+    var timePartValue = hasTimeCol ? GetCurrentValue(timeColIndex) : null;
+    var timePartSpan = hasTimeCol ? GetSpan(timeColIndex) : ReadOnlySpan<char>.Empty;
 
-      var timePartValue = hasTimeCol ? GetCurrentValue(timeColIndex) : null;
-      var timePartSpan = hasTimeCol ? GetSpan(timeColIndex) : ReadOnlySpan<char>.Empty;
+    var dt = SpanToDateTime(dateColumn, GetCurrentValue(ordinal), dateSpan, timePartValue, timePartSpan, false);
 
-      var dt = SpanToDateTime(col, GetCurrentValue(ordinal), span, timePartValue, timePartSpan, false);
+    if (dt.HasValue)
+      return dt.Value;
 
-      if (dt.HasValue)
-        return dt.Value;
-
-      if (!GetSpan(ordinal).IsEmpty)
-        throw WarnAddFormatException(ordinal, $"'{GetString(ordinal)}' is not a date time");
-
-      throw new FormatException($"Value in column '{col.Name}' is empty and cannot be converted to DateTime");
-    }
-
-    var column = GetColumn(ordinal);
-    var result = SpanToDateTime(
-      column: column,
-      inputDate: null,
-      strInputDate: GetSpan(ordinal),
-      inputTime: null,
-      strInputTime: GetTimeValue(ordinal),
-      serialDateTime: true);
-
-    return result ?? throw new FormatException($"'{GetString(ordinal)}' is not a date of the format '{column.ValueFormat.DateFormat}'");
+    throw WarnAddFormatException(ordinal,
+      dateSpan.IsEmpty ? "Value is empty"
+      : $"'{dateSpan.ToString()}' is not a date time format '{dateColumn.ValueFormat.DateFormat}'");
   }
 
   /// <inheritdoc />
@@ -814,14 +804,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   protected ReadOnlySpan<char> GetSpan(int ordinal) => m_CurrentRowColumnText.GetSpan(ordinal);
 
   /// <summary>
-  ///   Gets the associated value.
-  /// </summary>
-  /// <param name="i">The column.</param>
-  protected ReadOnlySpan<char> GetTimeValue(int i) =>
-    AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= m_CurrentRowColumnText.Count
-      ? []
-      : GetSpan(AssociatedTimeCol[i]);
-  /// <summary>
   ///   Calls the event handler for errors <see cref="Warning"/>
   /// </summary>
   /// <param name="ordinal">The column ordinal number.</param>
@@ -937,14 +919,14 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     if (m_CurrentValues is not null)
       m_CurrentValues = new object[fieldCount];
 
-    AssociatedTimeCol = new int[fieldCount];
+    m_AssociatedTimeCol = new int[fieldCount];
     m_AssociatedTimeZoneCol = new int[fieldCount];
     m_ParseFromSource = new bool[fieldCount];
 
     for (var counter = 0; counter < fieldCount; counter++)
     {
       Column[counter] = new Column(GetDefaultName(counter), ValueFormat.Empty, counter);
-      AssociatedTimeCol[counter] = -1;
+      m_AssociatedTimeCol[counter] = -1;
       m_AssociatedTimeZoneCol[counter] = -1;
     }
   }
@@ -962,7 +944,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
   /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
   /// </remarks>
-  protected virtual bool IsDBNull(in Column column)
+  private bool IsDBNull(Column column)
   {
     if (column.Ignore)
       return true;
@@ -979,7 +961,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
         if (m_CurrentValues[ordinal] is not null || !span.IsEmpty)
           return false;
 
-        var timeOrdinal = AssociatedTimeCol[ordinal];
+        var timeOrdinal = m_AssociatedTimeCol[ordinal];
 
         if ((uint) timeOrdinal >= (uint) m_CurrentValues.Length)
           return true;
@@ -998,7 +980,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       if (!span.IsEmpty)
         return false;
 
-      var timeOrdinal = AssociatedTimeCol[ordinal];
+      var timeOrdinal = m_AssociatedTimeCol[ordinal];
 
       return (uint) timeOrdinal >= (uint) m_CurrentRowColumnText.Count || GetSpan(timeOrdinal).IsEmpty;
     }
@@ -1018,7 +1000,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     var adjustedNames = hasFieldHeader
       ? AdjustColumnName(headerRow, Column.Length)
-      : Enumerable.Range(0, Column.Length)
+      : [.. Enumerable.Range(0, Column.Length)
         .Select(colIndex =>
         {
           var colName = GetColumn(colIndex).Name;
@@ -1033,7 +1015,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           }
 
           return colName;
-        }).ToList();
+        })];
 
     var dataTypeL = new DataTypeEnum[adjustedNames.Count];
 
@@ -1095,7 +1077,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           if (!GetColumn(indexPoint).Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase))
             continue;
 
-          AssociatedTimeCol[index] = indexPoint;
+          m_AssociatedTimeCol[index] = indexPoint;
           m_ParseFromSource[indexPoint] = true;
           break;
         }
@@ -1134,14 +1116,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// This method represents the core read logic and must be implemented by derived classes.
   /// The base class provides the public <see cref="Read"/> and <see cref="ReadAsync(CancellationToken)"/> methods
   /// and delegates to this method to avoid sync-over-async and async-over-sync implementations.
-  /// <para/>
-  /// Implementations may complete the returned <see cref="ValueTask{Boolean}"/> synchronously if no asynchronous
-  /// I/O is required. True asynchronous readers should perform their I/O asynchronously and respect the
-  /// <paramref name="cancellationToken"/>.
-  /// <para/>
-  /// When this method returns <c>false</c>, the reader is considered finished and the base class will trigger
-  /// the read-finished lifecycle handling.
-  /// </remarks>
+  /// </remarks>/>
   protected abstract ValueTask<bool> ReadCoreAsync(CancellationToken cancellationToken);
 
   /// <summary>
@@ -1237,10 +1212,8 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       if (dateTime.HasValue)
       {
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
-          '/',
-          column.ValueFormat.DateSeparator,
-          ':',
-          column.ValueFormat.TimeSeparator);
+          '/', column.ValueFormat.DateSeparator,
+          ':', column.ValueFormat.TimeSeparator);
 
         HandleWarning(column.ColumnOrdinal, strInputTime.Length > 0
           ? $"'{strInputDate.ToString()} {strInputTime.ToString()}' is not a date of the format '{display1}' '{column.TimePartFormat}', used '{inputDateNew.ToString()} {strInputTime.ToString()}'"
@@ -1250,28 +1223,19 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     if (dateTime?.Year is > 1752 and <= 9999)
     {
+      // gte the timezone from TimeZonePart or the assiciated column
       if (!column.TimeZonePart.TryGetConstant(out var timeZone))
       {
-        var associatedColIdx = m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal
-          ? m_AssociatedTimeZoneCol[column.ColumnOrdinal]
-          : -1;
-
+        var associatedColIdx = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
         if (associatedColIdx > -1)
           timeZone = GetSpan(associatedColIdx);
       }
 
-      return TimeZoneAdjust(
-        dateTime.Value,
-        timeZone.ToString(),
-        ReturnedTimeZone,
-        message => HandleWarning(column.ColumnOrdinal, message));
+      return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
     }
 
     var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(
-      '/',
-      column.ValueFormat.DateSeparator,
-      ':',
-      column.ValueFormat.TimeSeparator);
+      '/', column.ValueFormat.DateSeparator, ':', column.ValueFormat.TimeSeparator);
 
     HandleError(
       column.ColumnOrdinal,
