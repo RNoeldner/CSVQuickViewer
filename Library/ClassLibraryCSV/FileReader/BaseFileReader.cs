@@ -30,7 +30,7 @@ namespace CsvTools;
 
 /// <inheritdoc cref="DbDataReader" />
 /// <summary>
-///   Abstract class as a base for all file-based DataReaders.
+///   Abstract class as a base for all IFileReader.
 ///   This combines the former BaseFileReader and BaseFileReaderTyped behavior.
 /// </summary>
 public abstract class BaseFileReader : DbDataReader, IFileReader
@@ -1123,7 +1123,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       }
     }
 
-    if (dateTime.Year is > 1752 and <= 9999)
+    if (successParse && dateTime.Year is > 1752 and <= 9999)
     {
       // get the timezone from TimeZonePart or the assiciated column
       if (!column.TimeZonePart.TryGetConstant(out var timeZone))

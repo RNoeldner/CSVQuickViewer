@@ -936,7 +936,7 @@ public class CsvFileReader : BaseFileReader
         var isRepeatedHeader = true;
         for (var col = 0; col < FieldCount; col++)
         {
-          if (!m_HeaderRow[col].Equals(m_CurrentRowColumns[col], StringComparison.OrdinalIgnoreCase))
+          if (!m_HeaderRow[col].CollectionEqualWithOrder(m_CurrentRowColumns[col]))
           {
             isRepeatedHeader = false;
             break;
