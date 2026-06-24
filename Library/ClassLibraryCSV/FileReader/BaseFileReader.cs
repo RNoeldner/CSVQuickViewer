@@ -180,7 +180,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Occurs when something went wrong during the opening of the setting, this might be the file
   ///   does not exist or a query ran into a timeout
   /// </summary>
-  public Func<Exception, bool> AskRetry { get;  set; } = (_) => false;
+  public Func<Exception, bool> AskRetry { get; set; } = (_) => false;
   /// <inheritdoc />
   public override int Depth => 0;
 
@@ -1092,7 +1092,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     bool serialDateTime)
   {
     var successParse = column.ValueFormat.DateFormat.TryParseCombinedDateTime(
-      inputDate, strInputDate, inputTime, strInputTime, 
+      inputDate, strInputDate, inputTime, strInputTime,
       column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime,
       out var dateTime, out var timeSpanLongerThanDay);
 
@@ -1371,7 +1371,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     return span.IsEmpty;
   }
+
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+  /// <inheritdoc />
   public new virtual Task CloseAsync() => Task.Run(() => base.Close());
 #endif
 }

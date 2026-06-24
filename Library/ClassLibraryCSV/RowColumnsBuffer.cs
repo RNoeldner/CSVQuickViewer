@@ -135,49 +135,6 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     m_Disposed = true;
   }
 
-  /// <summary>
-  /// Indicates whether the current buffer is equal to a read-only collection of strings.
-  /// </summary>
-  /// <summary>
-  /// Indicates whether the current buffer is equal to a read-only collection of strings.
-  /// </summary>
-  public bool Equals(IReadOnlyCollection<string>? other)
-  {
-    if (other == null) return false;
-    if (ReferenceEquals(this, other)) return true;
-    if (m_ColumnCount != other.Count) return false;
-
-    // Fast Path: If it supports indexing, avoid enumerator allocation
-    if (other is IReadOnlyList<string> list)
-    {
-      for (int i = 0; i < m_ColumnCount; i++)
-      {
-        if (!GetSpan(i).SequenceEqual(list[i].AsSpan()))
-          return false;
-      }
-
-      return true;
-    }
-
-    // Standard Path: Use foreach (or enumerator) for generic collections
-    int index = 0;
-    foreach (string item in other)
-    {
-      if (index >= m_ColumnCount) return false;
-      if (!GetSpan(index).SequenceEqual(item.AsSpan()))
-        return false;
-      index++;
-    }
-
-    return index == m_ColumnCount;
-  }
-
-  /// <summary>
-  /// Determines whether the specified object is equal to the current buffer.
-  /// </summary>
-  public override bool Equals(object? obj)
-    => obj is IReadOnlyCollection<string> other && Equals(other);
-
   /// <inheritdoc/>
   public IEnumerator<string> GetEnumerator()
   {
