@@ -132,7 +132,7 @@ public sealed class XmlFileReader : BaseFileReader
     }
     catch (Exception ex)
     {
-      if (ShouldRetry(ex, cancellationToken))
+      if (AskRetry?.Invoke(ex) ?? false)
         goto Retry;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await CloseAsync().ConfigureAwait(false);

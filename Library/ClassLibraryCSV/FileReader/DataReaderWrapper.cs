@@ -82,9 +82,6 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   }
 
   /// <inheritdoc />
-  public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-  /// <inheritdoc />
   public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
 
   /// <inheritdoc />
@@ -152,6 +149,9 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
   /// <inheritdoc />
   public virtual bool SupportsReset => m_FileReader?.SupportsReset ?? false;
+
+  /// <inheritdoc />
+  public Func<Exception, bool> AskRetry { get; set; } = (_) => false;
 
   /// <inheritdoc />
   public override object this[int ordinal] => GetValue(ordinal);

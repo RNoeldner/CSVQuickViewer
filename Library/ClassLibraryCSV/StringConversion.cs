@@ -33,7 +33,7 @@ public static class StringConversion
   /// <returns>Formatted value</returns>
   public static string DateTimeToString(this DateTime dateTime, ValueFormat format) =>
     DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
-  
+
   /// <summary>
   /// Converts a <see cref="DateTime"/> to a formatted string using custom date and time separators.
   /// </summary>

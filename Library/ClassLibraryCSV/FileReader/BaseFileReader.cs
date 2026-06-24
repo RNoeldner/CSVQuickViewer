@@ -81,22 +81,21 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   private readonly bool m_Trim;
 
   /// <summary>
-  ///   An array of associated col
-  /// </summary>
-  private int[] m_AssociatedTimeZoneCol = [];
-
-  /// <summary>
   ///   An array of associated time columns.
   /// </summary>
   private int[] m_AssociatedTimeCol = [];
 
+  /// <summary>
+  ///   An array of associated col
+  /// </summary>
+  private int[] m_AssociatedTimeZoneCol = [];
   /// <summary>
   ///   Optional typed values of the current row.
   ///   Used by typed readers such as JSON/XML.
   ///   Null for pure text readers such as CSV.
   /// </summary>
   private object?[]? m_CurrentValues;
-  
+
   /// <summary>
   ///   Number of Columns in the reader, including the ones ignored
   ///   e.G. a TimeColum associated with a date could be ignored, we still need the information
@@ -163,12 +162,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  ///   Occurs when something went wrong during the opening of the setting, this might be the file
-  ///   does not exist or a query ran into a timeout
-  /// </summary>
-  public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-  /// <summary>
   /// Occurs when the opening is at its end.
   /// </summary>
   public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
@@ -183,6 +176,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   public event EventHandler<WarningEventArgs>? Warning;
 
+  /// <summary>
+  ///   Occurs when something went wrong during the opening of the setting, this might be the file
+  ///   does not exist or a query ran into a timeout
+  /// </summary>
+  public Func<Exception, bool> AskRetry { get;  set; } = (_) => false;
   /// <inheritdoc />
   public override int Depth => 0;
 
@@ -261,6 +259,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override int VisibleFieldCount => Column.Count(x => !x.Ignore);
 
   /// <summary>
+  /// The text values in the row
+  /// </summary>
+  protected IReadOnlyList<string> CurrentRowText => m_CurrentRowColumnText;
+
+  /// <summary>
   /// Gets the name of the file.
   /// </summary>
   /// <value>
@@ -275,12 +278,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// The full path.
   /// </value>
   protected string FullPath { get; }
-
-  /// <summary>
-  /// The text values in the row
-  /// </summary>
-  protected IReadOnlyList<string> CurrentRowText => m_CurrentRowColumnText;
-
   /// <inheritdoc />
   public override object this[string columnName] => GetValue(GetOrdinal(columnName));
 
@@ -375,13 +372,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
-
-  /// <summary>
-  ///   Gets the column ordinal of the associated time column.
-  /// </summary>
-  /// <param name="column">The column that has teh association.</param>
-  [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  protected int GetAssociatedTime(int column) => m_AssociatedTimeCol[column];
 
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal)
@@ -711,20 +701,11 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// </summary>
   /// <param name="text">The string representation of the value as a <see cref="ReadOnlySpan{Char}"/>.</param>
   /// <param name="typedValue">The underlying object value</param>
-  /// <returns>The zero-based index at which the value was added.</returns>
-
   protected void Add(ReadOnlySpan<char> text, object? typedValue = null)
   {
     m_CurrentRowColumnText.Add(text);
-    if (m_CurrentValues is null)
-    {
-      if (typedValue is not null)
-        throw new InvalidOperationException("Cannot add a typed value if the reader is not supposed to store typed values");
-    }
-    else
-    {
+    if (m_CurrentValues is not null)
       m_CurrentValues[m_CurrentRowColumnText.Count - 1] = typedValue;
-    }
   }
 
   /// <summary>
@@ -771,6 +752,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     OpenFinished?.SafeInvoke(this, Column);
   }
 
+  /// <summary>
+  ///   Gets the column ordinal of the associated time column.
+  /// </summary>
+  /// <param name="column">The column that has teh association.</param>
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  protected int GetAssociatedTime(int column) => m_AssociatedTimeCol[column];
   /// <summary>
   /// Gets the current object stored in <see cref="m_CurrentValues"/>.
   /// </summary>
@@ -932,70 +919,12 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   }
 
   /// <summary>
-  /// Internal method to determine if 
-  /// the value of a column in the current row should be treated as <see cref="DBNull"/>.
-  /// </summary>
-  /// <param name="column">The column metadata providing the index and formatting rules.</param>
-  /// <returns>
-  /// <c>true</c> if the column is ignored, contains whitespace, or (for split Date-Time columns) 
-  /// if both the date and associated time components are empty; otherwise, <c>false</c>.
-  /// </returns>
-  /// <remarks>
-  /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
-  /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
-  /// </remarks>
-  private bool IsDBNull(Column column)
-  {
-    if (column.Ignore)
-      return true;
-
-    var ordinal = column.ColumnOrdinal;
-    var span = GetSpan(ordinal);
-
-    if (m_CurrentValues is not null)
-    {
-      var dataType = column.ValueFormat.DataType;
-
-      if (dataType == DataTypeEnum.DateTime)
-      {
-        if (m_CurrentValues[ordinal] is not null || !span.IsEmpty)
-          return false;
-
-        var timeOrdinal = m_AssociatedTimeCol[ordinal];
-
-        if ((uint) timeOrdinal >= (uint) m_CurrentValues.Length)
-          return true;
-
-        return m_CurrentValues[timeOrdinal] is null && GetSpan(timeOrdinal).IsEmpty;
-      }
-
-      if (dataType == DataTypeEnum.String)
-        return span.IsEmpty;
-
-      return m_CurrentValues[ordinal] is null && span.IsEmpty;
-    }
-
-    if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
-    {
-      if (!span.IsEmpty)
-        return false;
-
-      var timeOrdinal = m_AssociatedTimeCol[ordinal];
-
-      return (uint) timeOrdinal >= (uint) m_CurrentRowColumnText.Count || GetSpan(timeOrdinal).IsEmpty;
-    }
-
-    return span.IsEmpty;
-  }
-
-  /// <summary>
   /// Parses the column names and sets their data types. Handles TimePart and TimeZone associations.
   /// Column array must be initialized beforehand.
   /// </summary>
   /// <param name="headerRow">The header row.</param>
   /// <param name="dataType">Optionally provided data types.</param>
   /// <param name="hasFieldHeader">if set to <c>true</c> if a file has field header.</param>
-
   protected void ParseColumnName(IEnumerable<string> headerRow, in IEnumerable<DataTypeEnum>? dataType = null, bool hasFieldHeader = true)
   {
     var adjustedNames = hasFieldHeader
@@ -1126,22 +1055,6 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     m_ParseFromSource.Length == 0 || columnNo >= m_ParseFromSource.Length || m_ParseFromSource[columnNo];
 
   /// <summary>
-  /// Checks if we should retry to access the data
-  /// </summary>
-  /// <param name="ex">The exception.</param>
-  /// <param name="token">The cancellation token.</param>
-  protected bool ShouldRetry(in Exception ex, CancellationToken token)
-  {
-    if (token.IsCancellationRequested)
-      return false;
-
-    var eventArgs = new RetryEventArgs(ex) { Retry = false };
-    var handler = Volatile.Read(ref OnAskRetry);
-    handler?.Invoke(this, eventArgs);
-    return eventArgs.Retry;
-  }
-
-  /// <summary>
   ///   Gets the boolean value.
   /// </summary>
   /// <param name="column">The column metadata used to determine formatting (separators).</param>
@@ -1172,44 +1085,33 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
   protected DateTime? SpanToDateTime(
     Column column,
-    in object? inputDate,
+    object? inputDate,
     ReadOnlySpan<char> strInputDate,
-    in object? inputTime,
+    object? inputTime,
     ReadOnlySpan<char> strInputTime,
     bool serialDateTime)
   {
-    var dateTime = StringConversionSpan.CombineObjectsToDateTime(
-      inputDate,
-      strInputDate,
-      inputTime,
-      strInputTime,
-      serialDateTime,
-      column.ValueFormat,
-      out var timeSpanLongerThanDay);
+    var successParse = column.ValueFormat.DateFormat.TryParseCombinedDateTime(
+      inputDate, strInputDate, inputTime, strInputTime, 
+      column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime,
+      out var dateTime, out var timeSpanLongerThanDay);
 
     if (timeSpanLongerThanDay)
     {
-      ReadOnlySpan<char> passedIn = strInputTime;
-      if (inputTime != null)
-        passedIn = Convert.ToString(inputTime).AsSpan();
-
-      HandleWarning(column.ColumnOrdinal, $"'{passedIn.ToString()}' is outside expected range 00:00 - 23:59, the date has been adjusted");
+      var passedIn = inputTime != null ? Convert.ToString(inputTime) : strInputTime.ToString();
+      HandleWarning(column.ColumnOrdinal, $"'{passedIn}' is outside expected range 00:00 - 200:00");
     }
 
-    if (!dateTime.HasValue &&
+    if (!successParse &&
         !strInputDate.IsEmpty &&
         !string.IsNullOrEmpty(column.ValueFormat.DateFormat) &&
         strInputDate.Length > column.ValueFormat.DateFormat.Length)
     {
       var inputDateNew = strInputDate.Slice(0, column.ValueFormat.DateFormat.Length);
-      dateTime = inputDateNew.CombineStringsToDateTime(
-        column.ValueFormat.DateFormat.AsSpan(),
-        strInputTime,
-        column.ValueFormat.DateSeparator,
-        column.ValueFormat.TimeSeparator,
-        serialDateTime);
-
-      if (dateTime.HasValue)
+      if (column.ValueFormat.DateFormat.TryParseCombinedDateTime(
+        null, inputDateNew, null, strInputTime,
+        column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime,
+        out dateTime, out var _))
       {
         var display1 = column.ValueFormat.DateFormat.ReplaceDefaults(
           '/', column.ValueFormat.DateSeparator,
@@ -1221,9 +1123,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       }
     }
 
-    if (dateTime?.Year is > 1752 and <= 9999)
+    if (dateTime.Year is > 1752 and <= 9999)
     {
-      // gte the timezone from TimeZonePart or the assiciated column
+      // get the timezone from TimeZonePart or the assiciated column
       if (!column.TimeZonePart.TryGetConstant(out var timeZone))
       {
         var associatedColIdx = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
@@ -1231,7 +1133,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
           timeZone = GetSpan(associatedColIdx);
       }
 
-      return TimeZoneAdjust(dateTime.Value, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
+      return TimeZoneAdjust(dateTime, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
     }
 
     var display2 = column.ValueFormat.DateFormat.ReplaceDefaults(
@@ -1413,6 +1315,62 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
       EndLineNumber,
       ordinal >= 0 && ordinal < m_FieldCount ? GetColumn(ordinal).Name : null);
 
+  /// <summary>
+  /// Internal method to determine if 
+  /// the value of a column in the current row should be treated as <see cref="DBNull"/>.
+  /// </summary>
+  /// <param name="column">The column metadata providing the index and formatting rules.</param>
+  /// <returns>
+  /// <c>true</c> if the column is ignored, contains whitespace, or (for split Date-Time columns) 
+  /// if both the date and associated time components are empty; otherwise, <c>false</c>.
+  /// </returns>
+  /// <remarks>
+  /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
+  /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
+  /// </remarks>
+  private bool IsDBNull(Column column)
+  {
+    if (column.Ignore)
+      return true;
+
+    var ordinal = column.ColumnOrdinal;
+    var span = GetSpan(ordinal);
+
+    if (m_CurrentValues is not null)
+    {
+      var dataType = column.ValueFormat.DataType;
+
+      if (dataType == DataTypeEnum.DateTime)
+      {
+        if (m_CurrentValues[ordinal] is not null || !span.IsEmpty)
+          return false;
+
+        var timeOrdinal = m_AssociatedTimeCol[ordinal];
+
+        if ((uint) timeOrdinal >= (uint) m_CurrentValues.Length)
+          return true;
+
+        return m_CurrentValues[timeOrdinal] is null && GetSpan(timeOrdinal).IsEmpty;
+      }
+
+      if (dataType == DataTypeEnum.String)
+        return span.IsEmpty;
+
+      return m_CurrentValues[ordinal] is null && span.IsEmpty;
+    }
+
+    if (column.ValueFormat.DataType == DataTypeEnum.DateTime)
+    {
+      if (!span.IsEmpty)
+        return false;
+
+      var timeOrdinal = m_AssociatedTimeCol[ordinal];
+
+      return (uint) timeOrdinal >= (uint) m_CurrentRowColumnText.Count || GetSpan(timeOrdinal).IsEmpty;
+    }
+
+    return span.IsEmpty;
+  }
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   public new virtual Task CloseAsync() => Task.Run(() => base.Close());
 #endif

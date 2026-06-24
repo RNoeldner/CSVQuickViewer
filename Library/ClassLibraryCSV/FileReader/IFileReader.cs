@@ -37,7 +37,8 @@ public interface IFileReader : IDataReader
   ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
   ///   needed file etc.
   /// </summary>
-  event EventHandler<RetryEventArgs>? OnAskRetry;
+  Func<Exception, bool> AskRetry { get; set; }
+
 
   /// <summary>
   ///   Event to be raised once the reader is opened, the column information is now known and

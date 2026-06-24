@@ -722,7 +722,7 @@ public class CsvFileReader : BaseFileReader
     }
     catch (Exception ex)
     {
-      if (ShouldRetry(ex, cancellationToken))
+      if (AskRetry?.Invoke(ex) ?? false)
       {
         await OpenAsync(cancellationToken).ConfigureAwait(false);
         return;

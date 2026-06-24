@@ -535,7 +535,5 @@ namespace CsvTools
     private System.Windows.Forms.NumericUpDown numericUpDownCheckedRecordsCount;
     private System.Windows.Forms.TextBox textBoxDateFormat;
     private System.Windows.Forms.CheckBox checkBoxRemoveCurrencySymbols;
-    private System.Windows.Forms.Label labelDetectBoolean;
-    private System.Windows.Forms.Label labelDetectNumbers;
   }
 }

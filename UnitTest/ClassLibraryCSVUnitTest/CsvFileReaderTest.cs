@@ -1439,12 +1439,12 @@ new[] { new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime), timePar
           4,
           TimeZoneInfo.Local.Id, true, false);
         // lock file for reading
-        reader.OnAskRetry += (_, args) =>
+        reader.AskRetry = (_) =>
         {
           // ReSharper disable once AccessToDisposedClosure
           stream.Close();
           called = true;
-          args.Retry = false;
+          return false;
         };
         await reader.OpenAsync(UnitTestStatic.Token);
       }

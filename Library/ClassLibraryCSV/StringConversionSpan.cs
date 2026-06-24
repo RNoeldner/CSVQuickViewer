@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UseIndexFromEndExpression
 
@@ -31,145 +32,75 @@ namespace CsvTools;
 public static class StringConversionSpan
 {
   /// <summary>
-  ///   Combine date / time, the individual values could already be typed.
+  ///   Combines a date and a time column into a single <see cref="DateTime"/> value. 
+  ///   Handles both typed inputs (DateTime, double/serial, TimeSpan) and text representations.
   /// </summary>
-  /// <param name="dateColumn">The date column typed value either datetime or double</param>
+  /// <param name="dateFormat">The date format for string parsing.</param>
+  /// <param name="typedDate">The date column typed value (DateTime or double).</param>
   /// <param name="dateColumnText">The date column text representation.</param>
-  /// <param name="timeColumn">The time column typed value either datetime, TimeStamp or double</param>
+  /// <param name="typedTime">The time column typed value (DateTime, TimeSpan, or double).</param>
   /// <param name="timeColumnText">The time column text representation.</param>
-  /// <param name="serialDateTime">if set to <c>true</c> allow serial dates time values (doubles).</param>
-  /// <param name="valueFormat">The value format for the date column.</param>
-  /// <param name="timeColumnIssues">
-  ///   if set to <c>true</c> if the time value is outside range 00:00 - 23:59.
-  /// </param>
-  /// <returns>A combined date from a date and a time column</returns>
-  /// <remarks>This does not have time zone adjustments yet</remarks>
-  public static DateTime? CombineObjectsToDateTime(
-    in object? dateColumn,
+  /// <param name="dateSeparatorChar">The date separator character.</param>
+  /// <param name="timeSeparatorChar">The time separator character.</param>
+  /// <param name="serialDateTime">If <c>true</c>, allows serial dates (doubles) to be parsed.</param>
+  /// <param name="result">When this method returns, contains the combined <see cref="DateTime"/> if successful; otherwise, <see cref="DateTime.MinValue"/>.</param>
+  /// <param name="timeColumnIssues">Contains <c>true</c> if the time value was parsed but fell outside the range of 00:00 - 200:00.</param>
+  /// <returns><c>true</c> if the combined date/time is valid and not the default base date; otherwise, <c>false</c>.</returns>
+  /// <remarks>This does not have time zone adjustments.</remarks>
+  public static bool TryParseCombinedDateTime(
+    this ReadOnlySpan<char> dateFormat,
+    object? typedDate,
     ReadOnlySpan<char> dateColumnText,
-    in object? timeColumn,
+    object? typedTime,
     ReadOnlySpan<char> timeColumnText,
-    bool serialDateTime,
-    in ValueFormat valueFormat,
-    out bool timeColumnIssues)
-  {
-    var dateValue = DateTimeConstants.FirstDateTime;
-    // We do have an associated column, with a proper date format
-    if (dateColumn != null)
-    {
-      if (dateColumn is DateTime time)
-        dateValue = time;
-      else if (serialDateTime && dateColumn is double oaDate && oaDate > -657435.0 && oaDate < 2958466.0)
-        dateValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
-    }
-
-
-    // if we did not convert yet, and we have a text use it
-    // ReSharper disable once ReplaceWithStringIsNullOrEmpty
-    if (dateValue == DateTimeConstants.FirstDateTime && dateColumnText.Length > 0)
-    {
-      var val = CombineStringsToDateTime(
-        dateColumnText,
-        valueFormat.DateFormat.AsSpan(),
-        ReadOnlySpan<char>.Empty,
-        valueFormat.DateSeparator,
-        valueFormat.TimeSeparator,
-        serialDateTime);
-      if (val.HasValue)
-        dateValue = val.Value;
-    }
-
-    TimeSpan? timeSpanValue = null;
-    if (timeColumn != null)
-    {
-      switch (timeColumn)
-      {
-        case double oaDate when serialDateTime:
-        {
-          // ReSharper disable once MergeIntoPattern
-          if (oaDate > -657435.0 && oaDate < 2958466.0)
-          {
-            var timeValue = DateTimeConstants.FirstDateTime.AddDays(oaDate);
-            timeSpanValue = new TimeSpan(0, timeValue.Hour, timeValue.Minute, timeValue.Second, timeValue.Millisecond);
-          }
-
-          break;
-        }
-        case DateTime timeValue:
-          timeSpanValue = timeValue.TimeOfDay;
-          break;
-
-        case TimeSpan span:
-          timeSpanValue = span;
-          break;
-      }
-    }
-
-    timeSpanValue ??= StringToTimeSpan(timeColumnText, ':', serialDateTime);
-
-    if (timeSpanValue.HasValue)
-    {
-      timeColumnIssues = timeSpanValue.Value.TotalDays >= 1d || timeSpanValue.Value.TotalSeconds < 0d;
-      return dateValue.Add(timeSpanValue.Value);
-    }
-
-    timeColumnIssues = false;
-
-    // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
-    // proper formatted value
-    if (dateValue == DateTimeConstants.FirstDateTime && (dateColumnText.IsEmpty || !dateColumnText.Equals(
-          DateTimeConstants.FirstDateTime.DateTimeToString(valueFormat)
-            .AsSpan(), StringComparison.Ordinal)))
-    {
-      return null;
-    }
-
-    return dateValue;
-  }
-
-  /// <summary>
-  ///   Combines two strings to one date time.
-  /// </summary>
-  /// <param name="dateText">The date part.</param>
-  /// <param name="dateFormat">The date format.</param>
-  /// <param name="timeText">The time part.</param>
-  /// <param name="dateSeparatorChar">The date separator.</param>
-  /// <param name="timeSeparatorChar">The time separator.</param>
-  /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
-  /// <returns></returns>
-  public static DateTime? CombineStringsToDateTime(
-    this ReadOnlySpan<char> dateText,
-    ReadOnlySpan<char> dateFormat,
-    ReadOnlySpan<char> timeText,
     char dateSeparatorChar,
     char timeSeparatorChar,
-    bool serialDateTime)
+    bool serialDateTime,
+    out DateTime result,
+    out bool timeColumnIssues)
   {
-    if (dateFormat.IsEmpty)
-      return null;
-
-    var date = StringToDateTime(dateText, dateFormat, dateSeparatorChar, timeSeparatorChar, serialDateTime);
-
-    switch (date)
+    // 1. Resolve Date
+    DateTime dateValue;
+    if (typedDate is DateTime dt)
     {
-      // we have no date check if we have a time
-      case null:
-      {
-        var timeP = StringToTimeSpan(timeText, timeSeparatorChar, serialDateTime);
-        // no date and no time, nothing to do
-        if (timeP is null)
-          return null;
-        return DateTimeConstants.FirstDateTime.Add(timeP.Value);
-      }
-      // In case a value is read that just is a time, need to adjust c# and Excel behavior the
-      // application assumes all dates on cFirstDatetime is a time only
-      case { Year: 1, Month: 1 } when timeText.IsWhiteSpace():
-        return date.Value.Ticks.GetTimeFromTicks();
+      dateValue = dt;
+    }
+    else if (serialDateTime && typedDate is double oa && oa > -657435.0 && oa < 2958466.0)
+    {
+      dateValue = DateTimeConstants.FirstDateTime.AddDays(oa);
+    }
+    else
+    {
+      dateValue = StringToDateTime(dateColumnText, dateFormat, dateSeparatorChar, timeSeparatorChar, serialDateTime)
+                  ?? DateTimeConstants.FirstDateTime;
     }
 
-    // get the time to add to the date
-    var time = StringToTimeSpan(timeText, timeSeparatorChar, serialDateTime);
-    return time is null ? date : date.Value.Add(time.Value);
+    // 2. Resolve Time
+    TimeSpan? timeSpanValue = null;
+    const long TicksPer200Hours = TimeSpan.TicksPerHour * 200;
+
+    switch (typedTime)
+    {
+      case double oa when serialDateTime && oa is > -657435.0 and < 2958466.0:
+        timeSpanValue = TimeSpan.FromDays(oa - Math.Truncate(oa));
+        break;
+      case DateTime dateTimeInput:
+        timeSpanValue = dateTimeInput.Ticks <= TicksPer200Hours ? new TimeSpan(dateTimeInput.Ticks) : dateTimeInput.TimeOfDay;
+        break;
+      case TimeSpan ts:
+        timeSpanValue = ts;
+        break;
+      default:
+        timeSpanValue = StringToTimeSpan(timeColumnText, ':', serialDateTime);
+        break;
+    }
+
+    // 3. Finalize and Validate
+    timeColumnIssues = timeSpanValue.HasValue && (timeSpanValue.Value.TotalHours > 200 || timeSpanValue.Value.TotalSeconds < 1d);
+
+    result = timeSpanValue.HasValue ? dateValue.Add(timeSpanValue.Value) : dateValue;
+
+    return result != DateTimeConstants.FirstDateTime;
   }
 
   /// <summary>
@@ -203,7 +134,7 @@ public static class StringConversionSpan
     }
     catch (Exception ex)
     {
-      Debug.WriteLine("{0} is not a serial date. Error: {1}", text.ToString(), ex.Message);
+      Debug.WriteLine("{0} is not a serialDateTime date. Error: {1}", text.ToString(), ex.Message);
     }
 
     return null;

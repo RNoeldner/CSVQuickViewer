@@ -163,7 +163,7 @@ public sealed class JsonFileReader : BaseFileReader
       }
       catch (Exception ex)
       {
-        retry =ShouldRetry(ex, cancellationToken);
+        retry =AskRetry?.Invoke(ex) ?? false;
         if (!retry)
         {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
