@@ -11,11 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools;

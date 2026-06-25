@@ -28,8 +28,8 @@ public static class Program
   [STAThread]
   public static void Main(string[] args)
   {
-    Application.ThreadException += (s, e) => UnhandledException(e.Exception);
-    AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
+    Application.ThreadException += (_, e) => UnhandledException(e.Exception);
+    AppDomain.CurrentDomain.UnhandledException += (_, e) => UnhandledException((Exception) e.ExceptionObject);
 
     var fileName = string.Empty;
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -40,7 +40,11 @@ public static class Program
     WinAppLogging.Init();
     // ReSharper disable once CoVariantArrayConversion
       
-    try { Logger.Debug("Application started {@args}", args);} catch { }
+    try { Logger.Debug("Application started {@args}", args);}
+    catch
+    {
+      // ignored
+    }
 
     // read the command line parameter
     if (args.Length == 1)
@@ -75,7 +79,12 @@ public static class Program
         return;
     }
 
-    try { Logger.Error(ex, "Not handled Exception"); } catch { }
+    try { Logger.Error(ex, "Not handled Exception"); }
+    catch
+    {
+      // ignored
+    }
+
     var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}";
 #if DEBUG
     System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);

@@ -31,7 +31,7 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
   private SyntaxHighlighterDelimitedText? m_HighLighter;
   private int m_SkipRows;
 
-  public FindSkipRows() : this(string.Empty, 65001, 0, ',', '\0', '"', "##")
+  public FindSkipRows() : this(string.Empty)
   {
   }
 

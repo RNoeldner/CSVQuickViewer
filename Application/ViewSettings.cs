@@ -24,45 +24,10 @@ namespace CsvTools;
 /// </summary>
 public sealed class ViewSettings : ObservableObject, IFontConfig
 {
-  private bool m_AllowJson = true;
-  private bool m_AllowRowCombining = false;
-  private bool m_AutoStartRemaining = false;
-  private bool m_DetectFileChanges = true;
-  private bool m_DisplayRecordNo;
-  private bool m_DisplayStartLineNo = true;
-  private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
-  private string m_Font = "Tahoma";
-  private float m_FontSize = 8.25f;
-  private bool m_GuessCodePage = true;
-  private bool m_GuessComment = true;
-  private bool m_GuessDelimiter = true;
-  private bool m_GuessEscapePrefix = true;
-  private bool m_GuessHasHeader = true;
-  private bool m_GuessNewLine = true;
-  private bool m_GuessQualifier = true;
-  private bool m_GuessStartRow = true;
-  private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
 #if SupportPGP
     private string m_KeyFileRead = string.Empty;
     private string m_KeyFileWrite = string.Empty;
 #endif
-  private Duration m_LimitDuration = Duration.FiveSecond;
-  private bool m_MenuDown;
-  private int m_NumWarnings = 0;
-  private int m_ShowButtonAtLength = 2000;
-  private bool m_SkipEmptyLines = true;
-  private bool m_StoreSettingsByFile;
-  private bool m_TreatLfAsSpace = false;
-  private bool m_TreatNBSPAsSpace = false;
-  private string m_TreatTextAsNull = "NULL";
-  private bool m_TreatUnknownCharacterAsSpace;
-  private bool m_TryToSolveMoreColumns = false;
-  private bool m_WarnDelimiterInValue;
-  private bool m_WarnEmptyTailingColumns = true;
-  private bool m_WarnLineFeed = true;
-  private bool m_WarnNbsp = true;
-  private bool m_WarnQuotes = true;
-  private bool m_WarnUnknownCharacter = true;
   public enum Duration
   {
     [Description("unlimited")]
@@ -93,23 +58,23 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   [DefaultValue(true)]
   public bool AllowJson
   {
-    get => m_AllowJson;
-    set => SetProperty(ref m_AllowJson, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(false)]
   public bool AllowRowCombining
   {
-    get => m_AllowRowCombining;
-    set => SetProperty(ref m_AllowRowCombining, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = false;
 
   [DefaultValue(false)]
   public bool AutoStartMode
   {
-    get => m_AutoStartRemaining;
-    set => SetProperty(ref m_AutoStartRemaining, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = false;
 
   [JsonIgnore]
   public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
@@ -117,23 +82,23 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   [DefaultValue(true)]
   public bool DetectFileChanges
   {
-    get => m_DetectFileChanges;
-    set => SetProperty(ref m_DetectFileChanges, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(false)]
   public bool DisplayRecordNo
   {
-    get => m_DisplayRecordNo;
-    set => SetProperty(ref m_DisplayRecordNo, value);
+    get;
+    set => SetProperty(ref field, value);
   }
 
   [DefaultValue(true)]
   public bool DisplayStartLineNo
   {
-    get => m_DisplayStartLineNo;
-    set => SetProperty(ref m_DisplayStartLineNo, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [JsonIgnore]
   public TimeSpan DurationTimeSpan
@@ -154,85 +119,86 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
 
   public FillGuessSettings FillGuessSettings
   {
-    get => m_FillGuessSettings;
-    set => SetProperty(ref m_FillGuessSettings, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = FillGuessSettings.Default;
 
   // ReSharper disable once StringLiteralTypo
   [DefaultValue("Tahoma")]
   public string Font
   {
-    get => m_Font;
-    set => SetProperty(ref m_Font, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = "Tahoma";
 
   [DefaultValue(8.25f)]
   public float FontSize
   {
-    get => m_FontSize;
-    set => SetProperty(ref m_FontSize, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = 8.25f;
 
   [DefaultValue(true)]
   public bool GuessCodePage
   {
-    get => m_GuessCodePage;
-    set => SetProperty(ref m_GuessCodePage, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
+
   [DefaultValue(true)]
   public bool GuessComment
   {
-    get => m_GuessComment;
-    set => SetProperty(ref m_GuessComment, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessDelimiter
   {
-    get => m_GuessDelimiter;
-    set => SetProperty(ref m_GuessDelimiter, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessEscapePrefix
   {
-    get => m_GuessEscapePrefix;
-    set => SetProperty(ref m_GuessEscapePrefix, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessHasHeader
   {
-    get => m_GuessHasHeader;
-    set => SetProperty(ref m_GuessHasHeader, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessNewLine
   {
-    get => m_GuessNewLine;
-    set => SetProperty(ref m_GuessNewLine, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessQualifier
   {
-    get => m_GuessQualifier;
-    set => SetProperty(ref m_GuessQualifier, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool GuessStartRow
   {
-    get => m_GuessStartRow;
-    set => SetProperty(ref m_GuessStartRow, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   public HtmlStyle HtmlStyle
   {
-    get => m_HtmlStyle;
-    set => SetProperty(ref m_HtmlStyle, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = HtmlStyle.Default;
 
   [JsonIgnore]
   public string InitialFolder
@@ -244,77 +210,79 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   [DefaultValue(Duration.FiveSecond)]
   public Duration LimitDuration
   {
-    get => m_LimitDuration;
-    set => SetProperty(ref m_LimitDuration, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = Duration.FiveSecond;
 
   [DefaultValue(false)]
   public bool MenuDown
   {
-    get => m_MenuDown;
-    set => SetProperty(ref m_MenuDown, value);
+    get;
+    set => SetProperty(ref field, value);
   }
 
   [DefaultValue(0)]
   public int NumWarnings
   {
-    get => m_NumWarnings;
-    set => SetProperty(ref m_NumWarnings, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = 0;
 
   [DefaultValue(500)]
   public int ShowButtonAtLength
   {
-    get => m_ShowButtonAtLength;
-    set => SetProperty(ref m_ShowButtonAtLength, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = 2000;
 
-  [DefaultValue(true)] 
-  public bool SkipEmptyLines 
-  { 
-    get => m_SkipEmptyLines; 
-    set => SetProperty(ref m_SkipEmptyLines, value); }
+  [DefaultValue(true)]
+  public bool SkipEmptyLines
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(false)]
   public bool StoreSettingsByFile
   {
-    get => m_StoreSettingsByFile;
-    set => SetProperty(ref m_StoreSettingsByFile, value);
+    get;
+    set => SetProperty(ref field, value);
   }
 
   [DefaultValue(false)]
   public bool TreatLfAsSpace
   {
-    get => m_TreatLfAsSpace;
-    set => SetProperty(ref m_TreatLfAsSpace, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = false;
 
   [DefaultValue(false)]
   public bool TreatNBSPAsSpace
   {
-    get => m_TreatNBSPAsSpace;
-    set => SetProperty(ref m_TreatNBSPAsSpace, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = false;
 
   [DefaultValue("NULL")]
-  public string TreatTextAsNull 
-  { 
-    get => m_TreatTextAsNull;
-    set => SetProperty(ref m_TreatTextAsNull, value);
-  }
+  public string TreatTextAsNull
+  {
+    get;
+    set => SetProperty(ref field, value);
+  } = "NULL";
+
   [DefaultValue(false)]
   public bool TreatUnknownCharacterAsSpace
   {
-    get => m_TreatUnknownCharacterAsSpace;
-    set => SetProperty(ref m_TreatUnknownCharacterAsSpace, value);
+    get;
+    set => SetProperty(ref field, value);
   }
 
   [DefaultValue(false)]
   public bool TryToSolveMoreColumns
   {
-    get => m_TryToSolveMoreColumns;
-    set => SetProperty(ref m_TryToSolveMoreColumns, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = false;
 
 #if SupportPGP
     [DefaultValue("")]
@@ -335,44 +303,44 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   [DefaultValue(false)]
   public bool WarnDelimiterInValue
   {
-    get => m_WarnDelimiterInValue;
-    set => SetProperty(ref m_WarnDelimiterInValue, value);
+    get;
+    set => SetProperty(ref field, value);
   }
 
   [DefaultValue(true)]
   public bool WarnEmptyTailingColumns
   {
-    get => m_WarnEmptyTailingColumns;
-    set => SetProperty(ref m_WarnEmptyTailingColumns, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool WarnLineFeed
   {
-    get => m_WarnLineFeed;
-    set => SetProperty(ref m_WarnLineFeed, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool WarnNBSP
   {
-    get => m_WarnNbsp;
-    set => SetProperty(ref m_WarnNbsp, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool WarnQuotes
   {
-    get => m_WarnQuotes;
-    set => SetProperty(ref m_WarnQuotes, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [DefaultValue(true)]
   public bool WarnUnknownCharacter
   {
-    get => m_WarnUnknownCharacter;
-    set => SetProperty(ref m_WarnUnknownCharacter, value);
-  }
+    get;
+    set => SetProperty(ref field, value);
+  } = true;
 
   [JsonIgnore]
   public CsvFileDummy WriteSetting { get; internal set;  } = new CsvFileDummy();

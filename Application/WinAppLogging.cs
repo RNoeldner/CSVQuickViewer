@@ -46,7 +46,7 @@ public static class WinAppLogging
 
   /// <summary>
   /// Initializes the application logging pipeline.
-  /// Creates the log directory under AppData\Roaming\<AppName>\Logs
+  /// Creates the log directory under AppData\Roaming\AppName\Logs
   /// and configures Serilog sinks for file and UI output.
   /// </summary>
   public static void Init()
@@ -113,7 +113,7 @@ public static class WinAppLogging
     => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
 
   /// <summary>
-  /// Custom Serilog sink used to forward messages to registered <see cref="ILogger"/> instances.
+  /// Custom Serilog sink used to forward messages to registered logger instances.
   /// Typically used to display logs in a GUI control or other in-memory consumer.
   /// </summary>
   [DebuggerStepThrough]

@@ -264,7 +264,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     // Use the actual length of the rented buffer to avoid unnecessary resizing
     if (requiredCapacity > currentBuffer.Length)
     {
-      // Growth strategy: Double or jump to required
+      // Growth strategy
       int newSize = Math.Max(currentBuffer.Length == 0 ? 256 : currentBuffer.Length * 2, requiredCapacity);
       T[] newBuffer = ArrayPool<T>.Shared.Rent(newSize);
 

@@ -416,7 +416,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   private Stream GetStream()
   {
 #if !SupportPGP
-    var sourceAccess = new SourceAccess(m_ReadSettings.FileName, true, "", false, "");
+    var sourceAccess = new SourceAccess(m_ReadSettings.FileName);
 #else
     var sourceAccess = new SourceAccess(FileSetting.FileName, true);
 #endif

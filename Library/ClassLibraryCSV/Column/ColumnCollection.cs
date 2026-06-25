@@ -30,7 +30,7 @@ public sealed class ColumnCollection : ObservableList<Column>
   }
 
   /// <summary>
-  ///   Replaces an existing column with the same name, or adds it if no match is found.
+  ///   Replaces an existing column with the same name or adds it if no match is found.
   /// </summary>
   /// <param name="column">The column to add or replace.</param>
   /// <exception cref="ArgumentException">Thrown if <paramref name="column"/> is null or has an empty name.</exception>
@@ -42,14 +42,14 @@ public sealed class ColumnCollection : ObservableList<Column>
   }
 
   /// <summary>
-  ///   Replaces an existing column with the same name, or adds it if no match is found.
+  ///   Replaces an existing column with the same name or adds it if no match is found.
   /// </summary>
   private void InternalAdd(Column column)
   {
     var existingIndex = FindIndex(column.Name);
     if (existingIndex >= 0)
     {
-      base[existingIndex] = column; // replace in place
+      base[existingIndex] = column; // replace it in place
       OnCollectionChanged();
     }
     else
@@ -84,7 +84,7 @@ public sealed class ColumnCollection : ObservableList<Column>
       }
 
       if (index >= 0)
-        // Replace in place
+        // Replace it in place
         base[index] = column;
       else
         listAdd.Add(column);
@@ -122,7 +122,7 @@ public sealed class ColumnCollection : ObservableList<Column>
     var existingIndex = FindIndex(column.Name);
     if (existingIndex == index)
     {
-      base[existingIndex] = column; // replace in place
+      base[existingIndex] = column; // replace it in place
       OnCollectionChanged();
     }
     else if (existingIndex==-1)

@@ -141,7 +141,7 @@ public static class WindowsAPICodePackWrapper
       try
       {
         if (openFileDialogReference.ShowDialog() == DialogResult.OK)
-          return openFileDialogReference.FileName?.LongFileName() ?? string.Empty;
+          return openFileDialogReference.FileName.LongFileName() ?? string.Empty;
       }
       finally
       {

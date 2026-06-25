@@ -21,13 +21,13 @@ using System.Text;
 namespace CsvTools;
 
 /// <summary>
-///   Column information like name, Type, Format etc.
+///   Column information like name, Type, Format, etc.
 /// </summary>
 [DebuggerDisplay("Column {Name}")]
 public record Column
 {
   /// <summary>
-  /// Default Format for Time is 24 hrs clock with seconds
+  /// Default Format for Time is a 24-hr clock with seconds
   /// </summary>
   public const string cDefaultTimePartFormat = "HH:mm:ss";
 
@@ -41,7 +41,7 @@ public record Column
   /// <param name="convert">If Conversion is necessary, usually yes if the format is non string.</param>
   /// <param name="destinationName">Name of the destination.</param>
   /// <param name="timePart">The time part for date time information provided in two columns.</param>
-  /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>
+  /// <param name="timePartFormat">The time part of the format for date time information provided in two columns</param>
   /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
   /// <exception cref="System.ArgumentNullException">name</exception>
   public Column(string name,
@@ -81,10 +81,10 @@ public record Column
   /// <summary>
   ///   Formatting option for values
   /// </summary>
-  public ValueFormat ValueFormat { get; set; }
+  public ValueFormat ValueFormat { get; protected set; }
 
   /// <summary>
-  /// Identifier in collections, similar to a hash code based on a  properties that should be unique in a collection
+  /// Identifier in collections, similar to a hash code based on a  property that should be unique in a collection
   /// </summary>
   /// <remarks>
   /// In case a required property is not set, this should raise an error
@@ -104,7 +104,7 @@ public record Column
 
   /// <summary>
   ///   Indicating if the column should be ignored during read or write, no conversion is done if
-  ///   the column is ignored the target will not show this column
+  ///   the column is ignored, the target will not show this column
   /// </summary>
   [DefaultValue(false)]
   public bool Ignore { get; set; }
@@ -123,7 +123,7 @@ public record Column
 
   /// <summary>
   ///   For DateTime import you can combine a date and a time column into a single datetime
-  ///   column, to do this specify the time column on the column for the date
+  ///   column, to do this, specify the time column on the column for the date
   /// </summary>
   [DefaultValue("")]
   public string TimePart { get; }
@@ -138,7 +138,7 @@ public record Column
 
   /// <summary>
   ///   For DateTime import you set a time zone, during read the value provided will be assumed to
-  ///   be of the timezone specified During write the time will be converted into this time zone
+  ///   be of the timezone specified. During writing the time will be converted into this time zone
   /// </summary>
   [DefaultValue("")]
   public string TimeZonePart { get; }
