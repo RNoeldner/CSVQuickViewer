@@ -217,8 +217,8 @@ public class DataTableWrapperTests
   public async Task TestLineNumbers()
   {
     using var test = new DataTableWrapper(m_DataTable, true, true, false);
-    var colStartLine = test.GetOrdinal(ReaderConstants.cStartLineNumberFieldName);
-    var colEndLine = test.GetOrdinal(ReaderConstants.cEndLineNumberFieldName);
+    var colStartLine = test.GetOrdinal(ReaderConstants.CStartLineNumberFieldName);
+    var colEndLine = test.GetOrdinal(ReaderConstants.CEndLineNumberFieldName);
 
     await test.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual(1, test.GetInt32(colStartLine));
@@ -245,7 +245,7 @@ public class DataTableWrapperTests
   public async Task TestRecordNumber()
   {
     using var test = new DataTableWrapper(m_DataTable, false, false, true);
-    var colRecNum = test.GetOrdinal(ReaderConstants.cRecordNumberFieldName);
+    var colRecNum = test.GetOrdinal(ReaderConstants.CRecordNumberFieldName);
 
     await test.ReadAsync(UnitTestStatic.Token);    
     Assert.AreEqual(1, test.GetInt32(colRecNum));

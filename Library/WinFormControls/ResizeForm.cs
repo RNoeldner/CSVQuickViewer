@@ -40,8 +40,8 @@ public class ResizeForm : Form
   /// This value represents the zoom level independent of DPI.
   /// </summary>
   private int m_CurrentFontSize = 10; // or from FontConfig
-  private const int MinFontSize = 9;
-  private const int MaxFontSize = 20;
+  private const int minFontSize = 9;
+  private const int maxFontSize = 20;
 
   /// <summary>
   /// Shared font configuration instance.
@@ -52,6 +52,8 @@ public class ResizeForm : Form
   public ResizeForm()
   {
     InitializeComponent();
+    var resources = new ComponentResourceManager(typeof(ResizeForm));
+    Icon = (Icon) resources.GetObject("$this.Icon")!;
   }
 
   /// <summary>
@@ -99,10 +101,10 @@ public class ResizeForm : Form
     if ((ModifierKeys & Keys.Control) != 0)
     {
       var newSize = m_CurrentFontSize + (e.Delta > 0 ? 1 : -1);
-      if (newSize<MinFontSize)
-        newSize=MinFontSize;
-      if (newSize > MaxFontSize)
-        newSize=MaxFontSize;
+      if (newSize<minFontSize)
+        newSize=minFontSize;
+      if (newSize > maxFontSize)
+        newSize=maxFontSize;
       if (m_CurrentFontSize!= newSize)
       {
         using Graphics g = CreateGraphics();
@@ -137,9 +139,9 @@ public class ResizeForm : Form
   {
     using Graphics g = CreateGraphics();
     int bestSize = 0;
-    float bestDiff = Math.Abs((MinFontSize * 72f / g.DpiX) - value);
+    float bestDiff = Math.Abs((minFontSize * 72f / g.DpiX) - value);
 
-    for (int frontSize = MinFontSize; frontSize <= MaxFontSize; frontSize++)
+    for (int frontSize = minFontSize; frontSize <= maxFontSize; frontSize++)
     {
       float diff = Math.Abs((frontSize * 72f / g.DpiX) - value);
       if (diff < bestDiff)
@@ -187,7 +189,6 @@ public class ResizeForm : Form
 
   private void InitializeComponent()
   {
-    var resources = new ComponentResourceManager(typeof(ResizeForm));
     SuspendLayout();
     // 
     // ResizeForm
@@ -196,7 +197,6 @@ public class ResizeForm : Form
     AutoScaleMode = AutoScaleMode.Dpi;
     AutoSize = true;
     ClientSize = new Size(500, 369);
-    Icon = (Icon) resources.GetObject("$this.Icon");
     Name = "ResizeForm";
     DpiChanged += OnDpiChanged;
     ResumeLayout(performLayout: false);

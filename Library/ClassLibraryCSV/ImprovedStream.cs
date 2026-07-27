@@ -536,7 +536,7 @@ public class ImprovedStream : Stream, IImprovedStream
       }
       catch (ZipException)
       {
-        var (passF, _, _) = FunctionalDI.GetKeyAndPassphraseForFile(SourceAccess.FullPath);
+        var (passF, _, _) = FunctionalDi.GetKeyAndPassphraseForFile(SourceAccess.FullPath);
         if (passF.Length > 0)
         {
           pass = passF;

@@ -43,7 +43,7 @@ public partial class FormColumnUiRead : ResizeForm
   private readonly ColumnMut m_ColumnEdit;
   private readonly IFileSetting m_FileSetting;
   private readonly FillGuessSettings m_FillGuessSettings;
-  private readonly bool IsWrite;
+  private readonly bool isWrite;
   public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
   /// <summary>
@@ -83,7 +83,7 @@ public partial class FormColumnUiRead : ResizeForm
     // needed for Formats
     bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
     comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
-    IsWrite = isWrite;
+    this.isWrite = isWrite;
     comboBoxColumnName.Enabled = enableChangeColumn;
 
     ChangeVisibility(!isWrite);
@@ -312,7 +312,7 @@ public partial class FormColumnUiRead : ResizeForm
       var dateSeparator = textBoxDateSeparator.Text.FromText();
       var timeSeparator = textBoxTimeSeparator.Text.FromText();
 
-      if (!IsWrite)
+      if (!isWrite)
       {
         var dateFormats = new List<string>();
         foreach (var item in checkedListBoxDateFormats.CheckedItems)
@@ -388,7 +388,7 @@ public partial class FormColumnUiRead : ResizeForm
         {
           // TODO Improove this later, best would be to deal with ReadOnlySpan more generally
           var tz = span.ToString();
-          sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, StandardTimeZoneAdjust.cIdLocal, tz, null);
+          sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, StandardTimeZoneAdjust.CIdLocal, tz, null);
           labelOutPutTZ.Text = tz;
         }
         else
@@ -413,7 +413,7 @@ public partial class FormColumnUiRead : ResizeForm
 
       toolTip.SetToolTip(textBoxDecimalSeparator, textBoxDecimalSeparator.Text.FromText().Description());
       toolTip.SetToolTip(textBoxGroupSeparator, textBoxGroupSeparator.Text.FromText().Description());
-      if (IsWrite)
+      if (isWrite)
       {
         labelNumberOutput.Text = $@"Output: ""{sample}""";
       }
@@ -630,10 +630,10 @@ public partial class FormColumnUiRead : ResizeForm
       IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
   {
-    const int MaxRetries = 1;
+    const int maxRetries = 1;
     int retryCount = 0;
 
-    while (retryCount <= MaxRetries)
+    while (retryCount <= maxRetries)
     {
       try
       {
@@ -647,7 +647,7 @@ public partial class FormColumnUiRead : ResizeForm
         // If column is missing, try updating the column list once
         if (colIndex < 0)
         {
-          if (retryCount < MaxRetries)
+          if (retryCount < maxRetries)
           {
             var columns = new List<string>(fileReader.FieldCount);
             for (var col = 0; col < fileReader.FieldCount; col++)
@@ -747,7 +747,7 @@ public partial class FormColumnUiRead : ResizeForm
   {
     SetDateFormat();
     var doNotShow = new List<DataTypeEnum>();
-    if (IsWrite)
+    if (isWrite)
     {
       doNotShow.Add(DataTypeEnum.TextPart);
       doNotShow.Add(DataTypeEnum.Markdown2Html);

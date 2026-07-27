@@ -667,7 +667,7 @@ allowPercentage: false, currencyRemoval: false) ??
         sql.Append(" OR ");
 
       counter++;
-      sql.Append(value.SQLCondition);
+      sql.Append(value.SqlCondition);
     }
 
     if (counter > 1)

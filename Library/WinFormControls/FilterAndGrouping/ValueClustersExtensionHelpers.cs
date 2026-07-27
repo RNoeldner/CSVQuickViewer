@@ -142,7 +142,7 @@ namespace CsvTools
     /// <param name="progress">Progress/cancellation handler.</param>
     /// <returns>Number of NULL or unconvertible values.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T> convert, IProgressWithCancellation progress) where T : notnull
+    private static (int nullCount, List<T> unsortedList) MakeTypedValues<T>(object[] values, Func<object, T?> convert, IProgressWithCancellation progress) where T : notnull
     {
       if (values is null) throw new ArgumentNullException(nameof(values));
       if (convert is null) throw new ArgumentNullException(nameof(convert));
@@ -172,7 +172,7 @@ namespace CsvTools
           }
           else
           {
-            T value = convert(obj);
+            T? value = convert(obj);
             if (value is null)
               nullCount++;
             else

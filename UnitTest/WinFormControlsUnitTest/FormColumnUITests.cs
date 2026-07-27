@@ -17,11 +17,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests;
 
 [TestClass]
-public class FormColumnUITests
+public class FormColumnUiTests
 {
   [TestMethod]
   [Timeout(2000)]
-  public void FormColumnUI()
+  public void FormColumnUi()
   {
     var csvFile = new CsvFileDummy { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
     var col = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime));
@@ -88,7 +88,7 @@ public class FormColumnUITests
 
   [TestMethod]
   [Timeout(2000)]
-  public void FormColumnUIGetColumnHeader2()
+  public void FormColumnUiGetColumnHeader2()
   {
     var csvFile = new CsvFileDummy() { FileName= UnitTestStatic.GetTestPath("BasicCSV.txt") };
 
@@ -100,7 +100,7 @@ public class FormColumnUITests
 
   [TestMethod]
   [Timeout(1000)]
-  public void FormColumnUIGetColumnHeaderAsync()
+  public void FormColumnUiGetColumnHeaderAsync()
   {
     var csvFile = new CsvFileDummy() { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
 

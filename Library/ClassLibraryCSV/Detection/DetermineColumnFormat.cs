@@ -28,8 +28,8 @@ namespace CsvTools;
 /// </summary>
 public static class DetermineColumnFormat
 {
-  private static readonly char[] m_TimeFormat = new[] { ':', 'h', 'H', 'm', 's', 't' };
-  private static readonly char[] m_DateFormat = new[] { '/', 'y', 'M', 'd' };
+  private static readonly char[] MTimeFormat = [':', 'h', 'H', 'm', 's', 't',];
+  private static readonly char[] MDateFormat = ['/', 'y', 'M', 'd',];
 
   /// <summary>
   /// Determines the most common date format used in the provided columns,
@@ -125,14 +125,13 @@ public static class DetermineColumnFormat
     columnCollectionInput ??= Array.Empty<Column>();
 
     if (!fillGuessSettings.Enabled || fillGuessSettings is
-      {
-        DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
-        DetectPercentage: false, SerialDateTime: false
-      })
+        {
+          DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false,
+          DetectPercentage: false, SerialDateTime: false
+        } || fileReader.FieldCount == 0)
+    {
       return [.. columnCollectionInput];
-
-    if (fileReader.FieldCount == 0)
-      return [.. columnCollectionInput];
+    }
 
     if (fileReader.EndOfFile)
       await fileReader.ResetPositionToFirstDataRowAsync(progress.CancellationToken).ConfigureAwait(false);
@@ -143,12 +142,14 @@ public static class DetermineColumnFormat
     var columnCollection = new ColumnCollection();
     // Only use column definition for columns that do not exist
     foreach (var col in columnCollectionInput)
+    {
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
         if (!col.Name.Equals(fileReader.GetName(colIndex), StringComparison.OrdinalIgnoreCase)) continue;
         columnCollection.Add(col);
         break;
       }
+    }
 
     var columnCache = new Dictionary<int, Column>();
     // Pre-fill the cache for all columns
@@ -389,7 +390,7 @@ public static class DetermineColumnFormat
 
         if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                            || columnFormat.DateFormat.IndexOfAny(
-                                                             m_TimeFormat) != -1)
+                                                             MTimeFormat) != -1)
           continue;
         // We have a date column without time
         for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
@@ -399,7 +400,7 @@ public static class DetermineColumnFormat
           if (colTimeIndex == -1) continue;
           var timeFormat = columnCollection[colTimeIndex].ValueFormat;
           if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                           || timeFormat.DateFormat.IndexOfAny(m_DateFormat) != -1)
+                                                           || timeFormat.DateFormat.IndexOfAny(MDateFormat) != -1)
             continue;
           // We now have a time column, checked if the names somehow make sense
           if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty)
@@ -430,7 +431,7 @@ public static class DetermineColumnFormat
         if (colIndexSetting == -1) continue;
         var columnFormat = columnCollection[colIndexSetting].ValueFormat;
         if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                           || columnFormat.DateFormat.IndexOfAny(m_TimeFormat) != -1)
+                                                           || columnFormat.DateFormat.IndexOfAny(MTimeFormat) != -1)
           continue;
 
         if (colIndex + 1 < fileReader.FieldCount)
@@ -580,7 +581,7 @@ public static class DetermineColumnFormat
     void OnWarning(object? sender, WarningEventArgs e)
     {
       if (e.ColumnNumber != -1 && !sampleDict.ContainsKey(e.ColumnNumber)) return;
-      if (e.Message.Contains(CsvFileReader.cMoreColumns, StringComparison.OrdinalIgnoreCase) && e.Message.Contains("empty", StringComparison.OrdinalIgnoreCase)) return;
+      if (e.Message.Contains(CsvFileReader.CMoreColumns, StringComparison.OrdinalIgnoreCase) && e.Message.Contains("empty", StringComparison.OrdinalIgnoreCase)) return;
 
       if (warningLogsRemaining > 0)
       {
@@ -844,8 +845,8 @@ public static class DetermineColumnFormat
     if (guessBoolean && samples.Count <= 2)
     {
       var allParsed = true;
-      var usedTrueValue = ValueFormat.cTrueDefault;
-      var usedFalseValue = ValueFormat.cFalseDefault;
+      var usedTrueValue = ValueFormat.CTrueDefault;
+      var usedFalseValue = ValueFormat.CFalseDefault;
       foreach (var value in samples)
       {
         (var resultBool, string val) = value.Span.StringToBooleanWithMatch(trueValue, falseValue);

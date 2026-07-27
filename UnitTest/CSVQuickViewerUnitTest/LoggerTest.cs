@@ -36,7 +36,7 @@ public class LoggerTest
   }
 
   [TestMethod, Timeout(1000)]
-  public void UILog()
+  public void UiLog()
   {
     var testLogger = new UnitTestLogger(m_TestContext);
     Logger.LoggerInstance = testLogger;

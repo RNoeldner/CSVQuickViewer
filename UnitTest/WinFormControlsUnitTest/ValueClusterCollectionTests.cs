@@ -98,7 +98,9 @@ public class ValueClusterCollectionTests
         data.Add($"End{i}");
       else if (i % 10 == 3)
       {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
         data.Add(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         countNullSrc++; 
       }
       else

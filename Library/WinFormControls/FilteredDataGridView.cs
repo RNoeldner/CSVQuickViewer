@@ -76,7 +76,7 @@ public partial class FilteredDataGridView : DataGridView
     InitializeComponent();
     FontChanged += PassOnFontChanges;
 
-    Scroll += (o, e) => SetRowHeight();
+    Scroll += (_, _) => SetRowHeight();
 
     var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
     m_ImgFilterIndicator = (resources.GetObject("filter_small") as Image) ??
@@ -100,7 +100,7 @@ public partial class FilteredDataGridView : DataGridView
     KeyDown += FilteredDataGridView_KeyDown;
     DataError += (_, e) =>
     {
-      if (e == null)
+      if (e.Exception== null)
         return;
       Logger.Warning(e.Exception, "DataGridView data error");
       e.ThrowException = false;
@@ -192,7 +192,7 @@ public partial class FilteredDataGridView : DataGridView
     {
       m_DataTable = value ?? new DataTable();
       GenerateDataGridViewColumn();
-      SetRowCount(m_DataTable?.Rows.Count ?? 0); // Update the UI engine here!
+      SetRowCount(m_DataTable.Rows.Count); 
     }
   }
 
@@ -280,7 +280,7 @@ public partial class FilteredDataGridView : DataGridView
 
   /// <summary>
   /// Aggregates all active column filters and applies them to the <see cref="DataTable.DefaultView"/>.
-  /// Synchronizes the <see cref="DataGridView.RowCount"/> and raises <see cref="DataViewChanged"/>.
+  /// Synchronizes the <see cref="DataGridView.RowCount"/>.
   /// </summary>
   public void ApplyFilters() =>
     this.RunWithHourglass(() =>
@@ -307,15 +307,22 @@ public partial class FilteredDataGridView : DataGridView
   /// Resizes column widths based on the actual content of the <see cref="DataTable"/> rather than just visible cells.
   /// </summary>
   /// <param name="autoSizeColumnsMode">The sizing mode.</param>
-  public new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
+  private new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
   {
     foreach (DataColumn dataColumn in DataTable.Columns)
+    {
       foreach (DataGridViewColumn gridColumn in Columns)
-        if (string.Equals(gridColumn.DataPropertyName, dataColumn.ColumnName, StringComparison.OrdinalIgnoreCase))
+      {
+        if (!string.Equals(gridColumn.DataPropertyName, dataColumn.ColumnName,
+              StringComparison.OrdinalIgnoreCase))
         {
-          gridColumn.Width = GetColumnWith(dataColumn, DataTable.Rows) + 5;
-          break;
+          continue;
         }
+
+        gridColumn.Width = GetColumnWith(dataColumn, DataTable.Rows) + 5;
+        break;
+      }
+    }
   }
 
   /// <summary>
@@ -349,7 +356,7 @@ public partial class FilteredDataGridView : DataGridView
   /// </summary>
   /// <param name="exclude">The index of the column to exclude from the expression, or -1 to include all.</param>
   /// <returns>A combined SQL-like filter statement.</returns>
-  public string GetFilterExpression(int exclude) =>
+  private string GetFilterExpression(int exclude) =>
     m_FilterLogic.Where(x => x.Key != exclude && x.Value.Active && !string.IsNullOrEmpty(x.Value.FilterExpression)).Select(x => x.Value.FilterExpression).Join("\nAND\n");
 
   /// <summary>
@@ -363,6 +370,7 @@ public partial class FilteredDataGridView : DataGridView
 
     var hasChanges = false;
     foreach (DataGridViewColumn col in Columns)
+    {
       if (col.Visible)
       {
         var hasData = DataTable.DefaultView.Cast<DataRowView>()
@@ -371,6 +379,7 @@ public partial class FilteredDataGridView : DataGridView
           col.Visible = false;
         hasChanges = true;
       }
+    }
 
     return hasChanges;
   }
@@ -378,7 +387,7 @@ public partial class FilteredDataGridView : DataGridView
   /// <summary>
   /// Refreshes the UI by hiding empty columns and recalculating row heights.
   /// </summary>
-  public void RefreshUI()
+  public void RefreshUi()
   {
     try
     {
@@ -557,7 +566,7 @@ public partial class FilteredDataGridView : DataGridView
     // first call
     if (m_DefRowHeight == -1)
       m_DefRowHeight = row.Height;
-    // in case the row is not bigger than normal check if it would need to be higher
+    // in case the row is not bigger than normal, check if it would need to be higher
     if (row.Height != m_DefRowHeight) return m_DefRowHeight;
     if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
       return m_DefRowHeight * 2;
@@ -572,12 +581,16 @@ public partial class FilteredDataGridView : DataGridView
   /// <param name="graphics">The graphics context used for text measurement.</param>
   /// <param name="font">The font used to render the cell text.</param>
   /// <param name="maxWidth">The maximum allowed width for the column.</param>
-  /// <param name="col">The DataColumn being measured.</param>  
+  /// <param name="col">The DataColumn being measured.</param>
+  /// <param name="rows"></param>
   /// <param name="valueSelector">A function that extracts the display text from a cell value and indicates if scanning should stop.</param>
   /// <returns>The calculated width in pixels, clamped to <paramref name="maxWidth"/>.</returns>  
   private static int MeasureStrings(IDeviceContext graphics, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
       Func<object, (string Text, bool Stop)> valueSelector)
   {
+    // Use TextFormatFlags to prevent standard GDI+ overhead where possible
+    const TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.NoPadding;
+    Size measure = new Size(int.MaxValue, int.MaxValue);
     // Start with the column header width as the minimum
     var headerWidth = TextRenderer.MeasureText(graphics, col.ColumnName, font).Width + 10; // +10 for sort glyph space
     var max = Math.Min(headerWidth, maxWidth);
@@ -585,41 +598,32 @@ public partial class FilteredDataGridView : DataGridView
     var counter = 0;
     var lastIncrease = 0;
     int rowCount = rows.Count;
-
-    // OPTIMIZATION: If we have thousands of rows, we don't need to check every single one.
-    // We check every row initially, then start skipping to sample the data.
+    
+    // Segmented approach to avoid branching in the hot path
     for (int i = 0; i < rowCount; i++)
     {
       if (max >= maxWidth)
         return maxWidth;
 
-      // Sampling logic: 
-      // 0-500: Check every row
-      // 500-1000: Check every 10th row
-      // 1000+: Check every 100th row
-      if (i > 500 && i <= 1000 && i % 10 != 0) continue;
-      if (i > 1000 && i % 100 != 0) continue;
-
+      // 1. Determine if we should process this row based on the current index
+      bool shouldProcess = i <= 500 || (i <= 1000 ? i % 10 == 0 : i % 100 == 0);
+      if (!shouldProcess) continue;
       var check = valueSelector(rows[i][col]);
-      if (check.Stop)
-        break;
+      if (check.Stop) break;
 
       if (!string.IsNullOrEmpty(check.Text))
       {
         // Measure the text with a small buffer for the cell margins
-        var width = TextRenderer.MeasureText(graphics, check.Text, font).Width + 6;
+        var width = TextRenderer.MeasureText(graphics, check.Text, font, measure, flags).Width + 6;
 
         if (width > max)
         {
           lastIncrease = counter;
-          max = Math.Min(width, maxWidth);
+          max = width;
         }
-      }
 
-      // Break if we haven't found a wider value in the last 500 checked rows
-      // if we checked 2000 times we are at row 145900
-      if (counter++ > 2000 || counter - lastIncrease > 500)
-        break;
+      }
+      if (++counter > 2000 || (counter - lastIncrease) > 500) break;
     }
 
     return max;
@@ -639,7 +643,7 @@ public partial class FilteredDataGridView : DataGridView
   }
 
   /// <summary>
-  ///   Shows the pop up when user right-clicks a column header
+  ///   Shows the pop-up when the user right-clicks a column header
   /// </summary>
   /// <param name="sender">The event source.</param>
   /// <param name="e">
@@ -745,8 +749,8 @@ public partial class FilteredDataGridView : DataGridView
   }
 
   /// <summary>
-  /// Rebuilds all DataGridView columns based on the current DataView,  
-  /// determining wrap behavior, button-cell conversion and width 
+  /// Rebuilds all DataGridView columns based on the current DataView, 
+  /// determining wrap behavior, button-cell conversion, and width
   /// calculation. Existing column widths are preserved where possible.
   /// </summary>
   private void GenerateDataGridViewColumn()
@@ -824,7 +828,7 @@ public partial class FilteredDataGridView : DataGridView
       newColumn.Width = oldWidth.TryGetValue(newColumn.DataPropertyName, out var value)
                         ? value : GetColumnWith(col, DataTable.Rows);
 
-      // The Index does not change when moving or hiding columns DisplayIndex does though.
+      // The Index does not change when moving or hiding columns DisplayIndex does, though.
       var colIndex = Columns.Add(newColumn);
       m_FilterLogic[colIndex]= new ColumnFilterLogic(col.DataType, col.ColumnName);
     }
@@ -872,7 +876,7 @@ public partial class FilteredDataGridView : DataGridView
         MeasureStrings(graphics, Font, Width / 2, col, rowCollection,
           value =>
           {
-            var txt = value?.ToString() ?? string.Empty;
+            var txt = value.ToString() ?? string.Empty;
             return (txt, CancellationToken.IsCancellationRequested || txt.Length > m_ShowButtonAtLength);
           }),
       _ => Math.Min(Width / 2,
@@ -938,7 +942,7 @@ public partial class FilteredDataGridView : DataGridView
         {
           if (linefeedIndex == -1)
 
-            // Middle Alignment (this goes wrong if the have a linefeed)
+            // Middle Alignment (this goes wrong if they have a linefeed)
             hlRect.Y = (e.CellBounds.Top + (e.CellBounds.Height / 2)) - 2;
           else
             hlRect.Y = (e.CellBounds.Top + Font.Height) - 4;
@@ -961,12 +965,11 @@ public partial class FilteredDataGridView : DataGridView
             break;
 
           e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2),
-            new[]
-            {
-              new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
+          [
+            new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
               new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
-              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
-            });
+              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10),
+          ]);
           nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
         }
       }
@@ -1039,7 +1042,11 @@ public partial class FilteredDataGridView : DataGridView
     {
 #pragma warning disable S2486 // Generic exceptions should not be ignored
 #pragma warning disable S108 // Nested blocks of code should not be left empty
-      try { Logger.Warning(ex, "mainDataGridView painting failed"); } catch { }
+      try { Logger.Warning(ex, "mainDataGridView painting failed"); }
+      catch
+      {
+        // ignored
+      }
 #pragma warning restore S108 // Nested blocks of code should not be left empty
 #pragma warning restore S2486 // Generic exceptions should not be ignored
       e.Handled = false;
@@ -1053,7 +1060,7 @@ public partial class FilteredDataGridView : DataGridView
       // This does not work properly
       var filterExpression = GetFilterExpression(m_MenuItemColumnIndex);
       using var filterPopup = new FromColumnsFilter(Columns,
-        DataTable?.Select(filterExpression) ?? Array.Empty<DataRow>(),
+        DataTable.Select(filterExpression) ?? Array.Empty<DataRow>(),
         m_FilterLogic.Where(x => x.Value.Active).Select(x => x.Key),
         DataLoaded);
       if (filterPopup.ShowDialog() == DialogResult.OK)
@@ -1166,7 +1173,7 @@ public partial class FilteredDataGridView : DataGridView
     }
   }
   /// <summary>
-  ///   Called when the preferences are changed by a user. In case the Local was changed we need
+  ///   Called when the preferences are changed by a user. In case the Local was changed, we need
   ///   to clear the cache so date and number are displayed correctly again
   /// </summary>
   /// <param name="sender">The source of the event.</param>
@@ -1204,7 +1211,7 @@ public partial class FilteredDataGridView : DataGridView
         if (form.ShowWithFont(this, true) == DialogResult.Cancel)
           return;
 
-        // Update the  columns        
+        // Update the columns        
         m_FileSetting.ColumnCollection.Remove(columnFormat);
         m_FileSetting.ColumnCollection.Add(form.UpdatedColumn);
 

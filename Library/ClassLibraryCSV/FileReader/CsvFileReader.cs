@@ -36,12 +36,12 @@ public class CsvFileReader : BaseFileReader
   /// <summary>
   ///   Message suffix: the row contains fewer columns than expected.
   /// </summary>
-  public const string cLessColumns = " has fewer columns than expected";
+  public const string CLessColumns = " has fewer columns than expected";
 
   /// <summary>
   ///   Message suffix: the row contains more columns than expected.
   /// </summary>
-  public const string cMoreColumns = " has more columns than expected";
+  public const string CMoreColumns = " has more columns than expected";
 
   /// <summary>
   ///   Carriage return character (<c>\r</c>).
@@ -53,7 +53,7 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   private const char cLf = (char) 0x0a;
 
-  private static readonly char[] cCRLF = [cCr, cLf,];
+  private static readonly char[] CCrlf = [cCr, cLf,];
 
   /// <summary>
   ///   Non-breaking space character.
@@ -65,7 +65,7 @@ public class CsvFileReader : BaseFileReader
   /// </summary>
   private const char cUnknownChar = (char) 0xFFFD;
 
-  private static readonly bool[] m_IsLowAsciiWhitespace = new bool[33];
+  private static readonly bool[] MIsLowAsciiWhitespace = new bool[33];
   private readonly bool m_AllowRowCombining;
   private readonly int m_CodePageId;
   private readonly string m_CommentLine;
@@ -299,7 +299,7 @@ public class CsvFileReader : BaseFileReader
       allowPercentage, removeCurrency)
   {
     m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
-    m_StreamProvider = FunctionalDI.GetStream;
+    m_StreamProvider = FunctionalDi.GetStream;
   }
 
   /// <summary>
@@ -504,7 +504,7 @@ public class CsvFileReader : BaseFileReader
       removeCurrency, false)
   {
     SelfOpenedStream = !string.IsNullOrEmpty(fileName);
-    m_StreamProvider = FunctionalDI.GetStream;
+    m_StreamProvider = FunctionalDi.GetStream;
     m_HeaderRow = [];
     m_EscapePrefix = escapeCharacterChar;
     m_FieldDelimiter = fieldDelimiterChar;
@@ -606,10 +606,10 @@ public class CsvFileReader : BaseFileReader
     m_ProcessingBufferColumn = ArrayPool<char>.Shared.Rent(512);
     // Initialize only the characters we want to treat as whitespace.
     // We skip the check if the delimiter itself is one of these
-    if (m_FieldDelimiter != ' ') m_IsLowAsciiWhitespace[' '] = true; // 32
-    if (m_FieldDelimiter != '\t') m_IsLowAsciiWhitespace['\t'] = true; // 9
-    if (m_FieldDelimiter != '\v') m_IsLowAsciiWhitespace['\v'] = true; // 11
-    if (m_FieldDelimiter != '\f') m_IsLowAsciiWhitespace['\f'] = true; // 12
+    if (m_FieldDelimiter != ' ') MIsLowAsciiWhitespace[' '] = true; // 32
+    if (m_FieldDelimiter != '\t') MIsLowAsciiWhitespace['\t'] = true; // 9
+    if (m_FieldDelimiter != '\v') MIsLowAsciiWhitespace['\v'] = true; // 11
+    if (m_FieldDelimiter != '\f') MIsLowAsciiWhitespace['\f'] = true; // 12
   }
 
   /// <summary>
@@ -970,7 +970,7 @@ public class CsvFileReader : BaseFileReader
 
         if (!m_AllowRowCombining)
         {
-          HandleWarning(-1, $"Line {cLessColumns} ({m_CurrentRowColumns.Count}/{FieldCount}).");
+          HandleWarning(-1, $"Line {CLessColumns} ({m_CurrentRowColumns.Count}/{FieldCount}).");
         }
         else
         {
@@ -998,14 +998,14 @@ public class CsvFileReader : BaseFileReader
 
           // we have an issue we went into the next Buffer there is no way back.
           HandleError(-1,
-            $"Line {cLessColumns}\nAttempting to combine lines; some line(s) have been read and this information is now lost. Please turn off Row Combination.");
+            $"Line {CLessColumns}\nAttempting to combine lines; some line(s) have been read and this information is now lost. Please turn off Row Combination.");
         }
       }
 
       // If more columns are present
       if (m_CurrentRowColumns.Count > FieldCount)
       {
-        var text = $"Line {cMoreColumns} ({m_CurrentRowColumns.Count:N0}/{FieldCount:N0}).";
+        var text = $"Line {CMoreColumns} ({m_CurrentRowColumns.Count:N0}/{FieldCount:N0}).";
         // check if the additional columns have contents
         var hasContent = false;
         for (var extraCol = FieldCount; extraCol < m_CurrentRowColumns.Count; extraCol++)
@@ -1125,7 +1125,7 @@ public class CsvFileReader : BaseFileReader
           }
 
           if (m_WarnLineFeed && (m_NumMaxWarning < 1 || m_NumWarnings++ <= m_NumMaxWarning) &&
-              adjustedText.IndexOfAny(cCRLF) != -1)
+              adjustedText.IndexOfAny(CCrlf) != -1)
             HandleWarning(columnNo, m_WarnLineFeedMessage);
         }
 
@@ -1155,7 +1155,7 @@ public class CsvFileReader : BaseFileReader
   {
     // 1. Fast Path: Low ASCII (0-32)
     if (c <= 32)
-      return m_IsLowAsciiWhitespace[c];
+      return MIsLowAsciiWhitespace[c];
 
     // 2. Middle Path: Skip Latin-1 and common symbols (including Non-Breaking Space 160)
     // This honors your requirement that Non-Breaking Space is NOT whitespace.

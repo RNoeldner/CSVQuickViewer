@@ -27,13 +27,13 @@ public static class StandardTimeZoneAdjust
   /// <summary>
   /// Representation for the current system timezone
   /// </summary>
-  public const string cIdLocal = "(local)";
+  public const string CIdLocal = "(local)";
 
   private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
   private static TimeZoneInfo FindTimeZoneInfo(ReadOnlySpan<char> timeZone)
   {
-    if (timeZone.Equals(cIdLocal.AsSpan(), StringComparison.OrdinalIgnoreCase))
+    if (timeZone.Equals(CIdLocal.AsSpan(), StringComparison.OrdinalIgnoreCase))
       return TimeZoneInfo.Local;
     return IsWindows
       ? TimeZoneInfo.FindSystemTimeZoneById(

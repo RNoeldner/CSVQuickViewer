@@ -19,6 +19,11 @@ namespace CsvTools;
 public sealed class FileWriterException : ApplicationException
 {
   /// <inheritdoc />
+  public FileWriterException() : base()
+  {
+  }
+  
+  /// <inheritdoc />
   public FileWriterException(string message)
     : base(message)
   {

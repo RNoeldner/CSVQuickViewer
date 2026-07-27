@@ -53,11 +53,11 @@ public sealed record ColumnSetting
   {
     public ValueFilter(string sQlCondition, string display)
     {
-      SQLCondition = sQlCondition;
+      SqlCondition = sQlCondition;
       Display = display;
     }
 
-    public string SQLCondition { get; }
+    public string SqlCondition { get; }
     public string Display { get; }
   }
 }

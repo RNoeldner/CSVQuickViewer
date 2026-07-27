@@ -71,7 +71,7 @@ true, 1, "ID", System.TimeZoneInfo.Local.Id, true, false))
       Assert.AreEqual(pageSize, test.Count);
 
       var collectionChangedCalled = false;
-      test.CollectionChanged += (e_, s_) => { collectionChangedCalled = true; };
+      test.CollectionChanged += (e, s) => { collectionChangedCalled = true; };
       await test.MoveToNextPageAsync(UnitTestStatic.Token);
       Assert.IsTrue(collectionChangedCalled);
       Assert.AreEqual(pageSize, test.Count);

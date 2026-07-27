@@ -56,10 +56,10 @@ public partial class FormUniqueDisplay : ResizeForm
     var listRem = new List<DataColumn>();
     foreach (DataColumn col in m_DataTable.Columns)
     {
-      if (string.Equals(col.ColumnName, ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase)||
-          string.Equals(col.ColumnName, ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(col.ColumnName, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(col.ColumnName, ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+      if (string.Equals(col.ColumnName, ReaderConstants.CRecordNumberFieldName, StringComparison.OrdinalIgnoreCase)||
+          string.Equals(col.ColumnName, ReaderConstants.CStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(col.ColumnName, ReaderConstants.CErrorField, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(col.ColumnName, ReaderConstants.CEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
         listRem.Add(col);
     }
 
@@ -122,7 +122,7 @@ public partial class FormUniqueDisplay : ResizeForm
         uniqueValuesDetailControl.Visible = false;
         uniqueValuesDetailControl.SuspendLayout();
       });
-    Extensions.ProcessUIElements();
+    Extensions.ProcessUiElements();
 
     try
     {

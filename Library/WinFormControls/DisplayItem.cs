@@ -26,7 +26,7 @@ namespace CsvTools;
     /// <param name="display">The display.</param>
     public DisplayItem(T id, string display)
     {
-      ID = id;
+      Id = id;
       Display = display;
     }
 
@@ -38,7 +38,7 @@ namespace CsvTools;
     /// <summary>
     /// Gets the underlying identifier or value.
     /// </summary>
-    public T ID { get; }
+    public T Id { get; }
 
     /// <summary>
     /// Returns the display text.
@@ -50,7 +50,7 @@ namespace CsvTools;
 /// Represents a displayable item, typically used for ComboBox or ListBox data binding.
 /// </summary>
 /// <typeparam name="T">Type of the underlying value or identifier.</typeparam>
-public sealed record class DisplayItem<T>(T ID, string Display)
+public sealed record class DisplayItem<T>(T Id, string Display)
 {
   public override string ToString() => Display ?? string.Empty;
 }

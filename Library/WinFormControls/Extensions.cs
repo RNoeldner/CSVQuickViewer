@@ -14,6 +14,7 @@
 #nullable enable
 
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -74,9 +75,9 @@ public static class Extensions
   /// </summary>
   /// <param name="fileSetting">The setting.</param>
   /// <param name="owner">
-  ///   The owner form, in case the owner is minimized or closed this progress will do the same
+  ///   The owner form, in case the owner is minimized or closed, this progress will do the same
   /// </param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
   /// <returns>A process display, if the stetting want a process</returns>
   public static FormProgress GetProgress(
     this IFileSetting fileSetting,
@@ -189,7 +190,7 @@ public static class Extensions
       if (!string.IsNullOrEmpty(windowPosition.CustomText))
         setCustomValue2?.Invoke(windowPosition.CustomText);
 
-      ProcessUIElements();
+      ProcessUiElements();
     }
     catch
     {
@@ -265,7 +266,7 @@ public static class Extensions
   /// Flushes the UI message queue to keep the interface responsive during synchronous loops.
   /// </summary>
   /// <param name="milliseconds">Optional sleep duration after processing events.</param>
-  public static void ProcessUIElements(int milliseconds = 0)
+  public static void ProcessUiElements(int milliseconds = 0)
   {
     try
     {
@@ -292,13 +293,11 @@ public static class Extensions
     var bmp = new Bitmap(width, height);
     bmp.SetResolution(source.HorizontalResolution, source.VerticalResolution);
 
-    using (var g = Graphics.FromImage(bmp))
-    {
-      g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-      g.SmoothingMode = SmoothingMode.HighQuality;
-      g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-      g.DrawImage(source, 0, 0, width, height);
-    }
+    using var g = Graphics.FromImage(bmp);
+    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+    g.SmoothingMode = SmoothingMode.HighQuality;
+    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+    g.DrawImage(source, 0, 0, width, height);
 
     return bmp;
   }
@@ -441,7 +440,7 @@ public static class Extensions
     {
       // Safety catch for race conditions during disposal
     }
-    ProcessUIElements();
+    ProcessUiElements();
   }
 
   /// <summary>
@@ -492,7 +491,7 @@ public static class Extensions
     cbo.SuspendLayout();
 
     cbo.DisplayMember = nameof(DisplayItem<>.Display);
-    cbo.ValueMember = nameof(DisplayItem<>.ID);
+    cbo.ValueMember = nameof(DisplayItem<>.Id);
 
     cbo.DataSource = Enum.GetValues(typeof(T))
       .Cast<T>()
@@ -504,7 +503,7 @@ public static class Extensions
   }
 
   /// <summary>
-  ///   Show error information to a user, and logs the message
+  ///   Show error information to a user and logs the message
   /// </summary>
   /// <param name="ex">the Exception</param>
   /// <param name="additionalTitle">Title Bar information</param>
@@ -542,7 +541,7 @@ public static class Extensions
     var windowPosition = form.DesktopBounds;
     var windowState = form.WindowState;
 
-    // Get the original WindowPosition in case of maximize or minimize
+    // Get the original WindowPosition in case of maximizing or minimize
     if (windowState != FormWindowState.Normal)
     {
       var oldVis = form.Visible;

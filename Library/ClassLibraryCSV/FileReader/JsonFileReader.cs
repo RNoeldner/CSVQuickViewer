@@ -65,7 +65,7 @@ public sealed class JsonFileReader : BaseFileReader
     : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, returnedTimeZone, allowPercentage, removeCurrency, true)
   {
     m_Stream = stream;
-    m_StreamProvider= FunctionalDI.GetStream;
+    m_StreamProvider= FunctionalDi.GetStream;
   }
 
   /// <summary>
@@ -99,7 +99,7 @@ public sealed class JsonFileReader : BaseFileReader
       throw new FileNotFoundException(
         $"The file '{fileName.GetShortDisplayFileName()}' does not exist or is not accessible.",
         fileName);
-    m_StreamProvider= FunctionalDI.GetStream;
+    m_StreamProvider= FunctionalDi.GetStream;
   }
 
   /// <inheritdoc />

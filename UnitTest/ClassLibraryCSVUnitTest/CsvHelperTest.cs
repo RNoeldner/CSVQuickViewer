@@ -150,7 +150,7 @@ public class CsvHelperTest
   public async Task EncodingIsUtf8()
   {
     var det = UnitTestStatic.GetTestPath("employee.txt");
-    using var stream = FunctionalDI.GetStream(new SourceAccess(det, true, string.Empty, false, string.Empty));
+    using var stream = FunctionalDi.GetStream(new SourceAccess(det, true, string.Empty, false, string.Empty));
     var (codePage, bom) = await stream.InspectCodePageAsync(UnitTestStatic.Token).ConfigureAwait(false);
     Assert.AreEqual(65001, codePage);
   }

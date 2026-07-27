@@ -142,7 +142,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     await btnOpenFile.RunWithHourglassAsync(async () =>
     {
       var split = FileSystemUtils.SplitPath(textBoxFileName.Text);
-      var newFileName = WindowsAPICodePackWrapper.Open(
+      var newFileName = WindowsApiCodePackWrapper.Open(
         split.DirectoryName,
         "Delimited File",
         "Delimited files|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
@@ -420,7 +420,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #else
     var sourceAccess = new SourceAccess(FileSetting.FileName, true);
 #endif
-    return FunctionalDI.GetStream(sourceAccess);
+    return FunctionalDi.GetStream(sourceAccess);
   }
 
   private Task<ImprovedTextReader> GetTextReaderAsync(Stream stream)

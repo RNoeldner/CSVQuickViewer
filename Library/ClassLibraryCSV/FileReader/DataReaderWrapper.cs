@@ -42,7 +42,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <summary>
   /// The mapping for columns between source and destination 
   /// </summary>
-  protected readonly ReaderMapping m_ReaderMapping;
+  protected readonly ReaderMapping MReaderMapping;
   private readonly long m_RecordLimit;
 
   /// <summary>
@@ -74,8 +74,8 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       sourceColumns.Add(column);
     }
 
-    m_ReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
-    if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1)
+    MReaderMapping = new ReaderMapping(sourceColumns, startLine, endLine, recNum, errorField);
+    if (m_FileReader != null && MReaderMapping.ColNumErrorFieldSource == -1)
     {
       m_FileReader.Warning += HandleSourceWarning;
     }
@@ -104,7 +104,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
                                    (m_FileReader?.EndOfFile ?? DataReader.IsClosed);
 
   /// <inheritdoc />
-  public override int FieldCount => m_ReaderMapping.ResultingColumns.Count;
+  public override int FieldCount => MReaderMapping.ResultingColumns.Count;
 
   /// <inheritdoc />
   public override bool HasRows => !DataReader.IsClosed;
@@ -175,95 +175,95 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 #endif
 
   /// <inheritdoc />
-  public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(m_ReaderMapping.ResultToSource(ordinal));
+  public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
-  public override byte GetByte(int ordinal) => DataReader.GetByte(m_ReaderMapping.ResultToSource(ordinal));
+  public override byte GetByte(int ordinal) => DataReader.GetByte(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
   public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
-    DataReader.GetBytes(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
+    DataReader.GetBytes(MReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
   /// <inheritdoc />
-  public override char GetChar(int ordinal) => DataReader.GetChar(m_ReaderMapping.ResultToSource(ordinal));
+  public override char GetChar(int ordinal) => DataReader.GetChar(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
   public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
-    DataReader.GetChars(m_ReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
+    DataReader.GetChars(MReaderMapping.ResultToSource(ordinal), dataOffset, buffer, bufferOffset, length);
 
   /// <inheritdoc />
-  public Column GetColumn(int column) => m_ReaderMapping.ResultingColumns[column];
+  public Column GetColumn(int column) => MReaderMapping.ResultingColumns[column];
 
   /// <inheritdoc />
-  public new IDataReader GetData(int i) => DataReader.GetData(m_ReaderMapping.ResultToSource(i))!;
+  public new IDataReader GetData(int i) => DataReader.GetData(MReaderMapping.ResultToSource(i))!;
 
   /// <inheritdoc />
   public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
   /// <inheritdoc />
   public override DateTime GetDateTime(int ordinal) =>
-    DataReader.GetDateTime(m_ReaderMapping.ResultToSource(ordinal));
+    DataReader.GetDateTime(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
-  public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(m_ReaderMapping.ResultToSource(ordinal));
+  public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
-  public override double GetDouble(int ordinal) => DataReader.GetDouble(m_ReaderMapping.ResultToSource(ordinal));
+  public override double GetDouble(int ordinal) => DataReader.GetDouble(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
   public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
 
   /// <inheritdoc />
   public override Type GetFieldType(int ordinal) =>
-    m_ReaderMapping.ResultingColumns[ordinal].ValueFormat.DataType.GetNetType();
+    MReaderMapping.ResultingColumns[ordinal].ValueFormat.DataType.GetNetType();
 
   /// <inheritdoc />
-  public override float GetFloat(int ordinal) => DataReader.GetFloat(m_ReaderMapping.ResultToSource(ordinal));
+  public override float GetFloat(int ordinal) => DataReader.GetFloat(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
-  public override Guid GetGuid(int ordinal) => DataReader.GetGuid(m_ReaderMapping.ResultToSource(ordinal));
+  public override Guid GetGuid(int ordinal) => DataReader.GetGuid(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
-  public override short GetInt16(int ordinal) => DataReader.GetInt16(m_ReaderMapping.ResultToSource(ordinal));
+  public override short GetInt16(int ordinal) => DataReader.GetInt16(MReaderMapping.ResultToSource(ordinal));
 
 
   /// <inheritdoc />
   public override int GetInt32(int ordinal)
   {
     // Return fixed columns are not mapped to the underlying reader, so handle them directly
-    if (ordinal == m_ReaderMapping.ColNumStartLine)
+    if (ordinal == MReaderMapping.ColNumStartLine)
       return StartLineNumber.ToInt();
-    if (ordinal == m_ReaderMapping.ColNumEndLine)
+    if (ordinal == MReaderMapping.ColNumEndLine)
       return EndLineNumber.ToInt();
-    if (ordinal == m_ReaderMapping.ColNumRecNum)
+    if (ordinal == MReaderMapping.ColNumRecNum)
       return RecordNumber.ToInt();
-    return DataReader.GetInt32(m_ReaderMapping.ResultToSource(ordinal));
+    return DataReader.GetInt32(MReaderMapping.ResultToSource(ordinal));
   }
 
   /// <inheritdoc />
   public override long GetInt64(int ordinal)
   {
     // Return fixed columns are not mapped to the underlying reader, so handle them directly
-    if (ordinal == m_ReaderMapping.ColNumStartLine)
+    if (ordinal == MReaderMapping.ColNumStartLine)
       return StartLineNumber;
-    if (ordinal == m_ReaderMapping.ColNumEndLine)
+    if (ordinal == MReaderMapping.ColNumEndLine)
       return EndLineNumber;
-    if (ordinal == m_ReaderMapping.ColNumRecNum)
+    if (ordinal == MReaderMapping.ColNumRecNum)
       return RecordNumber;
     // if mapped, use the underlying reader    
-    return DataReader.GetInt64(m_ReaderMapping.ResultToSource(ordinal));
+    return DataReader.GetInt64(MReaderMapping.ResultToSource(ordinal));
   }
 
   /// <inheritdoc />
-  public override string GetName(int ordinal) => m_ReaderMapping.ResultingColumns[ordinal].Name;
+  public override string GetName(int ordinal) => MReaderMapping.ResultingColumns[ordinal].Name;
 
   /// <inheritdoc />
-  public override int GetOrdinal(string name) => m_ReaderMapping.GetOrdinal(name);
+  public override int GetOrdinal(string name) => MReaderMapping.GetOrdinal(name);
 
   /// <summary>
   /// Allocation-free column lookup via text spans.
   /// </summary>
-  public int GetOrdinalSpan(ReadOnlySpan<char> name) => m_ReaderMapping.GetOrdinal(name);
+  public int GetOrdinalSpan(ReadOnlySpan<char> name) => MReaderMapping.GetOrdinal(name);
 
   /// <inheritdoc />
   public override DataTable GetSchemaTable()
@@ -273,7 +273,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
 
     for (var col = 0; col < FieldCount; col++)
     {
-      var column = m_ReaderMapping.ResultingColumns[col];
+      var column = MReaderMapping.ResultingColumns[col];
       schemaRow[1] = column.Name; // ResultingColumns name
       schemaRow[4] = column.Name; // ResultingColumns name
       schemaRow[5] = col; // ResultingColumns ordinal
@@ -288,22 +288,22 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
   public override string GetString(int ordinal)
     // Error is fixed and not mapped to the underlying reader, so handle them directly
-    => (ordinal == m_ReaderMapping.ColNumErrorField)
+    => (ordinal == MReaderMapping.ColNumErrorField)
       ? RowErrorInformation
-      : DataReader.GetString(m_ReaderMapping.ResultToSource(ordinal));
+      : DataReader.GetString(MReaderMapping.ResultToSource(ordinal));
 
   /// <inheritdoc />
   public override object GetValue(int ordinal)
   {
-    if (ordinal == m_ReaderMapping.ColNumStartLine)
+    if (ordinal == MReaderMapping.ColNumStartLine)
       return StartLineNumber;
-    if (ordinal == m_ReaderMapping.ColNumEndLine)
+    if (ordinal == MReaderMapping.ColNumEndLine)
       return EndLineNumber;
-    if (ordinal == m_ReaderMapping.ColNumRecNum)
+    if (ordinal == MReaderMapping.ColNumRecNum)
       return RecordNumber;
-    if (ordinal == m_ReaderMapping.ColNumErrorField)
+    if (ordinal == MReaderMapping.ColNumErrorField)
       return RowErrorInformation;
-    return DataReader.GetValue(m_ReaderMapping.ResultToSource(ordinal));
+    return DataReader.GetValue(MReaderMapping.ResultToSource(ordinal));
   }
 
 
@@ -324,15 +324,15 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   /// <inheritdoc />
   public override bool IsDBNull(int ordinal)
   {
-    if (ordinal == m_ReaderMapping.ColNumStartLine || ordinal == m_ReaderMapping.ColNumEndLine ||
-        ordinal == m_ReaderMapping.ColNumRecNum)
+    if (ordinal == MReaderMapping.ColNumStartLine || ordinal == MReaderMapping.ColNumEndLine ||
+        ordinal == MReaderMapping.ColNumRecNum)
     {
       return false;
     }
 
-    return ordinal == m_ReaderMapping.ColNumErrorField
+    return ordinal == MReaderMapping.ColNumErrorField
       ? RowErrorInformation.Length == 0
-      : DataReader.IsDBNull(m_ReaderMapping.ResultToSource(ordinal));
+      : DataReader.IsDBNull(MReaderMapping.ResultToSource(ordinal));
   }
 
   /// <inheritdoc cref="IFileReader" />
@@ -347,7 +347,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     if (OnOpenAsync !=null)
       await OnOpenAsync().ConfigureAwait(false);
     await ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
-    OpenFinished?.SafeInvoke(this, m_ReaderMapping.ResultingColumns);
+    OpenFinished?.SafeInvoke(this, MReaderMapping.ResultingColumns);
   }
 
   /// <inheritdoc cref="IDataReader" />
@@ -367,11 +367,11 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       RecordNumber++;
 
       // if we do have source field for error information, use this
-      if (m_ReaderMapping.ColNumErrorFieldSource != -1)
+      if (MReaderMapping.ColNumErrorFieldSource != -1)
       {
-        if (!DataReader.IsDBNull(m_ReaderMapping.ColNumErrorFieldSource))
+        if (!DataReader.IsDBNull(MReaderMapping.ColNumErrorFieldSource))
         {
-          RowErrorInformation = DataReader.GetString(m_ReaderMapping.ColNumErrorFieldSource);
+          RowErrorInformation = DataReader.GetString(MReaderMapping.ColNumErrorFieldSource);
           if (RowErrorInformation.IsWarningMessage())
             NumberRowWarnings++;
         }
@@ -384,7 +384,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
       else if (m_ColumnErrorDictionary.Count>0)
       {
         // Get the error information from the Dictionary filled by the source reader warnings
-        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => m_ReaderMapping.ResultingColumns[i].Name);
+        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => MReaderMapping.ResultingColumns[i].Name);
         if (RowErrorInformation.IsWarningMessage())
           NumberRowWarnings++;
         m_ColumnErrorDictionary.Clear();
@@ -417,7 +417,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   {
     if (disposing)
     {
-      if (m_FileReader != null && m_ReaderMapping.ColNumErrorFieldSource == -1)
+      if (m_FileReader != null && MReaderMapping.ColNumErrorFieldSource == -1)
         m_FileReader.Warning -= HandleSourceWarning;
 
       // This must ALWAYS run on an explicit app Dispose invocation
@@ -437,7 +437,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   {
     int ownColumnIndex = -1;
     if (e.ColumnNumber >= 0)
-      m_ReaderMapping.SourceToResult(e.ColumnNumber, out ownColumnIndex);
+      MReaderMapping.SourceToResult(e.ColumnNumber, out ownColumnIndex);
 
     m_ColumnErrorDictionary[ownColumnIndex]= e.Message.AsMemory();
     Warning?.Invoke(this, new WarningEventArgs(RecordNumber, ownColumnIndex, e.Message, StartLineNumber, EndLineNumber, GetColumn(ownColumnIndex).Name ?? string.Empty));

@@ -198,12 +198,12 @@ public class ControlsTests
   }
 
   [TestMethod, Timeout(2000)]
-  public void APICodePackWrapperFolder()
+  public void ApiCodePackWrapperFolder()
   {
     try
     {
       UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-          WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"), token), 1,
+          WindowsApiCodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"), token), 1,
         UnitTestStatic.Token);
     }
     catch (COMException)
@@ -223,12 +223,12 @@ public class ControlsTests
   }
 
   [TestMethod, Timeout(2000)]
-  public void APICodePackWrapperOpen()
+  public void ApiCodePackWrapperOpen()
   {
     try
     {
       UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-        WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
+        WindowsApiCodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
     }
     catch (COMException)
     {
@@ -247,12 +247,12 @@ public class ControlsTests
   }
 
   [TestMethod, Timeout(2000)]
-  public void APICodePackWrapperSave()
+  public void ApiCodePackWrapperSave()
   {
     try
     {
       UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", string.Empty,
+          WindowsApiCodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", string.Empty,
             string.Empty),
         token));
     }
@@ -273,14 +273,14 @@ public class ControlsTests
   }
 
   [TestMethod, Timeout(2000)]
-  public void WindowsAPICodePackWrapperFolder()
+  public void WindowsApiCodePackWrapperFolder()
   {
     try
     {
       // Used to cancel after .2 seconds
       UnitTestStatic.RunTaskTimeout(
         token => Task.Run(
-          () => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token));
+          () => { WindowsApiCodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token));
     }
     catch (COMException)
     {
@@ -296,7 +296,7 @@ public class ControlsTests
   }
 
   [TestMethod, Timeout(2000)]
-  public void WindowsAPICodePackWrapperSave()
+  public void WindowsApiCodePackWrapperSave()
   {
     try
     {
@@ -304,7 +304,7 @@ public class ControlsTests
       UnitTestStatic.RunTaskTimeout(
         token => Task.Run(() =>
         {
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", ".pdf", false,
+          WindowsApiCodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", ".pdf", false,
             "test.pdf");
         }, token));
     }

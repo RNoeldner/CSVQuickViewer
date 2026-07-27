@@ -26,7 +26,7 @@ namespace CsvTools;
 /// </summary>
 public sealed record ManifestData
 {
-  internal const string cCsvManifestExtension = ".manifest.json";
+  internal const string CCsvManifestExtension = ".manifest.json";
 
   /// <summary>
   /// Initializes a new instance of the <see cref="ManifestData"/> record.
@@ -102,19 +102,19 @@ public sealed record ManifestData
   public static Task<InspectionResult> ReadManifestFileSystem(string fileName)
   {
     var posExt = fileName.LastIndexOf('.');
-    var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
+    var manifest = fileName.EndsWith(CCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
       ? fileName
-      : fileName.Substring(0, posExt) + cCsvManifestExtension;
+      : fileName.Substring(0, posExt) + CCsvManifestExtension;
     if (!FileSystemUtils.FileExists(manifest))
       throw new FileNotFoundException(manifest);
 
-    var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
+    var dataFile = manifest.ReplaceCaseInsensitive(CCsvManifestExtension, ".csv");
     Logger.Information($"Configuration read from manifest file {manifest}");
 
     if (FileSystemUtils.FileExists(dataFile))
       return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
-    dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
+    dataFile = manifest.ReplaceCaseInsensitive(CCsvManifestExtension, ".txt");
     return FileSystemUtils.FileExists(dataFile) ? ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty) : throw new FileNotFoundException(dataFile);
   }
 
@@ -131,14 +131,14 @@ public sealed record ManifestData
 
     // Find Manifest 
     var manifestEntry = archive.Cast<ICSharpCode.SharpZipLib.Zip.ZipEntry>().FirstOrDefault(e => e.IsFile &&
-      e.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+      e.Name.EndsWith(CCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
     if (manifestEntry is null)
       return null;
     Logger.Information($"Configuration read from manifest file {manifestEntry.Name}");
 
 
     return await ReadManifestFromStream(archive.GetInputStream(manifestEntry), fileName,
-      manifestEntry.Name.Substring(0, manifestEntry.Name.Length - cCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
+      manifestEntry.Name.Substring(0, manifestEntry.Name.Length - CCsvManifestExtension.Length) + ".csv").ConfigureAwait(false);
   }
 
   private static async Task<InspectionResult> ReadManifestFromStream(

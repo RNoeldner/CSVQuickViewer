@@ -180,16 +180,16 @@ public static class UnitTestStaticData
 
     // Artificial metadata columns
     if (errorField)
-      dr[ReaderConstants.cErrorField] = dr.GetErrorInformation();
+      dr[ReaderConstants.CErrorField] = dr.GetErrorInformation();
 
     if (startLine)
-      dr[ReaderConstants.cStartLineNumberFieldName] = (long) recordNumber * 2;
+      dr[ReaderConstants.CStartLineNumberFieldName] = (long) recordNumber * 2;
 
     if (recNum)
-      dr[ReaderConstants.cRecordNumberFieldName] = (long) recordNumber;
+      dr[ReaderConstants.CRecordNumberFieldName] = (long) recordNumber;
 
     if (endLine)
-      dr[ReaderConstants.cEndLineNumberFieldName] = (long) recordNumber * 2 + 1;
+      dr[ReaderConstants.CEndLineNumberFieldName] = (long) recordNumber * 2 + 1;
 
     dataTable.Rows.Add(dr);
     return (warnings, errors);
@@ -210,16 +210,16 @@ public static class UnitTestStaticData
     }
 
     if (recNum)
-      dataTable.Columns.Add(ReaderConstants.cRecordNumberFieldName, typeof(long));
+      dataTable.Columns.Add(ReaderConstants.CRecordNumberFieldName, typeof(long));
 
     if (endLine)
-      dataTable.Columns.Add(ReaderConstants.cEndLineNumberFieldName, typeof(long));
+      dataTable.Columns.Add(ReaderConstants.CEndLineNumberFieldName, typeof(long));
 
     if (errorField)
-      dataTable.Columns.Add(ReaderConstants.cErrorField, typeof(string));
+      dataTable.Columns.Add(ReaderConstants.CErrorField, typeof(string));
 
     if (startLine)
-      dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
+      dataTable.Columns.Add(ReaderConstants.CStartLineNumberFieldName, typeof(long));
 
     dataTable.BeginLoadData();
     for (var i = 1; i <= numRecords; i++)

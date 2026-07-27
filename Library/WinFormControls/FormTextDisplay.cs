@@ -38,7 +38,7 @@ public partial class FormTextDisplay : ResizeForm
 
   private enum Language
   {
-    Text, Json, Xml, HTML
+    Text, Json, Xml, Html
   }
 
   [Browsable(false)]
@@ -69,7 +69,7 @@ public partial class FormTextDisplay : ResizeForm
           check.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
         HandleText(Language.Xml);
       else if (check.StartsWith("<html", StringComparison.OrdinalIgnoreCase))
-        HandleText(Language.HTML);
+        HandleText(Language.Html);
       else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
         HandleText(Language.Json);
     }
@@ -86,14 +86,14 @@ public partial class FormTextDisplay : ResizeForm
       return;
     try
     {
-      webBrowser.Visible = (newLang == Language.HTML);
+      webBrowser.Visible = (newLang == Language.Html);
       textBox.Visible = (newLang == Language.Text);
       fastColoredTextBoxRO.Visible = (newLang == Language.Json || newLang == Language.Xml);
 
       m_CurrentLang = newLang;
       switch (newLang)
       {
-        case Language.HTML:
+        case Language.Html:
         {
           webBrowser.DocumentText = textBox.Text.Trim('\"', '\'', ' ');
           radioButtonHtml.Checked = true;
@@ -176,7 +176,7 @@ public partial class FormTextDisplay : ResizeForm
   private void RadioButton4_CheckedChanged(object sender, EventArgs e)
   {
     if (radioButtonHtml.Checked)
-      HandleText(Language.HTML);
+      HandleText(Language.Html);
   }
 
   private void TextBox_TextChanged(object sender, TextChangedEventArgs e)

@@ -29,7 +29,7 @@ public record Column
   /// <summary>
   /// Default Format for Time is a 24-hr clock with seconds
   /// </summary>
-  public const string cDefaultTimePartFormat = "HH:mm:ss";
+  public const string CDefaultTimePartFormat = "HH:mm:ss";
 
   /// <summary>
   /// Initializes a new instance of the <see cref="Column"/> class.
@@ -51,7 +51,7 @@ public record Column
     bool? convert = null,
     string? destinationName = "",
     string? timePart = "",
-    string? timePartFormat = cDefaultTimePartFormat,
+    string? timePartFormat = CDefaultTimePartFormat,
     string? timeZonePart = "")
   {
     Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -61,9 +61,9 @@ public record Column
     Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     DestinationName = destinationName ?? string.Empty;
     TimePart = timePart ?? string.Empty;
-    TimePartFormat = timePartFormat ?? cDefaultTimePartFormat;
+    TimePartFormat = timePartFormat ?? CDefaultTimePartFormat;
     TimeZonePart = timeZonePart ?? string.Empty;
-    ColumnFormatter = FunctionalDI.GetColumnFormatter(ValueFormat);
+    ColumnFormatter = FunctionalDi.GetColumnFormatter(ValueFormat);
   }
 
   /// <summary>
@@ -93,7 +93,7 @@ public record Column
   public int CollectionIdentifier => Name.IdentifierHash();
 
   /// <summary>
-  ///  Get the ColumnFormatter Class from <see cref="FunctionalDI.GetColumnFormatter"/>
+  ///  Get the ColumnFormatter Class from <see cref="FunctionalDi.GetColumnFormatter"/>
   ///  Only an Immutable Column does have a ColumnFormatter
   /// </summary>
   [JsonIgnore]
@@ -133,7 +133,7 @@ public record Column
   ///   specify the format of the time here this can different from the format of the time column
   ///   itself that is often ignored
   /// </summary>
-  [DefaultValue(cDefaultTimePartFormat)]
+  [DefaultValue(CDefaultTimePartFormat)]
   public string TimePartFormat { get; }
 
   /// <summary>

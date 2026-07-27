@@ -99,7 +99,7 @@ public static class ReaderExtensionMethods
       csv.TryToSolveMoreColumns = false;
     }
 
-    var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
+    var reader = FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
     await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
     return reader;
   }
@@ -112,7 +112,7 @@ public static class ReaderExtensionMethods
   public static async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
     CancellationToken cancellationToken)
   {
-    var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+    var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     await using (fileReader.ConfigureAwait(false))
 #else
@@ -139,19 +139,19 @@ public static class ReaderExtensionMethods
   ///   timespan is big enough; otherwise the result is cut off
   /// </param>
   /// <param name="startLine">
-  ///   if <c>true</c> add a column for the start line: <see cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line-based reader like
+  ///   if <c>true</c> add a column for the start line: <see cref="ReaderConstants.CStartLineNumberFieldName" /> useful for line-based reader like
   ///   delimited text
   /// </param>
   /// <param name="endLine">
-  ///   if <c>true</c> add a column for the end line: <see cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line-based reader like
+  ///   if <c>true</c> add a column for the end line: <see cref="ReaderConstants.CEndLineNumberFieldName" /> useful for line-based reader like
   ///   delimited text where a record can span multiple lines
   /// </param>
   /// <param name="recNum">
-  ///   if <c>true</c> add a column for the number of records: <see cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning,
+  ///   if <c>true</c> add a column for the number of records: <see cref="ReaderConstants.CRecordNumberFieldName" /> (if the reader was not at the beginning,
   ///   it will not start with 1)
   /// </param>
   /// <param name="errorField">
-  ///   if <c>true</c> add a column with error information: <see cref="ReaderConstants.cErrorField" />
+  ///   if <c>true</c> add a column with error information: <see cref="ReaderConstants.CErrorField" />
   /// </param>
   /// <param name="progress">
   ///   Used to pass on progress information with the number of records and percentage

@@ -22,6 +22,11 @@ namespace CsvTools;
 public sealed class FileException : ApplicationException
 {
   /// <inheritdoc />
+  public FileException() : base()
+  {
+  }
+  
+  /// <inheritdoc />
   public FileException(string message)
     : base(message)
   {

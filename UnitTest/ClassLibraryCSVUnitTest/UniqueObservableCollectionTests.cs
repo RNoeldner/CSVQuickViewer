@@ -27,22 +27,22 @@ public class UniqueObservableCollectionTests
 
     private string name = string.Empty;
 
-    public int ID { get => iD; set => SetProperty(ref iD, value); }
+    public int Id { get => iD; set => SetProperty(ref iD, value); }
 
     public string Name { get => name; set => SetProperty(ref name, value); }
 
     public bool Cloned { get; set; } = false;
 
-    public TestObject(string name, int ID =0)
+    public TestObject(string name, int id =0)
     {
       Name= name;
     }
 
     public string UniqueKeyPropertyName => nameof(Name);
-    public object Clone() => new TestObject(Name) { ID = ID, Cloned = true };
+    public object Clone() => new TestObject(Name) { Id = Id, Cloned = true };
     public string GetUniqueKey() => Name;
     public void SetUniqueKey(string key) => Name= key;
-    public bool Equals(TestObject other) => ID==other.ID && Name.Equals(other.Name);
+    public bool Equals(TestObject other) => Id==other.Id && Name.Equals(other.Name);
   }
 
 

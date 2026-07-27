@@ -22,6 +22,10 @@ namespace CsvTools;
 public sealed class ConversionException : ApplicationException
 {
   /// <inheritdoc />
+  public ConversionException() : base()
+  {
+  }
+  /// <inheritdoc />
   public ConversionException(string message)
     : base(message)
   {

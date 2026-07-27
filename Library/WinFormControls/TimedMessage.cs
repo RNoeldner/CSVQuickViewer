@@ -25,8 +25,8 @@ using System.Windows.Forms;
 
 public class TimedMessage : ResizeForm
 {
-  private static readonly Assembly m_ResourceAssembly = Assembly.GetExecutingAssembly();
-  private static readonly Dictionary<MessageBoxIcon, Image> m_IconCache = new();
+  private static readonly Assembly MResourceAssembly = Assembly.GetExecutingAssembly();
+  private static readonly Dictionary<MessageBoxIcon, Image> MIconCache = new();
 
   private IContainer components;
   private Button m_Button1;
@@ -201,7 +201,7 @@ public class TimedMessage : ResizeForm
   /// </summary>
   private static Image? GetEmbeddedImage(MessageBoxIcon icon)
   {
-    if (m_IconCache.TryGetValue(icon, out var cached))
+    if (MIconCache.TryGetValue(icon, out var cached))
       return cached;
 
     var resourceName = icon switch
@@ -213,12 +213,12 @@ public class TimedMessage : ResizeForm
       _ => string.Empty
     };
     string fullName = $"CsvTools.Resources.{resourceName}";
-    using var stream = m_ResourceAssembly.GetManifestResourceStream(fullName);
+    using var stream = MResourceAssembly.GetManifestResourceStream(fullName);
     if (stream == null)
       return null;
 
     var img = Image.FromStream(stream);
-    m_IconCache[icon] = img; // cache for future use
+    MIconCache[icon] = img; // cache for future use
     return img;
   }
 

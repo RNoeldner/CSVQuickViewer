@@ -202,7 +202,7 @@ public class FormHierarchyDisplay : ResizeForm
     foreach (var child in parent.Children)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
       if (child.Visited)
       {
         var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
@@ -226,7 +226,7 @@ public class FormHierarchyDisplay : ResizeForm
     IProgress<ProgressInfo> process, CancellationToken cancellationToken)
   {
     DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ?? throw new KeyNotFoundException($"Column '{parentCol}' not found in the data table.");
-    DataColumn dataColumnID = m_DataTable.Columns[idCol] ?? throw new KeyNotFoundException($"Column '{idCol}' not found in the data table.");
+    DataColumn dataColumnId = m_DataTable.Columns[idCol] ?? throw new KeyNotFoundException($"Column '{idCol}' not found in the data table.");
 
     DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
     DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
@@ -235,7 +235,7 @@ public class FormHierarchyDisplay : ResizeForm
     var treeDataDictionary = new DictionaryIgnoreCase<TreeData>();
     var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent");
 
-    treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
+    treeDataDictionary.Add(rootDataParentFound.Id, rootDataParentFound);
 
     var max = 0L;
     if (process is IProgressTime progressTime)
@@ -247,7 +247,7 @@ public class FormHierarchyDisplay : ResizeForm
       cancellationToken.ThrowIfCancellationRequested();
       counter++;
       intervalAction.Invoke(process, $"Parent found {counter:N0}/{max:N0} ", counter);
-      var id = dataRow[dataColumnID.Ordinal].ToString();
+      var id = dataRow[dataColumnId.Ordinal].ToString();
       if (string.IsNullOrEmpty(id))
         continue;
 
@@ -277,29 +277,29 @@ public class FormHierarchyDisplay : ResizeForm
     // Generate a list of missing parents
     var additionalRootNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     foreach (var child in from child in treeDataDictionary.Values
-                          where !string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID)
+                          where !string.IsNullOrEmpty(child.ParentId) && !treeDataDictionary.ContainsKey(child.ParentId)
                           select child)
     {
-      additionalRootNodes.Add(child.ParentID);
+      additionalRootNodes.Add(child.ParentId);
     }
 
     var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
 
     if (additionalRootNodes.Count > 0)
     {
-      treeDataDictionary.Add(rootDataParentNotFound.ID, rootDataParentNotFound);
+      treeDataDictionary.Add(rootDataParentNotFound.Id, rootDataParentNotFound);
       counter = 0;
       max = additionalRootNodes.Count;
       process.SetMaximum(max);
 
       // Create new entries
-      foreach (var parentID in additionalRootNodes)
+      foreach (var parentId in additionalRootNodes)
       {
         cancellationToken.ThrowIfCancellationRequested();
         counter++;
         intervalAction.Invoke(process, $"Parent not found (Step 1) {counter}/{max} ", counter);
-        var childData = new TreeData(parentID, $"{parentID}", rootDataParentNotFound.ID);
-        treeDataDictionary.Add(parentID, childData);
+        var childData = new TreeData(parentId, $"{parentId}", rootDataParentNotFound.Id);
+        treeDataDictionary.Add(parentId, childData);
       }
     }
 
@@ -311,9 +311,9 @@ public class FormHierarchyDisplay : ResizeForm
       cancellationToken.ThrowIfCancellationRequested();
       counter++;
       intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter);
-      if (string.IsNullOrEmpty(child.ParentID) && !string.Equals(child.ID, rootDataParentFound.ID, StringComparison.OrdinalIgnoreCase)
-                                               && !string.Equals(child.ID, rootDataParentNotFound.ID, StringComparison.OrdinalIgnoreCase))
-        child.ParentID = rootDataParentFound.ID;
+      if (string.IsNullOrEmpty(child.ParentId) && !string.Equals(child.Id, rootDataParentFound.Id, StringComparison.OrdinalIgnoreCase)
+                                               && !string.Equals(child.Id, rootDataParentNotFound.Id, StringComparison.OrdinalIgnoreCase))
+        child.ParentId = rootDataParentFound.Id;
     }
 
     max = treeDataDictionary.Values.Count;
@@ -327,8 +327,8 @@ public class FormHierarchyDisplay : ResizeForm
       counter++;
       intervalAction.Invoke(process, $"Set children {counter:N0}/{max:N0} ", counter);
 
-      if (!string.IsNullOrEmpty(child.ParentID))
-        treeDataDictionary[child.ParentID].Children.Add(child);
+      if (!string.IsNullOrEmpty(child.ParentId))
+        treeDataDictionary[child.ParentId].Children.Add(child);
     }
 
     m_TreeData = treeDataDictionary.Values;
@@ -459,7 +459,7 @@ public class FormHierarchyDisplay : ResizeForm
   private void InitializeComponent()
   {
     components = new System.ComponentModel.Container();
-    Label labelID;
+    Label labelId;
     Label labelDisplay;
     Label labelParent;
     ContextMenuStrip contextMenuStrip;
@@ -477,7 +477,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxDisplay2 = new ComboBox();
     m_ComboBoxDisplay1 = new ComboBox();
     m_ToolTip = new ToolTip(components);
-    labelID = new Label();
+    labelId = new Label();
     labelDisplay = new Label();
     labelParent = new Label();
     contextMenuStrip = new ContextMenuStrip(components);
@@ -490,13 +490,13 @@ public class FormHierarchyDisplay : ResizeForm
     // 
     // labelID
     // 
-    labelID.Anchor = AnchorStyles.Right;
-    labelID.AutoSize = true;
-    labelID.Location = new System.Drawing.Point(53, 7);
-    labelID.Name = "labelID";
-    labelID.Size = new System.Drawing.Size(18, 13);
-    labelID.TabIndex = 3;
-    labelID.Text = "ID";
+    labelId.Anchor = AnchorStyles.Right;
+    labelId.AutoSize = true;
+    labelId.Location = new System.Drawing.Point(53, 7);
+    labelId.Name = "labelId";
+    labelId.Size = new System.Drawing.Size(18, 13);
+    labelId.TabIndex = 3;
+    labelId.Text = "ID";
     // 
     // labelDisplay
     // 
@@ -578,7 +578,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 74F));
     m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
     m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-    m_TableLayoutPanel1.Controls.Add(labelID, 0, 0);
+    m_TableLayoutPanel1.Controls.Add(labelId, 0, 0);
     m_TableLayoutPanel1.Controls.Add(labelDisplay, 0, 1);
     m_TableLayoutPanel1.Controls.Add(labelParent, 0, 2);
     m_TableLayoutPanel1.Controls.Add(m_ComboBoxId, 1, 0);
@@ -802,14 +802,14 @@ public class FormHierarchyDisplay : ResizeForm
         treeData.Visited = false;
 
       // Add top-level nodes 
-      foreach (var rootData in m_TreeData.Where(td => string.IsNullOrEmpty(td.ParentID) && td.Children.Count>0))
+      foreach (var rootData in m_TreeData.Where(td => string.IsNullOrEmpty(td.ParentId) && td.Children.Count>0))
       {
         foreach (var nodes in rootData.Children)
           m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
       }
 
       cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
       // If everything has been visited, exit early
       if (m_TreeData.All(treeData => treeData.Visited))
         return;
@@ -820,13 +820,13 @@ public class FormHierarchyDisplay : ResizeForm
         MarkInCycle(treeData, new HashSet<TreeData>());
 
       cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
 
       // Add nodes that are in cycles
       foreach (var root in m_TreeData.Where(td => !td.Visited && td.InCycle))
         AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
 
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
     }
     catch
     {
@@ -876,23 +876,23 @@ public class FormHierarchyDisplay : ResizeForm
 #pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
     public readonly List<TreeData> Children = new List<TreeData>();
 #pragma warning restore MA0016 // Prefer using collection abstraction instead of implementation
-    public readonly string ID;
+    public readonly string Id;
     public readonly string Title;
     public bool InCycle;
-    public string ParentID;
+    public string ParentId;
     public string Tag;
     public bool Visited;
     private int m_StoreIndirect = -1;
 
-    public TreeData(string id, string title, string? parentID = null)
+    public TreeData(string id, string title, string? parentId = null)
     {
       if (string.IsNullOrEmpty(id))
         throw new ArgumentException("ID can not be empty", nameof(id));
       if (string.IsNullOrEmpty(title))
         throw new ArgumentException("Title can not be empty", nameof(title));
-      ID = id;
+      Id = id;
       Title = title;
-      ParentID = parentID ?? string.Empty;
+      ParentId = parentId ?? string.Empty;
       Tag = string.Empty;
     }
 

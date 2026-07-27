@@ -68,7 +68,7 @@ public class WarningListTests
     messageList.Add(null, new WarningEventArgs(1, 1, "Text1", 0, 1, null));
     messageList.Add(null, new WarningEventArgs(1, 2, "Text2", 0, 2, null));
     Assert.IsTrue(
-      "Text1" + ErrorInformation.cSeparator + "Text2" == messageList.Display ||
-      "Text2" + ErrorInformation.cSeparator + "Text1" == messageList.Display);
+      "Text1" + ErrorInformation.CSeparator + "Text2" == messageList.Display ||
+      "Text2" + ErrorInformation.CSeparator + "Text1" == messageList.Display);
   }
 }

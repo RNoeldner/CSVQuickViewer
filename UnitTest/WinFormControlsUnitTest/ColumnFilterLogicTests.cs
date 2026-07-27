@@ -27,18 +27,18 @@ namespace CsvTools.Tests;
 [TestClass]
 public class ColumnFilterLogicTests
 {
-  private const int NumRecords = 200;
-  private static readonly DataTable m_Data;
+  private const int numRecords = 200;
+  private static readonly DataTable MData;
 
   static ColumnFilterLogicTests()
   {
-    m_Data = UnitTestStaticData.GetDataTable(NumRecords);
+    MData = UnitTestStaticData.GetDataTable(numRecords);
   }
 
   [ClassCleanup]
   public static void ClassCleanup()
   {
-    m_Data.Dispose();
+    MData.Dispose();
   }
 
   /// <summary>
@@ -54,10 +54,10 @@ public class ColumnFilterLogicTests
     {
       foreach (var cluster in toTest)
       {
-        dataView.RowFilter = cluster.SQLCondition;
+        dataView.RowFilter = cluster.SqlCondition;
         if (dataView.Count != cluster.Count)
         {
-          Logger.Warning($"RowFilter shows {dataView.Count:N0} records Cluster expected {cluster.Count:N0} for '{cluster.SQLCondition}', maybe condition is not well formed");
+          Logger.Warning($"RowFilter shows {dataView.Count:N0} records Cluster expected {cluster.Count:N0} for '{cluster.SqlCondition}', maybe condition is not well formed");
           hadIssues=true;
         }
       }
@@ -142,7 +142,7 @@ public class ColumnFilterLogicTests
     var test = new ColumnFilterLogic(typeof(bool), column.Name);
     var data = GetColumnData(column.ColumnOrdinal);
     Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(data, 10, false, true, 5.0, UnitTestStatic.TesterProgress));
-    var res = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res = TestRowFilters(MData, test.ValueClusterCollection);
     if (res)
       Assert.Inconclusive("RowFilter not correct");
   }
@@ -156,7 +156,7 @@ public class ColumnFilterLogicTests
 
     var testEven = new ColumnFilterLogic(typeof(DateTime), column.Name);
     testEven.ReBuildValueClusters(data, 50, false, true, 9999999, UnitTestStatic.TesterProgress);
-    var res = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res = TestRowFilters(MData, test.ValueClusterCollection);
     if (res)
       Assert.Inconclusive("RowFilter not correct");
     Assert.AreEqual(data.Length, testEven.ValueClusterCollection.Select(x => x.Count).Sum(), "Count in parts must match number ofd records");
@@ -171,7 +171,7 @@ public class ColumnFilterLogicTests
     var test = new ColumnFilterLogic(typeof(DateTime), column.Name);
 
     test.ReBuildValueClusters(data, 150, false, false, 9999999, UnitTestStatic.TesterProgress);
-    var res = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res = TestRowFilters(MData, test.ValueClusterCollection);
     if (res)
       Assert.Inconclusive("RowFilter not correct");
 
@@ -188,7 +188,7 @@ public class ColumnFilterLogicTests
     var testCombine = new ColumnFilterLogic(typeof(DateTime), column.Name);
     testCombine.ReBuildValueClusters(data, 50, true, false, 9999999, UnitTestStatic.TesterProgress);
     Assert.AreEqual(data.Length, testCombine.ValueClusterCollection.Select(x => x.Count).Sum(), "Count in parts must match number ofd records");
-    var res = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res = TestRowFilters(MData, test.ValueClusterCollection);
     if (res)
       Assert.Inconclusive("RowFilter not correct");
   }
@@ -200,7 +200,7 @@ public class ColumnFilterLogicTests
     var data = GetColumnData(column.ColumnOrdinal);
     var test = new ColumnFilterLogic(typeof(decimal), column.Name);
     Assert.AreEqual(BuildValueClustersResult.ListFilled, test.ReBuildValueClusters(data, 200, false, false, 5.0, UnitTestStatic.TesterProgress));
-    var res = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res = TestRowFilters(MData, test.ValueClusterCollection);
     if (res)
       Assert.Inconclusive("RowFilter not correct");
   }
@@ -214,7 +214,7 @@ public class ColumnFilterLogicTests
     
     var res = test.ReBuildValueClusters(data, 50, false, true, 5.0, UnitTestStatic.TesterProgress);
     Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
-    var res2 = TestRowFilters(m_Data, test.ValueClusterCollection);
+    var res2 = TestRowFilters(MData, test.ValueClusterCollection);
     if (res2)
       Assert.Inconclusive("RowFilter not correct");
   }
@@ -345,7 +345,9 @@ public class ColumnFilterLogicTests
     var empty = new List<object>();
 
     for (long i = 1; i < 20; i++)
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
       empty.Add(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
     Assert.AreEqual(BuildValueClustersResult.NoValues, test.ReBuildValueClusters(empty.ToArray(), 200, false, false, 5.0, UnitTestStatic.TesterProgress));
   }
@@ -427,9 +429,9 @@ public class ColumnFilterLogicTests
     Assert.IsTrue(fl.ValueClusterCollection.Count>4 && fl.ValueClusterCollection.Count<=max1,
       $"Expected {4}-{max1} is: {fl.ValueClusterCollection.Count}");
     var before = fl.ValueClusterCollection.Count;
-    Assert.AreEqual(NumRecords, fl.ValueClusterCollection.Sum(x => x.Count), "The cluster should cover each record");
+    Assert.AreEqual(numRecords, fl.ValueClusterCollection.Sum(x => x.Count), "The cluster should cover each record");
 
-    bool hadIssues = TestRowFilters(m_Data, fl.ValueClusterCollection);
+    bool hadIssues = TestRowFilters(MData, fl.ValueClusterCollection);
 
     Assert.AreEqual(BuildValueClustersResult.ListFilled, fl.ReBuildValueClusters(
         GetColumnData(UnitTestStaticData.Columns.First(x => x.Name == "string").ColumnOrdinal)!,
@@ -595,10 +597,10 @@ public class ColumnFilterLogicTests
   }
 
   private static object[] GetColumnData(int index) =>
-    m_Data.Rows.OfType<DataRow>().Select(x => x[index]).ToArray();
+    MData.Rows.OfType<DataRow>().Select(x => x[index]).ToArray();
 
   private static ColumnFilterLogic GetFilterLogic(int index) =>
-                                                                      new ColumnFilterLogic(m_Data.Columns[index].DataType, m_Data.Columns[index].ColumnName);
+                                                                      new ColumnFilterLogic(MData.Columns[index].DataType, MData.Columns[index].ColumnName);
   private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic) => Assert.AreEqual(
         expected.ToUpperInvariant().Replace(" ", ""),
     columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""),

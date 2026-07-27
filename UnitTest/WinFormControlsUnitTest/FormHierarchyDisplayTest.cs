@@ -76,10 +76,10 @@ public class FormHierarchyDisplayTest
     Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
     var td1 = new FormHierarchyDisplay.TreeData("1", "Test One") { Tag = "T1" };
-    var td2 = new FormHierarchyDisplay.TreeData("2", "Test Two", td1.ID) { Tag = "T2" };
-    var td3 = new FormHierarchyDisplay.TreeData("3", "Test Three", td1.ID) { Tag = "T3" };
-    var td3A = new FormHierarchyDisplay.TreeData("4", "Test Three A", td3.ID) { Tag = "T3a" };
-    var td3B = new FormHierarchyDisplay.TreeData("5", "Test Three B", td3.ID) { Tag = "T34" };
+    var td2 = new FormHierarchyDisplay.TreeData("2", "Test Two", td1.Id) { Tag = "T2" };
+    var td3 = new FormHierarchyDisplay.TreeData("3", "Test Three", td1.Id) { Tag = "T3" };
+    var td3A = new FormHierarchyDisplay.TreeData("4", "Test Three A", td3.Id) { Tag = "T3a" };
+    var td3B = new FormHierarchyDisplay.TreeData("5", "Test Three B", td3.Id) { Tag = "T34" };
 
     var treeNode = new TreeNode(td1.Title) { Tag = td1 };
     treeView.Nodes.Add(treeNode);

@@ -323,45 +323,30 @@ public sealed class StringToValueCheck
       "Getting Part 5");
   }
 
-  [TestMethod]
-  public void StringToTimeSpan_SerialDate()
-  {
-    // 01:00:00
-    var actual = "0.0416666666666667".StringToTimeSpan(':', true);
-    Assert.AreEqual(new TimeSpan(1, 0, 0), actual);
-
-    // 02:15:00
-    actual = "0.0937500000000000".StringToTimeSpan(':', true);
-    Assert.AreEqual(new TimeSpan(2, 15, 0), actual);
-
-    // 29/06/1968 15:23:00
-    actual = "0.6409722222".StringToTimeSpan(':', true);
-    Assert.AreEqual(new TimeSpan(15, 23, 0), actual);
-  }
 
   [TestMethod]
   public void StringToTimeSpanInvalid()
   {
-    Assert.IsNull("Test".StringToTimeSpan(':', false));
-    Assert.AreEqual(11, "11:BB:50".StringToTimeSpan(':', false).Value.Hours);
-    Assert.IsNull("12".StringToTimeSpan(':', false));
+    Assert.IsNull("Test".StringToTimeSpan());
+    Assert.AreEqual(11, "11:BB:50".StringToTimeSpan().Value.Hours);
+    Assert.IsNull("12".StringToTimeSpan());
   }
 
   [TestMethod]
   public void StringToTimeSpanNull()
   {
-    Assert.IsNull(StringConversionSpan.StringToTimeSpan(null, char.MinValue, false));
-    Assert.IsNull("".StringToTimeSpan(char.MinValue, false));
+    Assert.IsNull(StringConversionSpan.StringToTimeSpan(null));
+    Assert.IsNull("".StringToTimeSpan());
   }
 
   [TestMethod]
   public void StringToTimeSpanValid()
   {
-    Assert.AreEqual(new TimeSpan(0, 12, 23, 50, 637), "12:23:50.637".StringToTimeSpan(':', false));
-    Assert.AreEqual(new TimeSpan(0, 12, 23, 50), "12:23:50".StringToTimeSpan(':', false));
-    Assert.AreEqual(new TimeSpan(0, 25, 23, 00), "25:23".StringToTimeSpan(':', false));
-    Assert.AreEqual(new TimeSpan(0, 17, 637, 00), "17:637".StringToTimeSpan(':', false));
-    Assert.AreEqual(new TimeSpan(0, 324, 637, 00), "324:637".StringToTimeSpan(':', false));
+    Assert.AreEqual(new TimeSpan(0, 12, 23, 50, 637), "12:23:50.637".StringToTimeSpan());
+    Assert.AreEqual(new TimeSpan(0, 12, 23, 50), "12:23:50".StringToTimeSpan());
+    Assert.AreEqual(new TimeSpan(0, 25, 23, 00), "25:23".StringToTimeSpan());
+    Assert.AreEqual(new TimeSpan(0, 17, 637, 00), "17:637".StringToTimeSpan());
+    Assert.AreEqual(new TimeSpan(0, 324, 637, 00), "324:637".StringToTimeSpan());
   }
 
   [TestMethod]

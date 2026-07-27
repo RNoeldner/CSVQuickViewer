@@ -115,10 +115,10 @@ public partial class FormDuplicatesDisplay : ResizeForm
     try
     {
       var duplicateList = new List<int>();
-      var dictIDToRow = new DictionaryIgnoreCase<int>();
-      var dictFirstIDStored = new HashSet<int>();
-      var dataColumnID = m_DataTable.Columns[dataColumnName];
-      if (dataColumnID==null)
+      var dictIdToRow = new DictionaryIgnoreCase<int>();
+      var dictFirstIdStored = new HashSet<int>();
+      var dataColumnId = m_DataTable.Columns[dataColumnName];
+      if (dataColumnId==null)
         return;
       this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
@@ -133,29 +133,29 @@ public partial class FormDuplicatesDisplay : ResizeForm
         // ReSharper disable once AccessToDisposedClosure
         intervalAction.Invoke(formProgress, "Getting duplicate values", rowIndex);
 
-        var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim() ?? string.Empty;
+        var id = m_DataRow[rowIndex][dataColumnId.Ordinal].ToString()?.Trim() ?? string.Empty;
 
         // ReSharper disable once ReplaceWithStringIsNullOrEmpty
         if (ignoreNull && id.Length==0)
           continue;
-        if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
+        if (dictIdToRow.TryGetValue(id, out var duplicateRowIndex))
         {
-          if (!dictFirstIDStored.Contains(duplicateRowIndex))
+          if (!dictFirstIdStored.Contains(duplicateRowIndex))
           {
             duplicateList.Add(duplicateRowIndex);
-            dictFirstIDStored.Add(duplicateRowIndex);
+            dictFirstIdStored.Add(duplicateRowIndex);
           }
 
           duplicateList.Add(rowIndex);
         }
         else
         {
-          dictIDToRow.Add(id??string.Empty, rowIndex);
+          dictIdToRow.Add(id??string.Empty, rowIndex);
         }
       }
 
-      dictFirstIDStored.Clear();
-      dictIDToRow.Clear();
+      dictFirstIdStored.Clear();
+      dictIdToRow.Clear();
 
       this.SafeInvoke(
         () => Text = $@"Duplicate Display - {dataColumnName} - Rows {duplicateList.Count} / {m_DataRow.Length}");

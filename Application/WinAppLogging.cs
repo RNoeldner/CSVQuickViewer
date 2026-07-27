@@ -42,7 +42,7 @@ public class QuotingEnricher : ILogEventEnricher
 public static class WinAppLogging
 {
   // Shared sink instance forwarding log messages to the UI layer
-  private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
+  private static readonly UserInterfaceSink MUserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
 
   /// <summary>
   /// Initializes the application logging pipeline.
@@ -77,7 +77,7 @@ public static class WinAppLogging
                                         && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
                                             logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
         // Pass on to UI logging
-        .WriteTo.Sink(m_UserInterfaceSink)
+        .WriteTo.Sink(MUserInterfaceSink)
 
         // File Exception logging
         .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null)
@@ -104,13 +104,13 @@ public static class WinAppLogging
   /// Removes a UI logger from the list of additional log targets.
   /// </summary>
   public static void RemoveLog(Microsoft.Extensions.Logging.ILogger value)
-    => m_UserInterfaceSink.AdditionalLoggers.Remove(value ?? throw new ArgumentNullException(nameof(value)));
+    => MUserInterfaceSink.AdditionalLoggers.Remove(value ?? throw new ArgumentNullException(nameof(value)));
 
   /// <summary>
   /// Adds a UI logger to receive forwarded log messages.
   /// </summary>
   public static void AddLog(Microsoft.Extensions.Logging.ILogger value)
-    => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
+    => MUserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
 
   /// <summary>
   /// Custom Serilog sink used to forward messages to registered logger instances.

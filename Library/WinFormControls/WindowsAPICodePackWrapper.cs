@@ -21,7 +21,7 @@ using System.Windows.Forms;
 
 namespace CsvTools;
 
-public static class WindowsAPICodePackWrapper
+public static class WindowsApiCodePackWrapper
 {
   private static bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
 

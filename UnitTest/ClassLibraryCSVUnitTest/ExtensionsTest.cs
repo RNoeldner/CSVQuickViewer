@@ -403,7 +403,7 @@ public class ExtensionsTest
     var dt = new DataTable();
     Assert.AreEqual(0, dt.GetRealColumns().Count());
 
-    dt.Columns.Add(new DataColumn { ColumnName = ReaderConstants.cEndLineNumberFieldName });
+    dt.Columns.Add(new DataColumn { ColumnName = ReaderConstants.CEndLineNumberFieldName });
     Assert.AreEqual(0, dt.GetRealColumns().Count());
 
     var dataColumn = new DataColumn { ColumnName = "Test" };

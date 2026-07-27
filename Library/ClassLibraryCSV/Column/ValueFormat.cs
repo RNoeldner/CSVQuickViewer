@@ -28,50 +28,50 @@ namespace CsvTools;
 public sealed record ValueFormat
 {
   /// <summary> The default date format "MM/dd/yyyy"; as Americans expect everything to be their way ;) </summary>
-  public const string cDateFormatDefault = "MM/dd/yyyy";
+  public const string CDateFormatDefault = "MM/dd/yyyy";
 
   private const char cDateSeparatorDefaultChar = '/';
 
   /// <summary> The default date separator </summary>
-  public const string cDateSeparatorDefault = "/";
+  public const string CDateSeparatorDefault = "/";
 
   private const char cDecimalSeparatorDefaultChar = '.';
 
   /// <summary>The default decimal separator "."; as Americans expect everything to be their way ;)</summary>
-  public const string cDecimalSeparatorDefault = ".";
+  public const string CDecimalSeparatorDefault = ".";
 
   private const char cGroupSeparatorDefaultChar = char.MinValue;
 
   /// <summary> The default separator for the thousand grouping </summary>
-  public const string cGroupSeparatorDefault = "";
+  public const string CGroupSeparatorDefault = "";
 
   /// <summary>The values to be assumed false</summary>
-  public const string cFalseDefault = "false";
+  public const string CFalseDefault = "false";
 
   /// <summary>Default numeric format</summary>
-  public const string cNumberFormatDefault = "0.#####";
+  public const string CNumberFormatDefault = "0.#####";
 
   /// <summary>For part separation number of the part</summary>
-  public const int cPartDefault = 2;
+  public const int CPartDefault = 2;
 
   private const char cPartSplitterDefaultChar = ':';
 
   /// <summary>The default splitter for part separation</summary>
-  public const string cPartSplitterDefault = ":";
+  public const string CPartSplitterDefault = ":";
 
   /// <summary>The default for part separation</summary>
-  public const bool cPartToEndDefault = true;
+  public const bool CPartToEndDefault = true;
 
   /// <summary>The default time separation between hour and minutes</summary>
-  public const string cTimeSeparatorDefault = ":";
+  public const string CTimeSeparatorDefault = ":";
 
   private const char cTimeSeparatorDefaultChar = ':';
 
   /// <summary> The text regarded as true</summary>
-  public const string cTrueDefault = "true";
+  public const string CTrueDefault = "true";
 
   /// <summary>Default setting when writing files is to overwrite</summary>
-  public const bool cOverwriteDefault = true;
+  public const bool COverwriteDefault = true;
 
   /// <summary>An empty/default ValueFormat</summary>
   public static readonly ValueFormat Empty = new ValueFormat();
@@ -103,44 +103,44 @@ public sealed record ValueFormat
   [JsonConstructor]
   public ValueFormat(
     DataTypeEnum? dataType = DataTypeEnum.String,
-    string? dateFormat = cDateFormatDefault,
-    string? dateSeparator = cDateSeparatorDefault,
-    string? timeSeparator = cTimeSeparatorDefault,
-    string? numberFormat = cNumberFormatDefault,
-    string? groupSeparator = cGroupSeparatorDefault,
-    string? decimalSeparator = cDecimalSeparatorDefault,
-    string? asTrue = cTrueDefault,
-    string? asFalse = cFalseDefault,
+    string? dateFormat = CDateFormatDefault,
+    string? dateSeparator = CDateSeparatorDefault,
+    string? timeSeparator = CTimeSeparatorDefault,
+    string? numberFormat = CNumberFormatDefault,
+    string? groupSeparator = CGroupSeparatorDefault,
+    string? decimalSeparator = CDecimalSeparatorDefault,
+    string? asTrue = CTrueDefault,
+    string? asFalse = CFalseDefault,
     string? displayNullAs = "",
-    int? part = cPartDefault,
-    string? partSplitter = cPartSplitterDefault,
-    bool? partToEnd = cPartToEndDefault,
+    int? part = CPartDefault,
+    string? partSplitter = CPartSplitterDefault,
+    bool? partToEnd = CPartToEndDefault,
     string? regexSearchPattern = "",
     string? regexReplacement = "",
     string? readFolder = "",
     string? writeFolder = "",
     string? fileOutPutPlaceholder = "",
-    bool? overwrite = cOverwriteDefault)
+    bool? overwrite = COverwriteDefault)
   {
     DataType = dataType ?? DataTypeEnum.String;
-    False = asFalse ?? cFalseDefault;
-    True = asTrue ?? cTrueDefault;
+    False = asFalse ?? CFalseDefault;
+    True = asTrue ?? CTrueDefault;
     DisplayNullAs = displayNullAs ?? string.Empty;
     RegexSearchPattern = regexSearchPattern ?? string.Empty;
     RegexReplacement = regexReplacement ?? string.Empty;
     ReadFolder = readFolder ?? string.Empty;
     WriteFolder = writeFolder ?? string.Empty;
     FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
-    DateFormat = dateFormat ?? cDateFormatDefault;
-    DateSeparator = (dateSeparator ?? cDateSeparatorDefault).FromText();
-    TimeSeparator = (timeSeparator ?? cTimeSeparatorDefault).FromText();
-    NumberFormat = numberFormat ?? cNumberFormatDefault;
-    GroupSeparator = (groupSeparator ?? cGroupSeparatorDefault).FromText();
-    DecimalSeparator = (decimalSeparator ?? cDecimalSeparatorDefault).FromText();
-    Part = part ?? cPartDefault;
-    PartSplitter = (partSplitter ?? cPartSplitterDefault).FromText();
-    PartToEnd = partToEnd ?? cPartToEndDefault;
-    Overwrite = overwrite ?? cOverwriteDefault;
+    DateFormat = dateFormat ?? CDateFormatDefault;
+    DateSeparator = (dateSeparator ?? CDateSeparatorDefault).FromText();
+    TimeSeparator = (timeSeparator ?? CTimeSeparatorDefault).FromText();
+    NumberFormat = numberFormat ?? CNumberFormatDefault;
+    GroupSeparator = (groupSeparator ?? CGroupSeparatorDefault).FromText();
+    DecimalSeparator = (decimalSeparator ?? CDecimalSeparatorDefault).FromText();
+    Part = part ?? CPartDefault;
+    PartSplitter = (partSplitter ?? CPartSplitterDefault).FromText();
+    PartToEnd = partToEnd ?? CPartToEndDefault;
+    Overwrite = overwrite ?? COverwriteDefault;
   }
 
   /// <summary>
@@ -206,7 +206,7 @@ public sealed record ValueFormat
   ///   Gets or sets the date format. 
   /// </summary>
   /// <value>The date format.</value>
-  [DefaultValue(cDateFormatDefault)]
+  [DefaultValue(CDateFormatDefault)]
   public string DateFormat { get; }
 
   /// <summary>
@@ -226,7 +226,7 @@ public sealed record ValueFormat
   ///   Gets or sets the number format.
   /// </summary>
   /// <value>The number format.</value>
-  [DefaultValue(cNumberFormatDefault)]
+  [DefaultValue(CNumberFormatDefault)]
   public string NumberFormat { get; }
 
   /// <summary>
@@ -253,20 +253,20 @@ public sealed record ValueFormat
   ///   Gets or sets the representation for true.
   /// </summary>
   /// <value>The representation for true.</value>
-  [DefaultValue(cTrueDefault)]
+  [DefaultValue(CTrueDefault)]
   public string True { get; }
 
   /// <summary>
   ///   Gets or sets the representation for false.
   /// </summary>
-  [DefaultValue(cFalseDefault)]
+  [DefaultValue(CFalseDefault)]
   public string False { get; }
 
   /// <summary>
   ///   Gets or sets the part for splitting.
   /// </summary>
   /// <value>The part starting with 1</value>
-  [DefaultValue(cPartDefault)]
+  [DefaultValue(CPartDefault)]
   public int Part { get; }
 
   /// <summary>
@@ -280,7 +280,7 @@ public sealed record ValueFormat
   ///   Determine if a part should end with the next splitter
   /// </summary>
   /// <value><c>true</c> if all the remaining text should be returned in the part</value>
-  [DefaultValue(cPartToEndDefault)]
+  [DefaultValue(CPartToEndDefault)]
   public bool PartToEnd { get; }
 
   /// <summary>
@@ -316,7 +316,7 @@ public sealed record ValueFormat
   /// <summary>
   /// Set to <c>true</c> if binary output file should overwrite any existing file
   /// </summary>
-  [DefaultValue(cOverwriteDefault)]
+  [DefaultValue(COverwriteDefault)]
   public bool Overwrite { get; }
 
   /// <summary>

@@ -23,7 +23,7 @@ public class DisplayItemTests
   {
     var i = new DisplayItem<int>(1, "Test");
 
-    Assert.AreEqual(1, i.ID);
+    Assert.AreEqual(1, i.Id);
     Assert.AreEqual("Test", i.Display);
   }
 }

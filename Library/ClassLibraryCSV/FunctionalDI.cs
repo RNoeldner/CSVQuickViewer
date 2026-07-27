@@ -53,7 +53,7 @@ public delegate DateTime TimeZoneChangeDelegate(DateTime input, ReadOnlySpan<cha
 ///   It uses static delegates to allow library consumers to override default behavior
 ///   with implementations unknown to this assembly.
 /// </summary>
-public static class FunctionalDI
+public static class FunctionalDi
 {
   /// <summary>
   /// Delegate that returns encryption-related information for a file.

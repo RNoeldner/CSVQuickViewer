@@ -223,7 +223,7 @@ public static class CheckTexts
       if (cancellationToken.IsCancellationRequested)
         break;
 
-      var parsed = sample.Span.SerialStringToDateTime();
+      var parsed = sample.Span.Trim().SerialToDateTime();
 
       if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
       {

@@ -63,7 +63,7 @@ public sealed class DataTableWrapper : DataReaderWrapper
     var src = base.GetValue(ordinal);
 
     // Guard: Exit early if we aren't appending error metrics or this isn't the error target field
-    if (!m_AddErrorField || ordinal != m_ReaderMapping.ColNumErrorField)
+    if (!m_AddErrorField || ordinal != MReaderMapping.ColNumErrorField)
       return src;
 
     var rowIndex = (RecordNumber - 1).ToInt();

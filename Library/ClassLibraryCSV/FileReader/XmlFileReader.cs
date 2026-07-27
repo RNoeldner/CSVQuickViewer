@@ -285,7 +285,7 @@ public sealed class XmlFileReader : BaseFileReader
     {
       // Better would be DisposeAsync(), but method is synchronous
       m_Stream?.Dispose();
-      m_Stream = FunctionalDI.GetStream(new SourceAccess(FullPath));
+      m_Stream = FunctionalDi.GetStream(new SourceAccess(FullPath));
     }
     else
     {

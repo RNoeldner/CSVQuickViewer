@@ -25,11 +25,11 @@ namespace CsvTools.Tests;
 [SuppressMessage("ReSharper", "UseAwaitUsing")]
 public class DataReaderWrapperTests
 {
-  private static readonly ICsvFile m_Setting;
+  private static readonly ICsvFile MSetting;
 
   static DataReaderWrapperTests()
   {
-    m_Setting = new CsvFileDummy()
+    MSetting = new CsvFileDummy()
     {
       FileName = Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")),
       HasFieldHeader = true,
@@ -37,7 +37,7 @@ public class DataReaderWrapperTests
       FieldDelimiterChar = '\t',
     };
     // columns from the file
-    m_Setting.ColumnCollection.AddRange(
+    MSetting.ColumnCollection.AddRange(
       new Column[]
       {
         new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
@@ -53,7 +53,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetColumnIndexFromErrorColumnTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     _ = new DataReaderWrapper(reader);
   }
@@ -61,7 +61,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task DepthTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     Assert.AreEqual(9, wrapper.Depth);
@@ -115,7 +115,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetIntegerTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -127,7 +127,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetNumericTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -141,7 +141,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetGuidTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -159,8 +159,8 @@ public class DataReaderWrapperTests
       setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
       setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
       setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
-      setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
+      setting.WarnLineFeed, setting.WarnNbsp, setting.WarnQuotes, setting.WarnUnknownCharacter,
+      setting.WarnEmptyTailingColumns, setting.TreatNbspAsSpace, setting.TreatTextAsNull,
       setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
   }
 
@@ -168,7 +168,7 @@ public class DataReaderWrapperTests
   public async Task GetDateTimeTest()
   {
 
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -179,7 +179,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetNameTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -192,7 +192,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetOrdinalTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -205,7 +205,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetOrdinalSpanTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -218,22 +218,22 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetBooleanTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
 
-    Assert.IsTrue(wrapper.GetBoolean(6), $"{m_Setting.FullPath} Row 1 - Column 6");
+    Assert.IsTrue(wrapper.GetBoolean(6), $"{MSetting.FullPath} Row 1 - Column 6");
     await wrapper.ReadAsync(UnitTestStatic.Token);
     await wrapper.ReadAsync(UnitTestStatic.Token);
     await wrapper.ReadAsync(UnitTestStatic.Token);
-    Assert.IsFalse(wrapper.GetBoolean(6), $"{m_Setting.FullPath} Row 4 - Column 6");
+    Assert.IsFalse(wrapper.GetBoolean(6), $"{MSetting.FullPath} Row 4 - Column 6");
   }
 
   [TestMethod()]
   public async Task GetFieldTypeTestAsync()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -244,7 +244,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task MiscTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     Assert.IsTrue(wrapper.HasRows);
@@ -258,7 +258,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetValueTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -268,9 +268,9 @@ public class DataReaderWrapperTests
   }
 
   [TestMethod()]
-  public async Task IsDBNullTest()
+  public async Task IsDbNullTest()
   {
-    using var reader = GetReader(m_Setting);
+    using var reader = GetReader(MSetting);
     await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
     await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -288,7 +288,7 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task GetSchemaTableTest()
   {
-    using var reader = GetReader(m_Setting); await reader.OpenAsync(UnitTestStatic.Token);
+    using var reader = GetReader(MSetting); await reader.OpenAsync(UnitTestStatic.Token);
     var wrapper = new DataReaderWrapper(reader);
 
     Assert.AreEqual(10 - 1, wrapper.GetSchemaTable().Rows.Count);

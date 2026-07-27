@@ -95,7 +95,7 @@ public static class FileSettingsExtensionMethods
         var qualifierUsed = true;
         try
         {
-          using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+          using var improvedStream = FunctionalDi.GetStream(new SourceAccess(csvFile));
           using var textReader = await improvedStream
             .GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, cancellationToken)
             .ConfigureAwait(false);
@@ -120,7 +120,7 @@ public static class FileSettingsExtensionMethods
 
       try
       {
-        using var improvedStream = FunctionalDI.GetStream(new SourceAccess(csvFile));
+        using var improvedStream = FunctionalDi.GetStream(new SourceAccess(csvFile));
         rawHeader = improvedStream.GetRawHeaderLine(csvFile.CodePageId, csvFile.SkipRows,
           csvFile.FieldDelimiterChar,
           csvFile.FieldQualifierChar, csvFile.EscapePrefixChar, csvFile.CommentLine);
@@ -151,7 +151,7 @@ public static class FileSettingsExtensionMethods
       AddInfo("Number of Records", numRecords.Value.ToString(CultureInfo.CurrentCulture));
 
     using var fileReader =
-      FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
+      FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
     await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
     var columnNames = string.Join(join,

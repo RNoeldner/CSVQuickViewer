@@ -48,7 +48,7 @@ public sealed class RowErrorCollection
       foreach (var message in m_RowErrorCollection.Values.SelectMany(errorsInColumn => errorsInColumn.Values))
       {
         if (sb.Length > 0)
-          sb.Append(ErrorInformation.cSeparator);
+          sb.Append(ErrorInformation.CSeparator);
         sb.Append(message);
       }
 
@@ -71,7 +71,7 @@ public sealed class RowErrorCollection
       foreach (var keyValuePair in m_RowErrorCollection)
       {
         if (sb.Length > 0)
-          sb.Append(ErrorInformation.cSeparator);
+          sb.Append(ErrorInformation.CSeparator);
         var start = $"Row {keyValuePair.Key:N0}";
         sb.Append(start);
         sb.Append('\t');
@@ -82,7 +82,7 @@ public sealed class RowErrorCollection
           // indent next message
           if (!first)
           {
-            sb.Append(ErrorInformation.cSeparator);
+            sb.Append(ErrorInformation.CSeparator);
             sb.Append(new string(' ', start.Length));
             sb.Append('\t');
           }

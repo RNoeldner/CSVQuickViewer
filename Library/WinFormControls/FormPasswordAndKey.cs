@@ -274,7 +274,7 @@ public sealed class FormPasswordAndKey : ResizeForm
     try
     {
       var split = FileSystemUtils.SplitPath(m_TextBoxKeyFile.Text);
-      var newFileName = WindowsAPICodePackWrapper.Open(
+      var newFileName = WindowsApiCodePackWrapper.Open(
         split.DirectoryName,
         "File with PGP Key",
         "Key file (*.asc;*.key;*.ascii)|*.ascii;*.key;*.asc|All files (*.*)|*.*",
@@ -317,7 +317,7 @@ public sealed class FormPasswordAndKey : ResizeForm
       var text = (string[]) (e.Data?.GetData(DataFormats.UnicodeText) ?? Array.Empty<string>());
       if (files.Length <1 && text.Length<1) return;
 
-      if (!WindowsAPICodePackWrapper.IsDialogOpen && files.Length >0)
+      if (!WindowsApiCodePackWrapper.IsDialogOpen && files.Length >0)
         m_TextBoxKeyFile.Text = files[0];
 
       if (text.Length >0)

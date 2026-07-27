@@ -124,7 +124,7 @@ public static class StringConversion
   /// <param name="format">The <see cref="ValueFormat" />.</param>
   /// <returns>Formatted value</returns>
   public static string DecimalToString(in decimal value, in ValueFormat format)
-    => value.ToString(format.NumberFormat.Length == 0 ? ValueFormat.cNumberFormatDefault : format.NumberFormat, CultureInfo.InvariantCulture)
+    => value.ToString(format.NumberFormat.Length == 0 ? ValueFormat.CNumberFormatDefault : format.NumberFormat, CultureInfo.InvariantCulture)
       .ReplaceDefaults('.', format.DecimalSeparator, ',', format.GroupSeparator);
 
   /// <summary>
@@ -157,7 +157,7 @@ public static class StringConversion
   public static string LongToString(in long value, in ValueFormat format)
   {
     var valueFormat = format.NumberFormat.Length == 0
-      ? ValueFormat.cNumberFormatDefault
+      ? ValueFormat.CNumberFormatDefault
       : format.NumberFormat;
     return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults('.', format.DecimalSeparator, ',', format.GroupSeparator);
   }
@@ -171,7 +171,7 @@ public static class StringConversion
   public static string DoubleToString(in double value, in ValueFormat format)
   {
     var valueFormat = format.NumberFormat.Length == 0
-      ? ValueFormat.cNumberFormatDefault
+      ? ValueFormat.CNumberFormatDefault
       : format.NumberFormat;
     return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
       '.', format.DecimalSeparator,

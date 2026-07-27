@@ -195,7 +195,7 @@ public sealed class HtmlStyleTests
   }
 
   [TestMethod]
-  public void XMLElementNameTest()
+  public void XmlElementNameTest()
   {
     /*
         Element names are case-sensitive

@@ -93,7 +93,7 @@ public sealed class SourceAccess
   /// <remarks>
   /// <para>
   /// If the file is PGP-encrypted and no key or passphrase is provided,
-  /// <see cref="FunctionalDI.GetKeyAndPassphraseForFile"/> is invoked to retrieve them dynamically.
+  /// <see cref="FunctionalDi.GetKeyAndPassphraseForFile"/> is invoked to retrieve them dynamically.
   /// </para>
   /// <para>
   /// When <paramref name="keepEncrypted"/> is <c>true</c> for PGP output,
@@ -139,7 +139,7 @@ public sealed class SourceAccess
       case FileTypeEnum.Pgp:
         if (string.IsNullOrEmpty(pgpKey) && isReading)
         {
-          var (passPhraseF, pgpKeyF, _) = FunctionalDI.GetKeyAndPassphraseForFile(fileName);
+          var (passPhraseF, pgpKeyF, _) = FunctionalDi.GetKeyAndPassphraseForFile(fileName);
           if (string.IsNullOrEmpty(passPhrase) && !string.IsNullOrEmpty(passPhraseF))
             Passphrase = passPhraseF;
           if (string.IsNullOrEmpty(pgpKey) && !string.IsNullOrEmpty(pgpKeyF))

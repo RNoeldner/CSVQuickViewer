@@ -539,13 +539,13 @@ public static class JsonTabularConverter
 
     IEnumerable<JObject> Enumerate()
     {
-      //#if DEBUG
-      //      var txt = reader.ReadToEnd();
-      //      using var sr = new StringReader(txt);
-      //      var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
-      //#else
-      var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
-      //#endif
+      #if DEBUG
+            var txt = reader.ReadToEnd();
+            using var sr = new StringReader(txt);
+            var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
+      #else
+        var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
+      #endif
       // There is no async method for this so all keeps synchronous
       while (jsonReader.Read())
       {
@@ -568,6 +568,7 @@ public static class JsonTabularConverter
             // encapsulated e.G.    "result": { "items": [
             // this is track in hasArrayLevel1
             var hasArrayLevel1 = false;
+            string arrayPropertyName = string.Empty;
             // Capture root-level scalar properties
             foreach (var prop in obj.Properties())
             {
@@ -602,15 +603,19 @@ public static class JsonTabularConverter
             {
               // Instead of then making an yieldedArrayObjects we want these items
               bool yieldedArrayObjects = false;
+              
               foreach (var propToken in obj.Properties().Select(prop => prop.Value))
               {
                 switch (propToken)
                 {
                   case JArray arr:
                   {
+
                     foreach (var item in arr.OfType<JObject>())
+                    {
                       yield return item;
-                    yieldedArrayObjects = true;
+                      yieldedArrayObjects = true;
+                    }
                     break;
                   }
                   case JObject childObj:

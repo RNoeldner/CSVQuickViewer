@@ -87,13 +87,7 @@ public sealed class PunctuationTextBox : TextBox
 
   public PunctuationTextBox()
   {
-    BindingContextChanged += PunctuationTextBox_BindingContextChanged;
     Validating += PunctuationTextBox_Validating;
-  }
-
-  private void PunctuationTextBox_BindingContextChanged(object? sender, System.EventArgs e)
-  {
-    BindingContextChanged -= PunctuationTextBox_BindingContextChanged;
     SuspendLayout();
     AutoCompleteMode = AutoCompleteMode.SuggestAppend;
     AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -101,9 +95,8 @@ public sealed class PunctuationTextBox : TextBox
     foreach (var chr in m_Common)
       AutoCompleteCustomSource.Add(chr.Text());
     ResumeLayout();
-    BindingContextChanged += PunctuationTextBox_BindingContextChanged;
   }
-
+  
   private void PunctuationTextBox_Validating(object? sender, CancelEventArgs e)
   {
     Character = Text.FromText();

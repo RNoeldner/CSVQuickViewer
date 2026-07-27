@@ -42,11 +42,11 @@ public sealed partial class DetailControl : UserControl
   /// </summary>
   public Func<CancellationToken, IFileReader, Task>? WriteFileAsync;
   // 0.4s pause before auto-acceleration
-  private const int InitialDelay = 400;
+  private const int initialDelay = 400;
   // Cap the jump size at 400 rows
-  private const int MaxJumpDistance = 400;
+  private const int maxJumpDistance = 400;
   // ~6.6 jumps per second (150ms)
-  private const int RepeatInterval = 150;
+  private const int repeatInterval = 150;
 
   // Token source for managing cancellation of longer running search operations to ensure
   // responsiveness when users initiate new searches or close the control.
@@ -97,8 +97,8 @@ public sealed partial class DetailControl : UserControl
 
     mainDataGridView.CancellationToken = m_ControlCancellation.Token;
     mainDataGridView.Scroll += OnDataGridViewScroll;
-    mainDataGridView.SelectionChanged += UpdateNavigationUI;
-    mainDataGridView.RowCountChanged +=  UpdateNavigationUI;
+    mainDataGridView.SelectionChanged += UpdateNavigationUi;
+    mainDataGridView.RowCountChanged +=  UpdateNavigationUi;
 
     // Configure the debounce timer (1000ms = 1 second)
     navInputTimer.Interval = 1000;
@@ -135,9 +135,9 @@ public sealed partial class DetailControl : UserControl
         return;
       if (m_SelfOpenedDataTable)
       {
-        var oldDT = mainDataGridView.DataTable;
+        var oldDt = mainDataGridView.DataTable;
         mainDataGridView.DataTable= value;
-        oldDT.Dispose();
+        oldDt.Dispose();
       }
       else
       {
@@ -823,16 +823,16 @@ public sealed partial class DetailControl : UserControl
         using var frmProgress = new FormProgress("Reading all remaining data... Please wait.", m_ControlCancellation.Token);
         frmProgress.Show(frm);
         mainDataGridView.Focus();
-        await processLoad(frmProgress, TimeSpan.MaxValue);
+        await ProcessLoad(frmProgress, TimeSpan.MaxValue);
       }
       else
       {
-        await this.RunWithHourglassAsync(async () => await processLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
+        await this.RunWithHourglassAsync(async () => await ProcessLoad(new ProgressCancellation(m_ControlCancellation.Token), TimeSpan.FromSeconds(1)));
       }
     }
     catch (Exception ex) { Extensions.ShowError(ex, "Failed to load additional data rows."); }
 
-    async Task processLoad(IProgressWithCancellation progress, TimeSpan duration)
+    async Task ProcessLoad(IProgressWithCancellation progress, TimeSpan duration)
     {
       m_IsLoadingBatch = true;
       try
@@ -877,7 +877,7 @@ public sealed partial class DetailControl : UserControl
     PerformNavigation(m_ActiveNavButton, m_JumpDistance);
 
     // 2. Setup the "Hold" behavior
-    navRepeatTimer.Interval = InitialDelay;
+    navRepeatTimer.Interval = initialDelay;
     navRepeatTimer.Start();
   }
 
@@ -897,15 +897,15 @@ public sealed partial class DetailControl : UserControl
     }
 
     // Set repeat interval to a steady, readable speed
-    if (navRepeatTimer.Interval != RepeatInterval)
-      navRepeatTimer.Interval = RepeatInterval;
+    if (navRepeatTimer.Interval != repeatInterval)
+      navRepeatTimer.Interval = repeatInterval;
 
     // 3. Perform the jump
     PerformNavigation(m_ActiveNavButton, m_JumpDistance);
 
     if (m_JumpDistance == 1)
       m_JumpDistance = 2;
-    else if (m_JumpDistance < MaxJumpDistance)
+    else if (m_JumpDistance < maxJumpDistance)
       m_JumpDistance = (int) (m_JumpDistance * 1.5);
   }
 
@@ -1022,16 +1022,16 @@ public sealed partial class DetailControl : UserControl
 
       // 4. Update Column Visibility (Precise logic based on GetColumns)
 #pragma warning disable IDE0301 // Simplify collection initialization
-      var m_ColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
+      var mColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
 #pragma warning restore IDE0301 // Simplify collection initialization
 
       // If we filter out all columns do not change visibility to avoid a blank grid
-      if (m_ColumnsInView.Count + m_UniqueFieldName.Count>0)
+      if (mColumnsInView.Count + m_UniqueFieldName.Count>0)
       {
         foreach (DataGridViewColumn dgCol in mainDataGridView.Columns)
         {
           dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase)
-                        || m_ColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
+                        || mColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
         }
       }
       // 5. Restore Sorting
@@ -1080,7 +1080,7 @@ public sealed partial class DetailControl : UserControl
   /// </summary>
   private void SetCurrentCell(DataGridViewCell cell)
   {
-    mainDataGridView.SelectionChanged -= UpdateNavigationUI;
+    mainDataGridView.SelectionChanged -= UpdateNavigationUi;
     mainDataGridView.CurrentCell = cell;
 
     // --- Vertical Scrolling (Center the row) ---
@@ -1113,7 +1113,7 @@ public sealed partial class DetailControl : UserControl
       }
     }
     RefreshToolStrip();
-    mainDataGridView.SelectionChanged += UpdateNavigationUI;
+    mainDataGridView.SelectionChanged += UpdateNavigationUi;
   }
 
   private void StopNavigation()
@@ -1347,6 +1347,6 @@ public sealed partial class DetailControl : UserControl
   /// <summary>
   /// Manually updates the position label and button states based on the Grid's current state.
   /// </summary>
-  private void UpdateNavigationUI(object? sender, EventArgs eventArgs) => RefreshToolStrip();
+  private void UpdateNavigationUi(object? sender, EventArgs eventArgs) => RefreshToolStrip();
 
 }

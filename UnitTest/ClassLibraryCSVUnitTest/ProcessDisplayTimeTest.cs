@@ -17,7 +17,7 @@ using System.Threading;
 namespace CsvTools.Tests;
 
 [TestClass]
-public class progressTimeTest
+public class ProgressTimeTest
 {
 		
   [TestMethod]

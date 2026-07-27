@@ -79,8 +79,8 @@ public class FilterDataTableTests
   {
     var (dt, _, warnigRows) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    (var DataTable, var NumWarning, var NumErrors, var NumWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Warning, UnitTestStatic.Token);
-    Assert.AreEqual(warnigRows, DataTable.Rows.Count);
+    (var dataTable, var numWarning, var numErrors, var numWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Warning, UnitTestStatic.Token);
+    Assert.AreEqual(warnigRows, dataTable.Rows.Count);
   }
 
   [TestMethod]
@@ -88,8 +88,8 @@ public class FilterDataTableTests
   {
     var (dt, err, _) = GetDataTable(2000);
     var test = new FilterDataTable(dt);
-    (var DataTable, var NumWarning, var NumErrors, var NumWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Errors, UnitTestStatic.Token);
-    Assert.AreEqual(err, DataTable.Rows.Count);
+    (var dataTable, var numWarning, var numErrors, var numWarningOrError) = await test.FilterAsync(0, RowFilterTypeEnum.Errors, UnitTestStatic.Token);
+    Assert.AreEqual(err, dataTable.Rows.Count);
   }
 
   [TestMethod]

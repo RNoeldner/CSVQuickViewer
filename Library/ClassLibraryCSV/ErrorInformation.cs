@@ -28,7 +28,7 @@ public static class ErrorInformation
   /// <summary>
   ///   Char to separate two or more errors and warnings
   /// </summary>
-  public const char cSeparator = '\n';
+  public const char CSeparator = '\n';
 
   private const char cOpenField = '[';
   private const char cClosingField = ']';
@@ -41,7 +41,7 @@ public static class ErrorInformation
   /// <summary>
   ///   Identifier for a warning message
   /// </summary>
-  public const string cWarningId = "Warning: ";
+  public const string CWarningId = "Warning: ";
 
   /// <summary>
   ///   String method to append a message an error list text
@@ -67,8 +67,8 @@ public static class ErrorInformation
     if (errorList.Contains(newError, StringComparison.Ordinal))
       return errorList.ToString();
     return isWarning
-        ? string.Concat(errorList.ToString(), cSeparator.ToString(), newError.AddWarningId())
-        : string.Concat(newError.ToString(), cSeparator.ToString(), errorList.ToString());
+        ? string.Concat(errorList.ToString(), CSeparator.ToString(), newError.AddWarningId())
+        : string.Concat(newError.ToString(), CSeparator.ToString(), errorList.ToString());
   }
 
   /// <summary>
@@ -91,9 +91,9 @@ public static class ErrorInformation
   /// <returns>The text with the leading WarningID</returns>
   public static string AddWarningId(this ReadOnlySpan<char> message)
   {
-    if (message.Length == 0 || message.StartsWith(cWarningId.AsSpan(), StringComparison.Ordinal))
+    if (message.Length == 0 || message.StartsWith(CWarningId.AsSpan(), StringComparison.Ordinal))
       return message.ToString();
-    return string.Concat(cWarningId, message.ToString());
+    return string.Concat(CWarningId, message.ToString());
   }
 
   /// <summary>
@@ -149,7 +149,7 @@ public static class ErrorInformation
       var start = 0;
       while (start < messageSpan.Length)
       {
-        var end = messageSpan.Slice(start).IndexOf(cSeparator);
+        var end = messageSpan.Slice(start).IndexOf(CSeparator);
         int length = (end == -1) ? messageSpan.Length - start : end;
 
         if (length > 0)
@@ -158,10 +158,10 @@ public static class ErrorInformation
 
           if (part.IsWarningMessage())
           {
-            if (sbWarning.Length > 0) sbWarning.Append(cSeparator);
+            if (sbWarning.Length > 0) sbWarning.Append(CSeparator);
 
             // Slice the warning ID off directly without temporary strings
-            ReadOnlySpan<char> cleanPart = part.Slice(cWarningId.Length);
+            ReadOnlySpan<char> cleanPart = part.Slice(CWarningId.Length);
 
             sbWarning.Append(columnSpan.IsEmpty
                 ? cleanPart.ToString()
@@ -169,7 +169,7 @@ public static class ErrorInformation
           }
           else
           {
-            if (sbErrors.Length > 0) sbErrors.Append(cSeparator);
+            if (sbErrors.Length > 0) sbErrors.Append(CSeparator);
 
             sbErrors.Append(columnSpan.IsEmpty
                 ? part.ToString()
@@ -214,7 +214,7 @@ public static class ErrorInformation
     if (errorList.IsEmpty)
       return false;
 
-    ReadOnlySpan<char> warnId = cWarningId.AsSpan();
+    ReadOnlySpan<char> warnId = CWarningId.AsSpan();
 
     // 1. Direct match at the start
     if (errorList.StartsWith(warnId, StringComparison.Ordinal))
@@ -261,7 +261,7 @@ public static class ErrorInformation
       int start = 0;
       while (start < span.Length)
       {
-        int end = span.Slice(start).IndexOf(cSeparator);
+        int end = span.Slice(start).IndexOf(CSeparator);
         int length = (end == -1) ? span.Length - start : end;
 
         // Slicing the existing memory instead of Substring
@@ -333,9 +333,9 @@ public static class ErrorInformation
   /// <returns>The text without the leading WarningID</returns>
   public static string WithoutWarningId(this ReadOnlySpan<char> errorList)
   {    
-    return errorList.Length <= cWarningId.Length
+    return errorList.Length <= CWarningId.Length
       ? errorList.ToString()
-      : errorList.Slice(cWarningId.Length).ToString();
+      : errorList.Slice(CWarningId.Length).ToString();
   }
 
   /// <summary>
@@ -350,7 +350,7 @@ public static class ErrorInformation
     foreach (var entry in errorList.OrderBy(part => part.Message.Span.IsWarningMessage()))
     {
       if (errors.Length > 0)
-        errors.Append(cSeparator);
+        errors.Append(CSeparator);
       errors.Append(CombineColumnAndError(entry.Column.Span, entry.Message.Span));
     }
 
@@ -373,7 +373,7 @@ public static class ErrorInformation
     while (start < memory.Length)
     {
       // Find the next separator
-      int index = memory.Span.Slice(start).IndexOf(cSeparator);
+      int index = memory.Span.Slice(start).IndexOf(CSeparator);
       int length = (index == -1) ? memory.Length - start : index;
 
       // Yield the split result using memory slices

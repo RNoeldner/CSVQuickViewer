@@ -154,7 +154,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
     try
     {
       TimeToCompletion.Value = progressInfo.Value;
-      WindowsAPICodePackWrapper.SetProgressValue(TimeToCompletion.Percent);
+      WindowsApiCodePackWrapper.SetProgressValue(TimeToCompletion.Percent);
 
       // Thread-safe snapshot local assignment copy to prevent cross-thread race conditions
       var localHandler = ProgressChanged;
@@ -167,7 +167,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
           if (!Visible)
           {
             Show();
-            Extensions.ProcessUIElements();
+            Extensions.ProcessUiElements();
           }
 
           labelText.Text = progressInfo.Text;
@@ -212,7 +212,7 @@ public sealed class FormProgress : ResizeForm, IProgressTime, IProgressWithCance
     {
       if (!m_IsDisposed && !m_IsClosed)
       {
-        Extensions.ProcessUIElements();
+        Extensions.ProcessUiElements();
       }
     }
   }

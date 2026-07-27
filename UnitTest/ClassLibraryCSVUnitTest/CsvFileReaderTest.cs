@@ -426,7 +426,7 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, true);
   }
 
   [TestMethod]
-  public async Task CSVTestEmpty()
+  public async Task CsvTestEmpty()
   {
     using var test = new CsvFileReader(UnitTestStatic.GetTestPath("CSVTestEmpty.txt"), 65001,
       0, 0, false);
@@ -1005,7 +1005,7 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
     Assert.AreEqual(6, test.FieldCount);
 
     Assert.AreEqual(1, warningList.CountRows, "warningList.CountRows");
-    Assert.IsTrue(warningList.Display.Contains(CsvFileReader.cMoreColumns));
+    Assert.IsTrue(warningList.Display.Contains(CsvFileReader.CMoreColumns));
     // Assert.IsTrue(warningList.Display.Contains("The existing data in these extra columns is not read"));
 
     Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));

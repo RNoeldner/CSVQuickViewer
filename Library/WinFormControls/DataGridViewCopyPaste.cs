@@ -207,7 +207,7 @@ public sealed class DataGridViewCopyPaste
     foreach (DataGridViewColumn c in columns)
 
       // Do not include the error field it will be retrieved from the error collection with nice coloring
-      if (c.Visible && !string.Equals(c.HeaderText, ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase))
+      if (c.Visible && !string.Equals(c.HeaderText, ReaderConstants.CErrorField, StringComparison.OrdinalIgnoreCase))
         visibleColumns.Add(c.DisplayIndex, c);
     var hasRowError = HasRowErrors(0, rows.Count, rows);
     foreach (var headerText in from col in visibleColumns.Values
@@ -258,7 +258,7 @@ public sealed class DataGridViewCopyPaste
       if ((now - lastRefresh).TotalSeconds <= 0.2)
         continue;
       lastRefresh = now;
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
     }
 
     sbHtml.AppendLine(HtmlStyle.TableClose);
@@ -319,7 +319,7 @@ public sealed class DataGridViewCopyPaste
       foreach (DataGridViewColumn displayCol in columns)
       {
         if (displayCol.DisplayIndex == col && displayCol.Visible &&
-            !string.Equals(displayCol.HeaderText, ReaderConstants.cErrorField, StringComparison.Ordinal))
+            !string.Equals(displayCol.HeaderText, ReaderConstants.CErrorField, StringComparison.Ordinal))
         {
           visibleColumns.Add(col);
           sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, displayCol.HeaderText));
@@ -384,7 +384,7 @@ public sealed class DataGridViewCopyPaste
       if ((now- lastRefresh).TotalSeconds <= 0.2)
         continue;
       lastRefresh = now;
-      Extensions.ProcessUIElements();
+      Extensions.ProcessUiElements();
     }
 
     sbHtml.AppendLine(HtmlStyle.TableClose);

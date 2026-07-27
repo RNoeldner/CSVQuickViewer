@@ -34,7 +34,7 @@ public static class SerializedFilesLib
   /// <summary>
   ///   File ending for a setting file
   /// </summary>
-  public const string cSettingExtension = ".setting";
+  public const string CSettingExtension = ".setting";
 
   /// <summary>
   /// Serialization Settings
@@ -162,7 +162,7 @@ public static class SerializedFilesLib
   public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
   {
     Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
-    using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
+    using var improvedStream = FunctionalDi.GetStream(new SourceAccess(fileName));
     using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
     var text = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -199,7 +199,7 @@ public static class SerializedFilesLib
     var newContent = data.SerializeIndentedJson();
     if (!FileSystemUtils.FileExists(fileName))
       return newContent;
-    using var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName));
+    using var improvedStream = FunctionalDi.GetStream(new SourceAccess(fileName));
     using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
     var oldContent = await sr.ReadToEndAsync().ConfigureAwait(false);
     if (!string.Equals(oldContent, newContent, StringComparison.OrdinalIgnoreCase))
@@ -248,7 +248,7 @@ public static class SerializedFilesLib
       if (delete)
         FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
-      using (var improvedStream = FunctionalDI.GetStream(new SourceAccess(fileName, false)))
+      using (var improvedStream = FunctionalDi.GetStream(new SourceAccess(fileName, false)))
       using (var sr = new StreamWriter(improvedStream, Encoding.UTF8))
         await sr.WriteAsync(content).ConfigureAwait(false);
 

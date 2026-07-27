@@ -38,16 +38,16 @@ public partial class SelectFont : UserControl
     get
     {
       if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent)
-        return diCurrent.ID;
+        return diCurrent.Id;
       return 10;
     }
     set
     {
-      if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent && Math.Abs(value - diCurrent.ID) < .1)
+      if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent && Math.Abs(value - diCurrent.Id) < .1)
         return;
       m_UiChange = false;
 
-      comboBoxSize.SelectedItem = comboBoxSize.Items.OfType<DisplayItem<float>>().OrderBy(x => Math.Abs(x.ID - value))
+      comboBoxSize.SelectedItem = comboBoxSize.Items.OfType<DisplayItem<float>>().OrderBy(x => Math.Abs(x.Id - value))
         .First();
 
       m_UiChange = true;

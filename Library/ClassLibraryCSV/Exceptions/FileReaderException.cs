@@ -19,6 +19,10 @@ namespace CsvTools;
 public class FileReaderException : ApplicationException
 {
   /// <inheritdoc />
+  public FileReaderException() : base()
+  {
+  }
+  /// <inheritdoc />
   public FileReaderException(string message)
     : base(message)
   {

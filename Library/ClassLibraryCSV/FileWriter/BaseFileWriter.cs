@@ -92,8 +92,8 @@ public abstract class BaseFileWriter : IFileWriter
     bool unencrypted
   )
   {
-    TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
-    StreamProvider = FunctionalDI.GetStream;
+    TimeZoneAdjust = FunctionalDi.GetTimeZoneAdjust;
+    StreamProvider = FunctionalDi.GetStream;
     m_PublicKey = publicKey;
     m_KeepUnencrypted = unencrypted;
     m_FullPath = mFullPath;
@@ -290,10 +290,10 @@ public abstract class BaseFileWriter : IFileWriter
         sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      var stream = FunctionalDI.GetStream(sourceAccess);
+      var stream = FunctionalDi.GetStream(sourceAccess);
       await using (stream.ConfigureAwait(false))
 #else
-      using var stream = FunctionalDI.GetStream(sourceAccess);
+      using var stream = FunctionalDi.GetStream(sourceAccess);
 #endif
       await WriteReaderAsync(reader, stream, sourceTimeZone, progress).ConfigureAwait(false);
     }

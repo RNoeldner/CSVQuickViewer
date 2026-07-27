@@ -29,27 +29,27 @@ public static class ReaderConstants
   /// <summary>
   ///   Field name of the LineNumber Field
   /// </summary>
-  public const string cEndLineNumberFieldName = "#LineEnd";
+  public const string CEndLineNumberFieldName = "#LineEnd";
 
   /// <summary>
   ///   Field name of the Error Field
   /// </summary>
-  public const string cErrorField = "#Error";
+  public const string CErrorField = "#Error";
 
   /// <summary>
   ///   Field name of the LineNumber Start Field
   /// </summary>
-  public const string cPartitionField = "#Partition";
+  public const string CPartitionField = "#Partition";
 
   /// <summary>
   ///   Field Name of the record number
   /// </summary>
-  public const string cRecordNumberFieldName = "#Record";
+  public const string CRecordNumberFieldName = "#Record";
 
   /// <summary>
   ///   Field name of the LineNumber Start Field
   /// </summary>
-  public const string cStartLineNumberFieldName = "#Line";
+  public const string CStartLineNumberFieldName = "#Line";
 
   /// <summary>
   ///   Collection of the artificial field names
@@ -57,11 +57,11 @@ public static class ReaderConstants
   public static readonly IReadOnlyCollection<string> ArtificialFields =
     new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-      cRecordNumberFieldName,
-      cStartLineNumberFieldName,
-      cEndLineNumberFieldName,
-      cErrorField,
-      cPartitionField
+      CRecordNumberFieldName,
+      CStartLineNumberFieldName,
+      CEndLineNumberFieldName,
+      CErrorField,
+      CPartitionField
     };
 
   /// <summary>

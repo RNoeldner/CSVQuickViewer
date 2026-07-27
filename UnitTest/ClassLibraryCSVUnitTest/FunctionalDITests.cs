@@ -24,7 +24,7 @@ public class FunctionalDiTests
   {
     var setting = new CsvFileDummy { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
 
-    using var test = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
+    using var test = FunctionalDi.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
     Assert.IsInstanceOfType(test, typeof(CsvFileReader));
   }
 
@@ -34,7 +34,7 @@ public class FunctionalDiTests
   public void GetFileWriterTest()
   {
     var setting = new CsvFileDummy { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
-    var test = FunctionalDI.FileReaderWriterFactory.GetFileWriter(setting, UnitTestStatic.Token);
+    var test = FunctionalDi.FileReaderWriterFactory.GetFileWriter(setting, UnitTestStatic.Token);
     Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
     //var setting2 = new JsonFile("json", UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), "{0}");

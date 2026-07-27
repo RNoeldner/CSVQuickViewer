@@ -144,7 +144,7 @@ public partial class FindSkipRows : ResizeForm, INotifyPropertyChanged
       using var formProgress = new FormProgress("Check", CancellationToken.None);
       formProgress.Show(this);
       formProgress.Report("Opening");
-      using var stream = FunctionalDI.GetStream(new SourceAccess(m_FileName));
+      using var stream = FunctionalDi.GetStream(new SourceAccess(m_FileName));
       using var streamReader = new ImprovedTextReader(stream, m_CodePageId);
       formProgress.Report("Inspecting");
 

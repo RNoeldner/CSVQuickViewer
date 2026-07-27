@@ -27,7 +27,7 @@ public static class EncodingHelper
   /// <summary>
   ///   The suffix of an encoding that does not have a BOM
   /// </summary>
-  public const string cSuffixWithoutBom = " without BOM";
+  public const string CSuffixWithoutBom = " without BOM";
 
   /// <summary>
   ///   Gets a collection of the most common code pages.
@@ -165,7 +165,7 @@ public static class EncodingHelper
     const string suffixWithBom = " with BOM";
     var name = GetEncodingName(codePage);
     if (BOMLength(codePage) > 0)
-      return name + (hasBom ? suffixWithBom : cSuffixWithoutBom);
+      return name + (hasBom ? suffixWithBom : CSuffixWithoutBom);
     return name;
   }
 

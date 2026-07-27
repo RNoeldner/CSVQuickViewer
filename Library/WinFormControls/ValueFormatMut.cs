@@ -147,7 +147,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
 
   /// <summary>Gets or sets the date format.</summary>
   /// <value>The date format.</value>    
-  [DefaultValue(ValueFormat.cDateFormatDefault)]
+  [DefaultValue(ValueFormat.CDateFormatDefault)]
   public string DateFormat
   {
     get => m_DateFormat;
@@ -157,7 +157,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets the date separator.
   /// e.g. / or .</summary>
   /// <value>The date separator.</value>    
-  [DefaultValue(ValueFormat.cDateSeparatorDefault)]
+  [DefaultValue(ValueFormat.CDateSeparatorDefault)]
   public string DateSeparator
   {
     get => m_DateSeparator.Text();
@@ -171,7 +171,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets the decimal separator.
   /// e.g. , or .</summary>
   /// <value>The decimal separator.</value>    
-  [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
+  [DefaultValue(ValueFormat.CDecimalSeparatorDefault)]
   public string DecimalSeparator
   {
     get => m_DecimalSeparator.Text();
@@ -198,7 +198,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets the text that should be regarded as true.
   /// e.G. "Yes"</summary>
   /// <value>The true.</value>
-  [DefaultValue(ValueFormat.cTrueDefault)]
+  [DefaultValue(ValueFormat.CTrueDefault)]
   public string True
   {
     get => m_True;
@@ -208,7 +208,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets the text that should be regarded as false.
   /// e.g. "False"</summary>
   /// <value>The false.</value>
-  [DefaultValue(ValueFormat.cFalseDefault)]
+  [DefaultValue(ValueFormat.CFalseDefault)]
   public string False
   {
     get => m_False;
@@ -226,7 +226,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
 
   /// <summary>Gets or sets the group separator. Digit grouping. Numbers with many digits may be divided into groups using a delimiter.</summary>
   /// <value>The group separator.</value>
-  [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
+  [DefaultValue(ValueFormat.CGroupSeparatorDefault)]
   public string GroupSeparator
   {
     get => m_GroupSeparator.Text();
@@ -251,7 +251,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <value>
   /// The number format.
   /// </value>
-  [DefaultValue(ValueFormat.cNumberFormatDefault)]
+  [DefaultValue(ValueFormat.CNumberFormatDefault)]
   public string NumberFormat
   {
     get => m_NumberFormat;
@@ -265,7 +265,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <value>
   /// The part (starting with 1).
   /// </value>
-  [DefaultValue(ValueFormat.cPartDefault)]
+  [DefaultValue(ValueFormat.CPartDefault)]
   public int Part
   {
     get => m_Part;
@@ -275,7 +275,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
 
   /// <summary>If a text is split into parts the text determines which how these pars are split from each other</summary>
   /// <value>The part splitter.</value>
-  [DefaultValue(ValueFormat.cPartSplitterDefault)]
+  [DefaultValue(ValueFormat.CPartSplitterDefault)]
   public string PartSplitter
   {
     get => m_PartSplitter.Text();
@@ -289,7 +289,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets a value indicating whether the part number determines this one part or anything from this part to the</summary>
   /// <value>
   ///   <c>true</c> if reading part to end; otherwise, <c>false</c>.</value>
-  [DefaultValue(ValueFormat.cPartToEndDefault)]
+  [DefaultValue(ValueFormat.CPartToEndDefault)]
   public bool PartToEnd
   {
     get => m_PartToEnd;
@@ -317,7 +317,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
 
   /// <summary>Gets or sets the time separator. the text to separate hours from minutes. e.G. ":"</summary>
   /// <value>The time separator.</value>
-  [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
+  [DefaultValue(ValueFormat.CTimeSeparatorDefault)]
   public string TimeSeparator
   {
     get => m_TimeSeparator.Text();
@@ -331,7 +331,7 @@ public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut
   /// <summary>Gets or sets a value indicating whether existing files should be overwritten during for binary formatters .</summary>
   /// <value>
   ///   <c>true</c> if existing files should be overwritten; otherwise, <c>false</c>.</value>
-  [DefaultValue(ValueFormat.cOverwriteDefault)]
+  [DefaultValue(ValueFormat.COverwriteDefault)]
   public bool Overwrite
   {
     get => m_Overwrite;

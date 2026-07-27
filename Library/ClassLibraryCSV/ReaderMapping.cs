@@ -90,26 +90,26 @@ public sealed class ReaderMapping
         continue;
 
       // Handle special columns,  
-      if (column.Name.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase))
+      if (column.Name.Equals(ReaderConstants.CErrorField, StringComparison.OrdinalIgnoreCase))
       {
         ColNumErrorFieldSource = index;
         errorField = true;
         continue;
       }
-      if (column.Name.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+      if (column.Name.Equals(ReaderConstants.CStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
       {
         orgStartLine = index;          
         startLine = true;
         continue;
       }
-      if (column.Name.Equals(ReaderConstants.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+      if (column.Name.Equals(ReaderConstants.CEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
       {
         orgEndLine = index;
         endLine = true;
         continue;
       }
 
-      if (column.Name.Equals(ReaderConstants.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase))
+      if (column.Name.Equals(ReaderConstants.CRecordNumberFieldName, StringComparison.OrdinalIgnoreCase))
       {
         orgRecNum = index;
         recNum = true;
@@ -126,28 +126,28 @@ public sealed class ReaderMapping
     {
       if (orgRecNum>=0) m_Mapping.Add(orgRecNum, fieldCount);
       var columnOrdinal = ColNumRecNum = fieldCount++;
-      m_ResultingColumns.Add(new Column(ReaderConstants.cRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
+      m_ResultingColumns.Add(new Column(ReaderConstants.CRecordNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
 
     if (endLine)
     {
       if (orgEndLine>=0) m_Mapping.Add(orgEndLine, fieldCount);
       var columnOrdinal = ColNumEndLine = fieldCount++;
-      m_ResultingColumns.Add(new Column(ReaderConstants.cEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
+      m_ResultingColumns.Add(new Column(ReaderConstants.CEndLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
 
     if (errorField)
     {
       if (ColNumErrorFieldSource>=0) m_Mapping.Add(ColNumErrorFieldSource, fieldCount);
       var columnOrdinal = ColNumErrorField = fieldCount++;
-      m_ResultingColumns.Add(new Column(ReaderConstants.cErrorField, ValueFormat.Empty, columnOrdinal));
+      m_ResultingColumns.Add(new Column(ReaderConstants.CErrorField, ValueFormat.Empty, columnOrdinal));
     }
 
     if (startLine)
     {
       if (orgStartLine>=0) m_Mapping.Add(orgStartLine, fieldCount);
       var columnOrdinal = ColNumStartLine = fieldCount;
-      m_ResultingColumns.Add(new Column(ReaderConstants.cStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
+      m_ResultingColumns.Add(new Column(ReaderConstants.CStartLineNumberFieldName, new ValueFormat(DataTypeEnum.Integer), columnOrdinal));
     }
   }
 

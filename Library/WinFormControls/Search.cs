@@ -45,6 +45,10 @@ public class Search : UserControl
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
   {
     InitializeComponent();
+    var resources = new ComponentResourceManager(typeof(Search));
+    m_BtnNext.Image = (Image) resources.GetObject("m_BtnNext.Image")!;
+    m_BtnCancel.Image = (Image) resources.GetObject("m_BtnCancel.Image")!;
+    m_BtnPrevious.Image = (Image) resources.GetObject("m_BtnPrevious.Image")!;
   }
 
   /// <summary>
@@ -113,7 +117,7 @@ public class Search : UserControl
   {
     components = new Container();
     Label label1;
-    var resources = new ComponentResourceManager(typeof(Search));
+
     m_BtnCancel = new Button();
     m_SearchTextBoxText = new TextBox();
     m_BtnNext = new Button();
@@ -138,7 +142,7 @@ public class Search : UserControl
     m_BtnCancel.DialogResult = DialogResult.Cancel;
     m_BtnCancel.FlatAppearance.BorderColor = SystemColors.ButtonFace;
     m_BtnCancel.FlatStyle = FlatStyle.Flat;
-    m_BtnCancel.Image = (Image) resources.GetObject("m_BtnCancel.Image");
+
     m_BtnCancel.Location = new Point(182, 3);
     m_BtnCancel.Name = "m_BtnCancel";
     m_BtnCancel.Size = new Size(19, 19);
@@ -163,7 +167,7 @@ public class Search : UserControl
     m_BtnNext.AccessibleName = "Previous";
     m_BtnNext.BackgroundImageLayout = ImageLayout.Center;
     m_BtnNext.FlatAppearance.BorderColor = SystemColors.ButtonFace;
-    m_BtnNext.Image = (Image) resources.GetObject("m_BtnNext.Image");
+
     m_BtnNext.Location = new Point(163, 3);
     m_BtnNext.Name = "m_BtnNext";
     m_BtnNext.Size = new Size(18, 19);
@@ -178,7 +182,6 @@ public class Search : UserControl
     m_BtnPrevious.AccessibleName = "Next";
     m_BtnPrevious.BackgroundImageLayout = ImageLayout.Center;
     m_BtnPrevious.FlatAppearance.BorderColor = SystemColors.ButtonFace;
-    m_BtnPrevious.Image = (Image) resources.GetObject("m_BtnPrevious.Image");
     m_BtnPrevious.Location = new Point(144, 3);
     m_BtnPrevious.Name = "m_BtnPrevious";
     m_BtnPrevious.Size = new Size(19, 19);

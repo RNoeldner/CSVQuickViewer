@@ -68,7 +68,7 @@ public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
     bool? convert = null,
     string destinationName = "",
     string timePart = "",
-    string timePartFormat = Column.cDefaultTimePartFormat,
+    string timePartFormat = Column.CDefaultTimePartFormat,
     string timeZonePart = "")
   {
     m_Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -87,7 +87,7 @@ public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
     m_DestinationName = destinationName;
     m_Ignore = ignore;
     m_TimePart = timePart ?? string.Empty;
-    m_TimePartFormat = timePartFormat ?? Column.cDefaultTimePartFormat;
+    m_TimePartFormat = timePartFormat ?? Column.CDefaultTimePartFormat;
     m_TimeZonePart = timeZonePart ?? string.Empty;
     m_Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
   }
@@ -170,7 +170,7 @@ public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
   ///   Gets or sets the name.
   /// </summary>
   /// <value>The name.</value>
-  [DefaultValue(Column.cDefaultTimePartFormat)]
+  [DefaultValue(Column.CDefaultTimePartFormat)]
   public string TimePartFormat
   {
     get => m_TimePartFormat;

@@ -219,7 +219,7 @@ identifierInContainer: string.Empty, destinationTimeZone: TimeZoneInfo.Local.Id,
       System.IO.File.Delete(testFile);
 
     var originalCulture = CultureInfo.CurrentCulture;
-    var originalUICulture = CultureInfo.CurrentUICulture;
+    var originalUiCulture = CultureInfo.CurrentUICulture;
 
     try
     {
@@ -325,7 +325,7 @@ identifierInContainer: string.Empty, destinationTimeZone: TimeZoneInfo.Local.Id,
       if (System.IO.File.Exists(testFile))
         System.IO.File.Delete(testFile);
       CultureInfo.CurrentCulture = originalCulture;
-      CultureInfo.CurrentUICulture = originalUICulture;
+      CultureInfo.CurrentUICulture = originalUiCulture;
     }
 
   }

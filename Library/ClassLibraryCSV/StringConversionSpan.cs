@@ -19,9 +19,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UseIndexFromEndExpression
 
 
 namespace CsvTools;
@@ -77,7 +74,7 @@ public static class StringConversionSpan
 
     // 2. Resolve Time
     TimeSpan? timeSpanValue = null;
-    const long TicksPer200Hours = TimeSpan.TicksPerHour * 200;
+    const long ticksPer200Hours = TimeSpan.TicksPerHour * 200;
 
     switch (typedTime)
     {
@@ -85,13 +82,13 @@ public static class StringConversionSpan
         timeSpanValue = TimeSpan.FromDays(oa - Math.Truncate(oa));
         break;
       case DateTime dateTimeInput:
-        timeSpanValue = dateTimeInput.Ticks <= TicksPer200Hours ? new TimeSpan(dateTimeInput.Ticks) : dateTimeInput.TimeOfDay;
+        timeSpanValue = dateTimeInput.Ticks <= ticksPer200Hours ? new TimeSpan(dateTimeInput.Ticks) : dateTimeInput.TimeOfDay;
         break;
       case TimeSpan ts:
         timeSpanValue = ts;
         break;
       default:
-        timeSpanValue = StringToTimeSpan(timeColumnText, ':', serialDateTime);
+        timeSpanValue = StringToTimeSpan(timeColumnText);
         break;
     }
 
@@ -108,33 +105,23 @@ public static class StringConversionSpan
   ///   and common decimal separators
   /// </summary>
   /// <param name="text">The Value as string</param>  
-  public static DateTime? SerialStringToDateTime(
+  public static DateTime? SerialToDateTime(
     this ReadOnlySpan<char> text)
   {
-    var stringDateValue = text.Trim();
     try
     {
       foreach (var decimalSeparator in StaticCollections.DecimalSeparatorChars)
       {
-        var numberFormatProvider = GetNumberFormatInfo(decimalSeparator, '\0');
-        if (!double.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-              stringDateValue
-#else
-                stringDateValue.ToString()
-#endif
-              , NumberStyles.Float, numberFormatProvider, out var timeSerial))
-        {
+        var timeSerial = StringToDouble(text, decimalSeparator, '\0', false, false);
+        if (!timeSerial.HasValue)
           continue;
-        }
-
-        if (timeSerial >= -657435 && timeSerial < 2958466)
-          return DateTime.FromOADate(timeSerial);
+        if (timeSerial.Value > -657435 && timeSerial.Value < 2958466)
+          return DateTime.FromOADate(timeSerial.Value);
       }
     }
     catch (Exception ex)
     {
-      Debug.WriteLine("{0} is not a serialDateTime date. Error: {1}", text.ToString(), ex.Message);
+      Debug.WriteLine("{0} is not a serial date time date. Error: {1}", text.ToString(), ex.Message);
     }
 
     return null;
@@ -247,8 +234,8 @@ public static class StringConversionSpan
   /// <summary>
   ///   Parses a string to a date time value
   /// </summary>
-  /// <param name="text">The original value.</param>
-  /// <param name="dateFormats">The date formats, separated by delimiter</param>
+  /// <param name="dateText">The original value.</param>
+  /// <param name="dateFormat">The date formats, separated by delimiter</param>
   /// <param name="dateSeparatorChar">The date separator used in the conversion</param>
   /// <param name="timeSeparatorChar">The time separator.</param>
   /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
@@ -257,26 +244,27 @@ public static class StringConversionSpan
   /// </returns>
   /// <remarks>If the date part is not filled it's the 1/1/1</remarks>
   public static DateTime? StringToDateTime(
-    this ReadOnlySpan<char> text,
-    ReadOnlySpan<char> dateFormats,
+    this ReadOnlySpan<char> dateText,
+    ReadOnlySpan<char> dateFormat,
     char dateSeparatorChar,
     char timeSeparatorChar,
     bool serialDateTime)
   {
-    var stringDateValue = text.Trim();
+    var dateTextSpan = dateText.Trim();
 
-    var result = StringToDateTimeExact(text, dateFormats, dateSeparatorChar, timeSeparatorChar, CultureInfo.CurrentCulture);
+    var result = StringToDateTimeExact(dateText, dateFormat, dateSeparatorChar, timeSeparatorChar, CultureInfo.CurrentCulture);
     if (result.HasValue)
       return result.Value;
 
-    if (serialDateTime
-        && (stringDateValue.IndexOf(dateSeparatorChar) == -1)
-        && (stringDateValue.IndexOf(timeSeparatorChar) == -1))
-      return SerialStringToDateTime(stringDateValue);
+    // Check if we should use Serial as used in Excel and OLE Automation
+    if (serialDateTime && (dateTextSpan.IndexOf(dateSeparatorChar) == -1) && (dateTextSpan.IndexOf(timeSeparatorChar) == -1))
+      return SerialToDateTime(dateTextSpan);
 
     // in case its time only, and we do not have any date separator try a timespan
-    if (stringDateValue.IndexOf(dateSeparatorChar) != -1 || dateFormats.IndexOf('/') != -1) return null;
-    var ts = StringToTimeSpan(stringDateValue, timeSeparatorChar, false);
+    if (dateTextSpan.IndexOf(dateSeparatorChar) != -1 || dateFormat.IndexOf('/') != -1)
+      return null;
+
+    var ts = StringToTimeSpan(dateTextSpan);
     if (ts.HasValue)
       return new DateTime(ts.Value.Ticks, DateTimeKind.Local);
 
@@ -291,7 +279,6 @@ public static class StringConversionSpan
   /// <param name="dateSeparatorChar">The date separator.</param>
   /// <param name="timeSeparatorChar">The time separator.</param>
   /// <param name="culture">The culture.</param>
-  /// <returns></returns>
   /// <remarks>
   ///   Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that
   ///   would fit the length of the value.
@@ -356,14 +343,14 @@ public static class StringConversionSpan
       culture);
   }
 
-  private static readonly ConcurrentDictionary<int, NumberFormatInfo> m_NfiCache = new ConcurrentDictionary<int, NumberFormatInfo>();
+  private static readonly ConcurrentDictionary<int, NumberFormatInfo> MNfiCache = new ConcurrentDictionary<int, NumberFormatInfo>();
   private static NumberFormatInfo GetNumberFormatInfo(char decimalSeparator, char groupSeparator)
   {
     // Create a unique key based on the two characters
     // Using an int key (hash) is faster than a string key like ".|,"
     int key = (decimalSeparator << 16) | groupSeparator;
 
-    return m_NfiCache.GetOrAdd(key, _ =>
+    return MNfiCache.GetOrAdd(key, _ =>
     {
       var nfi = new NumberFormatInfo()
       {
@@ -380,9 +367,7 @@ public static class StringConversionSpan
 
   private static bool PrepareStringToNumber(
       ref ReadOnlySpan<char> text, ref bool isNegative, ref bool isPercentage, ref bool isPermille,
-      char decimalSeparatorChar,
-      char groupSeparatorChar,
-      bool allowPercentage,
+      char decimalSeparatorChar, char groupSeparatorChar,
       bool currencyRemoval)
   {
     if (text.IsEmpty)
@@ -448,9 +433,8 @@ public static class StringConversionSpan
     }
     if (text.IsEmpty)
       return false;
-    isPercentage = allowPercentage && text[text.Length - 1] == '%';
-    // ReSharper disable once IdentifierTypo
-    isPermille = allowPercentage && text[text.Length - 1] == '‰';
+    isPercentage = text[text.Length - 1] == '%';
+    isPermille = text[text.Length - 1] == '‰';
 
     if (isPercentage || isPermille)
       text = text.Slice(0, text.Length - 1).Trim();
@@ -475,7 +459,7 @@ public static class StringConversionSpan
     var isNegative = false;
     var isPercentage = false;
     var isPermille = false;
-    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, allowPercentage, currencyRemoval))
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
       return null;
     var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
 
@@ -488,8 +472,8 @@ public static class StringConversionSpan
     if (success)
     {
       // If this works, exit
-      if (isPercentage) result /= 100m;
-      else if (isPermille) result /= 1000m;
+      if (isPercentage && allowPercentage) result /= 100m;
+      else if (isPermille && allowPercentage) result /= 1000m;
       return isNegative ? -result : result;
     }
     return null;
@@ -513,7 +497,7 @@ public static class StringConversionSpan
     var isNegative = false;
     var isPercentage = false;
     var isPermille = false;
-    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, allowPercentage, currencyRemoval))
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
       return null;
     var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
 
@@ -526,8 +510,8 @@ public static class StringConversionSpan
     if (success)
     {
       // If this works, exit
-      if (isPercentage) result /= 100.0;
-      else if (isPermille) result /= 1000.0;
+      if (isPercentage && allowPercentage) result /= 100.0;
+      else if (isPermille && allowPercentage) result /= 1000.0;
       return isNegative ? -result : result;
     }
     return null;
@@ -717,105 +701,67 @@ public static class StringConversionSpan
   }
 
   /// <summary>
-  ///   Strings to time span.
+  ///   Parses a time string representation into a <see cref="TimeSpan"/>.
   /// </summary>
-  /// <param name="text">The original value.</param>
-  /// <param name="timeSeparatorChar">The time separator.</param>
-  /// <param name="serialDateTime">Allow Date Time values in serial format</param>
-  /// <returns></returns>
+  /// <param name="text">The raw time string to parse (e.g., "14:30", "2:30 PM").</param>
+  /// <returns>
+  ///   A <see cref="TimeSpan"/> representing the time, or <c>null</c> if the input is empty or invalid.
+  /// </returns>
+  /// <remarks>
+  ///   This method performs a single-pass scan of the span to minimize allocations. 
+  ///   It supports hours, minutes, seconds, and milliseconds, as well as optional "AM"/"PM" suffixes.
+  ///   The method expects components in the order: Hours, Minutes, Seconds, Milliseconds.
+  /// </remarks>
   public static TimeSpan? StringToTimeSpan(
-    this ReadOnlySpan<char> text,
-    char timeSeparatorChar,
-    bool serialDateTime)
+    this ReadOnlySpan<char> text)
   {
-    if (text.IsEmpty)
-      return null;
+    if (text.IsEmpty) return null;
+    int hours = 0, minutes = 0, seconds = 0, milliseconds = 0, start = 0, segmentCount = 0;
+    bool isAm = false, isPm = false;
 
-    var slices = text.GetSlices(new[] { timeSeparatorChar, ' ', '.' }).Where(x => x.length>0).ToList();
-    // Either we only have one slice or its two slices but the two slices are separated by .
-    if (slices.Count==1 ||
-        (slices.Count==2 && text[slices[1].start-1] =='.'))
+    for (int i = 0; i <= text.Length; i++)
     {
-      if (!serialDateTime)
-        return null;
-      var dt = SerialStringToDateTime(text);
-      if (dt.HasValue)
-        return new TimeSpan(dt.Value.Ticks - DateTimeConstants.FirstDateTime.Ticks);
+      // Border
+      if (i != text.Length && text[i] != ':' && text[i] != '-'  && text[i] != '.' && text[i] != ',' && text[i] != ' ' && text[i] != '\t')
+        continue;
+      if (i > start) // Found a segment
+      {
+        var slice = text.Slice(start, i - start);
 
-      return null;
+        // Handle AM/PM specifically
+        if (slice.Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        {
+          isAm =true;
+        }
+        else if (slice.Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        {
+          isPm = true;
+        }
+        else
+        {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          int.TryParse(slice, NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
+#else
+            int.TryParse(slice.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
+#endif
+          if (segmentCount == 0) hours = val;
+          else if (segmentCount == 1) minutes = val;
+          else if (segmentCount == 2) seconds = val;
+          else if (segmentCount == 3) milliseconds = val;
+          segmentCount++;
+        }
+      }
+      start = i + 1;
     }
 
-    var slice = text.Slice(slices[0].start, slices[0].length);
-    int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-      slice
-#else
-            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
-#endif
-      , CultureInfo.InvariantCulture, out var hours);
-    var minutes = 0;
-    if (slices.Count > 1)
-    {
-      slice = text.Slice(slices[1].start, slices[1].length);
-      int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        slice
-#else
-            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
-#endif
-     , CultureInfo.InvariantCulture, out minutes);
-    }
-    var seconds = 0;
-    if (slices.Count > 2)
-    {
-      slice = text.Slice(slices[2].start, slices[2].length);
-      int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        slice
-#else
-            slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
-#endif
-        , CultureInfo.InvariantCulture, out seconds);
-    }
+    // Apply AM/PM adjustment logic here
+    if (isAm && hours == 12) hours = 0;
+    else if (isPm && hours < 12) hours += 12;
 
-    var milliseconds = 0;
-    if (slices.Count > 3)
-    {
-      slice = text.Slice(slices[3].start, slices[3].length);
-      int.TryParse(
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-        slice
-#else
-        slice.ToString(), NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
-#endif
-        , CultureInfo.InvariantCulture, out milliseconds);
-    }
-    // Handle am / pm to adjust hours
-    // 12:00 AM - 12:59 AM --> 00:00 - 00:59
-    if (hours == 12 && slices.Count >2 && text.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
-      hours -= 12;
-
-    // 12:00 PM - 12:59 PM 12:00 - 12:59 No change
-    // 01:00 pm - 11:59 PM --> 13:00 - 23:59
-    if (hours < 12 && slices.Count >2 && text.Slice(slices[slices.Count-1].start, slices[slices.Count-1].length).Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
-      hours += 12;
-
-    return new TimeSpan(0, hours, minutes, seconds, milliseconds);
+    return (hours ==0 && minutes==0 && seconds==0) || segmentCount <2 ? null : new TimeSpan(0, hours, minutes, seconds, milliseconds);
   }
 
-  private static int IndexOf(
-    this ReadOnlySpan<char> text,
-    char charToFind,
-    int start = 0)
-  {
-    for (int i = start; i < text.Length; i++)
-    {
-      if (text[i] == charToFind)
-        return i;
-    }
 
-    return -1;
-  }
   /// <summary>
   ///   Converts Strings to date time using the culture information.
   /// </summary>
@@ -824,13 +770,11 @@ public static class StringConversionSpan
   /// <param name="dateSeparatorChar">The date separator.</param>
   /// <param name="timeSeparatorChar">The time separator.</param>
   /// <param name="culture">The culture.</param>
-  /// <returns></returns>
   private static DateTime? StringToDateTimeByCulture(
     ReadOnlySpan<char> stringDateValue,
-    in string[] dateTimeFormats,
-    char dateSeparatorChar,
-    char timeSeparatorChar,
-    in CultureInfo culture)
+    string[] dateTimeFormats,
+    char dateSeparatorChar, char timeSeparatorChar,
+    CultureInfo culture)
   {
     while (true)
     {

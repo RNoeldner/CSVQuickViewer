@@ -132,7 +132,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
     bool removeCurrency,
     bool useTypedValues)
   {
-    TimeZoneAdjust = FunctionalDI.GetTimeZoneAdjust;
+    TimeZoneAdjust = FunctionalDi.GetTimeZoneAdjust;
     ReturnedTimeZone = string.IsNullOrEmpty(returnedTimeZone) ? TimeZoneInfo.Local.Id : returnedTimeZone;
     m_ColumnDefinition = columnDefinition is null
       ? []
@@ -594,7 +594,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public override object GetValue(int ordinal)
   {
     var column = GetColumn(ordinal);
-    if (IsDBNull(column))
+    if (IsDbNull(column))
       return DBNull.Value;
 
     object ret;
@@ -660,7 +660,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   {
     if (ordinal < 0 || m_CurrentRowColumnText.Count <= ordinal)
       return true;
-    return IsDBNull(GetColumn(ordinal));
+    return IsDbNull(GetColumn(ordinal));
   }
 
   /// <inheritdoc cref="DbDataReader" />
@@ -1328,7 +1328,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   /// For <see cref="DataTypeEnum.DateTime"/>, this method checks if a split time column exists 
   /// via <c>AssociatedTimeCol</c>. If so, both parts must be empty for the result to be <c>true</c>.
   /// </remarks>
-  private bool IsDBNull(Column column)
+  private bool IsDbNull(Column column)
   {
     if (column.Ignore)
       return true;

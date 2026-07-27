@@ -48,7 +48,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
     IProgressWithCancellation progress)
   {
     progress.Report("Starting to load data");
-    var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
+    var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
     if (fileReader is null)
       throw new FileReaderException($"Could not get reader for {fileSetting}");
 

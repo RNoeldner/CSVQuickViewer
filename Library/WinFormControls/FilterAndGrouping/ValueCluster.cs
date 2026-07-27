@@ -33,7 +33,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   public ValueCluster(string display, string condition, int count, object? start, object? end)
   {
     Display = display;
-    SQLCondition = condition;
+    SqlCondition = condition;
     Count = count;
     Start = start;
     End = end;
@@ -68,7 +68,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
   ///   Gets or sets the SQL condition to get a list of the records
   /// </summary>
   /// <value>The SQL condition.</value>
-  public string SQLCondition
+  public string SqlCondition
   {
     get;
   }
@@ -93,7 +93,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
       return false;
 
     return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
-           && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase);
+           && string.Equals(SqlCondition, other.SqlCondition, StringComparison.OrdinalIgnoreCase);
   }
 
   /// <summary>
@@ -111,7 +111,7 @@ public sealed class ValueCluster : IEquatable<ValueCluster>
     unchecked
     {
       return (StringComparer.OrdinalIgnoreCase.GetHashCode(Display) * 397) ^
-             StringComparer.OrdinalIgnoreCase.GetHashCode(SQLCondition);
+             StringComparer.OrdinalIgnoreCase.GetHashCode(SqlCondition);
     }
   }
 

@@ -31,13 +31,13 @@ public static class DateTimeConstants
   ///   A static value any time only value will have this date, property initialized to 12/30/1899.
   /// </summary>
   public static DateTime FirstDateTime { get; }
-  private static readonly HashSet<string> m_CommonDateTimeFormats;
-  private static readonly HashSet<string> m_CommonTimeFormats;
+  private static readonly HashSet<string> MCommonDateTimeFormats;
+  private static readonly HashSet<string> MCommonTimeFormats;
 
   static DateTimeConstants()
   {
     FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0, DateTimeKind.Local);
-    m_CommonTimeFormats = new HashSet<string>(StringComparer.Ordinal)
+    MCommonTimeFormats = new HashSet<string>(StringComparer.Ordinal)
     {
       CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern
         .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator.FromText(), '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
@@ -46,7 +46,7 @@ public static class DateTimeConstants
       "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.fff"
     };
 
-    m_CommonDateTimeFormats = new HashSet<string>(StringComparer.Ordinal)
+    MCommonDateTimeFormats = new HashSet<string>(StringComparer.Ordinal)
     {
       CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern
         .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator.FromText(), '/', CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator[0], ':'),
@@ -61,8 +61,8 @@ public static class DateTimeConstants
       "yyyy/MM/ddTHH:mm:ss",
       "yyyyMMdd"
     };
-    foreach (var format in m_CommonTimeFormats)
-      m_CommonDateTimeFormats.Add(format);
+    foreach (var format in MCommonTimeFormats)
+      MCommonDateTimeFormats.Add(format);
   }
 
   /// <summary>
@@ -75,13 +75,13 @@ public static class DateTimeConstants
   {
     // add the existing data
     foreach (var format in known.Split(StaticCollections.ListDelimiterChars, StringSplitOptions.RemoveEmptyEntries))
-      m_CommonDateTimeFormats.Add(format);
-    return m_CommonDateTimeFormats;
+      MCommonDateTimeFormats.Add(format);
+    return MCommonDateTimeFormats;
   }
 
   /// <summary>
   ///  Get the most common time formats
   /// </summary>
   /// <remarks>Returning the internal Collection directly exposes the mutable state.</remarks>
-  public static IReadOnlyCollection<string> CommonTimeFormats() => m_CommonTimeFormats;
+  public static IReadOnlyCollection<string> CommonTimeFormats() => MCommonTimeFormats;
 }

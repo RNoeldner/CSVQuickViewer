@@ -52,12 +52,12 @@ public class FilteredDataGridViewTests
   [TestMethod, Timeout(2000)]
   public void ApplyFiltersTest()
   {
-    using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
+    using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
     {
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataTable = DataTable200;
+          control.DataTable = dataTable200;
           control.ApplyFilters();
         });
     }
@@ -87,7 +87,7 @@ public class FilteredDataGridViewTests
         control =>
         {
           control.DataTable = dataTable200;
-          control.RefreshUI();
+          control.RefreshUi();
         });
   }
 
@@ -166,11 +166,11 @@ public class FilteredDataGridViewTests
   [Timeout(1000)]
   public void SetColumnFrozenTest()
   {
-    using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
+    using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataTable = DataTable200;
+          control.DataTable = dataTable200;
           control.SetColumnFrozen(0, true);
         });
   }
@@ -194,16 +194,16 @@ public class FilteredDataGridViewTests
   public void ShowHideColumns()
   {
 
-    using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
+    using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
       UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
         control =>
         {
-          control.DataTable = DataTable200;
+          control.DataTable = dataTable200;
           control.HideEmptyColumns();
 
           control.SetColumnVisibility(new Dictionary<string, bool>
           {
-            { DataTable200.Columns[0].ColumnName, true }, { DataTable200.Columns[1].ColumnName, false }
+            { dataTable200.Columns[0].ColumnName, true }, { dataTable200.Columns[1].ColumnName, false }
           });
         });
   }

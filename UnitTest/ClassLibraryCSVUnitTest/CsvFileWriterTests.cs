@@ -65,7 +65,7 @@ public class CsvFileWriterTests
         new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
       });
 
-    using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
+    using var reader = FunctionalDi.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
     await reader.OpenAsync(UnitTestStatic.Token);
 
 
@@ -138,7 +138,7 @@ public class CsvFileWriterTests
         new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
       });
 
-    using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
+    using var reader = FunctionalDi.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
     await reader.OpenAsync(UnitTestStatic.Token);
 
     var fileName = UnitTestStatic.GetTestPath("BasicCSVOut2.txt");

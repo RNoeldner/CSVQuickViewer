@@ -30,7 +30,7 @@ namespace CsvTools;
 /// </summary>
 public static class CsvHelper
 {
-  private static readonly IReadOnlyCollection<char> m_QualifiersToTest = new[] { '"', '\'' };
+  private static readonly IReadOnlyCollection<char> MQualifiersToTest = ['"', '\'',];
 
   /// <summary>
   /// Asynchronously analyzes a file to detect its structural properties (delimiter, encoding, header, etc.) 
@@ -68,7 +68,7 @@ public static class CsvHelper
     inspectionResult.FileName = fileName;
     var sourceAccess = new SourceAccess(fileName, pgpKey: pgpKey, identifierInContainer: identifierInContainer);
     inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
-    using var usedStream = await GetStreamInMemoryAsync(sourceAccess, progress.CancellationToken).ConfigureAwait(false);
+    using var usedStream = await sourceAccess.GetStreamInMemoryAsync(progress.CancellationToken).ConfigureAwait(false);
     var disallowedDelimiter = new List<char>();
     var delimiterByExtension = (!string.IsNullOrEmpty(identifierInContainer) ? identifierInContainer : fileName).GetDelimiterByExtension();
 
@@ -110,7 +110,7 @@ public static class CsvHelper
           break;
       }
 
-      // no need to check for Json again
+      // no need to check for JSON again
       guessJson = false;
     } while (!inspectionResult.IsJson && !inspectionResult.IsXml && disallowedDelimiter.Count < 3);
 
@@ -129,13 +129,12 @@ public static class CsvHelper
     if (fillGuessSettings.Enabled && detectFormat)
     {
       progress.Report("Determining column format by reading samples");
-      using var reader2 = GetFileReader(inspectionResult, usedStream);
-      await reader2.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
-      var b = await reader2.FillGuessColumnFormatReaderAsyncReader(
+      using var fileReader = inspectionResult.GetFileReader(usedStream);
+      await fileReader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
+      inspectionResult.Columns.AddRange(await fileReader.FillGuessColumnFormatReaderAsyncReader(
         fillGuessSettings, columnCollectionInput: null,
         addTextColumns: false, checkDoubleToBeInteger: true, treatTextAsNull: string.Empty,
-        progress).ConfigureAwait(false);
-      inspectionResult.Columns.AddRange(b);
+        progress).ConfigureAwait(false));
     }
 
     return inspectionResult;
@@ -161,7 +160,7 @@ public static class CsvHelper
     CancellationToken cancellationToken)
   {
     // even tough the definition reads it will return a Stream all implementation do return IImprovedStream
-    var stream = FunctionalDI.GetStream(sourceAccess);
+    var stream = FunctionalDi.GetStream(sourceAccess);
     try
     {
       // if the file is very big, do not take part of it we might lose too much information
@@ -307,7 +306,7 @@ public static class CsvHelper
   /// <remarks>
   ///   <b>Threading Note:</b> This method uses <c>ConfigureAwait(false)</c>. 
   ///   It does NOT return to the UI thread. The caller must use <c>SafeInvoke</c> or 
-  ///   similar marshalling to update UI components or restore the Hourglass cursor.
+  ///   similar marshaling to update UI components or restore the Hourglass cursor.
   /// </remarks>
   public static async Task<InspectionResult> InspectFileAsync(
     this string fileName, bool guessJson,
@@ -330,12 +329,12 @@ public static class CsvHelper
     var selectedFile = string.Empty;
 
     // load from Setting file
-    if (fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
-        || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.cSettingExtension))
+    if (fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
+        || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.CSettingExtension))
     {
       var fileNameSetting =
-        !fileName2.EndsWith(SerializedFilesLib.cSettingExtension, StringComparison.OrdinalIgnoreCase)
-          ? fileName2 + SerializedFilesLib.cSettingExtension
+        !fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
+          ? fileName2 + SerializedFilesLib.CSettingExtension
           : fileName2;
       try
       {
@@ -366,7 +365,7 @@ public static class CsvHelper
         throw new FileNotFoundException("No suitable file found in the ZIP archive.");
     }
 
-    if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
+    if (fileName2.EndsWith(ManifestData.CCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
       try
       {
         var settingFs = await ManifestData.ReadManifestFileSystem(fileName2).ConfigureAwait(false);
@@ -421,7 +420,7 @@ public static class CsvHelper
   /// <param name="stream">The stream to read data from</param>
   /// <param name="encoding">The encoding.</param>
   /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
-  /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
+  /// <returns><c>true</c> if JSON could be read from stream; otherwise, <c>false</c>.</returns>
   public static async Task<bool> InspectIsJsonReadableAsync(
     this Stream stream,
     Encoding encoding,
@@ -459,7 +458,7 @@ public static class CsvHelper
   /// <param name="guessJson">If <c>true</c>, checks for XML/JSON formats first.</param>
   /// <param name="guessCodePage">If <c>true</c>, detects file encoding and BOM.</param>
   /// <param name="guessEscapePrefix">If <c>true</c>, identifies characters used to escape delimiters/qualifiers.</param>
-  /// <param name="guessDelimiter">If <c>true</c>, detects field separators (e.g., , ; | or Tab).</param>
+  /// <param name="guessDelimiter">If <c>true</c>, detects field separators (e.g., ; | or Tab).</param>
   /// <param name="guessQualifier">If <c>true</c>, detects text wrapping characters (e.g., quotes).</param>
   /// <param name="guessStartRow">If <c>true</c>, identifies metadata headers that should be skipped.</param>
   /// <param name="guessHasHeader">If <c>true</c>, determines if column names exist in the first data row.</param>
@@ -605,7 +604,7 @@ public static class CsvHelper
           progress.Report("Checking Qualifier");
           var qualifierResult = textReader.InspectQualifier(
             inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
-            m_QualifiersToTest, progress.CancellationToken);
+            MQualifiersToTest, progress.CancellationToken);
 
           progress.Report(qualifierResult.QuoteChar != char.MinValue
             ? $"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}"
@@ -677,7 +676,7 @@ public static class CsvHelper
 
         using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
           .ConfigureAwait(false);
-        // InspectStartRowAsync does recognoze magicDelimiter all will treat magicDelimiter like a comment
+        // InspectStartRowAsync does recognize magicDelimiter all will treat magicDelimiter like a comment
         var newSkipRows = await textReader.InspectStartRowAsync(fieldDelimiterChar: inspectionResult.FieldDelimiter, fieldQualifierChar: inspectionResult.FieldQualifier, 
           escapePrefixChar: inspectionResult.EscapePrefix,commentLine: inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
         progress.Report($"Start Row: {newSkipRows}");
@@ -725,7 +724,7 @@ public static class CsvHelper
         CommentLine = csvFile.CommentLine
       },
       fillGuessSettings: new FillGuessSettings(false),
-      detectFormat: true, pgpKey: FunctionalDI.GetKeyAndPassphraseForFile(csvFile.FileName).key,
+      detectFormat: true, pgpKey: FunctionalDi.GetKeyAndPassphraseForFile(csvFile.FileName).key,
       progress: progress).ConfigureAwait(false);
     csvFile.CodePageId = det.CodePageId;
     csvFile.ByteOrderMark = det.ByteOrderMark;
@@ -737,7 +736,7 @@ public static class CsvHelper
     csvFile.CommentLine = det.CommentLine;
   }
 
-  internal static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId,
+  private static async Task<int> InspectCodePageAsync(this Stream stream, int codePageId,
     CancellationToken cancellationToken)
   {
     if (codePageId > 0)
@@ -755,7 +754,7 @@ public static class CsvHelper
   /// <param name="inspectionResult">The Inspection Results with file information</param>
   /// <param name="stream">Optional: An already open memory stream</param>
   /// <returns>A <see cref="IFileReader"/> usually a <see cref="CsvFileReader"/></returns>
-  public static IFileReader GetFileReader(this InspectionResult inspectionResult, in Stream? stream)
+  private static IFileReader GetFileReader(this InspectionResult inspectionResult, in Stream? stream)
   {
     if (stream is MemoryStream memStream)
     {

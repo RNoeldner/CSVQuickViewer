@@ -94,7 +94,7 @@ public static class DetectionStartRow
           startOfNewRow = false;
           if (currentChar is '\r' or '\n')
           {
-            HandleCRLF();
+            HandleCrlf();
             isCommentRow = false;
             continue;
           }
@@ -127,7 +127,7 @@ public static class DetectionStartRow
         } // for / buffer
       } // while
 
-      void HandleCRLF()
+      void HandleCrlf()
       {
         currentLine++;
         if (quoted) return;

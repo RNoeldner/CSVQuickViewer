@@ -257,7 +257,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   } = false;
 
   [DefaultValue(false)]
-  public bool TreatNBSPAsSpace
+  public bool TreatNbspAsSpace
   {
     get;
     set => SetProperty(ref field, value);
@@ -322,7 +322,7 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
   } = true;
 
   [DefaultValue(true)]
-  public bool WarnNBSP
+  public bool WarnNbsp
   {
     get;
     set => SetProperty(ref field, value);
@@ -392,14 +392,14 @@ public sealed class ViewSettings : ObservableObject, IFontConfig
     fileSetting.NumWarnings = NumWarnings;
     fileSetting.SkipEmptyLines = SkipEmptyLines;
     fileSetting.TreatLfAsSpace = TreatLfAsSpace;
-    fileSetting.TreatNBSPAsSpace = TreatNBSPAsSpace;
+    fileSetting.TreatNBSPAsSpace = TreatNbspAsSpace;
     fileSetting.TreatTextAsNull = TreatTextAsNull;
     fileSetting.TreatUnknownCharacterAsSpace = TreatUnknownCharacterAsSpace;
     fileSetting.TryToSolveMoreColumns = TryToSolveMoreColumns;
     fileSetting.WarnDelimiterInValue = WarnDelimiterInValue;
     fileSetting.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
     fileSetting.WarnLineFeed = WarnLineFeed;
-    fileSetting.WarnNBSP = WarnNBSP;
+    fileSetting.WarnNBSP = WarnNbsp;
     fileSetting.WarnQuotes = WarnQuotes;
     fileSetting.WarnQuotesInQuotes = WarnQuotes;
     fileSetting.WarnUnknownCharacter = WarnUnknownCharacter;

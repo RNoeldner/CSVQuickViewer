@@ -32,12 +32,12 @@ public static class StringUtils
   /// <summary>
   /// Any char allowed for Base64 encoded Text
   /// </summary>
-  public const string cAllowedBase64 = cAllowedLatinWithout6789 + "/+=";
+  public const string CAllowedBase64 = cAllowedLatinWithout6789 + "/+=";
 
   /// <summary>
   /// Any char allowed for UL Text
   /// </summary>
-  public const string cAllowedURL = cAllowedLatinWithout6789 + "6789/:-._~&?%";
+  public const string CAllowedUrl = cAllowedLatinWithout6789 + "6789/:-._~&?%";
 
   private const string cAllowedLatinWithout6789 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
