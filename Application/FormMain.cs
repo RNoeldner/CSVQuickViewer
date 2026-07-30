@@ -514,20 +514,27 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
   {
-    if (!m_CancellationTokenSource.IsCancellationRequested)
+    try
     {
+      if (!m_CancellationTokenSource.IsCancellationRequested)
+      {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await m_CancellationTokenSource.CancelAsync();
 #else
-      m_CancellationTokenSource.Cancel();
+        m_CancellationTokenSource.Cancel();
 #endif
 
-      // Give the possibly running threads some time to exit
-      await Task.Delay(100, m_CancellationTokenSource.Token);
-    }
+        // Give the possibly running threads some time to exit
+        await Task.Delay(100, m_CancellationTokenSource.Token);
+      }
 
-    if (e.CloseReason != CloseReason.UserClosing) return;
-    await SaveIndividualFileSettingAsync();
+      if (e.CloseReason != CloseReason.UserClosing) return;
+      await SaveIndividualFileSettingAsync();
+    }
+    catch 
+    {
+      // ignore      
+    }
   }
 
   // ReSharper disable once AsyncVoidEventHandlerMethod

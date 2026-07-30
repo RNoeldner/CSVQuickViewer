@@ -16,6 +16,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,24 +37,34 @@ public static class DetectionQualifier
   {
     if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-    var bestResult = new QuoteTestResult();
+    var quoteTestResults = new List<QuoteTestResult>();
 
     foreach (var quoteChar in possibleQuotes)
     {
       cancellationToken.ThrowIfCancellationRequested();
-
-      // Analyze the file for this specific quote candidate
-      var currentResult = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
-
-      if (currentResult.Score > bestResult.Score)
-        bestResult = currentResult;
-
-      // Short-circuit: If double-quote looks very solid, don't waste time on other candidates
-      if (currentResult is { QuoteChar: '"', Score: >= 45 })
-        break;
+      var res = GetScoreForQuote(textReader, fieldDelimiterChar, escapePrefixChar, quoteChar, commentLine, cancellationToken);
+      if (res.Score>0)
+        quoteTestResults.Add(res);
     }
 
-    return bestResult;
+    if (quoteTestResults.Count==0)
+      return new QuoteTestResult('"', 0, false, false);
+
+    if (quoteTestResults.Count==1)
+      return quoteTestResults[0];
+
+    int sumScore = quoteTestResults.Sum(x => x.Score);
+    for (var i = 0; i<quoteTestResults.Count; i++)
+    {
+      var res = quoteTestResults[i];
+      res.Score = (int) ((res.Score / (double) sumScore) * 100);
+    }
+
+    if (quoteTestResults.Any(x => x.QuoteChar=='"' && x.Score>2))
+      return quoteTestResults.First(x => x.QuoteChar=='"');
+
+    return quoteTestResults.OrderByDescending(x => x.Score).First();
+
   }
 
   private static QuoteTestResult GetScoreForQuote(
@@ -287,11 +298,10 @@ public static class DetectionQualifier
     // Scoring: Heavily weight cases where quotes wrap text fields correctly
     int rawScore = totalQuotes + (5 * (openAndText + closeAndDelim));
 
-    int bonus = (int) (0.1 * totalQuotes); // 10% of the number of quotes
     if (res.DuplicateQualifier || res.EscapedQualifier)
-      rawScore += bonus;
+      rawScore += (int) (0.33 * totalQuotes); ;
 
-    res.Score = Math.Min(99, (int) ((rawScore / (double) length) * 100) + 1);
+    res.Score = rawScore;
     return res;
   }
 
