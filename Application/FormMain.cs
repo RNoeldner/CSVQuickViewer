@@ -65,7 +65,6 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     Text = AssemblyTitle;
     WinAppLogging.AddLog(loggerDisplay);
     m_FileSetting = new CsvFileDummy();
-    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
     FunctionalDi.FileReaderWriterFactory = new ViewerFileReaderWriterFactory(m_ViewSettings.FillGuessSettings);
 #if SupportPGP
@@ -147,11 +146,11 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
-            using var iStream = FunctionalDi.GetStream(new SourceAccess(m_FileSetting.FullPath));
+          using var iStream = FunctionalDi.GetStream(new SourceAccess(m_FileSetting.FullPath));
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           await
 #endif
-            using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
+          using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
           for (var i = m_FileSetting.SkipRows - 1; i >= 0; i--)
             skippedLines.AppendLine(await sr.ReadLineAsync(token));
         }
@@ -287,8 +286,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   private void AttachPropertyChanged()
   {
-//    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-//    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
     try
     {
@@ -318,7 +317,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     }
     finally
     {
-      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;  
+      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
     }
   }
 
@@ -395,16 +394,9 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         }
 
         // Event Suppression, OpenDataReaderAsync will add text columns
-        m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-        try
-        {
-          await OpenDataReaderAsync();
-        }
-        finally
-        {
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;  
-        }
-        
+
+        await OpenDataReaderAsync();
+
         // as we have reloaded assume any file change is handled as well
         m_FileChanged = false;
       }
@@ -430,18 +422,10 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       FileSystemUtils.FileDelete(m_FileName + SerializedFilesLib.CSettingExtension);
   }
 
-  private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
-  {
-    try
-    {
-      m_ShouldReloadData = true;
-      await CheckPossibleChange();
-    }
-    catch (Exception ex)
-    {
-      Logger.Error(ex, "Checking reload or file change");
-    }
-  }
+  private void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
+    // Reload the file with new ColumnCollection 
+    => m_SettingsChangedTimerChange.Start();
+  
 
   /// <summary>
   ///   Detaches the property changed handlers for the file Setting
@@ -670,7 +654,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         SkipRows = detection.SkipRows,
         SkipRowsAfterHeader = detection.SkipRowsAfterHeader,
         IsJson = detection.IsJson,
-        IsXml = detection.IsXml
+        IsXml = detection.IsXml,
       };
 
       m_FileSetting.ColumnCollection.AddRange(detection.Columns);
@@ -725,6 +709,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     // Stop Property changed events for the time this is processed we might store data in the FileSetting
     DetachPropertyChanged();
     ShowTextPanel(true);
+
     try
     {
       m_ToolStripButtonAsText.Enabled = true;
@@ -764,12 +749,14 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         Logger.Debug("Preview loaded. Click 'Load More' to fetch the remaining records.");
       }
 
+      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
       // Add the missing columns that are text into the column collection, otherwise these columns have no change format 
       m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
         .Select(dataColumn => new Column(name: dataColumn.ColumnName,
           valueFormat: new ValueFormat(dataColumn.DataType.GetDataType()),
           columnOrdinal: dataColumn.Ordinal))
-        .Where(x => !m_FileSetting.ColumnCollection.Any(y => y.Name.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase))));
+        .Where(x => !m_FileSetting.ColumnCollection.Any(y =>
+          y.Name.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase))));
 
       // Load View Settings from file
       if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
@@ -907,8 +894,14 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       }
 
       m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-      m_FileSetting = newFileSetting;
-      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+      try
+      {
+        m_FileSetting = newFileSetting;
+      }
+      finally
+      {
+        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+      }
 
       SetFileSystemWatcher(m_FileSetting.FileName);
 
@@ -954,7 +947,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       // Current column setup
       var columnSetting = detailControl.GetViewStatus();
       var reload = false;
-    
+
       if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
       {
         m_StoreColumns = [.. m_FileSetting.ColumnCollection];
@@ -973,9 +966,10 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         await OpenDataReaderAsync();
         detailControl.SetViewStatus(columnSetting);
       }
+
       //Prevent asking for reload
       m_ShouldReloadData = false;
-      
+
       detailControl.ResumeLayout();
     }, this);
   }

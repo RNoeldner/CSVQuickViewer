@@ -1224,7 +1224,7 @@ public partial class FilteredDataGridView : DataGridView
           return;
         }
 
-        // Update the columns        
+        // Update the columns  This will raise ColumnCollectionOnCollectionChanged twice...      
         m_FileSetting.ColumnCollection.Remove(columnFormat);
         m_FileSetting.ColumnCollection.Add(form.UpdatedColumn);
 
