@@ -315,6 +315,7 @@ public static class JsonTabularConverter
   ///   <item>Sampled JSON objects used for discovery.</item>
   /// </list>
   /// </returns>
+  /// <exception cref="ArgumentNullException"></exception>
   public static IReadOnlyList<JsonColumn> DiscoverColumns(this IEnumerable<JObject> array, int limitProperties = 3, CancellationToken token = default)
   {
     var columns = new List<JsonColumn>();
@@ -516,7 +517,9 @@ public static class JsonTabularConverter
     }
   }
 
-  /// <param name="reader">TextReader containing JSON content.</param>
+  /// <summary>
+  /// <param name="reader">TextReader containing JSON content.</param> 
+  /// </summary>
   extension(TextReader reader)
   {
     /// <summary>
@@ -574,10 +577,15 @@ public static class JsonTabularConverter
               // Capture root-level scalar properties
               foreach (var prop in obj.Properties())
               {
-                if (prop.Value is JValue jValue)
-                  metadata[prop.Name] = jValue;
-                if (prop.Value is JArray)
-                  hasArrayLevel1=true;
+                switch (prop.Value)
+                {
+                  case JValue jValue:
+                    metadata[prop.Name] = jValue;
+                    break;
+                  case JArray:
+                    hasArrayLevel1=true;
+                    break;
+                }
               }
               if (!hasArrayLevel1)
               {
@@ -592,7 +600,7 @@ public static class JsonTabularConverter
                   foreach (var subI in sub)
                   {
                     if (subI.Value is not JArray arr) continue;
-                    // We have found a array, 
+                    // We have found an array, 
                     hasArrayLevel1=false;
                     foreach (var item in arr.OfType<JObject>())
                       yield return item;
@@ -600,7 +608,7 @@ public static class JsonTabularConverter
                   }
                 }
               }
-              // hasArrayLevel1 coulod have been chnaged above...
+              // hasArrayLevel1 could have been changed above...
               if (hasArrayLevel1)
               {
                 // Instead of then making an yieldedArrayObjects we want these items

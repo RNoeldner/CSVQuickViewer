@@ -153,7 +153,9 @@ public static class SerializedFilesLib
     return token.ToString(Formatting.Indented);
   }
 
-  /// <param name="fileName">Name of the file</param>
+  /// <summary>
+  /// <param name="fileName">Name of the file</param> 
+  /// </summary>
   extension(string fileName)
   {
     /// <summary>

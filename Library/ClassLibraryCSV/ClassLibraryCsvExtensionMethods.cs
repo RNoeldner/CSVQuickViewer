@@ -47,7 +47,9 @@ public static class ClassLibraryCsvExtensionMethods
     '@', '&', '^', '~'       // Scripting/Logical
     ];
 
-  /// <param name="fileName">The name or path of the file.</param>
+  /// <summary>
+  /// <param name="fileName">The name or path of the file.</param> 
+  /// </summary>
   extension(ReadOnlySpan<char> fileName)
   {
     /// <summary>
@@ -275,7 +277,9 @@ public static class ClassLibraryCsvExtensionMethods
       _ => Enumerable.Count(items.Cast<object>())
     };
 
-  /// <param name="value">The enum value.</param>
+  /// <summary>
+  /// <param name="value">The enum value.</param> 
+  /// </summary>
   extension(Enum value)
   {
     /// <summary>
@@ -516,7 +520,9 @@ public static class ClassLibraryCsvExtensionMethods
       _ => string.Empty
     };
 
-  /// <param name="columnName">The name of the column.</param>
+  /// <summary>
+  /// <param name="columnName">The name of the column.</param> 
+  /// </summary>
   extension(string columnName)
   {
     /// <summary>
@@ -543,7 +549,6 @@ public static class ClassLibraryCsvExtensionMethods
 
         while ((startIdx = columnName.IndexOf(searchPattern, startIdx, StringComparison.OrdinalIgnoreCase)) != -1)
         {
-          int endIdx;
           int fullMatchLen;
 
           if (pattern.closer.Length == 0)
@@ -564,7 +569,7 @@ public static class ClassLibraryCsvExtensionMethods
 
             // 2. Scan until next delimiter or colon
             int next = columnName.IndexOfAny(WordDelimiters, afterPattern);
-            endIdx = (next == -1) ? columnName.Length : next;
+            var endIdx = (next == -1) ? columnName.Length : next;
             fullMatchLen = endIdx - startIdx;
           }
           else
@@ -639,26 +644,23 @@ public static class ClassLibraryCsvExtensionMethods
     [DebuggerStepThrough]
     public string ReplaceCaseInsensitive(string? pattern, string replacement)
     {
-      if (string.IsNullOrEmpty(pattern))
-        return columnName;
-
-      if (replacement.Equals(pattern, StringComparison.Ordinal))
+      if (string.IsNullOrEmpty(pattern) || replacement.Equals(pattern, StringComparison.Ordinal))
         return columnName;
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       return columnName.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
 #else
-    var inc = original.Length / pattern!.Length * (replacement.Length - pattern.Length);
-    var chars = new char[original.Length + Math.Max(0, inc)];
+    var inc = columnName.Length / pattern!.Length * (replacement.Length - pattern.Length);
+    var chars = new char[columnName.Length + Math.Max(0, inc)];
 
     var count = 0;
     var positionLast = 0;
     int positionNew;
 
-    while ((positionNew = original.IndexOf(pattern, positionLast, StringComparison.OrdinalIgnoreCase)) != -1)
+    while ((positionNew = columnName.IndexOf(pattern, positionLast, StringComparison.OrdinalIgnoreCase)) != -1)
     {
       for (var i = positionLast; i < positionNew; ++i)
-        chars[count++] = original[i];
+        chars[count++] = columnName[i];
       foreach (var t in replacement)
         chars[count++] = t;
 
@@ -666,10 +668,10 @@ public static class ClassLibraryCsvExtensionMethods
     }
 
     if (positionLast == 0)
-      return original;
+      return columnName;
 
-    for (var i = positionLast; i < original.Length; ++i)
-      chars[count++] = original[i];
+    for (var i = positionLast; i < columnName.Length; ++i)
+      chars[count++] = columnName[i];
 
     return new string(chars, 0, count);
 #endif
@@ -677,7 +679,9 @@ public static class ClassLibraryCsvExtensionMethods
   }
 
 
-  /// <param name="inputValue">The source character span to search within.</param>
+  /// <summary>
+  /// <param name="inputValue">The source character span to search within.</param> 
+  /// </summary>
   extension(ReadOnlySpan<char> inputValue)
   {
     /// <summary>

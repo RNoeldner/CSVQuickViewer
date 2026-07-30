@@ -173,8 +173,10 @@ public static class DetectionHeader
       var notUnique = headers.GroupBy(x => x, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1).ToList();
       var numeric = headers.Where(header => Regex.IsMatch(header, @"^[+\-\(]?\d+([\.,]?\d+)?\)?$", RegexOptions.None, TimeSpan.FromMilliseconds(200))).ToList();
       var dates = headers.Where(header => Regex.IsMatch(header, @"^\d{2,4}[\-/.][0123]?\d[\-/.][0123]?\d|[0123]?\d[\-/.][0123]?\d[\-/.]\d{2,4}?$", RegexOptions.None, TimeSpan.FromMilliseconds(200))).ToList();
-      var bools = new HashSet<string>(new[] { "true", "false", "Wahr", "Falsch", "Vrai", "Faux", "Verdadero", "Falso", "Vero",
-        "yes", "no", "ja", "nein", "Sí", "Sì", "Oui"}, StringComparer.OrdinalIgnoreCase);
+      var bools = new HashSet<string>([
+        "true", "false", "Wahr", "Falsch", "Vrai", "Faux", "Verdadero", "Falso", "Vero",
+        "yes", "no", "ja", "nein", "Sí", "Sì", "Oui",
+      ], StringComparer.OrdinalIgnoreCase);
       var boolHead = headers.Where(bools.Contains).ToList();
       var guidHeaders = headers.Where(header => header.AsSpan().StringToGuid().HasValue).ToList();
 

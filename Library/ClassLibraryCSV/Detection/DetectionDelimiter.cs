@@ -48,13 +48,15 @@ public static class DetectionDelimiter
     return '\0';
   }
 
-  /// <param name="textReader">The text reader to read the data</param>
+  /// <summary>
+  /// <param name="textReader">The text reader to read the data</param> 
+  /// </summary>
   extension(ImprovedTextReader textReader)
   {
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if they are the same it will look at 
-    ///   the positioning (Score), as a delimiter is preceded by a text or by a quote will increase the score.
+    ///   the positioning (Score), as a delimiter is preceded by a text or by a quote will increase the score
     /// </summary>
     /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>

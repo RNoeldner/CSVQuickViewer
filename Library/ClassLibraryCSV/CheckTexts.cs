@@ -196,7 +196,9 @@ public static class CheckTexts
     return result;
   }
 
-  /// <param name="samples">The sample values to be checked.</param>
+  /// <summary>
+  /// <param name="samples">The sample values to be checked.</param> 
+  /// </summary>
   extension(IEnumerable<ReadOnlyMemory<char>> samples)
   {
     /// <summary>

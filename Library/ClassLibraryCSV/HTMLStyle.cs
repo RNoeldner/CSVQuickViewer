@@ -388,18 +388,16 @@ public sealed class HtmlStyle
   /// <returns>A valid XML Element Name</returns>
   /// <remarks>
   ///   Element names are case-sensitive, Element names must start with a letter or underscore,
-  ///   Element names cannot start with the letters XML(or XML, or Xml, etc), Element names can
+  ///   Element names cannot start with the letters XML(or XML, or XML, etc), Element names can
   ///   contain letters, digits, hyphens, underscores, and periods, Element names cannot contain spaces
   /// </remarks>
   public static string XmlElementName(string text)
   {
     var allowed = text.ProcessByCategory(
-      x => x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.LowercaseLetter
-                                                || x == UnicodeCategory.UppercaseLetter
-                                                || x == UnicodeCategory.DecimalDigitNumber);
+      x => x is UnicodeCategory.DashPunctuation or UnicodeCategory.LowercaseLetter or UnicodeCategory.UppercaseLetter or UnicodeCategory.DecimalDigitNumber);
     if (allowed.StartsWith("xml", StringComparison.OrdinalIgnoreCase))
       return "_" + allowed;
-    if (allowed.Length <= 0)
+    if (allowed.Length == 0)
       return string.Empty;
     var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
     if (oc == UnicodeCategory.LowercaseLetter || oc == UnicodeCategory.UppercaseLetter || allowed[0] == '_')

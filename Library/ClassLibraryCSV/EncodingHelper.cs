@@ -33,11 +33,11 @@ public static class EncodingHelper
   ///   Gets a collection of the most common code pages.
   /// </summary>
   /// <value>An array of common code pages.</value>
-  public static int[] CommonCodePages => new[]
-  {
+  public static int[] CommonCodePages =>
+  [
     Encoding.UTF8.CodePage, Encoding.Unicode.CodePage, Encoding.BigEndianUnicode.CodePage, 12000, 12001, 1252, 437,
-    1250, 1253, 1255, 850, 852, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
-  };
+    1250, 1253, 1255, 850, 852, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936,
+  ];
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
   static EncodingHelper()

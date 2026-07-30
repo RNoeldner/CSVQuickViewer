@@ -28,7 +28,9 @@ namespace CsvTools;
 /// </summary>
 public static class StringConversionSpan
 {
-  /// <param name="dateFormat">The date format for string parsing.</param>
+  /// <summary>
+  /// <param name="dateFormat">The date format for string parsing.</param> 
+  /// </summary>
   extension(ReadOnlySpan<char> dateFormat)
   {
     /// <summary>
@@ -289,8 +291,10 @@ public static class StringConversionSpan
           || dateFormat.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
           || dateFormat.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
           || dateFormat.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+      {
         dateFormat = StaticCollections.RegExNumberSuffixEnglish.Value.Replace(dateFormat.ToString(), "$1")
           .AsSpan();
+      }
 
       var matchingDateTimeFormats = new List<string>();
       foreach (var (start, length) in dateFormats.GetSlices(StaticCollections.ListDelimiterChars.AsSpan()))
@@ -306,7 +310,7 @@ public static class StringConversionSpan
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           dateTimeFormatString.IndexOf('h', StringComparison.OrdinalIgnoreCase);
 #else
-          dateTimeFormatString.IndexOfAny(new[] { 'h', 'H' });
+          dateTimeFormatString.IndexOfAny(['h', 'H',]);
 #endif
         // assuming there is a text before the hour that has a reasonable size take it as date
         if (indexHour > 4)
@@ -428,7 +432,9 @@ public static class StringConversionSpan
     return !text.IsEmpty;
   }
 
-  /// <param name="text">The value.</param>
+  /// <summary>
+  /// <param name="text">The value.</param> 
+  /// </summary>
   extension(ReadOnlySpan<char> text)
   {
     /// <summary>
@@ -605,9 +611,8 @@ public static class StringConversionSpan
       // 32 is more than enough and safe for stackalloc.
       Span<char> buffer = stackalloc char[32];
       int k = 0;
-      for (int i = 0; i < text.Length; i++)
+      foreach (var c in text)
       {
-        char c = text[i];
         if (char.IsDigit(c))
         {
           if (k >= buffer.Length) return null; // Overflow: string too long for a long

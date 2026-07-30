@@ -42,62 +42,7 @@ public static class ErrorInformation
   ///   Identifier for a warning message
   /// </summary>
   public const string CWarningId = "Warning: ";
-
-  /// <param name="errorList">A text containing different types of messages that are concatenated</param>
-  extension(ReadOnlySpan<char> errorList)
-  {
-    /// <summary>
-    ///   String method to append a message an error list text
-    /// </summary>
-    /// <param name="newError">A new message that should be added to the list</param>
-    /// <param name="isWarning"><c>true</c> if this message is a warning</param>
-    /// <returns>
-    ///   A new error list text, if the message was already contained, is not added a second time,
-    ///   usually messages are appended, unless they are errors and the list contains only warnings
-    ///   so far
-    /// </returns>
-    public string AddMessage(ReadOnlySpan<char> newError, bool isWarning)
-    {
-      if (newError.IsEmpty)
-        throw new ArgumentException("Error can not be empty", nameof(newError));
-
-      // no need to check for null
-      if (errorList.Length == 0)
-        return newError.ToString();
-
-      // if the message is already in the text, do not do anything
-      if (errorList.Contains(newError, StringComparison.Ordinal))
-        return errorList.ToString();
-      return isWarning
-        ? string.Concat(errorList.ToString(), CSeparator.ToString(), newError.AddWarningId())
-        : string.Concat(newError.ToString(), CSeparator.ToString(), errorList.ToString());
-    }
-
-    /// <summary>
-    ///   String method to append a message an error list text
-    /// </summary>
-    /// <param name="newError">A new message that should be added to the list</param>
-    /// <returns>
-    ///   A new error list text, if the message was already contained, is not added a second time,
-    ///   usually messages are appended, unless they are errors and the list contains only warnings
-    ///   so far
-    /// </returns>
-    public string AddMessage(ReadOnlySpan<char> newError)
-      =>
-        errorList.AddMessage(newError, newError.IsWarningMessage());
-
-    /// <summary>
-    ///   String method to add the warning identifier to an error message
-    /// </summary>
-    /// <returns>The text with the leading WarningID</returns>
-    public string AddWarningId()
-    {
-      if (errorList.Length == 0 || errorList.StartsWith(CWarningId.AsSpan(), StringComparison.Ordinal))
-        return errorList.ToString();
-      return string.Concat(CWarningId, errorList.ToString());
-    }
-  }
-
+  
   /// <summary>
   ///   Combines column and error information
   /// </summary>
@@ -187,9 +132,62 @@ public static class ErrorInformation
     return new ColumnAndMessage(sbErrors.ToString().AsMemory(), sbWarning.ToString().AsMemory());
   }
 
-  /// <param name="errorList">A text containing different types of messages that are concatenated</param>
+  /// <summary>
+  /// <param name="errorList">A text containing different types of messages that are concatenated</param> 
+  /// </summary>
   extension(ReadOnlySpan<char> errorList)
   {
+     /// <summary>
+    ///   String method to append a message an error list text
+    /// </summary>
+    /// <param name="newError">A new message that should be added to the list</param>
+    /// <param name="isWarning"><c>true</c> if this message is a warning</param>
+    /// <returns>
+    ///   A new error list text, if the message was already contained, is not added a second time,
+    ///   usually messages are appended, unless they are errors and the list contains only warnings
+    ///   so far
+    /// </returns>
+    public string AddMessage(ReadOnlySpan<char> newError, bool isWarning)
+    {
+      if (newError.IsEmpty)
+        throw new ArgumentException("Error can not be empty", nameof(newError));
+
+      // no need to check for null
+      if (errorList.Length == 0)
+        return newError.ToString();
+
+      // if the message is already in the text, do not do anything
+      if (errorList.Contains(newError, StringComparison.Ordinal))
+        return errorList.ToString();
+      return isWarning
+        ? string.Concat(errorList.ToString(), CSeparator.ToString(), newError.AddWarningId())
+        : string.Concat(newError.ToString(), CSeparator.ToString(), errorList.ToString());
+    }
+
+    /// <summary>
+    ///   String method to append a message an error list text
+    /// </summary>
+    /// <param name="newError">A new message that should be added to the list</param>
+    /// <returns>
+    ///   A new error list text, if the message was already contained, is not added a second time,
+    ///   usually messages are appended, unless they are errors and the list contains only warnings
+    ///   so far
+    /// </returns>
+    public string AddMessage(ReadOnlySpan<char> newError)
+      =>
+        errorList.AddMessage(newError, newError.IsWarningMessage());
+
+    /// <summary>
+    ///   String method to add the warning identifier to an error message
+    /// </summary>
+    /// <returns>The text with the leading WarningID</returns>
+    public string AddWarningId()
+    {
+      if (errorList.Length == 0 || errorList.StartsWith(CWarningId.AsSpan(), StringComparison.Ordinal))
+        return errorList.ToString();
+      return string.Concat(CWarningId, errorList.ToString());
+    }
+    
     /// <summary>
     ///   String method to check if the text should be regarded as an error in an error list text
     /// </summary>

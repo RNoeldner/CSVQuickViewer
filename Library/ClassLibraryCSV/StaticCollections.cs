@@ -27,58 +27,60 @@ public static class StaticCollections
   /// <summary>
   ///   '/', '-', '.', ' '
   /// </summary>
-  public static readonly char[] DateSeparatorChars = { '/', '-', '.', ' ' };
+  public static readonly char[] DateSeparatorChars = ['/', '-', '.', ' ',];
 
   /// <summary>
   ///   ',', '.', ' ', '’', '⹁' 
   /// </summary>
-  public static readonly char[] DecimalGroupingChars = { ',', '.', ' ', '’', '⹁' };
+  public static readonly char[] DecimalGroupingChars = [',', '.', ' ', '’', '⹁',];
 
   /// <summary>
   ///   '.', ',', '/'
   /// </summary>
-  public static readonly char[] DecimalSeparatorChars = { '.', ',', '/' };
+  public static readonly char[] DecimalSeparatorChars = ['.', ',', '/',];
 
   /// <summary>
   ///  '\t', ',', ';', '،', '؛', '|', '¦', '￤', '*', '`', '\u001F', '\u001E', '\u001D', '\u001C'
   /// </summary>
-  public static readonly char[] DelimiterChars = {
-    '\t', ',', ';', '،', '؛', '|', '¦', '￤', '*', '`', '\u001F', '\u001E', '\u001D', '\u001C'
-  };
+  public static readonly char[] DelimiterChars =
+  [
+    '\t', ',', ';', '،', '؛', '|', '¦', '￤', '*', '`', '\u001F', '\u001E', '\u001D', '\u001C',
+  ];
 
   /// <summary>
   /// \ / and ?
   /// </summary>
-  public static readonly char[] EscapePrefixChars = { '\\', '/', '?' };
+  public static readonly char[] EscapePrefixChars = ['\\', '/', '?',];
 
   /// <summary>
   ///   ';', '|',  CR LF Tab
   /// </summary>
-  public static readonly char[] ListDelimiterChars = { ';', '|', '\r', '\n', '\t' };
+  public static readonly char[] ListDelimiterChars = [';', '|', '\r', '\n', '\t',];
 
   /// <summary>
   /// '"', '\''
   /// </summary>
-  public static readonly char[] PossibleQualifiers = { '"', '\'' };
+  public static readonly char[] PossibleQualifiers = ['"', '\'',];
 
   /// <summary>
   ///   ':','.','h'
   /// </summary>
-  public static readonly char[] TimeSeparators = { ':', '.' };
+  public static readonly char[] TimeSeparators = [':', '.',];
 
   /// <summary>
   ///   '¤', '$', '₪', '£', '₹', '€', '₼', '₽', '₦', '৳', '¥', '₱', '₡', '₲', '؋', '֏', '₾', '​', '₸', '៛', '₩', '₭', '₮', '₴', '฿', '₺', '₫'
   /// </summary>
-  internal static readonly char[] CurrencySymbols = { '¤', '$', '₪', '£', '₹', '€', '₼', '₽', '₦', '৳', '¥', '₱', '₡', '₲', '؋', '֏', '₾', '​', '₸', '៛', '₩', '₭', '₮', '₴', '฿', '₺', '₫' };
+  internal static readonly char[] CurrencySymbols = ['¤', '$', '₪', '£', '₹', '€', '₼', '₽', '₦', '৳', '¥', '₱', '₡', '₲', '؋', '֏', '₾', '​', '₸', '៛', '₩', '₭', '₮', '₴', '฿', '₺', '₫',
+  ];
 
   [SuppressMessage("ReSharper", "StringLiteralTypo")]
   internal static readonly string[] FalseValues =
-  {
+  [
     "False", "0",  "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं", "झूठी", "نہيں", "نه", "نادرست", "لا",
     "كاذبة", "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не", "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak",
     "Sai", "Palsu", "nu", "Nr", "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive", "aus",
-    "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
-  };
+    "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei",
+  ];
 
   // used to get rid of numeric suffixes like 12th or 3rd
   internal static readonly Lazy<Regex> RegExNumberSuffixEnglish =
@@ -92,11 +94,11 @@ public static class StaticCollections
 
   [SuppressMessage("ReSharper", "StringLiteralTypo")]
   internal static readonly string[] TrueValues =
-  {
+  [
     "True", "1", "-1",  "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно", "Vero", "Veritable", "Vera", "Jah", "igen",
     "真實", "真实", "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ", "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так",
     "Ναι", "Αλήθεια", "Ya", "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant", "Sanna", "Sandt",
     "Res", "Prawdziwe", "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano",
-    "Adevărat"
-  };
+    "Adevărat",
+  ];
 }

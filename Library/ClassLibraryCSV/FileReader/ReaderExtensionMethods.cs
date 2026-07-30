@@ -62,7 +62,9 @@ public static class ReaderExtensionMethods
     return retList;
   }
 
+  /// <summary>
   /// <param name="source">The initial source setting </param>
+  /// </summary>
   extension(IFileSetting source)
   {
     /// <summary>

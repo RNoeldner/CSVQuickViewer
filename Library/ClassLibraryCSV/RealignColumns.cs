@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools;
 
@@ -34,7 +35,7 @@ public sealed class ReAlignColumns
 #endif
 
   private static readonly HashSet<string> BoolVals = new HashSet<string>(
-    new[] { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" },
+    ["True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F",],
     StringComparer.OrdinalIgnoreCase);
 
   private static readonly HashSet<char> DigitsSet = new("0123456789");
@@ -117,8 +118,7 @@ public sealed class ReAlignColumns
    Action<int, string> handleWarning)
   {
     var columns = new List<string>(row.Count);
-    for (int i = 0; i < row.Count; i++)
-      columns.Add(row[i] != null ? row[i].Trim() : string.Empty);
+    columns.AddRange(row.Select(t => t != null ? t.Trim() : string.Empty));
 
     if (columns.Count >= (m_ExpectedColumns * 2) - 1)
     {
@@ -221,17 +221,17 @@ public sealed class ReAlignColumns
   /// <returns>The appropriate column options</returns>
   private static ColumnOption GetColumnOption(string? text)
   {
-    if (text is null || text.Length == 0)
+    if (string.IsNullOrEmpty(text))
       return ColumnOption.Empty;
 
     var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars
               | ColumnOption.NoSpace;
 
     // compare the text as whole
-    if (BoolVals.Contains(text))
+    if (BoolVals.Contains(text!))
       all |= ColumnOption.Boolean;
 
-    if (text.Length <= 30)
+    if (text!.Length <= 30)
       all |= ColumnOption.ShortText;
     if (text.Length <= 10)
       all |= ColumnOption.VeryShortText;
@@ -296,7 +296,7 @@ public sealed class ReAlignColumns
 
     NumbersOnly = 1 << 1, // Only 0-9
 
-    DecimalChars = 1 << 2, // Only . ,  + - and numbers
+    DecimalChars = 1 << 2, // Only Dot Comma  + - and numbers
 
     DateTimeChars = 1 << 3, // Only / \ - . : T (space)
 

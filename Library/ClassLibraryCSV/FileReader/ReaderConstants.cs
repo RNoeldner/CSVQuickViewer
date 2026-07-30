@@ -69,9 +69,8 @@ public static class ReaderConstants
   /// </summary>
   /// <returns>an Array of objects for a new row in a Schema Table</returns>
   public static object?[] GetDefaultSchemaRowArray() =>
-    new object?[]
-    {
-      true, // 00- AllowDBNull
+  [
+    true, // 00- AllowDBNull
       null, // 01- BaseColumnName
       string.Empty, // 02- BaseSchemaName
       string.Empty, // 03- BaseTableName
@@ -92,8 +91,8 @@ public static class ReaderConstants
       false, // 18- IsAutoIncrement
       false, // 19- IsHidden
       true, // 20- IsReadOnly
-      false // 21- IsRowVersion
-    };
+      false, // 21- IsRowVersion
+  ];
 
   /// <summary>
   ///   Gets the empty schema table.

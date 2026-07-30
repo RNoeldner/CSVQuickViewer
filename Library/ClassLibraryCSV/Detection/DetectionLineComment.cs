@@ -26,7 +26,9 @@ public static class DetectionLineComment
 {
   const int maxRows = 100;
 
-  /// <param name="textReader">The text reader to read the data</param>
+  /// <summary>
+  /// <param name="textReader">The text reader to read the data</param> 
+  /// </summary>
   extension(ImprovedTextReader textReader)
   {
     /// <summary>

@@ -183,11 +183,120 @@ public static class CsvHelper
       return stream;
     }
   }
+  /// <summary>
+  ///   Analyzes a file asynchronously to determine proper read options. 
+  ///   Designed for individual user ownership: allowing training and settings to persist 
+  ///   seamlessly even if a user switches dealership locations.
+  /// </summary>
+  /// <param name="fileName">Name of the file or pattern to analyze.</param>
+  /// <param name="guessJson">If <c>true</c>, attempts to determine if the file is JSON.</param>
+  /// <param name="guessCodePage">If <c>true</c>, attempts to detect character encoding.</param>
+  /// <param name="guessEscapePrefix">If <c>true</c>, attempts to determine the escape sequence.</param>
+  /// <param name="guessDelimiter">If <c>true</c>, attempts to determine the field separator.</param>
+  /// <param name="guessQualifier">If <c>true</c>, attempts to determine the text qualifier.</param>
+  /// <param name="guessStartRow">If <c>true</c>, attempts to determine rows to skip.</param>
+  /// <param name="guessHasHeader">If <c>true</c>, attempts to find a header row.</param>
+  /// <param name="guessNewLine">If <c>true</c>, determines the line ending style.</param>
+  /// <param name="guessCommentLine">If <c>true</c>, attempts to identify comment prefixes.</param>
+  /// <param name="fillGuessSettings">Settings used for data sampling and type detection.</param>
+  /// <param name="selectFile">Callback for UI interaction if a specific file must be picked from a container.</param>
+  /// <param name="defaultInspectionResult">Fallback results if specific inspections are skipped.</param>
+  /// <param name="detectFormat">If <see langword="true"/>, enables deeper inspection of data formats (Dates, Numbers, etc.) during sampling.</param>
+  /// <param name="privateKey">PGP private key for encrypted file handling.</param>
+  /// <param name="progress">Progress reporting and cancellation interface.</param>
+  /// <returns>An <see cref="InspectionResult" /> containing the detected file schema.</returns>
+  /// <remarks>
+  ///   <b>Threading Note:</b> This method uses <c>ConfigureAwait(false)</c>. 
+  ///   It does NOT return to the UI thread. The caller must use <c>SafeInvoke</c> or 
+  ///   similar marshaling to update UI components or restore the Hourglass cursor.
+  /// </remarks>
+  public static async Task<InspectionResult> InspectFileAsync(
+    this string fileName, bool guessJson,
+    bool guessCodePage, bool guessEscapePrefix,
+    bool guessDelimiter, bool guessQualifier, bool guessStartRow,
+    bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
+    FillGuessSettings fillGuessSettings, bool detectFormat, Func<IReadOnlyCollection<string>, string>? selectFile,
+    InspectionResult defaultInspectionResult, string privateKey, IProgressWithCancellation progress)
+  {
+    if (string.IsNullOrEmpty(fileName))
+      throw new ArgumentException("Argument can not be empty", nameof(fileName));
+    if (fileName.IndexOf('~') != -1)
+      fileName = fileName.LongFileName();
+    var fileName2 = fileName.ResolvePattern();
+    if (fileName2 is null)
+      throw new FileNotFoundException(fileName);
+    var fileInfo = new FileSystemUtils.FileInfo(fileName2);
+    progress.Report($"Examining file {fileName2.GetShortDisplayFileName(40)}");
+    progress.Report($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
+    var selectedFile = string.Empty;
 
-  /// <param name="stream">The open read stream</param>
+    // load from Setting file
+    if (fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
+        || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.CSettingExtension))
+    {
+      var fileNameSetting =
+        !fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
+          ? fileName2 + SerializedFilesLib.CSettingExtension
+          : fileName2;
+      try
+      {
+        // we defiantly have an extension with the name
+        var inspectionResult = await fileNameSetting.DeserializeFileAsync<InspectionResult>().ConfigureAwait(false);
+        progress.Report($"Configuration read from setting file {fileNameSetting.GetShortDisplayFileName(40)}");
+        return inspectionResult;
+      }
+      catch (Exception)
+      {
+        progress.Report($"Could not parse setting file {fileNameSetting.GetShortDisplayFileName(40)}");
+      }
+    }
+
+    if (fileName2.AssumeZip())
+    {
+      var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
+      if (setting is not null)
+      {
+        progress.Report($"Data in zip {setting.IdentifierInContainer}");
+        return setting;
+      }
+
+      using var zipFile = new ZipFile(fileName2);
+      var filesInZip = ImprovedStream.SuitableZipEntries(zipFile).Select(x => x.Name).ToList();
+      selectedFile = selectFile?.Invoke(filesInZip) ?? filesInZip.FirstOrDefault();
+      if (selectedFile is null)
+        throw new FileNotFoundException("No suitable file found in the ZIP archive.");
+    }
+
+    if (fileName2.EndsWith(ManifestData.CCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
+      try
+      {
+        var settingFs = await ManifestData.ReadManifestFileSystem(fileName2).ConfigureAwait(false);
+        progress.Report($"Data in {settingFs.FileName}");
+        return settingFs;
+      }
+      catch (FileNotFoundException e2)
+      {
+        progress.Report($"Trying to read manifest: {e2.Message}");
+      }
+      catch
+      {
+        // ignore 
+      }
+
+
+    // Determine from file
+    return await fileName2.GetInspectionResultFromFileAsync(selectedFile, guessJson, guessCodePage,
+      guessEscapePrefix, guessDelimiter,
+      guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
+      defaultInspectionResult, fillGuessSettings, detectFormat, privateKey, progress).ConfigureAwait(false);
+  }
+
+  /// <summary>
+  /// <param name="stream">The stream to read data from</param> 
+  /// </summary>
   extension(Stream stream)
   {
-    /// <summary>
+     /// <summary>
     /// Get a text reader form a stream, takes care of codePage and skip rows
     /// </summary>
     /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
@@ -277,120 +386,7 @@ public static class CsvHelper
 
       return (encodingDetected.CodePage, false);
     }
-  }
-
-
-  /// <summary>
-  ///   Analyzes a file asynchronously to determine proper read options. 
-  ///   Designed for individual user ownership: allowing training and settings to persist 
-  ///   seamlessly even if a user switches dealership locations.
-  /// </summary>
-  /// <param name="fileName">Name of the file or pattern to analyze.</param>
-  /// <param name="guessJson">If <c>true</c>, attempts to determine if the file is JSON.</param>
-  /// <param name="guessCodePage">If <c>true</c>, attempts to detect character encoding.</param>
-  /// <param name="guessEscapePrefix">If <c>true</c>, attempts to determine the escape sequence.</param>
-  /// <param name="guessDelimiter">If <c>true</c>, attempts to determine the field separator.</param>
-  /// <param name="guessQualifier">If <c>true</c>, attempts to determine the text qualifier.</param>
-  /// <param name="guessStartRow">If <c>true</c>, attempts to determine rows to skip.</param>
-  /// <param name="guessHasHeader">If <c>true</c>, attempts to find a header row.</param>
-  /// <param name="guessNewLine">If <c>true</c>, determines the line ending style.</param>
-  /// <param name="guessCommentLine">If <c>true</c>, attempts to identify comment prefixes.</param>
-  /// <param name="fillGuessSettings">Settings used for data sampling and type detection.</param>
-  /// <param name="selectFile">Callback for UI interaction if a specific file must be picked from a container.</param>
-  /// <param name="defaultInspectionResult">Fallback results if specific inspections are skipped.</param>
-  /// <param name="detectFormat">If <see langword="true"/>, enables deeper inspection of data formats (Dates, Numbers, etc.) during sampling.</param>
-  /// <param name="privateKey">PGP private key for encrypted file handling.</param>
-  /// <param name="progress">Progress reporting and cancellation interface.</param>
-  /// <returns>An <see cref="InspectionResult" /> containing the detected file schema.</returns>
-  /// <remarks>
-  ///   <b>Threading Note:</b> This method uses <c>ConfigureAwait(false)</c>. 
-  ///   It does NOT return to the UI thread. The caller must use <c>SafeInvoke</c> or 
-  ///   similar marshaling to update UI components or restore the Hourglass cursor.
-  /// </remarks>
-  public static async Task<InspectionResult> InspectFileAsync(
-    this string fileName, bool guessJson,
-    bool guessCodePage, bool guessEscapePrefix,
-    bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-    bool guessHasHeader, bool guessNewLine, bool guessCommentLine,
-    FillGuessSettings fillGuessSettings, bool detectFormat, Func<IReadOnlyCollection<string>, string>? selectFile,
-    InspectionResult defaultInspectionResult, string privateKey, IProgressWithCancellation progress)
-  {
-    if (string.IsNullOrEmpty(fileName))
-      throw new ArgumentException("Argument can not be empty", nameof(fileName));
-    if (fileName.IndexOf('~') != -1)
-      fileName = fileName.LongFileName();
-    var fileName2 = fileName.ResolvePattern();
-    if (fileName2 is null)
-      throw new FileNotFoundException(fileName);
-    var fileInfo = new FileSystemUtils.FileInfo(fileName2);
-    progress.Report($"Examining file {fileName2.GetShortDisplayFileName(40)}");
-    progress.Report($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
-    var selectedFile = string.Empty;
-
-    // load from Setting file
-    if (fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
-        || FileSystemUtils.FileExists(fileName2 + SerializedFilesLib.CSettingExtension))
-    {
-      var fileNameSetting =
-        !fileName2.EndsWith(SerializedFilesLib.CSettingExtension, StringComparison.OrdinalIgnoreCase)
-          ? fileName2 + SerializedFilesLib.CSettingExtension
-          : fileName2;
-      try
-      {
-        // we defiantly have an extension with the name
-        var inspectionResult = await fileNameSetting.DeserializeFileAsync<InspectionResult>().ConfigureAwait(false);
-        progress.Report($"Configuration read from setting file {fileNameSetting.GetShortDisplayFileName(40)}");
-        return inspectionResult;
-      }
-      catch (Exception)
-      {
-        progress.Report($"Could not parse setting file {fileNameSetting.GetShortDisplayFileName(40)}");
-      }
-    }
-
-    if (fileName2.AssumeZip())
-    {
-      var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
-      if (!(setting is null))
-      {
-        progress.Report($"Data in zip {setting.IdentifierInContainer}");
-        return setting;
-      }
-
-      using var zipFile = new ZipFile(fileName2);
-      var filesInZip = ImprovedStream.SuitableZipEntries(zipFile).Select(x => x.Name).ToList();
-      selectedFile = selectFile?.Invoke(filesInZip) ?? filesInZip.FirstOrDefault();
-      if (selectedFile is null)
-        throw new FileNotFoundException("No suitable file found in the ZIP archive.");
-    }
-
-    if (fileName2.EndsWith(ManifestData.CCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
-      try
-      {
-        var settingFs = await ManifestData.ReadManifestFileSystem(fileName2).ConfigureAwait(false);
-        progress.Report($"Data in {settingFs.FileName}");
-        return settingFs;
-      }
-      catch (FileNotFoundException e2)
-      {
-        progress.Report($"Trying to read manifest: {e2.Message}");
-      }
-      catch
-      {
-        // ignore 
-      }
-
-
-    // Determine from file
-    return await fileName2.GetInspectionResultFromFileAsync(selectedFile, guessJson, guessCodePage,
-      guessEscapePrefix, guessDelimiter,
-      guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
-      defaultInspectionResult, fillGuessSettings, detectFormat, privateKey, progress).ConfigureAwait(false);
-  }
-
-  /// <param name="stream">The stream to read data from</param>
-  extension(Stream stream)
-  {
+    
     /// <summary>
     ///   Determines whether data in the specified stream is an XML
     /// </summary>

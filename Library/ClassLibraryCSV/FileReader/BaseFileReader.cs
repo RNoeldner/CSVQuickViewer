@@ -1125,13 +1125,16 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
     if (successParse && dateTime.Year is > 1752 and <= 9999)
     {
-      // get the timezone from TimeZonePart or the assiciated column
-      if (!column.TimeZonePart.TryGetConstant(out var timeZone))
+      // get the timezone from TimeZonePart or the associated column
+      if (column.TimeZonePart.TryGetConstant(out var timeZone))
       {
-        var associatedColIdx = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
-        if (associatedColIdx > -1)
-          timeZone = GetSpan(associatedColIdx);
+        return TimeZoneAdjust(dateTime, timeZone, ReturnedTimeZone,
+          message => HandleWarning(column.ColumnOrdinal, message));
       }
+
+      var associatedColIdx = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
+      if (associatedColIdx > -1)
+        timeZone = GetSpan(associatedColIdx);
 
       return TimeZoneAdjust(dateTime, timeZone, ReturnedTimeZone, message => HandleWarning(column.ColumnOrdinal, message));
     }

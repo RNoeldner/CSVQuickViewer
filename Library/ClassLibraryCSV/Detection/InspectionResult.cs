@@ -72,7 +72,7 @@ public sealed class InspectionResult
   public string FileName { get; set; } = string.Empty;
 
   /// <summary>
-  /// Flag to indicate that it's a Json file
+  /// Flag to indicate that it's a JSON file
   /// </summary>
   [DefaultValue(false)]
   public bool IsJson { get; set; }
@@ -84,7 +84,7 @@ public sealed class InspectionResult
   public bool IsXml { get; set; }
 
   /// <summary>
-  /// Flag to indicate that it's not a delimiter, Json or XMl file
+  /// Flag to indicate that it's not a delimiter, JSON or XML file
   /// </summary>
   [DefaultValue(false)]
   public bool NoDelimitedFile { get; set; }

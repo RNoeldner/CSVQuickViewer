@@ -26,7 +26,7 @@ namespace CsvTools;
 
 /// <inheritdoc cref="CsvTools.IFileReader" />
 /// <summary>
-///   Json text file reader, this reader is a synchronous reader
+///   JSON text file reader, this reader is a synchronous reader
 /// </summary>
 public sealed class JsonFileReader : BaseFileReader
 {
@@ -41,7 +41,7 @@ public sealed class JsonFileReader : BaseFileReader
   private IReadOnlyList<JsonTabularConverter.JsonColumn> m_JsonColumns = Array.Empty<JsonTabularConverter.JsonColumn>();
 
   /// <summary>
-  /// Constructor for Json Reader
+  /// Constructor for JSON Reader
   /// </summary>
   /// <param name="stream">Stream to read from</param>
   /// <param name="columnDefinition">List of column definitions</param>
@@ -69,7 +69,7 @@ public sealed class JsonFileReader : BaseFileReader
   }
 
   /// <summary>
-  /// Constructor for Json Reader
+  /// Constructor for JSON Reader
   /// </summary>
   /// <param name="fileName">Path to a physical file (if used)</param>
   /// <param name="columnDefinition">List of column definitions</param>
