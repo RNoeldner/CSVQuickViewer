@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using CsvTools.Properties;
@@ -35,7 +36,10 @@ namespace CsvTools;
 public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 {
   private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-  private readonly System.Windows.Forms.Timer m_SettingsChangedTimerChange = new System.Windows.Forms.Timer { Interval = 200 };
+
+  private readonly System.Windows.Forms.Timer m_SettingsChangedTimerChange =
+    new System.Windows.Forms.Timer { Interval = 200, };
+
   private readonly ViewSettings m_ViewSettings;
   private bool m_AskOpenFile = true;
   private int m_CheckRunning;
@@ -54,7 +58,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   public FormMain(ViewSettings viewSettings, in string fileName)
   {
-    m_FileName =fileName;
+    m_FileName = fileName;
     m_ViewSettings = viewSettings;
     FontConfig = viewSettings;
     InitializeComponent();
@@ -140,8 +144,14 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         // in case we skipped lines read them as Header, so we do not lose them
         if (m_FileSetting.SkipRows > 0)
         {
-          using var iStream = FunctionalDi.GetStream(new SourceAccess(m_FileSetting.FullPath));
-          using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await
+#endif
+            using var iStream = FunctionalDi.GetStream(new SourceAccess(m_FileSetting.FullPath));
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await
+#endif
+            using var sr = new ImprovedTextReader(iStream, m_FileSetting.CodePageId);
           for (var i = m_FileSetting.SkipRows - 1; i >= 0; i--)
             skippedLines.AppendLine(await sr.ReadLineAsync(token));
         }
@@ -193,8 +203,12 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
           {
             IdentifierInContainer = m_FileSetting.IdentifierInContainer
           };
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+          await
+#endif
           using var stream = FunctionalDi.GetStream(sa);
-          using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
+          using var textReader =
+            new StreamReader(stream, Encoding.GetEncoding(m_FileSetting.CodePageId), true, 4096, false);
 
           var sb = new StringBuilder((int) stream.Length);
           char[] buffer = ArrayPool<char>.Shared.Rent(64000);
@@ -207,7 +221,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
             {
               formProgress.CancellationToken.ThrowIfCancellationRequested();
               for (int i = 0; i < len; i++)
-                if (buffer[i] == '\t') buffer[i] = '⇥';
+                if (buffer[i] == '\t')
+                  buffer[i] = '⇥';
               sb.Append(buffer, 0, len);
               var percent = (stream is IImprovedStream imp) ? Convert.ToInt64(imp.Percentage * max) : 0L;
               formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}", percent));
@@ -272,8 +287,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   private void AttachPropertyChanged()
   {
-    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+//    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+//    m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
     try
     {
@@ -292,11 +307,19 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
   {
-    this.SafeInvoke(() => ToolStripButtonAsText(asText));
-    m_FileSetting.ColumnCollection.Overwrite(asText
-      ? columns.Select(col =>
-        new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
-      : columns);
+    m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+    try
+    {
+      this.SafeInvoke(() => ToolStripButtonAsText(asText));
+      m_FileSetting.ColumnCollection.Overwrite(asText
+        ? columns.Select(col =>
+          new Column(col.Name, ValueFormat.Empty, col.ColumnOrdinal))
+        : columns);
+    }
+    finally
+    {
+      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;  
+    }
   }
 
   private async Task CheckPossibleChange()
@@ -308,6 +331,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       Interlocked.Exchange(ref m_CheckPending, 1);
       return;
     }
+
     try
     {
       do
@@ -321,13 +345,12 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
           return;
 
         await CheckPossibleChangeCore();
-      }
-      while (Interlocked.Exchange(ref m_CheckPending, 0) == 1 ||
-           m_ShouldReloadData || m_FileChanged);
+      } while (Interlocked.Exchange(ref m_CheckPending, 0) == 1 ||
+               m_ShouldReloadData || m_FileChanged);
     }
     catch (Exception exception)
     {
-      Logger.Error(exception, "Checking reload or file change"); 
+      Logger.Error(exception, "Checking reload or file change");
     }
     finally
     {
@@ -373,9 +396,15 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
         // Event Suppression, OpenDataReaderAsync will add text columns
         m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-        await OpenDataReaderAsync();
-        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
-
+        try
+        {
+          await OpenDataReaderAsync();
+        }
+        finally
+        {
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;  
+        }
+        
         // as we have reloaded assume any file change is handled as well
         m_FileChanged = false;
       }
@@ -403,8 +432,15 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async void ColumnCollectionOnCollectionChanged(object? sender, EventArgs e)
   {
-    m_ShouldReloadData = true;
-    await CheckPossibleChange();
+    try
+    {
+      m_ShouldReloadData = true;
+      await CheckPossibleChange();
+    }
+    catch (Exception ex)
+    {
+      Logger.Error(ex, "Checking reload or file change");
+    }
   }
 
   /// <summary>
@@ -431,6 +467,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void FileDragDrop(object? sender, DragEventArgs e) =>
     await this.RunWithHourglassAsync(async () =>
     {
@@ -486,9 +523,11 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
   /// </summary>
   /// <param name="sender">The source of the event.</param>
   /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void FormMain_Activated(object? sender, EventArgs e) =>
     await CheckPossibleChange();
 
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
   {
     if (!m_CancellationTokenSource.IsCancellationRequested)
@@ -507,6 +546,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     await SaveIndividualFileSettingAsync();
   }
 
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void FormMain_KeyUpAsync(object? sender, KeyEventArgs e)
   {
     if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
@@ -514,7 +554,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     await OpenDataReaderAsync();
   }
 
-  private async void FormMain_Loaded(object? sender, EventArgs e)
+  private void FormMain_Loaded(object? sender, EventArgs e)
   {
     // Handle Events
     m_ViewSettings.PropertyChanged += (_, args) =>
@@ -534,11 +574,18 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
 
   private async void FormMain_Shown(object? sender, EventArgs e)
   {
-    if (m_StartupLoadDone)
-      return;
+    try
+    {
+      if (m_StartupLoadDone)
+        return;
 
-    m_StartupLoadDone = true;
-    await LoadCsvOrZipFileAsync(true);
+      m_StartupLoadDone = true;
+      await LoadCsvOrZipFileAsync(true);
+    }
+    catch (Exception ex)
+    {
+      Logger.Error(ex, "FormMain_Shown");
+    }
   }
 
   /// <summary>
@@ -551,6 +598,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       ShowTextPanel(false);
       return;
     }
+
     ShowTextPanel(true);
     await this.RunWithHourglassAsync(async () =>
     {
@@ -565,6 +613,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         Logger.Warning($"Filename '{m_FileName}' only has {fi.Length} byte.");
         return;
       }
+
       if (!fi.Exists)
       {
         Logger.Error($"Filename '{m_FileName}' not found or not accessible.");
@@ -686,7 +735,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       detailControl.ShowInfoButtons = false;
 
-      var allLoaded = await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan, m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, this);
+      var allLoaded = await detailControl.LoadSettingAsync(m_FileSetting, m_ViewSettings.DurationTimeSpan,
+        m_ViewSettings.AutoStartMode, RowFilterTypeEnum.All, this);
 
       var keepVisible = new List<string>();
       if (m_FileSetting.DisplayEndLineNo)
@@ -714,15 +764,17 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         Logger.Debug("Preview loaded. Click 'Load More' to fetch the remaining records.");
       }
 
-      // TODO: Is this needed ? Is the column collection not already set ?
+      // Add the missing columns that are text into the column collection, otherwise these columns have no change format 
       m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
-        .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
-          dataColumn.Ordinal)));
+        .Select(dataColumn => new Column(name: dataColumn.ColumnName,
+          valueFormat: new ValueFormat(dataColumn.DataType.GetDataType()),
+          columnOrdinal: dataColumn.Ordinal))
+        .Where(x => !m_FileSetting.ColumnCollection.Any(y => y.Name.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase))));
 
       // Load View Settings from file
       if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
       {
-        Logger.Information($"Restoring view and filter setting {m_FileSetting.ColumnFile}..."); 
+        Logger.Information($"Restoring view and filter setting {m_FileSetting.ColumnFile}...");
         detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
       }
       else
@@ -732,10 +784,11 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
         if (FileSystemUtils.FileExists(fnView))
         {
-           Logger.Information($"Restoring view and filter setting {fn}..."); 
+          Logger.Information($"Restoring view and filter setting {fn}...");
           detailControl.ReStoreViewSetting(fnView);
         }
       }
+
       m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
       ShowTextPanel(false);
       detailControl.ShowInfoButtons = true;
@@ -795,13 +848,15 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     }
   }
 
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void ShowSettings(object? sender, EventArgs e)
   {
     var oldFillGuessSettings = new FillGuessSettings();
     m_ViewSettings.FillGuessSettings.CopyTo(oldFillGuessSettings);
     await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
     {
-      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting, detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);
+      using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting,
+        detailControl.EndOfFile ? detailControl.DataTable.Rows.Count : null);
       frm.ShowDialog(this);
 
       await m_ViewSettings.SaveViewSettingsAsync();
@@ -886,6 +941,7 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     catch (Exception ex) { Logger.Error(ex); }
   }
 
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async Task ToggleDisplayAsTextAsync()
   {
     if (string.IsNullOrEmpty(m_FileSetting.FileName))
@@ -897,21 +953,18 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       detailControl.SuspendLayout();
       // Current column setup
       var columnSetting = detailControl.GetViewStatus();
-
       var reload = false;
-
+    
       if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
       {
         m_StoreColumns = [.. m_FileSetting.ColumnCollection];
-
-        // restore header names only
         ChangeColumnsNoEvent(true, m_StoreColumns);
         reload = true;
       }
       else if (m_StoreColumns != null)
       {
-        // ReSharper disable once LocalizableElement
         ChangeColumnsNoEvent(false, m_StoreColumns);
+        m_StoreColumns = null;
         reload = true;
       }
 
@@ -920,7 +973,9 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
         await OpenDataReaderAsync();
         detailControl.SetViewStatus(columnSetting);
       }
-
+      //Prevent asking for reload
+      m_ShouldReloadData = false;
+      
       detailControl.ResumeLayout();
     }, this);
   }
@@ -932,6 +987,8 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
     m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
     m_ToolStripButtonAsText.Image = asText ? Resources.AsValue : Resources.AsText;
   }
+
+  // ReSharper disable once AsyncVoidEventHandlerMethod
   private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) =>
     await m_ToolStripButtonLoadFile.RunWithHourglassAsync(async () =>
     {
@@ -950,5 +1007,4 @@ public sealed partial class FormMain : ResizeForm, IProgressWithCancellation
       m_FileName = WindowsApiCodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
       await LoadCsvOrZipFileAsync(true);
     }, this);
-
 }

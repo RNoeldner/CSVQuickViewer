@@ -26,8 +26,8 @@ public static class DetectionStartRow
   /// that should be skipped before reaching the first valid data row.
   /// </summary>
   /// <param name="textReader">Reader providing sequential access to the input file.</param>
-  /// <param name="fieldDelimiterChar">Character used to separate fields (e.g. comma or semicolon).</param>
-  /// <param name="fieldQualifierChar">Character used for quoting fields (e.g. &quot;).</param>
+  /// <param name="fieldDelimiterChar">Character used to separate fields e.g. comma or semicolon.</param>
+  /// <param name="fieldQualifierChar">Character used for quoting fields e.g. &quot;.</param>
   /// <param name="escapePrefixChar">Character used to escape special characters inside fields.</param>
   /// <param name="commentLine">
   /// Prefix that identifies a comment line (e.g. "#", "//"). Lines starting with this
@@ -79,14 +79,14 @@ public static class DetectionStartRow
         // Handle the magic key of Sep= like a comment line
         var spanStart = buffer.AsSpan(0, 10);
         if (spanStart.TrimStart().StartsWith("sep=", StringComparison.OrdinalIgnoreCase))
-          start = spanStart.IndexOfAny(new[] { '\r', '\n' });
+          start = spanStart.IndexOfAny(['\r', '\n',]);
         for (int i = start; i < charsRead && currentRow < maxRows; i++)
         {
           var lastChar = currentChar;
           currentChar = buffer[i];
           if (lastChar == '\r' && currentChar == '\n')
             continue;
-          if (startOfNewRow && currentChar==' ')
+          if (startOfNewRow && currentChar == ' ')
             continue;
           // 1. Handle Comment Detection
           if (startOfNewRow && commentLine.Length > 0 && IsMatch(buffer, i, charsRead, commentLine))
@@ -98,6 +98,7 @@ public static class DetectionStartRow
             isCommentRow = false;
             continue;
           }
+
           if (isCommentRow)
             continue;
           if (escaped)
@@ -105,6 +106,7 @@ public static class DetectionStartRow
             escaped = false;
             continue;
           }
+
           // 2. Escape Logic
           if (currentChar == escapePrefixChar && escapePrefixChar != char.MinValue)
           {
@@ -141,6 +143,7 @@ public static class DetectionStartRow
     {
       ArrayPool<char>.Shared.Return(buffer);
     }
+
     return CalculateSkipLine(colCounts, rowStartLine, currentRow);
   }
 
@@ -159,7 +162,7 @@ public static class DetectionStartRow
     // Collect structural rows and count column frequencies
     var structuralRows = new List<(int RowIndex, int Count)>();
     var counter = new Dictionary<int, int>();
-    
+
     for (int i = 0; i < totalRows; i++)
     {
       int count = colCounts[i];
@@ -197,33 +200,27 @@ public static class DetectionStartRow
           runStart = row.RowIndex;
 
         runLength++;
+        if (runLength >= minimumTableRows)
+          break;
       }
       else
       {
-        if (runLength >= minimumTableRows)
-          break;
-
         runStart = -1;
         runLength = 0;
       }
-
-      if (runLength >= minimumTableRows)
-        break;
     }
 
     // No convincing table start found
-    if (runStart < 0 || runLength < minimumTableRows)
-    {
-      // fallback to original behavior
-      var firstRow = structuralRows
-        .Where(row => row.Count == bestColumnCount)
-        .Select(row => row.RowIndex)
-        .First();
+    if (runStart >= 0 && runLength >= minimumTableRows)
+      return rowStartLine[runStart] - 1;
+    
+    // fallback to original behavior
+    var firstRow = structuralRows
+      .Where(row => row.Count == bestColumnCount)
+      .Select(row => row.RowIndex)
+      .First();
 
-      return rowStartLine[firstRow] - 1;
-    }
-
-    return rowStartLine[runStart] - 1;
+    return rowStartLine[firstRow] - 1;
   }
 
   /// <summary>
@@ -235,8 +232,6 @@ public static class DetectionStartRow
   private static bool IsMatch(char[] buffer, int index, int length, string pattern)
   {
     if (index + pattern.Length > length) return false;
-    for (int i = 0; i < pattern.Length; i++)
-      if (buffer[index + i] != pattern[i]) return false;
-    return true;
+    return !pattern.Where((t, i) => buffer[index + i] != t).Any();
   }
 }

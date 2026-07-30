@@ -330,25 +330,25 @@ public static class DetermineColumnFormat
 
     progress.CancellationToken.ThrowIfCancellationRequested();
 
-    if (fillGuessSettings.DateParts)
+    if (!fillGuessSettings.DateParts) 
+      return ReorderColumns(columnCollection, fileReader);
+    // Case a
+    // Try to find a time for a date if the date does not already have a time Case 
+    // a TimeFormat has already been recognized
+    for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
     {
-      // Case a
-      // Try to find a time for a date if the date does not already have a time Case 
-      // a TimeFormat has already been recognized
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      var readerColumn = columnCache[colIndex];
+      var colIndexSetting = columnCollection.IndexOf(readerColumn);
+      if (colIndexSetting == -1) continue;
+      var columnFormat = columnCollection[colIndexSetting].ValueFormat;
+      // Add fixed TimeZone for DateTime ending with z for Zulu / UTC time
+      if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
       {
-        var readerColumn = columnCache[colIndex];
-        var colIndexSetting = columnCollection.IndexOf(readerColumn);
-        if (colIndexSetting == -1) continue;
-        var columnFormat = columnCollection[colIndexSetting].ValueFormat;
-        // Add fixed TimeZone for DateTime ending with z for Zulu / UTC time
-        if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+        var endsWithZ = sampleList[colIndex].Values.Take(20).Select(sample => sample.Span[sample.Length - 1]).All(last => last == 'z' || last == 'Z');
+        // Mark it as UTC time zone
+        if (endsWithZ)
         {
-          var endsWithZ = sampleList[colIndex].Values.Take(20).Select(sample => sample.Span[sample.Length - 1]).All(last => last == 'z' || last == 'Z');
-          // Mark it as UTC time zone
-          if (endsWithZ)
-          {
-            columnCollection.Add(
+          columnCollection.Add(
             new Column(
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,
@@ -358,53 +358,20 @@ public static class DetermineColumnFormat
               columnCollection[colIndexSetting].DestinationName,
               columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
               "UTC"));
-          }
         }
+      }
 
-        // Possibly add Time Zone
-        if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+      // Possibly add Time Zone
+      if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+      {
+        for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
         {
-          for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
-          {
-            var columnTimeZone = fileReader.GetColumn(colTimeZone);
-            var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
-            if ((columnTimeZone.ValueFormat.DataType != DataTypeEnum.String
-                 && columnTimeZone.ValueFormat.DataType != DataTypeEnum.Integer)
-                || (!string.Equals(colName, "TIMEZONE", StringComparison.Ordinal)&& !string.Equals(colName, "TIMEZONEID", StringComparison.Ordinal)&& !string.Equals(colName, "TIME ZONE", StringComparison.Ordinal)
-                    && !string.Equals(colName, "TIME ZONE ID", StringComparison.Ordinal)))
-              continue;
-            columnCollection.Add(
-              new Column(
-                columnCollection[colIndexSetting].Name,
-                columnCollection[colIndexSetting].ValueFormat,
-                columnCollection[colIndexSetting].ColumnOrdinal,
-                columnCollection[colIndexSetting].Ignore,
-                columnCollection[colIndexSetting].Convert,
-                columnCollection[colIndexSetting].DestinationName,
-                columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
-                columnTimeZone.Name));
-
-            progress.Report($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
-          }
-        }
-
-        if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                           || columnFormat.DateFormat.IndexOfAny(
-                                                             MTimeFormat) != -1)
-          continue;
-        // We have a date column without time
-        for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
-        {
-          var columnTime = fileReader.GetColumn(colTime);
-          var colTimeIndex = columnCollection.IndexOf(columnTime);
-          if (colTimeIndex == -1) continue;
-          var timeFormat = columnCollection[colTimeIndex].ValueFormat;
-          if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                           || timeFormat.DateFormat.IndexOfAny(MDateFormat) != -1)
-            continue;
-          // We now have a time column, checked if the names somehow make sense
-          if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty)
-                .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty), StringComparison.Ordinal))
+          var columnTimeZone = fileReader.GetColumn(colTimeZone);
+          var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
+          if ((columnTimeZone.ValueFormat.DataType != DataTypeEnum.String
+               && columnTimeZone.ValueFormat.DataType != DataTypeEnum.Integer)
+              || (!string.Equals(colName, "TIMEZONE", StringComparison.Ordinal)&& !string.Equals(colName, "TIMEZONEID", StringComparison.Ordinal)&& !string.Equals(colName, "TIME ZONE", StringComparison.Ordinal)
+                  && !string.Equals(colName, "TIME ZONE ID", StringComparison.Ordinal)))
             continue;
           columnCollection.Add(
             new Column(
@@ -414,78 +381,30 @@ public static class DetermineColumnFormat
               columnCollection[colIndexSetting].Ignore,
               columnCollection[colIndexSetting].Convert,
               columnCollection[colIndexSetting].DestinationName,
-              columnTime.Name, timeFormat.DateFormat, columnCollection[colIndexSetting].TimeZonePart));
+              columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
+              columnTimeZone.Name));
 
-          progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+          progress.Report($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
         }
       }
 
-      // Case b
-      // TimeFormat has not been recognized (e.G. all values are 08:00) only look in
-      // adjacent fields
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+                                                         || columnFormat.DateFormat.IndexOfAny(
+                                                           MTimeFormat) != -1)
+        continue;
+      // We have a date column without time
+      for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
       {
-        var readerColumn = columnCache[colIndex];
-        var colIndexSetting = columnCollection.IndexOf(readerColumn);
-
-        if (colIndexSetting == -1) continue;
-        var columnFormat = columnCollection[colIndexSetting].ValueFormat;
-        if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
-                                                           || columnFormat.DateFormat.IndexOfAny(MTimeFormat) != -1)
+        var columnTime = fileReader.GetColumn(colTime);
+        var colTimeIndex = columnCollection.IndexOf(columnTime);
+        if (colTimeIndex == -1) continue;
+        var timeFormat = columnCollection[colTimeIndex].ValueFormat;
+        if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+                                                         || timeFormat.DateFormat.IndexOfAny(MDateFormat) != -1)
           continue;
-
-        if (colIndex + 1 < fileReader.FieldCount)
-        {
-          var columnTime = fileReader.GetColumn(colIndex + 1);
-          if (columnTime.ValueFormat.DataType == DataTypeEnum.String && readerColumn.Name.NoSpecials()
-                .ToUpperInvariant()
-                .Replace("DATE", string.Empty).Equals(
-                  columnTime.Name.NoSpecials().ToUpperInvariant()
-                    .Replace("TIME", string.Empty),
-                  StringComparison.OrdinalIgnoreCase))
-          {
-            columnCollection.Add(
-              new Column(
-                columnCollection[colIndexSetting].Name,
-                columnCollection[colIndexSetting].ValueFormat,
-                columnCollection[colIndexSetting].ColumnOrdinal,
-                columnCollection[colIndexSetting].Ignore,
-                columnCollection[colIndexSetting].Convert,
-                columnCollection[colIndexSetting].DestinationName,
-                columnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
-                columnCollection[colIndexSetting].TimeZonePart));
-
-            var firstValueNewColumn = (sampleList.ContainsKey(colIndex + 1)
-              ? sampleList[colIndex + 1]
-              : (await GetSampleValuesAsync(
-                fileReader,
-                1,
-                new[] { colIndex + 1 },
-                treatTextAsNull,
-                80, progress.CancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-            if (!firstValueNewColumn.IsEmpty && firstValueNewColumn.Length is 8 or 5)
-            {
-              columnCollection.Add(columnTime.ReplaceValueFormat(
-                new ValueFormat(DataTypeEnum.DateTime,
-                  firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
-
-              progress.Report($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
-            }
-
-            progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
-            continue;
-          }
-        }
-
-        if (colIndex <= 0)
-          continue;
-
-        var readerColumnTime = fileReader.GetColumn(colIndex - 1);
-        if (readerColumnTime.ValueFormat.DataType != DataTypeEnum.String || !readerColumn.Name.NoSpecials()
-              .ToUpperInvariant().Replace("DATE", string.Empty).Equals(
-                readerColumnTime.Name.NoSpecials().ToUpperInvariant()
-                  .Replace("TIME", string.Empty),
-                StringComparison.Ordinal))
+        // We now have a time column, checked if the names somehow make sense
+        if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty)
+              .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty), StringComparison.Ordinal))
           continue;
         columnCollection.Add(
           new Column(
@@ -495,14 +414,35 @@ public static class DetermineColumnFormat
             columnCollection[colIndexSetting].Ignore,
             columnCollection[colIndexSetting].Convert,
             columnCollection[colIndexSetting].DestinationName,
-            readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
-            columnCollection[colIndexSetting].TimeZonePart));
+            columnTime.Name, timeFormat.DateFormat, columnCollection[colIndexSetting].TimeZonePart));
 
-        var firstValueNewColumn2 = (sampleList.ContainsKey(colIndex - 1)
-          ? sampleList[colIndex - 1]
-          : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, treatTextAsNull, 80, progress.CancellationToken)
-            .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
-        if (!firstValueNewColumn2.IsEmpty && firstValueNewColumn2.Length is 8 or 5)
+        progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+      }
+    }
+
+    // Case b
+    // TimeFormat has not been recognized (e.G. all values are 08:00) only look in
+    // adjacent fields
+    for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+    {
+      var readerColumn = columnCache[colIndex];
+      var colIndexSetting = columnCollection.IndexOf(readerColumn);
+
+      if (colIndexSetting == -1) continue;
+      var columnFormat = columnCollection[colIndexSetting].ValueFormat;
+      if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+                                                         || columnFormat.DateFormat.IndexOfAny(MTimeFormat) != -1)
+        continue;
+
+      if (colIndex + 1 < fileReader.FieldCount)
+      {
+        var columnTime = fileReader.GetColumn(colIndex + 1);
+        if (columnTime.ValueFormat.DataType == DataTypeEnum.String && readerColumn.Name.NoSpecials()
+              .ToUpperInvariant()
+              .Replace("DATE", string.Empty).Equals(
+                columnTime.Name.NoSpecials().ToUpperInvariant()
+                  .Replace("TIME", string.Empty),
+                StringComparison.OrdinalIgnoreCase))
         {
           columnCollection.Add(
             new Column(
@@ -512,14 +452,73 @@ public static class DetermineColumnFormat
               columnCollection[colIndexSetting].Ignore,
               columnCollection[colIndexSetting].Convert,
               columnCollection[colIndexSetting].DestinationName,
-              columnCollection[colIndexSetting].TimePart, firstValueNewColumn2.Length == 8 ? "HH:mm:ss" : "HH:mm",
+              columnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
               columnCollection[colIndexSetting].TimeZonePart));
 
-          progress.Report($"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
-        }
+          var firstValueNewColumn = (sampleList.ContainsKey(colIndex + 1)
+            ? sampleList[colIndex + 1]
+            : (await GetSampleValuesAsync(
+              fileReader,
+              1,
+              [colIndex + 1,],
+              treatTextAsNull,
+              80, progress.CancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+          if (!firstValueNewColumn.IsEmpty && firstValueNewColumn.Length is 8 or 5)
+          {
+            columnCollection.Add(columnTime.ReplaceValueFormat(
+              new ValueFormat(DataTypeEnum.DateTime,
+                firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
 
-        progress.Report($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
+            progress.Report($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
+          }
+
+          progress.Report($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+          continue;
+        }
       }
+
+      if (colIndex <= 0)
+        continue;
+
+      var readerColumnTime = fileReader.GetColumn(colIndex - 1);
+      if (readerColumnTime.ValueFormat.DataType != DataTypeEnum.String || !readerColumn.Name.NoSpecials()
+            .ToUpperInvariant().Replace("DATE", string.Empty).Equals(
+              readerColumnTime.Name.NoSpecials().ToUpperInvariant()
+                .Replace("TIME", string.Empty),
+              StringComparison.Ordinal))
+        continue;
+      columnCollection.Add(
+        new Column(
+          columnCollection[colIndexSetting].Name,
+          columnCollection[colIndexSetting].ValueFormat,
+          columnCollection[colIndexSetting].ColumnOrdinal,
+          columnCollection[colIndexSetting].Ignore,
+          columnCollection[colIndexSetting].Convert,
+          columnCollection[colIndexSetting].DestinationName,
+          readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
+          columnCollection[colIndexSetting].TimeZonePart));
+
+      var firstValueNewColumn2 = (sampleList.ContainsKey(colIndex - 1)
+        ? sampleList[colIndex - 1]
+        : (await GetSampleValuesAsync(fileReader, 1, [colIndex + 1,], treatTextAsNull, 80, progress.CancellationToken)
+          .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+      if (!firstValueNewColumn2.IsEmpty && firstValueNewColumn2.Length is 8 or 5)
+      {
+        columnCollection.Add(
+          new Column(
+            columnCollection[colIndexSetting].Name,
+            columnCollection[colIndexSetting].ValueFormat,
+            columnCollection[colIndexSetting].ColumnOrdinal,
+            columnCollection[colIndexSetting].Ignore,
+            columnCollection[colIndexSetting].Convert,
+            columnCollection[colIndexSetting].DestinationName,
+            columnCollection[colIndexSetting].TimePart, firstValueNewColumn2.Length == 8 ? "HH:mm:ss" : "HH:mm",
+            columnCollection[colIndexSetting].TimeZonePart));
+
+        progress.Report($"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
+      }
+
+      progress.Report($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
     }
 
     // Reorder columns to match file order

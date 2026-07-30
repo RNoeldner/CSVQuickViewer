@@ -38,16 +38,15 @@ public class DataReaderWrapperTests
     };
     // columns from the file
     MSetting.ColumnCollection.AddRange(
-      new Column[]
-      {
-        new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
+    [
+      new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"), timePart: "Time", timePartFormat: "HH:mm:ss"),
         new Column("Integer", new ValueFormat(DataTypeEnum.Integer)),
         new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".")),
         new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")),
         new Column("Boolean", new ValueFormat(DataTypeEnum.Boolean)),
         new Column("GUID", new ValueFormat(DataTypeEnum.Guid)),
-        new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true)
-      });
+        new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true),
+    ]);
   }
 
   [TestMethod()]
@@ -69,9 +68,11 @@ public class DataReaderWrapperTests
 
 
   [TestMethod()]
-  public void DataTableWrapperErrorPassthoughTest()
+  public void DataTableWrapperErrorPassthroughTest()
   {
-    using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+    using var dataTable = new DataTable();
+    dataTable.TableName = "DataTable";
+    dataTable.Locale = CultureInfo.InvariantCulture;
     dataTable.Columns.Add("ID", typeof(int));
     dataTable.Columns.Add("Text", typeof(string));
     dataTable.Columns.Add("#Error", typeof(string));
@@ -91,7 +92,9 @@ public class DataReaderWrapperTests
   [TestMethod()]
   public async Task PassthroughErrorTest()
   {
-    using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+    using var dataTable = new DataTable();
+    dataTable.TableName = "DataTable";
+    dataTable.Locale = CultureInfo.InvariantCulture;
     dataTable.Columns.Add("ID", typeof(int));
     dataTable.Columns.Add("Text", typeof(string));
     dataTable.Columns.Add("#Error", typeof(string));
@@ -159,8 +162,8 @@ public class DataReaderWrapperTests
       setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
       setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
       setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
-      setting.WarnLineFeed, setting.WarnNbsp, setting.WarnQuotes, setting.WarnUnknownCharacter,
-      setting.WarnEmptyTailingColumns, setting.TreatNbspAsSpace, setting.TreatTextAsNull,
+      setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+      setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
       setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
   }
 

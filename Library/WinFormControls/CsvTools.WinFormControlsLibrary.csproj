@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-      <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>

@@ -39,7 +39,7 @@ namespace CsvTools;
 /// </summary>
 public partial class FilteredDataGridView : DataGridView
 {
-  private static int m_DefRowHeight = -1;
+  private static int _mDefRowHeight = -1;
   // Keep track of the Filters per column (index)
   private readonly Dictionary<int, ColumnFilterLogic> m_FilterLogic = new Dictionary<int, ColumnFilterLogic>();
   private readonly Image m_ImgFilterIndicator;
@@ -59,7 +59,7 @@ public partial class FilteredDataGridView : DataGridView
   /// Raises the <see cref="RowCountChanged"/> event.
   /// </summary>
   /// <param name="newCount">The current number of visible rows.</param>
-  protected virtual void SetRowCount(int newCount)
+  private void SetRowCount(int newCount)
   {
     if (RowCount== newCount)
       return;
@@ -307,7 +307,9 @@ public partial class FilteredDataGridView : DataGridView
   /// Resizes column widths based on the actual content of the <see cref="DataTable"/> rather than just visible cells.
   /// </summary>
   /// <param name="autoSizeColumnsMode">The sizing mode.</param>
+#pragma warning disable RCS1163
   private new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
+#pragma warning restore RCS1163
   {
     foreach (DataColumn dataColumn in DataTable.Columns)
     {
@@ -564,14 +566,14 @@ public partial class FilteredDataGridView : DataGridView
   {
     // Actually depend on scaling, best approach is to get the initial row.Height of the very
     // first call
-    if (m_DefRowHeight == -1)
-      m_DefRowHeight = row.Height;
+    if (_mDefRowHeight == -1)
+      _mDefRowHeight = row.Height;
     // in case the row is not bigger than normal, check if it would need to be higher
-    if (row.Height != m_DefRowHeight) return m_DefRowHeight;
-    if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
-      return m_DefRowHeight * 2;
+    if (row.Height != _mDefRowHeight) return _mDefRowHeight;
+    if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
+      return _mDefRowHeight * 2;
 
-    return m_DefRowHeight;
+    return _mDefRowHeight;
   }
 
   /// <summary>
@@ -758,8 +760,10 @@ public partial class FilteredDataGridView : DataGridView
     // Store old Width
     var oldWidth = new DictionaryIgnoreCase<int>();
     foreach (DataGridViewColumn column in Columns)
+    {
       if (!oldWidth.ContainsKey(column.DataPropertyName))
         oldWidth.Add(column.DataPropertyName, column.Width);
+    }
 
     // remove all columns
     Columns.Clear();
@@ -786,11 +790,10 @@ public partial class FilteredDataGridView : DataGridView
           showAsButton.Add(col);
           break;
         }
-        if (text.IndexOf('\n') != -1)
-        {
-          wrapColumns.Add(col);
-          break;
-        }
+
+        if (text.IndexOf('\n') == -1) continue;
+        wrapColumns.Add(col);
+        break;
       }
     }
     // Create a new column for each data column,
@@ -1208,8 +1211,18 @@ public partial class FilteredDataGridView : DataGridView
         using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
           false, false);
 
-        if (form.ShowWithFont(this, true) == DialogResult.Cancel)
+        if (form.ShowWithFont(this, true) == DialogResult.Cancel ||
+            // If there are no changes do nothing
+            (
+              columnFormat.Ignore == form.UpdatedColumn.Ignore
+              && columnFormat.TimePart  == form.UpdatedColumn.TimePart
+              && columnFormat.TimePartFormat  == form.UpdatedColumn.TimePartFormat
+              && columnFormat.TimeZonePart  == form.UpdatedColumn.TimeZonePart
+              && columnFormat.ValueFormat.Equals(form.UpdatedColumn.ValueFormat))
+            )
+        {
           return;
+        }
 
         // Update the columns        
         m_FileSetting.ColumnCollection.Remove(columnFormat);

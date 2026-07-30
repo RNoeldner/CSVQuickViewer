@@ -142,6 +142,7 @@ public record Column
   /// </summary>
   [DefaultValue("")]
   public string TimeZonePart { get; }
+  
 #if NETFRAMEWORK
     /// <inheritdoc />
     public bool Equals(Column? other)
