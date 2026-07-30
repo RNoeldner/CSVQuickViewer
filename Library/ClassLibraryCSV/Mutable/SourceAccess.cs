@@ -181,7 +181,7 @@ public sealed class SourceAccess
   /// <summary>
   ///   Create a source access based on a stream
   /// </summary>
-  /// <param name="stream">The source stream, it must support seek if its a read stream</param>
+  /// <param name="stream">The source stream, it must support seek if it's a read stream</param>
   /// <param name="type">The type of the contents in the stream</param>
   public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
   {
