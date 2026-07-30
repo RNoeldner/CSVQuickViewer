@@ -148,36 +148,82 @@ public static class DetectionStartRow
   /// Determines the first meaningful data row based on column consistency and comment filtering,
   /// then converts it into a line index.
   /// </summary>
-  /// <param name="colCounts">Detected column counts per row.</param>
+  /// <param name="colCounts">Array with the detected column counts per row (not line).</param>
   /// <param name="rowStartLine">Mapping from row index to physical line index.</param>
-  /// <param name="totalRows">Number of analyzed rows.</param>
+  /// <param name="totalRows">Number of analyzed rows in total usually cut off.</param>
   /// <returns>Line index to start reading actual data from.</returns>
   private static int CalculateSkipLine(int[] colCounts, int[] rowStartLine, int totalRows)
   {
-    // Filter out comments to find structural rows
-    var structuralRows = new List<(int RowIndex, int Count)>();
+    const int minimumTableRows = 3;
 
+    // Collect structural rows and count column frequencies
+    var structuralRows = new List<(int RowIndex, int Count)>();
+    var counter = new Dictionary<int, int>();
+    
     for (int i = 0; i < totalRows; i++)
     {
       int count = colCounts[i];
-      if (count > 0)
-        structuralRows.Add((i, count));
+
+      // Ignore comments / empty rows
+      if (count <= 0)
+        continue;
+
+      structuralRows.Add((i, count));
+
+      if (counter.TryGetValue(count, out int existing))
+        counter[count] = existing + 1;
+      else
+        counter[count] = 1;
     }
+
     if (structuralRows.Count < 2)
       return 0;
 
-    // Determine common column count in the tail
-    var allowed = new HashSet<int>();
-    // Take up to the first 10
-    for (int i = 0; i < Math.Min(10, structuralRows.Count); i++)
-      allowed.Add(structuralRows[i].Count);
-    // Take up to the last 10
-    int lastStart = Math.Max(0, structuralRows.Count - 10);
-    for (int i = lastStart; i < structuralRows.Count; i++)
-      allowed.Add(structuralRows[i].Count);
+    // Most likely table column count
+    int bestColumnCount = counter
+      .OrderByDescending(x => x.Value)
+      .First()
+      .Key;
 
-    var firstRow = structuralRows.Where(row => allowed.Contains(row.Count)).Select(row => row.RowIndex).FirstOrDefault();
-    return rowStartLine[firstRow]-1;
+    // Find first consecutive run of the best column count
+    int runStart = -1;
+    int runLength = 0;
+
+    foreach (var row in structuralRows)
+    {
+      if (row.Count == bestColumnCount)
+      {
+        if (runStart < 0)
+          runStart = row.RowIndex;
+
+        runLength++;
+      }
+      else
+      {
+        if (runLength >= minimumTableRows)
+          break;
+
+        runStart = -1;
+        runLength = 0;
+      }
+
+      if (runLength >= minimumTableRows)
+        break;
+    }
+
+    // No convincing table start found
+    if (runStart < 0 || runLength < minimumTableRows)
+    {
+      // fallback to original behavior
+      var firstRow = structuralRows
+        .Where(row => row.Count == bestColumnCount)
+        .Select(row => row.RowIndex)
+        .First();
+
+      return rowStartLine[firstRow] - 1;
+    }
+
+    return rowStartLine[runStart] - 1;
   }
 
   /// <summary>

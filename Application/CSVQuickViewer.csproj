@@ -17,6 +17,7 @@
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 		<UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 	</PropertyGroup>
 	<!-- DPI settings for .NET 8 only -->
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-windows'">

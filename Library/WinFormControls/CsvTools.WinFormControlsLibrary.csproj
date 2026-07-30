@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <RootNamespace>CsvTools</RootNamespace>
@@ -64,6 +65,7 @@
     <EmbeddedResource Include="Resources\warning.png" />
   </ItemGroup>
   <ItemGroup>
+      <PackageReference Include="System.Resources.Extensions" Version="10.0.0" />
     <PackageReference Include="FCTB" Version="2.16.24" NoWarn="NU1701" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">

@@ -37,6 +37,10 @@ public sealed class ProgressCancellation : IProgressWithCancellation
 {
   private readonly Action<ProgressInfo> m_OnReport;
   private static readonly Action<ProgressInfo> LoggerAction = value => Logger.Information(value.Text);
+
+  /// <summary>
+  /// Empty ProgressCancellation
+  /// </summary>
   public static readonly ProgressCancellation Instance = new ProgressCancellation(CancellationToken.None);
 
   /// <summary>
