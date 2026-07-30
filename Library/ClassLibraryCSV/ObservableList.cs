@@ -2,234 +2,233 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CsvTools
+namespace CsvTools;
+
+/// <summary>
+///   Represents a list of objects of type <typeparamref name="T"/> that notifies
+///   subscribers whenever its contents change.
+///   Inherits from <see cref="List{T}"/> and extends it with change notifications.
+/// </summary>
+/// <typeparam name="T">The type of elements in the collection.</typeparam>
+/// <remarks>Unlike ObservableCollection, this class provides range methods that raise 
+/// CollectionChanged only after actual changes.</remarks>
+#pragma warning disable S4035 // Classes implementing "IEquatable<T>" should be sealed
+public class ObservableList<T> : List<T> 
+#pragma warning restore S4035 // Classes implementing "IEquatable<T>" should be sealed
 {
   /// <summary>
-  ///   Represents a list of objects of type <typeparamref name="T"/> that notifies
-  ///   subscribers whenever its contents change.
-  ///   Inherits from <see cref="List{T}"/> and extends it with change notifications.
+  ///   Occurs whenever the collection content changes,
+  ///   such as when an item is added, inserted, removed,
+  ///   or a collection is cleared.
+  ///   AddRange, InsertRange, Overwrite, RemoveRange all raise exactly one event.
   /// </summary>
-  /// <typeparam name="T">The type of elements in the collection.</typeparam>
-  /// <remarks>Unlike ObservableCollection, this class provides range methods that raise 
-  /// CollectionChanged only after actual changes.</remarks>
-#pragma warning disable S4035 // Classes implementing "IEquatable<T>" should be sealed
-  public class ObservableList<T> : List<T> 
-#pragma warning restore S4035 // Classes implementing "IEquatable<T>" should be sealed
+  [field: NonSerialized]
+  public event EventHandler? CollectionChanged;
+
+  /// <summary>
+  ///   Adds an item to the collection and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="item">The item to add.</param>
+  public new virtual void Add(T item)
   {
-    /// <summary>
-    ///   Occurs whenever the collection content changes,
-    ///   such as when an item is added, inserted, removed,
-    ///   or a collection is cleared.
-    ///   AddRange, InsertRange, Overwrite, RemoveRange all raise exactly one event.
-    /// </summary>
-    [field: NonSerialized]
-    public event EventHandler? CollectionChanged;
-
-    /// <summary>
-    ///   Adds an item to the collection and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    public new virtual void Add(T item)
-    {
-      base.Add(item);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    /// Ensures the item is present in the collection, either by adding it or synchronizing the state of an existing match.
-    /// </summary>
-    /// <typeparam name="TField">A type derived from <typeparamref name="T"/> that implements synchronization and equality logic.</typeparam>
-    /// <param name="field">The source item to be added or used as the data source for the update.</param>
-    /// <remarks>
-    /// <para>
-    /// If no matching item is found, the <paramref name="field"/> is added directly.
-    /// </para>
-    /// <para>
-    /// If a match exists but is a different memory instance, the state is copied using <see cref="IWithCopyTo{T}.CopyTo"/>.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the existing item found in the collection cannot be cast to <typeparamref name="TField"/>.
-    /// </exception>
-    public void AddOrUpdate<TField>(TField field) where TField : T, IWithCopyTo<TField>
-    {
-      var index = IndexOf(field);
-      if (index == -1)
-      {
-        Add(field);
-      }
-      else if (!ReferenceEquals(field, this[index]))
-      {
-        if (this[index] is TField existingField)
-        {
-          field.CopyTo(existingField);
-        }
-        else
-        {
-          // This should not happen if the collection is used consistently, but we guard against it just in case.
-          throw new InvalidOperationException($"Existing item at index {index} is not of type {typeof(TField).FullName}");
-        }
-      }
-    }
-
-    /// <summary>
-    ///   Adds multiple items to the collection and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="items">The items to add.</param>
-    public new virtual void AddRange(IEnumerable<T> items)
-    {
-      var list = items as ICollection<T> ?? items.ToList();
-      if (list.Count == 0)
-        return;
-      base.AddRange(list);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Removes all items from the collection and raises <see cref="CollectionChanged"/> if the collection was not empty.
-    /// </summary>
-    public new void Clear()
-    {
-      if (Count == 0)
-        return;
-
-      base.Clear();
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object? obj)
-    {
-      if (obj is not List<T> coll)
-        return false;
-      return Equals(coll);
-    }
-
-    /// <summary>
-    ///   Determines whether the other collection is equal to the current collection.
-    /// </summary>
-    /// <param name="other">the collection</param>
-    /// <returns>
-    ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public bool Equals(IEnumerable<T>? other)
-    {
-      if (other == null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return this.CollectionEqualWithOrder(other);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode() => this.CollectionHashCode();
-
-    /// <summary>
-    ///   Inserts an item at the specified index and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index at which to insert the item.</param>
-    /// <param name="item">The item to insert.</param>
-    protected new virtual void Insert(int index, T item)
-    {
-      base.Insert(index, item);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Inserts multiple items at the specified index and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index at which to insert the items.</param>
-    /// <param name="items">The items to insert.</param>
-    protected new virtual void InsertRange(int index, IEnumerable<T> items)
-    {
-      var list = items as ICollection<T> ?? items.ToList();
-      if (list.Count == 0)
-        return;
-      base.InsertRange(index, list);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Replaces all items in the collection with the specified sequence
-    ///   and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="items">The new items to replace the current collection. Must not be <c>null</c>.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
-    public virtual void Overwrite(IEnumerable<T> items)
-    {
-      base.Clear();
-      base.AddRange(items);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Removes the specified item from the collection and raises <see cref="CollectionChanged"/> if the item was successfully removed.
-    /// </summary>
-    /// <param name="item">The item to remove.</param>
-    /// <returns><c>true</c> if the item was removed; otherwise, <c>false</c>.</returns>
-    public virtual new bool Remove(T item)
-    {
-      var removed = base.Remove(item);
-      if (removed)
-        OnCollectionChanged();
-      return removed;
-    }
-
-    /// <summary>
-    ///   Removes all items that match the conditions defined by the specified predicate.
-    ///   Raises <see cref="CollectionChanged"/> if at least one item was successfully removed.
-    /// </summary>
-    /// <param name="match">The predicate that defines the conditions of the elements to remove.</param>
-    /// <returns>The number of elements removed from the collection.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="match"/> is <c>null</c>.</exception>
-    public new virtual int RemoveAll(Predicate<T> match)
-    {
-      int removed = base.RemoveAll(match);
-      if (removed > 0)
-        OnCollectionChanged();
-      return removed;
-    }
-
-    /// <summary>
-    ///   Removes the item at the specified index and raises <see cref="CollectionChanged"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index of the item to remove.</param>
-    public new virtual void RemoveAt(int index)
-    {
-      base.RemoveAt(index);
-      OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Removes the specified items from the collection. 
-    ///   Raises <see cref="CollectionChanged"/> if at least one item was successfully removed.
-    /// </summary>
-    /// <param name="items">The items to remove. Must not be <c>null</c>.</param>
-    /// <returns>
-    ///   <c>true</c> if at least one item was removed; otherwise, <c>false</c>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
-    public void RemoveRange(IEnumerable<T> items)
-    {
-      bool removed = false;
-      foreach (var item in items)
-        removed |= base.Remove(item);
-
-      if (removed)
-        OnCollectionChanged();
-    }
-
-    /// <summary>
-    ///   Raises the <see cref="CollectionChanged"/> event to notify subscribers that the collection has changed.
-    /// </summary>
-    protected void OnCollectionChanged() => CollectionChanged?.Invoke(this, EventArgs.Empty);
+    base.Add(item);
+    OnCollectionChanged();
   }
+
+  /// <summary>
+  /// Ensures the item is present in the collection, either by adding it or synchronizing the state of an existing match.
+  /// </summary>
+  /// <typeparam name="TField">A type derived from <typeparamref name="T"/> that implements synchronization and equality logic.</typeparam>
+  /// <param name="field">The source item to be added or used as the data source for the update.</param>
+  /// <remarks>
+  /// <para>
+  /// If no matching item is found, the <paramref name="field"/> is added directly.
+  /// </para>
+  /// <para>
+  /// If a match exists but is a different memory instance, the state is copied using <see cref="IWithCopyTo{T}.CopyTo"/>.
+  /// </para>
+  /// </remarks>
+  /// <exception cref="InvalidOperationException">
+  /// Thrown if the existing item found in the collection cannot be cast to <typeparamref name="TField"/>.
+  /// </exception>
+  public void AddOrUpdate<TField>(TField field) where TField : T, IWithCopyTo<TField>
+  {
+    var index = IndexOf(field);
+    if (index == -1)
+    {
+      Add(field);
+    }
+    else if (!ReferenceEquals(field, this[index]))
+    {
+      if (this[index] is TField existingField)
+      {
+        field.CopyTo(existingField);
+      }
+      else
+      {
+        // This should not happen if the collection is used consistently, but we guard against it just in case.
+        throw new InvalidOperationException($"Existing item at index {index} is not of type {typeof(TField).FullName}");
+      }
+    }
+  }
+
+  /// <summary>
+  ///   Adds multiple items to the collection and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="items">The items to add.</param>
+  public new virtual void AddRange(IEnumerable<T> items)
+  {
+    var list = items as ICollection<T> ?? items.ToList();
+    if (list.Count == 0)
+      return;
+    base.AddRange(list);
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Removes all items from the collection and raises <see cref="CollectionChanged"/> if the collection was not empty.
+  /// </summary>
+  public new void Clear()
+  {
+    if (Count == 0)
+      return;
+
+    base.Clear();
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Determines whether the specified object is equal to the current object.
+  /// </summary>
+  /// <param name="obj">The object to compare with the current object.</param>
+  /// <returns>
+  ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+  ///   <see langword="false" />.
+  /// </returns>
+  public override bool Equals(object? obj)
+  {
+    if (obj is not List<T> coll)
+      return false;
+    return Equals(coll);
+  }
+
+  /// <summary>
+  ///   Determines whether the other collection is equal to the current collection.
+  /// </summary>
+  /// <param name="other">the collection</param>
+  /// <returns>
+  ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
+  ///   <see langword="false" />.
+  /// </returns>
+  public bool Equals(IEnumerable<T>? other)
+  {
+    if (other == null)
+      return false;
+    if (ReferenceEquals(this, other))
+      return true;
+    return this.CollectionEqualWithOrder(other);
+  }
+
+  /// <inheritdoc/>
+  public override int GetHashCode() => this.CollectionHashCode();
+
+  /// <summary>
+  ///   Inserts an item at the specified index and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="index">The zero-based index at which to insert the item.</param>
+  /// <param name="item">The item to insert.</param>
+  protected new virtual void Insert(int index, T item)
+  {
+    base.Insert(index, item);
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Inserts multiple items at the specified index and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="index">The zero-based index at which to insert the items.</param>
+  /// <param name="items">The items to insert.</param>
+  protected new virtual void InsertRange(int index, IEnumerable<T> items)
+  {
+    var list = items as ICollection<T> ?? items.ToList();
+    if (list.Count == 0)
+      return;
+    base.InsertRange(index, list);
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Replaces all items in the collection with the specified sequence
+  ///   and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="items">The new items to replace the current collection. Must not be <c>null</c>.</param>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
+  public virtual void Overwrite(IEnumerable<T> items)
+  {
+    base.Clear();
+    base.AddRange(items);
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Removes the specified item from the collection and raises <see cref="CollectionChanged"/> if the item was successfully removed.
+  /// </summary>
+  /// <param name="item">The item to remove.</param>
+  /// <returns><c>true</c> if the item was removed; otherwise, <c>false</c>.</returns>
+  public virtual new bool Remove(T item)
+  {
+    var removed = base.Remove(item);
+    if (removed)
+      OnCollectionChanged();
+    return removed;
+  }
+
+  /// <summary>
+  ///   Removes all items that match the conditions defined by the specified predicate.
+  ///   Raises <see cref="CollectionChanged"/> if at least one item was successfully removed.
+  /// </summary>
+  /// <param name="match">The predicate that defines the conditions of the elements to remove.</param>
+  /// <returns>The number of elements removed from the collection.</returns>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="match"/> is <c>null</c>.</exception>
+  public new virtual int RemoveAll(Predicate<T> match)
+  {
+    int removed = base.RemoveAll(match);
+    if (removed > 0)
+      OnCollectionChanged();
+    return removed;
+  }
+
+  /// <summary>
+  ///   Removes the item at the specified index and raises <see cref="CollectionChanged"/>.
+  /// </summary>
+  /// <param name="index">The zero-based index of the item to remove.</param>
+  public new virtual void RemoveAt(int index)
+  {
+    base.RemoveAt(index);
+    OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Removes the specified items from the collection. 
+  ///   Raises <see cref="CollectionChanged"/> if at least one item was successfully removed.
+  /// </summary>
+  /// <param name="items">The items to remove. Must not be <c>null</c>.</param>
+  /// <returns>
+  ///   <c>true</c> if at least one item was removed; otherwise, <c>false</c>.
+  /// </returns>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <c>null</c>.</exception>
+  public void RemoveRange(IEnumerable<T> items)
+  {
+    bool removed = false;
+    foreach (var item in items)
+      removed |= base.Remove(item);
+
+    if (removed)
+      OnCollectionChanged();
+  }
+
+  /// <summary>
+  ///   Raises the <see cref="CollectionChanged"/> event to notify subscribers that the collection has changed.
+  /// </summary>
+  protected void OnCollectionChanged() => CollectionChanged?.Invoke(this, EventArgs.Empty);
 }

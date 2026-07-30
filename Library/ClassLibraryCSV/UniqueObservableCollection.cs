@@ -9,13 +9,15 @@ using System.Linq;
 namespace CsvTools;
 
 /// <summary>
+/// <para>
 /// An <see cref="ObservableCollection{T}"/> that enforces uniqueness of its items
 /// based on a case-insensitive string key provided by <see cref="ICollectionIdentity"/>.
-/// 
+/// </para>
+/// <para>
 /// Internally, a dictionary is maintained for O(1) lookups by key, while the
 /// observable collection preserves insertion order and serializes as a JSON array.
-/// 
-/// This collection is not thread-safe. All mutations must occur on the owning thread.
+/// </para>
+/// <para>This collection is not thread-safe. All mutations must occur on the owning thread.</para>
 /// </summary>
 /// <typeparam name="T">
 /// The item type. Must expose a unique string key and notify about property changes.
@@ -225,8 +227,11 @@ public class UniqueObservableCollection<T> : ObservableCollection<T>
       throw new InvalidOperationException($"{item.UniqueKeyPropertyName} must not be null or empty.");
 
     if (m_InternalDictionary.ContainsKey(key))
+    {
       throw new InvalidOperationException(
         $"Duplicate {item.UniqueKeyPropertyName} '{key}' (case-insensitive).");
+    }
+
     return key;
   }
 

@@ -88,7 +88,7 @@ public static class CsvHelper
       if (!inspectionResult.IsJson && !inspectionResult.IsXml)
       {
         progress.Report("Checking field delimiter");
-        using var reader = GetFileReader(inspectionResult, usedStream);
+        using var reader = inspectionResult.GetFileReader(usedStream);
         await reader.OpenAsync(progress.CancellationToken).ConfigureAwait(false);
         if (reader.FieldCount <= 1)
         {
@@ -184,100 +184,99 @@ public static class CsvHelper
     }
   }
 
-  /// <summary>
-  /// Get a text reader form a stream, takes care of codePage and skip rows
-  /// </summary>
   /// <param name="stream">The open read stream</param>
-  /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
-  /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
-  /// <param name="cancellationToken">Progress reporting and cancellation to stop a possibly long running process</param>
-  /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
-  public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows,
-    CancellationToken cancellationToken)
-    => new ImprovedTextReader(stream,
-      await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-
-  /// <summary>
-  /// Asynchronously inspects the given <see cref="Stream"/> to determine its most likely text encoding.
-  /// </summary>
-  /// <param name="stream">
-  /// The input <see cref="Stream"/> from which to read the initial bytes for encoding detection.
-  /// The stream must support reading.
-  /// </param>
-  /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.</param>
-  /// <returns>
-  /// A tuple containing:
-  /// <list type="bullet">
-  ///   <item><description><c>codePage</c> – the encodingDetected encoding’s code page number.</description></item>
-  ///   <item><description><c>bom</c> – <c>true</c> if a byte-order mark (BOM) was encodingDetected; otherwise <c>false</c>.</description></item>
-  /// </list>
-  /// </returns>
-  /// <remarks>
-  /// <para>
-  /// The method reads up to 256 KB from the start of the stream (or less if the stream is smaller)
-  /// to identify the encoding using BOM or heuristic detection.
-  /// </para>
-  /// <para>
-  /// If the stream begins with a BOM, the corresponding encoding is returned immediately.
-  /// Otherwise, <see cref="EncodingHelper.DetectEncodingNoBom(byte[])"/> is used to guess
-  /// the most appropriate encoding, defaulting to UTF-8 for ASCII results.
-  /// </para>
-  /// <para>
-  /// The stream’s position is reset to the beginning if it supports seeking.
-  /// </para>
-  /// </remarks>
-  public static async Task<(int codePage, bool bom)> InspectCodePageAsync(this Stream stream, CancellationToken cancellationToken)
+  extension(Stream stream)
   {
-    if (stream == null)
-      throw new ArgumentNullException(nameof(stream));
-    if (!stream.CanRead)
-      throw new ArgumentException("Stream must be readable.", nameof(stream));
+    /// <summary>
+    /// Get a text reader form a stream, takes care of codePage and skip rows
+    /// </summary>
+    /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
+    /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
+    /// <param name="cancellationToken">Progress reporting and cancellation to stop a possibly long running process</param>
+    /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
+    public async Task<ImprovedTextReader> GetTextReaderAsync(int codePageId, int skipRows,
+      CancellationToken cancellationToken)
+      => new ImprovedTextReader(stream,
+        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
-    // Determine max read length (up to 256 KB)
-    int maxLength = (stream is FileStream fs)
-      ? (int) Math.Min(fs.Length, 262_144)
-      : 262_144;
+    /// <summary>
+    /// Asynchronously inspects the given <see cref="Stream"/> to determine its most likely text encoding.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    ///   <item><description><c>codePage</c> – the encodingDetected encoding’s code page number.</description></item>
+    ///   <item><description><c>bom</c> – <c>true</c> if a byte-order mark (BOM) was encodingDetected; otherwise <c>false</c>.</description></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// The method reads up to 256 KB from the start of the stream (or less if the stream is smaller)
+    /// to identify the encoding using BOM or heuristic detection.
+    /// </para>
+    /// <para>
+    /// If the stream begins with a BOM, the corresponding encoding is returned immediately.
+    /// Otherwise, <see cref="EncodingHelper.DetectEncodingNoBom(byte[])"/> is used to guess
+    /// the most appropriate encoding, defaulting to UTF-8 for ASCII results.
+    /// </para>
+    /// <para>
+    /// The stream’s position is reset to the beginning if it supports seeking.
+    /// </para>
+    /// </remarks>
+    public async Task<(int codePage, bool bom)> InspectCodePageAsync(CancellationToken cancellationToken)
+    {
+      if (stream == null)
+        throw new ArgumentNullException(nameof(stream));
+      if (!stream.CanRead)
+        throw new ArgumentException("Stream must be readable.", nameof(stream));
 
-    byte[] buffer = new byte[maxLength];
+      // Determine max read length (up to 256 KB)
+      int maxLength = (stream is FileStream fs)
+        ? (int) Math.Min(fs.Length, 262_144)
+        : 262_144;
 
-    // Read initial bytes (up to buffer size)
+      byte[] buffer = new byte[maxLength];
+
+      // Read initial bytes (up to buffer size)
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), cancellationToken).ConfigureAwait(false);
+      int bytesRead = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(4, buffer.Length)), cancellationToken).ConfigureAwait(false);
 #else
     int bytesRead = await stream.ReadAsync(buffer, 0, Math.Min(4, buffer.Length), cancellationToken).ConfigureAwait(false);
 #endif
 
-    // Check for BOM-based encoding
-    if (bytesRead >= 2)
-    {
-      var encodingBom = EncodingHelper.GetEncodingByByteOrderMark(buffer, Math.Min(4, bytesRead));
-      if (encodingBom != null)
+      // Check for BOM-based encoding
+      if (bytesRead >= 2)
       {
-        if (stream.CanSeek)
-          stream.Seek(0, SeekOrigin.Begin);
+        var encodingBom = EncodingHelper.GetEncodingByByteOrderMark(buffer, Math.Min(4, bytesRead));
+        if (encodingBom != null)
+        {
+          if (stream.CanSeek)
+            stream.Seek(0, SeekOrigin.Begin);
 
-        return (encodingBom.CodePage, true);
+          return (encodingBom.CodePage, true);
+        }
       }
-    }
 
-    // Read more for non-BOM detection if needed
+      // Read more for non-BOM detection if needed
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), cancellationToken).ConfigureAwait(false);
+      int additionalBytes = await stream.ReadAsync(buffer.AsMemory(bytesRead, maxLength - bytesRead), cancellationToken).ConfigureAwait(false);
 #else
     int additionalBytes = await stream.ReadAsync(buffer, bytesRead, maxLength - bytesRead, cancellationToken).ConfigureAwait(false);
 #endif
 
-    int totalRead = bytesRead + additionalBytes;
+      int totalRead = bytesRead + additionalBytes;
 
-    // Detect encoding heuristically
-    var encodingDetected = EncodingHelper.DetectEncodingNoBom(buffer.AsSpan(0, totalRead).ToArray());
-    if (encodingDetected.Equals(Encoding.ASCII))
-      encodingDetected = Encoding.UTF8;
+      // Detect encoding heuristically
+      var encodingDetected = EncodingHelper.DetectEncodingNoBom(buffer.AsSpan(0, totalRead).ToArray());
+      if (encodingDetected.Equals(Encoding.ASCII))
+        encodingDetected = Encoding.UTF8;
 
-    if (stream.CanSeek)
-      stream.Seek(0, SeekOrigin.Begin);
+      if (stream.CanSeek)
+        stream.Seek(0, SeekOrigin.Begin);
 
-    return (encodingDetected.CodePage, false);
+      return (encodingDetected.CodePage, false);
+    }
   }
 
 
@@ -383,315 +382,312 @@ public static class CsvHelper
 
 
     // Determine from file
-    return await GetInspectionResultFromFileAsync(fileName2, selectedFile, guessJson, guessCodePage,
+    return await fileName2.GetInspectionResultFromFileAsync(selectedFile, guessJson, guessCodePage,
       guessEscapePrefix, guessDelimiter,
       guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine,
       defaultInspectionResult, fillGuessSettings, detectFormat, privateKey, progress).ConfigureAwait(false);
   }
 
-  /// <summary>
-  ///   Determines whether data in the specified stream is an XML
-  /// </summary>
   /// <param name="stream">The stream to read data from</param>
-  /// <param name="encoding">The encoding.</param>
-  /// <returns><c>true</c> if XML could be read from stream; otherwise, <c>false</c>.</returns>
-  private static async Task<bool> InspectIsXmlReadableAsync(
-    this Stream stream,
-    Encoding encoding)
+  extension(Stream stream)
   {
-    stream.Seek(0, SeekOrigin.Begin);
-    using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
-    try
+    /// <summary>
+    ///   Determines whether data in the specified stream is an XML
+    /// </summary>
+    /// <param name="encoding">The encoding.</param>
+    /// <returns><c>true</c> if XML could be read from stream; otherwise, <c>false</c>.</returns>
+    private async Task<bool> InspectIsXmlReadableAsync(Encoding encoding)
     {
-      using var xmlReader =
-        System.Xml.XmlReader.Create(streamReader, new System.Xml.XmlReaderSettings { Async = true });
-      await xmlReader.MoveToContentAsync().ConfigureAwait(false);
-      return true;
-    }
-    catch (Exception)
-    {
-      return false;
-    }
-  }
-
-  /// <summary>
-  ///   Determines whether data in the specified stream is a JSON
-  /// </summary>
-  /// <param name="stream">The stream to read data from</param>
-  /// <param name="encoding">The encoding.</param>
-  /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
-  /// <returns><c>true</c> if JSON could be read from stream; otherwise, <c>false</c>.</returns>
-  public static async Task<bool> InspectIsJsonReadableAsync(
-    this Stream stream,
-    Encoding encoding,
-    IProgressWithCancellation progress)
-  {
-    stream.Seek(0, SeekOrigin.Begin);
-    using var streamReader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, 4096, true);
-    using var jsonTextReader = new JsonTextReader(streamReader);
-    jsonTextReader.CloseInput = false;
-    try
-    {
-      if (await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false) 
-        &&(jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
-                                                              || jsonTextReader.TokenType
-                                                              == JsonToken.StartConstructor))
+      stream.Seek(0, SeekOrigin.Begin);
+      using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
+      try
       {
-        await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
-        await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
-        progress.Report("Detected Json file");
+        using var xmlReader =
+          System.Xml.XmlReader.Create(streamReader, new System.Xml.XmlReaderSettings { Async = true });
+        await xmlReader.MoveToContentAsync().ConfigureAwait(false);
         return true;
       }
+      catch (Exception)
+      {
+        return false;
+      }
     }
-    catch (JsonReaderException)
+
+    /// <summary>
+    ///   Determines whether data in the specified stream is a JSON
+    /// </summary>
+    /// <param name="encoding">The encoding.</param>
+    /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
+    /// <returns><c>true</c> if JSON could be read from stream; otherwise, <c>false</c>.</returns>
+    public async Task<bool> InspectIsJsonReadableAsync(Encoding encoding,
+      IProgressWithCancellation progress)
     {
-      //ignore
-    }
-
-    return false;
-  }
-  /// <summary>
-  ///   Updates the <see cref="InspectionResult"/> by performing heuristic analysis on a stream.
-  /// </summary>
-  /// <param name="stream">The data stream to analyze.</param>
-  /// <param name="inspectionResult">The result object to populate with structural metadata.</param>
-  /// <param name="guessJson">If <c>true</c>, checks for XML/JSON formats first.</param>
-  /// <param name="guessCodePage">If <c>true</c>, detects file encoding and BOM.</param>
-  /// <param name="guessEscapePrefix">If <c>true</c>, identifies characters used to escape delimiters/qualifiers.</param>
-  /// <param name="guessDelimiter">If <c>true</c>, detects field separators (e.g., ; | or Tab).</param>
-  /// <param name="guessQualifier">If <c>true</c>, detects text wrapping characters (e.g., quotes).</param>
-  /// <param name="guessStartRow">If <c>true</c>, identifies metadata headers that should be skipped.</param>
-  /// <param name="guessHasHeader">If <c>true</c>, determines if column names exist in the first data row.</param>
-  /// <param name="guessNewLine">If <c>true</c>, identifies the record termination style (CRLF/LF).</param>
-  /// <param name="guessCommentLine">If <c>true</c>, identifies prefixes for lines to be ignored.</param>
-  /// <param name="probableDelimiter">A hint delimiter (usually extension-based) to prioritize in scoring.</param>
-  /// <param name="disallowedDelimiter">Delimiters to ignore (e.g., those already tested and failed).</param>
-  /// <param name="progress">Progress-reporting interface for UI feedback and cancellation.</param>
-  /// <remarks>
-  ///   <para>
-  ///     <b>Architecture of Ownership:</b> Accurate detection is vital for portability. By 
-  ///     meticulously identifying these settings, we ensure a user's file is interpreted 
-  ///     identically across different dealership rooftops.
-  ///   </para>
-  ///   <para>
-  ///     <b>Cyclic Dependencies:</b> Detection follows an iterative "Retry" pattern because 
-  ///     finding a new Qualifier can change the detected Delimiter, which in turn might 
-  ///     reveal a different Start Row.
-  ///   </para>
-  ///   <para>
-  ///     <b>Threading Note:</b> Uses <c>ConfigureAwait(false)</c>. All work is performed on 
-  ///     the ThreadPool. UI updates via <paramref name="progress"/> are handled by the 
-  ///     caller's implementation of <see cref="IProgressWithCancellation"/>.
-  ///   </para>
-  /// </remarks>
-  public static async Task UpdateInspectionResultAsync(this Stream stream,
-    InspectionResult inspectionResult,
-    bool guessJson, bool guessCodePage,
-    bool guessEscapePrefix, bool guessDelimiter,
-    bool guessQualifier, bool guessStartRow,
-    bool guessHasHeader, bool guessNewLine,
-    bool guessCommentLine, char probableDelimiter,
-    IReadOnlyCollection<char> disallowedDelimiter,
-    IProgressWithCancellation progress)
-  {
-    if (stream is null)
-      throw new ArgumentNullException(nameof(stream));
-    if (!stream.CanRead || !stream.CanSeek)
-      throw new ArgumentException("Stream must be readable and seekable.", nameof(stream));
-
-    // Exit early if no analysis is requested
-    if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
-          guessCommentLine || guessNewLine))
-      return;
-
-    // 1. Detect Encoding/CodePage (Foundation for all text reading)
-    if (guessCodePage)
-    {
-      progress.CancellationToken.ThrowIfCancellationRequested();
       stream.Seek(0, SeekOrigin.Begin);
-      progress.Report("Checking Code Page");
-      var (codePage, bom) = await stream.InspectCodePageAsync(progress.CancellationToken).ConfigureAwait(false);
-      progress.Report($"Detected encoding by BOM: {EncodingHelper.GetEncodingName(codePage, bom)}");
-      inspectionResult.CodePageId = codePage;
-      inspectionResult.ByteOrderMark = bom;
-    }
-
-    // 2. Structured Data Check (JSON/XML)
-    // If identified, we stop here as delimited logic (CSV) does not apply.
-    if (guessJson)
-    {
-      progress.CancellationToken.ThrowIfCancellationRequested();
-      progress.Report("Checking XML format");
-      inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
-
-      if (inspectionResult.IsXml)
+      using var streamReader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true, 4096, true);
+      using var jsonTextReader = new JsonTextReader(streamReader);
+      jsonTextReader.CloseInput = false;
+      try
       {
-        progress.Report("Detected XML file, no further checks done");
-        return;
+        if (await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false) 
+            &&(jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
+                                                                 || jsonTextReader.TokenType
+                                                                 == JsonToken.StartConstructor))
+        {
+          await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+          await jsonTextReader.ReadAsync(progress.CancellationToken).ConfigureAwait(false);
+          progress.Report("Detected Json file");
+          return true;
+        }
+      }
+      catch (JsonReaderException)
+      {
+        //ignore
       }
 
-      progress.CancellationToken.ThrowIfCancellationRequested();
-      progress.Report("Checking Json format");
-      inspectionResult.IsJson = await stream
-        .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), progress)
-        .ConfigureAwait(false);
-
-      if (inspectionResult.IsJson)
-      {
-        progress.Report("Detected Json file, no further checks done");
-        return;
-      }
+      return false;
     }
 
-    // 3. Iterative Delimited Analysis
-    // We loop up to 5 times to resolve dependencies between Delimiters, Qualifiers, and SkipRows.
-    const int maxAttempts = 5;
-    int attempt = 0;
-    bool retry;
-    bool magicDelimiter = false;
-    do
+    /// <summary>
+    ///   Updates the <see cref="InspectionResult"/> by performing heuristic analysis on a stream.
+    /// </summary>
+    /// <param name="inspectionResult">The result object to populate with structural metadata.</param>
+    /// <param name="guessJson">If <c>true</c>, checks for XML/JSON formats first.</param>
+    /// <param name="guessCodePage">If <c>true</c>, detects file encoding and BOM.</param>
+    /// <param name="guessEscapePrefix">If <c>true</c>, identifies characters used to escape delimiters/qualifiers.</param>
+    /// <param name="guessDelimiter">If <c>true</c>, detects field separators (e.g., ; | or Tab).</param>
+    /// <param name="guessQualifier">If <c>true</c>, detects text wrapping characters (e.g., quotes).</param>
+    /// <param name="guessStartRow">If <c>true</c>, identifies metadata headers that should be skipped.</param>
+    /// <param name="guessHasHeader">If <c>true</c>, determines if column names exist in the first data row.</param>
+    /// <param name="guessNewLine">If <c>true</c>, identifies the record termination style (CRLF/LF).</param>
+    /// <param name="guessCommentLine">If <c>true</c>, identifies prefixes for lines to be ignored.</param>
+    /// <param name="probableDelimiter">A hint delimiter (usually extension-based) to prioritize in scoring.</param>
+    /// <param name="disallowedDelimiter">Delimiters to ignore (e.g., those already tested and failed).</param>
+    /// <param name="progress">Progress-reporting interface for UI feedback and cancellation.</param>
+    /// <remarks>
+    ///   <para>
+    ///     <b>Architecture of Ownership:</b> Accurate detection is vital for portability. By 
+    ///     meticulously identifying these settings, we ensure a user's file is interpreted 
+    ///     identically across different dealership rooftops.
+    ///   </para>
+    ///   <para>
+    ///     <b>Cyclic Dependencies:</b> Detection follows an iterative "Retry" pattern because 
+    ///     finding a new Qualifier can change the detected Delimiter, which in turn might 
+    ///     reveal a different Start Row.
+    ///   </para>
+    ///   <para>
+    ///     <b>Threading Note:</b> Uses <c>ConfigureAwait(false)</c>. All work is performed on 
+    ///     the ThreadPool. UI updates via <paramref name="progress"/> are handled by the 
+    ///     caller's implementation of <see cref="IProgressWithCancellation"/>.
+    ///   </para>
+    /// </remarks>
+    public async Task UpdateInspectionResultAsync(InspectionResult inspectionResult,
+      bool guessJson, bool guessCodePage,
+      bool guessEscapePrefix, bool guessDelimiter,
+      bool guessQualifier, bool guessStartRow,
+      bool guessHasHeader, bool guessNewLine,
+      bool guessCommentLine, char probableDelimiter,
+      IReadOnlyCollection<char> disallowedDelimiter,
+      IProgressWithCancellation progress)
     {
-      attempt++;
-      if (attempt>1)
-        progress.Report($"Prefix, Delimiter and Qualifier can affect detection, checking again... Attempt : {attempt}");
+      if (stream is null)
+        throw new ArgumentNullException(nameof(stream));
+      if (!stream.CanRead || !stream.CanSeek)
+        throw new ArgumentException("Stream must be readable and seekable.", nameof(stream));
 
-      // --- Comment Line ---
-      if (guessCommentLine)
+      // Exit early if no analysis is requested
+      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
+            guessCommentLine || guessNewLine))
+        return;
+
+      // 1. Detect Encoding/CodePage (Foundation for all text reading)
+      if (guessCodePage)
       {
         progress.CancellationToken.ThrowIfCancellationRequested();
-        progress.Report("Checking comment line");
-        using var textReader = await stream
-          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
-          .ConfigureAwait(false);
-        inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(progress.CancellationToken)
-          .ConfigureAwait(false);
-        progress.Report(!string.IsNullOrEmpty(inspectionResult.CommentLine)
-          ? $"Comment Line: {inspectionResult.CommentLine}"
-          : "No Comment Line");
+        stream.Seek(0, SeekOrigin.Begin);
+        progress.Report("Checking Code Page");
+        var (codePage, bom) = await stream.InspectCodePageAsync(progress.CancellationToken).ConfigureAwait(false);
+        progress.Report($"Detected encoding by BOM: {EncodingHelper.GetEncodingName(codePage, bom)}");
+        inspectionResult.CodePageId = codePage;
+        inspectionResult.ByteOrderMark = bom;
       }
 
-      // --- Escape Prefix ---
-      var newPrefix = inspectionResult.EscapePrefix;
-      if (guessEscapePrefix)
+      // 2. Structured Data Check (JSON/XML)
+      // If identified, we stop here as delimited logic (CSV) does not apply.
+      if (guessJson)
       {
-        progress.Report("Checking Escape Prefix");
-        using var textReader = await stream
-          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
-          .ConfigureAwait(false);
-        newPrefix = await textReader.InspectEscapePrefixAsync(
-            inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, progress.CancellationToken)
-          .ConfigureAwait(false);
+        progress.CancellationToken.ThrowIfCancellationRequested();
+        progress.Report("Checking XML format");
+        inspectionResult.IsXml = await stream.InspectIsXmlReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId)).ConfigureAwait(false);
 
-        progress.Report(newPrefix != char.MinValue ? $"Escape : {newPrefix}" : "No Escape found");
-      }
-
-      // --- Delimiter / Qualifier / NewLine ---
-      bool changedDelimiter = false;
-      bool changedFieldQualifier = false;
-      bool changedSkipRows = false;
-
-      // --- Core Structural Markers (Qualifier, Delimiter, NewLine) ---
-      if (guessQualifier || guessDelimiter || guessNewLine)
-      {
-        using var textReader = await stream
-          .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
-          .ConfigureAwait(false);
-
-        // Qualifier
-        if (guessQualifier)
+        if (inspectionResult.IsXml)
         {
-          progress.CancellationToken.ThrowIfCancellationRequested();
-          progress.Report("Checking Qualifier");
-          var qualifierResult = textReader.InspectQualifier(
-            inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
-            MQualifiersToTest, progress.CancellationToken);
-
-          progress.Report(qualifierResult.QuoteChar != char.MinValue
-            ? $"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}"
-            : "No Qualifier found");
-
-          changedFieldQualifier = inspectionResult.FieldQualifier != qualifierResult.QuoteChar;
-          inspectionResult.FieldQualifier = qualifierResult.QuoteChar;
-          inspectionResult.ContextSensitiveQualifier =
-            !(qualifierResult.DuplicateQualifier || qualifierResult.EscapedQualifier);
-          inspectionResult.DuplicateQualifierToEscape = qualifierResult.DuplicateQualifier;
-
-          if (inspectionResult.DuplicateQualifierToEscape)
-            newPrefix = char.MinValue;
+          progress.Report("Detected XML file, no further checks done");
+          return;
         }
 
-        // Delimiter
-        if (guessDelimiter)
+        progress.CancellationToken.ThrowIfCancellationRequested();
+        progress.Report("Checking Json format");
+        inspectionResult.IsJson = await stream
+          .InspectIsJsonReadableAsync(Encoding.GetEncoding(inspectionResult.CodePageId), progress)
+          .ConfigureAwait(false);
+
+        if (inspectionResult.IsJson)
+        {
+          progress.Report("Detected Json file, no further checks done");
+          return;
+        }
+      }
+
+      // 3. Iterative Delimited Analysis
+      // We loop up to 5 times to resolve dependencies between Delimiters, Qualifiers, and SkipRows.
+      const int maxAttempts = 5;
+      int attempt = 0;
+      bool retry;
+      bool magicDelimiter = false;
+      do
+      {
+        attempt++;
+        if (attempt>1)
+          progress.Report($"Prefix, Delimiter and Qualifier can affect detection, checking again... Attempt : {attempt}");
+
+        // --- Comment Line ---
+        if (guessCommentLine)
         {
           progress.CancellationToken.ThrowIfCancellationRequested();
-          progress.Report("Checking Column Delimiter");
-          var delimiterResult = await textReader.InspectDelimiterAsync(
-            inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter,
-            progress.CancellationToken).ConfigureAwait(false);
+          progress.Report("Checking comment line");
+          using var textReader = await stream
+            .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
+            .ConfigureAwait(false);
+          inspectionResult.CommentLine = await textReader.InspectLineCommentAsync(progress.CancellationToken)
+            .ConfigureAwait(false);
+          progress.Report(!string.IsNullOrEmpty(inspectionResult.CommentLine)
+            ? $"Comment Line: {inspectionResult.CommentLine}"
+            : "No Comment Line");
+        }
 
-          if (delimiterResult.MagicKeyword)
+        // --- Escape Prefix ---
+        var newPrefix = inspectionResult.EscapePrefix;
+        if (guessEscapePrefix)
+        {
+          progress.Report("Checking Escape Prefix");
+          using var textReader = await stream
+            .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
+            .ConfigureAwait(false);
+          newPrefix = await textReader.InspectEscapePrefixAsync(
+              inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, progress.CancellationToken)
+            .ConfigureAwait(false);
+
+          progress.Report(newPrefix != char.MinValue ? $"Escape : {newPrefix}" : "No Escape found");
+        }
+
+        // --- Delimiter / Qualifier / NewLine ---
+        bool changedDelimiter = false;
+        bool changedFieldQualifier = false;
+        bool changedSkipRows = false;
+
+        // --- Core Structural Markers (Qualifier, Delimiter, NewLine) ---
+        if (guessQualifier || guessDelimiter || guessNewLine)
+        {
+          using var textReader = await stream
+            .GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, progress.CancellationToken)
+            .ConfigureAwait(false);
+
+          // Qualifier
+          if (guessQualifier)
           {
-            progress.Report($"Delimiter from 'sep=' in first line: {delimiterResult.Delimiter}");
-            magicDelimiter = true;
-            progress.Report("Skipping line");
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Qualifier");
+            var qualifierResult = textReader.InspectQualifier(
+              inspectionResult.FieldDelimiter, newPrefix, inspectionResult.CommentLine,
+              MQualifiersToTest, progress.CancellationToken);
+
+            progress.Report(qualifierResult.QuoteChar != char.MinValue
+              ? $"Column Qualifier: {qualifierResult.QuoteChar.Text()} Score:{qualifierResult.Score:N0}"
+              : "No Qualifier found");
+
+            changedFieldQualifier = inspectionResult.FieldQualifier != qualifierResult.QuoteChar;
+            inspectionResult.FieldQualifier = qualifierResult.QuoteChar;
+            inspectionResult.ContextSensitiveQualifier =
+              !(qualifierResult.DuplicateQualifier || qualifierResult.EscapedQualifier);
+            inspectionResult.DuplicateQualifierToEscape = qualifierResult.DuplicateQualifier;
+
+            if (inspectionResult.DuplicateQualifierToEscape)
+              newPrefix = char.MinValue;
           }
 
-          else if (!delimiterResult.IsDetected)
-            progress.Report($"Not a delimited file, assuming {delimiterResult.Delimiter.Text()}");
-          else
-            progress.Report($"Column Delimiter:  {delimiterResult.Delimiter.Text()}");
+          // Delimiter
+          if (guessDelimiter)
+          {
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Column Delimiter");
+            var delimiterResult = await textReader.InspectDelimiterAsync(
+              inspectionResult.FieldQualifier, newPrefix, disallowedDelimiter, probableDelimiter,
+              progress.CancellationToken).ConfigureAwait(false);
 
-          changedDelimiter = inspectionResult.FieldDelimiter != delimiterResult.Delimiter;
-          inspectionResult.FieldDelimiter = delimiterResult.Delimiter;
-          inspectionResult.NoDelimitedFile = delimiterResult.IsDetected;
+            if (delimiterResult.MagicKeyword)
+            {
+              progress.Report($"Delimiter from 'sep=' in first line: {delimiterResult.Delimiter}");
+              magicDelimiter = true;
+              progress.Report("Skipping line");
+            }
+
+            else if (!delimiterResult.IsDetected)
+              progress.Report($"Not a delimited file, assuming {delimiterResult.Delimiter.Text()}");
+            else
+              progress.Report($"Column Delimiter:  {delimiterResult.Delimiter.Text()}");
+
+            changedDelimiter = inspectionResult.FieldDelimiter != delimiterResult.Delimiter;
+            inspectionResult.FieldDelimiter = delimiterResult.Delimiter;
+            inspectionResult.NoDelimitedFile = delimiterResult.IsDetected;
+          }
+
+          // NewLine
+          if (guessNewLine)
+          {
+            progress.CancellationToken.ThrowIfCancellationRequested();
+            progress.Report("Checking Record Delimiter");
+
+            stream.Seek(0, SeekOrigin.Begin);
+            inspectionResult.NewLine = await textReader.InspectRecordDelimiterAsync(
+              inspectionResult.FieldQualifier, progress.CancellationToken).ConfigureAwait(false);
+
+            progress.Report($"Record Delimiter: {inspectionResult.NewLine.Description()}");
+          }
         }
 
-        // NewLine
-        if (guessNewLine)
+        inspectionResult.EscapePrefix = newPrefix;
+
+        // --- Retry conditions ---
+        retry = guessEscapePrefix && (changedDelimiter || changedFieldQualifier);
+        if (retry)
+          continue;
+        if (magicDelimiter)
+          inspectionResult.SkipRows = 1;
+        // --- StartRow Recheck ---
+        if (guessStartRow)
         {
           progress.CancellationToken.ThrowIfCancellationRequested();
-          progress.Report("Checking Record Delimiter");
+          progress.Report("Checking Start line");
 
-          stream.Seek(0, SeekOrigin.Begin);
-          inspectionResult.NewLine = await textReader.InspectRecordDelimiterAsync(
-            inspectionResult.FieldQualifier, progress.CancellationToken).ConfigureAwait(false);
-
-          progress.Report($"Record Delimiter: {inspectionResult.NewLine.Description()}");
+          using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
+            .ConfigureAwait(false);
+          // InspectStartRowAsync does recognize magicDelimiter all will treat magicDelimiter like a comment
+          var newSkipRows = await textReader.InspectStartRowAsync(fieldDelimiterChar: inspectionResult.FieldDelimiter, fieldQualifierChar: inspectionResult.FieldQualifier, 
+            escapePrefixChar: inspectionResult.EscapePrefix,commentLine: inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
+          progress.Report($"Start Row: {newSkipRows}");
+          changedSkipRows = inspectionResult.SkipRows != newSkipRows;
+          inspectionResult.SkipRows = newSkipRows;
         }
-      }
 
-      inspectionResult.EscapePrefix = newPrefix;
+        if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
+            (changedSkipRows || (inspectionResult.EscapePrefix != newPrefix && newPrefix != '\0') ||
+             changedFieldQualifier) && attempt < maxAttempts)
+        {
+          retry = true;
+        }
 
-      // --- Retry conditions ---
-      retry = guessEscapePrefix && (changedDelimiter || changedFieldQualifier);
-      if (retry)
-        continue;
-      if (magicDelimiter)
-        inspectionResult.SkipRows = 1;
-      // --- StartRow Recheck ---
-      if (guessStartRow)
-      {
-        progress.CancellationToken.ThrowIfCancellationRequested();
-        progress.Report("Checking Start line");
-
-        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, 0, progress.CancellationToken)
-          .ConfigureAwait(false);
-        // InspectStartRowAsync does recognize magicDelimiter all will treat magicDelimiter like a comment
-        var newSkipRows = await textReader.InspectStartRowAsync(fieldDelimiterChar: inspectionResult.FieldDelimiter, fieldQualifierChar: inspectionResult.FieldQualifier, 
-          escapePrefixChar: inspectionResult.EscapePrefix,commentLine: inspectionResult.CommentLine, progress.CancellationToken).ConfigureAwait(false);
-        progress.Report($"Start Row: {newSkipRows}");
-        changedSkipRows = inspectionResult.SkipRows != newSkipRows;
-        inspectionResult.SkipRows = newSkipRows;
-      }
-
-      if ((guessEscapePrefix || guessQualifier || guessDelimiter || guessCommentLine) &&
-          (changedSkipRows || (inspectionResult.EscapePrefix != newPrefix && newPrefix != '\0') ||
-           changedFieldQualifier) && attempt < maxAttempts)
-      {
-        retry = true;
-      }
-
-    } while (retry);
+      } while (retry);
+    }
   }
 
   /// <summary>

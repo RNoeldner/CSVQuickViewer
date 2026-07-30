@@ -132,7 +132,7 @@ public sealed class SourceAccess
     switch (FileType)
     {
       case FileTypeEnum.Zip when !isReading:
-        IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
+        IdentifierInContainer = fileName.GetFileName().ReplaceCaseInsensitive(".zip", "");
         break;
 
       // for PGP we need a password/ pass phrase for Zip we might need one later

@@ -62,68 +62,68 @@ public static class ReaderExtensionMethods
     return retList;
   }
 
-  /// <summary>
-  /// Gets a reader for a source that reads everything as text columns, 
-  /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
-  /// </summary>
   /// <param name="source">The initial source setting </param>
-  /// <param name="cancellationToken">Token to cancel the long-running async method</param>
-  /// <returns>The IFileReader to read the data as text</returns>
-  /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
-  public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,
-    CancellationToken cancellationToken)
+  extension(IFileSetting source)
   {
-    var fileSettingCopy = source.Clone();
-    // No column should be type converted 
-    fileSettingCopy.ColumnCollection.Clear();
-
-    // Make sure that if we do have a CSV file without header that we will skip the first row
-    // that might contain headers, but it's simply set as without headers.
-    if (fileSettingCopy is ICsvFile csv)
+    /// <summary>
+    /// Gets a reader for a source that reads everything as text columns, 
+    /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the long-running async method</param>
+    /// <returns>The IFileReader to read the data as text</returns>
+    /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
+    public async Task<IFileReader> GetUntypedFileReaderAsync(CancellationToken cancellationToken)
     {
-      // if we do not have a header still ignore the first row, it could be a header that was just not marked
-      // Downside is that this does not work with a file hat only has 1 row...
-      if (!csv.HasFieldHeader)
-        csv.SkipRows++;
-      // turn off all warnings as they will cause GetSampleValues to ignore the row        
-      csv.WarnDelimiterInValue = false;
-      csv.WarnLineFeed = false;
-      csv.WarnQuotes = false;
-      csv.WarnUnknownCharacter = false;
-      csv.WarnNBSP = false;
-      csv.WarnQuotesInQuotes = false;
-      csv.WarnEmptyTailingColumns = false;
+      var fileSettingCopy = source.Clone();
+      // No column should be type converted 
+      fileSettingCopy.ColumnCollection.Clear();
 
-      // Adjusting columns in row only works well if columns are typed
-      csv.AllowRowCombining = false;
-      csv.TryToSolveMoreColumns = false;
+      // Make sure that if we do have a CSV file without header that we will skip the first row
+      // that might contain headers, but it's simply set as without headers.
+      if (fileSettingCopy is ICsvFile csv)
+      {
+        // if we do not have a header still ignore the first row, it could be a header that was just not marked
+        // Downside is that this does not work with a file hat only has 1 row...
+        if (!csv.HasFieldHeader)
+          csv.SkipRows++;
+        // turn off all warnings as they will cause GetSampleValues to ignore the row        
+        csv.WarnDelimiterInValue = false;
+        csv.WarnLineFeed = false;
+        csv.WarnQuotes = false;
+        csv.WarnUnknownCharacter = false;
+        csv.WarnNBSP = false;
+        csv.WarnQuotesInQuotes = false;
+        csv.WarnEmptyTailingColumns = false;
+
+        // Adjusting columns in row only works well if columns are typed
+        csv.AllowRowCombining = false;
+        csv.TryToSolveMoreColumns = false;
+      }
+
+      var reader = FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
+      await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      return reader;
     }
 
-    var reader = FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
-    await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-    return reader;
-  }
-
-  /// <summary>
-  /// Gets all reader columns asynchronous.
-  /// </summary>
-  /// <param name="source">The source.</param>
-  /// <param name="cancellationToken">The cancellation token.</param>    
-  public static async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(this IFileSetting source,
-    CancellationToken cancellationToken)
-  {
-    var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
+    /// <summary>
+    /// Gets all reader columns asynchronous.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>    
+    public async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(CancellationToken cancellationToken)
+    {
+      var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-    await using (fileReader.ConfigureAwait(false))
+      await using (fileReader.ConfigureAwait(false))
 #else
     using (fileReader)
 #endif
-    {
-      var res = new List<Column>();
-      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        res.Add(fileReader.GetColumn(colIndex));
-      return res;
+      {
+        var res = new List<Column>();
+        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+          res.Add(fileReader.GetColumn(colIndex));
+        return res;
+      }
     }
   }
 

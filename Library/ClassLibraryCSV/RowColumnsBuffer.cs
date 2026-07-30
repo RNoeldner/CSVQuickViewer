@@ -18,10 +18,8 @@ namespace CsvTools;
 public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string>, IDisposable
 {
   private char[] m_ArrayPool;
-  private int m_ColumnCount;
   private bool m_Disposed;
   private int[] m_EndOffsets;
-  private int m_TotalLength;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="RowColumnsBuffer"/> class.
@@ -37,7 +35,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <summary>
   /// Number of Columns
   /// </summary>
-  public int Count => m_ColumnCount;
+  public int Count { get; private set; }
 
   /// <inheritdoc/>
   public bool IsReadOnly => false;
@@ -45,7 +43,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <summary>
   /// Gets the total number of characters currently stored across all columns.
   /// </summary>
-  public int Position => m_TotalLength;
+  public int Position { get; private set; }
 
   /// <summary>
   /// Gets the string representation of the column at the specified index.
@@ -63,9 +61,9 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     CheckDisposed();
     if (value.Length > 0)
     {
-      EnsureBufferCapacity(m_TotalLength + value.Length);
-      value.CopyTo(m_ArrayPool.AsSpan(m_TotalLength));
-      m_TotalLength += value.Length;
+      EnsureBufferCapacity(Position + value.Length);
+      value.CopyTo(m_ArrayPool.AsSpan(Position));
+      Position += value.Length;
     }
 
     NextColumn();
@@ -87,11 +85,11 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     // Optimization: If we know the count, ensure we have enough offset space once.
     if (collection is IReadOnlyCollection<string> readOnly)
     {
-      EnsureOffsetsCapacity(m_ColumnCount + readOnly.Count);
+      EnsureOffsetsCapacity(Count + readOnly.Count);
     }
     else if (collection is ICollection<string> col)
     {
-      EnsureOffsetsCapacity(m_ColumnCount + col.Count);
+      EnsureOffsetsCapacity(Count + col.Count);
     }
 
     foreach (string item in collection)
@@ -105,25 +103,25 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   public void Append(char c)
   {
-    EnsureBufferCapacity(m_TotalLength + 1);
-    m_ArrayPool[m_TotalLength++] = c;
+    EnsureBufferCapacity(Position + 1);
+    m_ArrayPool[Position++] = c;
   }
 
   /// <inheritdoc/>
   public void Clear()
   {
-    m_ColumnCount = 0;
-    m_TotalLength = 0;
+    Count = 0;
+    Position = 0;
   }
 
   /// <inheritdoc/>
   public bool Contains(string item) =>
-    Enumerable.Range(0, m_ColumnCount).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
+    Enumerable.Range(0, Count).Any(i => GetSpan(i).SequenceEqual(item.AsSpan()));
 
   /// <inheritdoc/>
   public void CopyTo(string[] array, int arrayIndex)
   {
-    for (int i = 0; i < m_ColumnCount; i++) array[arrayIndex + i] = this[i];
+    for (int i = 0; i < Count; i++) array[arrayIndex + i] = this[i];
   }
 
   /// <inheritdoc/>
@@ -138,7 +136,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// <inheritdoc/>
   public IEnumerator<string> GetEnumerator()
   {
-    for (int i = 0; i < m_ColumnCount; i++) yield return this[i];
+    for (int i = 0; i < Count; i++) yield return this[i];
   }
 
   /// <inheritdoc/>
@@ -152,7 +150,7 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public ReadOnlySpan<char> GetSpan(int index)
   {
     // CheckDisposed();
-    if (index < 0 || index >= m_ColumnCount) return ReadOnlySpan<char>.Empty;
+    if (index < 0 || index >= Count) return ReadOnlySpan<char>.Empty;
     int start = (index == 0) ? 0 : m_EndOffsets[index - 1];
     int length = m_EndOffsets[index] - start;
     return m_ArrayPool.AsSpan(start, length);
@@ -171,8 +169,8 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public void NextColumn()
   {
     CheckDisposed();
-    EnsureOffsetsCapacity(m_ColumnCount + 1);
-    m_EndOffsets[m_ColumnCount++] = m_TotalLength;
+    EnsureOffsetsCapacity(Count + 1);
+    m_EndOffsets[Count++] = Position;
   }
 
   /// <inheritdoc/>
@@ -197,8 +195,8 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   public ReadOnlySpan<char> GetCurrentSpan()
   {
     CheckDisposed();
-    int start = (m_ColumnCount == 0) ? 0 : m_EndOffsets[m_ColumnCount - 1];
-    return m_ArrayPool.AsSpan(start, m_TotalLength - start);
+    int start = (Count == 0) ? 0 : m_EndOffsets[Count - 1];
+    return m_ArrayPool.AsSpan(start, Position - start);
   }
 
   /// <summary>
@@ -212,9 +210,9 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
     CheckDisposed();
     if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
 
-    if (index >= m_ColumnCount)
+    if (index >= Count)
     {
-      while (m_ColumnCount < index)
+      while (Count < index)
         NextColumn();
       Add(value);
       return;
@@ -228,19 +226,19 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
 
     if (lengthDelta != 0)
     {
-      EnsureBufferCapacity(m_TotalLength + lengthDelta);
+      EnsureBufferCapacity(Position + lengthDelta);
 
-      if (index < m_ColumnCount - 1)
+      if (index < Count - 1)
       {
-        ReadOnlySpan<char> source = m_ArrayPool.AsSpan(oldEnd, m_TotalLength - oldEnd);
+        ReadOnlySpan<char> source = m_ArrayPool.AsSpan(oldEnd, Position - oldEnd);
         Span<char> destination = m_ArrayPool.AsSpan(oldEnd + lengthDelta);
         source.CopyTo(destination);
       }
 
-      for (int i = index; i < m_ColumnCount; i++)
+      for (int i = index; i < Count; i++)
         m_EndOffsets[i] += lengthDelta;
 
-      m_TotalLength += lengthDelta;
+      Position += lengthDelta;
     }
 
     value.CopyTo(m_ArrayPool.AsSpan(start, newLength));
@@ -291,8 +289,8 @@ public sealed class RowColumnsBuffer : ICollection<string>, IReadOnlyList<string
   /// </summary>
   /// <param name="requiredCapacity">The absolute minimum capacity required.</param>
   private void EnsureBufferCapacity(int requiredCapacity)
-    => EnsureCapacity(ref m_ArrayPool, requiredCapacity, m_TotalLength);
+    => EnsureCapacity(ref m_ArrayPool, requiredCapacity, Position);
 
   private void EnsureOffsetsCapacity(int requiredCapacity)
-    => EnsureCapacity(ref m_EndOffsets, requiredCapacity, m_ColumnCount);
+    => EnsureCapacity(ref m_EndOffsets, requiredCapacity, Count);
 }

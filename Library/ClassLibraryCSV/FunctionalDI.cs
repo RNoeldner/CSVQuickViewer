@@ -80,7 +80,7 @@ public static class FunctionalDi
       DataTypeEnum.TextUnescape => TextUnescapeFormatter.Instance,
       DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
       DataTypeEnum.HtmlToText => HtmlToTextFormatter.Instance,
-      _ => EmptyFormatter.Instance
+      _ => EmptyFormatter.Instance,
     };
 
   /// <summary>

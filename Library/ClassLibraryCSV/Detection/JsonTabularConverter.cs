@@ -516,202 +516,204 @@ public static class JsonTabularConverter
     }
   }
 
-  /// <summary>
-  /// Streams JSON objects from a <see cref="TextReader"/> for large or nested JSON files.
-  /// Scalars found at the root level are captured as metadata.
-  /// Supports arrays at root, nested objects, and multiple top-level properties.
-  /// </summary>
   /// <param name="reader">TextReader containing JSON content.</param>
-  /// A tuple:
-  /// <list type="bullet">
-  ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
-  ///   <item>A dictionary of metadata scalars found at root level.</item>
-  /// </list>
-  /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
-  /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
-  /// Caller is responsible for keeping the TextReader open
-  /// for the duration of enumeration.
-  public static (IEnumerable<JObject> Items, Dictionary<string, JValue> Metadata) StreamJsonObjects(this TextReader reader)
+  extension(TextReader reader)
   {
-    if (reader == null) throw new ArgumentNullException(nameof(reader));
-
-    var metadata = new Dictionary<string, JValue>(StringComparer.OrdinalIgnoreCase);
-
-    IEnumerable<JObject> Enumerate()
+    /// <summary>
+    /// Streams JSON objects from a <see cref="TextReader"/> for large or nested JSON files.
+    /// Scalars found at the root level are captured as metadata.
+    /// Supports arrays at root, nested objects, and multiple top-level properties.
+    /// </summary>
+    /// A tuple:
+    /// <list type="bullet">
+    ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
+    ///   <item>A dictionary of metadata scalars found at root level.</item>
+    /// </list>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
+    /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
+    /// Caller is responsible for keeping the TextReader open
+    /// for the duration of enumeration.
+    public (IEnumerable<JObject> Items, Dictionary<string, JValue> Metadata) StreamJsonObjects()
     {
-      #if DEBUG
-            var txt = reader.ReadToEnd();
-            using var sr = new StringReader(txt);
-            var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
-      #else
-        var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
-      #endif
-      // There is no async method for this so all keeps synchronous
-      while (jsonReader.Read())
+      if (reader == null) throw new ArgumentNullException(nameof(reader));
+
+      var metadata = new Dictionary<string, JValue>(StringComparer.OrdinalIgnoreCase);
+
+      IEnumerable<JObject> Enumerate()
       {
-        switch (jsonReader.TokenType)
+#if DEBUG
+        var txt = reader.ReadToEnd();
+        using var sr = new StringReader(txt);
+        var jsonReader = new JsonTextReader(sr) { SupportMultipleContent = true };
+#else
+        var jsonReader = new JsonTextReader(reader) { SupportMultipleContent = true };
+#endif
+        // There is no async method for this so all keeps synchronous
+        while (jsonReader.Read())
         {
-          case JsonToken.StartArray:
-            while (jsonReader.Read())
-            {
-              if (jsonReader.TokenType == JsonToken.StartObject)
-                yield return JObject.Load(jsonReader);
-              else if (jsonReader.TokenType == JsonToken.EndArray)
-                break;
-            }
-            break;
+          switch (jsonReader.TokenType)
+          {
+            case JsonToken.StartArray:
+              while (jsonReader.Read())
+              {
+                if (jsonReader.TokenType == JsonToken.StartObject)
+                  yield return JObject.Load(jsonReader);
+                else if (jsonReader.TokenType == JsonToken.EndArray)
+                  break;
+              }
+              break;
 
-          case JsonToken.StartObject:
-            var obj = JObject.Load(jsonReader);
+            case JsonToken.StartObject:
+              var obj = JObject.Load(jsonReader);
 
-            // Sometimes we get an extra layer and the actually array we look for is 
-            // encapsulated e.G.    "result": { "items": [
-            // this is track in hasArrayLevel1
-            var hasArrayLevel1 = false;
-            string arrayPropertyName = string.Empty;
-            // Capture root-level scalar properties
-            foreach (var prop in obj.Properties())
-            {
-              if (prop.Value is JValue jValue)
-                metadata[prop.Name] = jValue;
-              if (prop.Value is JArray)
-                hasArrayLevel1=true;
-            }
-            if (!hasArrayLevel1)
-            {
-              // Looking for Array, but as long as we did not find anything, use old implemnetaion
-              hasArrayLevel1=true;
+              // Sometimes we get an extra layer and the actually array we look for is 
+              // encapsulated e.G.    "result": { "items": [
+              // this is track in hasArrayLevel1
+              var hasArrayLevel1 = false;
+              string arrayPropertyName = string.Empty;
+              // Capture root-level scalar properties
               foreach (var prop in obj.Properties())
               {
-                if (prop.Value is not JObject jObj) continue;
-                var sub = jObj.Properties().ToList();
-                // Only in case we do not 1 to 2 properties, and we do not have any array
-                if (sub.Count >= 3) continue;
-                foreach (var subI in sub)
-                {
-                  if (subI.Value is not JArray arr) continue;
-                  // We have found a array, 
-                  hasArrayLevel1=false;
-                  foreach (var item in arr.OfType<JObject>())
-                    yield return item;
-                  break;
-                }
+                if (prop.Value is JValue jValue)
+                  metadata[prop.Name] = jValue;
+                if (prop.Value is JArray)
+                  hasArrayLevel1=true;
               }
-            }
-            // hasArrayLevel1 coulod have been chnaged above...
-            if (hasArrayLevel1)
-            {
-              // Instead of then making an yieldedArrayObjects we want these items
-              bool yieldedArrayObjects = false;
-              
-              foreach (var propToken in obj.Properties().Select(prop => prop.Value))
+              if (!hasArrayLevel1)
               {
-                switch (propToken)
+                // Looking for Array, but as long as we did not find anything, use old implemnetaion
+                hasArrayLevel1=true;
+                foreach (var prop in obj.Properties())
                 {
-                  case JArray arr:
+                  if (prop.Value is not JObject jObj) continue;
+                  var sub = jObj.Properties().ToList();
+                  // Only in case we do not 1 to 2 properties, and we do not have any array
+                  if (sub.Count >= 3) continue;
+                  foreach (var subI in sub)
                   {
-
+                    if (subI.Value is not JArray arr) continue;
+                    // We have found a array, 
+                    hasArrayLevel1=false;
                     foreach (var item in arr.OfType<JObject>())
-                    {
                       yield return item;
-                      yieldedArrayObjects = true;
-                    }
                     break;
                   }
-                  case JObject childObj:
-                    // Yield top-level child objects (e.g., collection, collection2)
-                    yield return childObj;
-                    yieldedArrayObjects = true;
-                    break;
                 }
               }
+              // hasArrayLevel1 coulod have been chnaged above...
+              if (hasArrayLevel1)
+              {
+                // Instead of then making an yieldedArrayObjects we want these items
+                bool yieldedArrayObjects = false;
+              
+                foreach (var propToken in obj.Properties().Select(prop => prop.Value))
+                {
+                  switch (propToken)
+                  {
+                    case JArray arr:
+                    {
 
-              // If nothing yielded (scalar-only root object), yield root itself
-              if (!yieldedArrayObjects)
-                yield return obj;
-            }
-            break;
-          case JsonToken.Comment:
-          case JsonToken.None:
-            continue;
+                      foreach (var item in arr.OfType<JObject>())
+                      {
+                        yield return item;
+                        yieldedArrayObjects = true;
+                      }
+                      break;
+                    }
+                    case JObject childObj:
+                      // Yield top-level child objects (e.g., collection, collection2)
+                      yield return childObj;
+                      yieldedArrayObjects = true;
+                      break;
+                  }
+                }
 
-          default:
-            throw new InvalidDataException($"Unsupported JSON token: {jsonReader.TokenType}");
+                // If nothing yielded (scalar-only root object), yield root itself
+                if (!yieldedArrayObjects)
+                  yield return obj;
+              }
+              break;
+            case JsonToken.Comment:
+            case JsonToken.None:
+              continue;
+
+            default:
+              throw new InvalidDataException($"Unsupported JSON token: {jsonReader.TokenType}");
+          }
         }
       }
+
+      return (Enumerate(), metadata);
     }
 
-    return (Enumerate(), metadata);
+    /// <summary>
+    /// Reads JSON objects from a <see cref="TextReader"/>, discovers tabular columns from the first few rows,
+    /// and writes all rows as strings using the provided callback. Supports streaming large JSON files without 
+    /// loading the entire dataset into memory.
+    /// </summary>
+    /// <param name="handleOneRow">
+    /// Callback invoked for each row. Receives a read-only collection of string values in column order.
+    /// Arrays are flattened into a single cell using <paramref name="valueSeparator"/>.
+    /// </param>
+    /// <param name="valueSeparator">
+    /// Character used to join multiple values from arrays into a single cell (default is ',').
+    /// Any occurrences of this character inside values are replaced with '_'.
+    /// </param>
+    /// <param name="sampleSize">Number of rows to check to determine the columns</param>
+    /// <param name="cancellationToken">Token to cancel processing at any time.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    ///   <item><see cref="IReadOnlyCollection{JsonColumn}"/>: the discovered columns in order.</item>
+    ///   <item><see cref="Dictionary{String, JValue}"/>: metadata scalars found at the root of the JSON.</item>
+    /// </list>
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> or <paramref name="handleOneRow"/> is null.</exception>
+    /// <remarks>
+    /// Column discovery is performed by reading up to the first 5 rows. Those rows are immediately written
+    /// using <paramref name="handleOneRow"/>, after which streaming continues for the remaining objects.  
+    /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
+    /// </remarks>
+    public (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
+      StreamRows(Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
+    {
+      var (items, metadata) = reader.StreamJsonObjects();
+      using var enumerator = items.GetEnumerator();
+
+      // Discover columns from first N rows
+      var firstRows = new List<JObject>();
+      for (int i = 0; i < sampleSize && enumerator.MoveNext(); i++)
+        firstRows.Add(enumerator.Current);
+
+      var columns = firstRows.DiscoverColumns(sampleSize, cancellationToken);
+      if (columns.Count>0)
+      {
+        // Write first rows immediately
+        foreach (var row in firstRows)
+        {
+          var columnData = new (string text, object? value)[columns.Count];
+          row.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt, val));
+          // Pass copy to avoid overwrites
+          handleOneRow(columnData);
+        }
+
+        // Continue streaming the rest
+        while (enumerator.MoveNext())
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          var columnData = new (string text, object? value)[columns.Count];
+          enumerator.Current?.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx] = (txt, val));
+          // Pass copy to avoid overwrites
+          handleOneRow(columnData);
+        }
+      }
+      return (columns, metadata);
+    }
   }
 
   // ------------------------------------------------------------
   // Row Processing
   // ------------------------------------------------------------
-
-  /// <summary>
-  /// Reads JSON objects from a <see cref="TextReader"/>, discovers tabular columns from the first few rows,
-  /// and writes all rows as strings using the provided callback. Supports streaming large JSON files without 
-  /// loading the entire dataset into memory.
-  /// </summary>
-  /// <param name="reader">The <see cref="TextReader"/> containing JSON data. Caller is responsible for disposing it.</param>
-  /// <param name="handleOneRow">
-  /// Callback invoked for each row. Receives a read-only collection of string values in column order.
-  /// Arrays are flattened into a single cell using <paramref name="valueSeparator"/>.
-  /// </param>
-  /// <param name="valueSeparator">
-  /// Character used to join multiple values from arrays into a single cell (default is ',').
-  /// Any occurrences of this character inside values are replaced with '_'.
-  /// </param>
-  /// <param name="sampleSize">Number of rows to check to determine the columns</param>
-  /// <param name="cancellationToken">Token to cancel processing at any time.</param>
-  /// <returns>
-  /// A tuple containing:
-  /// <list type="bullet">
-  ///   <item><see cref="IReadOnlyCollection{JsonColumn}"/>: the discovered columns in order.</item>
-  ///   <item><see cref="Dictionary{String, JValue}"/>: metadata scalars found at the root of the JSON.</item>
-  /// </list>
-  /// </returns>
-  /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> or <paramref name="handleOneRow"/> is null.</exception>
-  /// <remarks>
-  /// Column discovery is performed by reading up to the first 5 rows. Those rows are immediately written
-  /// using <paramref name="handleOneRow"/>, after which streaming continues for the remaining objects.  
-  /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
-  /// </remarks>
-  public static (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
-    StreamRows(this TextReader reader, Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
-  {
-    var (items, metadata) = reader.StreamJsonObjects();
-    using var enumerator = items.GetEnumerator();
-
-    // Discover columns from first N rows
-    var firstRows = new List<JObject>();
-    for (int i = 0; i < sampleSize && enumerator.MoveNext(); i++)
-      firstRows.Add(enumerator.Current);
-
-    var columns = firstRows.DiscoverColumns(sampleSize, cancellationToken);
-    if (columns.Count>0)
-    {
-      // Write first rows immediately
-      foreach (var row in firstRows)
-      {
-        var columnData = new (string text, object? value)[columns.Count];
-        row.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx]=(txt, val));
-        // Pass copy to avoid overwrites
-        handleOneRow(columnData);
-      }
-
-      // Continue streaming the rest
-      while (enumerator.MoveNext())
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        var columnData = new (string text, object? value)[columns.Count];
-        enumerator.Current?.HandleRow(columns, valueSeparator, (idx, txt, val) => columnData[idx] = (txt, val));
-        // Pass copy to avoid overwrites
-        handleOneRow(columnData);
-      }
-    }
-    return (columns, metadata);
-  }
 
   /// <summary>
   /// Collects up to <paramref name="limitProperties"/> scalar identity properties from one or more objects.

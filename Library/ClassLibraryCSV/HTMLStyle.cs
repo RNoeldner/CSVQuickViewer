@@ -183,7 +183,6 @@ public sealed class HtmlStyle
   /// </summary>
   /// <param name="template">The template.</param>
   /// <param name="contents">The contents.</param>
-  /// <returns></returns>
   public static string AddTd(string? template,
     params object?[]? contents)
   {
@@ -308,7 +307,6 @@ public sealed class HtmlStyle
   ///   Get the JSON element / variable name
   /// </summary>
   /// <param name="text">The text.</param>
-  /// <returns></returns>
   public static string JsonElementName(string text)
   {
     var allowed = text.ProcessByCategory(
@@ -321,7 +319,9 @@ public sealed class HtmlStyle
                                               && oc != UnicodeCategory.ModifierLetter
                                               && oc != UnicodeCategory.OtherLetter
                                               && oc != UnicodeCategory.LetterNumber)
+    {
       return "_" + allowed;
+    }
 
     return allowed;
   }
@@ -330,7 +330,6 @@ public sealed class HtmlStyle
   /// Get a valid HTML document string builder that stats with common HTML tags
   /// </summary>
   /// <param name="hexColor">Background color in hex</param>
-  /// <returns></returns>
   public StringBuilder StartHtmlDoc(string hexColor = "")
   {
     var text = new StringBuilder(500);
@@ -433,54 +432,47 @@ public sealed class HtmlStyle
     var errorsAndWarnings = errorText.GetErrorsAndWarnings();
     if (string.IsNullOrEmpty(regularText))
     {
-      if (errorsAndWarnings.Message.Length == 0 && errorsAndWarnings.Column.Length > 0)
+      switch (errorsAndWarnings.Message.Length)
       {
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(Error, errorsAndWarnings.Column)));
-        return;
+        case 0 when errorsAndWarnings.Column.Length > 0:
+          sbHtml.AppendFormat(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(Error, errorsAndWarnings.Column));
+          return;
+        case > 0 when errorsAndWarnings.Column.Length == 0:
+          sbHtml.AppendFormat(CultureInfo.CurrentCulture, tdTemplate,
+              AddTd(Warning, errorsAndWarnings.Message));
+          return;
+        default:
+          sbHtml.AppendFormat(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ErrorWarning, errorsAndWarnings.Column, errorsAndWarnings.Message));
+          break;
       }
-
-      if (errorsAndWarnings.Message.Length > 0 && errorsAndWarnings.Column.Length == 0)
-      {
-        sbHtml.Append(
-          string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(Warning, errorsAndWarnings.Message)));
-        return;
-      }
-
-      sbHtml.Append(
-        string.Format(
-          CultureInfo.CurrentCulture,
-          tdTemplate,
-          AddTd(ErrorWarning, errorsAndWarnings.Column, errorsAndWarnings.Message)));
     }
     else
     {
-      if (errorsAndWarnings.Message.Length == 0 && errorsAndWarnings.Column.Length > 0)
+      switch (errorsAndWarnings.Message.Length)
       {
-        sbHtml.Append(
-          string.Format(
-            CultureInfo.CurrentCulture,
-            tdTemplate,
-            AddTd(ValueError, regularText, errorsAndWarnings.Column)));
-        return;
+        case 0 when errorsAndWarnings.Column.Length > 0:
+          sbHtml.AppendFormat(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ValueError, regularText, errorsAndWarnings.Column));
+          return;
+        case > 0 when errorsAndWarnings.Column.Length == 0:
+          sbHtml.AppendFormat(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ValueWarning, regularText, errorsAndWarnings.Message));
+          return;
+        default:
+          sbHtml.AppendFormat(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Column, errorsAndWarnings.Message));
+          break;
       }
-
-      if (errorsAndWarnings.Message.Length > 0 && errorsAndWarnings.Column.Length == 0)
-      {
-        sbHtml.Append(
-          string.Format(
-            CultureInfo.CurrentCulture,
-            tdTemplate,
-            AddTd(ValueWarning, regularText, errorsAndWarnings.Message)));
-        return;
-      }
-
-      sbHtml.Append(
-        string.Format(
-          CultureInfo.CurrentCulture,
-          tdTemplate,
-          AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Column, errorsAndWarnings.Message)));
     }
   }
 

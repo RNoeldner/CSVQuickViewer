@@ -60,9 +60,12 @@ public static class StringConversion
         for (int i = 0; i < formatSpan.Length; i++)
         {
           char c = formatSpan[i];
-          if (c == '/') buffer[i] = dateSeparator;
-          else if (c == ':') buffer[i] = timeSeparator;
-          else buffer[i] = c;
+          buffer[i] = c switch
+          {
+            '/' => dateSeparator,
+            ':' => timeSeparator,
+            _ => c
+          };
         }
         // Create string from the buffer
         return dateTime.ToString(new string(buffer, 0, formatSpan.Length), cultureInfo);
@@ -78,40 +81,46 @@ public static class StringConversion
     // Measure the length for the hours block
     var lengthHours = 0;
     var consecutiveHours = true;
-    for (int i = 0; i < formatSpan.Length; i++)
+    foreach (var c in formatSpan)
     {
-      char c = formatSpan[i];
-      if (c=='h' || c=='H')
+      if (c is 'h' or 'H')
       {
         if (consecutiveHours)
           lengthHours++;
         consecutiveHours = true;
       }
       else
+      {
         consecutiveHours = false;
+      }
     }
 
     StringBuilder newFormatTimeOnly = new StringBuilder();
     bool hasHours = false;
-    for (int i = 0; i < formatSpan.Length; i++)
+    foreach (var c in formatSpan)
     {
-      char c = formatSpan[i];
-      if (c=='h' || c=='H')
+      switch (c)
       {
-        if (!hasHours)
+        case 'h' or 'H':
         {
-          var hours = (long) Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours);
-          int digits = (hours == 0) ? 1 : (int) Math.Floor(Math.Log10(hours)) + 1;
-          newFormatTimeOnly.Append(lengthHours > digits
-            ? hours.ToString(new string('0', lengthHours))
-            : hours.ToString(CultureInfo.InvariantCulture));
+          if (!hasHours)
+          {
+            var hours = (long) Math.Floor((dateTime - DateTimeConstants.FirstDateTime).TotalHours);
+            int digits = (hours == 0) ? 1 : (int) Math.Floor(Math.Log10(hours)) + 1;
+            newFormatTimeOnly.Append(lengthHours > digits
+              ? hours.ToString(new string('0', lengthHours))
+              : hours.ToString(CultureInfo.InvariantCulture));
+          }
+          hasHours = true;
+          break;
         }
-        hasHours = true;
+        case 'm' or 's' or 'f' or ' ' or '.':
+          newFormatTimeOnly.Append(c);
+          break;
+        case ':':
+          newFormatTimeOnly.Append(timeSeparator);
+          break;
       }
-      if (c=='m' || c=='s' || c=='f' || c==' ' || c=='.')
-        newFormatTimeOnly.Append(c);
-      if (c == ':')
-        newFormatTimeOnly.Append(timeSeparator);
     }
 
     return dateTime.ToString(newFormatTimeOnly.ToString(), cultureInfo);
@@ -132,11 +141,10 @@ public static class StringConversion
   /// </summary>
   /// <param name="dateTime">The date time.</param>
   /// <param name="culture">The culture.</param>
-  /// <returns></returns>
   public static string DisplayDateTime(DateTime dateTime, CultureInfo culture)
   {
     // if we only have a time value:
-    if (IsTimeOnly(dateTime))
+    if (dateTime.IsTimeOnly())
       return dateTime.ToString("T", culture);
 
     if (dateTime.TimeOfDay.TotalSeconds<1)
@@ -192,25 +200,24 @@ public static class StringConversion
     double dblScaledValue;
     string strUnits;
 
-    if (length < 1024L * 1024L)
+    switch (length)
     {
-      dblScaledValue = length / 1024D;
-      strUnits = "kB"; // strict speaking its KiB
-    }
-    else if (length < 1024L * 1024L * 1024L)
-    {
-      dblScaledValue = length / (1024D * 1024D);
-      strUnits = "MB"; // strict speaking its MiB
-    }
-    else if (length < 1024L * 1024L * 1024L * 1024L)
-    {
-      dblScaledValue = length / (1024D * 1024D * 1024D);
-      strUnits = "GB"; // strict speaking its GiB
-    }
-    else
-    {
-      dblScaledValue = length / (1024D * 1024D * 1024D * 1024D);
-      strUnits = "TB"; // strict speaking its TiB
+      case < 1024L * 1024L:
+        dblScaledValue = length / 1024D;
+        strUnits = "kB"; // strict speaking its KiB
+        break;
+      case < 1024L * 1024L * 1024L:
+        dblScaledValue = length / (1024D * 1024D);
+        strUnits = "MB"; // strict speaking its MiB
+        break;
+      case < 1024L * 1024L * 1024L * 1024L:
+        dblScaledValue = length / (1024D * 1024D * 1024D);
+        strUnits = "GB"; // strict speaking its GiB
+        break;
+      default:
+        dblScaledValue = length / (1024D * 1024D * 1024D * 1024D);
+        strUnits = "TB"; // strict speaking its TiB
+        break;
     }
 
     return $"{dblScaledValue:N2} {strUnits}";

@@ -189,234 +189,240 @@ public static class StringUtils
   }
 
   /// <summary>
-  ///   All combination of \r \n will be made to a single replacement
+  /// Extension block
   /// </summary>
-  /// <param name="text">The Text</param>
-  /// <param name="replaceSpan">The replacement value default is \n.</param>
-  /// <returns>
-  ///   The text with every combination of line feed replaced with the given replacement
-  /// </returns>
-  public static string HandleCrlfCombinations(this ReadOnlySpan<char> text, ReadOnlySpan<char> replaceSpan)
+  extension(ReadOnlySpan<char> text)
   {
-    if (text.IsEmpty) return string.Empty;
-    // Use a pooled buffer to avoid StringBuilder overhead and internal resizes
-    char[]? pooledArray = null;
+    /// <summary>
+    ///   All combination of \r \n will be made to a single replacement
+    /// </summary>
+    /// <param name="replaceSpan">The replacement value default is \n.</param>
+    /// <returns>
+    ///   The text with every combination of line feed replaced with the given replacement
+    /// </returns>
+    public string HandleCrlfCombinations(ReadOnlySpan<char> replaceSpan)
+    {
+      if (text.IsEmpty) return string.Empty;
+      // Use a pooled buffer to avoid StringBuilder overhead and internal resizes
+      char[]? pooledArray = null;
 
-    // Note: The result could technically be longer than the input if 'replace' is long
-    int maxPossibleLength = text.Length * Math.Max(1, replaceSpan.Length);
+      // Note: The result could technically be longer than the input if 'replace' is long
+      int maxPossibleLength = text.Length * Math.Max(1, replaceSpan.Length);
 
-    Span<char> buffer = maxPossibleLength <= 256
+      Span<char> buffer = maxPossibleLength <= 256
         ? stackalloc char[maxPossibleLength]
         : (pooledArray = ArrayPool<char>.Shared.Rent(maxPossibleLength));
 
-    try
-    {
-      int pos = 0;
-      char lastC = '\0';
-
-      foreach (var chr in text)
+      try
       {
-        // Handle combinations (CRLF or LFCR)
-        if ((chr == '\r' && lastC == '\n') || (chr == '\n' && lastC == '\r'))
+        int pos = 0;
+        char lastC = '\0';
+
+        foreach (var chr in text)
         {
-          lastC = '\0'; // Consume the pair
-          continue;
+          switch (chr)
+          {
+            // Handle combinations (CRLF or LFCR)
+            case '\r' when lastC == '\n':
+            case '\n' when lastC == '\r':
+              lastC = '\0'; // Consume the pair
+              continue;
+            case '\r' or '\n':
+              // If the buffer is too small (replacement string is long), 
+              // we'd need to resize, but for standard replacements, 
+              // we can just copy the span.
+              replaceSpan.CopyTo(buffer.Slice(pos));
+              pos += replaceSpan.Length;
+              break;
+            default:
+              buffer[pos++] = chr;
+              break;
+          }
+
+          lastC = chr;
         }
 
-        if (chr is '\r' or '\n')
-        {
-          // If the buffer is too small (replacement string is long), 
-          // we'd need to resize, but for standard replacements, 
-          // we can just copy the span.
-          replaceSpan.CopyTo(buffer.Slice(pos));
-          pos += replaceSpan.Length;
-        }
-        else
-        {
-          buffer[pos++] = chr;
-        }
-        lastC = chr;
+        return buffer.Slice(0, pos).ToString();
       }
-
-      return buffer.Slice(0, pos).ToString();
+      finally
+      {
+        if (pooledArray != null)
+          ArrayPool<char>.Shared.Return(pooledArray);
+      }
     }
-    finally
+
+    /// <summary>
+    ///   All combination of \r \n will be regarded as single \n
+    /// </summary>
+    /// <returns>
+    ///   The text with every combination of line feed replaced
+    /// </returns>
+    public string HandleCrlfCombinations()
     {
-      if (pooledArray != null)
-        ArrayPool<char>.Shared.Return(pooledArray);
-    }
-  }
+      if (text.IsEmpty) return string.Empty;
+      // Use a pooled buffer to avoid StringBuilder overhead and internal resizes
+      char[]? pooledArray = null;
 
-  /// <summary>
-  ///   All combination of \r \n will be regarded as single \n
-  /// </summary>
-  /// <param name="text">The Text</param>
-  /// <returns>
-  ///   The text with every combination of line feed replaced
-  /// </returns>
-  public static string HandleCrlfCombinations(this ReadOnlySpan<char> text)
-  {
-    if (text.IsEmpty) return string.Empty;
-    // Use a pooled buffer to avoid StringBuilder overhead and internal resizes
-    char[]? pooledArray = null;
-
-    Span<char> buffer = text.Length <= 256
+      Span<char> buffer = text.Length <= 256
         ? stackalloc char[text.Length]
         : (pooledArray = ArrayPool<char>.Shared.Rent(text.Length));
 
-    try
-    {
-      int pos = 0;
-      char lastC = '\0';
-
-      foreach (var chr in text)
+      try
       {
-        // Handle combinations (CRLF or LFCR)
-        if ((chr == '\r' && lastC == '\n') || (chr == '\n' && lastC == '\r'))
+        int pos = 0;
+        char lastC = '\0';
+
+        foreach (var chr in text)
         {
-          lastC = '\0'; // Consume the pair
+          // Handle combinations (CRLF or LFCR)
+          if ((chr == '\r' && lastC == '\n') || (chr == '\n' && lastC == '\r'))
+          {
+            lastC = '\0'; // Consume the pair
+            continue;
+          }
+
+          if (chr is '\r' or '\n')
+            buffer[pos++] = '\n';
+          else
+            buffer[pos++] = chr;
+          lastC = chr;
+        }
+
+        return buffer.Slice(0, pos).ToString();
+      }
+      finally
+      {
+        if (pooledArray != null)
+          ArrayPool<char>.Shared.Return(pooledArray);
+      }
+    }
+  }
+
+  /// <summary>
+  /// Extension for enumerations of strings
+  /// </summary>
+  /// <param name="parts">The parts to be joined.</param>
+  extension(IEnumerable<string> parts)
+  {
+    /// <summary>
+    ///   Joins the strings
+    /// </summary>
+    /// <param name="joinWith">The join with.</param>
+    /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
+    /// <remarks>Any empty string will be ignored.</remarks>
+    /// <returns>A string</returns>
+    public string Join(string joinWith)
+    {
+      var sb = new StringBuilder(100);
+      foreach (var part in parts)
+      {
+        if (string.IsNullOrEmpty(part))
           continue;
-        }
+        if (sb.Length > 0)
+          sb.Append(joinWith);
+        sb.Append(part);
+      }
+      return sb.ToString();
+    }
 
-        if (chr is '\r' or '\n')
-          buffer[pos++] = '\n';
-        else
-          buffer[pos++] = chr;
-        lastC = chr;
+    /// <summary>
+    ///   Joins the strings
+    /// </summary>
+    /// <param name="joinWith">The join with.</param>
+    /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
+    /// <remarks>Any empty string will be ignored.</remarks>
+    /// <returns>A string</returns>
+    public string Join(char joinWith = ',')
+    {
+      var sb = new StringBuilder(100);
+      foreach (var part in parts)
+      {
+        if (string.IsNullOrEmpty(part))
+          continue;
+        if (sb.Length > 0)
+          sb.Append(joinWith);
+        sb.Append(part);
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Ensures that a given name is unique within a collection by appending a numeric suffix if necessary.
+    /// </summary>
+    /// <param name="nameToAdd">The desired name to add to the collection.</param>
+    /// <returns>
+    /// A name guaranteed to be unique in <paramref name="parts"/>. 
+    /// If the name exists, a suffix is added (e.g., "Year2025" becomes "Year2025_1").
+    /// If an existing version suffix is detected (e.g., "Field_1"), it is incremented ("Field_2").
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="nameToAdd"/> is null or empty.</exception>
+    /// <remarks>
+    /// 1. Trailing ellipsis (Unicode … or "...") are preserved and re-applied after the numeric suffix.
+    /// 2. Smart Suffix Detection: Trailing digits are only treated as a version suffix if they are preceded 
+    ///    by a separator (space, underscore, or hyphen). This prevents names like "Year2025" from 
+    ///    being incorrectly stripped to "Year1".
+    /// 3. If no existing separator is found, an underscore ("_") is used by default for the new suffix.
+    /// </remarks>
+    public string MakeUniqueInCollection(string nameToAdd)
+    {
+      // Use a local list to avoid multiple enumerations if previousColumns is a LINQ query
+      var existing = parts as ICollection<string> ?? parts.ToList();
+
+      if (!existing.Contains(nameToAdd, StringComparer.OrdinalIgnoreCase))
+        return nameToAdd;
+
+      // 1. Handle Ellipsis
+      string ellipsis = string.Empty;
+      string cleanName = nameToAdd;
+      if (nameToAdd.EndsWith("…", StringComparison.Ordinal))
+      {
+        ellipsis = "…";
+        cleanName = nameToAdd.TrimEnd('…');
+      }
+      else if (nameToAdd.EndsWith("...", StringComparison.Ordinal))
+      {
+        ellipsis = "...";
+        cleanName = nameToAdd.Substring(0, nameToAdd.Length - 3);
       }
 
-      return buffer.Slice(0, pos).ToString();
-    }
-    finally
-    {
-      if (pooledArray != null)
-        ArrayPool<char>.Shared.Return(pooledArray);
-    }
-  }
-  /// <summary>
-  ///   Joins the strings
-  /// </summary>
-  /// <param name="parts">The parts to be joined.</param>
-  /// <param name="joinWith">The join with.</param>
-  /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
-  /// <remarks>Any empty string will be ignored.</remarks>
-  /// <returns>A string</returns>
-  public static string Join(this IEnumerable<string> parts, string joinWith)
-  {
-    var sb = new StringBuilder(100);
-    foreach (var part in parts)
-    {
-      if (string.IsNullOrEmpty(part))
-        continue;
-      if (sb.Length > 0)
-        sb.Append(joinWith);
-      sb.Append(part);
-    }
-    return sb.ToString();
-  }
+      // 2. Character-based Prefix/Separator Detection
+      string prefix = cleanName;
+      string separator = "_";
+      int lastIndex = cleanName.Length - 1;
 
-  /// <summary>
-  ///   Joins the strings
-  /// </summary>
-  /// <param name="parts">The parts to be joined.</param>
-  /// <param name="joinWith">The join with.</param>
-  /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
-  /// <remarks>Any empty string will be ignored.</remarks>
-  /// <returns>A string</returns>
-  public static string Join(this IEnumerable<string> parts, char joinWith = ',')
-  {
-    var sb = new StringBuilder(100);
-    foreach (var part in parts)
-    {
-      if (string.IsNullOrEmpty(part))
-        continue;
-      if (sb.Length > 0)
-        sb.Append(joinWith);
-      sb.Append(part);
-    }
-    return sb.ToString();
-  }
-
-  /// <summary>
-  /// Ensures that a given name is unique within a collection by appending a numeric suffix if necessary.
-  /// </summary>
-  /// <param name="previousColumns">
-  /// A collection of already used names. Names in this collection will not be modified.
-  /// This check is case-insensitive.
-  /// </param>
-  /// <param name="nameToAdd">The desired name to add to the collection.</param>
-  /// <returns>
-  /// A name guaranteed to be unique in <paramref name="previousColumns"/>. 
-  /// If the name exists, a suffix is added (e.g., "Year2025" becomes "Year2025_1").
-  /// If an existing version suffix is detected (e.g., "Field_1"), it is incremented ("Field_2").
-  /// </returns>
-  /// <exception cref="ArgumentException">Thrown if <paramref name="nameToAdd"/> is null or empty.</exception>
-  /// <remarks>
-  /// 1. Trailing ellipsis (Unicode … or "...") are preserved and re-applied after the numeric suffix.
-  /// 2. Smart Suffix Detection: Trailing digits are only treated as a version suffix if they are preceded 
-  ///    by a separator (space, underscore, or hyphen). This prevents names like "Year2025" from 
-  ///    being incorrectly stripped to "Year1".
-  /// 3. If no existing separator is found, an underscore ("_") is used by default for the new suffix.
-  /// </remarks>
-  public static string MakeUniqueInCollection(this IEnumerable<string> previousColumns, string nameToAdd)
-  {
-    // Use a local list to avoid multiple enumerations if previousColumns is a LINQ query
-    var existing = previousColumns as ICollection<string> ?? previousColumns.ToList();
-
-    if (!existing.Contains(nameToAdd, StringComparer.OrdinalIgnoreCase))
-      return nameToAdd;
-
-    // 1. Handle Ellipsis
-    string ellipsis = string.Empty;
-    string cleanName = nameToAdd;
-    if (nameToAdd.EndsWith("…", StringComparison.Ordinal))
-    {
-      ellipsis = "…";
-      cleanName = nameToAdd.TrimEnd('…');
-    }
-    else if (nameToAdd.EndsWith("...", StringComparison.Ordinal))
-    {
-      ellipsis = "...";
-      cleanName = nameToAdd.Substring(0, nameToAdd.Length - 3);
-    }
-
-    // 2. Character-based Prefix/Separator Detection
-    string prefix = cleanName;
-    string separator = "_";
-    int lastIndex = cleanName.Length - 1;
-
-    if (lastIndex >= 0 && char.IsDigit(cleanName[lastIndex]))
-    {
-      int digitStart = lastIndex;
-      while (digitStart > 0 && char.IsDigit(cleanName[digitStart - 1]))
+      if (lastIndex >= 0 && char.IsDigit(cleanName[lastIndex]))
       {
-        digitStart--;
-      }
-
-      if (digitStart > 0)
-      {
-        char c = cleanName[digitStart - 1];
-        if (c == ' ' || c == '_' || c == '-')
+        int digitStart = lastIndex;
+        while (digitStart > 0 && char.IsDigit(cleanName[digitStart - 1]))
         {
-          separator = c.ToString();
-          // TrimEnd ensures "Field _1" doesn't become "Field  _2"
-          prefix = cleanName.Substring(0, digitStart - 1).TrimEnd();
+          digitStart--;
+        }
+
+        if (digitStart > 0)
+        {
+          char c = cleanName[digitStart - 1];
+          if (c is ' ' or '_' or '-')
+          {
+            separator = c.ToString();
+            // TrimEnd ensures "Field _1" doesn't become "Field  _2"
+            prefix = cleanName.Substring(0, digitStart - 1).TrimEnd();
+          }
         }
       }
-    }
 
-    // 3. Increment logic
-    int counter = 1;
-    while (true)
-    {
-      // Construct candidate: {Prefix}{Separator}{Number}{Ellipsis}
-      string candidate = $"{prefix}{separator}{counter++}{ellipsis}";
+      // 3. Increment logic
+      int counter = 1;
+      while (true)
+      {
+        // Construct candidate: {Prefix}{Separator}{Number}{Ellipsis}
+        string candidate = $"{prefix}{separator}{counter++}{ellipsis}";
 
-      // Clean up any accidental double spaces from the prefix trim
-      candidate = candidate.Replace("  ", " ").Trim();
+        // Clean up any accidental double spaces from the prefix trim
+        candidate = candidate.Replace("  ", " ").Trim();
 
-      if (!existing.Contains(candidate, StringComparer.OrdinalIgnoreCase))
-        return candidate;
+        if (!existing.Contains(candidate, StringComparer.OrdinalIgnoreCase))
+          return candidate;
+      }
     }
   }
 
@@ -426,7 +432,7 @@ public static class StringUtils
   /// <param name="input">The read-only character span to process.</param>
   /// <returns>
   /// A string containing the original characters, excluding those in the <see cref="UnicodeCategory.Control"/> 
-  /// ranges (U+0000..U+001F and U+007F..U+009F), with the exception of carriage returns ('\r') and line feeds ('\n').
+  /// ranges (U+0000.U+001F and U+007F.U+009F), with the exception of carriage returns ('\r') and line feeds ('\n').
   /// </returns>
   /// <remarks>
   /// This method is optimized for performance:
@@ -453,7 +459,7 @@ public static class StringUtils
         // 2. Direct character check for speed
         // Unicode Control: U+0000-U+001F and U+007F-U+009F
         // We optimize by checking numeric ranges before hitting CharUnicodeInfo
-        if (c == '\r' || c == '\n')
+        if (c is '\r' or '\n')
         {
           buffer[count++] = c;
         }
@@ -480,47 +486,49 @@ public static class StringUtils
     }
   }
 
+  
   /// <summary>
-  ///   Used to get only text representation without umlaut or accents, allowing upper and lower
-  ///   case characters and numbers
+  /// Extension for <param name="original">The original text.</param> 
   /// </summary>
-  /// <param name="original">The original text.</param>
-  /// <returns>The Text without special characters</returns>
-  public static string NoSpecials(this string original) =>
-    ProcessByCategory(
-      original,
-      x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
-                                                || x == UnicodeCategory.DecimalDigitNumber);
-
-  /// <summary>
-  ///   Processes each charter of the string, if the characters is not part of allowedChars,
-  ///   the charter is omitted
-  /// </summary>
-  /// <param name="original">The original.</param>
-  /// <param name="allowedChars">a text containing all allowed characters</param>
-  /// <returns>A test with only allowed characters</returns>
-  public static string OnlyAllowed(this string original, string allowedChars)
+  extension(string original)
   {
-    if (string.IsNullOrEmpty(original))
-      return string.Empty;
+    /// <summary>
+    ///   Used to get only text representation without umlaut or accents, allowing upper and lower
+    ///   case characters and numbers
+    /// </summary>
+    /// <returns>The Text without special characters</returns>
+    public string NoSpecials() =>
+      original.ProcessByCategory(x => x is UnicodeCategory.LowercaseLetter or UnicodeCategory.UppercaseLetter or UnicodeCategory.DecimalDigitNumber);
 
-    char[]? pooledArray = null;
-    Span<char> chars = original.Length <= 256
-      ? stackalloc char[original.Length]
-      : (pooledArray = ArrayPool<char>.Shared.Rent(original.Length));
-    try
+    /// <summary>
+    ///   Processes each charter of the string, if the characters is not part of allowedChars,
+    ///   the charter is omitted
+    /// </summary>
+    /// <param name="allowedChars">a text containing all allowed characters</param>
+    /// <returns>A test with only allowed characters</returns>
+    public string OnlyAllowed(string allowedChars)
     {
-      var count = 0;
-      foreach (var c in original.Where(c => allowedChars.IndexOf(c) != -1))
+      if (string.IsNullOrEmpty(original))
+        return string.Empty;
+
+      char[]? pooledArray = null;
+      Span<char> chars = original.Length <= 256
+        ? stackalloc char[original.Length]
+        : (pooledArray = ArrayPool<char>.Shared.Rent(original.Length));
+      try
       {
-        chars[count++] = c;
+        var count = 0;
+        foreach (var c in original.Where(c => allowedChars.IndexOf(c) != -1))
+        {
+          chars[count++] = c;
+        }
+        return chars.Slice(0, count).ToString();
       }
-      return chars.Slice(0, count).ToString();
-    }
-    finally
-    {
-      // Corrected: Return to pool
-      if (pooledArray != null) ArrayPool<char>.Shared.Return(pooledArray);
+      finally
+      {
+        // Corrected: Return to pool
+        if (pooledArray != null) ArrayPool<char>.Shared.Return(pooledArray);
+      }
     }
   }
 
@@ -552,7 +560,7 @@ public static class StringUtils
     if (item.IsEmpty)
       return false;
 
-    var slices = filter.GetSlices(new[] { '+', ' ', ',', ';' });
+    var slices = filter.GetSlices(['+', ' ', ',', ';',]);
     // Any part that was started with + is required
     var requiredParts = new List<int>();
     for (int i = 0; i < slices.Count; i++)
@@ -622,263 +630,262 @@ public static class StringUtils
   }
 
   /// <summary>
-  ///   Checks if the provided text should be treated as NULL
+  /// Extension for <param name="span">A span with the text</param>
   /// </summary>
-  /// <param name="span">A span with the text</param>
-  /// <param name="treatAsNull">
-  ///   A semicolon or tab separated list of that should be treated as NULL
-  /// </param>
-  /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-  public static bool ShouldBeTreatedAsNull(this ReadOnlySpan<char> span, ReadOnlySpan<char> treatAsNull)
+  extension(ReadOnlySpan<char> span)
   {
-    if (treatAsNull.IsEmpty)
-      return false;
-    if (span.IsEmpty)
-      return true;
-
-    foreach (var (start, length) in treatAsNull.GetSlices(StaticCollections.ListDelimiterChars))
+    /// <summary>
+    ///   Checks if the provided text should be treated as NULL
+    /// </summary>
+    /// <param name="treatAsNull">
+    ///   A semicolon or tab separated list of that should be treated as NULL
+    /// </param>
+    /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
+    public bool ShouldBeTreatedAsNull(ReadOnlySpan<char> treatAsNull)
     {
-      if (span.Equals(treatAsNull.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+      if (treatAsNull.IsEmpty)
+        return false;
+      if (span.IsEmpty)
         return true;
-    }
-    return false;
-  }
 
-  /// <summary>
-  /// Escapes a string for use inside T-SQL square brackets by doubling closing brackets.
-  /// </summary>
-  /// <param name="contents">The raw column or table name to escape.</param>
-  /// <returns>The escaped string with closing brackets (']') doubled.</returns>
-  public static string SqlName(this ReadOnlySpan<char> contents)
-  {
-    if (contents.IsEmpty)
-      return string.Empty;
-
-    // 1. Scan for closing brackets to determine if escaping is necessary
-    int bracketCount = 0;
-    foreach (var c in contents)
-    {
-      if (c == ']') bracketCount++;
-    }
-
-    // Fast path: No closing brackets found, return as-is
-    if (bracketCount == 0)
-      return contents.ToString();
-
-    // 2. Allocate buffer (stack for small names, pool for large/complex names)
-    int length = contents.Length + bracketCount;
-    char[]? pooledArray = null;
-
-    Span<char> buffer = length <= 256
-        ? stackalloc char[length]
-        : (pooledArray = ArrayPool<char>.Shared.Rent(length));
-
-    try
-    {
-      int pos = 0;
-      foreach (var c in contents)
+      foreach (var (start, length) in treatAsNull.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        buffer[pos++] = c;
-        if (c == ']')
-        {
-          // Double the closing bracket
-          buffer[pos++] = ']';
-        }
+        if (span.Equals(treatAsNull.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Escapes a string for use inside T-SQL square brackets by doubling closing brackets.
+    /// </summary>
+    /// <returns>The escaped string with closing brackets (']') doubled.</returns>
+    public string SqlName()
+    {
+      if (span.IsEmpty)
+        return string.Empty;
+
+      // 1. Scan for closing brackets to determine if escaping is necessary
+      int bracketCount = 0;
+      foreach (var c in span)
+      {
+        if (c == ']') bracketCount++;
       }
 
-      return buffer.Slice(0, pos).ToString();
-    }
-    finally
-    {
-      if (pooledArray != null)
-        ArrayPool<char>.Shared.Return(pooledArray);
-    }
-  }
+      // Fast path: No closing brackets found, return as-is
+      if (bracketCount == 0)
+        return span.ToString();
 
-  /// <summary>
-  /// Handles quotes in SQL strings by doubling single quotes. 
-  /// Does not include the outer quotes.
-  /// </summary>
-  /// <param name="contents">The raw content to escape.</param>
-  /// <returns>The escaped string with single quotes doubled.</returns>
-  public static string SqlQuote(this ReadOnlySpan<char> contents)
-  {
-    if (contents.IsEmpty)
-      return string.Empty;
+      // 2. Allocate buffer (stack for small names, pool for large/complex names)
+      int length = span.Length + bracketCount;
+      char[]? pooledArray = null;
 
-    // Check if we even need to escape anything to avoid unnecessary work
-    int quoteCount = 0;
-    foreach (var c in contents)
-    {
-      if (c == '\'') quoteCount++;
-    }
-
-    // Optimization: If no quotes found, return the original content as a string
-    if (quoteCount == 0)
-      return contents.ToString();
-
-    int length = contents.Length + quoteCount;
-    char[]? pooledArray = null;
-
-    Span<char> buffer = length <= 256
+      Span<char> buffer = length <= 256
         ? stackalloc char[length]
         : (pooledArray = ArrayPool<char>.Shared.Rent(length));
 
-    try
-    {
-      int pos = 0;
-      foreach (var c in contents)
+      try
       {
-        if (c == '\'')
-        {
-          buffer[pos++] = '\'';
-          buffer[pos++] = '\'';
-        }
-        else
+        int pos = 0;
+        foreach (var c in span)
         {
           buffer[pos++] = c;
+          if (c == ']')
+          {
+            // Double the closing bracket
+            buffer[pos++] = ']';
+          }
         }
+
+        return buffer.Slice(0, pos).ToString();
+      }
+      finally
+      {
+        if (pooledArray != null)
+          ArrayPool<char>.Shared.Return(pooledArray);
+      }
+    }
+
+    /// <summary>
+    /// Handles quotes in SQL strings by doubling single quotes. 
+    /// Does not include the outer quotes.
+    /// </summary>
+    /// <returns>The escaped string with single quotes doubled.</returns>
+    public string SqlQuote()
+    {
+      if (span.IsEmpty)
+        return string.Empty;
+
+      // Check if we even need to escape anything to avoid unnecessary work
+      int quoteCount = 0;
+      foreach (var c in span)
+      {
+        if (c == '\'') quoteCount++;
       }
 
-      return buffer.Slice(0, pos).ToString();
+      // Optimization: If no quotes found, return the original content as a string
+      if (quoteCount == 0)
+        return span.ToString();
+
+      int length = span.Length + quoteCount;
+      char[]? pooledArray = null;
+
+      Span<char> buffer = length <= 256
+        ? stackalloc char[length]
+        : (pooledArray = ArrayPool<char>.Shared.Rent(length));
+
+      try
+      {
+        int pos = 0;
+        foreach (var c in span)
+        {
+          if (c == '\'')
+          {
+            buffer[pos++] = '\'';
+            buffer[pos++] = '\'';
+          }
+          else
+          {
+            buffer[pos++] = c;
+          }
+        }
+
+        return buffer.Slice(0, pos).ToString();
+      }
+      finally
+      {
+        if (pooledArray != null)
+          ArrayPool<char>.Shared.Return(pooledArray);
+      }
     }
-    finally
+
+    /// <summary>
+    ///   Strings with the right substitution to be used as filter If a pattern in a LIKE clause
+    ///   contains any of these special characters * % [ ], those characters must be escaped in
+    ///   brackets [ ] like this [*], [%], [[] or []].
+    /// </summary>
+    /// <returns></returns>
+    public string StringEscapeLike()
     {
-      if (pooledArray != null)
-        ArrayPool<char>.Shared.Return(pooledArray);
-    }
-  }
+      if (span.IsEmpty)
+        return string.Empty;
 
-  /// <summary>
-  ///   Strings with the right substitution to be used as filter If a pattern in a LIKE clause
-  ///   contains any of these special characters * % [ ], those characters must be escaped in
-  ///   brackets [ ] like this [*], [%], [[] or []].
-  /// </summary>
-  /// <param name="inputValue">The input.</param>
-  /// <returns></returns>
-  public static string StringEscapeLike(this ReadOnlySpan<char> inputValue)
-  {
-    if (inputValue.IsEmpty)
-      return string.Empty;
+      // Worst case: every character is a special char like '%', turning into '[%]'
+      // This triples the length.
+      int maxLength = span.Length * 3;
+      char[]? pooledArray = null;
 
-    // Worst case: every character is a special char like '%', turning into '[%]'
-    // This triples the length.
-    int maxLength = inputValue.Length * 3;
-    char[]? pooledArray = null;
-
-    Span<char> buffer = maxLength <= 256
+      Span<char> buffer = maxLength <= 256
         ? stackalloc char[maxLength]
         : (pooledArray = ArrayPool<char>.Shared.Rent(maxLength));
 
-    try
-    {
-      int pos = 0;
-      foreach (var c in inputValue)
+      try
       {
-        switch (c)
+        int pos = 0;
+        foreach (var c in span)
         {
-          case '%' or '*' or '[' or ']':
-            buffer[pos++] = '[';
-            buffer[pos++] = c;
-            buffer[pos++] = ']';
-            break;
+          switch (c)
+          {
+            case '%' or '*' or '[' or ']':
+              buffer[pos++] = '[';
+              buffer[pos++] = c;
+              buffer[pos++] = ']';
+              break;
 
-          case '\'':
-            // SQL Escape for single quote is two single quotes
-            buffer[pos++] = '\'';
-            buffer[pos++] = '\'';
-            break;
+            case '\'':
+              // SQL Escape for single quote is two single quotes
+              buffer[pos++] = '\'';
+              buffer[pos++] = '\'';
+              break;
 
-          default:
-            buffer[pos++] = c;
-            break;
+            default:
+              buffer[pos++] = c;
+              break;
+          }
+        }
+
+        return buffer.Slice(0, pos).ToString();
+      }
+      finally
+      {
+        if (pooledArray != null)
+          ArrayPool<char>.Shared.Return(pooledArray);
+      }
+    }
+
+    /// <summary>
+    /// Converts a text to a secured text
+    /// </summary>
+    /// <exception cref="System.ArgumentNullException">text</exception>
+    public System.Security.SecureString ToSecureString()
+    {
+      var securePassword = new System.Security.SecureString();
+
+      foreach (var c in span)
+        securePassword.AppendChar(c);
+
+      securePassword.MakeReadOnly();
+      return securePassword;
+    }
+
+    /// <summary>
+    /// Identifies if the entry is a constant (quoted string or numeric) and returns the inner value.
+    /// </summary>
+    /// <param name="result">The identified constant value (unquoted if a string).</param>
+    /// <returns>True if the entry is a valid string or numeric constant.</returns>
+    public bool TryGetConstant(out ReadOnlySpan<char> result)
+    {
+      result = span;
+      int length = span.Length;
+
+      if (length == 0)
+        return false;
+
+      // 1. Handle Quoted Constants (Strings)
+      if (length >= 2)
+      {
+        char first = span[0];
+        char last = span[length - 1];
+        if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
+        {
+          result = span.Slice(1, length - 2);
+          return true;
         }
       }
 
-      return buffer.Slice(0, pos).ToString();
-    }
-    finally
-    {
-      if (pooledArray != null)
-        ArrayPool<char>.Shared.Return(pooledArray);
+      // 2. Handle Numeric Constants (Manual Parse)
+      // Validates: Optional sign, at least one digit, optional single decimal point
+      int i = (span[0] == '+' || span[0] == '-') ? 1 : 0;
+
+      // If it's just "+" or "-", or empty after the sign, it's not a number
+      if (i == length) return false;
+
+      bool hasDecimal = false;
+      bool hasDigits = false;
+
+      for (; i < length; i++)
+      {
+        char c = span[i];
+        if (c >= '0' && c <= '9')
+        {
+          hasDigits = true;
+        }
+        else if ((c == '.' || c == ',') && !hasDecimal)
+        {
+          hasDecimal = true;
+        }
+        else
+        {
+          // Found a non-numeric character (e.g., a letter or second dot)
+          return false;
+        }
+      }
+
+      // Ensure it's not just a "." and actually contains digits
+      if (!hasDigits) return false;
+
+      // It's a number, result is already set to entry
+      return true;
     }
   }
-
-  /// <summary>
-  /// Converts a text to a secured text
-  /// </summary>
-  /// <param name="text">The plain text</param>
-  /// <exception cref="System.ArgumentNullException">text</exception>
-  public static System.Security.SecureString ToSecureString(this ReadOnlySpan<char> text)
-  {
-    var securePassword = new System.Security.SecureString();
-
-    foreach (var c in text)
-      securePassword.AppendChar(c);
-
-    securePassword.MakeReadOnly();
-    return securePassword;
-  }
-
-  /// <summary>
-  /// Identifies if the entry is a constant (quoted string or numeric) and returns the inner value.
-  /// </summary>
-  /// <param name="entry">The raw character span to evaluate.</param>
-  /// <param name="result">The identified constant value (unquoted if a string).</param>
-  /// <returns>True if the entry is a valid string or numeric constant.</returns>
-  public static bool TryGetConstant(this ReadOnlySpan<char> entry, out ReadOnlySpan<char> result)
-  {
-    result = entry;
-    int length = entry.Length;
-
-    if (length == 0)
-      return false;
-
-    // 1. Handle Quoted Constants (Strings)
-    if (length >= 2)
-    {
-      char first = entry[0];
-      char last = entry[length - 1];
-      if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
-      {
-        result = entry.Slice(1, length - 2);
-        return true;
-      }
-    }
-
-    // 2. Handle Numeric Constants (Manual Parse)
-    // Validates: Optional sign, at least one digit, optional single decimal point
-    int i = (entry[0] == '+' || entry[0] == '-') ? 1 : 0;
-
-    // If it's just "+" or "-", or empty after the sign, it's not a number
-    if (i == length) return false;
-
-    bool hasDecimal = false;
-    bool hasDigits = false;
-
-    for (; i < length; i++)
-    {
-      char c = entry[i];
-      if (c >= '0' && c <= '9')
-      {
-        hasDigits = true;
-      }
-      else if ((c == '.' || c == ',') && !hasDecimal)
-      {
-        hasDecimal = true;
-      }
-      else
-      {
-        // Found a non-numeric character (e.g., a letter or second dot)
-        return false;
-      }
-    }
-
-    // Ensure it's not just a "." and actually contains digits
-    if (!hasDigits) return false;
-
-    // It's a number, result is already set to entry
-    return true;
-  }
-
 }

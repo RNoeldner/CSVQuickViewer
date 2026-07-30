@@ -4,10 +4,11 @@ using System.Diagnostics;
 namespace CsvTools;
 
 /// <summary>
+/// <para>
 ///  Extremely lightweight time-to-completion estimator using a fixed-size
 ///   circular buffer and high-resolution monotonic timestamps (<see cref="Stopwatch"/>).
-///
-///   This implementation:
+/// </para>
+/// <para>  This implementation:</para>
 ///   <list type="bullet">
 ///     <item><description>avoids all allocations during runtime (zero-alloc)</description></item>
 ///     <item><description>runs in O(1) time for each update</description></item>
@@ -260,7 +261,7 @@ public sealed class TimeToCompletion
     {
       < 1 => $"{value.Minutes}:{value.Seconds:00} min",
       < 24 => $"{value.Hours}:{value.Minutes:00} hrs",
-      _ => $"{value.TotalDays:F2} days"
+      _ => $"{value.TotalDays:F2} days",
     };
   }
 }

@@ -1061,9 +1061,7 @@ public static class DetermineColumnFormat
       return fileSetting.ColumnCollection;
 
     using var fileReader = await fileSetting.GetUntypedFileReaderAsync(progress.CancellationToken).ConfigureAwait(false);
-    return await FillGuessColumnFormatReaderAsyncReader(
-      fileReader,
-      fillGuessSettings,
+    return await fileReader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
       fileSetting.ColumnCollection,
       addTextColumns,
       checkDoubleToBeInteger,

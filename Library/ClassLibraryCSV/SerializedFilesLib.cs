@@ -153,45 +153,46 @@ public static class SerializedFilesLib
     return token.ToString(Formatting.Indented);
   }
 
-  /// <summary>
-  ///   De serialize a file, looking at the file its determined if it should be read as JSON or XML
-  /// </summary>
-  /// <typeparam name="T">A class</typeparam>
   /// <param name="fileName">Name of the file</param>
-  /// <returns>New instance of the class</returns>
-  public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
+  extension(string fileName)
   {
-    Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
-    using var improvedStream = FunctionalDi.GetStream(new SourceAccess(fileName));
-    using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
+    /// <summary>
+    ///   De serialize a file, looking at the file its determined if it should be read as JSON or XML
+    /// </summary>
+    /// <typeparam name="T">A class</typeparam>
+    /// <returns>New instance of the class</returns>
+    public async Task<T> DeserializeFileAsync<T>() where T : class
+    {
+      Logger.Debug("Loading information from file {filename}", fileName.GetShortDisplayFileName());
+      using var improvedStream = FunctionalDi.GetStream(new SourceAccess(fileName));
+      using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
-    var text = await reader.ReadToEndAsync().ConfigureAwait(false);
-    // Moved some classes across library, this needs to be adjusted here
-    text = new[] { ".CsvFile", ".JsonFile", ".XMLFile" }.Aggregate(text, (current, className) => current.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\""));
+      var text = await reader.ReadToEndAsync().ConfigureAwait(false);
+      // Moved some classes across library, this needs to be adjusted here
+      text = new[] { ".CsvFile", ".JsonFile", ".XMLFile" }.Aggregate(text, (current, className) => current.Replace(className + ", CsvTools.ClassLibraryCSV\"", className + ", CsvTools.ClassLibraryValidator\""));
 
-    if (text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
-      throw new JsonReaderException("XML files are no longer supported.");
-    return DeserializeText<T>(text);
-  }
+      if (text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
+        throw new JsonReaderException("XML files are no longer supported.");
+      return text.DeserializeText<T>();
+    }
 
-  /// <summary>
-  ///   De serialize the text as a specific type
-  /// </summary>
-  /// <param name="content">The JSON content as text</param>
-  public static T DeserializeText<T>(this string content) where T : class =>
-    JsonConvert.DeserializeObject<T>(content, JsonSerializerSettings.Value)!;
+    /// <summary>
+    ///   De serialize the text as a specific type
+    /// </summary>
+    public T DeserializeText<T>() where T : class =>
+      JsonConvert.DeserializeObject<T>(fileName, JsonSerializerSettings.Value)!;
 
-  /// <summary>
-  ///   De serializes the text as JSON Object
-  /// </summary>
-  /// <param name="content">The JSON content as text</param>
-  /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
-  /// <exception cref="JsonException">Returned content could not be read as JSON</exception>
-  public static JContainer DeserializeJson(this string content)
-  {
-    if (JsonConvert.DeserializeObject(content, JsonSerializerSettings.Value) is JContainer jsonData)
-      return jsonData;
-    throw new JsonException($"Content '{content.Substring(0, 150)}' could not be read as Json");
+    /// <summary>
+    ///   De serializes the text as JSON Object
+    /// </summary>
+    /// <returns>A <see cref="JObject" /> when the text could be parsed</returns>
+    /// <exception cref="JsonException">Returned content could not be read as JSON</exception>
+    public JContainer DeserializeJson()
+    {
+      if (JsonConvert.DeserializeObject(fileName, JsonSerializerSettings.Value) is JContainer jsonData)
+        return jsonData;
+      throw new JsonException($"Content '{fileName.Substring(0, 150)}' could not be read as Json");
+    }
   }
 
   private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)

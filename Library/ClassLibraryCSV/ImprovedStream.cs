@@ -390,6 +390,7 @@ public class ImprovedStream : Stream, IImprovedStream
   protected override void Dispose(bool disposing)
   {
     if (disposing)
+    {
       try
       {
         AccessStream?.Dispose();
@@ -402,6 +403,7 @@ public class ImprovedStream : Stream, IImprovedStream
       {
         AccessStream = null;
       }
+    }
 
     if (!SourceAccess.LeaveOpen && disposing)
       BaseStream.Dispose();

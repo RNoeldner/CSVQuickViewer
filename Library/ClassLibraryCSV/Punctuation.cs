@@ -21,54 +21,57 @@ namespace CsvTools;
 public static class Punctuation
 {
 
-  /// <summary>
-  ///   Gets a descriptive text for a character
-  /// </summary>
-  public static string Description(this char character)
-    => character switch
-    {
-      '\t' => "Horizontal Tab",
-      ' ' => "Space",
-      '\u00A0' => "Non-breaking space",
-      '\\' => "Backslash \\",
-      '/' => "Slash /",
-      ',' => "Comma ,",
-      ';' => "Semicolon ;",
-      ':' => "Colon :",
-      '.' => "Dot .",
-      '|' => "Pipe |",
-      '"' => "Quotation marks \"",
-      '\'' => "Apostrophe '",
-      '&' => "Ampersand &",
-      '*' => "Asterisk *",
-      '`' => "Tick Mark `",
-      '?' => "Check mark ?",
-      '\u001C' => "File Separator Char 28",
-      '\u001D' => "Group Separator Char 29",
-      '\u001E' => "Record Separator ?",
-      '\u001F' => "Unit Separator ?",
-      _ => character.ToString()
-    };
+  extension(char character)
+  {
+    /// <summary>
+    ///   Gets a descriptive text for a character
+    /// </summary>
+    public string Description()
+      => character switch
+      {
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
+        '\u00A0' => "Non-breaking space",
+        '\\' => "Backslash \\",
+        '/' => "Slash /",
+        ',' => "Comma ,",
+        ';' => "Semicolon ;",
+        ':' => "Colon :",
+        '.' => "Dot .",
+        '|' => "Pipe |",
+        '"' => "Quotation marks \"",
+        '\'' => "Apostrophe '",
+        '&' => "Ampersand &",
+        '*' => "Asterisk *",
+        '`' => "Tick Mark `",
+        '?' => "Check mark ?",
+        '\u001C' => "File Separator Char 28",
+        '\u001D' => "Group Separator Char 29",
+        '\u001E' => "Record Separator ?",
+        '\u001F' => "Unit Separator ?",
+        _ => character.ToString()
+      };
 
+    /// <summary>
+    /// The printable text representation of the character, a tab will be shown as "Tab"
+    /// </summary>
+    public string Text()
+      => character switch
+      {
+        '\0' => string.Empty,
+        '\t' => "Tab",
+        '\r' => "CR",
+        '\n' => "LF",
+        ' ' => "Space",
+        '\u00A0' => "NBSP",
+        '\u001F' => "US",
+        '\u001E' => "RS",
+        '\u001D' => "GS",
+        '\u001C' => "FS",
+        _ => character.ToString()
+      };
+  }
 
-  /// <summary>
-  /// The printable text representation of the character, a tab will be shown as "Tab"
-  /// </summary>
-  public static string Text(this char character)
-    => character switch
-    {
-      '\0' => string.Empty,
-      '\t' => "Tab",
-      '\r' => "CR",
-      '\n' => "LF",
-      ' ' => "Space",
-      '\u00A0' => "NBSP",
-      '\u001F' => "US",
-      '\u001E' => "RS",
-      '\u001D' => "GS",
-      '\u001C' => "FS",
-      _ => character.ToString()
-    };
 
   /// <summary>
   /// Set the text if something did change, return true
@@ -80,7 +83,7 @@ public static class Punctuation
   {
     if (character.Text().Equals(value, StringComparison.Ordinal))
       return false;
-    character = FromText(value);
+    character = value.FromText();
     return true;
   }
 
