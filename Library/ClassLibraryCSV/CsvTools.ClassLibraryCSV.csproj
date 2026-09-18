@@ -11,7 +11,7 @@
     <OutputType>Library</OutputType>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
     <SignAssembly>True</SignAssembly>
     <Nullable>enable</Nullable>
@@ -84,5 +84,4 @@
     <PackageReference Include="TimeZoneConverter" Version="7.2.0" />
     <PackageReference Include="UTF.Unknown" Version="2.6.0" />
   </ItemGroup>
-
 </Project>

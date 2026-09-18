@@ -1,0 +1,8 @@
+{
+  "dotnet.preferTargetFramework": "net8.0",
+  "dotnet.project.languageServer.analyzeOpenDocumentsOnly": false,
+  "csharp.inlayHints.enableForTypes": true,
+  "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
+  "omnisharp.projectLoadTimeout": 120,
+  "omnisharp.enableMsBuildLoadProjectsOnDemand": false
+}

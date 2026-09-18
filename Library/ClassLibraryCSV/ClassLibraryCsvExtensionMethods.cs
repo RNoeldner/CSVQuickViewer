@@ -966,7 +966,7 @@ public static class ClassLibraryCsvExtensionMethods
       var fixedFormat = format.Replace("YY", "yy").Replace("W", "w");
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 #pragma warning restore MA0089 // Optimize string method usage
-      if (fixedFormat.Contains("w", StringComparison.OrdinalIgnoreCase))
+      if (fixedFormat.Contains('w'))
       {
         var weekNum = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dt, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 #pragma warning disable MA0089 // Optimize string method usage
