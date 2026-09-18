@@ -25,10 +25,10 @@ public class DataTableWrapperTests
   private readonly DataTable m_DataTable = UnitTestStaticData.GetDataTable(100);
 
   [TestMethod]
-  public void DataTableWrapperOpenCloseTest()
+  public async Task DataTableWrapperOpenCloseTestAsync()
   {
     using var test = new DataTableWrapper(m_DataTable);
-    test.Read();
+    await test.ReadAsync(UnitTestStatic.Token);
     Assert.IsFalse(test.IsClosed);
     test.Close();
     Assert.IsTrue(test.IsClosed);

@@ -1153,7 +1153,7 @@ new Column[]
     Assert.AreEqual(1, reader.Percent, "Percent");
     Assert.AreEqual(10 - 2, reader.VisibleFieldCount, "VisibleFieldCount");
 #pragma warning disable CS0618
-    Assert.IsTrue(reader.Read(), "Read");
+    Assert.IsTrue(await reader.ReadAsync(UnitTestStatic.Token), "Read");
 #pragma warning restore CS0618
 
     Assert.AreEqual(true, reader.HasRows, "HasRows");
@@ -1191,14 +1191,14 @@ setting.IdentifierInContainer, TimeZoneInfo.Local.Id, true, false);
 
     Assert.AreEqual(10, reader.VisibleFieldCount);
 #pragma warning disable CS0618
-    Assert.IsTrue(reader.Read());
+    Assert.IsTrue(await reader.ReadAsync(UnitTestStatic.Token));
 #pragma warning restore CS0618
-    Assert.IsTrue(reader.IsDBNull(0));
+    Assert.IsTrue(await reader.IsDBNullAsync(0));
     Assert.IsFalse(await reader.IsDBNullAsync(1));
     Assert.AreEqual("-22477", reader.GetString(1), "GetString(1)");
     Assert.AreEqual(-22477, reader.GetInt32(1), "GetInt32(1)");
-    Assert.AreEqual(6, reader.GetStream(1).Length);
-    Assert.AreEqual("-22477", await reader.GetTextReader(1).ReadToEndAsync(), "GetTextReader(1)");
+    Assert.AreEqual(6, (reader.GetStream(1)).Length);
+    Assert.AreEqual("-22477", reader.GetTextReader(1).ReadToEnd(), "GetTextReader(1)");
 
     Assert.IsTrue(await reader.ReadAsync(UnitTestStatic.Token));
     Assert.AreEqual(true, reader.HasRows);
@@ -1249,7 +1249,7 @@ TimeZoneInfo.Local.Id, true, false);
     Assert.AreEqual(1, reader.Percent);
     Assert.AreEqual(10 - 2, reader.VisibleFieldCount);
 #pragma warning disable CS0618
-    Assert.IsTrue(reader.Read());
+    Assert.IsTrue(await reader.ReadAsync(UnitTestStatic.Token));
 #pragma warning restore CS0618
 
     Assert.AreEqual(true, reader.HasRows);

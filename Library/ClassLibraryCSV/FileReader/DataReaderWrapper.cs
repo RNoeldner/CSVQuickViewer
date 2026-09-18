@@ -91,7 +91,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   public event EventHandler<WarningEventArgs>? Warning;
 
   /// <inheritdoc />
-  public override int Depth => FieldCount;
+  public override int Depth => DataReader is DbDataReader db ? db.Depth : FieldCount;
 
   /// <inheritdoc />
   public void HandleReadFinished() => ReadFinished?.SafeInvoke(this);
@@ -107,7 +107,7 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   public override int FieldCount => MReaderMapping.ResultingColumns.Count;
 
   /// <inheritdoc />
-  public override bool HasRows => !DataReader.IsClosed;
+  public override bool HasRows => DataReader is DbDataReader db ? db.HasRows : !DataReader.IsClosed;
 
   /// <inheritdoc />
   public override bool IsClosed => DataReader.IsClosed;
@@ -351,8 +351,20 @@ public class DataReaderWrapper : DbDataReader, IFileReader
   }
 
   /// <inheritdoc cref="IDataReader" />
-  public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
+  public override bool Read()
+  {
+    if (EndOfFile)
+      return false;
 
+    if (DataReader.Read())
+    {
+      ReadSuccess();
+      return true;
+    }
+
+    HandleReadFinished();
+    return false;
+  }
 
   /// <inheritdoc cref="IFileReader" />
   public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
@@ -360,45 +372,47 @@ public class DataReaderWrapper : DbDataReader, IFileReader
     if (cancellationToken.IsCancellationRequested || EndOfFile)
       return false;
 
-    if (DataReader is DbDataReader dbDataReader
-          ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
-          : DataReader.Read())
+    if ((DataReader is DbDataReader db) ? await db.ReadAsync(cancellationToken).ConfigureAwait(false) : await Task.Run(() => DataReader.Read(), cancellationToken))
     {
-      RecordNumber++;
-
-      // if we do have source field for error information, use this
-      if (MReaderMapping.ColNumErrorFieldSource != -1)
-      {
-        if (!DataReader.IsDBNull(MReaderMapping.ColNumErrorFieldSource))
-        {
-          RowErrorInformation = DataReader.GetString(MReaderMapping.ColNumErrorFieldSource);
-          if (RowErrorInformation.IsWarningMessage())
-            NumberRowWarnings++;
-        }
-        else
-        {
-          RowErrorInformation = string.Empty;
-        }
-      }
-      // If we have errors reported through HandleSourceWarning
-      else if (m_ColumnErrorDictionary.Count>0)
-      {
-        // Get the error information from the Dictionary filled by the source reader warnings
-        RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => MReaderMapping.ResultingColumns[i].Name);
-        if (RowErrorInformation.IsWarningMessage())
-          NumberRowWarnings++;
-        m_ColumnErrorDictionary.Clear();
-      }
-      else
-      {
-        RowErrorInformation = string.Empty;
-      }
-
+      ReadSuccess();
       return true;
     }
 
     HandleReadFinished();
     return false;
+  }
+
+  private void ReadSuccess()
+  {
+    RecordNumber++;
+
+    // if we do have source field for error information, use this
+    if (MReaderMapping.ColNumErrorFieldSource != -1)
+    {
+      if (!DataReader.IsDBNull(MReaderMapping.ColNumErrorFieldSource))
+      {
+        RowErrorInformation = DataReader.GetString(MReaderMapping.ColNumErrorFieldSource);
+        if (RowErrorInformation.IsWarningMessage())
+          NumberRowWarnings++;
+      }
+      else
+      {
+        RowErrorInformation = string.Empty;
+      }
+    }
+    // If we have errors reported through HandleSourceWarning
+    else if (m_ColumnErrorDictionary.Count>0)
+    {
+      // Get the error information from the Dictionary filled by the source reader warnings
+      RowErrorInformation = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, i => MReaderMapping.ResultingColumns[i].Name);
+      if (RowErrorInformation.IsWarningMessage())
+        NumberRowWarnings++;
+      m_ColumnErrorDictionary.Clear();
+    }
+    else
+    {
+      RowErrorInformation = string.Empty;
+    }
   }
 
   /// <inheritdoc />

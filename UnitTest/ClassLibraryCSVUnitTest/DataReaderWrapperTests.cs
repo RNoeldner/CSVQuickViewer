@@ -68,7 +68,7 @@ public class DataReaderWrapperTests
 
 
   [TestMethod()]
-  public void DataTableWrapperErrorPassthroughTest()
+  public async Task DataTableWrapperErrorPassthroughTestAsync()
   {
     using var dataTable = new DataTable();
     dataTable.TableName = "DataTable";
@@ -85,7 +85,7 @@ public class DataReaderWrapperTests
       dataTable.Rows.Add(row);
     }
     using var reader = new DataTableWrapper(dataTable);
-    reader.Read();
+    await reader.ReadAsync(UnitTestStatic.Token);
     Assert.AreEqual("Error0", reader.GetValue(2));
   }
 
