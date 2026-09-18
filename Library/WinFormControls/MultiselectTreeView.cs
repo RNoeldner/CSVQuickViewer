@@ -281,7 +281,7 @@ public class MultiSelectTreeView : TreeView
     sbHtml.AppendLine(HtmlStyle.TableClose);
 
     var dataObject = new DataObject();
-    dataObject.SetData(DataFormats.Html, true, HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
+    dataObject.SetData(DataFormats.Html, true, HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString().AsSpan()));
     dataObject.SetData(DataFormats.Text, true, buffer.ToString());
 
     Clipboard.Clear();

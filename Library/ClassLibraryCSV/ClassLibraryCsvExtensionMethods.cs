@@ -36,7 +36,7 @@ public static class ClassLibraryCsvExtensionMethods
 {
   private static readonly (string opener, string closer)[] Openers =
     [("(", ")"), ("{{", "}}"), ("{", "}"), ("[", "]"), ("<:", ">"), ("#", "#"), ("#", string.Empty)];
-  
+
   private static readonly char[] WordDelimiters =
     [
     ' ', '\r', '\n', '\t',    // Whitespace
@@ -48,89 +48,83 @@ public static class ClassLibraryCsvExtensionMethods
     ];
 
   /// <summary>
-  /// <param name="fileName">The name or path of the file.</param> 
-  /// </summary>
-  extension(ReadOnlySpan<char> fileName)
-  {
-    /// <summary>
-    /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
-    /// </summary>
-    /// <returns><c>true</c> if the extension is .cmp or .dfl; otherwise, <c>false</c>.</returns>
-    public bool AssumeDeflate() =>
+  /// Determines if the file should be treated as a "deflate" compressed file based on its extension.
+  /// </summary>  
+  /// <returns><c>true</c> if the extension is .cmp or .dfl; otherwise, <c>false</c>.</returns>
+  public static bool AssumeDeflate(this ReadOnlySpan<char> fileName) =>
       fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase)
       || fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Determines if the file is a delimited text file based on its extension.</summary>
-    public bool AssumeDelimited() =>
+  /// <summary>Determines if the file is a delimited text file based on its extension.</summary>
+  public static bool AssumeDelimited(this ReadOnlySpan<char> fileName) =>
       fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) || fileName.AssumeDelimited1();
 
-    /// <summary>Determines if the file is a common delimited format (.csv, .tab, .tsv).</summary>
-    public bool AssumeDelimited1() =>
+  /// <summary>Determines if the file is a common delimited format (.csv, .tab, .tsv).</summary>
+  public static bool AssumeDelimited1(this ReadOnlySpan<char> fileName) =>
       fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Determines if the file should be treated as a GZip compressed file based on its extension.
-    /// </summary>
-    public bool AssumeGZip() =>
+  /// <summary>
+  /// Determines if the file should be treated as a GZip compressed file based on its extension.
+  /// </summary>
+  public static bool AssumeGZip(this ReadOnlySpan<char> fileName) =>
       fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
       || fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Determines if the file should be treated as a PGP/GPG encrypted file based on its extension.
-    /// </summary>
-    public bool AssumePgp() =>
+  /// <summary>
+  /// Determines if the file should be treated as a PGP/GPG encrypted file based on its extension.
+  /// </summary>
+  public static bool AssumePgp(this ReadOnlySpan<char> fileName) =>
       fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase)
       || fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Checks if a string contains supported placeholder patterns: {xxx}, (xxx), #xxx#, or &lt;:xxx&gt;.
-    /// </summary>
-    /// <returns><c>true</c> if a potential placeholder pattern is detected.</returns>
-    public bool AssumePlaceholderPresent()
+  /// <summary>
+  /// Checks if a string contains supported placeholder patterns: {xxx}, (xxx), #xxx#, or &lt;:xxx&gt;.
+  /// </summary>
+  /// <returns><c>true</c> if a potential placeholder pattern is detected.</returns>
+  public static bool AssumePlaceholderPresent(this ReadOnlySpan<char> fileName)
+  {
+    if (fileName.Length < 2) // Most placeholders need at least 2 chars (e.g., {}, #a)
+      return false;
+    int index = fileName.IndexOfAny("{[(<#");
+
+    while (index != -1 && index < fileName.Length - 1)
     {
-      if (fileName.Length < 2) // Most placeholders need at least 2 chars (e.g., {}, #a)
-        return false;
-      int index = fileName.IndexOfAny("{[(<#");
+      char found = fileName[index];
+      ReadOnlySpan<char> remaining = fileName.Slice(index + 1);
 
-      while (index != -1 && index < fileName.Length - 1)
+      switch (found)
       {
-        char found = fileName[index];
-        ReadOnlySpan<char> remaining = fileName.Slice(index + 1);
-
-        switch (found)
-        {
-          case '{': if (remaining.IndexOf('}') != -1) return true; break;
-          case '[': if (remaining.IndexOf(']') != -1) return true; break;
-          case '(': if (remaining.IndexOf(')') != -1) return true; break;
-          case '<':
-            // Special check for <: ... >
-            if (remaining.Length > 0 && remaining[0] == ':' && remaining.IndexOf('>') != -1)
-              return true;
-            break;
-          case '#':
-            // Your current logic: # followed by anything
+        case '{': if (remaining.IndexOf('}') != -1) return true; break;
+        case '[': if (remaining.IndexOf(']') != -1) return true; break;
+        case '(': if (remaining.IndexOf(')') != -1) return true; break;
+        case '<':
+          // Special check for <: ... >
+          if (remaining.Length > 0 && remaining[0] == ':' && remaining.IndexOf('>') != -1)
             return true;
-        }
-
-        // Move past the current char and look for the next potential start
-        int next = remaining.IndexOfAny("{[(<#");
-        if (next == -1) break;
-
-        // Update index relative to the original 'input'
-        index += next + 1;
+          break;
+        case '#':
+          // Your current logic: # followed by anything
+          return true;
       }
 
-      return false;
+      // Move past the current char and look for the next potential start
+      int next = remaining.IndexOfAny("{[(<#");
+      if (next == -1) break;
+
+      // Update index relative to the original 'input'
+      index += next + 1;
     }
 
-    /// <summary>
-    /// Determines if the file should be treated as a standard ZIP archive based on its extension.
-    /// </summary>
-    public bool AssumeZip() =>
-      fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    return false;
   }
+
+  /// <summary>
+  /// Determines if the file should be treated as a standard ZIP archive based on its extension.
+  /// </summary>
+  public static bool AssumeZip(this ReadOnlySpan<char> fileName) =>
+      fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>
   /// Clears the target collection and populates it with cloned copies of elements from the source.
@@ -277,33 +271,30 @@ public static class ClassLibraryCsvExtensionMethods
       _ => Enumerable.Count(items.Cast<object>())
     };
 
+
   /// <summary>
-  /// <param name="value">The enum value.</param> 
+  /// Retrieves the descriptive text for an Enum value via the <see cref="DescriptionAttribute"/>.
   /// </summary>
-  extension(Enum value)
+  /// <param name="value">The enum value.</param> 
+  /// <returns>The description if available; otherwise, the string representation of the value.</returns>
+  public static string Description(this Enum value)
   {
-    /// <summary>
-    /// Retrieves the descriptive text for an Enum value via the <see cref="DescriptionAttribute"/>.
-    /// </summary>
-    /// <returns>The description if available; otherwise, the string representation of the value.</returns>
-    public string Description()
-    {
-      var fieldInfo = value.GetType().GetField(value.ToString());
-      if (fieldInfo == null) return value.ToString();
+    var fieldInfo = value.GetType().GetField(value.ToString());
+    if (fieldInfo == null) return value.ToString();
 
-      var attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
-      return attribute?.Description ?? value.ToString();
-    }
-
-    /// <summary>
-    /// Gets a display-friendly text for an Enum, preferring <see cref="ShortDescription"/> before falling back to <see cref="Description"/>.
-    /// </summary>
-    public string Display()
-    {
-      var shortDescription = value.ShortDescription();
-      return (shortDescription.Length > 0) ? shortDescription : value.Description();
-    }
+    var attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
+    return attribute?.Description ?? value.ToString();
   }
+
+  /// <summary>
+  /// Gets a display-friendly text for an Enum, preferring <see cref="ShortDescription"/> before falling back to <see cref="Description"/>.
+  /// </summary>
+  public static string Display(this Enum value)
+  {
+    var shortDescription = value.ShortDescription();
+    return (shortDescription.Length > 0) ? shortDescription : value.Description();
+  }
+
 
   /// <summary>
   /// Concatenates the current and inner exception messages into a single string.
@@ -521,131 +512,129 @@ public static class ClassLibraryCsvExtensionMethods
     };
 
   /// <summary>
-  /// <param name="columnName">The name of the column.</param> 
+  /// Checks if a column name is considered "artificial" (metadata generated by the reader).
   /// </summary>
-  extension(string columnName)
-  {
-    /// <summary>
-    /// Checks if a column name is considered "artificial" (metadata generated by the reader).
-    /// </summary>
-    public bool NoArtificialField() =>
+  /// <param name="columnName">The name of the column.</param> 
+  public static bool NoArtificialField(this string columnName) =>
       !ReaderConstants.ArtificialFields.Contains(columnName, StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Replaces a named placeholder with a replacement string, searching for various delimiters like {x}, #x#, (x).
-    /// </summary>
-    /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
-    /// <param name="replacement">The text to inject.</param>
-    /// <returns>The modified string.</returns>
-    public string PlaceholderReplace(ReadOnlySpan<char> placeholder, string replacement)
-    {
-      if (placeholder.IsEmpty || !columnName.AsSpan().Contains(placeholder, StringComparison.OrdinalIgnoreCase))
-        return columnName;
-
-      foreach (var pattern in Openers)
-      {
-        string searchPattern = pattern.opener + placeholder.ToString();
-        int startIdx = 0;
-
-        while ((startIdx = columnName.IndexOf(searchPattern, startIdx, StringComparison.OrdinalIgnoreCase)) != -1)
-        {
-          int fullMatchLen;
-
-          if (pattern.closer.Length == 0)
-          {
-            // 1. Check if the pattern is followed by a boundary
-            int afterPattern = startIdx + searchPattern.Length;
-
-            // Define what counts as a valid boundary (delimiter or end of string)
-            bool isAtEnd = afterPattern == columnName.Length;
-            bool isAtBoundary = !isAtEnd && WordDelimiters.Contains(columnName[afterPattern]);
-
-            if (!isAtEnd && !isAtBoundary)
-            {
-              // It's part of a larger word (e.g., #PlaceholderExtra), skip this match
-              startIdx += searchPattern.Length;
-              continue;
-            }
-
-            // 2. Scan until next delimiter or colon
-            int next = columnName.IndexOfAny(WordDelimiters, afterPattern);
-            var endIdx = (next == -1) ? columnName.Length : next;
-            fullMatchLen = endIdx - startIdx;
-          }
-          else
-          {
-            // Search for the defined closer
-            int foundCloser = columnName.IndexOf(pattern.closer, startIdx + searchPattern.Length, StringComparison.Ordinal);
-            if (foundCloser == -1) { startIdx += searchPattern.Length; continue; }
-            fullMatchLen = (foundCloser + pattern.closer.Length) - startIdx;
-          }
-
-          string fullMatch = columnName.Substring(startIdx, fullMatchLen);
-          string contentPart = fullMatch.Substring(pattern.opener.Length, fullMatchLen - pattern.opener.Length - pattern.closer.Length);
-
-          string processed = ProcesReplacemnet(contentPart);
-          columnName = columnName.Remove(startIdx, fullMatchLen).Insert(startIdx, processed);
-          startIdx += processed.Length;
-        }
-      }
+  /// <summary>
+  /// Replaces a named placeholder with a replacement string, searching for various delimiters like {x}, #x#, (x).
+  /// </summary>
+  /// <param name="columnName">The column name.</param>
+  /// <param name="placeholder">The name of the placeholder (without delimiters).</param>
+  /// <param name="replacement">The text to inject.</param>
+  /// <returns>The modified string.</returns>
+  public static string PlaceholderReplace(this string columnName, ReadOnlySpan<char> placeholder, string replacement)
+  {
+    if (placeholder.IsEmpty || !columnName.AsSpan().Contains(placeholder, StringComparison.OrdinalIgnoreCase))
       return columnName;
 
-      string ProcesReplacemnet(ReadOnlySpan<char> contentPart)
+    foreach (var pattern in Openers)
+    {
+      string searchPattern = pattern.opener + placeholder.ToString();
+      int startIdx = 0;
+
+      while ((startIdx = columnName.IndexOf(searchPattern, startIdx, StringComparison.OrdinalIgnoreCase)) != -1)
       {
-        var indexColon = contentPart.IndexOf(':');
-        if (indexColon!=-1)
+        int fullMatchLen;
+
+        if (pattern.closer.Length == 0)
         {
-          // Try and convert to a typed value, then use ApplyPlaceholderFormat
-          if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
-            return ApplyPlaceholderFormat(dtCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
-          else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
-            return ApplyPlaceholderFormat(dtInvariant, contentPart.Slice(indexColon + 1).Trim().ToString());
-          else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
-            return ApplyPlaceholderFormat(dblCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
-          else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
-            return ApplyPlaceholderFormat(dblInvariantCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+          // 1. Check if the pattern is followed by a boundary
+          int afterPattern = startIdx + searchPattern.Length;
+
+          // Define what counts as a valid boundary (delimiter or end of string)
+          bool isAtEnd = afterPattern == columnName.Length;
+          bool isAtBoundary = !isAtEnd && WordDelimiters.Contains(columnName[afterPattern]);
+
+          if (!isAtEnd && !isAtBoundary)
+          {
+            // It's part of a larger word (e.g., #PlaceholderExtra), skip this match
+            startIdx += searchPattern.Length;
+            continue;
+          }
+
+          // 2. Scan until next delimiter or colon
+          int next = columnName.IndexOfAny(WordDelimiters, afterPattern);
+          var endIdx = (next == -1) ? columnName.Length : next;
+          fullMatchLen = endIdx - startIdx;
         }
-        return replacement;
+        else
+        {
+          // Search for the defined closer
+          int foundCloser = columnName.IndexOf(pattern.closer, startIdx + searchPattern.Length, StringComparison.Ordinal);
+          if (foundCloser == -1) { startIdx += searchPattern.Length; continue; }
+          fullMatchLen = (foundCloser + pattern.closer.Length) - startIdx;
+        }
+
+        string fullMatch = columnName.Substring(startIdx, fullMatchLen);
+        string contentPart = fullMatch.Substring(pattern.opener.Length, fullMatchLen - pattern.opener.Length - pattern.closer.Length);
+
+        string processed = ProcesReplacemnet(contentPart);
+        columnName = columnName.Remove(startIdx, fullMatchLen).Insert(startIdx, processed);
+        startIdx += processed.Length;
       }
     }
+    return columnName;
 
-    /// <summary>
-    /// Replaces placeholders within a template string using properties from the provided object.
-    /// </summary>
-    /// <remarks>
-    /// This method supports multiple delimiter types (e.g., {Prop}, {{Prop}}, [Prop], #Prop) 
-    /// and optional formatting (e.g., {Date:yyyy-MM-dd}). 
-    /// <para>
-    /// <b>Note:</b> The text inside the placeholder (the "key") must match the name of a public 
-    /// property on the source object for a replacement to occur.
-    /// </para>
-    /// </remarks>
-    /// <param name="obj">The source object whose properties will provide the replacement values.</param>
-    /// <returns>
-    /// A string where all valid placeholders matching property names have been replaced. 
-    /// If a placeholder name does not match any property on the object, it is left unchanged.
-    /// </returns>
-    [DebuggerStepThrough]
-    public string PlaceholderReplaceWithPropertyValues(object obj)
+    string ProcesReplacemnet(ReadOnlySpan<char> contentPart)
     {
-      // FAST CHECK: If no '{', '[', '(', '#', or '<:' exists, return immediately.
-      if (!columnName.AssumePlaceholderPresent()) return columnName;
-
-      var result = columnName;
-      // Get all available properties in the object
-      foreach (var prop in obj.GetType().GetProperties().Where(p => p.GetMethod != null))
-        result = result.PlaceholderReplace(prop.Name, prop.GetValue(obj)?.ToString() ?? string.Empty);
-      return result;
+      var indexColon = contentPart.IndexOf(':');
+      if (indexColon!=-1)
+      {
+        // Try and convert to a typed value, then use ApplyPlaceholderFormat
+        if (DateTime.TryParse(replacement, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dtCurrentCulture))
+          return ApplyPlaceholderFormat(dtCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (DateTime.TryParse(replacement, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtInvariant))
+          return ApplyPlaceholderFormat(dtInvariant, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurrentCulture))
+          return ApplyPlaceholderFormat(dblCurrentCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+        else if (double.TryParse(replacement, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInvariantCulture))
+          return ApplyPlaceholderFormat(dblInvariantCulture, contentPart.Slice(indexColon + 1).Trim().ToString());
+      }
+      return replacement;
     }
+  }
 
-    /// <summary>
-    /// Replaces all occurrences of a pattern with a replacement string, ignoring case.
-    /// </summary>
-    [DebuggerStepThrough]
-    public string ReplaceCaseInsensitive(string? pattern, string replacement)
-    {
-      if (string.IsNullOrEmpty(pattern) || replacement.Equals(pattern, StringComparison.Ordinal))
-        return columnName;
+  /// <summary>
+  /// Replaces placeholders within a template string using properties from the provided object.
+  /// </summary>
+  /// <remarks>
+  /// This method supports multiple delimiter types (e.g., {Prop}, {{Prop}}, [Prop], #Prop) 
+  /// and optional formatting (e.g., {Date:yyyy-MM-dd}). 
+  /// <para>
+  /// <b>Note:</b> The text inside the placeholder (the "key") must match the name of a public 
+  /// property on the source object for a replacement to occur.
+  /// </para>
+  /// </remarks>
+  /// <param name="columnName"></param>
+  /// <param name="obj">The source object whose properties will provide the replacement values.</param>
+  /// <returns>
+  /// A string where all valid placeholders matching property names have been replaced. 
+  /// If a placeholder name does not match any property on the object, it is left unchanged.
+  /// </returns>
+  [DebuggerStepThrough]
+  public static string PlaceholderReplaceWithPropertyValues(this string columnName, object obj)
+  {
+    // FAST CHECK: If no '{', '[', '(', '#', or '<:' exists, return immediately.
+    if (!columnName.AssumePlaceholderPresent()) return columnName;
+
+    var result = columnName;
+    // Get all available properties in the object
+    foreach (var prop in obj.GetType().GetProperties().Where(p => p.GetMethod != null))
+      result = result.PlaceholderReplace(prop.Name, prop.GetValue(obj)?.ToString() ?? string.Empty);
+    return result;
+  }
+
+  /// <summary>
+  /// Replaces all occurrences of a pattern with a replacement string, ignoring case.
+  /// </summary>
+  [DebuggerStepThrough]
+  public static string ReplaceCaseInsensitive(this string columnName, string? pattern, string replacement)
+  {
+    if (string.IsNullOrEmpty(pattern) || replacement.Equals(pattern, StringComparison.Ordinal))
+      return columnName;
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       return columnName.Replace(pattern, replacement, StringComparison.OrdinalIgnoreCase);
@@ -675,183 +664,190 @@ public static class ClassLibraryCsvExtensionMethods
 
     return new string(chars, 0, count);
 #endif
-    }
   }
 
 
+
   /// <summary>
-  /// <param name="inputValue">The source character span to search within.</param> 
+  /// Efficiently replaces specific characters in a string. If the replacement is <c>\0</c>, the character is removed.
   /// </summary>
-  extension(ReadOnlySpan<char> inputValue)
+  /// <param name="inputValue">The source character span to search within.</param>
+  /// <param name="old1">The character to be replaced.</param>
+  /// <param name="new1">The character to replace with.</param>
+  /// <param name="old2">The second character to be replaced.</param>
+  /// <param name="new2">The second character to replace with.</param>
+  public static string ReplaceDefaults(this ReadOnlySpan<char> inputValue, in char old1, in char new1, in char old2, in char new2)
   {
-    /// <summary>
-    /// Efficiently replaces specific characters in a string. If the replacement is <c>\0</c>, the character is removed.
-    /// </summary>
-    public string ReplaceDefaults(in char old1, in char new1, in char old2, in char new2)
+    if (inputValue.Length == 0)
+      return string.Empty;
+
+    // Use a pooled array or stackalloc safely via a conditional Span
+    char[]? arrayFromPool = null;
+    int length = inputValue.Length;
+
+    // Use stackalloc for small strings, otherwise rent from ArrayPool to avoid heap pressure
+    Span<char> result = length <= 256
+      ? stackalloc char[length]
+      : (arrayFromPool = ArrayPool<char>.Shared.Rent(length));
+    try
     {
-      if (inputValue.Length == 0)
-        return string.Empty;
-
-      // Use a pooled array or stackalloc safely via a conditional Span
-      char[]? arrayFromPool = null;
-      int length = inputValue.Length;
-
-      // Use stackalloc for small strings, otherwise rent from ArrayPool to avoid heap pressure
-      Span<char> result = length <= 256
-        ? stackalloc char[length]
-        : (arrayFromPool = ArrayPool<char>.Shared.Rent(length));
-      try
-      {
-        int pos = 0;
-        for (int i = 0; i < inputValue.Length; i++)
-        {
-          if (inputValue[i] == old1)
-          {
-            if (new1 != char.MinValue)
-              result[pos++] = new1;
-          }
-          else if (inputValue[i] == old2)
-          {
-            if (new2 != char.MinValue)
-              result[pos++] = new2;
-          }
-          else
-          {
-            result[pos++] = inputValue[i];
-          }
-        }
-        return result.Slice(0, pos).ToString();
-      }
-      finally
-      {
-        if (arrayFromPool != null)
-          ArrayPool<char>.Shared.Return(arrayFromPool);
-      }
-    }
-
-    /// <summary>
-    /// Replaces occurrences of two different strings within a source string.
-    /// </summary>
-    public string ReplaceDefaults(ReadOnlySpan<char> old1, string new1, ReadOnlySpan<char> old2, string new2)
-    {
-      if (inputValue.IsEmpty) return string.Empty;
-
-      if (old1.Length == 1 && new1.Length == 1 && old2.Length == 1 && new2.Length == 1)
-        return inputValue.ReplaceDefaults(old1[0], new1[0], old2[0], new2[0]);
-
-      // We estimate the capacity. If the new strings are longer than the old ones, 
-      // the StringBuilder will grow.
-      var sb = new StringBuilder(inputValue.Length);
-
-
+      int pos = 0;
       for (int i = 0; i < inputValue.Length; i++)
       {
-        // Try to match the first pattern
-        if (!old1.IsEmpty && inputValue.Slice(i).StartsWith(old1, StringComparison.Ordinal))
+        if (inputValue[i] == old1)
         {
-          sb.Append(new1);
-          i += old1.Length - 1; // Jump past the matched string
+          if (new1 != char.MinValue)
+            result[pos++] = new1;
         }
-        // Try to match the second pattern
-        else if (!old2.IsEmpty && inputValue.Slice(i).StartsWith(old2, StringComparison.Ordinal))
+        else if (inputValue[i] == old2)
         {
-          sb.Append(new2);
-          i += old2.Length - 1; // Jump past the matched string
+          if (new2 != char.MinValue)
+            result[pos++] = new2;
         }
         else
         {
-          // No match found at this position, just copy the current character
-          sb.Append(inputValue[i]);
+          result[pos++] = inputValue[i];
         }
       }
+      return result.Slice(0, pos).ToString();
+    }
+    finally
+    {
+      if (arrayFromPool != null)
+        ArrayPool<char>.Shared.Return(arrayFromPool);
+    }
+  }
 
-      return sb.ToString();
+  /// <summary>
+  /// Replaces occurrences of two different strings within a source string.
+  /// </summary>
+  /// <param name="inputValue">The source character span to search within.</param>
+  /// <param name="old1">The first pattern to find.</param>
+  /// <param name="new1">The string to replace the first pattern with.</param>
+  /// <param name="old2">The second pattern to find.</param>
+  /// <param name="new2">The string to replace the second pattern with.</param>
+  /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns> 
+  public static string ReplaceDefaults(this ReadOnlySpan<char> inputValue, ReadOnlySpan<char> old1, string new1, ReadOnlySpan<char> old2, string new2)
+  {
+    if (inputValue.IsEmpty) return string.Empty;
+
+    if (old1.Length == 1 && new1.Length == 1 && old2.Length == 1 && new2.Length == 1)
+      return inputValue.ReplaceDefaults(old1[0], new1[0], old2[0], new2[0]);
+
+    // We estimate the capacity. If the new strings are longer than the old ones, 
+    // the StringBuilder will grow.
+    var sb = new StringBuilder(inputValue.Length);
+
+
+    for (int i = 0; i < inputValue.Length; i++)
+    {
+      // Try to match the first pattern
+      if (!old1.IsEmpty && inputValue.Slice(i).StartsWith(old1, StringComparison.Ordinal))
+      {
+        sb.Append(new1);
+        i += old1.Length - 1; // Jump past the matched string
+      }
+      // Try to match the second pattern
+      else if (!old2.IsEmpty && inputValue.Slice(i).StartsWith(old2, StringComparison.Ordinal))
+      {
+        sb.Append(new2);
+        i += old2.Length - 1; // Jump past the matched string
+      }
+      else
+      {
+        // No match found at this position, just copy the current character
+        sb.Append(inputValue[i]);
+      }
     }
 
-    /// <summary>
-    /// Replaces all occurrences of specified patterns within a <see cref="ReadOnlySpan{Char}"/> 
-    /// with their corresponding replacement strings.
-    /// </summary>
-    /// <param name="replacements">One or more tuples containing the pattern to find and the string to replace it with.</param>
-    /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="replacements"/> is null or empty.</exception>
-    [DebuggerStepThrough]
+    return sb.ToString();
+  }
 
-    public string ReplaceMultiple(params (string Pattern, string Replacement)[] replacements)
+  /// <summary>
+  /// Replaces all occurrences of specified patterns within a <see cref="ReadOnlySpan{Char}"/> 
+  /// with their corresponding replacement strings.
+  /// </summary>
+  /// <param name="inputValue">The source character span to search within.</param>
+  /// <param name="replacements">One or more tuples containing the pattern to find and the string to replace it with.</param>
+  /// <returns>A new string with replacements applied, or the original string if no matches were found.</returns>
+  /// <exception cref="ArgumentException">Thrown when <paramref name="replacements"/> is null or empty.</exception>
+  [DebuggerStepThrough]
+
+  public static string ReplaceMultiple(this ReadOnlySpan<char> inputValue, params (string Pattern, string Replacement)[] replacements)
+  {
+    // Ensure the collection is not null and contains at least one entry
+    if (replacements == null || replacements.Length == 0)
+      throw new ArgumentException("At least one replacement pattern must be provided.", nameof(replacements));
+    if (inputValue.IsEmpty) return string.Empty;
+
+    // 2. Pre-check: Does ANY pattern exist? 
+    // This allows the "Clean Path" to stay extremely fast.
+    bool anyMatch = false;
+    foreach (var pair in replacements)
     {
-      // Ensure the collection is not null and contains at least one entry
-      if (replacements == null || replacements.Length == 0)
-        throw new ArgumentException("At least one replacement pattern must be provided.", nameof(replacements));
-      if (inputValue.IsEmpty) return string.Empty;
-
-      // 2. Pre-check: Does ANY pattern exist? 
-      // This allows the "Clean Path" to stay extremely fast.
-      bool anyMatch = false;
-      foreach (var pair in replacements)
+      var patternSpan = pair.Pattern.AsSpan();
+      if (patternSpan.IsEmpty)
+        continue;
+      if (inputValue.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase) != -1)
       {
-        var patternSpan = pair.Pattern.AsSpan();
-        if (patternSpan.IsEmpty)
-          continue;
-        if (inputValue.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase) != -1)
+        anyMatch = true;
+        break;
+      }
+    }
+
+    if (!anyMatch) return inputValue.ToString();
+
+    // 3. One-pass scan and replace
+    var sb = new StringBuilder(inputValue.Length);
+    var remaining = inputValue;
+
+    while (remaining.Length > 0)
+    {
+      int nearestMatch = -1;
+      int pairIndex = -1;
+
+      // Find the closest occurrence among all patterns
+      for (int i = 0; i < replacements.Length; i++)
+      {
+        var patternSpan = replacements[i].Pattern.AsSpan();
+        if (patternSpan.IsEmpty) continue;
+
+        int pos = remaining.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase);
+        if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
         {
-          anyMatch = true;
-          break;
+          nearestMatch = pos;
+          pairIndex = i;
         }
       }
 
-      if (!anyMatch) return inputValue.ToString();
-
-      // 3. One-pass scan and replace
-      var sb = new StringBuilder(inputValue.Length);
-      var remaining = inputValue;
-
-      while (remaining.Length > 0)
+      if (nearestMatch == -1)
       {
-        int nearestMatch = -1;
-        int pairIndex = -1;
-
-        // Find the closest occurrence among all patterns
-        for (int i = 0; i < replacements.Length; i++)
-        {
-          var patternSpan = replacements[i].Pattern.AsSpan();
-          if (patternSpan.IsEmpty) continue;
-
-          int pos = remaining.IndexOf(patternSpan, StringComparison.OrdinalIgnoreCase);
-          if (pos != -1 && (nearestMatch == -1 || pos < nearestMatch))
-          {
-            nearestMatch = pos;
-            pairIndex = i;
-          }
-        }
-
-        if (nearestMatch == -1)
-        {
-          // No more matches left in the remaining span
+        // No more matches left in the remaining span
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           sb.Append(remaining);
 #else
         sb.Append(remaining.ToString());
 #endif
-          break;
-        }
+        break;
+      }
 
-        // Append the text before the match
+      // Append the text before the match
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         sb.Append(remaining.Slice(0, nearestMatch));
 #else
       sb.Append(remaining.Slice(0, nearestMatch).ToString());
 #endif
 
-        // Append the replacement value
-        sb.Append(replacements[pairIndex].Replacement);
+      // Append the replacement value
+      sb.Append(replacements[pairIndex].Replacement);
 
-        // Advance the window past the matched pattern
-        remaining = remaining.Slice(nearestMatch + replacements[pairIndex].Pattern.Length);
-      }
-
-      return sb.ToString();
+      // Advance the window past the matched pattern
+      remaining = remaining.Slice(nearestMatch + replacements[pairIndex].Pattern.Length);
     }
+
+    return sb.ToString();
   }
+
 
   /// <summary>
   /// Sets the maximum value on a progress reporter if it implements <see cref="IProgressTime"/>.
@@ -915,30 +911,27 @@ public static class ClassLibraryCsvExtensionMethods
     return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
   }
 
-  extension(double value)
+  /// <summary>
+  /// Converts a double to an int, clamping to the nearest valid integer boundary.
+  /// </summary>
+  public static int ToInt(this double value)
   {
-    /// <summary>
-    /// Converts a double to an int, clamping to the nearest valid integer boundary.
-    /// </summary>
-    public int ToInt()
-    {
-      if (value > int.MaxValue)
-        return int.MaxValue;
-      return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
-    }
+    if (value > int.MaxValue)
+      return int.MaxValue;
+    return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
+  }
 
-    /// <summary>
-    /// Converts a double to a long, clamping to the nearest valid long boundary.
-    /// </summary>
-    public long ToInt64()
-    {
-      if (value > long.MaxValue)
-        return long.MaxValue;
-      if (value < long.MinValue)
-        return long.MinValue;
+  /// <summary>
+  /// Converts a double to a long, clamping to the nearest valid long boundary.
+  /// </summary>
+  public static long ToInt64(this double value)
+  {
+    if (value > long.MaxValue)
+      return long.MaxValue;
+    if (value < long.MinValue)
+      return long.MinValue;
 
-      return value.Equals(double.NaN) ? 0 : Convert.ToInt64(value);
-    }
+    return value.Equals(double.NaN) ? 0 : Convert.ToInt64(value);
   }
 
   /// <summary>

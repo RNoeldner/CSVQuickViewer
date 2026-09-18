@@ -349,12 +349,7 @@ public static class FileSystemUtils
     var parts = SplitPath(fileName);
     return parts.DirectoryName.GetRelativeFolder(basePath) + parts.FileName;
   }
-
-  /// <summary>
-  /// <param name="otherDir">The target directory to which the relative path should point.</param> 
-  /// </summary>
-  extension(string otherDir)
-  {
+  
     /// <summary>
     /// Calculates the relative path from a base directory to a target directory.
     /// </summary>
@@ -368,7 +363,7 @@ public static class FileSystemUtils
     /// It is designed for directory-to-directory relativity and ensures the result 
     /// always concludes with a directory separator.
     /// </remarks>
-    public string GetRelativeFolder(string basePath)
+    public static string GetRelativeFolder(this string otherDir, string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(otherDir))
         return "." + Path.DirectorySeparatorChar;
@@ -425,7 +420,7 @@ public static class FileSystemUtils
     /// <item><description>Performs "middle-out" character truncation if the filename alone is too long.</description></item>
     /// </list>
     /// </remarks>
-    public string GetShortDisplayFileName(int length = 80)
+    public static string GetShortDisplayFileName(this string otherDir, int length = 80)
     {
       var processedPath = otherDir.RemovePrefix();
 
@@ -478,7 +473,7 @@ public static class FileSystemUtils
     ///   the input was a directory already
     /// </summary>
     /// <returns>The folder / directory of the given file or directory</returns>
-    public string GetDirectoryName()
+    public static string GetDirectoryName(this string otherDir)
     {
       if (string.IsNullOrEmpty(otherDir))
         return string.Empty;
@@ -499,7 +494,7 @@ public static class FileSystemUtils
     /// </summary>
     /// <param name="replaceInvalid">The replacement for invalid chars</param>
     /// <returns>A text that is allowed in the file system as a filename</returns>
-    public string SafePath(string replaceInvalid = "")
+    public static string SafePath(this string otherDir, string replaceInvalid = "")
     {
       if (string.IsNullOrEmpty(otherDir))
         return string.Empty;
@@ -534,7 +529,7 @@ public static class FileSystemUtils
     /// Retrieves the short path form of the specified path, see 8.3 aliasing for FAT file system
     /// </summary>
     /// <returns>The abbreviated short name</returns>
-    public string ShortFileName()
+    public static string ShortFileName(this string otherDir)
     {
       if (!IsWindows || string.IsNullOrEmpty(otherDir))
         return otherDir;
@@ -565,7 +560,7 @@ public static class FileSystemUtils
 
       throw new FileNotFoundException($"Could not get a short path for the file {otherDir}");
     }
-  }
+  
 
   /// <summary>
   /// Returns the most compact string representation of a path by comparing absolute, 
@@ -716,15 +711,11 @@ public static class FileSystemUtils
         fileName);
   }
 
-  /// <summary>
-  /// <param name="shortPath">The short path.</param> 
-  /// </summary>
-  extension(ReadOnlySpan<char> shortPath)
-  {
+  
     /// <summary>
     ///   Get the long name of the file in case it was shorted with ~
     /// </summary>
-    public string LongFileName()
+    public static string LongFileName(this ReadOnlySpan<char> shortPath)
     {
       if (shortPath.IsEmpty)
         return string.Empty;
@@ -738,7 +729,7 @@ public static class FileSystemUtils
     /// <summary>
     /// Gets a prefix that allows .NET Windows system to deal with filename that exceeds 248 characters
     /// </summary>
-    public string LongPathPrefix()
+    public static string LongPathPrefix(this ReadOnlySpan<char> shortPath)
     {
       // In case the directory is 248, we need long path as well
       if (!IsWindows || shortPath.Length < 248 || shortPath.StartsWith(cLongPathPrefix.AsSpan(), StringComparison.Ordinal) ||
@@ -765,7 +756,7 @@ public static class FileSystemUtils
     /// This method strips those prefixes so the path can be used with standard .NET APIs.
     /// </remarks>
     /// <returns>The path without the long path prefix.</returns>
-    public string RemovePrefix()
+    public static string RemovePrefix(this ReadOnlySpan<char> shortPath)
     {
       if (!IsWindows || shortPath.IsEmpty)
         return shortPath.ToString();
@@ -803,7 +794,7 @@ public static class FileSystemUtils
     /// </list>
     /// Standard environment variables (e.g., %TEMP%) are also expanded.
     /// </remarks>
-    public string ResolvePattern()
+    public static string ResolvePattern(this ReadOnlySpan<char> shortPath)
     {
       if (shortPath.IsEmpty)
         return string.Empty;
@@ -824,7 +815,6 @@ public static class FileSystemUtils
       // search for the file
       return GetLatestFileOfPattern(split.DirectoryName, split.FileName);
     }
-  }
 
 
   /// <summary>

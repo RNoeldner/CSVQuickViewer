@@ -61,20 +61,16 @@ public static class ReaderExtensionMethods
 
     return retList;
   }
-
+  
   /// <summary>
-  /// <param name="source">The initial source setting </param>
+  /// Gets a reader for a source that reads everything as text columns, 
+  /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
   /// </summary>
-  extension(IFileSetting source)
-  {
-    /// <summary>
-    /// Gets a reader for a source that reads everything as text columns, 
-    /// e.g. for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
-    /// </summary>
-    /// <param name="cancellationToken">Token to cancel the long-running async method</param>
-    /// <returns>The IFileReader to read the data as text</returns>
-    /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
-    public async Task<IFileReader> GetUntypedFileReaderAsync(CancellationToken cancellationToken)
+  /// <param name="source">The initial source setting </param>
+  /// <param name="cancellationToken">Token to cancel the long-running async method</param>
+  /// <returns>The IFileReader to read the data as text</returns>
+  /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
+  public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source,  CancellationToken cancellationToken)
     {
       var fileSettingCopy = source.Clone();
       // No column should be type converted 
@@ -107,11 +103,12 @@ public static class ReaderExtensionMethods
       return reader;
     }
 
-    /// <summary>
-    /// Gets all reader columns asynchronous.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>    
-    public async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(CancellationToken cancellationToken)
+  /// <summary>
+  /// Gets all reader columns asynchronous.
+  /// </summary>
+  /// <param name="source">The initial source setting </param>
+  /// <param name="cancellationToken">The cancellation token.</param>    
+  public static async Task<IReadOnlyCollection<Column>> GetAllReaderColumnsAsync(this IFileSetting source, CancellationToken cancellationToken)
     {
       var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -127,7 +124,6 @@ public static class ReaderExtensionMethods
         return res;
       }
     }
-  }
 
   /// <summary>
   ///   Stores all rows from the reader into a DataTable, form the current position of the reader onwards.

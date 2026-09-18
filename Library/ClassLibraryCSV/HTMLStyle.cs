@@ -193,7 +193,7 @@ public sealed class HtmlStyle
     {
       if (contents[i] != null)
       {
-        contents[i] = HtmlEncode(contents[i]?.ToString() ?? string.Empty).Replace(
+        contents[i] = HtmlEncode(contents[i]!.ToString().AsSpan()).Replace(
           "�",
           "<span style=\"color:Red; font-size:larger\">&diams;</span>");
       }
@@ -214,7 +214,7 @@ public sealed class HtmlStyle
     var sb = new StringBuilder(text.Length + (text.Length / 10));
     for (var i = 0; i < text.Length; i++)
     {
-      char c = text[i];
+      var c = text[i];
 
       // 1. Handle CRLF / LFCR / LF / CR in one go (Logic from HandleCrlfCombinations)
       if (c is '\r' or '\n')
@@ -307,7 +307,7 @@ public sealed class HtmlStyle
   ///   Get the JSON element / variable name
   /// </summary>
   /// <param name="text">The text.</param>
-  public static string JsonElementName(string text)
+  public static string JsonElementName(ReadOnlySpan<char> text)
   {
     var allowed = text.ProcessByCategory(
       x => x is UnicodeCategory.TitlecaseLetter or UnicodeCategory.LowercaseLetter or UnicodeCategory.UppercaseLetter or UnicodeCategory.ModifierLetter or UnicodeCategory.OtherLetter or UnicodeCategory.LetterNumber or UnicodeCategory.NonSpacingMark or UnicodeCategory.DecimalDigitNumber or UnicodeCategory.ConnectorPunctuation);
@@ -330,11 +330,11 @@ public sealed class HtmlStyle
   /// Get a valid HTML document string builder that stats with common HTML tags
   /// </summary>
   /// <param name="hexColor">Background color in hex</param>
-  public StringBuilder StartHtmlDoc(string hexColor = "")
+  public StringBuilder StartHtmlDoc(ReadOnlySpan<char> hexColor = default)
   {
     var text = new StringBuilder(500);
     text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-    text.AppendLine(string.IsNullOrEmpty(hexColor) ? "<HTML>" : $"<HTML style=\"background-color: #{hexColor}\">");
+    text.AppendLine(hexColor.IsEmpty ? "<HTML>" : $"<HTML style=\"background-color: #{hexColor.ToString()}\">");
     text.AppendLine("<HEAD>");
     text.AppendLine(Style);
     text.AppendLine("</HEAD>");
@@ -360,7 +360,7 @@ public sealed class HtmlStyle
   /// <summary>
   /// Resolve CDATA and d HTML encoded text to a normal string.
   /// </summary>
-  /// <param name="text"></param>
+  /// <param name="text">The text possibly containing HTML codes.</param>
   /// <returns>The text without HTML Encoding</returns>
   /// <exception cref="ArgumentNullException"></exception>
   public static string HtmlDecode(ReadOnlySpan<char> text)
@@ -391,7 +391,7 @@ public sealed class HtmlStyle
   ///   Element names cannot start with the letters XML(or XML, or XML, etc), Element names can
   ///   contain letters, digits, hyphens, underscores, and periods, Element names cannot contain spaces
   /// </remarks>
-  public static string XmlElementName(string text)
+  public static string XmlElementName(ReadOnlySpan<char> text)
   {
     var allowed = text.ProcessByCategory(
       x => x is UnicodeCategory.DashPunctuation or UnicodeCategory.LowercaseLetter or UnicodeCategory.UppercaseLetter or UnicodeCategory.DecimalDigitNumber);
@@ -481,29 +481,19 @@ public sealed class HtmlStyle
   /// <returns>A string that can be put onto the clipboard and will be recognized as HTML</returns>
   /// <exception cref="ArgumentException">Parameter cannot be empty; fragment</exception>
   /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
-  public string ConvertToHtmlFragment(string fragment)
+  public string ConvertToHtmlFragment(ReadOnlySpan<char> fragment)
   {
-    const string markerBlock =
-      "Version:1.0\r\nStartHTML:{0,8}\r\nEndHTML:{1,8}\r\nStartFragment:{2,8}\r\nEndFragment:{3,8}\r\nStartSelection:{2,8}\r\nEndSelection:{3,8}\r\n{4}";
+    const string htmlPrefix = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD>";
+    const string htmlMid = "</HEAD><BODY><!--StartFragment-->";
+    const string htmlSuffix = "<!--EndFragment--></BODY></HTML>";
 
-    var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, "")
-      .Length;
-
-    var html = string.Format(
-      CultureInfo.InvariantCulture,
-      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD>{1}</HEAD><BODY><!--StartFragment-->{0}<!--EndFragment--></BODY></HTML>",
-      fragment,
-      Style);
-    var startFragment = prefixLength + html.IndexOf(fragment, StringComparison.Ordinal);
+    // Fixed header length with 8-digit padding:
+    // 13 + 18 + 16 + 21 + 21 + 23 + 25 = 137 chars
+    var startHtml = 137;
+    var startFragment = startHtml + htmlPrefix.Length + Style.Length + htmlMid.Length;
     var endFragment = startFragment + fragment.Length;
+    var endHtml = endFragment + htmlSuffix.Length;
 
-    return string.Format(
-      CultureInfo.InvariantCulture,
-      markerBlock,
-      prefixLength,
-      prefixLength + html.Length,
-      startFragment,
-      endFragment,
-      html);
+    return $"Version:1.0\r\nStartHTML:{startHtml:D8}\r\nEndHTML:{endHtml:D8}\r\nStartFragment:{startFragment:D8}\r\nEndFragment:{endFragment:D8}\r\nStartSelection:{startFragment:D8}\r\nEndSelection:{endFragment:D8}\r\n{htmlPrefix}{Style}{htmlMid}{fragment.ToString()}{htmlSuffix}";
   }
 }

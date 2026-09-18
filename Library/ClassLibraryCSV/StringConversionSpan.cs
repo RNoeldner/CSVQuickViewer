@@ -29,26 +29,22 @@ namespace CsvTools;
 public static class StringConversionSpan
 {
   /// <summary>
-  /// <param name="dateFormat">The date format for string parsing.</param> 
+  ///   Combines a date and a time column into a single <see cref="DateTime"/> value. 
+  ///   Handles both typed inputs (DateTime, double/serial, TimeSpan) and text representations.
   /// </summary>
-  extension(ReadOnlySpan<char> dateFormat)
-  {
-    /// <summary>
-    ///   Combines a date and a time column into a single <see cref="DateTime"/> value. 
-    ///   Handles both typed inputs (DateTime, double/serial, TimeSpan) and text representations.
-    /// </summary>
-    /// <param name="typedDate">The date column typed value (DateTime or double).</param>
-    /// <param name="dateColumnText">The date column text representation.</param>
-    /// <param name="typedTime">The time column typed value (DateTime, TimeSpan, or double).</param>
-    /// <param name="timeColumnText">The time column text representation.</param>
-    /// <param name="dateSeparatorChar">The date separator character.</param>
-    /// <param name="timeSeparatorChar">The time separator character.</param>
-    /// <param name="serialDateTime">If <c>true</c>, allows serial dates (doubles) to be parsed.</param>
-    /// <param name="result">When this method returns, contains the combined <see cref="DateTime"/> if successful; otherwise, <see cref="DateTime.MinValue"/>.</param>
-    /// <param name="timeColumnIssues">Contains <c>true</c> if the time value was parsed but fell outside the range of 00:00 - 200:00.</param>
-    /// <returns><c>true</c> if the combined date/time is valid and not the default base date; otherwise, <c>false</c>.</returns>
-    /// <remarks>This does not have time zone adjustments.</remarks>
-    public bool TryParseCombinedDateTime(object? typedDate,
+  /// <param name="dateFormat">The date format to use for parsing the date column text.</param>
+  /// <param name="typedDate">The date column typed value (DateTime or double).</param>
+  /// <param name="dateColumnText">The date column text representation.</param>
+  /// <param name="typedTime">The time column typed value (DateTime, TimeSpan, or double).</param>
+  /// <param name="timeColumnText">The time column text representation.</param>
+  /// <param name="dateSeparatorChar">The date separator character.</param>
+  /// <param name="timeSeparatorChar">The time separator character.</param>
+  /// <param name="serialDateTime">If <c>true</c>, allows serial dates (doubles) to be parsed.</param>
+  /// <param name="result">When this method returns, contains the combined <see cref="DateTime"/> if successful; otherwise, <see cref="DateTime.MinValue"/>.</param>
+  /// <param name="timeColumnIssues">Contains <c>true</c> if the time value was parsed but fell outside the range of 00:00 - 200:00.</param>
+  /// <returns><c>true</c> if the combined date/time is valid and not the default base date; otherwise, <c>false</c>.</returns>
+  /// <remarks>This does not have time zone adjustments.</remarks>
+  public static bool TryParseCombinedDateTime(this ReadOnlySpan<char> dateFormat, object? typedDate,
       ReadOnlySpan<char> dateColumnText,
       object? typedTime,
       ReadOnlySpan<char> timeColumnText,
@@ -57,280 +53,284 @@ public static class StringConversionSpan
       bool serialDateTime,
       out DateTime result,
       out bool timeColumnIssues)
+  {
+    // 1. Resolve Date
+    DateTime dateValue;
+    if (typedDate is DateTime dt)
     {
-      // 1. Resolve Date
-      DateTime dateValue;
-      if (typedDate is DateTime dt)
-      {
-        dateValue = dt;
-      }
-      else if (serialDateTime && typedDate is double oa && oa > -657435.0 && oa < 2958466.0)
-      {
-        dateValue = DateTimeConstants.FirstDateTime.AddDays(oa);
-      }
-      else
-      {
-        dateValue = dateColumnText.StringToDateTime(dateFormat, dateSeparatorChar, timeSeparatorChar, serialDateTime)
-                    ?? DateTimeConstants.FirstDateTime;
-      }
-
-      // 2. Resolve Time
-      TimeSpan? timeSpanValue = null;
-      const long ticksPer200Hours = TimeSpan.TicksPerHour * 200;
-
-      switch (typedTime)
-      {
-        case double oa when serialDateTime && oa is > -657435.0 and < 2958466.0:
-          timeSpanValue = TimeSpan.FromDays(oa - Math.Truncate(oa));
-          break;
-        case DateTime dateTimeInput:
-          timeSpanValue = dateTimeInput.Ticks <= ticksPer200Hours ? new TimeSpan(dateTimeInput.Ticks) : dateTimeInput.TimeOfDay;
-          break;
-        case TimeSpan ts:
-          timeSpanValue = ts;
-          break;
-        default:
-          timeSpanValue = timeColumnText.StringToTimeSpan();
-          break;
-      }
-
-      // 3. Finalize and Validate
-      timeColumnIssues = timeSpanValue.HasValue && (timeSpanValue.Value.TotalHours > 200 || timeSpanValue.Value.TotalSeconds < 1d);
-
-      result = timeSpanValue.HasValue ? dateValue.Add(timeSpanValue.Value) : dateValue;
-
-      return result != DateTimeConstants.FirstDateTime;
+      dateValue = dt;
+    }
+    else if (serialDateTime && typedDate is double oa && oa > -657435.0 && oa < 2958466.0)
+    {
+      dateValue = DateTimeConstants.FirstDateTime.AddDays(oa);
+    }
+    else
+    {
+      dateValue = dateColumnText.StringToDateTime(dateFormat, dateSeparatorChar, timeSeparatorChar, serialDateTime)
+                  ?? DateTimeConstants.FirstDateTime;
     }
 
-    /// <summary>
-    ///   Tries to determine the date time assuming it's an Excel serial date time, using regional
-    ///   and common decimal separators
-    /// </summary>
-    public DateTime? SerialToDateTime()
-    {
-      try
-      {
-        foreach (var decimalSeparator in StaticCollections.DecimalSeparatorChars)
-        {
-          var timeSerial = dateFormat.StringToDouble(decimalSeparator, '\0', false, false);
-          if (!timeSerial.HasValue)
-            continue;
-          if (timeSerial.Value > -657435 && timeSerial.Value < 2958466)
-            return DateTime.FromOADate(timeSerial.Value);
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("{0} is not a serial date time date. Error: {1}", dateFormat.ToString(), ex.Message);
-      }
+    // 2. Resolve Time
+    TimeSpan? timeSpanValue = null;
+    const long ticksPer200Hours = TimeSpan.TicksPerHour * 200;
 
+    switch (typedTime)
+    {
+      case double oa when serialDateTime && oa is > -657435.0 and < 2958466.0:
+        timeSpanValue = TimeSpan.FromDays(oa - Math.Truncate(oa));
+        break;
+      case DateTime dateTimeInput:
+        timeSpanValue = dateTimeInput.Ticks <= ticksPer200Hours ? new TimeSpan(dateTimeInput.Ticks) : dateTimeInput.TimeOfDay;
+        break;
+      case TimeSpan ts:
+        timeSpanValue = ts;
+        break;
+      default:
+        timeSpanValue = timeColumnText.StringToTimeSpan();
+        break;
+    }
+
+    // 3. Finalize and Validate
+    timeColumnIssues = timeSpanValue.HasValue && (timeSpanValue.Value.TotalHours > 200 || timeSpanValue.Value.TotalSeconds < 1d);
+
+    result = timeSpanValue.HasValue ? dateValue.Add(timeSpanValue.Value) : dateValue;
+
+    return result != DateTimeConstants.FirstDateTime;
+  }
+
+  /// <summary>
+  ///   Tries to determine the date time assuming it's an Excel serial date time, using regional
+  ///   and common decimal separators
+  /// </summary>
+  /// <param name="dateFormat">The date format to parse</param>
+  public static DateTime? SerialToDateTime(this ReadOnlySpan<char> dateFormat)
+  {
+    try
+    {
+      foreach (var decimalSeparator in StaticCollections.DecimalSeparatorChars)
+      {
+        var timeSerial = dateFormat.StringToDouble(decimalSeparator, '\0', false, false);
+        if (!timeSerial.HasValue)
+          continue;
+        if (timeSerial.Value > -657435 && timeSerial.Value < 2958466)
+          return DateTime.FromOADate(timeSerial.Value);
+      }
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine("{0} is not a serial date time date. Error: {1}", dateFormat.ToString(), ex.Message);
+    }
+
+    return null;
+  }
+
+  /// <summary>
+  ///   Parses a string to a boolean.
+  /// </summary>
+  /// <param name="dateFormat">The value to parse</param>
+  /// <param name="trueValue">An additional value that would evaluate to true</param>
+  /// <param name="falseValue">An additional value that would evaluate to false</param>
+  /// <returns>
+  ///   <c>Null</c> if the value is empty, otherwise <c>true</c> if identified as boolean or
+  ///   <c>false</c> otherwise
+  /// </returns>
+  public static bool? StringToBoolean(this ReadOnlySpan<char> dateFormat, ReadOnlySpan<char> trueValue,
+    ReadOnlySpan<char> falseValue)
+  {
+    if (dateFormat.IsEmpty)
       return null;
-    }
 
-    /// <summary>
-    ///   Parses a string to a boolean.
-    /// </summary>
-    /// <param name="trueValue">An additional value that would evaluate to true</param>
-    /// <param name="falseValue">An additional value that would evaluate to false</param>
-    /// <returns>
-    ///   <c>Null</c> if the value is empty, otherwise <c>true</c> if identified as boolean or
-    ///   <c>false</c> otherwise
-    /// </returns>
-    public bool? StringToBoolean(ReadOnlySpan<char> trueValue,
-      ReadOnlySpan<char> falseValue)
+    if (!trueValue.IsEmpty)
     {
-      if (dateFormat.IsEmpty)
-        return null;
-
-      if (!trueValue.IsEmpty)
+      foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
-        {
-          if (dateFormat.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
-            return true;
-        }
-      }
-
-      foreach (var text in StaticCollections.TrueValues)
-      {
-        if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        if (dateFormat.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return true;
       }
+    }
 
-      if (!falseValue.IsEmpty)
-      {
-        foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
-        {
-          if (dateFormat.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
-            return false;
-        }
-      }
+    foreach (var text in StaticCollections.TrueValues)
+    {
+      if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return true;
+    }
 
-      foreach (var text in StaticCollections.FalseValues)
+    if (!falseValue.IsEmpty)
+    {
+      foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        if (dateFormat.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
           return false;
       }
-      return null;
     }
 
-    /// <summary>
-    ///   Check is a string is a boolean.
-    /// </summary>
-    /// <param name="trueValue">An additional value that would evaluate to true</param>
-    /// <param name="falseValue">An additional value that would evaluate to false</param>
-    /// <returns>
-    ///   <c>Null</c> if the value can not be identified as boolean, otherwise a tuple with
-    ///   <c>true</c> or <c>false</c> and the value that had been used
-    /// </returns>
-    [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-    public (bool?, string value) StringToBooleanWithMatch(ReadOnlySpan<char> trueValue,
-      ReadOnlySpan<char> falseValue)
+    foreach (var text in StaticCollections.FalseValues)
     {
-      if (dateFormat.Length == 0)
-        return (null, string.Empty);
+      if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return false;
+    }
+    return null;
+  }
 
-      if (!trueValue.IsEmpty)
-        foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
-        {
-          if (dateFormat.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
-            return (true, trueValue.Slice(start, length).ToString());
-        }
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
-      foreach (var text in StaticCollections.TrueValues)
-      {
-        if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return (true, text);
-      }
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
-
-      if (!falseValue.IsEmpty)
-      {
-        foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
-        {
-          if (dateFormat.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
-            return (false, falseValue.Slice(start, length).ToString());
-        }
-      }
-
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
-      foreach (var text in StaticCollections.FalseValues)
-      {
-        if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
-          return (false, text);
-      }
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
-
+  /// <summary>
+  ///   Check is a string is a boolean.
+  /// </summary>
+  /// <param name="dateFormat">The value to parse</param>
+  /// <param name="trueValue">An additional value that would evaluate to true</param>
+  /// <param name="falseValue">An additional value that would evaluate to false</param>
+  /// <returns>
+  ///   <c>Null</c> if the value can not be identified as boolean, otherwise a tuple with
+  ///   <c>true</c> or <c>false</c> and the value that had been used
+  /// </returns>
+  [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+  public static (bool?, string value) StringToBooleanWithMatch(this ReadOnlySpan<char> dateFormat, ReadOnlySpan<char> trueValue,
+    ReadOnlySpan<char> falseValue)
+  {
+    if (dateFormat.Length == 0)
       return (null, string.Empty);
-    }
 
-    /// <summary>
-    ///   Parses a string to a date time value
-    /// </summary>
-    /// <param name="dateFormat1">The date formats, separated by delimiter</param>
-    /// <param name="dateSeparatorChar">The date separator used in the conversion</param>
-    /// <param name="timeSeparatorChar">The time separator.</param>
-    /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
-    /// <returns>
-    ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
-    /// </returns>
-    /// <remarks>If the date part is not filled it's the 1/1/1</remarks>
-    public DateTime? StringToDateTime(ReadOnlySpan<char> dateFormat1,
-      char dateSeparatorChar,
-      char timeSeparatorChar,
-      bool serialDateTime)
-    {
-      var dateTextSpan = dateFormat.Trim();
-
-      var result = dateFormat.StringToDateTimeExact(dateFormat1, dateSeparatorChar, timeSeparatorChar, CultureInfo.CurrentCulture);
-      if (result.HasValue)
-        return result.Value;
-
-      // Check if we should use Serial as used in Excel and OLE Automation
-      if (serialDateTime && (dateTextSpan.IndexOf(dateSeparatorChar) == -1) && (dateTextSpan.IndexOf(timeSeparatorChar) == -1))
-        return dateTextSpan.SerialToDateTime();
-
-      // in case its time only, and we do not have any date separator try a timespan
-      if (dateTextSpan.IndexOf(dateSeparatorChar) != -1 || dateFormat1.IndexOf('/') != -1)
-        return null;
-
-      var ts = dateTextSpan.StringToTimeSpan();
-      if (ts.HasValue)
-        return new DateTime(ts.Value.Ticks, DateTimeKind.Local);
-
-      return null;
-    }
-
-    /// <summary>
-    ///   Converts Strings to date time using the culture information
-    /// </summary>
-    /// <param name="dateFormats">The date formats.</param>
-    /// <param name="dateSeparatorChar">The date separator.</param>
-    /// <param name="timeSeparatorChar">The time separator.</param>
-    /// <param name="culture">The culture.</param>
-    /// <remarks>
-    ///   Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that
-    ///   would fit the length of the value.
-    /// </remarks>
-    public DateTime? StringToDateTimeExact(ReadOnlySpan<char> dateFormats,
-      char dateSeparatorChar,
-      char timeSeparatorChar,
-      in CultureInfo culture)
-    {
-      // Quick check: If the entry is empty, or a constant string, or the length does not make
-      // sense, we do not need to try and parse
-      if (dateFormat.Length < 4 || dateFormat.Equals("00000000".AsSpan(), StringComparison.Ordinal) ||
-          dateFormat.Equals("99999999".AsSpan(), StringComparison.Ordinal))
-        return null;
-
-      if (dateFormat.IndexOf('\t') != -1 || dateFormat.IndexOf("  ".AsSpan(), StringComparison.Ordinal) != -1)
-        dateFormat = dateFormat.ToString().Replace('\t', ' ').Replace("  ", " ").AsSpan();
-
-      // get rid of numeric suffixes like 12th or 3rd for dates
-      if (dateFormat.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || dateFormat.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || dateFormat.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
-          || dateFormat.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+    if (!trueValue.IsEmpty)
+      foreach ((int start, int length) in trueValue.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        dateFormat = StaticCollections.RegExNumberSuffixEnglish.Value.Replace(dateFormat.ToString(), "$1")
-          .AsSpan();
+        if (dateFormat.Equals(trueValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+          return (true, trueValue.Slice(start, length).ToString());
       }
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
+    foreach (var text in StaticCollections.TrueValues)
+    {
+      if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return (true, text);
+    }
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
-      var matchingDateTimeFormats = new List<string>();
-      foreach (var (start, length) in dateFormats.GetSlices(StaticCollections.ListDelimiterChars.AsSpan()))
+    if (!falseValue.IsEmpty)
+    {
+      foreach ((int start, int length) in falseValue.GetSlices(StaticCollections.ListDelimiterChars))
       {
-        var dateTimeFormatString = (dateSeparatorChar ==char.MinValue && dateFormats.Slice(start, length).IndexOf('/') != -1)
-          ? dateFormats.Slice(start, length).ToString().Replace("/", "")
-          : dateFormats.Slice(start, length).ToString();
+        if (dateFormat.Equals(falseValue.Slice(start, length), StringComparison.OrdinalIgnoreCase))
+          return (false, falseValue.Slice(start, length).ToString());
+      }
+    }
 
-        if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(dateFormat.Length, dateTimeFormatString))
-          matchingDateTimeFormats.Add(dateTimeFormatString);
-        // In case of a date & time format add the date only format separately
-        var indexHour =
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
+    foreach (var text in StaticCollections.FalseValues)
+    {
+      if (dateFormat.Equals(text.AsSpan(), StringComparison.OrdinalIgnoreCase))
+        return (false, text);
+    }
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
+
+    return (null, string.Empty);
+  }
+
+  /// <summary>
+  ///   Parses a string to a date time value
+  /// </summary>
+  /// <param name="dateFormat">The date format to use for parsing the date column text.</param>
+  /// <param name="dateFormats">The date formats, separated by delimiter</param>
+  /// <param name="dateSeparatorChar">The date separator used in the conversion</param>
+  /// <param name="timeSeparatorChar">The time separator.</param>
+  /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
+  /// <returns>
+  ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
+  /// </returns>
+  /// <remarks>If the date part is not filled it's the 1/1/1</remarks>
+  public static DateTime? StringToDateTime(this ReadOnlySpan<char> dateFormat, ReadOnlySpan<char> dateFormats,
+    char dateSeparatorChar,
+    char timeSeparatorChar,
+    bool serialDateTime)
+  {
+    var dateTextSpan = dateFormat.Trim();
+
+    var result = dateFormat.StringToDateTimeExact(dateFormats, dateSeparatorChar, timeSeparatorChar, CultureInfo.CurrentCulture);
+    if (result.HasValue)
+      return result.Value;
+
+    // Check if we should use Serial as used in Excel and OLE Automation
+    if (serialDateTime && (dateTextSpan.IndexOf(dateSeparatorChar) == -1) && (dateTextSpan.IndexOf(timeSeparatorChar) == -1))
+      return dateTextSpan.SerialToDateTime();
+
+    // in case its time only, and we do not have any date separator try a timespan
+    if (dateTextSpan.IndexOf(dateSeparatorChar) != -1 || dateFormats.IndexOf('/') != -1)
+      return null;
+
+    var ts = dateTextSpan.StringToTimeSpan();
+    if (ts.HasValue)
+      return new DateTime(ts.Value.Ticks, DateTimeKind.Local);
+
+    return null;
+  }
+
+  /// <summary>
+  ///   Converts Strings to date time using the culture information
+  /// </summary>
+  /// <param name="dateFormat"  >The date format to use for parsing the date column text.</param>
+  /// <param name="dateFormats">The date formats.</param>
+  /// <param name="dateSeparatorChar">The date separator.</param>
+  /// <param name="timeSeparatorChar">The time separator.</param>
+  /// <param name="culture">The culture.</param>
+  /// <remarks>
+  ///   Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that
+  ///   would fit the length of the value.
+  /// </remarks>
+  public static DateTime? StringToDateTimeExact(this ReadOnlySpan<char> dateFormat, ReadOnlySpan<char> dateFormats,
+    char dateSeparatorChar,
+    char timeSeparatorChar,
+    in CultureInfo culture)
+  {
+    // Quick check: If the entry is empty, or a constant string, or the length does not make
+    // sense, we do not need to try and parse
+    if (dateFormat.Length < 4 || dateFormat.Equals("00000000".AsSpan(), StringComparison.Ordinal) ||
+        dateFormat.Equals("99999999".AsSpan(), StringComparison.Ordinal))
+      return null;
+
+    if (dateFormat.IndexOf('\t') != -1 || dateFormat.IndexOf("  ".AsSpan(), StringComparison.Ordinal) != -1)
+      dateFormat = dateFormat.ToString().Replace('\t', ' ').Replace("  ", " ").AsSpan();
+
+    // get rid of numeric suffixes like 12th or 3rd for dates
+    if (dateFormat.IndexOf("th ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+        || dateFormat.IndexOf("nd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+        || dateFormat.IndexOf("st ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1
+        || dateFormat.IndexOf("rd ".AsSpan(), StringComparison.OrdinalIgnoreCase) != -1)
+    {
+      dateFormat = StaticCollections.RegExNumberSuffixEnglish.Value.Replace(dateFormat.ToString(), "$1")
+        .AsSpan();
+    }
+
+    var matchingDateTimeFormats = new List<string>();
+    foreach (var (start, length) in dateFormats.GetSlices(StaticCollections.ListDelimiterChars.AsSpan()))
+    {
+      var dateTimeFormatString = (dateSeparatorChar ==char.MinValue && dateFormats.Slice(start, length).IndexOf('/') != -1)
+        ? dateFormats.Slice(start, length).ToString().Replace("/", "")
+        : dateFormats.Slice(start, length).ToString();
+
+      if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(dateFormat.Length, dateTimeFormatString))
+        matchingDateTimeFormats.Add(dateTimeFormatString);
+      // In case of a date & time format add the date only format separately
+      var indexHour =
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
           dateTimeFormatString.IndexOf('h', StringComparison.OrdinalIgnoreCase);
 #else
-          dateTimeFormatString.IndexOfAny(['h', 'H',]);
+        dateTimeFormatString.IndexOfAny(['h', 'H',]);
 #endif
-        // assuming there is a text before the hour that has a reasonable size take it as date
-        if (indexHour > 4)
-        {
-          string dateOnlyFmt = dateTimeFormatString.Substring(0, indexHour - 1).Trim();
-          if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(dateFormat.Length, dateOnlyFmt))
-            matchingDateTimeFormats.Add(dateOnlyFmt);
-        }
+      // assuming there is a text before the hour that has a reasonable size take it as date
+      if (indexHour > 4)
+      {
+        string dateOnlyFmt = dateTimeFormatString.Substring(0, indexHour - 1).Trim();
+        if (StaticCollections.StandardDateTimeFormats.DateLengthMatches(dateFormat.Length, dateOnlyFmt))
+          matchingDateTimeFormats.Add(dateOnlyFmt);
       }
-
-      if (matchingDateTimeFormats.Count == 0)
-        return null;
-
-      return StringToDateTimeByCulture(
-        dateFormat,
-        matchingDateTimeFormats.ToArray(),
-        dateSeparatorChar,
-        timeSeparatorChar,
-        culture);
     }
+
+    if (matchingDateTimeFormats.Count == 0)
+      return null;
+
+    return StringToDateTimeByCulture(
+      dateFormat,
+      matchingDateTimeFormats.ToArray(),
+      dateSeparatorChar,
+      timeSeparatorChar,
+      culture);
   }
 
 
@@ -431,90 +431,87 @@ public static class StringConversionSpan
       text = text.Slice(0, text.Length - 1).Trim();
     return !text.IsEmpty;
   }
-
   /// <summary>
-  /// <param name="text">The value.</param> 
+  /// Parses a span of characters to a decimal using a provided <see cref="NumberFormatInfo"/>.
+  /// Direct parsing to decimal avoids the overhead of intermediate double conversion.
   /// </summary>
-  extension(ReadOnlySpan<char> text)
-  {
-    /// <summary>
-    /// Parses a span of characters to a decimal using a provided <see cref="NumberFormatInfo"/>.
-    /// Direct parsing to decimal avoids the overhead of intermediate double conversion.
-    /// </summary>
-    /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
-    /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
-    /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
-    /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
-    /// <returns>A decimal if the value could be interpreted, <c>null</c> otherwise</returns>
-    public decimal? StringToDecimal(char decimalSeparatorChar, char groupSeparatorChar,
+  /// <param name="text">The text to parse</param>
+  /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
+  /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
+  /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
+  /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
+  /// <returns>A decimal if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static decimal? StringToDecimal(this ReadOnlySpan<char> text, char decimalSeparatorChar, char groupSeparatorChar,
       bool allowPercentage, bool currencyRemoval)
-    {
-      var isNegative = false;
-      var isPercentage = false;
-      var isPermille = false;
-      if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
-        return null;
-      var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
+  {
+    var isNegative = false;
+    var isPercentage = false;
+    var isPermille = false;
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
+      return null;
+    var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
 
-      bool success =
+    bool success =
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         decimal.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
 #else
-    decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
+  decimal.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
 #endif
-      if (success)
-      {
-        // If this works, exit
-        if (isPercentage && allowPercentage) result /= 100m;
-        else if (isPermille && allowPercentage) result /= 1000m;
-        return isNegative ? -result : result;
-      }
-      return null;
-    }
-
-    /// <summary>
-    /// Parses a span of characters to a double using a provided <see cref="NumberFormatInfo"/>.
-    /// Direct parsing to double avoids the overhead of intermediate decimal conversion.
-    /// </summary>
-    /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
-    /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
-    /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
-    /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
-    /// <returns>A double if the value could be interpreted, <c>null</c> otherwise</returns>
-    public double? StringToDouble(char decimalSeparatorChar, char groupSeparatorChar,
-      bool allowPercentage, bool currencyRemoval)
+    if (success)
     {
-      var isNegative = false;
-      var isPercentage = false;
-      var isPermille = false;
-      if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
-        return null;
-      var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
+      // If this works, exit
+      if (isPercentage && allowPercentage) result /= 100m;
+      else if (isPermille && allowPercentage) result /= 1000m;
+      return isNegative ? -result : result;
+    }
+    return null;
+  }
 
-      bool success =
+  /// <summary>
+  /// Parses a span of characters to a double using a provided <see cref="NumberFormatInfo"/>.
+  /// Direct parsing to double avoids the overhead of intermediate decimal conversion.
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <param name="decimalSeparatorChar">The decimal separator. Do not pass in written punctuation</param>
+  /// <param name="groupSeparatorChar">The thousand separator. Do not pass in written punctuation</param>
+  /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
+  /// <param name="currencyRemoval">A list of currency symbols to remove before parsing</param>
+  /// <returns>A double if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static double? StringToDouble(this ReadOnlySpan<char> text, char decimalSeparatorChar, char groupSeparatorChar,
+      bool allowPercentage, bool currencyRemoval)
+  {
+    var isNegative = false;
+    var isPercentage = false;
+    var isPermille = false;
+    if (!PrepareStringToNumber(ref text, ref isNegative, ref isPercentage, ref isPermille, decimalSeparatorChar, groupSeparatorChar, currencyRemoval))
+      return null;
+    var numberFormatProvider = GetNumberFormatInfo(decimalSeparatorChar, groupSeparatorChar);
+
+    bool success =
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         double.TryParse(text, NumberStyles.Number, numberFormatProvider, out var result);
 #else
-    double.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
+  double.TryParse(text.ToString(), NumberStyles.Number, numberFormatProvider, out var result);
 #endif
-      if (success)
-      {
-        // If this works, exit
-        if (isPercentage && allowPercentage) result /= 100.0;
-        else if (isPermille && allowPercentage) result /= 1000.0;
-        return isNegative ? -result : result;
-      }
-      return null;
-    }
-
-    /// <summary>
-    ///   Parses a string to a guid
-    /// </summary>
-    /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
-    public Guid? StringToGuid()
+    if (success)
     {
-      if (text.IsEmpty)
-        return null;
+      // If this works, exit
+      if (isPercentage && allowPercentage) result /= 100.0;
+      else if (isPermille && allowPercentage) result /= 1000.0;
+      return isNegative ? -result : result;
+    }
+    return null;
+  }
+
+  /// <summary>
+  ///   Parses a string to a guid
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static Guid? StringToGuid(this ReadOnlySpan<char> text)
+  {
+    if (text.IsEmpty)
+      return null;
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (Guid.TryParse(text, out var result))
@@ -523,219 +520,222 @@ public static class StringConversionSpan
     if (Guid.TryParse(text.ToString(), out var result))
       return result;
 #endif
-      return null;
-    }
+    return null;
+  }
 
-    /// <summary>
-    ///   Parses a strings to an int.
-    /// </summary>
-    /// <param name="thousandSeparatorChar">The thousand separator.</param>
-    /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public short? StringToInt16(char thousandSeparatorChar)
+  /// <summary>
+  ///   Parses a strings to an int.
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <param name="thousandSeparatorChar">The thousand separator.</param>
+  /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static short? StringToInt16(this ReadOnlySpan<char> text, char thousandSeparatorChar)
+  {
+    if (text.IsEmpty)
+      return null;
+    var parsed = text.StringToInt64(thousandSeparatorChar);
+
+    if (!parsed.HasValue)
+      return null;
+
+    if (parsed.Value < short.MinValue || parsed.Value > short.MaxValue)
+      return null;
+
+    return (short) parsed.Value;
+  }
+
+  /// <summary>
+  ///   Parses a strings to an int.
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <param name="thousandSeparatorChar">The thousand separator.</param>
+  /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
+  public static int? StringToInt32(this ReadOnlySpan<char> text, char thousandSeparatorChar)
+  {
+    if (text.IsEmpty)
+      return null;
+    try
     {
-      if (text.IsEmpty)
-        return null;
       var parsed = text.StringToInt64(thousandSeparatorChar);
-
-      if (!parsed.HasValue)
-        return null;
-
-      if (parsed.Value < short.MinValue || parsed.Value > short.MaxValue)
-        return null;
-
-      return (short) parsed.Value;
+      if (parsed.HasValue)
+        return parsed.Value.ToInt();
+    }
+    catch (OverflowException)
+    {
+      // The numerical value could not be converted to an integer
     }
 
-    /// <summary>
-    ///   Parses a strings to an int.
-    /// </summary>
-    /// <param name="thousandSeparatorChar">The thousand separator.</param>
-    /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public int? StringToInt32(char thousandSeparatorChar)
-    {
-      if (text.IsEmpty)
-        return null;
-      try
-      {
-        var parsed = text.StringToInt64(thousandSeparatorChar);
-        if (parsed.HasValue)
-          return parsed.Value.ToInt();
-      }
-      catch (OverflowException)
-      {
-        // The numerical value could not be converted to an integer
-      }
+    return null;
+  }
 
+  /// <summary>
+  ///   Parses a span of characters into a <see cref="long"/>.
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <param name="thousandSeparatorChar">The thousands' separator. If not needed, pass '\0'.</param>
+  /// <returns>A <see cref="long"/> if successful, otherwise <c>null</c>.</returns>
+  public static long? StringToInt64(this ReadOnlySpan<char> text, char thousandSeparatorChar)
+  {
+    if (text.IsEmpty)
       return null;
+
+    // Trim leading whitespace
+    text = text.TrimStart();
+    if (text.IsEmpty)
+      return null;
+
+    bool isNegative = false;
+    // 1. Handle Parentheses (Accounting for potential inner signs like '(-123)')
+    if (text[0] == '(' && text[text.Length - 1] == ')')
+    {
+      isNegative = true;
+      text = text.Slice(1, text.Length - 2).Trim();
     }
 
-    /// <summary>
-    ///   Parses a span of characters into a <see cref="long"/>.
-    /// </summary>
-    /// <param name="thousandSeparatorChar">The thousands' separator. If not needed, pass '\0'.</param>
-    /// <returns>A <see cref="long"/> if successful, otherwise <c>null</c>.</returns>
-    public long? StringToInt64(char thousandSeparatorChar)
+    // Handle optional sign    
+    if (text[0] == '+')
     {
-      if (text.IsEmpty)
-        return null;
+      text = text.Slice(1).TrimStart();
+    }
+    else if (text[0] == '-')
+    {
+      isNegative = !isNegative; // Flips if already negative from braces
+      text = text.Slice(1).TrimStart();
+    }
 
-      // Trim leading whitespace
-      text = text.TrimStart();
-      if (text.IsEmpty)
-        return null;
+    if (text.IsEmpty)
+      return null;
 
-      bool isNegative = false;
-      // 1. Handle Parentheses (Accounting for potential inner signs like '(-123)')
-      if (text[0] == '(' && text[text.Length - 1] == ')')
+    // 2. Buffer for digits only. 
+    // A long.MaxValue is 9,223,372,036,854,775,807 (19 digits). 
+    // 32 is more than enough and safe for stackalloc.
+    Span<char> buffer = stackalloc char[32];
+    int k = 0;
+    foreach (var c in text)
+    {
+      if (char.IsDigit(c))
       {
-        isNegative = true;
-        text = text.Slice(1, text.Length - 2).Trim();
+        if (k >= buffer.Length) return null; // Overflow: string too long for a long
+        buffer[k++] = c;
       }
-
-      // Handle optional sign    
-      if (text[0] == '+')
+      else
       {
-        text = text.Slice(1).TrimStart();
-      }
-      else if (text[0] == '-')
-      {
-        isNegative = !isNegative; // Flips if already negative from braces
-        text = text.Slice(1).TrimStart();
-      }
-
-      if (text.IsEmpty)
-        return null;
-
-      // 2. Buffer for digits only. 
-      // A long.MaxValue is 9,223,372,036,854,775,807 (19 digits). 
-      // 32 is more than enough and safe for stackalloc.
-      Span<char> buffer = stackalloc char[32];
-      int k = 0;
-      foreach (var c in text)
-      {
-        if (char.IsDigit(c))
+        if (thousandSeparatorChar != '\0' && c == thousandSeparatorChar)
         {
-          if (k >= buffer.Length) return null; // Overflow: string too long for a long
-          buffer[k++] = c;
+          // skip group separator
+          continue;
         }
-        else
-        {
-          if (thousandSeparatorChar != '\0' && c == thousandSeparatorChar)
-          {
-            // skip group separator
-            continue;
-          }
 
-          break; // stop at first non-digit
-        }
+        break; // stop at first non-digit
       }
+    }
 
-      // If we only have a minus sign and no digits, it's invalid
-      if (k == 0)
-        return null;
+    // If we only have a minus sign and no digits, it's invalid
+    if (k == 0)
+      return null;
 
-      var finalSpan = buffer.Slice(0, k);
+    var finalSpan = buffer.Slice(0, k);
 
-      // 4. Final Parse using Span-based TryParse where available
+    // 4. Final Parse using Span-based TryParse where available
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       if (long.TryParse(finalSpan, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #else
     if (long.TryParse(finalSpan.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
 #endif
-      {
-        return isNegative ? -result : result;
-      }
-
-      return null;
+    {
+      return isNegative ? -result : result;
     }
 
-    /// <summary>
-    ///   Splits a string and returns the required part
-    /// </summary>
-    /// <param name="splitter">The splitter character.</param>
-    /// <param name="part">The part that should be returned, starting with 1.</param>
-    /// <param name="toEnd">Read the part up to the end</param>
-    /// <returns>
-    ///   <c>Null</c> if the value is empty or the part can not be found. If the desired part is 1
-    ///   and the splitter is not contained the whole value is returned.
-    /// </returns>
-    public ReadOnlySpan<char> StringToTextPart(char splitter,
-      int part,
-      bool toEnd)
+    return null;
+  }
+
+  /// <summary>
+  ///   Splits a string and returns the required part
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <param name="splitter">The splitter character.</param>
+  /// <param name="part">The part that should be returned, starting with 1.</param>
+  /// <param name="toEnd">Read the part up to the end</param>
+  /// <returns>
+  ///   <c>Null</c> if the value is empty or the part can not be found. If the desired part is 1
+  ///   and the splitter is not contained the whole value is returned.
+  /// </returns>
+  public static ReadOnlySpan<char> StringToTextPart(this ReadOnlySpan<char> text, char splitter,
+    int part,
+    bool toEnd)
+  {
+    if (text.IsEmpty || part < 1)
+      return ReadOnlySpan<char>.Empty;
+    var list = text.GetSlices(new[] { splitter });
+
+    if (part == 1 && toEnd)
+      return text;
+
+    if (part > list.Count)
+      return ReadOnlySpan<char>.Empty;
+
+    return !toEnd ? text.Slice(list[part - 1].start, list[part - 1].length) : text.Slice(list[part - 1].start);
+  }
+
+  /// <summary>
+  ///   Parses a time string representation into a <see cref="TimeSpan"/>.
+  /// </summary>
+  /// <param name="text">The text to parse</param>
+  /// <returns>
+  ///   A <see cref="TimeSpan"/> representing the time, or <c>null</c> if the input is empty or invalid.
+  /// </returns>
+  /// <remarks>
+  ///   This method performs a single-pass scan of the span to minimize allocations. 
+  ///   It supports hours, minutes, seconds, and milliseconds, as well as optional "AM"/"PM" suffixes.
+  ///   The method expects components in the order: Hours, Minutes, Seconds, Milliseconds.
+  /// </remarks>
+  public static TimeSpan? StringToTimeSpan(this ReadOnlySpan<char> text)
+  {
+    if (text.IsEmpty) return null;
+    int hours = 0, minutes = 0, seconds = 0, milliseconds = 0, start = 0, segmentCount = 0;
+    bool isAm = false, isPm = false;
+
+    for (int i = 0; i <= text.Length; i++)
     {
-      if (text.IsEmpty || part < 1)
-        return ReadOnlySpan<char>.Empty;
-      var list = text.GetSlices(new[] { splitter });
-
-      if (part == 1 && toEnd)
-        return text;
-
-      if (part > list.Count)
-        return ReadOnlySpan<char>.Empty;
-
-      return !toEnd ? text.Slice(list[part - 1].start, list[part - 1].length) : text.Slice(list[part - 1].start);
-    }
-
-    /// <summary>
-    ///   Parses a time string representation into a <see cref="TimeSpan"/>.
-    /// </summary>
-    /// <returns>
-    ///   A <see cref="TimeSpan"/> representing the time, or <c>null</c> if the input is empty or invalid.
-    /// </returns>
-    /// <remarks>
-    ///   This method performs a single-pass scan of the span to minimize allocations. 
-    ///   It supports hours, minutes, seconds, and milliseconds, as well as optional "AM"/"PM" suffixes.
-    ///   The method expects components in the order: Hours, Minutes, Seconds, Milliseconds.
-    /// </remarks>
-    public TimeSpan? StringToTimeSpan()
-    {
-      if (text.IsEmpty) return null;
-      int hours = 0, minutes = 0, seconds = 0, milliseconds = 0, start = 0, segmentCount = 0;
-      bool isAm = false, isPm = false;
-
-      for (int i = 0; i <= text.Length; i++)
+      // Border
+      if (i != text.Length && text[i] != ':' && text[i] != '-'  && text[i] != '.' && text[i] != ',' && text[i] != ' ' && text[i] != '\t')
+        continue;
+      if (i > start) // Found a segment
       {
-        // Border
-        if (i != text.Length && text[i] != ':' && text[i] != '-'  && text[i] != '.' && text[i] != ',' && text[i] != ' ' && text[i] != '\t')
-          continue;
-        if (i > start) // Found a segment
+        var slice = text.Slice(start, i - start);
+
+        // Handle AM/PM specifically
+        if (slice.Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
-          var slice = text.Slice(start, i - start);
-
-          // Handle AM/PM specifically
-          if (slice.Equals("am".AsSpan(), StringComparison.OrdinalIgnoreCase))
-          {
-            isAm =true;
-          }
-          else if (slice.Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
-          {
-            isPm = true;
-          }
-          else
-          {
+          isAm =true;
+        }
+        else if (slice.Equals("pm".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        {
+          isPm = true;
+        }
+        else
+        {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             int.TryParse(slice, NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
 #else
-            int.TryParse(slice.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
+          int.TryParse(slice.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int val);
 #endif
-            if (segmentCount == 0) hours = val;
-            else if (segmentCount == 1) minutes = val;
-            else if (segmentCount == 2) seconds = val;
-            else if (segmentCount == 3) milliseconds = val;
-            segmentCount++;
-          }
+          if (segmentCount == 0) hours = val;
+          else if (segmentCount == 1) minutes = val;
+          else if (segmentCount == 2) seconds = val;
+          else if (segmentCount == 3) milliseconds = val;
+          segmentCount++;
         }
-        start = i + 1;
       }
-
-      // Apply AM/PM adjustment logic here
-      if (isAm && hours == 12) hours = 0;
-      else if (isPm && hours < 12) hours += 12;
-
-      return (hours ==0 && minutes==0 && seconds==0) || segmentCount <2 ? null : new TimeSpan(0, hours, minutes, seconds, milliseconds);
+      start = i + 1;
     }
-  }
 
+    // Apply AM/PM adjustment logic here
+    if (isAm && hours == 12) hours = 0;
+    else if (isPm && hours < 12) hours += 12;
+
+    return (hours ==0 && minutes==0 && seconds==0) || segmentCount <2 ? null : new TimeSpan(0, hours, minutes, seconds, milliseconds);
+  }
 
   /// <summary>
   ///   Converts Strings to date time using the culture information.

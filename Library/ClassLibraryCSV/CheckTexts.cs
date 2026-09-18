@@ -197,110 +197,106 @@ public static class CheckTexts
   }
 
   /// <summary>
-  /// <param name="samples">The sample values to be checked.</param> 
+  ///   Checks if the sample values can be interpreted as serial dates.
+  ///   Returns a CheckResult indicating the success or possible matches.
   /// </summary>
-  extension(IEnumerable<ReadOnlyMemory<char>> samples)
+  /// <param name="samples">The sample values to be checked.</param> 
+  /// <param name="isCloseToNow">
+  ///   If true, only numbers that produce dates within ~80 years past to 20 years future relative to today are considered valid.    
+  /// </param>    
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
+  static public CheckResult CheckSerialDate(this IEnumerable<ReadOnlyMemory<char>> samples, bool isCloseToNow, CancellationToken cancellationToken)
   {
-    /// <summary>
-    ///   Checks if the sample values can be interpreted as serial dates.
-    ///   Returns a CheckResult indicating the success or possible matches.
-    /// </summary>
-    /// <param name="isCloseToNow">
-    ///   If true, only numbers that produce dates within ~80 years past to 20 years future relative to today are considered valid.    
-    /// </param>    
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A <see cref="CheckResult"/> with information on confirmed and possible format matches and what did not match.</returns>
-    public CheckResult CheckSerialDate(bool isCloseToNow, CancellationToken cancellationToken)
+    var result = new CheckResult();
+
+    var allParsed = true;
+    var positiveMatches = 0;
+    var invalid = 0;
+
+    var now = DateTime.UtcNow;
+    var minDate = now.AddYears(-80);
+    var maxDate = now.AddYears(20);
+
+    foreach (var sample in samples)
     {
-      var result = new CheckResult();
+      if (cancellationToken.IsCancellationRequested)
+        break;
 
-      var allParsed = true;
-      var positiveMatches = 0;
-      var invalid = 0;
+      var parsed = sample.Span.Trim().SerialToDateTime();
 
-      var now = DateTime.UtcNow;
-      var minDate = now.AddYears(-80);
-      var maxDate = now.AddYears(20);
-
-      foreach (var sample in samples)
+      if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
       {
-        if (cancellationToken.IsCancellationRequested)
+        allParsed = false;
+        invalid++;
+        if (result.ExampleNonMatch.Count < 5)
+          result.AddNonMatch(sample.Span.ToString());
+
+        if (invalid > 3 && positiveMatches == 0)
           break;
-
-        var parsed = sample.Span.Trim().SerialToDateTime();
-
-        if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
-        {
-          allParsed = false;
-          invalid++;
-          if (result.ExampleNonMatch.Count < 5)
-            result.AddNonMatch(sample.Span.ToString());
-
-          if (invalid > 3 && positiveMatches == 0)
-            break;
-          continue;
-        }
-
-        positiveMatches++;
-        if (positiveMatches > 5 && !result.PossibleMatch)
-        {
-          result.PossibleMatch = true;
-          result.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
-        }
+        continue;
       }
 
-      if (allParsed && positiveMatches > 0)
-        result.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
-
-      return result;
+      positiveMatches++;
+      if (positiveMatches > 5 && !result.PossibleMatch)
+      {
+        result.PossibleMatch = true;
+        result.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
+      }
     }
 
-    /// <summary>
-    ///   Analyzes sample text values to detect indications that the content
-    ///   may be HTML-encoded or contain C-style escaped characters.
-    /// </summary>
-    /// <param name="minRequiredSamples">The minimum number of matches required to decide on a non-string type.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>
-    /// Returns one of the following:
-    /// <list type="bullet">
-    /// <item><description><see cref="DataTypeEnum.TextToHtml"/> if HTML-like content (e.g. &lt;br&gt; or &lt;![CDATA[) is detected.</description></item>
-    /// <item><description><see cref="DataTypeEnum.TextUnescape"/> if C-style escape sequences (e.g. \n, \t, \u) are detected.</description></item>
-    /// <item><description><see cref="DataTypeEnum.String"/> if no strong indication for encoding or escaping is found.</description></item>
-    /// </list>
-    /// </returns>
-    internal DataTypeEnum CheckUnescaped(int minRequiredSamples, CancellationToken cancellationToken)
+    if (allParsed && positiveMatches > 0)
+      result.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
+
+    return result;
+  }
+
+  /// <summary>
+  ///   Analyzes sample text values to detect indications that the content
+  ///   may be HTML-encoded or contain C-style escaped characters.
+  /// </summary>
+  /// <param name="samples">The sample values to be checked.</param> 
+  /// <param name="minRequiredSamples">The minimum number of matches required to decide on a non-string type.</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+  /// <returns>
+  /// Returns one of the following:
+  /// <list type="bullet">
+  /// <item><description><see cref="DataTypeEnum.TextToHtml"/> if HTML-like content (e.g. &lt;br&gt; or &lt;![CDATA[) is detected.</description></item>
+  /// <item><description><see cref="DataTypeEnum.TextUnescape"/> if C-style escape sequences (e.g. \n, \t, \u) are detected.</description></item>
+  /// <item><description><see cref="DataTypeEnum.String"/> if no strong indication for encoding or escaping is found.</description></item>
+  /// </list>
+  /// </returns>
+  static internal DataTypeEnum CheckUnescaped(this IEnumerable<ReadOnlyMemory<char>> samples, int minRequiredSamples, CancellationToken cancellationToken)
+  {
+    ReadOnlySpan<char> brSpan = "<br>".AsSpan();
+    ReadOnlySpan<char> cdataSpan = "<![CDATA[".AsSpan();
+    ReadOnlySpan<string> escapeSequences = new[] { "\\r", "\\n", "\\t", "\\u", "\\x" };
+
+    int foundHtml = 0, foundUnescaped = 0;
+
+    foreach (var text in samples)
     {
-      ReadOnlySpan<char> brSpan = "<br>".AsSpan();
-      ReadOnlySpan<char> cdataSpan = "<![CDATA[".AsSpan();
-      ReadOnlySpan<string> escapeSequences = new[] { "\\r", "\\n", "\\t", "\\u", "\\x" };
+      if (cancellationToken.IsCancellationRequested)
+        break;
 
-      int foundHtml = 0, foundUnescaped = 0;
+      var span = text.Span;
 
-      foreach (var text in samples)
+      // HTML-like indicators
+      if ((span.IndexOf(brSpan, StringComparison.OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, StringComparison.OrdinalIgnoreCase)) && ++foundHtml > minRequiredSamples)
+        return DataTypeEnum.TextToHtml;
+
+      // C-style escape sequences
+      foreach (var esc in escapeSequences)
       {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-
-        var span = text.Span;
-
-        // HTML-like indicators
-        if ((span.IndexOf(brSpan, StringComparison.OrdinalIgnoreCase) != -1 || span.StartsWith(cdataSpan, StringComparison.OrdinalIgnoreCase)) && ++foundHtml > minRequiredSamples)
-          return DataTypeEnum.TextToHtml;
-
-        // C-style escape sequences
-        foreach (var esc in escapeSequences)
+        if (span.IndexOf(esc.AsSpan(), StringComparison.Ordinal) != -1)
         {
-          if (span.IndexOf(esc.AsSpan(), StringComparison.Ordinal) != -1)
-          {
-            if (++foundUnescaped > minRequiredSamples)
-              return DataTypeEnum.TextUnescape;
-            break;
-          }
+          if (++foundUnescaped > minRequiredSamples)
+            return DataTypeEnum.TextUnescape;
+          break;
         }
       }
-
-      return DataTypeEnum.String;
     }
+
+    return DataTypeEnum.String;
   }
 }

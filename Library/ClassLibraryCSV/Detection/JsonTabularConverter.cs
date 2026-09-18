@@ -518,25 +518,21 @@ public static class JsonTabularConverter
   }
 
   /// <summary>
-  /// <param name="reader">TextReader containing JSON content.</param> 
+  /// Streams JSON objects from a <see cref="TextReader"/> for large or nested JSON files.
+  /// Scalars found at the root level are captured as metadata.
+  /// Supports arrays at root, nested objects, and multiple top-level properties.
   /// </summary>
-  extension(TextReader reader)
-  {
-    /// <summary>
-    /// Streams JSON objects from a <see cref="TextReader"/> for large or nested JSON files.
-    /// Scalars found at the root level are captured as metadata.
-    /// Supports arrays at root, nested objects, and multiple top-level properties.
-    /// </summary>
-    /// A tuple:
-    /// <list type="bullet">
-    ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
-    ///   <item>A dictionary of metadata scalars found at root level.</item>
-    /// </list>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
-    /// Caller is responsible for keeping the TextReader open
-    /// for the duration of enumeration.
-    public (IEnumerable<JObject> Items, Dictionary<string, JValue> Metadata) StreamJsonObjects()
+  /// <param name="reader">TextReader containing JSON content.</param> 
+  /// A tuple:
+  /// <list type="bullet">
+  ///   <item>An <see cref="IEnumerable{JObject}"/> of streamed JSON objects.</item>
+  ///   <item>A dictionary of metadata scalars found at root level.</item>
+  /// </list>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> is null.</exception>
+  /// <exception cref="InvalidDataException">Thrown if JSON is empty or unsupported.</exception>
+  /// Caller is responsible for keeping the TextReader open
+  /// for the duration of enumeration.
+  public static (IEnumerable<JObject> Items, Dictionary<string, JValue> Metadata) StreamJsonObjects(this TextReader reader)
     {
       if (reader == null) throw new ArgumentNullException(nameof(reader));
 
@@ -654,36 +650,37 @@ public static class JsonTabularConverter
       return (Enumerate(), metadata);
     }
 
-    /// <summary>
-    /// Reads JSON objects from a <see cref="TextReader"/>, discovers tabular columns from the first few rows,
-    /// and writes all rows as strings using the provided callback. Supports streaming large JSON files without 
-    /// loading the entire dataset into memory.
-    /// </summary>
-    /// <param name="handleOneRow">
-    /// Callback invoked for each row. Receives a read-only collection of string values in column order.
-    /// Arrays are flattened into a single cell using <paramref name="valueSeparator"/>.
-    /// </param>
-    /// <param name="valueSeparator">
-    /// Character used to join multiple values from arrays into a single cell (default is ',').
-    /// Any occurrences of this character inside values are replaced with '_'.
-    /// </param>
-    /// <param name="sampleSize">Number of rows to check to determine the columns</param>
-    /// <param name="cancellationToken">Token to cancel processing at any time.</param>
-    /// <returns>
-    /// A tuple containing:
-    /// <list type="bullet">
-    ///   <item><see cref="IReadOnlyCollection{JsonColumn}"/>: the discovered columns in order.</item>
-    ///   <item><see cref="Dictionary{String, JValue}"/>: metadata scalars found at the root of the JSON.</item>
-    /// </list>
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> or <paramref name="handleOneRow"/> is null.</exception>
-    /// <remarks>
-    /// Column discovery is performed by reading up to the first 5 rows. Those rows are immediately written
-    /// using <paramref name="handleOneRow"/>, after which streaming continues for the remaining objects.  
-    /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
-    /// </remarks>
-    public (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
-      StreamRows(Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
+  /// <summary>
+  /// Reads JSON objects from a <see cref="TextReader"/>, discovers tabular columns from the first few rows,
+  /// and writes all rows as strings using the provided callback. Supports streaming large JSON files without 
+  /// loading the entire dataset into memory.
+  /// </summary>
+  /// <param name="reader">TextReader containing JSON content.</param> 
+  /// <param name="handleOneRow">
+  /// Callback invoked for each row. Receives a read-only collection of string values in column order.
+  /// Arrays are flattened into a single cell using <paramref name="valueSeparator"/>.
+  /// </param>
+  /// <param name="valueSeparator">
+  /// Character used to join multiple values from arrays into a single cell (default is ',').
+  /// Any occurrences of this character inside values are replaced with '_'.
+  /// </param>
+  /// <param name="sampleSize">Number of rows to check to determine the columns</param>
+  /// <param name="cancellationToken">Token to cancel processing at any time.</param>
+  /// <returns>
+  /// A tuple containing:
+  /// <list type="bullet">
+  ///   <item><see cref="IReadOnlyCollection{JsonColumn}"/>: the discovered columns in order.</item>
+  ///   <item><see cref="Dictionary{String, JValue}"/>: metadata scalars found at the root of the JSON.</item>
+  /// </list>
+  /// </returns>
+  /// <exception cref="ArgumentNullException">Thrown if <paramref name="reader"/> or <paramref name="handleOneRow"/> is null.</exception>
+  /// <remarks>
+  /// Column discovery is performed by reading up to the first 5 rows. Those rows are immediately written
+  /// using <paramref name="handleOneRow"/>, after which streaming continues for the remaining objects.  
+  /// Column values are converted to strings, and arrays are joined using <paramref name="valueSeparator"/>.
+  /// </remarks>
+  public static (IReadOnlyCollection<JsonColumn> Columns, Dictionary<string, JValue> Metadata)
+      StreamRows(this TextReader reader, Action<IReadOnlyCollection<(string text, object? value)>> handleOneRow, char valueSeparator = ',', int sampleSize = 5, CancellationToken cancellationToken = default)
     {
       var (items, metadata) = reader.StreamJsonObjects();
       using var enumerator = items.GetEnumerator();
@@ -716,8 +713,7 @@ public static class JsonTabularConverter
         }
       }
       return (columns, metadata);
-    }
-  }
+    }  
 
   // ------------------------------------------------------------
   // Row Processing

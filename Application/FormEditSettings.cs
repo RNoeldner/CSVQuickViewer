@@ -248,7 +248,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
   private async void buttonFileInfo_Click(object sender, EventArgs e)
   {
     var html = new HtmlStyle(string.Empty);
-    var stringBuilder = html.StartHtmlDoc(string.Empty);
+    var stringBuilder = html.StartHtmlDoc(ReadOnlySpan<char>.Empty);
     await buttonFileInfo.RunWithHourglassAsync(async () =>
     {
       stringBuilder.Append(

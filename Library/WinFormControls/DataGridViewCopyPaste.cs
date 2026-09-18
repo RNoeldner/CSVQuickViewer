@@ -264,7 +264,7 @@ public sealed class DataGridViewCopyPaste
     sbHtml.AppendLine(HtmlStyle.TableClose);
 
     var dataObject = new DataObject();
-    dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
+    dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString().AsSpan()));
     dataObject.SetData(DataFormats.Text, true, buffer.ToString());
     dataObject.SetClipboard();
   }
@@ -388,7 +388,7 @@ public sealed class DataGridViewCopyPaste
     }
 
     sbHtml.AppendLine(HtmlStyle.TableClose);
-    dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
+    dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString().AsSpan()));
     dataObject.SetData(DataFormats.Text, true, buffer.ToString());
     dataObject.SetClipboard();
   }

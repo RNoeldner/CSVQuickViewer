@@ -42,7 +42,7 @@ public static class ErrorInformation
   ///   Identifier for a warning message
   /// </summary>
   public const string CWarningId = "Warning: ";
-  
+
   /// <summary>
   ///   Combines column and error information
   /// </summary>
@@ -132,106 +132,100 @@ public static class ErrorInformation
     return new ColumnAndMessage(sbErrors.ToString().AsMemory(), sbWarning.ToString().AsMemory());
   }
 
-  /// <summary>
-  /// <param name="errorList">A text containing different types of messages that are concatenated</param> 
+    /// <summary>
+  ///   String method to append a message an error list text
   /// </summary>
-  extension(ReadOnlySpan<char> errorList)
+  /// <param name="newError">A new message that should be added to the list</param>
+  /// <param name="isWarning"><c>true</c> if this message is a warning</param>
+  /// <returns>
+  ///   A new error list text, if the message was already contained, is not added a second time,
+  ///   usually messages are appended, unless they are errors and the list contains only warnings
+  ///   so far
+  /// </returns>
+  public static string AddMessage(this ReadOnlySpan<char> errorList, ReadOnlySpan<char> newError, bool isWarning)
   {
-     /// <summary>
-    ///   String method to append a message an error list text
-    /// </summary>
-    /// <param name="newError">A new message that should be added to the list</param>
-    /// <param name="isWarning"><c>true</c> if this message is a warning</param>
-    /// <returns>
-    ///   A new error list text, if the message was already contained, is not added a second time,
-    ///   usually messages are appended, unless they are errors and the list contains only warnings
-    ///   so far
-    /// </returns>
-    public string AddMessage(ReadOnlySpan<char> newError, bool isWarning)
-    {
-      if (newError.IsEmpty)
-        throw new ArgumentException("Error can not be empty", nameof(newError));
+    if (newError.IsEmpty)
+      throw new ArgumentException("Error can not be empty", nameof(newError));
 
-      // no need to check for null
-      if (errorList.Length == 0)
-        return newError.ToString();
+    // no need to check for null
+    if (errorList.Length == 0)
+      return newError.ToString();
 
-      // if the message is already in the text, do not do anything
-      if (errorList.Contains(newError, StringComparison.Ordinal))
-        return errorList.ToString();
-      return isWarning
-        ? string.Concat(errorList.ToString(), CSeparator.ToString(), newError.AddWarningId())
-        : string.Concat(newError.ToString(), CSeparator.ToString(), errorList.ToString());
-    }
+    // if the message is already in the text, do not do anything
+    if (errorList.Contains(newError, StringComparison.Ordinal))
+      return errorList.ToString();
+    return isWarning
+      ? string.Concat(errorList.ToString(), CSeparator.ToString(), newError.AddWarningId())
+      : string.Concat(newError.ToString(), CSeparator.ToString(), errorList.ToString());
+  }
 
-    /// <summary>
-    ///   String method to append a message an error list text
-    /// </summary>
-    /// <param name="newError">A new message that should be added to the list</param>
-    /// <returns>
-    ///   A new error list text, if the message was already contained, is not added a second time,
-    ///   usually messages are appended, unless they are errors and the list contains only warnings
-    ///   so far
-    /// </returns>
-    public string AddMessage(ReadOnlySpan<char> newError)
-      =>
-        errorList.AddMessage(newError, newError.IsWarningMessage());
+  /// <summary>
+  ///   String method to append a message an error list text
+  /// </summary>
+  /// <param name="newError">A new message that should be added to the list</param>
+  /// <returns>
+  ///   A new error list text, if the message was already contained, is not added a second time,
+  ///   usually messages are appended, unless they are errors and the list contains only warnings
+  ///   so far
+  /// </returns>
+  public static string AddMessage(this ReadOnlySpan<char> errorList, ReadOnlySpan<char> newError)
+    =>
+      errorList.AddMessage(newError, newError.IsWarningMessage());
 
-    /// <summary>
-    ///   String method to add the warning identifier to an error message
-    /// </summary>
-    /// <returns>The text with the leading WarningID</returns>
-    public string AddWarningId()
-    {
-      if (errorList.Length == 0 || errorList.StartsWith(CWarningId.AsSpan(), StringComparison.Ordinal))
-        return errorList.ToString();
-      return string.Concat(CWarningId, errorList.ToString());
-    }
-    
-    /// <summary>
-    ///   String method to check if the text should be regarded as an error in an error list text
-    /// </summary>
-    /// <returns>
-    ///   <c>true</c> if the text should be regarded as an error message, <c>false</c> if it's a
-    ///   warning message or empty
-    /// </returns>
-    public bool IsErrorMessage()
-    {
-      if (errorList.Length == 0)
-        return false;
-      return !errorList.IsWarningMessage();
-    }
+  /// <summary>
+  ///   String method to add the warning identifier to an error message
+  /// </summary>
+  /// <returns>The text with the leading WarningID</returns>
+  public static string AddWarningId(this ReadOnlySpan<char> errorList)
+  {
+    if (errorList.Length == 0 || errorList.StartsWith(CWarningId.AsSpan(), StringComparison.Ordinal))
+      return errorList.ToString();
+    return string.Concat(CWarningId, errorList.ToString());
+  }
 
-    /// <summary>
-    ///   String method to check if the text is regarded as a warning in an error list text.
-    /// </summary>
-    /// <returns>
-    ///   <c>true</c> if the text should be regarded as a warning message, <c>false</c> if it's an
-    ///   error message or empty.
-    /// </returns>
-    public bool IsWarningMessage()
-    {
-      // Compiler flow analysis understands that errorList is non-null after this.
-      if (errorList.IsEmpty)
-        return false;
-
-      ReadOnlySpan<char> warnId = CWarningId.AsSpan();
-
-      // 1. Direct match at the start
-      if (errorList.StartsWith(warnId, StringComparison.Ordinal))
-        return true;
-
-      // 2. Match after the first field (e.g., "[ColumnName]: [WARNING]")
-      var splitter = errorList.IndexOf(cClosingField);
-      if (splitter != -1)
-      {
-        var startIdx = splitter + 2;
-        // Safety check to ensure we don't slice out of bounds
-        if (startIdx <= errorList.Length - warnId.Length)
-          return errorList.Slice(startIdx).StartsWith(warnId, StringComparison.Ordinal);
-      }
+  /// <summary>
+  ///   String method to check if the text should be regarded as an error in an error list text
+  /// </summary>
+  /// <returns>
+  ///   <c>true</c> if the text should be regarded as an error message, <c>false</c> if it's a
+  ///   warning message or empty
+  /// </returns>
+  public static bool IsErrorMessage(this ReadOnlySpan<char> errorList)
+  {
+    if (errorList.Length == 0)
       return false;
+    return !errorList.IsWarningMessage();
+  }
+
+  /// <summary>
+  ///   String method to check if the text is regarded as a warning in an error list text.
+  /// </summary>
+  /// <returns>
+  ///   <c>true</c> if the text should be regarded as a warning message, <c>false</c> if it's an
+  ///   error message or empty.
+  /// </returns>
+  public static bool IsWarningMessage(this ReadOnlySpan<char> errorList)
+  {
+    // Compiler flow analysis understands that errorList is non-null after this.
+    if (errorList.IsEmpty)
+      return false;
+
+    ReadOnlySpan<char> warnId = CWarningId.AsSpan();
+
+    // 1. Direct match at the start
+    if (errorList.StartsWith(warnId, StringComparison.Ordinal))
+      return true;
+
+    // 2. Match after the first field (e.g., "[ColumnName]: [WARNING]")
+    var splitter = errorList.IndexOf(cClosingField);
+    if (splitter != -1)
+    {
+      var startIdx = splitter + 2;
+      // Safety check to ensure we don't slice out of bounds
+      if (startIdx <= errorList.Length - warnId.Length)
+        return errorList.Slice(startIdx).StartsWith(warnId, StringComparison.Ordinal);
     }
+    return false;
   }
 
   /// <summary>
@@ -247,9 +241,9 @@ public static class ErrorInformation
 
     var list = new List<ColumnAndMessage>();
 
-    foreach (var entry in columnErrors)    
+    foreach (var entry in columnErrors)
     {
-      if (entry.Value.IsEmpty) 
+      if (entry.Value.IsEmpty)
         continue;
       if (entry.Key == -1)
       {
@@ -334,7 +328,7 @@ public static class ErrorInformation
   /// <param name="errorList">A text containing different types of messages that are concatenated</param>
   /// <returns>The text without the leading WarningID</returns>
   public static string WithoutWarningId(this ReadOnlySpan<char> errorList)
-  {    
+  {
     return errorList.Length <= CWarningId.Length
       ? errorList.ToString()
       : errorList.Slice(CWarningId.Length).ToString();
@@ -396,7 +390,7 @@ public static class ErrorInformation
     /// The name of the column
     /// </summary>
     public readonly ReadOnlyMemory<char> Column;
-    
+
     /// <summary>
     /// The Message for the column
     /// </summary>

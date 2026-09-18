@@ -26,19 +26,16 @@ public static class DetectionLineComment
 {
   const int maxRows = 100;
 
+
   /// <summary>
-  /// <param name="textReader">The text reader to read the data</param> 
+  /// Validates a comment prefix by analyzing delimiter density without string allocations.
   /// </summary>
-  extension(ImprovedTextReader textReader)
-  {
-    /// <summary>
-    /// Validates a comment prefix by analyzing delimiter density without string allocations.
-    /// </summary>
-    /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
-    /// <returns>true if the comment line seems to be ok</returns>
-    public async Task<bool> InspectLineCommentIsValidAsync(string commentLine,
+  /// <param name="textReader">The text reader to read the data</param> 
+  /// <param name="commentLine">The characters for a comment line.</param>
+  /// <param name="fieldDelimiterChar">The delimiter to separate columns</param>
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long-running process</param>
+  /// <returns>true if the comment line seems to be ok</returns>
+  public static async Task<bool> InspectLineCommentIsValidAsync(this ImprovedTextReader textReader, string commentLine,
       char fieldDelimiterChar,
       CancellationToken cancellationToken)
     {
@@ -121,13 +118,14 @@ public static class DetectionLineComment
       };
     }
 
-    /// <summary>
-    /// Guesses the line comment prefix by inspecting the start of the first maxRows lines.
-    /// This implementation is zero-allocation and avoids string materialization.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop the process.</param>
-    /// <returns>The most frequent comment prefix found, or an empty string.</returns>
-    public async Task<string> InspectLineCommentAsync(CancellationToken cancellationToken)
+  /// <summary>
+  /// Guesses the line comment prefix by inspecting the start of the first maxRows lines.
+  /// This implementation is zero-allocation and avoids string materialization.
+  /// </summary>
+  /// <param name="textReader">The text reader to read the data</param> 
+  /// <param name="cancellationToken">Cancellation token to stop the process.</param>
+  /// <returns>The most frequent comment prefix found, or an empty string.</returns>
+  public static async Task<string> InspectLineCommentAsync(this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
@@ -199,8 +197,7 @@ public static class DetectionLineComment
       }
 
       return bestIdx != -1 ? candidates[bestIdx] : string.Empty;
-    }
-  }
+    }  
 
   /// <summary>
   /// Performs a zero-allocation check to see if the buffer at index matches the pattern.

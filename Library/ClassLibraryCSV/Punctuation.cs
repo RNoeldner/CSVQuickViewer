@@ -21,56 +21,53 @@ namespace CsvTools;
 public static class Punctuation
 {
 
-  extension(char character)
-  {
-    /// <summary>
-    ///   Gets a descriptive text for a character
-    /// </summary>
-    public string Description()
-      => character switch
-      {
-        '\t' => "Horizontal Tab",
-        ' ' => "Space",
-        '\u00A0' => "Non-breaking space",
-        '\\' => "Backslash \\",
-        '/' => "Slash /",
-        ',' => "Comma ,",
-        ';' => "Semicolon ;",
-        ':' => "Colon :",
-        '.' => "Dot .",
-        '|' => "Pipe |",
-        '"' => "Quotation marks \"",
-        '\'' => "Apostrophe '",
-        '&' => "Ampersand &",
-        '*' => "Asterisk *",
-        '`' => "Tick Mark `",
-        '?' => "Check mark ?",
-        '\u001C' => "File Separator Char 28",
-        '\u001D' => "Group Separator Char 29",
-        '\u001E' => "Record Separator ?",
-        '\u001F' => "Unit Separator ?",
-        _ => character.ToString()
-      };
+  /// <summary>
+  ///   Gets a descriptive text for a character
+  /// </summary>
+  public static string Description(this char character)
+    => character switch
+    {
+      '\t' => "Horizontal Tab",
+      ' ' => "Space",
+      '\u00A0' => "Non-breaking space",
+      '\\' => "Backslash \\",
+      '/' => "Slash /",
+      ',' => "Comma ,",
+      ';' => "Semicolon ;",
+      ':' => "Colon :",
+      '.' => "Dot .",
+      '|' => "Pipe |",
+      '"' => "Quotation marks \"",
+      '\'' => "Apostrophe '",
+      '&' => "Ampersand &",
+      '*' => "Asterisk *",
+      '`' => "Tick Mark `",
+      '?' => "Check mark ?",
+      '\u001C' => "File Separator Char 28",
+      '\u001D' => "Group Separator Char 29",
+      '\u001E' => "Record Separator ?",
+      '\u001F' => "Unit Separator ?",
+      _ => character.ToString()
+    };
 
-    /// <summary>
-    /// The printable text representation of the character, a tab will be shown as "Tab"
-    /// </summary>
-    public string Text()
-      => character switch
-      {
-        '\0' => string.Empty,
-        '\t' => "Tab",
-        '\r' => "CR",
-        '\n' => "LF",
-        ' ' => "Space",
-        '\u00A0' => "NBSP",
-        '\u001F' => "US",
-        '\u001E' => "RS",
-        '\u001D' => "GS",
-        '\u001C' => "FS",
-        _ => character.ToString()
-      };
-  }
+  /// <summary>
+  /// The printable text representation of the character, a tab will be shown as "Tab"
+  /// </summary>
+  public static string Text(this char character)
+    => character switch
+    {
+      '\0' => string.Empty,
+      '\t' => "Tab",
+      '\r' => "CR",
+      '\n' => "LF",
+      ' ' => "Space",
+      '\u00A0' => "NBSP",
+      '\u001F' => "US",
+      '\u001E' => "RS",
+      '\u001D' => "GS",
+      '\u001C' => "FS",
+      _ => character.ToString()
+    };
 
 
   /// <summary>
@@ -208,13 +205,13 @@ public static class Punctuation
 
     // 2. Line Breaks (Very common in multi-line field configuration)
     if (input.Equals("LineFeed", StringComparison.OrdinalIgnoreCase)) return '\n';
-    
+
     if (input.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase)) return '\r';
     if (input.Equals("Carriage Return", StringComparison.OrdinalIgnoreCase)) return '\r';
 
     // 3. Tab & Space Variants (Common alternative delimiters)
     if (input.StartsWith("Horizontal Tab", StringComparison.OrdinalIgnoreCase)) return '\t';
-    
+
     if (input.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase)) return '\u00A0';
     if (input.Equals("Non Breaking Space", StringComparison.OrdinalIgnoreCase)) return '\u00A0';
 
