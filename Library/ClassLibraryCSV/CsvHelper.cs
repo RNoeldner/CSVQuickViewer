@@ -307,6 +307,7 @@ public static class CsvHelper
   /// <summary>
   /// Asynchronously inspects the given <see cref="Stream"/> to determine its most likely text encoding.
   /// </summary>
+  /// <param name="stream">The stream to inspect.</param>
   /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the asynchronous operation.</param>
   /// <returns>
   /// A tuple containing:
@@ -386,6 +387,7 @@ public static class CsvHelper
   /// <summary>
   ///   Determines whether data in the specified stream is an XML
   /// </summary>
+  /// <param name="stream">The stream to inspect.</param>
   /// <param name="encoding">The encoding.</param>
   /// <returns><c>true</c> if XML could be read from stream; otherwise, <c>false</c>.</returns>
   private static async Task<bool> InspectIsXmlReadableAsync(this Stream stream, Encoding encoding)
@@ -408,6 +410,7 @@ public static class CsvHelper
   /// <summary>
   ///   Determines whether data in the specified stream is a JSON
   /// </summary>
+  /// <param name="stream">The stream to inspect.</param>
   /// <param name="encoding">The encoding.</param>
   /// <param name="progress">Progress-reporting interface that exposes a <see cref="CancellationToken"/></param>
   /// <returns><c>true</c> if JSON could be read from stream; otherwise, <c>false</c>.</returns>
@@ -442,6 +445,7 @@ public static class CsvHelper
   /// <summary>
   ///   Updates the <see cref="InspectionResult"/> by performing heuristic analysis on a stream.
   /// </summary>
+  /// <param name="stream">The stream to inspect.</param>
   /// <param name="inspectionResult">The result object to populate with structural metadata.</param>
   /// <param name="guessJson">If <c>true</c>, checks for XML/JSON formats first.</param>
   /// <param name="guessCodePage">If <c>true</c>, detects file encoding and BOM.</param>

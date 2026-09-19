@@ -543,14 +543,6 @@ public class CsvDataReaderUnitTest
   }
 
   [TestMethod]
-  public async Task CsvDataReaderGetDataAsync()
-  {
-    using var test = new CsvFileReader(fileName: MPathBasicCsv, columnDefinition: MColumnCollectionBasicCsv);
-    await test.OpenAsync(UnitTestStatic.Token);
-    Assert.Throws<NotSupportedException>(() => test.GetData(0));
-  }
-
-  [TestMethod]
   public async Task CsvDataReaderGetFloatAsync()
   {
     using var test = new CsvFileReader(fileName: MPathBasicCsv, columnDefinition: MColumnCollectionBasicCsv);

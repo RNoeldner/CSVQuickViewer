@@ -80,9 +80,9 @@ public class DataTableWrapperTests
   public async Task GetValueTest()
   {
     using var test = new DataTableWrapper(m_DataTable);
-    object col0 = null;
-    object col1 = null;
-    object col2 = null;
+    object? col0 = null;
+    object? col1 = null;
+    object? col2 = null;
     do
     {
       await test.ReadAsync(UnitTestStatic.Token);
@@ -103,9 +103,9 @@ public class DataTableWrapperTests
   {
     using var test = new DataTableWrapper(m_DataTable);
 
-    object col0 = null;
-    object col1 = null;
-    object col2 = null;
+    object? col0 = null;
+    object? col1 = null;
+    object? col2 = null;
     do
     {
       await test.ReadAsync(UnitTestStatic.Token);
@@ -290,7 +290,7 @@ public class DataTableWrapperTests
   {
     using var test = new DataTableWrapper(m_DataTable);
     //await test.OpenAsync(UnitTestStatic.Token);
-    object result = null;
+    object? result = null;
     do
     {
       await test.ReadAsync(UnitTestStatic.Token);
@@ -329,7 +329,7 @@ public class DataTableWrapperTests
   {
     using var test = new DataTableWrapper(m_DataTable);
     //await test.OpenAsync(UnitTestStatic.Token);    
-    object result=null;
+    object? result = null;
     do
     {
       await test.ReadAsync(UnitTestStatic.Token);

@@ -560,8 +560,7 @@ public partial class FilteredDataGridView : DataGridView
   ///   Get the height of the row based on the content
   /// </summary>
   /// <param name="row">The row.</param>
-  /// <param name="checkedColumns">The checked columns.</param>
-  /// <returns></returns>
+  /// <param name="checkedColumns">The checked columns.</param>  
   private static int GetDesiredRowHeight(DataGridViewRow row, IEnumerable<DataGridViewColumn> checkedColumns)
   {
     // Actually depend on scaling, best approach is to get the initial row.Height of the very
@@ -570,10 +569,9 @@ public partial class FilteredDataGridView : DataGridView
       _mDefRowHeight = row.Height;
     // in case the row is not bigger than normal, check if it would need to be higher
     if (row.Height != _mDefRowHeight) return _mDefRowHeight;
-    if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
-      return _mDefRowHeight * 2;
-
-    return _mDefRowHeight;
+    return checkedColumns.Any(column => (row.Cells[column.Index].Value?.ToString() ?? string.Empty).IndexOf('\n') != -1)
+      ? _mDefRowHeight * 2
+      : _mDefRowHeight;
   }
 
   /// <summary>

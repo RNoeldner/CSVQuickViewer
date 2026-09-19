@@ -349,21 +349,22 @@ public static class FileSystemUtils
     var parts = SplitPath(fileName);
     return parts.DirectoryName.GetRelativeFolder(basePath) + parts.FileName;
   }
-  
-    /// <summary>
-    /// Calculates the relative path from a base directory to a target directory.
-    /// </summary>
-    /// <param name="basePath">The starting directory used as the reference point.</param>
-    /// <returns>
-    /// A relative path string (e.g., "..\..\Folder\"). 
-    /// Returns ".\" if the paths are identical.
-    /// </returns>
-    /// <remarks>
-    /// This method performs a case-insensitive comparison of path segments.
-    /// It is designed for directory-to-directory relativity and ensures the result 
-    /// always concludes with a directory separator.
-    /// </remarks>
-    public static string GetRelativeFolder(this string otherDir, string basePath)
+
+  /// <summary>
+  /// Calculates the relative path from a base directory to a target directory.
+  /// </summary>
+  /// <param name="otherDir">The target directory.</param>
+  /// <param name="basePath">The starting directory used as the reference point.</param>
+  /// <returns>
+  /// A relative path string (e.g., "..\..\Folder\"). 
+  /// Returns ".\" if the paths are identical.
+  /// </returns>
+  /// <remarks>
+  /// This method performs a case-insensitive comparison of path segments.
+  /// It is designed for directory-to-directory relativity and ensures the result 
+  /// always concludes with a directory separator.
+  /// </remarks>
+  public static string GetRelativeFolder(this string otherDir, string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(otherDir))
         return "." + Path.DirectorySeparatorChar;
@@ -402,25 +403,26 @@ public static class FileSystemUtils
       return sBuilder.ToString();
     }
 
-    /// <summary>
-    /// Shortens a file path for display purposes by intelligently removing directory segments 
-    /// or truncating the string to fit within a specified length.
-    /// </summary>
-    /// <param name="length">The maximum desired length of the resulting string. Defaults to 80.</param>
-    /// <returns>
-    /// A shortened string containing ellipses (…) where content was removed. 
-    /// Returns the original string (sans prefix) if it already fits the length.
-    /// </returns>
-    /// <remarks>
-    /// This method uses a multi-stage reduction strategy:
-    /// <list type="number">
-    /// <item><description>Retains the root and the last few directory levels.</description></item>
-    /// <item><description>Progressively drops intermediate directories.</description></item>
-    /// <item><description>Reduces to the filename only.</description></item>
-    /// <item><description>Performs "middle-out" character truncation if the filename alone is too long.</description></item>
-    /// </list>
-    /// </remarks>
-    public static string GetShortDisplayFileName(this string otherDir, int length = 80)
+  /// <summary>
+  /// Shortens a file path for display purposes by intelligently removing directory segments 
+  /// or truncating the string to fit within a specified length.
+  /// </summary>
+  /// <param name="otherDir">The target directory.</param>
+  /// <param name="length">The maximum desired length of the resulting string. Defaults to 80.</param>
+  /// <returns>
+  /// A shortened string containing ellipses (…) where content was removed. 
+  /// Returns the original string (sans prefix) if it already fits the length.
+  /// </returns>
+  /// <remarks>
+  /// This method uses a multi-stage reduction strategy:
+  /// <list type="number">
+  /// <item><description>Retains the root and the last few directory levels.</description></item>
+  /// <item><description>Progressively drops intermediate directories.</description></item>
+  /// <item><description>Reduces to the filename only.</description></item>
+  /// <item><description>Performs "middle-out" character truncation if the filename alone is too long.</description></item>
+  /// </list>
+  /// </remarks>
+  public static string GetShortDisplayFileName(this string otherDir, int length = 80)
     {
       var processedPath = otherDir.RemovePrefix();
 
@@ -489,12 +491,13 @@ public static class FileSystemUtils
       return lastIndex > 0 ? otherDir.Substring(0, lastIndex).RemovePrefix() : string.Empty;
     }
 
-    /// <summary>
-    ///   Gets a filename that is usable in the file system.
-    /// </summary>
-    /// <param name="replaceInvalid">The replacement for invalid chars</param>
-    /// <returns>A text that is allowed in the file system as a filename</returns>
-    public static string SafePath(this string otherDir, string replaceInvalid = "")
+  /// <summary>
+  ///   Gets a filename that is usable in the file system.
+  /// </summary>
+  /// <param name="otherDir">The target directory.</param>
+  /// <param name="replaceInvalid">The replacement for invalid chars</param>
+  /// <returns>A text that is allowed in the file system as a filename</returns>
+  public static string SafePath(this string otherDir, string replaceInvalid = "")
     {
       if (string.IsNullOrEmpty(otherDir))
         return string.Empty;

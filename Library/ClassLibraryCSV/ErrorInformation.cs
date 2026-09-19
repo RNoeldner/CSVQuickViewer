@@ -132,9 +132,10 @@ public static class ErrorInformation
     return new ColumnAndMessage(sbErrors.ToString().AsMemory(), sbWarning.ToString().AsMemory());
   }
 
-    /// <summary>
+  /// <summary>
   ///   String method to append a message an error list text
   /// </summary>
+  /// <param name="errorList">The existing error list text</param>
   /// <param name="newError">A new message that should be added to the list</param>
   /// <param name="isWarning"><c>true</c> if this message is a warning</param>
   /// <returns>
@@ -162,6 +163,7 @@ public static class ErrorInformation
   /// <summary>
   ///   String method to append a message an error list text
   /// </summary>
+  /// <param name="errorList">The existing error list text</param>
   /// <param name="newError">A new message that should be added to the list</param>
   /// <returns>
   ///   A new error list text, if the message was already contained, is not added a second time,

@@ -81,7 +81,7 @@ public class JsonTabularConverterTests
         .GetMethod("PickObjectProperties", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
         ?.Invoke(null, [3, new JObject[] { obj1, obj2 },]) as IReadOnlyCollection<JProperty>;
 
-    var propNames = props.Select(p => p.Name).ToList();
+    var propNames = props?.Select(p => p.Name).ToList();
 
     // Assert priority: 'id' first, then 'user_id', then others
     Assert.AreEqual("id", propNames[0]);

@@ -42,7 +42,7 @@ public class UniqueObservableCollectionTests
     public object Clone() => new TestObject(Name) { Id = Id, Cloned = true };
     public string GetUniqueKey() => Name;
     public void SetUniqueKey(string key) => Name= key;
-    public bool Equals(TestObject other) => Id==other.Id && Name.Equals(other.Name);
+    public bool Equals(TestObject? other) => Id==other?.Id && Name.Equals(other?.Name);
   }
 
 

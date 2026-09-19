@@ -678,6 +678,7 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   public abstract Task OpenAsync(CancellationToken cancellationToken);
 
   /// <inheritdoc />
+  [Obsolete("Use ReadAsync instead for asynchronous, non-blocking operation.")]
   public sealed override bool Read()
     => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
