@@ -936,6 +936,7 @@ public static class FileSystemUtils
   {
     private readonly System.IO.FileInfo? m_Info;
     private DateTime m_LastWriteTimeUtc = new DateTime(0, DateTimeKind.Utc);
+    private long m_Crc = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileInfo"/> class.
@@ -966,11 +967,13 @@ public static class FileSystemUtils
     /// <param name="fileName">Name of the file.</param>
     /// <param name="length">The length.</param>
     /// <param name="lastWriteTimeUtc">The last writing time UTC.</param>
-    public FileInfo(string fileName, long length, DateTime lastWriteTimeUtc)
+    /// <param name="crc">The CRC32 checksum.</param>
+    public FileInfo(string fileName, long length, DateTime lastWriteTimeUtc, long crc)
     {
       Name = fileName;
       Length = length;
       m_LastWriteTimeUtc = lastWriteTimeUtc;
+      m_Crc = crc;
     }
 
     /// <summary>
@@ -1013,6 +1016,14 @@ public static class FileSystemUtils
     /// The name.
     /// </value>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the CRC32 checksum of the file
+    /// </summary>
+    /// <value>
+    /// The CRC32 checksum.
+    /// </value>
+    public long Crc => m_Crc;
   }
 
   /// <summary>

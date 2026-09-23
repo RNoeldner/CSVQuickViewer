@@ -104,7 +104,7 @@ public class FileSystemUtilsTests
     FileSystemUtils.FileDelete(testFile2);
 
     var date = new DateTime(2020, 10, 17, 17, 23, 44);
-    var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);
+    var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date, 10);
     Assert.AreEqual(643788L, test3.Length);
     Assert.AreEqual(date, test3.LastWriteTimeUtc);
   }
