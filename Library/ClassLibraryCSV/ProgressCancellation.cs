@@ -65,7 +65,7 @@ public sealed class ProgressCancellation : IProgressWithCancellation
   /// An optional delegate that receives progress updates. If not provided,
   /// messages are forwarded to the default logger.
   /// </param>
-  public ProgressCancellation(CancellationToken cancellationToken, Action<ProgressInfo> onReportAction )
+  public ProgressCancellation(CancellationToken cancellationToken, Action<ProgressInfo> onReportAction)
   {
     CancellationToken = cancellationToken;
     m_OnReport = onReportAction;

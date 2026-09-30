@@ -679,7 +679,9 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
 
   /// <inheritdoc />
   [Obsolete("Use ReadAsync instead for asynchronous, non-blocking operation.")]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
   public sealed override bool Read()
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
     => ReadCoreAsync(CancellationToken.None).GetAwaiter().GetResult();
 
   /// <inheritdoc cref="IFileReader" />
