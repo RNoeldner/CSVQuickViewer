@@ -443,39 +443,6 @@ public static class Extensions
     ProcessUiElements();
   }
 
-  /// <summary>
-  /// Executes an action on the UI thread safely and synchronously.
-  /// Assumes the control handle is already created (no handle check).
-  /// </summary>
-  /// <param name="uiElement">The control on which to invoke the action.</param>
-  /// <param name="action">The action to execute.</param>
-  [Obsolete("Use SafeInvoke or RunWithHourglass", true)]
-  public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
-  {
-    if (uiElement == null || uiElement.IsDisposed || uiElement.Disposing)
-      return;
-    try
-    {
-      if (uiElement.InvokeRequired)
-      {
-        // Synchronous invoke on UI thread
-        uiElement.Invoke(action);
-      }
-      else
-      {
-        // Already on UI thread
-        action();
-      }
-    }
-    catch (ObjectDisposedException)
-    {
-      // Control disposed mid-invoke, safely ignore
-    }
-    catch (InvalidOperationException) when (!uiElement.IsHandleCreated || uiElement.IsDisposed)
-    {
-      // Control handle invalid or disposed
-    }
-  }
   public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
       => RunStaThread(() =>
       {
@@ -607,6 +574,7 @@ public static class Extensions
       frm?.SafeInvoke(() => Cursor.Current=Cursors.WaitCursor);
       await action.InvokeWithHourglassAsync().ConfigureAwait(true);
     }
+    catch (NotImplementedException) { /* UI was closed during await; ignore */ }
     catch (ObjectDisposedException) { /* UI was closed during await; ignore */ }
     catch (Exception ex)
     {
