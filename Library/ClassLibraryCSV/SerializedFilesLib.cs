@@ -18,7 +18,6 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -31,6 +30,12 @@ namespace CsvTools;
 /// </summary>
 public static class SerializedFilesLib
 {
+  /// <summary>
+  /// General serialization binder to be used for all serialization and deserialization. 
+  /// If set, this will be used in the global JsonSerializerSettings.
+  /// </summary>
+  public static ISerializationBinder? g_SerializationBinder;
+
   /// <summary>
   ///   File ending for a setting file
   /// </summary>
@@ -52,6 +57,8 @@ public static class SerializedFilesLib
         DateFormatHandling = DateFormatHandling.IsoDateFormat,
         DateTimeZoneHandling = DateTimeZoneHandling.Utc
       };
+      if (g_SerializationBinder != null)
+        setting.SerializationBinder = g_SerializationBinder;
       setting.Converters.Add(new StringEnumConverter());
       return setting;
     });
@@ -72,7 +79,7 @@ public static class SerializedFilesLib
       ReferenceLoopHandling = original.ReferenceLoopHandling,
       DateFormatHandling = original.DateFormatHandling,
       DateTimeZoneHandling = original.DateTimeZoneHandling,
-      Converters = new List<JsonConverter>(original.Converters)
+      Converters = [.. original.Converters]
     };
   }
   /// <summary>
@@ -110,22 +117,6 @@ public static class SerializedFilesLib
         // if array has no items left, it's empty
         return !arr.HasValues;
 
-      case JTokenType.None:
-      case JTokenType.Constructor:
-      case JTokenType.Property:
-      case JTokenType.Comment:
-      case JTokenType.Integer:
-      case JTokenType.Float:
-      case JTokenType.String:
-      case JTokenType.Boolean:
-      case JTokenType.Null:
-      case JTokenType.Undefined:
-      case JTokenType.Date:
-      case JTokenType.Raw:
-      case JTokenType.Bytes:
-      case JTokenType.Guid:
-      case JTokenType.Uri:
-      case JTokenType.TimeSpan:
       default:
         // Leave primitives (including nulls and empty strings)
         return false;
