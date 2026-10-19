@@ -733,7 +733,7 @@ public class FormHierarchyDisplay : ResizeForm
 
     CollectMatches(m_TreeView.Nodes);
 
-    if (validNode.Count == 0)
+    if (validNode.Count == 0 || m_TreeView.SelectedNode == null)
       return;
     var currentFound = validNode.IndexOf(m_TreeView.SelectedNode);
     m_TreeView.BeginUpdate();

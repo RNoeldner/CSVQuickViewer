@@ -189,19 +189,20 @@ public class FormShowMaxLength : ResizeForm
       }
 
       m_DataGridView.DataTable = dataTable;
-      // ReSharper disable PossibleNullReferenceException
-      m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
-
-      m_DataGridView.Columns[dataColumnLength.ColumnName].Width = 60;
-      m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Alignment =
-        DataGridViewContentAlignment.MiddleRight;
-      m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Format = "0";
-
-      m_DataGridView.Columns[dataColumnNo.ColumnName].Width = 60;
-      m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Alignment =
-        DataGridViewContentAlignment.MiddleRight;
-      m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Format = "0";
-      // ReSharper restore PossibleNullReferenceException
+      var srcName = m_DataGridView.Columns[dataColumnName.ColumnName];      
+      if (srcName is not null)
+      {
+        srcName.Width = 60;
+        srcName.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+        srcName.DefaultCellStyle.Format = "0";
+      }
+      var srcNo = m_DataGridView.Columns[dataColumnNo.ColumnName];
+      if (srcNo is not null)
+      {
+        srcNo.Width = 60;
+        srcNo.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+        srcNo.DefaultCellStyle.Format = "0";
+      }
     }
     catch (Exception ex)
     {

@@ -337,7 +337,7 @@ public partial class FilteredDataGridView : DataGridView
       if (CurrentCell is null)
         return;
       var filter = m_FilterLogic[m_MenuItemColumnIndex];
-      filter.SetFilter(CurrentCell.Value);
+      filter.SetFilter(CurrentCell.Value ?? string.Empty);
       ApplyFilters();
     }
     catch (Exception ex)
@@ -656,7 +656,7 @@ public partial class FilteredDataGridView : DataGridView
     {
       SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
       if (e.Button==MouseButtons.Left && e.RowIndex >= 0 && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
-        OpenEditor(CurrentCell);
+        OpenEditor(CurrentCell!);
     }
     catch (Exception ex)
     {
@@ -738,7 +738,7 @@ public partial class FilteredDataGridView : DataGridView
   {
     if (e.Control && e.KeyCode == Keys.F2)
     {
-      OpenEditor(CurrentCell);
+      OpenEditor(CurrentCell!);
       e.Handled = true;
     }
     else if (e.Control && e.KeyCode == Keys.C)
@@ -1076,13 +1076,13 @@ public partial class FilteredDataGridView : DataGridView
       using var frm = new FormTextDisplay(cell.Value?.ToString() ?? string.Empty);
 
       // ReSharper disable once LocalizableElement
-      frm.Text = $"{Columns[cell.ColumnIndex].DataPropertyName} - Row {cell.OwningRow.Index + 1:D}";
+      frm.Text = $"{Columns[cell.ColumnIndex].DataPropertyName} - Row {cell.OwningRow?.Index + 1:D}";
       frm.SaveAction = s =>
       {
         if (s.Equals(cell.Value))
           return;
         cell.Value = s;
-        cell.ErrorText = CurrentCell.ErrorText.AddMessage(
+        cell.ErrorText = CurrentCell?.ErrorText.AddMessage(
           "Value was modified".AddWarningId());
       };
       frm.ShowWithFont(this, true);
@@ -1306,7 +1306,7 @@ public partial class FilteredDataGridView : DataGridView
   {
     try
     {
-      OpenEditor(CurrentCell);
+      OpenEditor(CurrentCell!);
     }
     catch (Exception ex)
     {

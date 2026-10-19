@@ -27,28 +27,28 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>    
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETStandard|AnyCPU'">
     <DebugType>embedded</DebugType>
     <Optimize>False</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETStandard|AnyCPU'">
     <DebugType>none</DebugType>
     <Optimize>True</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETStandard|AnyCPU'">
     <DebugType>embedded</DebugType>
     <Optimize>False</Optimize>
     <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETStandard|AnyCPU'">
     <DebugType>none</DebugType>
     <Optimize>False</Optimize>
     <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETCoreApp|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETCoreApp|AnyCPU'">
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>

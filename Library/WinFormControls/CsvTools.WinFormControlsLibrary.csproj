@@ -15,21 +15,21 @@
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvTools.WinFormControls</AssemblyName>    
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
-    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>    
+    <UseWinFormsOutOfProcDesigner>True</UseWinFormsOutOfProcDesigner>
   </PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-windows'">
+	<PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
 		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
 	</PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETFramework|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETCoreApp|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETFramework|AnyCPU'">
     <DebugType>none</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETCoreApp|AnyCPU'">
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
@@ -49,7 +49,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />

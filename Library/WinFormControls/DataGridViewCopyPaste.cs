@@ -89,7 +89,7 @@ public sealed class DataGridViewCopyPaste
   private static void CopyOneCellIntoClipboard(DataGridViewCell cell)
   {
     var dataObject = new DataObject();
-    dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
+    dataObject.SetData(DataFormats.Text, true, cell.Value?.ToString() ?? string.Empty);
     dataObject.SetClipboard();
   }
 
@@ -301,9 +301,9 @@ public sealed class DataGridViewCopyPaste
 
     foreach (DataGridViewCell cell in selectedCells)
     {
-      if (cell.OwningColumn.DisplayIndex < leftCol)
+      if (cell.OwningColumn?.DisplayIndex < leftCol)
         leftCol = cell.OwningColumn.DisplayIndex;
-      if (cell.OwningColumn.DisplayIndex > rightCol)
+      if (cell.OwningColumn?.DisplayIndex > rightCol)
         rightCol = cell.OwningColumn.DisplayIndex;
       if (cell.RowIndex < topRow)
         topRow = cell.RowIndex;
@@ -363,7 +363,7 @@ public sealed class DataGridViewCopyPaste
         {
           if (cell.RowIndex != row)
             continue;
-          if (cell.OwningColumn.DisplayIndex != col)
+          if (cell.OwningColumn?.DisplayIndex != col)
             continue;
           AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength);
           written = true;

@@ -55,7 +55,7 @@ public static class ViewSetting
         col.DisplayIndex = displayIndex++;
 #pragma warning restore S1854 // Unused assignments should be removed
 
-        var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType, col.DataPropertyName);
+        var newColumnFilterLogic = new ColumnFilterLogic(col.ValueType!, col.DataPropertyName);
 
         foreach (var cluster in storedColumn.ValueFilters)
           columnFilters[col.Index].ValueClusterCollection

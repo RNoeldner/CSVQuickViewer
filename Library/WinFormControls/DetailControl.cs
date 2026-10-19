@@ -1100,7 +1100,7 @@ public sealed partial class DetailControl : UserControl
     var isPartiallyHiddenRight = cellRect.Right > gridRect.Right;
     var isPartiallyHiddenLeft = cellRect.Left < mainDataGridView.RowHeadersWidth;
 
-    if (isPartiallyHiddenRight || isPartiallyHiddenLeft || !cell.OwningColumn.Displayed)
+    if (isPartiallyHiddenRight || isPartiallyHiddenLeft || !(cell.OwningColumn?.Displayed ?? false))
     {
       try
       {

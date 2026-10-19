@@ -103,7 +103,7 @@ public class MultiSelectTreeView : TreeView
         if (bParent)
         {
           var n = bottomNode;
-          while (n != upperNode.Parent)
+          while (n!= null && n != upperNode.Parent)
           {
             if (!SelectedTreeNode.Contains(n)) // new node ?
               myQueue.Add(n);
@@ -130,7 +130,7 @@ public class MultiSelectTreeView : TreeView
             }
 
             var n = upperNode;
-            while (nIndexUpper <= nIndexBottom)
+            while (nIndexUpper <= nIndexBottom && n != null)
             {
               if (!SelectedTreeNode.Contains(n)) // new node ?
                 myQueue.Add(n);
@@ -217,7 +217,7 @@ public class MultiSelectTreeView : TreeView
 
     var minLevel = int.MaxValue;
     var maxLevel = int.MinValue;
-    foreach (var itemLevel in SelectedTreeNode.Select(x=>x.Level))
+    foreach (var itemLevel in SelectedTreeNode.Select(x => x.Level))
     {
       if (minLevel > itemLevel)
         minLevel = itemLevel;
