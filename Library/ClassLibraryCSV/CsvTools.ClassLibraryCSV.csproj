@@ -21,35 +21,21 @@
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
     <AssemblyOriginatorKeyFile>..\..\sgKey.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
-    <ReleaseVersion>1.4.6.499</ReleaseVersion>
+    <AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>    
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>    
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETStandard|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
-    <Optimize>False</Optimize>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETStandard|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>
-    <Optimize>True</Optimize>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETStandard|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <Optimize>False</Optimize>
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETStandard'">
     <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETStandard|AnyCPU'">
-    <DebugType>none</DebugType>
-    <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Debug|.NETCoreApp|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFrameworkIdentifier)|$(Platform)'=='Release|.NETCoreApp|AnyCPU'">
-    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="UserInterfaceSettings\**" />
