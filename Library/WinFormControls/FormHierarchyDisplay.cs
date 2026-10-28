@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -150,46 +149,6 @@ public class FormHierarchyDisplay : ResizeForm
       treeNode.Nodes.AddRange(BuildSubNodes(root, cancellationToken));
   }
 
-  private void AppendTreeNode(
-    StringBuilder sb,
-    TreeNode node,
-    HashSet<TreeNode> relevant,
-    List<bool> hasNextLevels)
-  {
-    if (!relevant.Contains(node))
-      return;
-
-    var parent = node.Parent;
-    var siblings = parent?.Nodes ?? m_TreeView.Nodes;
-
-    // determine if this node is last *among relevant siblings*
-    bool isLast = true;
-    for (int i = node.Index + 1; i < siblings.Count; i++)
-    {
-      if (relevant.Contains(siblings[i]))
-      {
-        isLast = false;
-        break;
-      }
-    }
-
-    // prefix from parent levels
-    for (int level = 0; level < hasNextLevels.Count; level++)
-      sb.Append(hasNextLevels[level] ? "│   " : "    ");
-
-    // node prefix
-    sb.Append(isLast ? "└── " : "├── ");
-    sb.AppendLine(GetNodeText(node)); // reuse your helper logic
-
-    // recurse into children
-    hasNextLevels.Add(!isLast);
-
-    foreach (TreeNode child in node.Nodes)
-      AppendTreeNode(sb, child, relevant, hasNextLevels);
-
-    hasNextLevels.RemoveAt(hasNextLevels.Count - 1);
-  }
-
   /// <summary>
   ///   Builds the sub nodes.
   /// </summary>
@@ -250,22 +209,20 @@ public class FormHierarchyDisplay : ResizeForm
       var id = dataRow[dataColumnId.Ordinal].ToString();
       if (string.IsNullOrEmpty(id))
         continue;
+      string titleText;
+      var val1 = dataColumnDisplay1 != null ? dataRow[dataColumnDisplay1.Ordinal]?.ToString() : null;
+      var val2 = dataColumnDisplay2 != null ? dataRow[dataColumnDisplay2.Ordinal]?.ToString() : null;
 
-      var title = new StringBuilder();
-      if (dataColumnDisplay1 != null)
-        title.Append(dataRow[dataColumnDisplay1.Ordinal]);
-      if (dataColumnDisplay2 != null)
-      {
-        if (dataColumnDisplay1 != null)
-          title.Append(" - ");
-        title.Append(dataRow[dataColumnDisplay2.Ordinal]);
-      }
+      if (!string.IsNullOrEmpty(val1) && !string.IsNullOrEmpty(val2))
+        titleText = $"{val1} - {val2}";
+      else if (!string.IsNullOrEmpty(val1))
+        titleText = val1!;
+      else if (!string.IsNullOrEmpty(val2))
+        titleText = val2!;
+      else
+        titleText = id;
 
-      // Fallback 
-      if (title.Length == 0)
-        title.Append(id);
-
-      var treeData = new TreeData(id, title.ToString(), dataRow[dataColumnParent.Ordinal].ToString());
+      var treeData = new TreeData(id, titleText, dataRow[dataColumnParent.Ordinal].ToString());
       if (dataColumnDisplay1 != null)
         treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
@@ -276,11 +233,12 @@ public class FormHierarchyDisplay : ResizeForm
 
     // Generate a list of missing parents
     var additionalRootNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    foreach (var child in from child in treeDataDictionary.Values
-                          where !string.IsNullOrEmpty(child.ParentId) && !treeDataDictionary.ContainsKey(child.ParentId)
-                          select child)
+    foreach (var child in treeDataDictionary.Values)
     {
-      additionalRootNodes.Add(child.ParentId);
+      if (!string.IsNullOrEmpty(child.ParentId) && !treeDataDictionary.ContainsKey(child.ParentId))
+      {
+        additionalRootNodes.Add(child.ParentId);
+      }
     }
 
     var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
@@ -313,7 +271,9 @@ public class FormHierarchyDisplay : ResizeForm
       intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter);
       if (string.IsNullOrEmpty(child.ParentId) && !string.Equals(child.Id, rootDataParentFound.Id, StringComparison.OrdinalIgnoreCase)
                                                && !string.Equals(child.Id, rootDataParentNotFound.Id, StringComparison.OrdinalIgnoreCase))
+      {
         child.ParentId = rootDataParentFound.Id;
+      }
     }
 
     max = treeDataDictionary.Values.Count;
@@ -328,7 +288,7 @@ public class FormHierarchyDisplay : ResizeForm
       intervalAction.Invoke(process, $"Set children {counter:N0}/{max:N0} ", counter);
 
       if (!string.IsNullOrEmpty(child.ParentId))
-        treeDataDictionary[child.ParentId].Children.Add(child);
+        treeDataDictionary[child.ParentId].AddChild(child);
     }
 
     m_TreeData = treeDataDictionary.Values;
@@ -376,7 +336,7 @@ public class FormHierarchyDisplay : ResizeForm
   {
     var relevant = new HashSet<TreeNode>();
 
-    foreach (TreeNode selected in m_TreeView.SelectedTreeNode)
+    foreach (var selected in m_TreeView.SelectedTreeNode)
     {
       var current = selected;
       while (current != null)
@@ -386,10 +346,48 @@ public class FormHierarchyDisplay : ResizeForm
       }
     }
 
-    var sb = new StringBuilder();
+    int estimatedCapacity = Math.Max(64, relevant.Count * 45);
+    var sb = new StringBuilder(estimatedCapacity);
+
+    // Local Function to recursively append nodes to the StringBuilder
+    void AppendTreeNode(TreeNode node, HashSet<TreeNode> relevant, List<bool> hasNextLevels)
+    {
+      if (!relevant.Contains(node))
+        return;
+
+      var parent = node.Parent;
+      var siblings = parent?.Nodes ?? m_TreeView.Nodes;
+
+      // Determine if this node is the last *relevant* sibling by scanning backwards
+      bool isLast = true;
+      for (int i = siblings.Count - 1; i > node.Index; i--)
+      {
+        if (relevant.Contains(siblings[i]))
+        {
+          isLast = false;
+          break;
+        }
+      }
+
+      // Prefix from parent levels
+      for (int level = 0; level < hasNextLevels.Count; level++)
+        sb.Append(hasNextLevels[level] ? "│   " : "    ");
+
+      // Node prefix
+      sb.Append(isLast ? "└── " : "├── ");
+      sb.AppendLine(GetNodeText(node));
+
+      // Recurse into children
+      hasNextLevels.Add(!isLast);
+
+      foreach (TreeNode child in node.Nodes)
+        AppendTreeNode(child, relevant, hasNextLevels);
+
+      hasNextLevels.RemoveAt(hasNextLevels.Count - 1);
+    }
 
     foreach (TreeNode root in m_TreeView.Nodes)
-      AppendTreeNode(sb, root, relevant, new List<bool>());
+      AppendTreeNode(root, relevant, new List<bool>());
 
     sb.ToString().SetClipboard();
   }
@@ -715,8 +713,18 @@ public class FormHierarchyDisplay : ResizeForm
 
     try
     {
-      // Check if any child leads to a cycle
-      treeData.InCycle = treeData.Children.Exists(child => MarkInCycle(child, visitedEntries));
+      // Check if any child leads to a cycle (short-circuiting foreach)
+      bool hasCycle = false;
+      foreach (var child in treeData.Children)
+      {
+        if (MarkInCycle(child, visitedEntries))
+        {
+          hasCycle = true;
+          break;
+        }
+      }
+
+      treeData.InCycle = hasCycle;
       return treeData.InCycle;
     }
     finally
@@ -801,30 +809,52 @@ public class FormHierarchyDisplay : ResizeForm
       foreach (var treeData in m_TreeData)
         treeData.Visited = false;
 
-      // Add top-level nodes 
-      foreach (var rootData in m_TreeData.Where(td => string.IsNullOrEmpty(td.ParentId) && td.Children.Count>0))
+      // Add top-level nodes (replacing .Where() LINQ query)
+      foreach (var rootData in m_TreeData)
       {
-        foreach (var nodes in rootData.Children)
-          m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
+        if (string.IsNullOrEmpty(rootData.ParentId) && rootData.Children.Count > 0)
+        {
+          foreach (var _ in rootData.Children)
+          {
+            m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
+          }
+        }
       }
 
       cancellationToken.ThrowIfCancellationRequested();
       Extensions.ProcessUiElements();
-      // If everything has been visited, exit early
-      if (m_TreeData.All(treeData => treeData.Visited))
+
+      // Check if everything has been visited (replacing .All() LINQ method)
+      bool allVisited = true;
+      foreach (var treeData in m_TreeData)
+      {
+        if (!treeData.Visited)
+        {
+          allVisited = false;
+          break;
+        }
+      }
+      if (allVisited)
         return;
+
       var rootNode = new TreeNode("-- Circular References --");
       m_TreeView.Nodes.Add(rootNode);
 
-      foreach (var treeData in m_TreeData.Where(td => !td.Visited))
-        MarkInCycle(treeData, new HashSet<TreeData>());
+      foreach (var treeData in m_TreeData)
+      {
+        if (!treeData.Visited)
+          MarkInCycle(treeData, new HashSet<TreeData>());
+      }
 
       cancellationToken.ThrowIfCancellationRequested();
       Extensions.ProcessUiElements();
 
-      // Add nodes that are in cycles
-      foreach (var root in m_TreeData.Where(td => !td.Visited && td.InCycle))
-        AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
+      // Add nodes that are in cycles (replacing .Where() LINQ query)
+      foreach (var root in m_TreeData)
+      {
+        if (!root.Visited && root.InCycle)
+          AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
+      }
 
       Extensions.ProcessUiElements();
     }
@@ -873,17 +903,52 @@ public class FormHierarchyDisplay : ResizeForm
 
   public sealed class TreeData
   {
-#pragma warning disable MA0016 // Prefer using collection abstraction instead of implementation
-    public readonly List<TreeData> Children = new List<TreeData>();
-#pragma warning restore MA0016 // Prefer using collection abstraction instead of implementation
+    private readonly List<TreeData> m_Children = new();
+    /// <summary>
+    ///   Collection of child nodes belonging to this tree node.
+    /// </summary>
+    /// <summary>
+    /// Gets the collection of child nodes belonging to this tree node.
+    /// </summary>
+    public IReadOnlyList<TreeData> Children => m_Children;
+
+    /// <summary>
+    ///   Unique identifier for the node.
+    /// </summary>
     public readonly string Id;
+
+    /// <summary>
+    ///   Base display title of the node.
+    /// </summary>
     public readonly string Title;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the node is part of a circular reference.
+    /// </summary>
     public bool InCycle;
+
+    /// <summary>
+    ///   Identifier of the parent node.
+    /// </summary>
     public string ParentId;
+
+    /// <summary>
+    ///   Additional tag data associated with the node.
+    /// </summary>
     public string Tag;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the node has been visited during traversal.
+    /// </summary>
     public bool Visited;
     private int m_StoreIndirect = -1;
 
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="TreeData" /> class.
+    /// </summary>
+    /// <param name="id">The unique identifier for the node.</param>
+    /// <param name="title">The display title of the node.</param>
+    /// <param name="parentId">The identifier of the parent node, if any.</param>
     public TreeData(string id, string title, string? parentId = null)
     {
       if (string.IsNullOrEmpty(id))
@@ -896,6 +961,9 @@ public class FormHierarchyDisplay : ResizeForm
       Tag = string.Empty;
     }
 
+    /// <summary>
+    ///   Gets the formatted title string displayed in the tree, appending direct and indirect child counts when applicable.
+    /// </summary>
     public string NodeTitle
     {
       get
@@ -907,9 +975,25 @@ public class FormHierarchyDisplay : ResizeForm
           : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
       }
     }
+    /// <summary>
+    /// Adds a child node to this tree node, safely updating the collection and invalidating the indirect count cache.
+    /// </summary>
+    /// <param name="child">The child node to add.</param>
+    public void AddChild(TreeData child)
+    {
+      if (child is null) throw new ArgumentNullException(nameof(child));
+      m_Children.Add(child);
+      m_StoreIndirect = -1; // Invalidate indirect cache on structural updates
+    }
 
+    /// <summary>
+    ///   Gets the count of immediate child nodes.
+    /// </summary>
     private int DirectChildren => Children.Count;
 
+    /// <summary>
+    ///   Gets the total count of all recursive descendant nodes (cached after first calculation).
+    /// </summary>
     private int InDirectChildren
     {
       get
@@ -920,12 +1004,25 @@ public class FormHierarchyDisplay : ResizeForm
       }
     }
 
+    /// <summary>
+    ///   Recursively calculates the total number of indirect child descendants, avoiding infinite loops in cycles.
+    /// </summary>
+    /// <param name="node">The tree node to evaluate.</param>
+    /// <returns>The total count of all nested descendants.</returns>
     private static int CalculateIndirectChildren(TreeData node)
     {
       if (node.InCycle)
         return 0;
 
-      return node.Children.Count + node.Children.Sum(c => c.Children.Count > 0 ? CalculateIndirectChildren(c) : 0);
+      int count = node.Children.Count;
+      foreach (var c in node.Children)
+      {
+        if (c.Children.Count > 0)
+        {
+          count += CalculateIndirectChildren(c);
+        }
+      }
+      return count;
     }
   }
 }
