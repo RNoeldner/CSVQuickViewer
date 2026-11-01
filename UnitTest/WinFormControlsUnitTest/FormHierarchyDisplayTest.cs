@@ -129,7 +129,7 @@ public class FormHierarchyDisplayTest
     using var dataTable = UnitTestStaticData.GetDataTable(60);
     UnitTestStaticForms.ShowForm(() => new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default), 0.1, frm =>
     {
-      frm.BuildTree("int", "ID");
+      frm.BuildTree("int", "ID", null,null);
     });
   }
 
@@ -149,7 +149,7 @@ public class FormHierarchyDisplayTest
     {
       if (!(frm is { } hd))
         return;
-      hd.BuildTree("ReferenceID1", "ID");
+      hd.BuildTree("ReferenceID1", "ID", null, null);
       hd.CloseAll();
       hd.ExpandAll();
     });

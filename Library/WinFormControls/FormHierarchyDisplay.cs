@@ -52,7 +52,6 @@ public class FormHierarchyDisplay : ResizeForm
   private TableLayoutPanel m_TableLayoutPanel1;
   private TextBox m_TextBoxValue;
   private ToolTip m_ToolTip;
-  private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
   private MultiSelectTreeView m_TreeView = new MultiSelectTreeView();
   private ToolStripSeparator toolStripSeparator1;
   /// <summary>
@@ -82,17 +81,175 @@ public class FormHierarchyDisplay : ResizeForm
   /// <summary>
   ///   Builds the tree.
   /// </summary>
-  public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
+  public void BuildTree(string parentCol, string idCol, string? display1 , string? display2)
   {
+    if (m_TreeView is null)
+      return;
     this.RunWithHourglass(() =>
     {
       using var formProgress = new FormProgress("Building Tree", m_CancellationTokenSource.Token);
       formProgress.Show(this);
-      formProgress.Maximum = m_DataRow.GetLength(0) * 2;
 
-      BuildTreeData(parent, id, display1, display2, formProgress, formProgress.CancellationToken);
-      formProgress.Maximum = 0;
-      ShowTree(formProgress.CancellationToken);
+      DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ?? throw new KeyNotFoundException($"Column '{parentCol}' not found in the data table.");
+      DataColumn dataColumnId = m_DataTable.Columns[idCol] ?? throw new KeyNotFoundException($"Column '{idCol}' not found in the data table.");
+
+      DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
+      DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
+      var max = m_DataRow.GetLength(0) * 2;
+
+      formProgress.SetMaximum(max);
+      // Using a dictionary here to speed up lookups
+      var treeDataDictionary = new DictionaryIgnoreCase<TreeData>();
+      var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent") { Visited=true };
+
+      treeDataDictionary.Add(rootDataParentFound.Id, rootDataParentFound);
+      var counter = 0;
+      var intervalAction = new IntervalAction();
+      foreach (var dataRow in m_DataRow)
+      {
+        formProgress.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(formProgress, $"Parent found {counter:N0}/{max:N0} ", counter);
+        var id = dataRow[dataColumnId.Ordinal].ToString();
+        if (string.IsNullOrEmpty(id))
+          continue;
+        string titleText;
+        var val1 = dataColumnDisplay1 != null ? dataRow[dataColumnDisplay1.Ordinal]?.ToString() : null;
+        var val2 = dataColumnDisplay2 != null ? dataRow[dataColumnDisplay2.Ordinal]?.ToString() : null;
+
+        if (!string.IsNullOrEmpty(val1) && !string.IsNullOrEmpty(val2))
+          titleText = $"{val1} - {val2}";
+        else if (!string.IsNullOrEmpty(val1))
+          titleText = val1!;
+        else if (!string.IsNullOrEmpty(val2))
+          titleText = val2!;
+        else
+          titleText = id;
+
+        var treeData = new TreeData(id, titleText, dataRow[dataColumnParent.Ordinal].ToString());
+        if (dataColumnDisplay1 != null)
+          treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
+
+        // Store the display
+        if (!treeDataDictionary.ContainsKey(id))
+          treeDataDictionary.Add(id, treeData);
+      }
+
+      // Generate a list of missing parents
+      var additionalRootNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      foreach (var child in treeDataDictionary.Values)
+      {
+        if (!string.IsNullOrEmpty(child.ParentId) && !treeDataDictionary.ContainsKey(child.ParentId))
+          additionalRootNodes.Add(child.ParentId);
+      }
+
+      var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
+
+      if (additionalRootNodes.Count > 0)
+      {
+        treeDataDictionary.Add(rootDataParentNotFound.Id, rootDataParentNotFound);
+        counter = 0;
+        max = additionalRootNodes.Count;
+        formProgress.SetMaximum(max);
+
+        // Create new entries
+        foreach (var parentId in additionalRootNodes)
+        {
+          formProgress.CancellationToken.ThrowIfCancellationRequested();
+          counter++;
+          intervalAction.Invoke(formProgress, $"Parent not found (Step 1) {counter}/{max} ", counter);
+          var childData = new TreeData(parentId, $"{parentId}", rootDataParentNotFound.Id);
+          treeDataDictionary.Add(parentId, childData);
+        }
+      }
+
+      max = treeDataDictionary.Values.Count;
+      formProgress.SetMaximum(max);
+      counter = 0;
+      foreach (var child in treeDataDictionary.Values)
+      {
+        formProgress.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(formProgress, $"Parent not found (Step 2) {counter}/{max} ", counter);
+        if (string.IsNullOrEmpty(child.ParentId) && !string.Equals(child.Id, rootDataParentFound.Id, StringComparison.OrdinalIgnoreCase)
+                                                 && !string.Equals(child.Id, rootDataParentNotFound.Id, StringComparison.OrdinalIgnoreCase))
+        {
+          child.ParentId = rootDataParentFound.Id;
+        }
+      }
+
+      max = treeDataDictionary.Values.Count;
+      formProgress.SetMaximum(max);
+      counter = 0;
+
+      // Fill m_Children for the new nodes
+      foreach (var child in treeDataDictionary.Values)
+      {
+        formProgress.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(formProgress, $"Set children {counter:N0}/{max:N0} ", counter);
+
+        if (!string.IsNullOrEmpty(child.ParentId))
+          treeDataDictionary[child.ParentId].AddChild(child);
+      }
+
+      formProgress.SetMaximum(0);
+      m_TreeView.BeginUpdate();
+      try
+      {
+        formProgress.Report("Clearing existing nodes...");
+        m_TreeView.Nodes.Clear();
+
+        foreach (var treeData in treeDataDictionary.Values)
+          treeData.Visited = false;
+
+        formProgress.Report("Rendering tree view...");
+        // Add top-level nodes (fixed: call BuildSubNodes once per rootData container)
+        foreach (var treeDataRoot in treeDataDictionary.Values)
+        {
+          formProgress.CancellationToken.ThrowIfCancellationRequested();
+          if (string.IsNullOrEmpty(treeDataRoot.ParentId) && treeDataRoot.Children.Count > 0)
+          {
+            treeDataRoot.Visited = true;
+            m_TreeView.Nodes.AddRange(BuildSubNodes(treeDataRoot, formProgress.CancellationToken));
+          }
+        }
+        var needCircular = false;
+        foreach (var treeData in treeDataDictionary.Values)
+        {
+          formProgress.CancellationToken.ThrowIfCancellationRequested();
+          if (!treeData.Visited)
+          {
+            needCircular=true;
+            break;
+          }
+        }
+        if (needCircular)
+        {
+          var rootNode = new TreeNode("-- Circular References --");
+          m_TreeView.Nodes.Add(rootNode);
+
+          // Add unvisited/cycle nodes under the cycles root node
+          foreach (var treeData in treeDataDictionary.Values)
+          {
+            formProgress.CancellationToken.ThrowIfCancellationRequested();
+            if (!treeData.Visited)
+            {
+              MarkInCycle(treeData, new HashSet<TreeData>());
+              AddTreeDataNodeWithChild(treeData, rootNode, formProgress.CancellationToken);
+            }
+          }
+        }
+      }
+      catch
+      {
+        m_TreeView.Nodes.Clear();
+      }
+      finally
+      {
+        formProgress.Report("Finalizing display...");
+        m_TreeView.EndUpdate();
+      }
     });
   }
 
@@ -153,15 +310,14 @@ public class FormHierarchyDisplay : ResizeForm
   ///   Builds the sub nodes.
   /// </summary>
   /// <param name="parent">The parent ID.</param>
-  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-  /// <returns></returns>
-  private TreeNode[] BuildSubNodes(in TreeData parent, CancellationToken cancellationToken)
+  /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>  
+  private TreeNode[] BuildSubNodes(TreeData parent, CancellationToken cancellationToken)
   {
     var treeNodes = new List<TreeNode>();
     foreach (var child in parent.Children)
     {
-      cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUiElements();
+      if (cancellationToken.IsCancellationRequested)
+        break;
       if (child.Visited)
       {
         var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
@@ -176,122 +332,6 @@ public class FormHierarchyDisplay : ResizeForm
     }
 
     return treeNodes.ToArray();
-  }
-
-  /// <summary>
-  ///   Builds the tree data.
-  /// </summary>
-  private void BuildTreeData(string parentCol, string idCol, string? display1, string? display2,
-    IProgress<ProgressInfo> process, CancellationToken cancellationToken)
-  {
-    DataColumn dataColumnParent = m_DataTable.Columns[parentCol] ?? throw new KeyNotFoundException($"Column '{parentCol}' not found in the data table.");
-    DataColumn dataColumnId = m_DataTable.Columns[idCol] ?? throw new KeyNotFoundException($"Column '{idCol}' not found in the data table.");
-
-    DataColumn? dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
-    DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
-
-    // Using a dictionary here to speed up lookups
-    var treeDataDictionary = new DictionaryIgnoreCase<TreeData>();
-    var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent");
-
-    treeDataDictionary.Add(rootDataParentFound.Id, rootDataParentFound);
-
-    var max = 0L;
-    if (process is IProgressTime progressTime)
-      max = progressTime.Maximum;
-    var counter = 0;
-    var intervalAction = new IntervalAction();
-    foreach (var dataRow in m_DataRow)
-    {
-      cancellationToken.ThrowIfCancellationRequested();
-      counter++;
-      intervalAction.Invoke(process, $"Parent found {counter:N0}/{max:N0} ", counter);
-      var id = dataRow[dataColumnId.Ordinal].ToString();
-      if (string.IsNullOrEmpty(id))
-        continue;
-      string titleText;
-      var val1 = dataColumnDisplay1 != null ? dataRow[dataColumnDisplay1.Ordinal]?.ToString() : null;
-      var val2 = dataColumnDisplay2 != null ? dataRow[dataColumnDisplay2.Ordinal]?.ToString() : null;
-
-      if (!string.IsNullOrEmpty(val1) && !string.IsNullOrEmpty(val2))
-        titleText = $"{val1} - {val2}";
-      else if (!string.IsNullOrEmpty(val1))
-        titleText = val1!;
-      else if (!string.IsNullOrEmpty(val2))
-        titleText = val2!;
-      else
-        titleText = id;
-
-      var treeData = new TreeData(id, titleText, dataRow[dataColumnParent.Ordinal].ToString());
-      if (dataColumnDisplay1 != null)
-        treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
-
-      // Store the display
-      if (!treeDataDictionary.ContainsKey(id))
-        treeDataDictionary.Add(id, treeData);
-    }
-
-    // Generate a list of missing parents
-    var additionalRootNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    foreach (var child in treeDataDictionary.Values)
-    {
-      if (!string.IsNullOrEmpty(child.ParentId) && !treeDataDictionary.ContainsKey(child.ParentId))
-      {
-        additionalRootNodes.Add(child.ParentId);
-      }
-    }
-
-    var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
-
-    if (additionalRootNodes.Count > 0)
-    {
-      treeDataDictionary.Add(rootDataParentNotFound.Id, rootDataParentNotFound);
-      counter = 0;
-      max = additionalRootNodes.Count;
-      process.SetMaximum(max);
-
-      // Create new entries
-      foreach (var parentId in additionalRootNodes)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        counter++;
-        intervalAction.Invoke(process, $"Parent not found (Step 1) {counter}/{max} ", counter);
-        var childData = new TreeData(parentId, $"{parentId}", rootDataParentNotFound.Id);
-        treeDataDictionary.Add(parentId, childData);
-      }
-    }
-
-    max = treeDataDictionary.Values.Count;
-    process.SetMaximum(max);
-    counter = 0;
-    foreach (var child in treeDataDictionary.Values)
-    {
-      cancellationToken.ThrowIfCancellationRequested();
-      counter++;
-      intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter);
-      if (string.IsNullOrEmpty(child.ParentId) && !string.Equals(child.Id, rootDataParentFound.Id, StringComparison.OrdinalIgnoreCase)
-                                               && !string.Equals(child.Id, rootDataParentNotFound.Id, StringComparison.OrdinalIgnoreCase))
-      {
-        child.ParentId = rootDataParentFound.Id;
-      }
-    }
-
-    max = treeDataDictionary.Values.Count;
-    process.SetMaximum(max);
-    counter = 0;
-
-    // Fill m_Children for the new nodes
-    foreach (var child in treeDataDictionary.Values)
-    {
-      cancellationToken.ThrowIfCancellationRequested();
-      counter++;
-      intervalAction.Invoke(process, $"Set children {counter:N0}/{max:N0} ", counter);
-
-      if (!string.IsNullOrEmpty(child.ParentId))
-        treeDataDictionary[child.ParentId].AddChild(child);
-    }
-
-    m_TreeData = treeDataDictionary.Values;
   }
 
   private void CloseAllToolStripMenuItem_Click(object? sender, EventArgs e)
@@ -621,7 +661,7 @@ public class FormHierarchyDisplay : ResizeForm
     m_ComboBoxParentId.Name = "m_ComboBoxParentId";
     m_ComboBoxParentId.Size = new System.Drawing.Size(243, 21);
     m_ComboBoxParentId.TabIndex = 1;
-    m_ToolTip.SetToolTip(m_ComboBoxParentId, "References the parent node. Used to build the hierarchy or group related nodes.");
+    m_ToolTip.SetToolTip(m_ComboBoxParentId, "References the parentCol node. Used to build the hierarchy or group related nodes.");
     m_ComboBoxParentId.SelectedIndexChanged += TimeDisplayRestart;
     // 
     // m_TreeView
@@ -793,79 +833,6 @@ public class FormHierarchyDisplay : ResizeForm
         }
       });
     });
-  }
-  /// <summary>
-  ///   Shows the tree.
-  /// </summary>
-  private void ShowTree(CancellationToken cancellationToken)
-  {
-    if (m_TreeView is null)
-      return;
-    m_TreeView.BeginUpdate();
-    try
-    {
-      m_TreeView.Nodes.Clear();
-
-      foreach (var treeData in m_TreeData)
-        treeData.Visited = false;
-
-      // Add top-level nodes (replacing .Where() LINQ query)
-      foreach (var rootData in m_TreeData)
-      {
-        if (string.IsNullOrEmpty(rootData.ParentId) && rootData.Children.Count > 0)
-        {
-          foreach (var _ in rootData.Children)
-          {
-            m_TreeView.Nodes.AddRange(BuildSubNodes(rootData, cancellationToken));
-          }
-        }
-      }
-
-      cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUiElements();
-
-      // Check if everything has been visited (replacing .All() LINQ method)
-      bool allVisited = true;
-      foreach (var treeData in m_TreeData)
-      {
-        if (!treeData.Visited)
-        {
-          allVisited = false;
-          break;
-        }
-      }
-      if (allVisited)
-        return;
-
-      var rootNode = new TreeNode("-- Circular References --");
-      m_TreeView.Nodes.Add(rootNode);
-
-      foreach (var treeData in m_TreeData)
-      {
-        if (!treeData.Visited)
-          MarkInCycle(treeData, new HashSet<TreeData>());
-      }
-
-      cancellationToken.ThrowIfCancellationRequested();
-      Extensions.ProcessUiElements();
-
-      // Add nodes that are in cycles (replacing .Where() LINQ query)
-      foreach (var root in m_TreeData)
-      {
-        if (!root.Visited && root.InCycle)
-          AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
-      }
-
-      Extensions.ProcessUiElements();
-    }
-    catch
-    {
-      m_TreeView.Nodes.Clear();
-    }
-    finally
-    {
-      m_TreeView.EndUpdate();
-    }
   }
 
   private void TimeDisplayRestart(object? sender, EventArgs e)
