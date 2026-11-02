@@ -97,7 +97,7 @@ public class FormHierarchyDisplay : ResizeForm
       DataColumn? dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
       var max = m_DataRow.GetLength(0) * 2;
 
-      formProgress.SetMaximum(max);
+      formProgress.Maximum = max;
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new DictionaryIgnoreCase<TreeData>();
       var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent") { Visited=true };
@@ -150,7 +150,7 @@ public class FormHierarchyDisplay : ResizeForm
         treeDataDictionary.Add(rootDataParentNotFound.Id, rootDataParentNotFound);
         counter = 0;
         max = additionalRootNodes.Count;
-        formProgress.SetMaximum(max);
+        formProgress.Maximum = max;
 
         // Create new entries
         foreach (var parentId in additionalRootNodes)
@@ -164,7 +164,7 @@ public class FormHierarchyDisplay : ResizeForm
       }
 
       max = treeDataDictionary.Values.Count;
-      formProgress.SetMaximum(max);
+      formProgress.Maximum = max;
       counter = 0;
       foreach (var child in treeDataDictionary.Values)
       {
@@ -179,7 +179,7 @@ public class FormHierarchyDisplay : ResizeForm
       }
 
       max = treeDataDictionary.Values.Count;
-      formProgress.SetMaximum(max);
+      formProgress.Maximum = max;
       counter = 0;
 
       // Fill m_Children for the new nodes

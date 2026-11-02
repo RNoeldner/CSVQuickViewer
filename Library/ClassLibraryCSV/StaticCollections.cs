@@ -50,7 +50,7 @@ public static class StaticCollections
   /// <summary>
   /// \ / and ?
   /// </summary>
-  public static readonly char[] EscapePrefixChars = ['\\', '/', '?',];
+  public static readonly char[] EscapePrefixChars = ['\\', '/', ];
 
   /// <summary>
   ///   ';', '|',  CR LF Tab
