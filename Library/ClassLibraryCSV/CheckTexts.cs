@@ -66,10 +66,8 @@ public static class CheckTexts
       if (!parsedDate.HasValue)
       {
         allParsed = false;
-        result.AddNonMatch(span.ToString());
-
         // If the first few are invalid, stop early
-        if (counter >= 5)
+        if (result.AddNonMatch(span.ToString()) && result.ExampleNonMatch.Count > 2)
           break;
       }
       else
@@ -165,9 +163,7 @@ public static class CheckTexts
       if (!ret.HasValue || (!allowStartingZero && (sample.Span.Length > 1 && sample.Span[0] == '0') && Math.Floor(ret.Value) != 0))
       {
         allParsed = false;
-        result.AddNonMatch(sample.ToString());
-        // try to get some positive matches, in case the first record is invalid
-        if (result.ExampleNonMatch.Count > 2)
+        if (result.AddNonMatch(sample.ToString()) && result.ExampleNonMatch.Count > 2)
           break;
       }
       else
@@ -189,10 +185,13 @@ public static class CheckTexts
     }
 
     if (allParsed)
+    {
       result.FoundValueFormat = new ValueFormat(
         assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
         groupSeparator: thousandSep.ToStringHandle0(),
         decimalSeparator: decimalSep.ToStringHandle0());
+    }
+
     return result;
   }
 
@@ -212,8 +211,6 @@ public static class CheckTexts
 
     var allParsed = true;
     var positiveMatches = 0;
-    var invalid = 0;
-
     var now = DateTime.UtcNow;
     var minDate = now.AddYears(-80);
     var maxDate = now.AddYears(20);
@@ -227,14 +224,9 @@ public static class CheckTexts
 
       if (!parsed.HasValue || (isCloseToNow && (parsed.Value < minDate || parsed.Value > maxDate)))
       {
-        allParsed = false;
-        invalid++;
-        if (result.ExampleNonMatch.Count < 5)
-          result.AddNonMatch(sample.Span.ToString());
-
-        if (invalid > 3 && positiveMatches == 0)
+        allParsed = false;        
+        if (result.AddNonMatch(sample.Span.ToString()) && result.ExampleNonMatch.Count > 2)
           break;
-        continue;
       }
 
       positiveMatches++;

@@ -123,19 +123,28 @@ public sealed class FilterDataTable : DisposableBase
               return buffer.Count >= effectiveLimit;
             }, token).ConfigureAwait(false);
 
+        int loop = 1000;
+        token.ThrowIfCancellationRequested();
         // 4. Critical Section: Bulk Import
         var resultTable = OriginalTable.Clone();
         resultTable.BeginLoadData();
         try
         {
           foreach (var match in buffer)
+          {
+            if (--loop <= 0)
+            {
+              token.ThrowIfCancellationRequested();
+              loop = 1000;
+            }
             resultTable.ImportRow(match);
+          }
         }
         finally
         {
           resultTable.EndLoadData();
         }
-
+        token.ThrowIfCancellationRequested();
         // 5. Atomic update of state
         m_FilteredTable?.Dispose();
         m_FilteredTable = resultTable;
@@ -223,8 +232,7 @@ public sealed class FilterDataTable : DisposableBase
         }
 
         // 2. Check Column-Level Errors
-        var errorCols = row.GetColumnsInError();
-        foreach (var col in errorCols)
+        foreach (var col in row.GetColumnsInError())
         {
           var colError = row.GetColumnError(col);
           // Check if there is actually a message (not just an empty entry)

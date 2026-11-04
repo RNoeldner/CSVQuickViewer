@@ -122,7 +122,7 @@ public static class DetermineColumnFormat
     if (fillGuessSettings is null)
       throw new ArgumentNullException(nameof(fillGuessSettings));
 
-    columnCollectionInput ??= Array.Empty<Column>();
+    columnCollectionInput ??= [];
 
     if (!fillGuessSettings.Enabled || fillGuessSettings is
         {
@@ -777,6 +777,7 @@ public static class DetermineColumnFormat
       possibleDecimal.Add('.');
 
     foreach (var thousandSep in possibleGrouping)
+    {
       // Try Numbers: Int and Decimal
       foreach (var decimalSep in possibleDecimal)
       {
@@ -784,18 +785,14 @@ public static class DetermineColumnFormat
           return checkResult;
         if (decimalSep.Equals(thousandSep))
           continue;
-        var res = samples.CheckNumber(
-          decimalSep,
-          thousandSep,
-          guessPercentage,
-          allowStartingZero,
-          removeCurrencySymbols,
-          cancellationToken);
+        var res = samples.CheckNumber(decimalSep, thousandSep, guessPercentage,
+                                      allowStartingZero, removeCurrencySymbols, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
-
-        checkResult.KeepBestPossibleMatch(res);
+        if (res.ExampleNonMatch.Count<3)
+          checkResult.KeepBestPossibleMatch(res);
       }
+    }
 
     return checkResult;
   }
@@ -936,8 +933,7 @@ public static class DetermineColumnFormat
       // ---------------- Decimal / Integer --------------------------
       if (guessNumeric)
       {
-        var checkResultNumeric =
-          GuessNumeric(samples, guessPercentage, false, removeCurrencySymbols, cancellationToken);
+        var checkResultNumeric = GuessNumeric(samples, guessPercentage, false, removeCurrencySymbols, cancellationToken);
         if (checkResultNumeric.FoundValueFormat != null)
           return checkResultNumeric;
         checkResult.KeepBestPossibleMatch(checkResultNumeric);

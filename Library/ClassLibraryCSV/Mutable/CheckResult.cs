@@ -24,7 +24,7 @@ namespace CsvTools;
 /// </summary>
 public sealed class CheckResult
 {
-  private readonly ICollection<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  private readonly HashSet<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     
   /// <summary>
   /// List  of examples illustrating why something does not match
@@ -50,10 +50,14 @@ public sealed class CheckResult
   /// Add value to the list of non matches
   /// </summary>
   /// <param name="value"></param>
-  public void AddNonMatch(string value)
+  public bool AddNonMatch(string value)
   {
-    if (!string.IsNullOrEmpty(value))
-      m_ExampleNonMatch.Add(value);
+    if (string.IsNullOrEmpty(value))
+      return false;
+    var res = m_ExampleNonMatch.Add(value);
+    if (res && m_ExampleNonMatch.Count>2)
+      PossibleMatch= false;
+    return res;
   }
 
   /// <summary>

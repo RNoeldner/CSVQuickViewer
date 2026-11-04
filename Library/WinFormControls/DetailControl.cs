@@ -999,11 +999,16 @@ public sealed partial class DetailControl : UserControl
     if (IsDisposed || m_FilterDataTable is null)
       return;
 
-    // 1. Run the background filter
-    var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, cancellationToken);
-
-    this.RunWithHourglass(() =>
+    using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    // Link the caller's cancellation token with our timeout token
+    using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+    await this.RunWithHourglassAsync(async () => 
     {
+      // 1. Run the background filter with the combined timeout token
+      var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, combinedCts.Token);
+
+      combinedCts.Token.ThrowIfCancellationRequested();
+
       // 1. Store State
       var oldColIndex = mainDataGridView.CurrentCell?.ColumnIndex ?? 0;
       var oldRowIndex = mainDataGridView.CurrentCell?.RowIndex ?? 0;
@@ -1012,7 +1017,8 @@ public sealed partial class DetailControl : UserControl
 
       // 2. Sync UI Filter Dropdown
       UpdateFilterTypeItems(filterType, warnings, errors, warningOrErrors, newDt.Rows.Count);
-
+      
+      combinedCts.Token.ThrowIfCancellationRequested();
       // 3. Apply New Data
       mainDataGridView.DataTable = newDt;
 
@@ -1034,9 +1040,12 @@ public sealed partial class DetailControl : UserControl
                         || mColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
         }
       }
+
       // 5. Restore Sorting
       if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
         Sort(oldSortedColumn!, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      
+      combinedCts.Token.ThrowIfCancellationRequested();
 
       // 6. Restore Position
       try

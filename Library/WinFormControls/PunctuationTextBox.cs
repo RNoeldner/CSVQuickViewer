@@ -20,20 +20,91 @@ namespace CsvTools;
 [DefaultBindingProperty(nameof(Character))]
 public sealed class PunctuationTextBox : TextBox
 {
+  private char m_Character;
+  private char[] m_Common = System.Array.Empty<char>();
+  private bool m_isDisposing;
+  private bool m_isFormClosing;
+  private PunctuationType m_Type;
+
+  public PunctuationTextBox()
+  {
+    Validating += PunctuationTextBox_Validating;
+    SuspendLayout();
+    AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+    AutoCompleteSource = AutoCompleteSource.CustomSource;
+    AutoCompleteCustomSource.Clear();
+    foreach (var chr in m_Common)
+      AutoCompleteCustomSource.Add(chr.Text());
+    ResumeLayout();
+  }
+
+  /// <summary>
+  /// Specifies the category of punctuation character allowed in the input field.
+  /// Used to populate autocomplete options and enforce character validation rules.
+  /// </summary>
   public enum PunctuationType
   {
+    /// <summary>
+    /// No character constraints or validation enforced.
+    /// </summary>
     None,
+
+    /// <summary>
+    /// Characters used to separate columns in CSV data (e.g., comma, tab, semicolon).
+    /// </summary>
     Delimiter,
+
+    /// <summary>
+    /// Characters used to separate date components (e.g., slash, hyphen, period).
+    /// </summary>
     Date,
+
+    /// <summary>
+    /// Characters used to separate time components (e.g., colon, period).
+    /// </summary>
     Time,
+
+    /// <summary>
+    /// Characters used to separate integer and fractional parts of a number (e.g., period, comma).
+    /// </summary>
     Decimal,
+
+    /// <summary>
+    /// Characters used for digit grouping/thousands separation (e.g., comma, space, apostrophe).
+    /// </summary>
     Grouping,
+
+    /// <summary>
+    /// Characters used to quote or qualify field strings containing delimiters (e.g., single or double quotes).
+    /// </summary>
     Qualifier,
+
+    /// <summary>
+    /// Characters used to escape control sequences or literal qualifiers within data fields (e.g., backslash).
+    /// </summary>
     Escape,
+
+    /// <summary>
+    /// Characters used to separate list elements within a single CSV field value.
+    /// </summary>
     List
   }
 
-  private PunctuationType m_Type;
+  [Browsable(true)]
+  [Bindable(true)]
+  [DefaultValue(char.MinValue)]
+  public char Character
+  {
+    get => m_Character;
+    set
+    {
+      if (m_Character != value)
+      {
+        m_Character = value;
+        Text = m_Character.Text();
+      }
+    }
+  }
 
   [Browsable(true)]
   [Bindable(true)]
@@ -66,39 +137,41 @@ public sealed class PunctuationTextBox : TextBox
     }
   }
 
-  private char[] m_Common = System.Array.Empty<char>();
-  private char m_Character;
-
-  [Browsable(true)]
-  [Bindable(true)]
-  [DefaultValue(char.MinValue)]
-  public char Character
+  protected override void Dispose(bool disposing)
   {
-    get => m_Character;
-    set
+    if (disposing)
     {
-      if (m_Character != value)
+      m_isDisposing = true;
+    }
+    base.Dispose(disposing);
+  }
+
+  protected override void OnParentChanged(System.EventArgs e)
+  {
+    base.OnParentChanged(e);
+    if (Parent != null)
+    {
+      Form? form = FindForm();
+      if (form != null)
       {
-        m_Character = value;
-        Text = m_Character.Text();
+        form.FormClosing -= Form_FormClosing;
+        form.FormClosing += Form_FormClosing;
       }
     }
   }
 
-  public PunctuationTextBox()
+  private void Form_FormClosing(object? sender, FormClosingEventArgs e)
   {
-    Validating += PunctuationTextBox_Validating;
-    SuspendLayout();
-    AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-    AutoCompleteSource = AutoCompleteSource.CustomSource;
-    AutoCompleteCustomSource.Clear();
-    foreach (var chr in m_Common)
-      AutoCompleteCustomSource.Add(chr.Text());
-    ResumeLayout();
+    m_isFormClosing = true;
   }
-  
+
   private void PunctuationTextBox_Validating(object? sender, CancelEventArgs e)
   {
+    // Skip validation if the control is disposing, disposed, or the form is closing
+    if (m_isDisposing || m_isFormClosing || IsDisposed)
+    {
+      return;
+    }
     Character = Text.FromText();
     if (m_Common.Length > 0 && !m_Common.Contains(Character) && Character != char.MinValue)
     {
