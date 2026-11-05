@@ -14,13 +14,11 @@
 #nullable enable
 
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -37,7 +35,7 @@ public static class Extensions
 #if NET5_0_OR_GREATER
       OperatingSystem.IsWindows();
 #else
-      RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+      System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
 #endif
 
   /// <summary>
@@ -213,7 +211,7 @@ public static class Extensions
 #if NET5_0_OR_GREATER
         if (OperatingSystem.IsWindows())
 #else
-      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+      if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
 #endif
       {
         Process.Start(new ProcessStartInfo
@@ -225,7 +223,7 @@ public static class Extensions
 #if NET5_0_OR_GREATER
         else if (OperatingSystem.IsLinux())
 #else
-      else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+      else if (System.Runtime.InteropServices.  RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
 #endif
       {
         Process.Start("xdg-open", pathOrUrl);
@@ -233,7 +231,7 @@ public static class Extensions
 #if NET5_0_OR_GREATER
         else if (OperatingSystem.IsMacOS())
 #else
-      else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+      else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
 #endif
       {
         Process.Start("open", pathOrUrl);
@@ -249,7 +247,7 @@ public static class Extensions
 #if NET5_0_OR_GREATER
         if (OperatingSystem.IsWindows())
 #else
-      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+      if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
 #endif
       {
         var escapedUrl = pathOrUrl.Replace("&", "^&");

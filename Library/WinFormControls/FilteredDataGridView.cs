@@ -191,8 +191,19 @@ public partial class FilteredDataGridView : DataGridView
     set
     {
       m_DataTable = value ?? new DataTable();
-      GenerateDataGridViewColumn();
-      SetRowCount(m_DataTable.Rows.Count); 
+      try
+      {
+        GenerateDataGridViewColumn();
+        SetRowCount(m_DataTable.Rows.Count);
+      }
+      catch (OperationCanceledException)
+      {
+        // Ignore
+      }
+      catch
+      {
+        throw;
+      }
     }
   }
 
@@ -274,7 +285,14 @@ public partial class FilteredDataGridView : DataGridView
       if (m_ShowButtonAtLength == newVal)
         return;
       m_ShowButtonAtLength = newVal;
-      GenerateDataGridViewColumn();
+      try
+      {
+        GenerateDataGridViewColumn();
+      }
+      catch (OperationCanceledException)
+      {
+        // Ignore
+      }
     }
   }
 
@@ -285,6 +303,7 @@ public partial class FilteredDataGridView : DataGridView
   public void ApplyFilters() =>
     this.RunWithHourglass(() =>
     {
+      CancellationToken.ThrowIfCancellationRequested(); 
       var filterExpression = GetFilterExpression(-1);
       var view = DataTable.DefaultView;
 
@@ -311,10 +330,13 @@ public partial class FilteredDataGridView : DataGridView
   private new void AutoResizeColumns(DataGridViewAutoSizeColumnsMode autoSizeColumnsMode)
 #pragma warning restore RCS1163
   {
+    int counter = 0;
     foreach (DataColumn dataColumn in DataTable.Columns)
     {
       foreach (DataGridViewColumn gridColumn in Columns)
       {
+        if (counter++ % 50 == 0)
+          CancellationToken.ThrowIfCancellationRequested();
         if (!string.Equals(gridColumn.DataPropertyName, dataColumn.ColumnName,
               StringComparison.OrdinalIgnoreCase))
         {
@@ -373,6 +395,8 @@ public partial class FilteredDataGridView : DataGridView
     var hasChanges = false;
     foreach (DataGridViewColumn col in Columns)
     {
+      if (CancellationToken.IsCancellationRequested)
+        break;
       if (col.Visible)
       {
         var hasData = DataTable.DefaultView.Cast<DataRowView>()
@@ -582,48 +606,64 @@ public partial class FilteredDataGridView : DataGridView
   /// <param name="font">The font used to render the cell text.</param>
   /// <param name="maxWidth">The maximum allowed width for the column.</param>
   /// <param name="col">The DataColumn being measured.</param>
-  /// <param name="rows"></param>
+  /// <param name="cancellationToken">A token to signal cancellation of the measurement operation.</param>
   /// <param name="valueSelector">A function that extracts the display text from a cell value and indicates if scanning should stop.</param>
-  /// <returns>The calculated width in pixels, clamped to <paramref name="maxWidth"/>.</returns>  
+  /// <returns>The calculated width in pixels, clamped to <paramref name="maxWidth"/>.</returns>
   private static int MeasureStrings(IDeviceContext graphics, Font font, int maxWidth, DataColumn col, DataRowCollection rows,
-      Func<object, (string Text, bool Stop)> valueSelector)
+     Func<object, (string Text, bool Stop)> valueSelector, CancellationToken cancellationToken)
   {
-    // Use TextFormatFlags to prevent standard GDI+ overhead where possible
     const TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.NoPadding;
     Size measure = new Size(int.MaxValue, int.MaxValue);
-    // Start with the column header width as the minimum
-    var headerWidth = TextRenderer.MeasureText(graphics, col.ColumnName, font).Width + 10; // +10 for sort glyph space
+    var headerWidth = TextRenderer.MeasureText(graphics, col.ColumnName, font).Width + 10;
     var max = Math.Min(headerWidth, maxWidth);
+    var maxLength = col.ColumnName.Length; // Fast-path tracking length
 
-    var counter = 0;
-    var lastIncrease = 0;
     int rowCount = rows.Count;
-    
-    // Segmented approach to avoid branching in the hot path
-    for (int i = 0; i < rowCount; i++)
+    if (rowCount == 0) return max;
+
+    // Adaptive sampling step: scale interval dynamically so large tables don't crawl
+    int step = rowCount switch
     {
+      > 100000 => 50,
+      > 10000 => 10,
+      _ => 1
+    };
+
+    int checkedCount = 0;
+    int lastIncrease = 0;
+
+    for (int i = 0; i < rowCount; i += step)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+
       if (max >= maxWidth)
         return maxWidth;
 
-      // 1. Determine if we should process this row based on the current index
-      bool shouldProcess = i <= 500 || (i <= 1000 ? i % 10 == 0 : i % 100 == 0);
-      if (!shouldProcess) continue;
       var check = valueSelector(rows[i][col]);
       if (check.Stop) break;
 
       if (!string.IsNullOrEmpty(check.Text))
       {
-        // Measure the text with a small buffer for the cell margins
-        var width = TextRenderer.MeasureText(graphics, check.Text, font, measure, flags).Width + 6;
-
-        if (width > max)
+        // Fast-path optimization: Skip expensive GDI+ measurement if string character length 
+        // is shorter than or roughly equal to what we've already measured as maximum.
+        // (Adjust multiplier if font is non-monospace and you want absolute precision, 
+        // but checking length prevents measuring thousands of tiny strings).
+        if (check.Text.Length > maxLength || checkedCount < 50)
         {
-          lastIncrease = counter;
-          max = width;
+          var width = TextRenderer.MeasureText(graphics, check.Text, font, measure, flags).Width + 6;
+          if (width > max)
+          {
+            lastIncrease = checkedCount;
+            max = width;
+            maxLength = check.Text.Length;
+          }
         }
-
       }
-      if (++counter > 2000 || (counter - lastIncrease) > 500) break;
+
+      checkedCount++;
+      // Break out early if we've sampled enough data and haven't found a wider string recently
+      if (checkedCount > 1500 || (checkedCount - lastIncrease) > 300)
+        break;
     }
 
     return max;
@@ -635,6 +675,10 @@ public partial class FilteredDataGridView : DataGridView
     {
       var html = new DataGridViewCopyPaste(HtmlStyle);
       html.SelectedDataIntoClipboard(this, addErrorInfo, cutLength, CancellationToken);
+    }
+    catch (OperationCanceledException)
+    {
+      Debug.WriteLine("Copy operation was canceled."); // Handled cleanly
     }
     catch (Exception ex)
     {
@@ -758,11 +802,11 @@ public partial class FilteredDataGridView : DataGridView
     // Store old Width
     var oldWidth = new DictionaryIgnoreCase<int>();
     foreach (DataGridViewColumn column in Columns)
-    {
+    {      
       if (!oldWidth.ContainsKey(column.DataPropertyName))
         oldWidth.Add(column.DataPropertyName, column.Width);
     }
-
+    CancellationToken.ThrowIfCancellationRequested();
     // remove all columns
     Columns.Clear();
     m_FilterLogic.Clear();
@@ -773,6 +817,7 @@ public partial class FilteredDataGridView : DataGridView
     // or shown as buttons based on content
     foreach (DataColumn col in DataTable.Columns)
     {
+      CancellationToken.ThrowIfCancellationRequested();
       if (col.DataType != typeof(string))
         continue;
       int maxRows = 1000;
@@ -794,10 +839,12 @@ public partial class FilteredDataGridView : DataGridView
         break;
       }
     }
+
     // Create a new column for each data column,
     // preserving the old width if possible
     foreach (DataColumn col in DataTable.Columns)
     {
+      CancellationToken.ThrowIfCancellationRequested();
       var newColumn = (col.DataType == typeof(bool))
              ? new DataGridViewCheckBoxColumn() : showAsButton.Contains(col)
              ? new DataGridViewButtonColumn() as DataGridViewColumn
@@ -872,17 +919,18 @@ public partial class FilteredDataGridView : DataGridView
       var t when t == typeof(DateTime) => MeasureStrings(graphics, Font, Width / 2, col, rowCollection,
         value => (
           (value is DateTime dtm) ? StringConversion.DisplayDateTime(dtm, CultureInfo.CurrentCulture) : string.Empty,
-          CancellationToken.IsCancellationRequested)),
+          CancellationToken.IsCancellationRequested), CancellationToken),
       var t when t == typeof(string) =>
         MeasureStrings(graphics, Font, Width / 2, col, rowCollection,
           value =>
           {
             var txt = value.ToString() ?? string.Empty;
             return (txt, CancellationToken.IsCancellationRequested || txt.Length > m_ShowButtonAtLength);
-          }),
+          }, CancellationToken),
       _ => Math.Min(Width / 2,
               Math.Max(TextRenderer.MeasureText(graphics, "12345678", Font).Width,
                        TextRenderer.MeasureText(graphics, col.ColumnName, Font).Width))
+      
     };
   }
 

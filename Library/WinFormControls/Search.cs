@@ -217,7 +217,7 @@ public class Search : UserControl
 
   private void TimerChange_Tick(object? sender, EventArgs e)
   {
-    m_TimerChange.Enabled = false;
+    m_TimerChange.Stop(); // Stop the timer so it doesn't loop
     try
     {
       SearchText = m_SearchTextBoxText.Text;
@@ -225,10 +225,6 @@ public class Search : UserControl
     catch (Exception ex)
     {
       Extensions.ShowError(ex, "Error during search");
-    }
-    finally
-    {
-      m_TimerChange.Enabled = true;
     }
   }
 }
