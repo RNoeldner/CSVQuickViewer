@@ -41,7 +41,8 @@ public sealed class SteppedDataTableLoader : DisposableBase
   /// <param name="fileSetting">The file setting.</param>
   /// <param name="durationInitial">The duration for the initial load</param>
   /// <param name="progress">Process display to pass on progress information</param>
-  /// <exception cref="CsvTools.FileReaderException">Could not get a reader for {fileSetting}</exception>
+  /// <exception cref="CsvTools.FileReaderException">Could not get a reader</exception>
+  /// <exception cref="OperationCanceledException">The operation was canceled</exception>
   public async Task<DataTable> StartAsync(
     IFileSetting fileSetting,
     TimeSpan durationInitial,
@@ -50,7 +51,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
     progress.Report("Starting to load data");
     var fileReader = FunctionalDi.FileReaderWriterFactory.GetFileReader(fileSetting, progress.CancellationToken);
     if (fileReader is null)
-      throw new FileReaderException($"Could not get reader for {fileSetting}");
+      throw new FileReaderException($"Could not get reader for {fileSetting.GetDisplay()}");
 
     try
     {
@@ -81,6 +82,7 @@ public sealed class SteppedDataTableLoader : DisposableBase
   /// </summary>
   /// <param name="progress">Process display to pass on progress information</param>
   /// <param name="duration">For maximum duration for the read process</param>
+  /// <exception cref="OperationCanceledException">The operation was canceled</exception>
   public async Task<DataTable> GetNextBatch(TimeSpan duration, IProgressWithCancellation progress)
   {
     if (m_DataReaderWrapper is null)

@@ -155,6 +155,7 @@ public static class ReaderExtensionMethods
   ///   Used to pass on progress information with the number of records and percentage
   /// </param>
   /// <returns>A Data Table with all records from the reader</returns>
+  /// <exception cref="OperationCanceledException">If the operation is canceled</exception>"
   public static Task<DataTable> GetDataTableAsync(this IDataReader reader, TimeSpan maxDuration,
     bool startLine, bool endLine, bool recNum, bool errorField, IProgressWithCancellation progress)
     => new DataReaderWrapper(reader, startLine, endLine, recNum, errorField).GetDataTableAsync(maxDuration, progress);
@@ -166,6 +167,8 @@ public static class ReaderExtensionMethods
   /// <param name="wrapper">The DataReader wrapper to read the data from</param>
   /// <param name="maxDuration">Initial Duration for first return</param>
   /// <param name="progress">Used to pass on progress information with the number of records and percentage</param>
+  /// <exception cref="TimeoutException">If the reading takes longer than maxDuration</exception>"
+  /// <exception cref="OperationCanceledException">If the operation is canceled</exception>"
   public static async Task<DataTable> GetDataTableAsync(this DataReaderWrapper wrapper, TimeSpan maxDuration,
     IProgressWithCancellation progress)
   {
@@ -194,18 +197,20 @@ public static class ReaderExtensionMethods
         : "Reading all data");
 
       var watch = Stopwatch.StartNew();
-      while (!progress.CancellationToken.IsCancellationRequested && 
-            await wrapper.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
+      while (await wrapper.ReadAsync(progress.CancellationToken).ConfigureAwait(false))
       {
         if (watch.Elapsed > maxDuration && wrapper.Percent < 95)
-          throw new TimeoutException($"Timeout of {maxDuration} reached");
+        {
+          Logger.Warning($"Timeout of {maxDuration.TotalSeconds:F1}s reached");
+          break;
+        }
 
         for (var i = 0; i < fieldCount; i++)
         {
           try { values[i] = wrapper.GetValue(i); }
           catch { values[i] = DBNull.Value; }
         }
-
+        progress.CancellationToken.ThrowIfCancellationRequested();
         var dataRow = dataTable.LoadDataRow(values, fAcceptChanges: true);
         // Apply row-level metadata if necessary
         dataRow.SetErrorInformation(wrapper.RowErrorInformation);
@@ -215,6 +220,7 @@ public static class ReaderExtensionMethods
     catch (Exception e)
     {
       progress.Report($"GetDataTableAsync error {e.Message}");
+      throw;
     }
     finally
     {

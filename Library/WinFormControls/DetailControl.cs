@@ -454,6 +454,8 @@ public sealed partial class DetailControl : UserControl
     toolStripComboBoxFilterType.Enabled = false;
     toolStripTextBoxTotal.Text = " loading...";
     var dataTable = await m_SteppedDataTableLoader.StartAsync(fileSetting, durationInitial, progress);
+    if (progress.CancellationToken.IsCancellationRequested)
+      return false;
     await LoadDataTableAsync(dataTable, filterType, progress.CancellationToken);
     // Set SelfOpenedDataTable only after LoadDataTableAsync
     m_SelfOpenedDataTable = true;
@@ -1002,85 +1004,95 @@ public sealed partial class DetailControl : UserControl
     using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
     // Link the caller's cancellation token with our timeout token
     using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-    await this.RunWithHourglassAsync(async () => 
+    try
     {
-      // 1. Run the background filter with the combined timeout token
-      var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, combinedCts.Token);
+      await this.RunWithHourglassAsync(async () =>
+      {
+        // 1. Run the background filter with the combined timeout token
+        var (newDt, warnings, errors, warningOrErrors) = await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, combinedCts.Token);
+        combinedCts.Token.ThrowIfCancellationRequested();
 
-      combinedCts.Token.ThrowIfCancellationRequested();
+        // 1. Store State
+        var oldColIndex = mainDataGridView.CurrentCell?.ColumnIndex ?? 0;
+        var oldRowIndex = mainDataGridView.CurrentCell?.RowIndex ?? 0;
+        var oldSortedColumn = mainDataGridView.SortedColumn?.DataPropertyName;
+        var oldOrder = mainDataGridView.SortOrder;
 
-      // 1. Store State
-      var oldColIndex = mainDataGridView.CurrentCell?.ColumnIndex ?? 0;
-      var oldRowIndex = mainDataGridView.CurrentCell?.RowIndex ?? 0;
-      var oldSortedColumn = mainDataGridView.SortedColumn?.DataPropertyName;
-      var oldOrder = mainDataGridView.SortOrder;
+        // 2. Sync UI Filter Dropdown
+        UpdateFilterTypeItems(filterType, warnings, errors, warningOrErrors, newDt.Rows.Count);
 
-      // 2. Sync UI Filter Dropdown
-      UpdateFilterTypeItems(filterType, warnings, errors, warningOrErrors, newDt.Rows.Count);
-      
-      combinedCts.Token.ThrowIfCancellationRequested();
-      // 3. Apply New Data
-      mainDataGridView.DataTable = newDt;
+        combinedCts.Token.ThrowIfCancellationRequested();
+        // 3. Apply New Data
+        mainDataGridView.DataTable = newDt;
 
-      // 3b. Clear all visual glyphs from headers
-      foreach (DataGridViewColumn col in mainDataGridView.Columns)
-        col.HeaderCell.SortGlyphDirection = SortOrder.None;
+        // 3b. Clear all visual glyphs from headers
+        foreach (DataGridViewColumn col in mainDataGridView.Columns)
+          col.HeaderCell.SortGlyphDirection = SortOrder.None;
 
-      // 4. Update Column Visibility (Precise logic based on GetColumns)
+        // 4. Update Column Visibility (Precise logic based on GetColumns)
 #pragma warning disable IDE0301 // Simplify collection initialization
-      var mColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
+        var mColumnsInView = m_FilterDataTable?.GetColumns(filterType) ?? Array.Empty<string>();
 #pragma warning restore IDE0301 // Simplify collection initialization
 
-      // If we filter out all columns do not change visibility to avoid a blank grid
-      if (mColumnsInView.Count + m_UniqueFieldName.Count>0)
-      {
-        foreach (DataGridViewColumn dgCol in mainDataGridView.Columns)
+        // If we filter out all columns do not change visibility to avoid a blank grid
+        if (mColumnsInView.Count + m_UniqueFieldName.Count>0)
         {
-          dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase)
-                        || mColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
-        }
-      }
-
-      // 5. Restore Sorting
-      if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-        Sort(oldSortedColumn!, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-      
-      combinedCts.Token.ThrowIfCancellationRequested();
-
-      // 6. Restore Position
-      try
-      {
-        // Ensure we have rows and a valid column index
-        if (mainDataGridView.RowCount > 0 && mainDataGridView.ColumnCount > 0)
-        {
-          // Clamp the row index to the new total (in case the new filter has fewer rows)
-          int targetRow = Math.Min(oldRowIndex, mainDataGridView.RowCount - 1);
-          if (targetRow < 0) targetRow = 0;
-
-          // Clamp the column index
-          int targetCol = (oldColIndex >= 0 && oldColIndex < mainDataGridView.ColumnCount)
-              ? oldColIndex
-              : 0;
-
-          // Ensure the column we are jumping to is actually visible
-          if (!mainDataGridView.Columns[targetCol].Visible)
+          foreach (DataGridViewColumn dgCol in mainDataGridView.Columns)
           {
-            // Fallback to the first visible column
-            var firstVisible = mainDataGridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible);
-            targetCol = firstVisible?.Index ?? targetCol;
+            dgCol.Visible = m_UniqueFieldName.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase)
+                          || mColumnsInView.Contains(dgCol.DataPropertyName, StringComparer.OrdinalIgnoreCase);
           }
-
-          // Set current cell and ensure it's visible to the user
-          SetCurrentCell(mainDataGridView[targetCol, targetRow]);
         }
-      }
-      catch (Exception ex)
-      {
-        // Refocusing is "nice to have," don't let a failure here crash the load
-        Logger.Debug("Could not restore cell focus: " + ex.Message);
-      }
-    });
-    RefreshToolStrip();
+
+        // 5. Restore Sorting
+        if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+          Sort(oldSortedColumn!, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+
+        combinedCts.Token.ThrowIfCancellationRequested();
+
+        // 6. Restore Position
+        try
+        {
+          // Ensure we have rows and a valid column index
+          if (mainDataGridView.RowCount > 0 && mainDataGridView.ColumnCount > 0)
+          {
+            // Clamp the row index to the new total (in case the new filter has fewer rows)
+            int targetRow = Math.Min(oldRowIndex, mainDataGridView.RowCount - 1);
+            if (targetRow < 0) targetRow = 0;
+
+            // Clamp the column index
+            int targetCol = (oldColIndex >= 0 && oldColIndex < mainDataGridView.ColumnCount)
+                ? oldColIndex
+                : 0;
+
+            // Ensure the column we are jumping to is actually visible
+            if (!mainDataGridView.Columns[targetCol].Visible)
+            {
+              // Fallback to the first visible column
+              var firstVisible = mainDataGridView.Columns.GetFirstColumn(DataGridViewElementStates.Visible);
+              targetCol = firstVisible?.Index ?? targetCol;
+            }
+
+            // Set current cell and ensure it's visible to the user
+            SetCurrentCell(mainDataGridView[targetCol, targetRow]);
+          }
+        }
+        catch (Exception ex)
+        {
+          // Refocusing is "nice to have," don't let a failure here crash the load
+          Logger.Debug("Could not restore cell focus: " + ex.Message);
+        }
+      });
+      RefreshToolStrip();
+    }
+    catch (OperationCanceledException)
+    {
+      if (timeoutCts.IsCancellationRequested)
+        Logger.Debug("RefreshDisplayAndFilterAsync timed out after 5 seconds.");
+      else
+        Logger.Debug("RefreshDisplayAndFilterAsync was canceled by the caller.");
+      // ignore, we just want to stop the refresh if it takes too long or is canceled
+    }
     m_UpdateVisibility = true;
   }
 
