@@ -156,11 +156,12 @@ public sealed class CsvFileWriter : BaseFileWriter
   public override async Task WriteReaderAsync(IFileReader reader, Stream output, string sourceTimeZone, IProgressWithCancellation progress)
   {
     var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
-    if (columns.Count == 0)
+    int columnCount = columns.Count;
+    if (columnCount == 0)
       throw new FileWriterException("No columns defined to be written.");
 
     HandleWriteStart();
-    using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 64 * 1024, true);
+    using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 32 * 1024, true);
 
     // --- Write header ---
     if (!string.IsNullOrEmpty(Header))
@@ -184,13 +185,13 @@ public sealed class CsvFileWriter : BaseFileWriter
     }
 
     var intervalAction = IntervalAction.ForProgress(progress);
+
     // --- Write rows ---
     while (await reader.ReadAsync(progress.CancellationToken).ConfigureAwait(false)
        && !progress.CancellationToken.IsCancellationRequested)
     {
       int emptyColumns = 0;
-
-      for (int i = 0; i < columns.Count(); i++)
+      for (int i = 0; i < columnCount; i++)
       {
         var columnInfo = columns.ElementAt(i);
         var col = reader.GetValue(columnInfo.ColumnOrdinal);
@@ -205,11 +206,11 @@ public sealed class CsvFileWriter : BaseFileWriter
           await writer.WriteAsync(HandleText(textValue, columnInfo.FieldLength, msg => HandleWarning(columnInfo.Name, msg))).ConfigureAwait(false);
         }
 
-        if (m_FieldDelimiter != char.MinValue && i != columns.Count() - 1)
+        if (m_FieldDelimiter != char.MinValue && i != columnCount - 1)
           await writer.WriteAsync(m_FieldDelimiter).ConfigureAwait(false);
       }
 
-      if (emptyColumns == columns.Count())
+      if (emptyColumns == columnCount)
         break;
 
       Records++;

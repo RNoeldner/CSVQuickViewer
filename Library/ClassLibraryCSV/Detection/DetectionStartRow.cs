@@ -192,7 +192,7 @@ public static class DetectionStartRow
     if (structuralRows[0].Count == bestColumnCount)
       return 0;
 
-    // Otehrwise find first consecutive run of the best column count
+    // Otherwise find first consecutive run of the best column count
     int runStart = -1;
     int runLength = 0;
 

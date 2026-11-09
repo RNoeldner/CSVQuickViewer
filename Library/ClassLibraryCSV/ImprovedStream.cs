@@ -441,7 +441,6 @@ public class ImprovedStream : Stream, IImprovedStream
   {
     if (AccessStream != null &&  AccessStream !=  BaseStream)
     {
-      // ReSharper disable once ConstantConditionalAccessQualifier
       await AccessStream.DisposeAsync().ConfigureAwait(false);
       AccessStream = null;
     }

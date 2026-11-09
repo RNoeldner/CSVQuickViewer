@@ -49,7 +49,11 @@ public class CsvDataReaderUnitTest
     using var test = new CsvFileReader(MPathBasicCsv, columnDefinition: MColumnCollectionBasicCsv, commentLine: "#");
     test.OpenFinished += (o, a) => openFinished = true;
     test.ReadFinished += (o, a) => readFinished = true;
-    test.OnOpenAsync = async () => await Task.FromResult(onOpenCalled = true);
+    test.OnOpenAsync = () =>
+    {
+      onOpenCalled = true;
+      return Task.CompletedTask;
+    };
     Assert.IsFalse(openFinished);
     Assert.IsFalse(readFinished);
     Assert.IsFalse(onOpenCalled);

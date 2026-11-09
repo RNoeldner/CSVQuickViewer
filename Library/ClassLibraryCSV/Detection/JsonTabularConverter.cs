@@ -585,8 +585,8 @@ public static class JsonTabularConverter
               }
               if (!hasArrayLevel1)
               {
-                // Looking for Array, but as long as we did not find anything, use old implemnetaion
-                hasArrayLevel1=true;
+              // Looking for Array, but as long as we did not find anything, use old implementation
+              hasArrayLevel1=true;
                 foreach (var prop in obj.Properties())
                 {
                   if (prop.Value is not JObject jObj) continue;

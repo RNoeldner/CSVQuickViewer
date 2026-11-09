@@ -21,7 +21,7 @@ using System.Text.RegularExpressions;
 namespace CsvTools;
 
 /// <summary>
-///   Class that is used to condense columns of a unalignedRow in a sensible way, assuming a delimiter in a
+///   Class that is used to condense columns of a misaligned row in a sensible way, assuming a delimiter in a
 ///   column lead to more than the expected columns This is archived by looking at known good rows
 ///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
 ///   are long text or all empty there is no way to say which column is not aligned.
@@ -65,9 +65,9 @@ public sealed class CsvColumnMerger
   }
 
   /// <summary>
-  ///   Adds a new unalignedRow assuming the data is well aligned
+  ///   Adds a new misaligned row assuming the data is well aligned
   /// </summary>
-  /// <param name="newRow">Array with the columns of that unalignedRow</param>
+  /// <param name="newRow">Array with the columns of that misaligned row</param>
   public void AddAlignedRow(IReadOnlyList<string> newRow)
   {
     if (newRow is null) throw new ArgumentNullException(nameof(newRow));
@@ -77,14 +77,14 @@ public sealed class CsvColumnMerger
     if (m_GoodRows.Count < cMaxGoodRows)
       m_GoodRows.Add(newRow);
     else
-      // Store the unalignedRow in our list at some random location
+      // Store the misaligned row in our list at some random location
       m_GoodRows[Random.Next(0, cMaxGoodRows)] = newRow;
   }
 
   /// <summary>
   ///   Tries to condense (combine two columns into one) in a way that makes sense.
   /// </summary>
-  /// <param name="unalignedRow">Array with the columns of that unalignedRow</param>
+  /// <param name="unalignedRow">Array with the columns of that misaligned row</param>
   /// <param name="handleWarning">Action to be called to store a warning</param>
   /// <param name="rawText">The raw text of the file before splitting it into columns</param>
   /// <param name="parseColumn">

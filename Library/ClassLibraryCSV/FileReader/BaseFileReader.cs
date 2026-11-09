@@ -715,10 +715,10 @@ public abstract class BaseFileReader : DbDataReader, IFileReader
   ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if it's a
   ///   physical file
   /// </summary>
-  protected Task BeforeOpenAsync(string message)
+  protected ValueTask BeforeOpenAsync(string message)
   {
     HandleShowProgress(message, 0);
-    return OnOpenAsync != null ? OnOpenAsync.Invoke() : Task.CompletedTask;
+    return OnOpenAsync != null ? new ValueTask(OnOpenAsync.Invoke()) : default;
   }
 
   /// <summary>

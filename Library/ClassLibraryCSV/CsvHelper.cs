@@ -298,7 +298,7 @@ public static class CsvHelper
   /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
   /// <param name="skipRows">The number of rows at the start of the stream to skip</param>
   /// <param name="cancellationToken">Progress reporting and cancellation to stop a possibly long running process</param>
-  /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
+  /// <returns>A <see cref="ImprovedTextReader"/></returns>
   public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows,
     CancellationToken cancellationToken)
     => new ImprovedTextReader(stream,

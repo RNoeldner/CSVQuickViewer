@@ -74,9 +74,10 @@ public static class DetectionDelimiter
     var firstLine = string.Empty;
     if (textReader.CanSeek)
     {
-      // Read the first line and check if it does contain the magic word sep=
-      firstLine = (await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false)).Trim().Replace(" ", "");
-      if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
+      // Read the first few line and check if it does contain the magic word sep=
+      for (int test = 0; firstLine.Length==0 && test < 5 && !textReader.EndOfStream; test++)
+        firstLine = await textReader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+      if (firstLine.Trim().Replace(" ", "").StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
       {
         var resultFl = firstLine.Substring(4);
         if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
